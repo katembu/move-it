@@ -102,7 +102,7 @@ class App (rapidsms.app.App):
             return True
         
         # Create provier
-        provider    = Provider(alias=alias, first_name=first, last_name=last, role=role, active=True, clinic=clinic, mobile=mobile)
+        provider    = Provider(alias=alias.lower(), first_name=first, last_name=last, role=role, active=True, clinic=clinic, mobile=mobile)
         provider.save()
 
         # send notifications
@@ -145,7 +145,7 @@ class App (rapidsms.app.App):
             DIST @mdiallo #001 10'''
         
         sender      = StoreProvider.cls().by_mobile(message.peer)
-        receiver   = StoreProvider.cls().by_alias(receiver)
+        receiver   = StoreProvider.cls().by_alias(receiver.lower())
         item        = Item.by_code(code)
         if item == None or sender == None or receiver == None:
             message.respond(_(u"Distribution request failed. Either Item ID or CHW alias is wrong."))
@@ -213,7 +213,7 @@ class App (rapidsms.app.App):
             CDIST @mdiallo #001 10 #004 45 #007 32'''
 
         sender      = StoreProvider.cls().by_mobile(message.peer)
-        receiver   = StoreProvider.cls().by_alias(receiver)
+        receiver   = StoreProvider.cls().by_alias(receiver.lower())
 
         if sku_quantities == None or sender == None or receiver == None:
             message.respond(_(u"Distribution request failed. Either Item IDs or CHW alias is wrong."))
@@ -301,7 +301,7 @@ class App (rapidsms.app.App):
         ''' Get stock status for someone
             STOCK @mdiallo'''
         
-        provider    = StoreProvider.cls().by_alias(target)
+        provider    = StoreProvider.cls().by_alias(target.lower())
         return self.stock_for(message, provider)
 
     @keyword(r'stock')
