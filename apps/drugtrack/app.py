@@ -161,17 +161,27 @@ class App (rapidsms.app.App):
             return True
 
     @keyword(r'add (\w+) (\d+) (.+)')
-    @registered
+    @admin
     def add_stock (self, message, code, quantity, note):
         
         ''' Add stock for item. Used by main drug distribution point'''
         
         sender      = StoreProvider.cls().by_mobile(message.peer)
+        # only PHA can add drugs
+        try:
+            no_pha  = not sender.direct().role == Provider.PHA_ROLE
+        except:
+            no_pha  = True        
+
+        if no_pha:
+            message.respond(_(u"Addition request failed. Only PHA can perform such action."))
+            return True
+
         receiver = sender
         #receiver   = StoreProvider.cls().by_alias(receiver)
         item        = Item.by_code(code)
         if item == None or sender == None or receiver == None:
-            message.respond(_(u"Distribution request failed. Either Item ID or CHW alias is wrong."))
+            message.respond(_(u"Addition request failed. Either Item ID or CHW alias is wrong."))
             return True
         
         try:
@@ -229,7 +239,6 @@ class App (rapidsms.app.App):
         failures= []
         for code in sq.itervalues():
             try:
-                #print u"%(q)s %(c)s" % {'q':code['quantity'], 'c':code['item']}
                 self.do_transfer_drug(message, sender, receiver, code['item'], code['quantity'])
                 success.append(code)
             except (NotEnoughItemInStock, ItemNotInStore, Exception):
@@ -296,7 +305,7 @@ class App (rapidsms.app.App):
         return msg
 
     @keyword(r'stock \@(\w+)')
-    @admin
+    @registered
     def request_stock (self, message, target):
         ''' Get stock status for someone
             STOCK @mdiallo'''
