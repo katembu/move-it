@@ -86,7 +86,7 @@ class StockItem(models.Model):
     quantity= models.IntegerField()
 
     def __unicode__(self):
-        return u"%(peer)s, %(item)s: %(q)s %(kind)s" % {'q': self.quantity, 'kind': self.item.kind.name, 'item': self.item.name, 'peer': self.peer.direct()}
+        return u"%(peer)s, %(item)s: %(q)s %(kind)s" % {'q': self.quantity, 'kind': self.item.kind.name, 'item': self.item.name, 'peer': self.peer}
 
 class TransferLog(models.Model):
 

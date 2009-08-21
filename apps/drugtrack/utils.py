@@ -1,7 +1,7 @@
 # coding=utf-8
 
 from django.utils.translation import ugettext as _
-from models import Zone, Facility, Provider, User
+from models import Facility, Provider, User
 from apps.tinystock.models import StoreProvider, KindOfItem, Item, StockItem
 
 def stock_answer(target):

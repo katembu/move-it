@@ -3,12 +3,14 @@
 import rapidsms
 from apps.tinystock.logic import *
 from apps.tinystock.exceptions import *
-from models import Zone, Facility, Provider, User, Patient
+from models import Facility, Provider, Patient
 from apps.tinystock.models import StoreProvider, KindOfItem, Item, StockItem
 from django.utils.translation import ugettext as _
 from rapidsms.parsers.keyworder import Keyworder
 from utils import *
 from datetime import datetime
+from apps.reporters.models import Reporter, Role, ReporterGroup
+from apps.locations.models import Location
 
 class HandlerFailed (Exception):
     pass
@@ -18,7 +20,7 @@ class MalformedRequest (Exception):
 
 def registered (func):
     def wrapper (self, message, *args):
-        if Provider.by_mobile(message.peer):
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only registered users can access this program."))
@@ -27,8 +29,8 @@ def registered (func):
 
 def admin (func):
     def wrapper (self, message, *args):
-        x = Provider.by_mobile(message.peer)
-        if x and x.admin:
+        reporter = message.persistant_connection.reporter
+        if reporter and ReporterGroup.objects.get(title='admin') in reporter.groups.only():
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only administrators of the system can perform this action."))
@@ -40,7 +42,7 @@ class App (rapidsms.app.App):
     keyword     = Keyworder()
     # debug! shouldn't exist. sets the char to identify drugs
     # in sms. used because httptester doesn'h handles #. use $ instead
-    drug_code   = '#'
+    drug_code   = '$'
 
     def start (self):
         self.backend    = self._router.backends.pop()
@@ -68,64 +70,62 @@ class App (rapidsms.app.App):
         message.was_handled = bool(handled)
         return handled
 
-    @keyword(r'join (\w+) (\w+) (\w+) (\w+) (\w+) ([0-9\+]+)')
-    @admin
-    def register_provider (self, message, role, password, last, first, alias, mobile):
+    @keyword(r'join (\w+) (\w+) (.+)')
+    def register_provider (self, message, role, clinic, name):
         ''' Adds people into the system 
             JOIN CHW PASSWORD LAST FIRST ALIAS'''
         
         # If error in role, assume CHW
-        role    = role.upper()
-        if role == 'PHA':
-            role    = Provider.PHA_ROLE
-        else:
-            role    = Provider.CHW_ROLE
+        try:
+            role    = Role.objects.get(code=role.lower())
+        except Role.DoesNotExist: 
+            role    = Role.objects.get(code='chw')
 
         # retrieve clinic
-        clinic      = Facility.by_alias(password)
+        try:
+            clinic      = Location.objects.get(code=clinic.lower())
+        except Location.DoesNotExist:
+            clinic      = None
         
         # PHA _must_ be affiliated to a Clinic
-        if role == Provider.PHA_ROLE and clinic == None:
-            message.respond(_(u"Registration Failed. PHA needs correct clinic ID. '%(input)s' is not.") % {'input': password})
+        if role.code == 'pha' and clinic == None:
+            message.respond(_(u"Registration Failed. PHA needs correct clinic ID. '%(input)s' is not.") % {'input': clinic})
             return True
 
-        # Verify alias availability
-        dumb    = Provider.by_alias(alias)
-        if not dumb == None:
-            message.respond(_(u"Registration Failed. Alias already in use by %(prov)s") % {'prov': dumb.display_full()})
-            return True
-
-        # Verify mobile slot
-        dumb    = Provider.by_mobile(mobile)
-        if not dumb == None:
-            message.respond(_(u"Registration Failed. mobile number already in use by %(prov)s") % {'prov': dumb.display_full()})
-            return True
-        
         # Create provier
-        provider    = Provider(alias=alias.lower(), first_name=first, last_name=last, role=role, active=True, clinic=clinic, mobile=mobile)
-        provider.save()
+        try:
+            alias, fn, ln = Provider.parse_name(name)
+            provider = Provider(alias=alias, first_name=fn, last_name=ln, location=clinic, role=role)
+            provider.save()
+            
+            # attach the reporter to the current connection
+            message.persistant_connection.reporter = provider
+            message.persistant_connection.save()
+        except Exception, e:
+            message.respond(_(u"Registration failed: %(error)s") % {'error': e.args})
 
         # send notifications
         message.respond(_(u"SUCCESS. %(prov)s has been registered with alias %(al)s.") % {'prov': provider.display_full(), 'al': provider.alias})
         
-        if not provider.mobile == None:
-            message.forward(provider.mobile, _(u"Welcome %(prov)s. You have been registered with alias %(al)s.") % {'prov': provider.display_full(), 'al': provider.alias})
+        if provider.connection():
+            message.forward(provider.connection().identity, _(u"Welcome %(prov)s. You have been registered with alias %(al)s.") % {'prov': provider.display_full(), 'al': provider.alias})
     
         return True
 
     def do_transfer_drug(self, message, sender, receiver, item, quantity):
         
         log = transfer_item(sender=sender, receiver=receiver, item=item, quantity=int(quantity))
-
-        message.forward(receiver.mobile, "CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have received %(quantity)s %(item)s from %(sender)s. If not correct please reply: CANCEL %(lid)s" % {
-            'quantity': quantity,
-            'item': item.name,
-            'sender': sender.display_full(),
-            'd': log.date.strftime("%d%m%y"),
-            'sid': sender.id,
-            'rid': receiver.id,
-            'lid': log.id
-        })
+        
+        if receiver.connection():
+            message.forward(receiver.connection().identity, "CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have received %(quantity)s %(item)s from %(sender)s. If not correct please reply: CANCEL %(lid)s" % {
+                'quantity': quantity,
+                'item': item.name,
+                'sender': sender.display_full(),
+                'd': log.date.strftime("%d%m%y"),
+                'sid': sender.id,
+                'rid': receiver.id,
+                'lid': log.id
+            })
 
         message.respond("CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have sent %(quantity)s %(item)s to %(receiver)s. If not correct please reply: CANCEL %(lid)s" % {
             'quantity': quantity,
@@ -143,9 +143,9 @@ class App (rapidsms.app.App):
     def transfer_clinic_chw (self, message, receiver, code, quantity):
         ''' Transfer Drug from Clinic to CHW or CHW to Clinic
             DIST @mdiallo #001 10'''
-        
-        sender      = StoreProvider.cls().by_mobile(message.peer)
-        receiver   = StoreProvider.cls().by_alias(receiver.lower())
+
+        sender      = StoreProvider.cls().objects.get(id=message.persistant_connection.reporter.id)
+        receiver    = StoreProvider.cls().objects.get(alias=receiver.lower())
         item        = Item.by_code(code)
         if item == None or sender == None or receiver == None:
             message.respond(_(u"Distribution request failed. Either Item ID or CHW alias is wrong."))
@@ -166,10 +166,11 @@ class App (rapidsms.app.App):
         
         ''' Add stock for item. Used by main drug distribution point'''
         
-        sender      = StoreProvider.cls().by_mobile(message.peer)
+        sender      = StoreProvider.cls().objects.get(id=message.persistant_connection.reporter.id)
+        
         # only PHA can add drugs
         try:
-            no_pha  = not sender.direct().role == Provider.PHA_ROLE
+            no_pha  = not sender.direct().role == Role.objects.get(code='pha')
         except:
             no_pha  = True        
 
@@ -177,8 +178,7 @@ class App (rapidsms.app.App):
             message.respond(_(u"Addition request failed. Only PHA can perform such action."))
             return True
 
-        receiver = sender
-        #receiver   = StoreProvider.cls().by_alias(receiver)
+        receiver    = sender
         item        = Item.by_code(code)
         if item == None or sender == None or receiver == None:
             message.respond(_(u"Addition request failed. Either Item ID or CHW alias is wrong."))
@@ -216,14 +216,14 @@ class App (rapidsms.app.App):
         except IndexError:
             raise MalformedRequest
 
-    @keyword(r'cdist \@(\w+) (.+)')
+    @keyword(r'cdist \@(\w+)(.+)')
     @registered
     def bulk_transfer_clinic_chw (self, message, receiver, sku_quantities):
         ''' Transfer Multiple Drugs from Clinic to CHW
             CDIST @mdiallo #001 10 #004 45 #007 32'''
 
-        sender      = StoreProvider.cls().by_mobile(message.peer)
-        receiver   = StoreProvider.cls().by_alias(receiver.lower())
+        sender      = StoreProvider.cls().objects.get(id=message.persistant_connection.reporter.id)
+        receiver    = StoreProvider.cls().objects.get(alias=receiver.lower())
 
         if sku_quantities == None or sender == None or receiver == None:
             message.respond(_(u"Distribution request failed. Either Item IDs or CHW alias is wrong."))
@@ -261,7 +261,7 @@ class App (rapidsms.app.App):
         message.respond(_(u"SUMMARY: Some items couldn't be transfered: %(detail)s") % {'detail': details})
         return True
 
-    @keyword(r'disp (\w+) (\w+) ([mMfF]) ([0-9\.]+[m|y]) (\w+) (\d+)')
+    @keyword(r'disp (\w+) (\w+) ([mMfF]) ([0-9\.]+[m|y]?) (\w+) (\d+)')
     @registered
     def dispense_drug_patient (self, message, first, last, gender, age, code, quantity):
 
@@ -269,7 +269,7 @@ class App (rapidsms.app.App):
         gender  = Patient.SEXE_MALE if gender.upper() == 'M' else Patient.SEXE_FEMALE
         receiver= Patient(first_name=first, last_name=last, sexe=gender,age=age)
         receiver.save()
-        sender      = StoreProvider.cls().by_mobile(message.peer)
+        sender      = StoreProvider.cls().objects.get(id=message.persistant_connection.reporter.id)
         item        = Item.by_code(code)
 
         if item == None or sender == None or receiver == None:
@@ -307,10 +307,11 @@ class App (rapidsms.app.App):
     @keyword(r'stock \@(\w+)')
     @registered
     def request_stock (self, message, target):
-        ''' Get stock status for someone
+        ''' Get stock status for someone.
+            /!\ limited to providers ; no locations or others
             STOCK @mdiallo'''
         
-        provider    = StoreProvider.cls().by_alias(target.lower())
+        provider    = Provider.objects.get(alias=target.lower())
         return self.stock_for(message, provider)
 
     @keyword(r'stock')
@@ -319,7 +320,7 @@ class App (rapidsms.app.App):
         ''' Get stock status for a store
             STOCK'''
         
-        provider    = StoreProvider.cls().by_mobile(message.peer)
+        provider    = StoreProvider.objects.get(id=message.persistant_connection.reporter.id)
         return self.stock_for(message, provider)
 
     @keyword(r'cancel (\d+)')
@@ -336,7 +337,10 @@ class App (rapidsms.app.App):
             return True
 
         # Check request is legitimate
-        peer    = Provider.by_mobile(message.peer).storeprovider_ptr
+        try:
+            peer    = StoreProvider.objects.get(id=message.persistant_connection.reporter.id)
+        except:
+            peer    = None
         if peer == None or (log.sender, log.receiver).count(peer) == 0:
             message.respond(_("Cancellation failed. With all due respect, you are not allowed to perform this action."))
             return True
@@ -351,8 +355,8 @@ class App (rapidsms.app.App):
 
         # if peer is a patient, don't send messages
         try:
-            peer_is_patient = not other_peer.direct().mobile
-        except Provider.DoesNotExist:
+            peer_is_patient = not other_peer.connection()
+        except:
             peer_is_patient = True
 
         try:
@@ -360,15 +364,21 @@ class App (rapidsms.app.App):
             msg = _(u"CANCELLED Transfer #%(lid)s dated %(date)s by request of %(peer)s. Please forward conflict to Drug Store Head.") % {'lid': log.id, 'date': log.date.strftime("%b %d %y %H:%M"), 'peer': peer.direct().display_full()}
             message.respond(msg)
             if not peer_is_patient:
-                message.forward(other_peer.direct().mobile, msg)
+                message.forward(other_peer.connection().identity, msg)
         except (ItemNotInStore, NotEnoughItemInStock):
             # goods has been transfered elsewhere.
-            msg = _(u"Cancellation failed. %(peer)s has started distributing drugs from transaction #%(lid)s. Contact Drug Store Head.") % {'lid': log.id, 'peer': peer.direct().display_full()}
+            msg = _(u"Cancellation failed. %(peer)s has started distributing drugs from transaction #%(lid)s. Contact Drug Store Head.") % {'lid': log.id, 'peer': log.receiver.direct().display_full()}
             message.respond(msg)
             if not peer_is_patient:
-                message.forward(other_peer.direct().mobile, msg)
+                message.forward(other_peer.connection().identity, msg)
         except Provider.DoesNotExist:
             pass
+        return True
+
+    @keyword(r'test')
+    def test (self, message):
+        
+        print message.persistant_connection.reporter
         return True
 
     def outgoing (self, message):
