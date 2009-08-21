@@ -56,6 +56,7 @@ class App (rapidsms.app.App):
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
+            message.respond(_(u"Error. Your message could not be recognized by the system. Please check syntax and retry."))
             return False
         try:
             handled = func(self, message, *captures)
