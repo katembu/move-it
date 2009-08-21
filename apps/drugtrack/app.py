@@ -375,12 +375,6 @@ class App (rapidsms.app.App):
             pass
         return True
 
-    @keyword(r'test')
-    def test (self, message):
-        
-        print message.persistant_connection.reporter
-        return True
-
     def outgoing (self, message):
         pass
 
