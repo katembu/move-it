@@ -82,8 +82,15 @@ def add_item(sku, code, kind, name):
 def cancel_transfer(transac):
     ''' Transfer back goods in opposite way.
         Returns False if impossible (goods not present)'''
+
+    # if transfer was an addition, remove goods
+    if transac.sender == transac.receiver:
+        quantity    = -(transac.quantity)
+    else:
+        quantity    = transac.quantity
+
     try:
-        log = transfer_item(sender=transac.receiver, receiver=transac.sender, item=transac.item, quantity=transac.quantity)
+        log = transfer_item(sender=transac.receiver, receiver=transac.sender, item=transac.item, quantity=quantity)
         transac.status  = TransferLog.STATUS_CANCELLED
         transac.save()
     except Exception, e:
