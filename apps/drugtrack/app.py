@@ -104,10 +104,7 @@ class App (rapidsms.app.App):
             message.persistant_connection.save()
         except Exception, e:
             message.respond(_(u"Registration failed: %(error)s") % {'error': e.args})
-
-        # send notifications
-        message.respond(_(u"SUCCESS. %(prov)s has been registered with alias %(al)s.") % {'prov': provider.display_full(), 'al': provider.alias})
-        
+      
         if provider.connection():
             message.forward(provider.connection().identity, _(u"Welcome %(prov)s. You have been registered with alias %(al)s.") % {'prov': provider.display_full(), 'al': provider.alias})
     
