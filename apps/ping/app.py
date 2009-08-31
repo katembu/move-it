@@ -52,6 +52,10 @@ class App (rapidsms.app.App):
             if auth_func contained function and it returned True => reply
             else return'''
 
+        # We only want to answer ping request
+        if not message.text.lower() == 'ping':
+            return False
+
         # deny has higher priority
         if self.disallow:
             return False
