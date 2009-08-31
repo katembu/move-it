@@ -4,7 +4,7 @@
 # IMPORTANT: To use, do the folling:
 #
 # 1. Change 'NAME' variable to the name of your project. E.g. "bednets_for_nigeria"
-# 2. Place this file in the TOP-LEVEL of your project, right where 'manage.py' is
+# 2. Place this file in the TOP-LEVEL of your project, right where 'rapidsms' is
 # 3. Link it into /etc/init.d e.g. > ln -s /usr/local/my_project/rapidsms-init.sh /etc/init.d/
 # 4. Add it to the runlevels, on Ubuntu/Debian there is a nice tool to do this for you:
 #    > sudo update-rc.d rapidsms-init.sh defaults
@@ -30,8 +30,8 @@ ME=`readlink -f $0`
 WHERE_AM_I=`dirname $ME`
 
 ############### EDIT ME ##################
-NAME="billboard" # change to your project name
-DAEMON=$WHERE_AM_I/../manage.py
+NAME="rapidsms" # change to your project name
+DAEMON=$WHERE_AM_I/../rapidsms
 DAEMON_OPTS=""
 RUN_AS=root
 APP_PATH=$WHERE_AM_I/../
@@ -53,7 +53,7 @@ do_start() {
 }
 
 hard_stop_runserver() {
-    for i in `ps aux | grep -i "manage.py runserver" | grep -v grep | awk '{print $2}' ` ; do
+    for i in `ps aux | grep -i "rapidsms runserver" | grep -v grep | awk '{print $2}' ` ; do
         kill -9 $i
     done
     echo "Hard stopped runserver"
@@ -68,7 +68,7 @@ hard_stop_spomsky() {
 }
 
 hard_stop_router() {
-    for i in `ps aux | grep -i "manage.py route" | grep -v grep | awk '{print $2}' ` ; do
+    for i in `ps aux | grep -i "rapidsms route" | grep -v grep | awk '{print $2}' ` ; do
         kill -9 $i
     done
     rm $ROUTER_PID_FILE 2>/dev/null
@@ -116,7 +116,7 @@ do_check_restart() {
     done
     
     # now check for runserver
-    webs=`ps aux | grep -i "manage.py runserver" | grep -v grep | wc -l`
+    webs=`ps aux | grep -i "rapidsms runserver" | grep -v grep | wc -l`
     if [ $webs -lt 2 ] ; then
 	echo "Can't find webserver, doing hard stop, restart"
 	do_hard_restart
