@@ -5,8 +5,10 @@ from models import Configuration, MessageLog, Record
 from apps.simpleoperator.operators import *
 from datetime import datetime
 import re
+import time
 
 def get_sim_balance(modem, carrier):
+    time.sleep(2) # required on msg receive
     operator_sentence   = modem.ussd(carrier.BALANCE_USSD)
     balance             = carrier.get_balance(operator_sentence)
     return balance
@@ -131,7 +133,12 @@ class App (rapidsms.app.App):
             # check authorization to call sim balance
             if self.config['balance_allow_everybody'] or (self.balance_allow and self.balance_allow(message=message, mobile=message.peer)):
                 # get balance from simpleoperator
-                balance = get_sim_balance(self.backend.modem, self.carrier)
+                try:
+                    balance = get_sim_balance(self.backend.modem, self.carrier)
+                except UnparsableUSSDAnswer:
+                    self.log('info', "ERROR: Unable to parse USSD answer")
+                    return True
+
                 message.PREPAID_BALANCE = balance
                 self.log('debug', "PREPAID BALANCE: %s" % balance)
                 
@@ -166,7 +173,13 @@ class App (rapidsms.app.App):
                     return False
                 
                 self.log('debug', "Topup card # %s" % card_pin)
-                amount              = get_topup_amount(self.backend.modem, self.carrier, card_pin)
+                
+                try:
+                    amount          = get_topup_amount(self.backend.modem, self.carrier, card_pin)
+                except UnparsableUSSDAnswer:
+                    self.log('info', "ERROR: Unable to parse USSD answer")
+                    return True
+                
                 self.log('debug', "PREPAID TOPUP: %s" % amount)
                 
                  # record action
