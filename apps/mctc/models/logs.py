@@ -96,10 +96,10 @@ class MessageLog(models.Model):
         return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
 
     def provider_clinic(self):
-    	p = Provider.objects.get(user=self.sent_by)
-    	if p:
-    	    return "%s"%p.clinic
-    	return ""
+        p = Provider.objects.get(user=self.sent_by)
+        if p:
+            return "%s"%p.clinic
+        return ""
 
     def save(self, *args):
         if not self.id:

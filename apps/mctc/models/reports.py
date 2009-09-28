@@ -90,16 +90,16 @@ class ReportMalaria(Report, models.Model):
         return self.case.zone.name
         
     def results_for_malaria_bednet(self):
-    	bednet = "N"
-    	if self.bednet is True:
-    	   bednet = "Y"	
-    	return "%s"%(bednet)
+        bednet = "N"
+        if self.bednet is True:
+           bednet = "Y"    
+        return "%s"%(bednet)
 
     def results_for_malaria_result(self):
-    	result = "-"
-    	if self.bednet is True:
-    	   result = "+"	
-    	return "%s"%(result)
+        result = "-"
+        if self.bednet is True:
+           result = "+"    
+        return "%s"%(result)
 
     def name(self):
         return "%s %s" % (self.case.first_name, self.case.last_name)
@@ -183,7 +183,7 @@ class ReportMalnutrition(Report, models.Model):
         return "#%d" % self.id
         
     def symptoms(self):
-      	return ", ".join([k.name for k in self.observed.all()])
+          return ", ".join([k.name for k in self.observed.all()])
     
     def days_since_last_activity(self):
         today = date.today()
