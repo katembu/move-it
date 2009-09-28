@@ -478,94 +478,9 @@ class App (rapidsms.app.App):
                 
                 
         log(case, "diagnosis_taken")        
-        return True        
+        return True            
 
-    @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
-    @authenticated
-    def report_malaria(self, message, ref_id, result, bednet, observed):
-        case = self.find_case(ref_id)
-        observed, choices = self.get_observations(observed)
-        self.delete_similar(case.reportmalaria_set)
-        provider = message.sender.provider
-
-        result = result.lower() == "y"
-        bednet = bednet.lower() == "y"
-
-        report = ReportMalaria(case=case, provider=provider, result=result, bednet=bednet)
-        report.save()
-        for obs in observed:
-            report.observed.add(obs)
-        report.save()
-
-        # build up an information dictionary
-        info = case.get_dictionary()
-        info.update(report.get_dictionary())
-        info.update(provider.get_dictionary())
-
-        # this could all really do with cleaning up
-        # note that there is always an alert that goes out
-        if not result:
-            if observed: info["observed"] = ", (%s)" % info["observed"]
-            msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(months)s (%(guardian)s), %(village)s. RDT=%(result_text)s,"\
-                    " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
-                    "for clinical evaluation" % info)
-            # alerts to health team
-            alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
-                      " %(first_name)s, %(gender)s/%(months)s %(village)s. Patient "\
-                      "requires IMMEDIATE referral. Reported by CHW %(provider_name)s "\
-                      "@%(provider_user)s m:%(provider_mobile)s." % info)
-
-        else:
-            # this is all for if child has tested postive
-            # and is really just abut
-            years, months = case.years_months()
-            tabs, yage = None, None
-            # just reformatted to make it look like less ugh
-            if years < 1:
-                if months < 2: tabs, yage = None, None
-                else: tabs, yage = 1, "less than 3"
-            elif years < 3: tabs, yage = 1, "less than 3"
-            elif years < 9: tabs, yage = 2, years
-            elif years < 15: tabs, yage = 3, years
-            else: tabs, yage = 4, years
-
-            # messages change depending upon age and dangers
-            dangers = report.observed.filter(uid__in=("vomiting", "appetite", "breathing", "confusion", "fits"))
-            # no tabs means too young
-            if not tabs:
-                info["instructions"] = "Child is too young for treatment. Please refer IMMEDIATELY to clinic"
-            else:
-                # old enough to take tabs, but lets format msg
-                if dangers:
-                    info["danger"] = " and danger signs (" + ",".join([ u.name for u in dangers ]) + ")"                        
-                    info["instructions"] = "Refer to clinic immediately after %s "\
-                                           "tab%s of Coartem is given" % (tabs, (tabs > 1) and "s" or "")
-                else:
-                    info["danger"] = ""
-                    info["instructions"] = "Child is %s. Please provide %s tab%s "\
-                                           "of Coartem (ACT) twice a day for 3 days" % (yage, tabs, 
-                                           (tabs > 1) and "s" or "")
-
-            # finally build out the messages
-            msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(months)s has MALARIA%(danger)s. %(instructions)s" % info)
-
-            alert = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                      "%(gender)s/%(months)s (%(village)s) has MALARIA%(danger)s. "\
-                      "CHW: @%(provider_user)s %(provider_mobile)s" % info)
-
-        message.respond(msg)
-        
-        recipients = report.get_alert_recipients()
-        for recipient in recipients:
-            message.forward(recipient.mobile, alert)
-            
-
-        log(case, "mrdt_taken")        
-        return True
-
-# DIARRHEA
+    # DIARRHEA
     # follow up on diarrhea
     @keyword(r'ors \+(\d+) ([yn])')
     @authenticated
