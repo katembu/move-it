@@ -15,9 +15,8 @@ from models.logs import MessageLog, log, elog
 from models.general import Provider, User
 from models.general import Facility, Case, CaseNote, Zone
 
-from models.reports import ReportMalaria, Observation, DiarrheaObservation, ReportDiarrhea
-from models.reports import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis, ReportCHWStatus
-from models.measles import ReportMeasles
+from models.reports import  Observation, DiarrheaObservation, ReportDiarrhea
+from models.reports import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
 import re, time, datetime
 
@@ -184,33 +183,7 @@ class App (rapidsms.app.App):
         message.forward(mobile.peer, _("Hello %s, system is up.")% mobile)        
         return True
     
-    @keyword(r'msummary')
-    def measles_summary(self, message):
-        #summary = ReportMeasles.summary_by_zone()
-        summary =  ReportCHWStatus.measles_mini_summary()
-        header = u"Measles Summary by facility:"
-        result = []
-        tmp = header;
-        for info in summary:
-            info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0); 
-            item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s,"%info
-            if len(tmp) + len(item) + 2 >= self.MAX_MSG_LEN:
-                result.append(tmp)
-                tmp = header
-            tmp += item
-        if tmp != header:
-            result.append(tmp)
-        message.forward(u"0733202270", u"Start...")    
-        time.sleep(10)
-        providers = Provider.objects.filter(alerts=True).order_by("mobile").reverse()
-        for text in result:
-            for provider in providers:
-                mobile = u"0" + provider.mobile[4:]
-                message.forward(mobile, text)
-                time.sleep(10)
-            message.forward(u"0733858137", text)
-        message.forward(u"0733202270", u"...End")
-        return True
+    
     
     def respond_not_registered (self, message, target):
         raise HandlerFailed(_("User @%s is not registered.") % target)
@@ -606,34 +579,3 @@ class App (rapidsms.app.App):
         return observed, choices
 
     #records cases that have had a measles shot
-    @keyword(r'measles ?(.*)')
-    @authenticated
-    def measles(self, message, text):        
-        provider = message.sender.provider
-        cases, notcases = self.str_to_cases(text)
-        result = ""
-        for case in cases:
-            result = result + "+%s "%case.ref_id
-            report = ReportMeasles(case=case, provider=provider, taken=True)
-            report.save()
-        message.respond(_(result + " received measles shot."))
-        if notcases:
-            nresult = "" 
-            for nc in notcases:
-                nresult = nresult +"%s "%nc            
-            message.respond(_(nresult + " not found!!"))
-        return True
-    
-    # @text a string containing space separeted +PID, e.g +78 +98 ..or 78 98 ...
-    #@return: Case Object, and a list of numbers that were not cases
-    def str_to_cases(self, text):
-        text = text.replace("+","")
-        cs = text.split(" ")
-        cases = []
-        notcases = []
-        for c in cs:
-            try:
-                cases.append(self.find_case(c))
-            except HandlerFailed:
-                notcases.append(c)
-        return cases, notcases
