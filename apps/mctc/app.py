@@ -15,7 +15,7 @@ from models.logs import MessageLog, log, elog
 from models.general import Provider, User
 from models.general import Facility, Case, CaseNote, Zone
 
-from models.reports import ReportMalnutrition, ReportMalaria, Observation, DiarrheaObservation, ReportDiarrhea
+from models.reports import ReportMalaria, Observation, DiarrheaObservation, ReportDiarrhea
 from models.reports import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis, ReportCHWStatus
 from models.measles import ReportMeasles
 
@@ -403,80 +403,7 @@ class App (rapidsms.app.App):
         
         
         return True
-
-    #CMAM Reports
-
-    @keyword(r'muac \+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
-    @authenticated
-    def report_case (self, message, ref_id, muac,
-                     weight, height, complications):
-        case = self.find_case(ref_id)
-        try:
-            muac = float(muac)
-            if muac < 30: # muac is in cm?
-                muac *= 10
-            muac = int(muac)
-        except ValueError:
-            raise HandlerFailed(
-                _("Can't understand MUAC (mm): %s") % muac)
-
-        if weight is not None:
-            try:
-                weight = float(weight)
-                if weight > 100: # weight is in g?
-                    weight /= 1000.0
-            except ValueError:
-                raise HandlerFailed("Can't understand weight (kg): %s" % weight)
-
-        if height is not None:
-            try:
-                height = float(height)
-                if height < 3: # weight height in m?
-                    height *= 100
-                height = int(height)
-            except ValueError:
-                raise HandlerFailed("Can't understand height (cm): %s" % height)
-
-        observed, choices = self.get_observations(complications)
-        self.delete_similar(case.reportmalnutrition_set)
-
-        provider = message.sender.provider
-        report = ReportMalnutrition(case=case, provider=provider, muac=muac,
-                        weight=weight, height=height)
-        report.save()
-        for obs in observed:
-            report.observed.add(obs)
-        report.diagnose()
-        report.save()
-
-        choice_term = dict(choices)
-
-        info = case.get_dictionary()
-        info.update(report.get_dictionary())
-
-        msg = _("%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)s/%(months)s (%(guardian)s). MUAC %(muac)s") % info
-
-        if weight: msg += ", %.1f kg" % weight
-        if height: msg += ", %.1d cm" % height
-        if observed: msg += ", " + info["observed"]
-
-        message.respond("MUAC> " + msg)
-        
-
-        if report.status in (report.MODERATE_STATUS,
-                           report.SEVERE_STATUS,
-                           report.SEVERE_COMP_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":provider.user.username, "msg":msg}
-            recipients = [provider]
-            for query in (Provider.objects.filter(alerts=True),
-                          Provider.objects.filter(clinic=provider.clinic)):
-                for recipient in query:
-                    if recipient in recipients: continue
-                    recipients.append(recipient)
-                    #message.forward(recipient.mobile, alert)
-        log(case, "muac_taken")
-        return True
-
+    
     @keyword(r'n(?:ote)? \+(\d+) (.+)')
     @authenticated
     def note_case (self, message, ref_id, note):
