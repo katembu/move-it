@@ -1,4 +1,7 @@
-# coding=utf-8
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+
+from datetime import date, datetime
 
 import rapidsms
 from rapidsms.parsers.keyworder import * 
@@ -6,6 +9,8 @@ from django.utils.translation import ugettext as _
 
 from apps.reporters.models import *
 from apps.locations.models import *
+from apps.rdtreporting.models import *
+from apps.rdtreporting.utils import *
 
 class HandlerFailed (Exception):
     pass
@@ -288,5 +293,40 @@ class App (rapidsms.app.App):
         message.respond(msg)
         
         return True
+
+    # REGISTERING MRDT
+    keyword.prefix = ["rdt", "mrdt"]
+    @keyword(r'([0-9]{6}) (numbers) (numbers) (numbers) (numbers)')
+    @registered
+    def back(self, message, date, tested, confirmed, treatments, used):
+        ''' List reporters from a location matching a name '''
+
+        reporter    = message.persistant_connection.reporter
+        
+        try:
+            report, overwritten = record_mrdt(reporter, tested, confirmed, treatments, used, day=date, overwrite=True)
+        except UnknownReporter:
+            message.respond(_(u"Report Failed. You are not allowed to report MRDT."))
+            return True
+        except DuplicateReport:
+            message.respond(_(u"Report Failed. Your datas for %(date)s have already been reported.") % {'date': date})
+            return True
+        except ErroneousDate:
+            message.respond(_(u"Report Failed. Provided date (%(date)s is erroneous.)") % {'date': date})
+            return True
+        except IncoherentValue:
+            message.respond(_(u"Report Failed. Provided values are incoherent."))
+            return True
+
+        if overwritten:
+            suffix  = _(u" (overwrite)")
+        else:
+            suffix  = ""
+
+        message.respond(_("Clinic #%(clinic_id)s %(clinic)s %(date)s report received%(overwrite_suffix)s! Cases=%(tested)s, Positive=%(confirmed)s Treatment=%(treatments)s, Tests=%(used)s") % {'clinic_id': report.reporter.location.id, 'clinic': report.reporter.location, 'date': report.date.strftime("%d.%m.%Y"), 'overwrite_suffix': suffix, 'tested': report.tested, 'confirmed': report.confirmed, 'treatments': report.treatments, 'used': report.used})
+
+        return True
+
+        
 
 
