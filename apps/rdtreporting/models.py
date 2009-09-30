@@ -47,4 +47,15 @@ class ErroneousRDTReport(RDTReport):
         backup.save()
         return backup
 
+class RDTAlert(models.Model):
+
+    reporter    = models.ForeignKey(Reporter)
+    date_sent   = models.DateTimeField(auto_now_add=True)
+    date        = models.DateField()
+
+    def __unicode__(self):
+        return _(u"%(reporter)s (%(clinic)s)/%(date)s") % \
+        {'reporter': self.reporter, 'clinic':self.reporter.location.code.upper(), \
+        'date': self.date.strftime("%d-%m-%Y")}
+
 

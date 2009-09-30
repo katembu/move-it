@@ -8,4 +8,5 @@ from django.utils.translation import ugettext_lazy as _
 
 admin.site.register(RDTReport)
 admin.site.register(ErroneousRDTReport)
+admin.site.register(RDTAlert)
 

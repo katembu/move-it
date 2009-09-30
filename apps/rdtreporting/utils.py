@@ -9,11 +9,15 @@ from models import *
 
 def parseday(day):
 
-    d = int(day[:2])
-    m = int(day[2:][:2])
-    y = int('20'+day[4:][:2])
+    try:
+        d = int(day[:2])
+        m = int(day[2:][:2])
+        y = int('20'+day[4:][:2])
 
-    return y, m, d
+        return y, m, d
+
+    except:
+        return None
 
 def record_mrdt(reporter, tested, confirmed, treatments, used, day=date.today(), overwrite=False):
     ''' records a day of MRDT tests '''
@@ -68,5 +72,30 @@ def record_mrdt(reporter, tested, confirmed, treatments, used, day=date.today(),
         raise
 
     return report, overwritten
+
+def record_alert(reporter, day):
+    ''' record a sent alert to a reporter '''
+
+    # check reporter
+    if not isinstance(reporter, Reporter):
+        raise UnknownReporter
+    
+    if not reporter.registered_self:
+        raise UnknownReporter
+
+    # check date
+    if isinstance(day, str):
+        day = date(*parseday(day))
+
+    if not isinstance(day, date):
+        raise ErroneousDate
+
+    alert   = RDTAlert(reporter=reporter, date=day)
+    alert.save()
+
+    return alert
+
+    
+
 
     
