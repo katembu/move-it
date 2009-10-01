@@ -10,8 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from datetime import datetime
 
-from apps.mctc.models.reports import Report
-from apps.mctc.models.general import Case, Provider
+from mctc.models.reports import Report
+from mctc.models.general import Case, Provider
  
 class ReportMeasles(Report, models.Model):
     class Meta:
