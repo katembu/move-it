@@ -10,6 +10,18 @@ from rapidsms.connection import *
 from apps.reporters.models import *
 from apps.rdtreporting.models import *
 
+def get_lostItems():
+    ''' return the Lost Items Location or create it '''
+
+    try:
+        lost    = Location.objects.get(code='lost')
+    except:
+        lost    = Location(name=_(u"Lost Items"), code='lost')
+        lost.save()
+
+    return lost
+    
+
 def alert_callback(router, *args, **kwargs):
     ''' Called by Scheduler App everyday at 4pm '''
 
