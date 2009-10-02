@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from datetime import datetime, timedelta, date
-import md5
+
 
 class Zone(models.Model):
     def __unicode__ (self): 
