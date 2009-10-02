@@ -57,5 +57,16 @@ def alert_reporter_noreport(reporter, day=date.today(), router=None):
     else:
         return False
 
+def allow_me2u(message):
+    ''' free2u App helper. Allow only registered users. '''
+
+    try:
+        if message.persistant_connection.reporter.registered_self:
+            return True
+        else:
+            return False
+    except:
+        return False
+
 
         
