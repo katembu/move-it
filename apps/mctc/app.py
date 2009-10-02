@@ -167,23 +167,7 @@ class App (rapidsms.app.App):
         self.respond_to_join(message, info)
         log(provider, "confirmed_join")
         return True
-    
-    @keyword(r'check system')
-    #@authenticated
-    def check_system_status (self, message):
-        mobile   = message.peer
-        message.respond(_("Hello %s, system is up.")% mobile)
-        
-        return True
-    
-    @keyword(r'fwd ?(.*)')
-    #@authenticated
-    def forward_tmp (self, message, text):
-        mobile   = message.peer
-        message.forward(mobile.peer, _("Hello %s, system is up.")% mobile)        
-        return True
-    
-    
+
     
     def respond_not_registered (self, message, target):
         raise HandlerFailed(_("User @%s is not registered.") % target)
