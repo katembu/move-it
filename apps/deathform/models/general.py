@@ -63,3 +63,8 @@ class ReportDeath(Report, models.Model):
             txt = "%d months"%(self.age)
         return txt 
     
+    def get_cause(self):
+        for k,v in self.CAUSE_CHOICES:
+            if self.cause == k:
+                return v
+    
