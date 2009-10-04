@@ -54,3 +54,12 @@ class ReportDeath(Report, models.Model):
         if not self.id:
             self.entered_at = datetime.now()
         super(ReportDeath, self).save(*args)
+    
+    def age_as_text(self):
+        txt = ""
+        if self.age % 12:
+            txt = "%d years"%(int(self.age/12))
+        else:
+            txt = "%d months"%(self.age)
+        return txt 
+    
