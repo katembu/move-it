@@ -68,3 +68,9 @@ class ReportDeath(Report, models.Model):
             if self.cause == k:
                 return v
     
+    def get_location(self):
+        for k,v in self.LOCATION_CHOICES:
+            if self.cause == k:
+                return v
+    
+    
