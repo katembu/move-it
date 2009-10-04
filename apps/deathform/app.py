@@ -109,7 +109,7 @@ class App (rapidsms.app.App):
             dod = datetime.date(*dod[:3])        
         provider = message.sender.provider
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
-                            age=age, provider=provider, location=location,cause=cause,
+                            age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         death.save()
         message.respond(_("Eureka"))
