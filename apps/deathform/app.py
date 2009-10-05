@@ -111,6 +111,13 @@ class App (rapidsms.app.App):
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod)
+        #Perform Location checks
+        if death.check_location() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        #Perform Cause Check  
+        if death.check_cause() is None:
+            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known cause") % cause)
+        
         death.save()
         info = death.get_dictionary()
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)

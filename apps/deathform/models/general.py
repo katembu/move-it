@@ -74,6 +74,14 @@ class ReportDeath(Report, models.Model):
         for k,v in self.LOCATION_CHOICES:
             if self.location == k:
                 return "%s"%v
+            
+    def check_location(self):
+        locations = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        return locations.get(self.location, None)
+    
+    def check_cause(self):
+        causes = dict([ (k, v) for (k,v) in self.CAUSE_CHOICES])
+        return causes.get(self.cause, None)
     
     def get_dictionary(self):
         return {'name': "%s %s" % (self.last_name, self.first_name),
