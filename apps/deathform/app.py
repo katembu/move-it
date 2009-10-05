@@ -156,7 +156,7 @@ class App (rapidsms.app.App):
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
             dod = datetime.date(*dod[:3])        
         provider = message.sender.provider
-        death = ReportDeath(last_name=case.last_name,first_name=case.first_name,gender=case.gender.upper(),
+        death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod, case=case)
         #Perform Location checks
