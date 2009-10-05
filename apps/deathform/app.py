@@ -5,7 +5,7 @@ import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
 from mctc.models.logs import MessageLog
-from mctc.models.general import Provider
+from mctc.models.general import Provider, Case
 from deathform.models.general import ReportDeath
 
 import re
@@ -84,6 +84,12 @@ class App (rapidsms.app.App):
         """Perform global app cleanup when the application is stopped."""
         pass
     
+    def find_case (self, ref_id):
+        try:
+            return Case.objects.get(ref_id=int(ref_id))
+        except Case.DoesNotExist:
+            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+    
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @authenticated
     def report_death(self, message, last, first, gender, age, dod, cause, location, description=""):
@@ -109,6 +115,48 @@ class App (rapidsms.app.App):
             dod = datetime.date(*dod[:3])        
         provider = message.sender.provider
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
+                            age=age, provider=provider, location=location.upper(),cause=cause.upper(),
+                            description=description, dod=dod)
+        #Perform Location checks
+        if death.get_location() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        #Perform Cause Check  
+        if death.get_cause() is None:
+            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
+        
+        death.save()
+        info = death.get_dictionary()
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)
+        return True
+    
+    @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
+    @authenticated
+    def report_cdeath(self, message, ref_id, dod, cause, location, description=""):
+        #Is the child registered with us?
+        case = self.find_case(ref_id)
+        age = case.age()
+        if age[len(age)-1].upper() == 'Y':
+            age = int(age[:len(age)-1])*12
+        else:
+            age = int(age[:len(age)-1])
+            
+                
+        if len(dod) != 6:
+            # There have been cases where a date like 30903 have been sent and
+            # when saved it gives some date that is way off
+            raise HandlerFailed(_("Date must be in the format ddmmyy: %s") % dod)
+        else:
+            dod = re.sub(r'\D', '', dod)
+            try:
+                dod = time.strptime(dod, "%d%m%y")
+            except ValueError:
+                try:
+                    dod = time.strptime(dod, "%d%m%Y")
+                except ValueError:
+                    raise HandlerFailed(_("Couldn't understand date: %s") % dod)
+            dod = datetime.date(*dod[:3])        
+        provider = message.sender.provider
+        death = ReportDeath(last_name=case.last_name,first_name=case.first_name,gender=case.gender.upper(),
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         #Perform Location checks
