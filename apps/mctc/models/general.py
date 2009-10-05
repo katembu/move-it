@@ -136,6 +136,15 @@ class Provider(models.Model):
 class Case(models.Model):    
     class Meta:
         app_label = "mctc"
+    STATUS_ACTIVE = 1
+    STATUS_INACTIVE = 0
+    STATUS_DEAD = -1
+    
+    STATUS_CHOICES = (
+        (STATUS_ACTIVE,"Alive"),
+        (STATUS_INACTIVE,"Relocated"),
+        (STATUS_DEAD, "Dead")
+    )
     
     GENDER_CHOICES = (
         ('M', _('Male')), 
@@ -155,6 +164,7 @@ class Case(models.Model):
     district    = models.CharField(max_length=255, null=True, blank=True)
     created_at  = models.DateTimeField()
     updated_at  = models.DateTimeField()
+    status      = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE)
 
     def get_absolute_url(self):
         return "/case/%s/" % self.id
