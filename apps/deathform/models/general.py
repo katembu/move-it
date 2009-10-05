@@ -2,13 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+#from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.reports import Report
 from mctc.models.general import Provider
 
 from datetime import datetime
 
+def _(txt): return txt
 class ReportDeath(Report, models.Model):    
     GENDER_CHOICES = (
         ('M', _('Male')), 
@@ -57,7 +58,7 @@ class ReportDeath(Report, models.Model):
     
     def age_as_text(self):
         txt = ""
-        if self.age % 12:
+        if (self.age % 12) == 0:
             txt = "%d years"%(int(self.age/12))
         else:
             txt = "%d months"%(self.age)
@@ -66,12 +67,12 @@ class ReportDeath(Report, models.Model):
     def get_cause(self):
         for k,v in self.CAUSE_CHOICES:
             if self.cause == k:
-                return "kl"
+                return "%s"%v
     
     def get_location(self):
         for k,v in self.LOCATION_CHOICES:
-            if self.cause == k:
-                return "gh"
+            if self.location == k:
+                return "%s"%v
     
     def get_dictionary(self):
         return {'name': "%s %s" % (self.last_name, self.first_name),
