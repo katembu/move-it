@@ -112,5 +112,6 @@ class App (rapidsms.app.App):
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         death.save()
-        message.respond(_("Eureka"))
+        info = death.get_dictionary()
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)
         return True
