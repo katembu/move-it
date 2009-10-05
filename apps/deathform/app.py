@@ -167,6 +167,8 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
         
         death.save()
+        case.set_status(Case.STATUS_DEAD);
+        case.save()
         info = death.get_dictionary()
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)
         return True

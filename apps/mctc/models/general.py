@@ -266,6 +266,13 @@ class Case(models.Model):
         except models.ObjectDoesNotExist:
             return None
 
+    def set_status(self, state):
+        states = dict([ (k, v) for (k,v) in self.STATUS_CHOICES])
+        rst =  states.get(state, None)
+        if rst is None:
+            return None
+        self.status = state
+        return state
 
 class CaseNote(models.Model):
     case        = models.ForeignKey(Case, related_name="notes", db_index=True)
