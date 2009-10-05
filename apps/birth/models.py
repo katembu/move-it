@@ -46,3 +46,10 @@ class ReportBirth(Report, models.Model):
         locations = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
         return locations.get(self.location, None)
     
+    def display_name(self):
+        return u"%s %s"%(self.case.first_name, self.case.last_name)
+    display_name.short_description = "Name"
+    
+    def display_dob(self):
+        return u"%s"%self.case.dob.strftime("%d/%m/%y")
+    display_dob.short_description = "Date of Birth"
