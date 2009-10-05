@@ -112,11 +112,11 @@ class App (rapidsms.app.App):
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         #Perform Location checks
-        if death.check_location() is None:
+        if death.get_location() is None:
             raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
         #Perform Cause Check  
-        if death.check_cause() is None:
-            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known cause") % cause)
+        if death.get_cause() is None:
+            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
         
         death.save()
         info = death.get_dictionary()
