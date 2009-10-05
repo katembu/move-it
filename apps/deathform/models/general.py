@@ -66,11 +66,17 @@ class ReportDeath(Report, models.Model):
     def get_cause(self):
         for k,v in self.CAUSE_CHOICES:
             if self.cause == k:
-                return v
+                return "kl"
     
     def get_location(self):
         for k,v in self.LOCATION_CHOICES:
             if self.cause == k:
-                return v
+                return "gh"
     
-    
+    def get_dictionary(self):
+        return {'name': "%s %s" % (self.last_name, self.first_name),
+                'age': self.age_as_text(),
+                'cause': self.get_cause(),
+                'location': self.get_location(),
+                'dod': self.dod.strftime("%d/%m/%y")
+                }
