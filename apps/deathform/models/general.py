@@ -5,7 +5,7 @@ from django.db import models
 #from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.reports import Report
-from mctc.models.general import Provider
+from mctc.models.general import Provider, Case
 
 from datetime import datetime
 
@@ -41,7 +41,7 @@ class ReportDeath(Report, models.Model):
     location    = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     cause       = models.CharField(max_length=1, choices=CAUSE_CHOICES)
     description   = models.CharField(max_length=255, db_index=True)
-    
+    case = models.ForeignKey(Case, db_index=True, null=True)
     class Meta:
         app_label = "deathform"
         verbose_name = "Death Report"

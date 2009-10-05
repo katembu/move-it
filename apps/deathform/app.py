@@ -158,7 +158,7 @@ class App (rapidsms.app.App):
         provider = message.sender.provider
         death = ReportDeath(last_name=case.last_name,first_name=case.first_name,gender=case.gender.upper(),
                             age=age, provider=provider, location=location.upper(),cause=cause.upper(),
-                            description=description, dod=dod)
+                            description=description, dod=dod, case=case)
         #Perform Location checks
         if death.get_location() is None:
             raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
