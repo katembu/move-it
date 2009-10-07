@@ -36,9 +36,21 @@ class RDTReport(models.Model):
         {'reporter': self.reporter, 'clinic':self.reporter.location.code.upper(), \
         'date': self.date.strftime("%d-%m-%Y")}
 
-class ErroneousRDTReport(RDTReport):
+class ErroneousRDTReport(models.Model):
     
+    reporter    = models.ForeignKey(Reporter, unique_for_date="date") # uniqueness only enforced on admin
+    date        = models.DateField()
+    tested      = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cases tested by the RDTs"))
+    confirmed   = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cased confirmed by the RDTs"))
+    treatments  = models.PositiveIntegerField(verbose_name=_(u"Treatments prescribed correlated with RDT Result"))
+    used        = models.PositiveIntegerField(verbose_name=_(u"Total MRDTs used"))
+    date_posted = models.DateTimeField(auto_now_add=True)
     date_over   = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return _(u"%(reporter)s (%(clinic)s)/%(date)s") % \
+        {'reporter': self.reporter, 'clinic':self.reporter.location.code.upper(), \
+        'date': self.date.strftime("%d-%m-%Y")}
 
     @classmethod
     def from_rdt(cls, report):
@@ -49,9 +61,19 @@ class ErroneousRDTReport(RDTReport):
 
 class RDTAlert(models.Model):
 
+    STATUS_SENT = 0
+    STATUS_FIXED= 1
+    STATUS_CLEARED=2
+    STATUS_CHOICES = (
+        (STATUS_SENT, _(u"Sent")),
+        (STATUS_FIXED, _(u"Honnored")),
+        (STATUS_CLEARED, _(u"Cleared")),
+    )
+
     reporter    = models.ForeignKey(Reporter)
     date_sent   = models.DateTimeField(auto_now_add=True)
     date        = models.DateField()
+    status      = models.CharField(max_length=1, choices=STATUS_CHOICES,default=STATUS_SENT)
 
     def __unicode__(self):
         return _(u"%(reporter)s (%(clinic)s)/%(date)s") % \

@@ -369,7 +369,7 @@ class App (rapidsms.app.App):
         reporter    = message.persistant_connection.reporter
         
         try:
-            report, overwritten = record_mrdt(reporter, tested, confirmed, treatments, used, day=date, overwrite=True)
+            report, overwritten = record_mrdt(reporter, int(tested), int(confirmed), int(treatments), int(used), day=date, overwrite=True)
         except UnknownReporter:
             message.respond(_(u"Report Failed. You are not allowed to report MRDT."))
             return True
