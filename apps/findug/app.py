@@ -125,8 +125,36 @@ class App (rapidsms.app.App):
     #  REGISTRATION
     ############################
 
+    # SUBSCRIBE
+    keyword.prefix = ["subscribe"]
+    @keyword(r'(\w+) (\w+) (.+)')
+    def join(self, message, clinic_code, role_code, name):
+        ''' register a user and join the system '''
+
+        try:
+            # parse the name, and create a reporter
+            alias, fn, ln = Reporter.parse_name(name)
+            rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+            rep.save()
+            
+            # attach the reporter to the current connection
+            message.persistant_connection.reporter = rep
+            message.persistant_connection.save()
+                  
+            # something went wrong - at the
+            # moment, we don't care what
+        except:
+            message.respond("Join Error. Unable to register your account.")
+
+        if role_code == None or role_code.__len__() < 1:
+            role_code   = 'hw'
+
+        reporter    = message.persistant_connection.reporter
+
+        return self.join_reporter(message, reporter, clinic_code, role_code)
+
     # JOIN
-    keyword.prefix = ["subscribe", "join"]
+    keyword.prefix = ["join"]
     @keyword(r'(\w+)\s?(\w*)')
     @registered
     def join(self, message, clinic_code, role_code):
@@ -141,19 +169,19 @@ class App (rapidsms.app.App):
 
     # JOIN (ADMIN)
     keyword.prefix = ["subscribe", "join"]
-    @keyword(r'\+(numbers) (letters)\s?(\w*)')
+    @keyword(r'\@(slug) (letters)\s?(\w*)')
     @registered
     @admin
-    def join_one(self, message, reporter_id, clinic_code, role_code):
+    def join_one(self, message, reporter_alias, clinic_code, role_code):
         ''' Adds an arbitrary reporter to the mrdt system '''
 
         if role_code == None or role_code.__len__() < 1:
             role_code   = 'hw'
 
         try:
-            reporter    = Reporter.objects.get(id=reporter_id)
+            reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Join Error. The provided ID (%(id)s) does not exist in the system") % {'id': reporter_id})
+            message.respond(_("Join Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
             return True
 
         return self.join_reporter(message, reporter, clinic_code, role_code)
@@ -197,12 +225,12 @@ class App (rapidsms.app.App):
 
         # inform target
         message.forward(reporter.connection().identity, \
-            _("Success. You are now registered as %(role)s at %(clinic)s with ID +%(id)s.") % {'clinic': clinic, 'role': reporter.role, 'id': reporter.id})
+            _("Success. You are now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
             message.respond( \
-            _("Success. %(reporter)s is now registered as %(role)s at %(clinic)s with ID +%(id)s.") % {'reporter': reporter, 'clinic': clinic, 'role': reporter.role, 'id': reporter.id})
+            _("Success. %(reporter)s is now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'reporter': reporter, 'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
         return True
 
     # STOP
@@ -218,16 +246,16 @@ class App (rapidsms.app.App):
 
     # STOP (ADMIN)
     keyword.prefix = ["stop", "pause"]
-    @keyword(r'\+(numbers)')
+    @keyword(r'\@(slug)')
     @registered
     @admin
-    def stop_one(self, message, reporter_id):
+    def stop_one(self, message, reporter_alias):
         ''' Disables an arbitrary reporter in the system '''
 
         try:
-            reporter    = Reporter.objects.get(id=reporter_id)
+            reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Stop Error. The provided ID (%(id)s) does not exist in the system") % {'id': reporter_id})
+            message.respond(_("Stop Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
             return True
 
         return self.stop_reporter(message, reporter)
@@ -269,16 +297,16 @@ class App (rapidsms.app.App):
 
     # BACK (ADMIN)
     keyword.prefix = ["back", "resume"]
-    @keyword(r'\+(numbers)')
+    @keyword(r'\@(slug)')
     @registered
     @admin
-    def back_one(self, message, reporter_id):
+    def back_one(self, message, reporter_alias):
         ''' Enables again an arbitrary reporter in the system '''
 
         try:
-            reporter    = Reporter.objects.get(id=reporter_id)
+            reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Stop Error. The provided ID (%(id)s) does not exist in the system") % {'id': reporter_id})
+            message.respond(_("Stop Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
             return True
 
         return self.back_reporter(message, reporter)
@@ -299,7 +327,7 @@ class App (rapidsms.app.App):
 
         # inform target
         message.forward(reporter.connection().identity, \
-            _("Success. You are back in the system with ID %(id)s.") % {'id': reporter.id})
+            _("Success. You are back in the system with alias %(alias)s.") % {'alias': reporter.alias})
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
@@ -335,11 +363,11 @@ class App (rapidsms.app.App):
             return True           
         
         msg     = ""
-        msg_stub= _(u"%(reporter)s/%(id)s is %(role)s at %(clinic)s with %(number)s")
+        msg_stub= _(u"%(reporter)s/%(alias)s is %(role)s at %(clinic)s with %(number)s")
 
         # construct answer
         for areporter in reporters:
-            mst     = msg_stub % {'reporter': areporter, 'id': areporter.id, 'role': areporter.role.code.upper(), 'clinic': areporter.location.code.upper(), 'number': areporter.connection().identity}
+            mst     = msg_stub % {'reporter': areporter, 'alias': areporter.alias, 'role': areporter.role.code.upper(), 'clinic': areporter.location.code.upper(), 'number': areporter.connection().identity}
             if msg.__len__() == 0:
                 msg = mst
             else:
