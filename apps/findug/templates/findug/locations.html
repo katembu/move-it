@@ -1,0 +1,26 @@
+{% extends "findug/index.html" %}
+{% block subtitle %}Locations{% endblock %}
+
+{% block content %}
+<h2>Clinics</h2> 
+<table width="100%"> 
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>MRDT Stock</th>
+            <th>Today's Reports</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for location in locations %}
+            <tr>
+                <td><a href="/findug/location/{{ location.obj.id }}">{{location.alias}}</a></td>
+                <td>{{location.obj}}</td>
+                <td>{{location.stock}}</td>
+                <td>{{location.reports}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

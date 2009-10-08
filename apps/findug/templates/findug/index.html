@@ -1,0 +1,72 @@
+{% extends base_template %}
+{% block title %}FIND Uganda - {% block subtitle %}Home{% endblock %}{% endblock %}
+
+{% block page_tabs %}
+<ul id="page-tabs">
+	<li class="page"><a href="/findug/locations">Clinics</a></li>
+	<li class="page"><a href="/findug/reporters">Reporters</a></li>
+	<li class="page"><a href="/findug/reports">File Reports</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAABTFBChCH4f7P6y_O_YaaJhQOmw28ZMK8AYQuvANEzzNX2dcTvxR91F4KloWpauaBadi78stv7GXsoA" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+
+points	= [
+{% for location in locations %}{% if location.obj.latitude and location.obj.longitude %}
+	{
+		coord: new GLatLng({{ location.obj.latitude }},{{ location.obj.longitude }}), 
+		title:"{{ location.obj }} ({{ location.obj.type }})",
+		text:"{{ location.obj.code|upper }} - {{ location.obj.parent }}</p><p>Total People Tested: <strong>{{ location.stats.tested }}</strong><br />Positive People: <strong>{{ location.stats.confirmed }}</strong><br />Treatments: <strong>{{ location.stats.treatments }}</strong><br />Tests used: <strong>{{ location.stats.used }}</strong>",
+	},
+{% endif %}{% endfor %}
+];
+
+function load() {
+  if (GBrowserIsCompatible()) {
+    var map = new GMap2(document.getElementById("map"));
+    map.setCenter(new GLatLng(-1.20935,30.060654), 12);
+    map.setMapType(G_PHYSICAL_MAP);
+
+
+	//var bds = new GLatLngBounds(new GLatLng(-1.20935,30.060654), new GLatLng(-1.242731,30.101166));
+	//map.setZoom(map.getBoundsZoomLevel(bds));
+	map.setZoom(11);
+	map.addControl(new GLargeMapControl());
+	map.addControl(new GScaleControl());
+	map.enableScrollWheelZoom();
+
+	
+	function createMarker(point, number) {
+		var sourceIcon	= new GIcon(G_DEFAULT_ICON);
+		sourceIcon.image= "/static/findug/red-cross-32x32.png";
+		var markerOptions	= {icon: sourceIcon, title: point.title};
+		var marker		= new GMarker(point.coord, markerOptions);
+		//var marker		= new GMarker(point.coord);
+		marker.value		= number;
+	    	GEvent.addListener(marker,"click", function() {
+	      		var myHtml	= "<strong>" + point.title
+	      				+ "</strong><br/>" + point.text;
+	      		map.openInfoWindowHtml(point.coord, myHtml);
+	    	});
+		return marker;
+	}
+
+	for (i in points) {
+		map.addOverlay(createMarker(points[i], i));	
+	}
+
+  }
+}
+//]]>
+</script>
+<h2>Dashboard</h2>
+
+<h3>Health Facilities Map</h3>
+
+<div id="map" style="width: 78em;height: 40em;border: 0;"></div>
+<script type="text/javascript">load();</script>
+
+{% endblock %}
