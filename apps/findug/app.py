@@ -427,7 +427,7 @@ class App (rapidsms.app.App):
     def do_transfer_drug(self, message, sender, receiver, item, quantity):
         
         log = transfer_item(sender=sender, receiver=receiver, item=item, quantity=int(quantity))
-        
+       
         if receiver.connection():
             message.forward(receiver.connection().identity, "CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have received %(quantity)s %(item)s from %(sender)s. If not correct please reply: CANCEL %(lid)s" % {
                 'quantity': quantity,
@@ -448,6 +448,34 @@ class App (rapidsms.app.App):
             'rid': receiver.id,
             'lid': log.id
         })
+
+        # remove stock alert if applicable
+
+        if not receiver.__class__ == Reporter:
+            return True
+
+        alerts  = RDTStockAlert.objects.filter(reporter=receiver, status=RDTStockAlert.STATUS_SENT)
+        if not alerts.count() > 0:
+            return True
+
+        # get low level
+        try:
+            low = Configuration.objects.get(id=1).low_stock_level
+        except:
+            return True
+
+        mrdt    = Item.by_code('mrdt')
+        stock  = StockItem.by_peer_item(peer=receiver, item=mrdt)
+
+        if stock.quantity >= low:
+            for alert in list(alerts):
+                alert.status    = RDTStockAlert.STATUS_FIXED
+                alert.save()
+        else:
+            for alert in list(alerts):
+                alert.status    = RDTStockAlert.STATUS_OBSOLETE
+                alert.save()
+
         return True
 
     # DIST
@@ -489,7 +517,7 @@ class App (rapidsms.app.App):
             message.respond(_(u"Distribution request failed. You do not have %(med)s") % {'med': item})
             return True
         except NotEnoughItemInStock:
-            message.respond(_(u"Distribution request failed. You can't transfer %(q)s %(it)s to %(rec)s because you only have %(stk)s.") % {'q': quantity, 'it': item.name, 'rec': receiver.display_full(), 'stk': StockItem.objects.get(peer=sender, item=item).quantity})
+            message.respond(_(u"Distribution request failed. You can't transfer %(q)s %(it)s to %(rec)s because you only have %(stk)s.") % {'q': quantity, 'it': item.name, 'rec': receiver, 'stk': StockItem.by_peer_item(peer=sender, item=item).quantity})
             return True
 
     # ADD (admin)
