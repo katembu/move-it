@@ -30,18 +30,20 @@ def index(req):
 def locations_view(req):
     ''' List all locations with links to individual pages '''
 
-    locations= Location.objects.filter()
+    clinics  = LocationType.objects.filter(name__startswith="HC")
+    locations= Location.objects.filter(type__in=clinics)
+    today    = datetime.today()
     all = []
     for location in locations:
         loc = {}
         loc['obj']      = location
         loc['alias']    = location.code.upper()
         loc['stock']    = stock_for_location(location)
-        loc['reports']  = report_for_location_date(location=location, day=mrdt_today())
+        loc['reports']  = report_for_location_date(location=location, day=today)
         all.append(loc)
 
     # sort by date, descending
-    all.sort(lambda x, y: cmp(x['obj'].code, y['obj'].code))
+    all.sort(lambda x, y: cmp(x['obj'].name, y['obj'].name))
     return render_to_response(req, 'findug/locations.html', { "locations": all})
 
 def location_view(req, location_id):

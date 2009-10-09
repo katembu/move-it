@@ -8,6 +8,8 @@
         <tr>
             <th>Code</th>
             <th>Name</th>
+            <th>Type</type>
+            <th>Parent</th>
             <th>MRDT Stock</th>
             <th>Today's Reports</th>
         </tr>
@@ -17,6 +19,8 @@
             <tr>
                 <td><a href="/findug/location/{{ location.obj.id }}">{{location.alias}}</a></td>
                 <td>{{location.obj}}</td>
+                <td>{{location.obj.type}}</td>
+                <td>{{location.obj.parent}}</td>
                 <td>{{location.stock}}</td>
                 <td>{{location.reports}}</td>
             </tr>

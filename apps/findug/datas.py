@@ -17,8 +17,11 @@ def stock_for_location(location):
     reporters = Reporter.objects.filter(location=location)
 
     for reporter in reporters:
-        store = StockItem.by_peer_item(peer=reporter, item=item)
-        stock += store.quantity
+        try:
+            store = StockItem.by_peer_item(peer=reporter, item=item)
+            stock += store.quantity
+        except:
+            pass
 
     return stock
 
@@ -43,23 +46,11 @@ def last_report(reporter):
         report  = None
     return report        
 
-def mrdt_today():
-    ''' return active day for reportings: today from 3pm'''
-
-    now = datetime.now()
-    today = None
-    if now.hour >= 15:
-        today   = datetime.today()
-    else:
-        today   = datetime.today() - timedelta(1)
-
-    return today
-
 def report_for_location_date(location, day):
     ''' return the number of reports sent for a location on a day '''
 
     reporters = Reporter.objects.filter(location=location)
-    reports = RDTReport.objects.filter(date=day, reporter__in=reporters)
+    reports = RDTReport.objects.filter(reporter__in=reporters, date=day)
 
     return reports.count()
 
