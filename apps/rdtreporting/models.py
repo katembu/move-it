@@ -59,6 +59,53 @@ class ErroneousRDTReport(models.Model):
         backup.save()
         return backup
 
+class FullRDTReport(models.Model):
+
+    reporter    = models.ForeignKey(Reporter, unique_for_date="date") # uniqueness only enforced on admin
+    date        = models.DateField()
+    tested      = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cases tested by the RDTs"))
+    confirmed   = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cased confirmed by the RDTs"))
+    act         = models.PositiveIntegerField(verbose_name=_(u"ACT"))
+    cqsp        = models.PositiveIntegerField(verbose_name=_(u"CQ/SP"))
+    quinine     = models.PositiveIntegerField(verbose_name=_(u"Quinine"))
+    antibiopos  = models.PositiveIntegerField(verbose_name=_(u"Antibiotic +"))
+    antibioneg  = models.PositiveIntegerField(verbose_name=_(u"Antibiotic -"))
+    under_five  = models.BooleanField()
+    date_posted = models.DateTimeField(auto_now_add=True)
+    
+
+    def __unicode__(self):
+        return _(u"%(reporter)s (%(clinic)s)/%(date)s") % \
+        {'reporter': self.reporter, 'clinic':self.reporter.location.code.upper(), \
+        'date': self.date.strftime("%d-%m-%Y")}
+
+class ErroneousFullRDTReport(models.Model):
+    
+    reporter    = models.ForeignKey(Reporter, unique_for_date="date") # uniqueness only enforced on admin
+    date        = models.DateField()
+    tested      = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cases tested by the RDTs"))
+    confirmed   = models.PositiveIntegerField(verbose_name=_(u"Suspected malaria cased confirmed by the RDTs"))
+    act         = models.PositiveIntegerField(verbose_name=_(u"ACT"))
+    cqsp        = models.PositiveIntegerField(verbose_name=_(u"CQ/SP"))
+    quinine     = models.PositiveIntegerField(verbose_name=_(u"Quinine"))
+    antibiopos  = models.PositiveIntegerField(verbose_name=_(u"Antibiotic +"))
+    antibioneg  = models.PositiveIntegerField(verbose_name=_(u"Antibiotic -"))
+    under_five  = models.BooleanField()
+    date_posted = models.DateTimeField(auto_now_add=True)
+    date_over   = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return _(u"%(reporter)s (%(clinic)s)/%(date)s") % \
+        {'reporter': self.reporter, 'clinic':self.reporter.location.code.upper(), \
+        'date': self.date.strftime("%d-%m-%Y")}
+
+    @classmethod
+    def from_rdt(cls, report):
+        backup  = cls(reporter=report.reporter, date=report.date, \
+            tested=report.tested, confirmed=report.confirmed, act=report.act, cqsp=report.cqsp, quinine=report.quinine, antibiopos=report.antibiopos, antibioneg=report.antibioneg, under_five=report.under_five, date_posted=report.date_posted)
+        backup.save()
+        return backup
+
 class RDTAlert(models.Model):
 
     STATUS_SENT = 0

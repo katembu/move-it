@@ -420,6 +420,52 @@ class App (rapidsms.app.App):
 
         return True
 
+    # REGISTERING CHILD/ADULT
+    keyword.prefix = ""
+    @keyword(r'(letters) ([0-9]{6}) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
+    # RDT DATE #TESTED #POS #ACT #CQ/SP #Quinine #ANTIBIOTIC+ #ANTIOBIOTIC-
+    @registered
+    def back(self, message, prefix, date, tested, confirmed, act, cqsp, quinine, antibiopos, antibioneg):
+        ''' List reporters from a location matching a name '''
+
+        # process keyword
+        if prefix.lower() in ('young','child'):
+            under_five  = True
+        elif prefix.lower() in ('old','adult'):
+            under_five  = False
+        else:
+            return False
+
+        reporter    = message.persistant_connection.reporter
+
+        try:
+            report, overwritten = record_mrdt_full(reporter, int(tested), int(confirmed), int(act), int(cqsp), int(quinine), int(antibiopos), int(antibioneg), under_five=under_five, day=date, overwrite=True)
+        except UnknownReporter:
+            message.respond(_(u"Report Failed. You are not allowed to report MRDT."))
+            return True
+        except DuplicateReport:
+            message.respond(_(u"Report Failed. Your datas for %(date)s have already been reported.") % {'date': date})
+            return True
+        except ErroneousDate:
+            message.respond(_(u"Report Failed. Provided date (%(date)s) is erroneous.") % {'date': date})
+            return True
+        except IncoherentValue:
+            message.respond(_(u"Report Failed. Provided values are incoherent."))
+            return True
+
+        if overwritten:
+            suffix  = _(u" (overwrite)")
+        else:
+            suffix  = ""
+
+        if under_five:
+            u5suffix  = _(u" Under 5y childs")
+        else:
+            u5suffix  = _(u" Over 5y people")
+
+        message.respond(_("Clinic #%(clinic_id)s %(clinic)s %(date)s%(u5suffix)s report received%(overwrite_suffix)s! Cases: %(tested)s, Positive: %(confirmed)s ACT: %(act)s, CQ/SP: %(cqsp)s, Quinine: %(quinine)s, Antibiotic+: %(antibiopos)s, Antibiotic-: %(antibioneg)s") % {'clinic_id': report.reporter.location.id, 'clinic': report.reporter.location, 'date': report.date.strftime("%d.%m.%Y"), 'overwrite_suffix': suffix, 'tested': report.tested, 'confirmed': report.confirmed, 'act': report.act, 'cqsp': report.cqsp, 'quinine': report.quinine, 'antibiopos': report.antibiopos, 'antibioneg': report.antibioneg, 'u5suffix': u5suffix})
+
+
     ############################
     #  DRUG TRANSFERS
     ############################

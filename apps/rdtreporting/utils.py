@@ -73,6 +73,61 @@ def record_mrdt(reporter, tested, confirmed, treatments, used, day=date.today(),
 
     return report, overwritten
 
+# new, full version
+def record_mrdt_full(reporter, tested, confirmed, act, cqsp, quinine, antibiopos, antibioneg, under_five, day=date.today(), overwrite=False):
+    ''' records a day of MRDT tests '''
+
+    # verify amounts integrity
+
+    # tested is > confirmed, treatments
+    if tested < confirmed or tested < (act or cqsp or quinine or antibiopos or antibioneg):
+        raise IncoherentValue
+
+    # all treatments (+) <= confirmed
+    if (act + cqsp + quinine + antibiopos) > confirmed:
+        raise IncoherentValue
+
+    # all treatments <= tested
+    if (act + cqsp + quinine + antibiopos) + antibioneg > tested:
+        raise IncoherentValue
+
+    # check reporter
+    if not isinstance(reporter, Reporter):
+        raise UnknownReporter
+    
+    if not reporter.registered_self:
+        raise UnknownReporter
+
+    # check date
+    if isinstance(day, str):
+        day = date(*parseday(day))
+
+    if not isinstance(day, date):
+        raise ErroneousDate
+
+    # backup existing (then delete) if exists and overwrite=True
+    overwritten = False
+    existings   = FullRDTReport.objects.filter(reporter=reporter, date=day)
+
+    if existings.count() > 0 and not overwrite:
+        raise DuplicateReport
+    elif existings.count() > 0 and overwrite:
+        existing    = existings.latest('date_posted')
+        backup      = ErroneousFullRDTReport.from_rdt(existing)
+        existing.delete()
+        overwritten = True
+
+    # save the report
+    try:
+        report  = FullRDTReport(reporter=reporter, tested=tested, confirmed=confirmed, act=act, cqsp=cqsp, quinine=quinine, antibiopos=antibiopos, antibioneg=antibioneg, under_five=under_five, date=day)
+        report.save()
+    except IntegrityError:
+        raise DuplicateReport
+    except:
+        raise
+
+    return report, overwritten
+
 def record_alert(reporter, day):
     ''' record a sent alert to a reporter '''
 

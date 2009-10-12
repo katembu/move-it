@@ -11,6 +11,9 @@ from datas import *
 from apps.locations.models import *
 from apps.rdtreporting.models import *
 
+from apps.libreport.pdfreport import PDFReport
+from apps.libreport.csvreport import CSVReport
+
 def index(req):
     ''' Display Dashboard
 
@@ -81,3 +84,27 @@ def reporter_view(req, reporter_id):
     reporter    = Reporter.objects.get(id=reporter_id)
 
     return render_to_response(req, 'findug/reporter.html', { "reporter": reporter})
+
+def report(req):
+
+    clinics  = LocationType.objects.filter(name__startswith="HC")
+    locations= Location.objects.filter(type__in=clinics)
+    fields   = []
+    fields.append({"name": 'PID#', "column": None, "bit": "{{ object.id }}" })
+    fields.append({"name": 'NAME', "column": None, "bit": "{{ object }} {{ object.type }}" })
+    
+    pdfreport = PDFReport()
+    pdfreport.setLandscape(False)
+    pdfreport.setTitle("FIND Clinics")
+    pdfreport.setTableData(locations, fields, "Table Title")
+    pdfreport.setFilename("clinics")
+
+    csvreport = CSVReport()
+    csvreport.setLandscape(False)
+    csvreport.setTitle("FIND Clinics")
+    csvreport.setTableData(locations, fields, "Table Title")
+    csvreport.setFilename("clinics")
+    
+
+    return csvreport.render()
+
