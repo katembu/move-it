@@ -28,3 +28,6 @@ class SimpleOperator(object):
 
 class UnparsableUSSDAnswer(Exception):
     pass
+
+class UnknownAmount(Exception):
+    pass

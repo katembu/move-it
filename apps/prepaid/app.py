@@ -176,6 +176,8 @@ class App (rapidsms.app.App):
                 
                 try:
                     amount          = get_topup_amount(self.backend.modem, self.carrier, card_pin)
+                except UnknownAmount:
+                    amount          = -1
                 except UnparsableUSSDAnswer:
                     self.log('info', "ERROR: Unable to parse USSD answer")
                     return True
@@ -187,7 +189,7 @@ class App (rapidsms.app.App):
                 
                 # sends a very basic answer to emitter
                 if self.config['topup_answer_request']:
-                    message.respond("%(carrier)s topup: %(am)s" % {'carrier': self.carrier, 'am': amount})
+                    message.respond("%(carrier)s topup: %(am)s" % {'carrier': self.carrier, 'am': amount.__str__().replace('-1', 'unknown amount')})
                 
                 # triggers user's function
                 if self.topup_followup:
