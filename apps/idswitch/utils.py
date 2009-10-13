@@ -1,29 +1,58 @@
 # coding=utf-8
 
+# Object-receiving functions
 def nothing(obj):
-    return obj.connection.identity
+    return snothing(obj.connection.identity)
 
 def intl2dom1(obj):
     ''' removes first 2 chars. targets US-like numbers +1 xxx'''
-    return obj.connection.identity[2:]
+    return sintl2dom1(obj.connection.identity)
 
 def intl2dom2(obj):
     ''' removes first 3 chars. targets EU-like numbers: +22 xxxx'''
-    return obj.connection.identity[3:]
+    return sintl2dom2(obj.connection.identity)
 
 def intl2dom3(obj):
     ''' removes first 2 chars. targets Africa-like numbers +223 xxx to xxx'''
-    return obj.connection.identity[4:]
+    return sintl2dom3(obj.connection.identity)
 
 def intl2dom1zero(obj):
     ''' replace first 2 chars with 0. '''
-    return '0' + obj.connection.identity[2:]
+    return sintl2dom1zero(obj.connection.identity)
 
 def intl2dom2zero(obj):
     ''' replace first 3 chars with 0. France model: +33xxxx to 0xxxx'''
-    return '0' + obj.connection.identity[3:]
+    return sintl2dom2zero(obj.connection.identity)
 
 def intl2dom3zero(obj):
     ''' replace first 4 chars with 0.''' 
-    return '0' + obj.connection.identity[4:]
+    return sintl2dom3zero(obj.connection.identity)
+
+# String-receiving functions
+def snothing(number):
+    return number
+
+def sintl2dom1(number):
+    ''' removes first 2 chars. targets US-like numbers +1 xxx'''
+    return number[2:]
+
+def sintl2dom2(number):
+    ''' removes first 3 chars. targets EU-like numbers: +22 xxxx'''
+    return number[3:]
+
+def sintl2dom3(number):
+    ''' removes first 2 chars. targets Africa-like numbers +223 xxx to xxx'''
+    return number[4:]
+
+def sintl2dom1zero(number):
+    ''' replace first 2 chars with 0. '''
+    return '0' + number[2:]
+
+def sintl2dom2zero(number):
+    ''' replace first 3 chars with 0. France model: +33xxxx to 0xxxx'''
+    return '0' + number[3:]
+
+def sintl2dom3zero(number):
+    ''' replace first 4 chars with 0.''' 
+    return '0' + number[4:]
 
