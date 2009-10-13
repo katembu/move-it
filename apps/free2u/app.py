@@ -31,7 +31,7 @@ class App (rapidsms.app.App):
         http://www.ug.zain.com/en/phone-services/me2u/index.html
     '''
 
-    def configure (self, sms_cost=0, cost_type='int', me2u_pin='1234', service_num='132', allow_func=None, auth=None):
+    def configure (self, sms_cost=0, cost_type='int', me2u_pin='1234', service_num='132', allow_func=None, auth=None, idswitch_func=None):
         ''' set up Zain's me2u variables from [free2u] in rapidsms.ini '''
     
         # add custom function
@@ -77,7 +77,13 @@ class App (rapidsms.app.App):
         try:
             self.service_num= service_num
         except:
-            pass       
+            pass
+
+        # Edit target number
+        try:
+            self.idswitch_func = import_function(idswitch_func)
+        except:
+            self.idswitch_func = None
 
     def handle (self, message):
         ''' check authorization and send me2u 
@@ -96,7 +102,10 @@ class App (rapidsms.app.App):
             (self.allowed and self.allowed.count(message.peer) > 0) or \
             (self.func and self.func(message)):
 
+            peer = self.idswitch_func(message.peer) if self.idswitch_func else message.peer
+                
+
             # save a record of this transfer
-            message.forward(self.service_num, "2u %(target)s %(amount)s %(password)s" % {'target': message.peer, 'amount': self.cost_type(self.sms_cost), 'password': self.me2u_pin})
+            message.forward(self.service_num, "2u %(target)s %(amount)s %(password)s" % {'target': peer, 'amount': self.cost_type(self.sms_cost), 'password': self.me2u_pin})
             return False
 
