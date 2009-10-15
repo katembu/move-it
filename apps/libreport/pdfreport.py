@@ -19,17 +19,19 @@ try:
 except ImportError:
     pass
 
-''' PDFReport Is a class that create table format reports
+class PDFReport():
+    ''' 
+    PDFReport Is a class that create table format reports
+    The Title is placed on its own page for the first page 
     usage: 
-            pdfrpt = GenPDFRrepot()
+            pdfrpt = PDFRrepot()
             pdfrpt.setLandscape(False)
             pdfrpt.setTitle("Title")
             pdfrpt.setTableData(queryset, fields, "Table Title")
             pdfrpt.setFilename("filename")
+            pdfrpt.setNumOfColumns(2) # for two column setup
             pdfrpt.render()
-'''
-
-class PDFReport():
+    '''
     title = u"Report"
     pageinfo = ""
     filename = "report"
@@ -45,51 +47,57 @@ class PDFReport():
     def __init__(self):
         self.headers.append("")
     
-    # enable or disable landscape display
-    # @var state: True or False
     def setLandscape(self, state):
+        """ enable or disable landscape display
+            @var state: True or False
+        """
         self.landscape = state
-
-    # enable formatter for the last row of the table
-    # e.g for summaries have bold border lines
-    # @var state: True or False
+    
     def enableFooter(self, state):
+        """
+        enable formatter for the last row of the table
+        e.g for summaries have bold border lines
+        @var state: True or False
+        """
         self.hasfooter = state
         
-    # @var title: The Report Title
     def setTitle(self, title):
+        """ @var title: The Report Title """
         if title:
             self.title = title
            
     def setPageInfo(self, pageinfo):
         if pageinfo:
             self.pageinfo = pageinfo
-
-    # @var filename: filename for the generated pdf document           
+               
     def setFilename(self, filename):
+        """ @var filename: filename for the generated pdf document """
         if filename:
             self.filename = filename
     
-    # @var size: font-size           
+               
     def setFontSize(self, size):
+        """ @var size: font-size """
         if size:
             self.fontSize = size
-            
-    # @var cols: number of columns           
+                   
     def setNumOfColumns(self, cols):
+        """ @var cols: number of columns """
         if cols:
             self.cols = cols
             
-    # force a page break 
+     
     def setPageBreak(self):
+        """ force/add a page break """
         self.data.append(PageBreak())
-         
-    # set table data
-    # @var queryset: data
-    # @var fields: table column headings
-    # @var title: Table Heading
+        
     def setTableData(self, queryset, fields, title):        
-        #self.data.append(Paragraph("%s" % title, self.styles['Heading3']))
+        """
+        set table data
+        @var queryset: data
+        @var fields: table column headings
+        @var title: Table Heading
+    """
         data = []
         header = False
         c = 0;
@@ -129,7 +137,13 @@ class PDFReport():
         table.hAlign = "LEFT"
         self.data.append(table)
         
-        c = len(queryset)/102.0
+        """
+            The number of rows per page for two columns is about 90.
+            using this information you can figure how many pages the
+            table is going to overlap hence you place a header/subtitle
+            in that position for it to be printed appropriately
+        """
+        c = len(queryset)/90
             
         if int(c)< c:
            c = int(c) + 1
@@ -160,7 +174,6 @@ class PDFReport():
         for data in self.data:
             elements.append(data)        
         
-        #doc.build(elements, onFirstPage=self.myFirstPage, onLaterPages=self.myLaterPages)
         if self.landscape is True:
             self.PAGESIZE = landscape(A4)
         doc = MultiColDocTemplate(filename, self.cols, pagesize=self.PAGESIZE, allowSplitting=1)
@@ -211,7 +224,12 @@ class MultiColDocTemplate(BaseDocTemplate):
     "A multi column document template"
     headers = []
     title = u"Report Title Here"
+    
     def __init__(self, filename, frameCount=1, **kw):
+        """
+            @FIXME: need to remove frameCount to maintain consistency with BaseDocTemplate constructor
+                   and hence find a way to pass frameCount
+        """
         apply(BaseDocTemplate.__init__,(self, filename), kw)
         
         self.addPageTemplates(self.firstPage())
@@ -251,11 +269,9 @@ class MultiColDocTemplate(BaseDocTemplate):
         firstPageColumn = Frame(self.leftMargin, self.bottomMargin, frameWidth, firstPageBottom)
         framesFirstPage.append(firstPageColumn)
         return PageTemplate(frames=framesFirstPage, id="firstPage")
-        
-         
-    
-    #display the title of the blog and the current page
+                     
     def addHeader(self, canvas, document):
+        """ display the heading of the page or document """
         canvas.saveState()
         title = self.getSubTitle(document.page-1)
         fontsize = 12
@@ -277,7 +293,10 @@ class MultiColDocTemplate(BaseDocTemplate):
             self.title = title
     
     def getSubTitle(self, pos):
-        try:   
+        
+        try:
+            """ since subtitles vary from page to page, I pick the relevant
+             title according to the page number """    
             return u"%s"%self.headers[pos]
         except:
             return u""
