@@ -288,6 +288,18 @@ class App (rapidsms.app.App):
         
         log(message.sender.provider, "case_cancelled")        
         return True
+    
+    @keyword(r'inactive \+?(\d+)?(.+)')
+    @authenticated
+    def inactive_case (self, message, ref_id, reason=""):
+        case = self.find_case(ref_id)
+        case.set_status(Case.STATUS_INACTIVE)
+        case.save()
+        info = case.get_dictionary()
+        message.respond(_(
+            "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+            "(%(guardian)s) has been made inactive") % info)
+        return True
 
     @keyword(r'transfer \+?(\d+) (?:to )?\@?(\w+)')
     @authenticated

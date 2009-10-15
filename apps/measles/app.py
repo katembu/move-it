@@ -53,7 +53,7 @@ class App (rapidsms.app.App):
         except TypeError:
             # didn't find a matching function
             # make sure we tell them that we got a problem
-            message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
+            #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
             
             return False
         try:
