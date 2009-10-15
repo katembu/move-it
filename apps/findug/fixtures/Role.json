@@ -1,0 +1,1 @@
+[{"pk": 1, "model": "reporters.role", "fields": {"patterns": [], "code": "cli", "name": "Clinician"}}, {"pk": 2, "model": "reporters.role", "fields": {"patterns": [], "code": "hw", "name": "Health Worker"}}, {"pk": 3, "model": "reporters.role", "fields": {"patterns": [], "code": "pha", "name": "Pharmacist"}}]
