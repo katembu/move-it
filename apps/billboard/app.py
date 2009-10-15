@@ -51,7 +51,7 @@ class App (rapidsms.app.App):
         config      = Configuration.get_dictionary()
         if config.__len__() < 1: raise Exception, "Need configuration fixture"
         settings.LANGUAGE_CODE  = config["lang"]
-        self.backend    = self._router.backends.pop()
+        self.backend    = self._router.backends[-1]
         self.router.call_at(60, self.period_balance_check)
         self.router.call_at(120, self.bulk_send)
     

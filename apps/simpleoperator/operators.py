@@ -55,3 +55,30 @@ class Malitel(SimpleOperator):
         except:
             raise UnparsableUSSDAnswer, operator_string
 
+## UGANDA
+class ZainUganda(SimpleOperator):
+    
+    CAPABILITIES    = {'USSD_BALANCE':True, 'USSD_TOPUP':True}
+    BALANCE_USSD    = "*131#"
+    TOPUP_USSD      = "*130*"
+    TOPUP_USSD_FMT  = "%s%s#"
+
+    def get_balance(self, operator_string):
+        #Your account balance is 1000 Ushs. blabla
+        try:
+            balance_grp = re.search('Your account balance is ([0-9\.]+) Ushs.', operator_string)
+            return float(balance_grp.groups()[0])
+        except:
+            raise UnparsableUSSDAnswer, operator_string
+    
+    def build_topup_ussd(self, card_pin):
+        return self.TOPUP_USSD_FMT % (self.TOPUP_USSD, card_pin)
+
+    def get_amount_topup(self, operator_string):
+        #Your account balance is 5270Ushs.
+        try:
+            amount_grp  = re.search('Your account balance is ([0-9\.]+) Ushs.', operator_string)
+            raise UnknownAmount, amount_grp
+        except:
+            raise UnparsableUSSDAnswer, operator_string
+

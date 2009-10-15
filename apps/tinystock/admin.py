@@ -3,7 +3,7 @@
 from django.contrib import admin
 from datetime import datetime
 from django.utils.translation import ugettext as _
-from models import TransferLog, KindOfItem, Item, StockItem, StoreProvider
+from models import TransferLog, KindOfItem, Item, StockItem
 
 admin.site.register(KindOfItem)
 admin.site.register(Item)

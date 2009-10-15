@@ -45,7 +45,7 @@ class App (rapidsms.app.App):
     drug_code   = '$'
 
     def start (self):
-        self.backend    = self._router.backends.pop()
+        self.backend    = self._router.backends[-1]
 
     def parse (self, message):
         """Parse and annotate messages in the parse phase."""
