@@ -21,6 +21,15 @@ class CSVReport():
     title = "Report"
     filename = "report"
 
+    pageinfo = None
+    styles = None
+    landscape = None
+    hasfooter = None
+    headers = None
+    cols = None
+    PAGESIZE = None
+    fontSize = None
+
     def __init__(self):
         self.output = StringIO.StringIO()
         self.csvio  = csv.writer(self.output)
