@@ -70,7 +70,7 @@ class App (rapidsms.app.App):
         self.carrier    = eval("%s()" % self.config['carrier'])
         
         # storing backend for USSD interaction
-        self.backend    = self._router.backends.pop()
+        self.backend    = self._router.backends[-1]
         
         # set alias for logs
         self.me         = self.config['local_alias']
