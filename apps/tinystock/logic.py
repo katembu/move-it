@@ -1,6 +1,6 @@
 # coding=utf-8
 
-from models import StoreProvider, KindOfItem, Item, StockItem, TransferLog
+from models import KindOfItem, Item, StockItem, TransferLog
 from exceptions import *
 from django.utils.translation import ugettext as _
 from datetime import datetime
@@ -20,9 +20,9 @@ def add_stock_for_item(receiver, item, quantity):
     # retrieve or create StockItem for receiver
     # need to make it smarter to check to make sure sku item exists
     try:
-        receiver_stock      = StockItem.objects.get(peer=receiver, item=item)
+        receiver_stock      = StockItem.by_peer_item(peer=receiver, item=item)
     except StockItem.DoesNotExist:
-        receiver_stock      = StockItem(peer=receiver, item=item, quantity=0)
+        receiver_stock      = StockItem.new_by_peer_item_qty(peer=receiver, item=item, quantity=0)
         receiver_stock.save()
         
     log = TransferLog(sender=receiver, receiver=receiver, item=item, quantity=quantity, date=datetime.now())
@@ -43,7 +43,7 @@ def add_stock_for_item(receiver, item, quantity):
 def transfer_item(sender, receiver, item, quantity):
     ''' Transfer an arbitrary quantity of goods between to StoreProvider '''
     try:
-        sender_stock        = StockItem.objects.get(peer=sender, item=item)
+        sender_stock        = StockItem.by_peer_item(peer=sender, item=item)
     except StockItem.DoesNotExist:
         # Store has no such item in stock
         raise ItemNotInStore
@@ -54,9 +54,10 @@ def transfer_item(sender, receiver, item, quantity):
 
     # retrieve or create StockItem for receiver    
     try:
-        receiver_stock      = StockItem.objects.get(peer=receiver, item=item)
+        receiver_stock      = StockItem.by_peer_item(peer=receiver, item=item)
     except StockItem.DoesNotExist:
-        receiver_stock      = StockItem(peer=receiver, item=item, quantity=0)
+        receiver_stock      = StockItem.new_by_peer_item_qty(peer=receiver, item=item, quantity=0)
+        #StockItem(peer=receiver, item=item, quantity=0)
         receiver_stock.save()
 
     log = TransferLog(sender=sender, receiver=receiver, item=item, quantity=quantity, date=datetime.now())

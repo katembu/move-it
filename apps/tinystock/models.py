@@ -5,38 +5,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
 from datetime import datetime
 
-class StoreProvider(models.Model):
-
-
-    _direct         = None
-    _direct_class   = None
-
-    @classmethod
-    def set_class(cls, sub_cls, sub_cls_str):
-        cls._direct        = eval("cls.%s" % sub_cls_str)
-        cls._direct_class  = sub_cls
-
-    def direct(self):
-        return self._direct
-
-    def cls(self):
-        return self._direct_class
-
-    def __unicode__(self):
-        return u"%s (%s)" % (self.direct(), self.total())
-
-    def store(self):
-        return StockItem.objects.filter(peer=self)
-
-    def total(self):
-        total = self.store().extra(select={'total': 'SUM(quantity)'})[0].total
-        if total == None:
-            total = 0
-        return total
-
-    @classmethod
-    def cls(cls):
-        return cls._direct_class
+from apps.reporters.models import *
+from apps.locations.models import *
 
 class KindOfItem(models.Model):
     ''' Primary categorization of an item.
@@ -79,14 +49,88 @@ class StockItem(models.Model):
     ''' combination of an Item and a quantity '''
 
     class Meta:
-        unique_together = (("peer", "item"),)
+        unique_together = (("_peer_reporter", "item"),("_peer_location", "item"),)
 
-    peer    = models.ForeignKey('StoreProvider')
+    _peer_reporter  = models.ForeignKey(Reporter, blank=True, null=True)
+    _peer_location  = models.ForeignKey(Location, blank=True, null=True)
     item    = models.ForeignKey('Item')
     quantity= models.IntegerField()
 
     def __unicode__(self):
         return u"%(peer)s, %(item)s: %(q)s %(kind)s" % {'q': self.quantity, 'kind': self.item.kind.name, 'item': self.item.name, 'peer': self.peer}
+
+    def set_peer(self, value):
+        if value.__class__ == Reporter:
+            self._peer_reporter   = value
+            self._peer_location   = None
+        elif value.__class__ == Location:
+            self._peer_location   = value
+            self._peer_reporer    = None
+        else:
+            raise ValueError
+
+    def get_peer(self):
+
+        if self._peer_reporter: return self._peer_reporter
+        if self._peer_location: return self._peer_location
+        return None
+
+    peer = property(get_peer, set_peer)
+
+    @classmethod
+    def by_peer(cls, peer):
+        
+        # reporter
+        try:
+            stores       = cls.objects.filter(_peer_reporter=peer)
+            return stores
+        except:
+            pass
+
+        # location
+        try:
+            stores       = cls.objects.filter(_peer_location=peer)
+            return stores
+        except:
+            pass
+
+        raise StockItem.DoesNotExist
+
+    @classmethod
+    def by_peer_item(cls, peer, item):
+        try:
+            filtered    = cls.objects.filter(item=item)
+        except:
+            raise StockItem.DoesNotExist
+
+        # reporter
+        try:
+            stock       = filtered.get(_peer_reporter=peer)
+            return stock
+        except:
+            pass
+
+        # location
+        try:
+            stock       = filtered.get(_peer_location=peer)
+            return stock
+        except:
+            pass
+
+        raise StockItem.DoesNotExist
+
+    @classmethod
+    def new_by_peer_item_qty(cls, peer, item, quantity):
+        if peer.__class__ == Reporter:
+            stock   = StockItem(_peer_reporter=peer, item = item, quantity = quantity)
+        elif peer.__class__ == Location:
+            stock   = StockItem(_peer_location=peer, item = item, quantity = quantity)
+        else:
+            raise ValueError
+
+        stock.save()
+        return stock
+        
 
 class TransferLog(models.Model):
 
@@ -101,14 +145,53 @@ class TransferLog(models.Model):
     )
     
     date    = models.DateTimeField(auto_now_add=True)
-    sender  = models.ForeignKey('StoreProvider', related_name="transfer_sender")
-    receiver= models.ForeignKey('StoreProvider', related_name="transfer_receiver")
+    _sender_reporter    = models.ForeignKey(Reporter, blank=True, null=True, related_name='transfer_sender')
+    _sender_location    = models.ForeignKey(Location, blank=True, null=True, related_name='transfer_sender')
+    _receiver_reporter    = models.ForeignKey(Reporter, blank=True, null=True, related_name='transfer_receiver')
+    _receiver_location    = models.ForeignKey(Location, blank=True, null=True, related_name='transfer_receiver')
     item    = models.ForeignKey('Item')
     quantity= models.IntegerField()
     status  = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_OK)
     note = models.TextField(blank=True)
     
     def __unicode__(self):
-        return u"%(d)s: %(s)s>%(r)s - %(q)s %(it)s" % {'s': self.sender.direct(), 'r': self.receiver.direct(), 'q': self.quantity, 'it': self.item.name, 'd': self.date.strftime("%Y%m%d")}
+        return u"%(d)s: %(s)s>%(r)s - %(q)s %(it)s" % {'s': self.sender, 'r': self.receiver, 'q': self.quantity, 'it': self.item.name, 'd': self.date.strftime("%Y%m%d")}
+
+    def set_sender(self, value):
+        if value.__class__ == Reporter:
+            self._sender_reporter   = value
+            self._sender_location   = None
+        elif value.__class__ == Location:
+            self._sender_location   = value
+            self._sender_reporer    = None
+        else:
+            raise ValueError
+
+    def get_sender(self):
+
+        if self._sender_reporter: return self._sender_reporter
+        if self._sender_location: return self._sender_location
+        return None
+
+    sender = property(get_sender, set_sender)
+
+    def set_receiver(self, value):
+        if value.__class__ == Reporter:
+            self._receiver_reporter   = value
+            self._receiver_location   = None
+        elif value.__class__ == Location:
+            self._receiver_location   = value
+            self._receiver_reporer    = None
+        else:
+            raise ValueError
+
+    def get_receiver(self):
+
+        if self._receiver_reporter: return self._receiver_reporter
+        if self._receiver_location: return self._receiver_location
+        return None
+
+    receiver = property(get_receiver, set_receiver)
+
     
 
