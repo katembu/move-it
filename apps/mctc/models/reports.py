@@ -185,6 +185,9 @@ class ReportMalnutrition(Report, models.Model):
     def symptoms(self):
           return ", ".join([k.name for k in self.observed.all()])
     
+    def symptoms_keys(self):
+        return ", ".join([k.letter.upper() for k in self.observed.all()])
+    
     def days_since_last_activity(self):
         today = date.today()
         
@@ -620,7 +623,7 @@ class ReportAllPatients(Report, models.Model):
                     muacc   = ReportMalnutrition.objects.filter(case=case).latest()
                     #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
                     q['malnut_muac'] = "%s (%smm)"%(muacc.get_status_display(), muacc.muac)
-                    q['malnut_symptoms'] = muacc.symptoms()
+                    q['malnut_symptoms'] = muacc.symptoms_keys()
                     q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
                 except ObjectDoesNotExist:
                     q['malnut_muac'] = ""
@@ -661,14 +664,14 @@ class ReportAllPatients(Report, models.Model):
             # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
             fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
             fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
-            fields.append({"name": 'NAME', "column": None, "bit": "{{ object.case.short_name }}" })
+            fields.append({"name": 'NAME', "column": None, "bit": "{{ object.case.last_name }} {{ object.case.first_name }}" })
             fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
-            fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.short_dob }} - {{ object.case.age }}" })            
+            fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.age }}" })            
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.malaria_result }}" })
             fields.append({"name": 'BEDNET', "column": None, "bit": "{{ object.malaria_bednet }}" })
             fields.append({"name": 'CMAM', "column": None, "bit": "{{ object.malnut_muac }} {{object.malnut_days_since_last_update}}" })
             fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.malnut_symptoms}}" })
-            fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
+            #fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
             
             return qs, fields
 
