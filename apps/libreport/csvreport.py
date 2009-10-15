@@ -35,6 +35,10 @@ class CSVReport():
         pass
     def setPageInfo(self, pageinfo):
         pass
+   def setFontSize(self, size):
+        pass       
+    def setNumOfColumns(self, cols):
+        pass
 
     # @var filename: filename for the generated pdf document           
     def setFilename(self, filename):
