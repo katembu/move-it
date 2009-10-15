@@ -1,5 +1,7 @@
 import os
 from datetime import datetime
+import copy
+
 from django.template import Template, Context
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -8,7 +10,7 @@ try:
     from reportlab.platypus import BaseDocTemplate, PageTemplate, SimpleDocTemplate, Paragraph, Spacer, PageBreak, CondPageBreak, Frame, FrameBreak, NextPageTemplate
     from reportlab.platypus import Table as PDFTable
     from reportlab.platypus import TableStyle
-    from reportlab.lib.enums import TA_LEFT
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
     from reportlab.lib import colors 
     from reportlab.lib.pagesizes import A4, LETTER, landscape, portrait
     from reportlab.rl_config import defaultPageSize
