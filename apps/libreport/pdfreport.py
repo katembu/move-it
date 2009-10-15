@@ -281,7 +281,5 @@ class MultiColDocTemplate(BaseDocTemplate):
             return u""
     
     def setHeaders(self, headers):
-         self.headers = headers
-        canvas.drawText(textobject)
-        canvas.restoreState()
-
+        self.headers = headers
+        
