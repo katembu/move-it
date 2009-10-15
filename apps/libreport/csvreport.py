@@ -44,7 +44,7 @@ class CSVReport():
         pass
     def setPageInfo(self, pageinfo):
         pass
-   def setFontSize(self, size):
+    def setFontSize(self, size):
         pass       
     def setNumOfColumns(self, cols):
         pass
