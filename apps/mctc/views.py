@@ -12,7 +12,7 @@ from mctc.shortcuts import as_html, login_required
 from mctc.models.logs import log, MessageLog, EventLog
 from mctc.models.general import Case, Zone, Provider, Facility
 from mctc.models.reports import ReportCHWStatus, ReportAllPatients, ReportMalnutrition, ReportMalaria
-from mctc.reportgen import GenPDFReport
+from libreport.pdfreport import PDFReport
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -163,7 +163,7 @@ def reports(request):
 
 @login_required
 def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     d = int(d)
     pdfrpt.enableFooter(True)
     thirty_days = timedelta(days=d)
@@ -202,7 +202,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
 
 @login_required
 def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     d = int(d)
     pdfrpt.enableFooter(True)
     thirty_days = timedelta(days=d)
@@ -241,7 +241,7 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
     pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     
@@ -509,7 +509,7 @@ def report_monitoring_csv(request, object_id, file_name):
 
 @login_required
 def measles(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     pdfrpt.setTitle("Measles Campaign")
@@ -546,7 +546,7 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
 
 @login_required
 def malnut(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     pdfrpt.setTitle("RapidResponse MVP Kenya: Malnutrition Report")
@@ -585,7 +585,7 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
 
 @login_required
 def malaria(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     pdfrpt.setTitle("RapidResponse MVP Kenya: Malaria Report")
@@ -619,7 +619,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     
     return pdfrpt.render()
 def trend(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = GenPDFReport()
+    pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
     pdfrpt.setTitle("RapidResponse MVP Kenya: Malnutrition Trend by Case Report")
     
