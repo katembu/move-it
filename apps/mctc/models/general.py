@@ -4,6 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from datetime import datetime, timedelta, date
 
+from reporters.models import Reporter
+from locations.models import Location
 
 class Zone(models.Model):
     def __unicode__ (self): 
@@ -158,10 +160,8 @@ class Case(models.Model):
     dob         = models.DateField(_('Date of Birth'))
     guardian    = models.CharField(max_length=255, null=True, blank=True)
     mobile      = models.CharField(max_length=16, null=True, blank=True)
-    provider    = models.ForeignKey(Provider, db_index=True)
-    zone        = models.ForeignKey(Zone, null=True, db_index=True)
-    village     = models.CharField(max_length=255, null=True, blank=True)
-    district    = models.CharField(max_length=255, null=True, blank=True)
+    reporter    = models.ForeignKey(Reporter, db_index=True)
+    location    = models.ForeignKey(Location, db_index=True)
     created_at  = models.DateTimeField()
     updated_at  = models.DateTimeField()
     status      = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE)
