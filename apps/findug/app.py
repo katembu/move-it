@@ -9,11 +9,8 @@ from django.utils.translation import ugettext as _
 
 from apps.reporters.models import *
 from apps.locations.models import *
-from apps.rdtreporting.models import *
-from apps.rdtreporting.utils import *
-from apps.tinystock.models import KindOfItem, Item, StockItem
-from apps.tinystock.logic import *
-from apps.tinystock.exceptions import *
+
+from models import *
 from utils import *
 
 class HandlerFailed (Exception):
@@ -128,8 +125,11 @@ class App (rapidsms.app.App):
     # SUBSCRIBE
     keyword.prefix = ["subscribe"]
     @keyword(r'(\w+) (\w+) (.+)')
-    def join(self, message, clinic_code, role_code, name):
+    def join(self, message, clinic_code, name):
         ''' register a user and join the system '''
+
+        # skip roles for now
+        role_code   = None
 
         try:
             # parse the name, and create a reporter
@@ -165,8 +165,11 @@ class App (rapidsms.app.App):
     keyword.prefix = ["join"]
     @keyword(r'(\w+)\s?(\w*)')
     @registered
-    def join(self, message, clinic_code, role_code):
+    def join(self, message, clinic_code):
         ''' Adds a self-registered reporter to the mrdt system '''
+
+        # skip roles for now
+        role_code   = None
 
         if role_code == None or role_code.__len__() < 1:
             role_code   = 'hw'
@@ -180,8 +183,11 @@ class App (rapidsms.app.App):
     @keyword(r'\@(slug) (letters)\s?(\w*)')
     @registered
     @admin
-    def join_one(self, message, reporter_alias, clinic_code, role_code):
+    def join_one(self, message, reporter_alias, clinic_code):
         ''' Adds an arbitrary reporter to the mrdt system '''
+
+        # skip roles for now
+        role_code   = None
 
         if role_code == None or role_code.__len__() < 1:
             role_code   = 'hw'
@@ -360,11 +366,9 @@ class App (rapidsms.app.App):
 
         # get list of reporters
         reporters   = Reporter.objects.filter(location=clinic, registered_self=True)
-        print reporters
+
         if name != None and name.__len__() > 0:
-            print name
             reporters   = reporters.filter(first_name__contains=name)
-            print reporters
 
         if reporters.__len__() == 0:
             message.respond(_("No such people at %(clinic)s.") % {'clinic': clinic})
@@ -392,451 +396,63 @@ class App (rapidsms.app.App):
         return True
 
     ############################
-    #  RDT REPORTING
+    #  DISEASES REPORTING (1/4)
     ############################
 
-    # REGISTERING MRDT
-    keyword.prefix = ["rdt", "mrdt"]
-    @keyword(r'([0-9]{6}) (numbers) (numbers) (numbers) (numbers)')
-    @registered
-    def back(self, message, date, tested, confirmed, treatments, used):
-        ''' List reporters from a location matching a name '''
-
-        reporter    = message.persistant_connection.reporter
-        
-        try:
-            report, overwritten = record_mrdt(reporter, int(tested), int(confirmed), int(treatments), int(used), day=date, overwrite=True)
-        except UnknownReporter:
-            message.respond(_(u"Report Failed. You are not allowed to report MRDT."))
-            return True
-        except DuplicateReport:
-            message.respond(_(u"Report Failed. Your datas for %(date)s have already been reported.") % {'date': date})
-            return True
-        except ErroneousDate:
-            message.respond(_(u"Report Failed. Provided date (%(date)s) is erroneous.") % {'date': date})
-            return True
-        except IncoherentValue:
-            message.respond(_(u"Report Failed. Provided values are incoherent."))
-            return True
-
-        if overwritten:
-            suffix  = _(u" (overwrite)")
-        else:
-            suffix  = ""
-
-        message.respond(_("Clinic #%(clinic_id)s %(clinic)s %(date)s report received%(overwrite_suffix)s! Cases=%(tested)s, Positive=%(confirmed)s Treatment=%(treatments)s, Tests=%(used)s") % {'clinic_id': report.reporter.location.id, 'clinic': report.reporter.location, 'date': report.date.strftime("%d.%m.%Y"), 'overwrite_suffix': suffix, 'tested': report.tested, 'confirmed': report.confirmed, 'treatments': report.treatments, 'used': report.used})
-
-        return True
-
-    # REGISTERING CHILD/ADULT
     keyword.prefix = ""
-    @keyword(r'(letters) ([0-9]{6}) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
-    # RDT DATE #TESTED #POS #ACT #CQ/SP #Quinine #ANTIBIOTIC+ #ANTIOBIOTIC-
+    @keyword(r'diseases(\-[0-9])? (.*)')
     @registered
-    def back(self, message, prefix, date, tested, confirmed, act, cqsp, quinine, antibiopos, antibioneg):
-        ''' List reporters from a location matching a name '''
+    def back(self, message, period, text):
 
-        # process keyword
-        if prefix.lower() in ('young','child'):
-            under_five  = True
-        elif prefix.lower() in ('old','adult'):
-            under_five  = False
-        else:
-            return False
-
+        # reporter
         reporter    = message.persistant_connection.reporter
 
+        # period
+        period      = 0 if not period else int(period[1:])
+        report_week = ReportPeriod.from_index(period)
+
         try:
-            report, overwritten = record_mrdt_full(reporter, int(tested), int(confirmed), int(act), int(cqsp), int(quinine), int(antibiopos), int(antibioneg), under_five=under_five, day=date, overwrite=True)
-        except UnknownReporter:
-            message.respond(_(u"Report Failed. You are not allowed to report MRDT."))
-            return True
-        except DuplicateReport:
-            message.respond(_(u"Report Failed. Your datas for %(date)s have already been reported.") % {'date': date})
-            return True
-        except ErroneousDate:
-            message.respond(_(u"Report Failed. Provided date (%(date)s) is erroneous.") % {'date': date})
+            diseases = diseases_from_string(text)
+        except InvalidInput:
+            message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
             return True
         except IncoherentValue:
-            message.respond(_(u"Report Failed. Provided values are incoherent."))
+            message.respond(_(u"FAILED. Sorry, your report seems to contain more Deaths than Cases. Please check syntax and try again."))
             return True
 
-        if overwritten:
-            suffix  = _(u" (overwrite)")
-        else:
-            suffix  = ""
-
-        if under_five:
-            u5suffix  = _(u" Under 5y childs")
-        else:
-            u5suffix  = _(u" Over 5y people")
-
-        message.respond(_("Clinic #%(clinic_id)s %(clinic)s %(date)s%(u5suffix)s report received%(overwrite_suffix)s! Cases: %(tested)s, Positive: %(confirmed)s ACT: %(act)s, CQ/SP: %(cqsp)s, Quinine: %(quinine)s, Antibiotic+: %(antibiopos)s, Antibiotic-: %(antibioneg)s") % {'clinic_id': report.reporter.location.id, 'clinic': report.reporter.location, 'date': report.date.strftime("%d.%m.%Y"), 'overwrite_suffix': suffix, 'tested': report.tested, 'confirmed': report.confirmed, 'act': report.act, 'cqsp': report.cqsp, 'quinine': report.quinine, 'antibiopos': report.antibiopos, 'antibioneg': report.antibioneg, 'u5suffix': u5suffix})
-
-
-    ############################
-    #  DRUG TRANSFERS
-    ############################
-
-    def do_transfer_drug(self, message, sender, receiver, item, quantity):
-        
-        log = transfer_item(sender=sender, receiver=receiver, item=item, quantity=int(quantity))
-       
-        if receiver.connection():
-            message.forward(receiver.connection().identity, "CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have received %(quantity)s %(item)s from %(sender)s. If not correct please reply: CANCEL %(lid)s" % {
-                'quantity': quantity,
-                'item': item.name,
-                'sender': sender,
-                'd': log.date.strftime("%d%m%y"),
-                'sid': sender.id,
-                'rid': receiver.id,
-                'lid': log.id
-            })
-
-        message.respond("CONFIRMATION #%(d)s-%(sid)s-%(rid)s-%(lid)s You have sent %(quantity)s %(item)s to %(receiver)s. If not correct please reply: CANCEL %(lid)s" % {
-            'quantity': quantity,
-            'item': item.name,
-            'receiver': receiver,
-            'd': log.date.strftime("%d%m%y"),
-            'sid': sender.id,
-            'rid': receiver.id,
-            'lid': log.id
-        })
-
-        # remove stock alert if applicable
-
-        if not receiver.__class__ == Reporter:
-            return True
-
-        alerts  = RDTStockAlert.objects.filter(reporter=receiver, status=RDTStockAlert.STATUS_SENT)
-        if not alerts.count() > 0:
-            return True
-
-        # get low level
-        try:
-            low = Configuration.objects.get(id=1).low_stock_level
-        except:
-            return True
-
-        mrdt    = Item.by_code('mrdt')
-        stock  = StockItem.by_peer_item(peer=receiver, item=mrdt)
-
-        if stock.quantity >= low:
-            for alert in list(alerts):
-                alert.status    = RDTStockAlert.STATUS_FIXED
-                alert.save()
-        else:
-            for alert in list(alerts):
-                alert.status    = RDTStockAlert.STATUS_OBSOLETE
-                alert.save()
-
-        return True
-
-    # DIST
-    keyword.prefix = ['dist']
-    @keyword(r'(@|@@|@@@)(\w+) (\d+)')
-    @registered
-    def transfer_clinic_chw (self, message, rec_type, receiver, quantity):
-        ''' Transfer Drug from Reorter to Clinic or Reporter
-            DIST @mdiallo #001 10'''
-
-        # Assume we only have MRDT
-        code    = 'mrdt'
-
-        rec_type    = rec_type_from_string(rec_type)
-        
-        alias=receiver.lower()
-
-        # sender is the one emiting the text
-        sender      = message.persistant_connection.reporter
-        try:
-            receiver    = peer_from_alias(alias)
-        # There is a location AND a reporter with same alias
-        except AmbiguousAlias:
-            # User may not know that he can enforce a recipient
-            if rec_type == None:
-                message.respond(_(u"Distribution request failed. Alias is ambiguous. Use @@ to enforce a Reporter of @@@ to enforce Clinic/Location alias."))
-                return True
-            else:
-                receiver= peer_from_alias(alias, of_type=rec_type)
-
-        item        = Item.by_code(code)
-        if item == None or sender == None or receiver == None:
-            message.respond(_(u"Distribution request failed. Either Item ID or CHW alias is wrong."))
-            return True
-
-        try:
-            return self.do_transfer_drug(message, sender, receiver, item, quantity)
-        except ItemNotInStore:
-            message.respond(_(u"Distribution request failed. You do not have %(med)s") % {'med': item})
-            return True
-        except NotEnoughItemInStock:
-            message.respond(_(u"Distribution request failed. You can't transfer %(q)s %(it)s to %(rec)s because you only have %(stk)s.") % {'q': quantity, 'it': item.name, 'rec': receiver, 'stk': StockItem.by_peer_item(peer=sender, item=item).quantity})
-            return True
-
-    # ADD (admin)
-    keyword.prefix  = ['add']
-    @keyword(r'(\d+)')
-    @registered
-    @admin
-    def add_stock (self, message, quantity):
-        
-        ''' Add stock for item. Used by main drug distribution point'''
-
-        # Assume we only have MRDT
-        code    = 'mrdt'
-
-        sender      = message.persistant_connection.reporter
-        
-        # only PHA can add drugs
-        try:
-            no_pha  = not sender.role == Role.objects.get(code='pha')
-        except:
-            no_pha  = True        
-
-        if no_pha:
-            message.respond(_(u"Addition request failed. Only PHA can perform such action."))
-            return True
-
-        receiver    = sender
-        item        = Item.by_code(code)
-        if item == None or sender == None or receiver == None:
-            message.respond(_(u"Addition request failed. Either Item ID or Reporter alias is wrong."))
-            return True
-        
-        try:
-            log = add_stock_for_item(receiver=receiver, item=item, quantity=int(quantity))
-        
-            message.respond("CONFIRMATION #%(d)s-%(sid)s-%(lid)s You have added %(quantity)s %(item)s to your stock. If not correct please reply: CANCEL %(lid)s" % {
-            'quantity': quantity,
-            'item': item.name,
-            'receiver': receiver,
-            'd': log.date.strftime("%d%m%y"),
-            'sid': sender.id,
-            'rid': receiver.id,
-            'lid': log.id
-            })
-        except:
-            raise
-
-        return True
-
-    def parse_sku_quantities(self, sku_quantities):
-        ''' returns array of hash from SKU quantities format '''
-
-        couples  = sku_quantities.split(" #")
-        skq = {}
-        try:
-            for couple in couples:
-                x = couple.split(" ")
-                code = x[0].replace("#", "")
-                item = Item.by_code(code)
-                if skq.has_key(code) or item == None:
-                    raise MalformedRequest
-                skq[code]   = {'code': code, 'quantity': int(x[1]), 'item': item}
-            return skq
-        except IndexError:
-            raise MalformedRequest
-
-    # CDIST (disabled)
-    keyword.prefix  = ['cdist']
-    @keyword(r'(@|@@|@@@)(\w+)(.+)')
-    @registered
-    def bulk_transfer_clinic_chw (self, message, rec_type, receiver, sku_quantities):
-        ''' Transfer Multiple Drugs from Clinic to CHW
-            CDIST @mdiallo #001 10 #004 45 #007 32'''
-
-        # Disable CDIST for now since we only have MRDT
-        return False
-
-        sender      = message.persistant_connection.reporter
-
-        # let's find receiver        
-        rec_type    = rec_type_from_string(rec_type)
-        alias       = receiver.lower()
-        try:
-            receiver    = peer_from_alias(alias)
-        # There is a location AND a reporter with same alias
-        except AmbiguousAlias:
-            # User may not know that he can enforce a recipient
-            if rec_type == None:
-                message.respond(_(u"Distribution request failed. Alias is ambiguous. Use @@ to enforce a Reporter of @@@ to enforce Clinic/Location alias."))
-                return True
-            else:
-                receiver= peer_from_alias(alias, of_type=rec_type)
-
-        if sku_quantities == None or sender == None or receiver == None:
-            message.respond(_(u"Distribution request failed. Either Item IDs or CHW alias is wrong."))
-            return True
-
-        try:
-            sq  = self.parse_sku_quantities(sku_quantities)
-        except MalformedRequest:
-            message.respond(_(u"Distribution failed. Syntax error in drugs/quantities statement."))
-            return True
-        
-        success = []
-        failures= []
-        for code in sq.itervalues():
-            try:
-                self.do_transfer_drug(message, sender, receiver, code['item'], code['quantity'])
-                success.append(code)
-            except (NotEnoughItemInStock, ItemNotInStore, Exception):
-                failures.append(code)
-                continue
-        
-        if failures.__len__() == 0:
-            message.respond(_(u"SUMMARY: Multiple Drugs Distribution went through successfuly."))
-            return True
-        
-        if success.__len__() == 0:
-            message.respond(_(u"SUMMARY: complete FAILURE. Multiple Drugs Distribution went wrong on all items."))
-            return True
-
-        # some failed, some went trough
-        details = u""
-        for fail in failures:
-            details += u"%s, " % fail['item'].name
-        details = details[:-2]
-        message.respond(_(u"SUMMARY: Some items couldn't be transfered: %(detail)s") % {'detail': details})
-        return True      
-
-    def stock_for(self, message, provider):
-        ''' returns list of drugs + quantities for a provider '''
-
-        if provider == None:
-            return False
-        msg = stock_answer(provider)
-        message.respond(msg)
-        return msg
-
-    # STOCK @
-    keyword.prefix  = ['stock']
-    @keyword(r'(@|@@|@@@)(\w+)')
-    @registered
-    def request_stock (self, message, rec_type, target):
-        ''' Get stock status for someone.
-            /!\ limited to providers ; no locations or others
-            STOCK @mdiallo'''
-
-        # let's find receiver        
-        rec_type    = rec_type_from_string(rec_type)     
-        alias       = target.lower()
-        try:
-            receiver    = peer_from_alias(alias)
-        # There is a location AND a reporter with same alias
-        except AmbiguousAlias:
-            # User may not know that he can enforce a recipient
-            if rec_type == None:
-                message.respond(_(u"Stock request failed. Alias is ambiguous. Use @@ to enforce a Reporter of @@@ to enforce Clinic/Location alias."))
-                return True
-            else:
-                receiver= peer_from_alias(alias, of_type=rec_type)
-        
-        return self.stock_for(message, receiver)
-
-    # STOCK
-    keyword.prefix  = ['stock']
-    @keyword.blank()
-    @registered
-    def request_self_stock (self, message):
-        ''' Get stock status for a store
-            STOCK'''
-        
-        provider    = message.persistant_connection.reporter
-        return self.stock_for(message, provider)
-
-    # CANCEL
-    keyword.prefix  = ['cancel']
-    @keyword(r'(\d+)')
-    @registered
-    def cancel_request (self, message, cancel_id):
-        ''' Cancel a transfer request
-            CANCEL 908432'''
-        
-        # retrieve transaction
-        try:
-            log = TransferLog.objects.get(id=int(cancel_id))
-        except TransferLog.DoesNotExist:
-            message.respond(_(u"Cancellation failed. Provided transaction ID (%(lid)s) is wrong.") % {'lid': cancel_id})
-            return True
-
-        # Check request is legitimate
-        try:
-            peer    = message.persistant_connection.reporter
-        except:
-            peer    = None
-        if peer == None or (log.sender, log.receiver).count(peer) == 0:
-            message.respond(_("Cancellation failed. With all due respect, you are not allowed to perform this action."))
-            return True
-
-        # Check is transfer hasn't already been cancelled
-        if (TransferLog.STATUS_CANCELLED, TransferLog.STATUS_CONFLICT).count(log.status) != 0 :
-            message.respond(_("Cancellation failed. Transfer #%(lid)s dated %(date)s has already been canceled or is in conflict.") % {'lid': log.id, 'date': log.date.strftime("%b %d %y %H:%M")})
-            return True
-        
-        # cancellation attempt
-        other_peer  = log.receiver if peer == log.sender else log.sender
-
-        # if peer is a patient, don't send messages
-        try:
-            peer_is_patient = not other_peer.connection()
-        except:
-            peer_is_patient = True
-
-        try:
-            cancel_transfer(log)
-            msg = _(u"CANCELLED Transfer #%(lid)s dated %(date)s by request of %(peer)s. Please forward conflict to Drug Store Head.") % {'lid': log.id, 'date': log.date.strftime("%b %d %y %H:%M"), 'peer': peer}
-            message.respond(msg)
-            if not peer_is_patient:
-                message.forward(other_peer.connection().identity, msg)
-        except (ItemNotInStore, NotEnoughItemInStock):
-            # goods has been transfered elsewhere.
-            msg = _(u"Cancellation failed. %(peer)s has started distributing drugs from transaction #%(lid)s. Contact Drug Store Head.") % {'lid': log.id, 'peer': log.receiver}
-            message.respond(msg)
-            if not peer_is_patient:
-                message.forward(other_peer.connection().identity, msg)
-        except Provider.DoesNotExist:
+        # create report object
+        if DiseasesReport.objects.filter().count() > 0:
             pass
-        return True
 
-    # UPDATE
-    keyword.prefix = ['update']
-    @keyword(r'(\d+)')
-    @registered
-    def update_quantity (self, message, quantity):
-        ''' Update quantities of drug and transfer to Lost accordingly '''
+        report  = DiseasesReport.by_reporter_period(reporter=reporter, period=report_week)
+        report.reset()
 
-        # Assume we only have MRDT
-        code    = 'mrdt'
+        # grab all diseases and assume 0 for undeclared
+        all_diseases = Disease.objects.all()
 
-        # sender is the one emiting the text
-        sender  = message.persistant_connection.reporter
-        receiver= get_lostItems()
+        for dis in diseases:        
+            obs = DiseaseObservation.by_values(disease=dis['disease'], cases=dis['cases'], deaths=dis['deaths'])
+            report.diseases.add(obs)
 
-        item        = Item.by_code(code)
-        if item == None or sender == None or receiver == None:
-            message.respond(_(u"Update failed. Either Item ID or CHW alias is wrong."))
-            return True
+        for dis in all_diseases:
+            if dis in diseases: continue
+            obs = DiseaseObservation.by_values(disease=dis, cases=0, deaths=0)
+            report.diseases.add(obs)
 
-        # grab stored quantity and provided
-        stock_qty   = StockItem.by_peer_item(sender, item).quantity
-        quantity= int(quantity)
-        
-        # compare stored and update
-        if stock_qty > quantity:
-            # Transfer difference to Lost
-            diff= stock_qty - quantity
-            log = transfer_item(sender=sender, receiver=receiver, item=item, quantity=diff)
-            message.respond(_(u"Update recorded. You have lost %(nblost)s MRDTs since last update.") % {'nblost': diff})
-            return True
-        elif quantity > stock_qty:
-            # Should not happen. Warn user
-            diff= quantity - stock_qty
-            message.respond(_(u"Update failed. You appear to have %(nbextra)s more MRDTs than expected. Please contact Drug Store Head ASAP.") % {'nbextra': diff})
-            return True
-        else:
-            # Well done pal!
-            message.respond(_(u"Update recorded. Congratulations, you did a great job managing your MRDTs"))
-            return True
+        # save diseases
+        report.save()
+
+        # Add to Master Report
+        master_report   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report.diseases  = report
+        master_report.save()
+
+        answer  = ""
+        for dis in report.diseases.all():
+            if dis.cases > 0:
+                answer += _(u"%(disease)s ") % {'disease': dis}
+        answer  = answer[:-1]
+
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(answer)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'answer': answer})
+
 

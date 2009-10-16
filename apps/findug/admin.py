@@ -8,3 +8,10 @@ from django.utils.translation import ugettext_lazy as _
 admin.site.register(Configuration)
 admin.site.register(RDTStockAlert)
 
+admin.site.register(ReportPeriod)
+admin.site.register(Disease)
+admin.site.register(DiseasesReport)
+admin.site.register(EpidemiologicalReport)
+admin.site.register(MalariaCasesReport)
+admin.site.register(MalariaTreatmentsReport)
+admin.site.register(ACTConsumptionReport)
