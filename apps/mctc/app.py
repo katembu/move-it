@@ -239,13 +239,10 @@ class App (rapidsms.app.App):
     @registered
     def new_case (self, message, last, first, gender, dob,
                   guardian="", contact="", zone=None):
-        provider = message.sender.provider
-        if not zone:
-            if provider.clinic:
-                zone = provider.clinic.zone
-        else:
-            zone = Zone.objects.get(number=zone[1:])
-
+        # reporter
+        reporter    = message.persistant_connection.reporter
+        
+        
         dob = re.sub(r'\D', '', dob)
         try:
             dob = time.strptime(dob, "%d%m%y")
@@ -265,12 +262,12 @@ class App (rapidsms.app.App):
             "dob"        : dob,
             "guardian"   : guardian,
             "mobile"     : contact,
-            "provider"   : provider,
-            "zone"       : zone
+            "reporter"   : reporter,
+            "location"       : reporter.location
         }
 
         ## check to see if the case already exists
-        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], provider=info['provider'], dob=info['dob'])
+        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
         if iscase:
             #message.respond(_(
             #"%(last_name)s, %(first_name)s has already been registered by you.") % info)
@@ -278,7 +275,7 @@ class App (rapidsms.app.App):
             self.info(iscase[0].id)
             self.info(info)
             message.respond(_(
-            "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(provider)s.") % info)
+            "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s.") % info)
             # TODO: log this message
             return True
         case = Case(**info)
@@ -289,11 +286,10 @@ class App (rapidsms.app.App):
             "last_name": last.upper(),
             "age": case.age()
         })
-        if zone:
-            info["zone"] = zone.name
+        
         message.respond(_(
             "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
-            "(%(guardian)s) %(zone)s") % info)
+            "(%(guardian)s) %(location)s") % info)
         
         log(case, "patient_created")
         return True
