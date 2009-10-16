@@ -32,8 +32,8 @@ except admin.sites.NotRegistered:
 admin.site.register(User, ProviderAdmin)
 
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","zone","created_at","provider", "provider_mobile", "age","eligible_for_measles")
-    search_fields = ['ref_id', 'first_name', 'last_name', 'provider__user__first_name', 'provider__user__last_name']
+    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","location","created_at","reporter", "age","eligible_for_measles")
+    search_fields = ['ref_id', 'first_name', 'last_name']
     list_filter = ("dob",'status')
     ordering = ('-dob',)
 
