@@ -42,6 +42,15 @@ def authenticated (func):
 class HandlerFailed (Exception):
     pass
 
+def registered (func):
+    def wrapper (self, message, *args):
+        if message.persistant_connection.reporter:
+            return func(self, message, *args)
+        else:
+            message.respond(_(u"Sorry, only registered users can access this program."))
+            return True
+    return wrapper
+
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
