@@ -236,7 +236,7 @@ class App (rapidsms.app.App):
 
     # Register a new patient
     @keyword(r'new (\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
-    @authenticated
+    @registered
     def new_case (self, message, last, first, gender, dob,
                   guardian="", contact="", zone=None):
         provider = message.sender.provider
