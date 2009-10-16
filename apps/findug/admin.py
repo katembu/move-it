@@ -6,7 +6,6 @@ from models import *
 from django.utils.translation import ugettext_lazy as _
 
 admin.site.register(Configuration)
-admin.site.register(RDTStockAlert)
 
 admin.site.register(ReportPeriod)
 admin.site.register(Disease)
