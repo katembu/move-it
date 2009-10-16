@@ -1,7 +1,13 @@
-from django.db import models
-from django.utils.translation import ugettext
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
-def _(txt): return txt
+from django.db import models
+from django.utils.translation import ugettext as _
+
+from reporters.models import Role, ReporterGroup, Reporter, PersistantConnection
+from locations.models import Location, LocationType, RecursiveManager
+
+#def _(txt): return txt
 
 from django.contrib.auth.models import User, Group
 
@@ -90,59 +96,82 @@ class App (rapidsms.app.App):
         return handled
 
     @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
-    def join (self, message, code, last_name, first_name, username=None):
+    def join (self, message, clinic_code, last_name, first_name, username=None):
+        ''' register a user and join the system '''
+
+        # skip roles for now
+        role_code   = None
         try:
-            clinic = Facility.objects.get(codename__iexact=code)
-        except Facility.DoesNotExist:
-            raise HandlerFailed(_("The given password is not recognized."))
+            name = "%s %s"%(first_name, last_name)
+            # parse the name, and create a reporter            
+            alias, fn, ln = Reporter.parse_name(name)
 
-        if username is None:
-            # FIXME: this is going to run into charset issues
-            username = (first_name[0] + last_name).lower()
-        else:
-            # lower case usernames ... also see FIXME above?
-            username = username.lower()
-        if User.objects.filter(username__iexact=username).count():
-            raise HandlerFailed(_(
-                "Username '%s' is already in use. " +
-                "Reply with: JOIN <last> <first> <username>") % username)
+            if not message.persistant_connection.reporter:
+                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+            else:
+                rep = message.persistant_connection.reporter
+                rep.alias       = alias
+                rep.first_name  = fn
+                rep.last_name   = ln
 
-        # todo: use the more generic get_description if possible
-        info = {
-            "username"   : username,
-            "user_first_name" : first_name.title(),
-            "user_last_name"  : last_name.title()
-        }
-        user = User(username=username, first_name=first_name.title(), last_name=last_name.title())
-        user.save()
-
-        mobile = message.peer
-        in_use = Provider.by_mobile(mobile)
-        provider = Provider(mobile=mobile, user=user,
-                            clinic=clinic, active=not bool(in_use))
-        provider.save()
-
-        if in_use:
-            info.update({
-                "user_last_name"  : in_use.user.last_name.upper(),
-                "user_first_name" : in_use.user.first_name,
-                "other"      : in_use.user.username,
-                "mobile"     : mobile,
-                "clinic"     : provider.clinic.name,
-            })
-            message.respond(_(
-                "Phone %(mobile)s is already registered to %(user_last_name)s, " +
-               "%(user_first_name)s. Reply with 'CONFIRM %(username)s'.") % info)
+            rep.save()
             
-        else:
-            info.update({
-                "id"        : provider.id,
-                "mobile"    : mobile,
-                "clinic"    : provider.clinic.name,
-                "user_last_name" : last_name.upper()
-            })
-            self.respond_to_join(message, info)
-        log(provider, "provider_registered")            
+            # attach the reporter to the current connection
+            message.persistant_connection.reporter = rep
+            message.persistant_connection.save()
+                  
+            # something went wrong - at the
+            # moment, we don't care what
+        except:
+            message.respond("Join Error. Unable to register your account.")
+            
+        if role_code == None or role_code.__len__() < 1:
+            role_code   = 'chw'
+
+        reporter    = message.persistant_connection.reporter
+        
+        # check clinic code
+        try:
+            clinic  = Location.objects.get(code=clinic_code)
+        except models.ObjectDoesNotExist:
+            message.forward(reporter.connection().identity, \
+                _(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            return True
+    
+        # check that location is a clinic (not sure about that)
+        if not clinic.type in LocationType.objects.filter(name='Clinic'):
+            message.forward(reporter.connection().identity, \
+                _(u"Join Error. You must provide a Clinic code."))
+            return True
+
+        # set location
+        reporter.location = clinic
+
+        # check role code
+        try:
+            role  = Role.objects.get(code=role_code)
+        except models.ObjectDoesNotExist:
+            message.forward(reporter.connection().identity, \
+                _(u"Join Error. Provided Role code (%(role)s) is wrong.") % {'role': role_code})
+            return True
+
+        reporter.role   = role
+
+        # set account active
+        # /!\ we use registered_self as active
+        reporter.registered_self  = True
+
+        # save modifications
+        reporter.save()
+
+        # inform target
+        message.forward(reporter.connection().identity, \
+            _("Success. You are now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
+
+        #inform admin
+        if message.persistant_connection.reporter != reporter:
+            message.respond( \
+            _("Success. %(reporter)s is now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'reporter': reporter, 'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
         return True
 
     def respond_to_join(self, message, info):
