@@ -3,6 +3,11 @@
 
 from django.contrib import admin
 
-from models import Diagnosis
+from models import Diagnosis, ReportDiagnosis
 
 admin.site.register(Diagnosis)
+
+class ReportDiagnosisAdmin(admin.ModelAdmin):
+    list_display = ("case", "entered_at")
+
+admin.site.register(ReportDiagnosis, ReportDiagnosisAdmin)

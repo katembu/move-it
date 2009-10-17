@@ -54,11 +54,6 @@ class ReportMalariaAdmin(admin.ModelAdmin):
 
 admin.site.register(ReportMalaria, ReportMalariaAdmin)
 
-class ReportDiagnosisAdmin(admin.ModelAdmin):
-    list_display = ("case", "entered_at")
-
-admin.site.register(ReportDiagnosis, ReportDiagnosisAdmin)
-
 class MessageLogAdmin(admin.ModelAdmin):
     list_display = ("sent_by_name","provider_clinic","mobile", "text", "created_at", "was_handled")
     list_filter = ("was_handled","sent_by")
