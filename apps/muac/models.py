@@ -33,7 +33,7 @@ class ReportMalnutrition(models.Model):
     status      = models.IntegerField(choices=STATUS_CHOICES, db_index=True, blank=True, null=True)
     
     class Meta:
-        app_label = "malnutrition"
+        app_label = "muac"
         verbose_name = "Malnutrition Report"
         verbose_name_plural = "Malnutrition Reports"
         get_latest_by = 'entered_at'
