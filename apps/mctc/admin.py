@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from models.general import Zone, Facility, Case, Provider, User 
 from models.logs import MessageLog, EventLog, SystemErrorLog
-from models.reports import ReportMalnutrition, ReportMalaria, ReportDiagnosis, Diagnosis, Observation, DiarrheaObservation, ReportDiarrhea
+from models.reports import ReportMalaria, Observation
 from models.measles import ReportMeasles
 from django.utils.translation import ugettext_lazy as _
 
@@ -32,8 +32,8 @@ except admin.sites.NotRegistered:
 admin.site.register(User, ProviderAdmin)
 
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","zone","created_at","provider", "provider_mobile", "age","eligible_for_measles")
-    search_fields = ['ref_id', 'first_name', 'last_name', 'provider__user__first_name', 'provider__user__last_name']
+    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","location","created_at","reporter", "age","eligible_for_measles")
+    search_fields = ['ref_id', 'first_name', 'last_name']
     list_filter = ("dob",'status')
     ordering = ('-dob',)
 
@@ -46,13 +46,6 @@ admin.site.register(Case, CaseAdmin)
 admin.site.register(Provider,TheProviderAdmin)
 admin.site.register(Zone)
 admin.site.register(Facility)
-admin.site.register(Diagnosis)
-
-class ReportMalnutritionAdmin(admin.ModelAdmin):
-    list_display = ("case", "name","zone", "muac", "entered_at","provider","provider_number")
-    search_fields = ['case__ref_id' ]
-
-admin.site.register(ReportMalnutrition, ReportMalnutritionAdmin)
 
 class ReportMalariaAdmin(admin.ModelAdmin):
     list_display = ("case","name","zone","result", "bednet","entered_at","provider","provider_number")
@@ -60,11 +53,6 @@ class ReportMalariaAdmin(admin.ModelAdmin):
     verbose_name_plural = "Malaria Reports"
 
 admin.site.register(ReportMalaria, ReportMalariaAdmin)
-
-class ReportDiagnosisAdmin(admin.ModelAdmin):
-    list_display = ("case", "entered_at")
-
-admin.site.register(ReportDiagnosis, ReportDiagnosisAdmin)
 
 class MessageLogAdmin(admin.ModelAdmin):
     list_display = ("sent_by_name","provider_clinic","mobile", "text", "created_at", "was_handled")
@@ -85,13 +73,8 @@ class SystemErrorLogAdmin(admin.ModelAdmin):
     
 admin.site.register(SystemErrorLog, SystemErrorLogAdmin)
 
-class ReportDiarrheaAdmin(admin.ModelAdmin):
-    list_display = ("case", "ors", "days", "entered_at", "status")
-
-admin.site.register(ReportDiarrhea, ReportDiarrheaAdmin)
 
 admin.site.register(Observation)
-admin.site.register(DiarrheaObservation)
 
 class ReportMeaslesAdmin(admin.ModelAdmin):
     list_display = ("case", "provider", "taken", "entered_at", "zone")

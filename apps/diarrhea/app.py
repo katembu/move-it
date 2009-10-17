@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-from django.db import models
-from django.utils.translation import ugettext as _
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
+from django.db import models
+from django.utils.translation import ugettext as _
+
 from mctc.models.logs import MessageLog, log
-from mctc.models.general import Provider, Case
-from models import ReportMalnutrition, Observation
+from mctc.models.general import Case
+from models import ReportDiarrhea
 
 import re, datetime
+
+find_diagnostic_re = re.compile('( -[\d\.]+)' ,re.I)
+find_lab_re =  re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
+
 
 def registered (func):
     def wrapper (self, message, *args):
@@ -77,21 +82,96 @@ class App (rapidsms.app.App):
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
+
+    # DIARRHEA
+    # follow up on diarrhea
+    @keyword(r'ors \+(\d+) ([yn])')
+    @registered
+    def followup_diarrhea(self, message, ref_id, is_ok):
+        case    = self.find_case(ref_id)
+        is_ok   = True if is_ok == "y" else False
+
+        reporter = message.persistant_connection.reporter
+        report = ReportDiarrhea.objects.get(case=case)
         
-    def get_observations(self, text):
-        choices  = dict( [ (o.letter, o) for o in Observation.objects.all() ] )
-        observed = []
-        if text:
-            text = re.sub(r'\W+', ' ', text).lower()
-            for observation in text.split(' '):
-                obj = choices.get(observation, None)
-                if not obj:
-                    if observation != 'n':
-                        raise HandlerFailed("Unknown observation code: %s" % observation)
-                else:
-                    observed.append(obj)
-        return observed, choices
-    
+        if is_ok:
+            report.status   = ReportDiarrhea.HEALTHY_STATUS
+            report.save()
+        else:
+            report.status   = ReportDiarrhea.SEVERE_STATUS
+            report.save()
+
+            info = report.case.get_dictionary()
+            info.update(report.get_dictionary())
+   
+            msg = _("%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)s/%(months)s (%(guardian)s). %(days)s, %(ors)s") % info
+            if report.observed.all().count() > 0: msg += ", " + info["observed"]
+            
+            message.respond("DIARRHEA> " + msg)
+            
+        
+        """
+        if report.status in (report.MODERATE_STATUS,
+                           report.SEVERE_STATUS,
+                           report.DANGER_STATUS):
+            alert = _("@%(username)s reports %(msg)s") % {"username":reporter.alias, "msg":msg}
+            recipients = [reporter]
+            for query in (Provider.objects.filter(alerts=True),
+                          Provider.objects.filter(clinic=provider.clinic)):
+                for recipient in query:
+                    if recipient in recipients: continue
+                    recipients.append(recipient)
+                    message.forward(recipient.mobile, alert)
+        """      
+        log(case, "diarrhea_fu_taken")
+        return True
+
+    @keyword(r'ors \+(\d+) ([yn]) (\d+)\s?([a-z\s]*)')
+    @registered
+    def report_diarrhea(self, message, ref_id, ors, days, complications):
+        case = self.find_case(ref_id)
+
+        ors     = True if ors == "y" else False
+        days    = int(days)
+
+        observed, choices = self.get_diarrheaobservations(complications)
+        self.delete_similar(case.reportdiarrhea_set)
+
+        reporter = message.persistant_connection.reporter
+        report = ReportDiarrhea(case=case, reporter=reporter, ors=ors, days=days)
+        report.save()
+        for obs in observed:
+            report.observed.add(obs)
+        report.diagnose()
+        report.save()
+
+        choice_term = dict(choices)
+
+        info = case.get_dictionary()
+        info.update(report.get_dictionary())
+
+        msg = _("%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)s/%(months)s (%(guardian)s). %(days)s, %(ors)s") % info
+
+        if observed: msg += ", " + info["observed"]
+
+        message.respond("DIARRHEA> " + msg)
+        
+        """
+        if report.status in (report.MODERATE_STATUS,
+                           report.SEVERE_STATUS,
+                           report.DANGER_STATUS):
+            alert = _("@%(username)s reports %(msg)s") % {"username":provider.user.username, "msg":msg}
+            recipients = [provider]
+            for query in (Provider.objects.filter(alerts=True),
+                          Provider.objects.filter(clinic=provider.clinic)):
+                for recipient in query:
+                    if recipient in recipients: continue
+                    recipients.append(recipient)
+                    message.forward(recipient.mobile, alert)
+        """
+        log(case, "diarrhea_taken")
+        return True            
+
     def delete_similar(self, queryset):
         try:
             last_report = queryset.latest("entered_at")
@@ -100,76 +180,3 @@ class App (rapidsms.app.App):
                 last_report.delete()
         except models.ObjectDoesNotExist:
             pass
-        
-    @registered
-    @keyword(r'muac \+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
-    def report_case (self, message, ref_id, muac,
-                     weight, height, complications):
-        case = self.find_case(ref_id)
-        try:
-            muac = float(muac)
-            if muac < 30: # muac is in cm?
-                muac *= 10
-            muac = int(muac)
-        except ValueError:
-            raise HandlerFailed(
-                _("Can't understand MUAC (mm): %s") % muac)
-
-        if weight is not None:
-            try:
-                weight = float(weight)
-                if weight > 100: # weight is in g?
-                    weight /= 1000.0
-            except ValueError:
-                raise HandlerFailed("Can't understand weight (kg): %s" % weight)
-
-        if height is not None:
-            try:
-                height = float(height)
-                if height < 3: # weight height in m?
-                    height *= 100
-                height = int(height)
-            except ValueError:
-                raise HandlerFailed("Can't understand height (cm): %s" % height)
-
-        observed, choices = self.get_observations(complications)
-        self.delete_similar(case.reportmalnutrition_set)
-
-        reporter = message.persistant_connection.reporter
-        report = ReportMalnutrition(case=case, reporter=reporter, muac=muac,
-                        weight=weight, height=height)
-        report.save()
-        for obs in observed:
-            report.observed.add(obs)
-        report.diagnose()
-        report.save()
-
-        #choice_term = dict(choices)
-
-        info = case.get_dictionary()
-        info.update(report.get_dictionary())
-
-        msg = _("%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)s/%(months)s (%(guardian)s). MUAC %(muac)s") % info
-
-        if weight: msg += ", %.1f kg" % weight
-        if height: msg += ", %.1d cm" % height
-        if observed: msg += ", " + info["observed"]
-
-        message.respond("MUAC> " + msg)
-        
-        """ @todo   enable alerts      """
-        """
-        if report.status in (report.MODERATE_STATUS,
-                           report.SEVERE_STATUS,
-                           report.SEVERE_COMP_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":provider.user.username, "msg":msg}
-            recipients = [provider]
-            for query in (Provider.objects.filter(alerts=True),
-                          Provider.objects.filter(clinic=provider.clinic)):
-                for recipient in query:
-                    if recipient in recipients: continue
-                    recipients.append(recipient)
-                    #message.forward(recipient.mobile, alert)
-        """
-        log(case, "muac_taken")
-        return True
