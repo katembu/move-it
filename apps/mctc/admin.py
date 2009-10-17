@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from models.general import Zone, Facility, Case, Provider, User 
 from models.logs import MessageLog, EventLog, SystemErrorLog
-from models.reports import ReportMalaria, Observation
+from models.reports import Observation
 from models.measles import ReportMeasles
 from django.utils.translation import ugettext_lazy as _
 
@@ -46,13 +46,6 @@ admin.site.register(Case, CaseAdmin)
 admin.site.register(Provider,TheProviderAdmin)
 admin.site.register(Zone)
 admin.site.register(Facility)
-
-class ReportMalariaAdmin(admin.ModelAdmin):
-    list_display = ("case","name","zone","result", "bednet","entered_at","provider","provider_number")
-    verbose_name = "Malaria Report"
-    verbose_name_plural = "Malaria Reports"
-
-admin.site.register(ReportMalaria, ReportMalariaAdmin)
 
 class MessageLogAdmin(admin.ModelAdmin):
     list_display = ("sent_by_name","provider_clinic","mobile", "text", "created_at", "was_handled")
