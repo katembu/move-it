@@ -359,17 +359,14 @@ class App (rapidsms.app.App):
         return True
  
     @keyword(r's(?:how)? \+?(\d+)')
-    @authenticated
+    @registered
     def show_case (self, message, ref_id):
         case = self.find_case(ref_id)
-        info = case.get_description()
+        info = case.get_dictionary()
 
-        if case.guardian: info["guardian"] = "(%s) " % case.guardian
-        if case.zone: info["zone"] = case.zone.name
         message.respond(_(
-            "+%(id)s %(status)s %(last_name)s, %(first_name)s "
-            "%(gender)s/%(age)s %(guardian)s%(zone)s") % info)
-        
+            "+%(ref_id)s %(status)s %(last_name)s, %(first_name)s "
+            "%(gender)s/%(age)s %(guardian)s - %(location)s") % info)        
         
         return True
     
