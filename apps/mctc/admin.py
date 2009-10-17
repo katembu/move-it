@@ -73,13 +73,8 @@ class SystemErrorLogAdmin(admin.ModelAdmin):
     
 admin.site.register(SystemErrorLog, SystemErrorLogAdmin)
 
-class ReportDiarrheaAdmin(admin.ModelAdmin):
-    list_display = ("case", "ors", "days", "entered_at", "status")
-
-admin.site.register(ReportDiarrhea, ReportDiarrheaAdmin)
 
 admin.site.register(Observation)
-admin.site.register(DiarrheaObservation)
 
 class ReportMeaslesAdmin(admin.ModelAdmin):
     list_display = ("case", "provider", "taken", "entered_at", "zone")
