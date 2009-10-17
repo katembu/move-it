@@ -15,7 +15,7 @@ class Lab(models.Model):
         return self.name
 
     class Meta:
-        app_label = "mctc"
+        app_label = "diagnosis"
         ordering = ("code",)        
 
 class LabDiagnosis(models.Model):
@@ -28,7 +28,7 @@ class LabDiagnosis(models.Model):
         return "%s, %s - %s" % (self.lab, self.diagnosis, self.amount)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "diagnosis"
 
 class DiagnosisCategory(models.Model):
     name = models.CharField(max_length=255)
@@ -37,7 +37,7 @@ class DiagnosisCategory(models.Model):
         return self.name
 
     class Meta:
-        app_label = "mctc"
+        app_label = "diagnosis"
         ordering = ("name",)
         
 class Diagnosis(models.Model):
@@ -51,7 +51,7 @@ class Diagnosis(models.Model):
         return self.mvp_code
 
     class Meta:
-        app_label = "mctc"
+        app_label = "diagnosis"
         ordering = ("code",)
         verbose_name = "Diagnosis Code"
         verbose_name_plural = "Diagnosis Codes"
@@ -69,7 +69,7 @@ class ReportDiagnosis(models.Model):
 
     class Meta:
         verbose_name = "Diagnosis Report"
-        app_label = "mctc"
+        app_label = "diagnosis"
 
     def save(self, *args):
         if not self.id:
