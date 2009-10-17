@@ -7,7 +7,8 @@ from rapidsms.parsers.keyworder import Keyworder
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Provider, Case
-from mctc.models.reports import ReportMalaria, Observation
+from mctc.models.reports import Observation
+from models import ReportMalaria
 
 import re, datetime
 
