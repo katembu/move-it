@@ -10,7 +10,8 @@ from apps.reporters.models import *
 from models import *
 
 def diseases_from_string(text):
-
+    ''' returns a list of Disease with numbers build from SMS-syntax
+    '''
     diseases= []
     
     # split different diseases declarations

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
-from datetime import date, datetime
+from datetime import date as pydate, datetime
 
 import rapidsms
 from rapidsms.parsers.keyworder import * 
@@ -402,14 +402,18 @@ class App (rapidsms.app.App):
     keyword.prefix = ""
     @keyword(r'diseases(\-[0-9])? (.*)')
     @registered
-    def back(self, message, period, text):
+    def diseases_report(self, message, period, text):
 
         # reporter
         reporter    = message.persistant_connection.reporter
 
         # period
         period      = 0 if not period else int(period[1:])
-        report_week = ReportPeriod.from_index(period)
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
 
         try:
             diseases = diseases_from_string(text)
@@ -421,38 +425,292 @@ class App (rapidsms.app.App):
             return True
 
         # create report object
-        if DiseasesReport.objects.filter().count() > 0:
+        if DiseasesReport.objects.filter(reporter=reporter, period=period).count() > 0:
             pass
 
         report  = DiseasesReport.by_reporter_period(reporter=reporter, period=report_week)
         report.reset()
 
         # grab all diseases and assume 0 for undeclared
-        all_diseases = Disease.objects.all()
+        try:
+            all_diseases = list(Disease.objects.all())
+            for dis in diseases:        
+                obs = DiseaseObservation.by_values(disease=dis['disease'], cases=dis['cases'], deaths=dis['deaths'])
+                report.diseases.add(obs)
+                try: 
+                    all_diseases.remove(dis['disease'])
+                except:
+                    raise IncoherentValue
+            for dis in all_diseases:
+                if dis in diseases: continue
+                obs = DiseaseObservation.by_values(disease=dis, cases=0, deaths=0)
+                report.diseases.add(obs)
 
-        for dis in diseases:        
-            obs = DiseaseObservation.by_values(disease=dis['disease'], cases=dis['cases'], deaths=dis['deaths'])
-            report.diseases.add(obs)
-
-        for dis in all_diseases:
-            if dis in diseases: continue
-            obs = DiseaseObservation.by_values(disease=dis, cases=0, deaths=0)
-            report.diseases.add(obs)
-
-        # save diseases
-        report.save()
+            # save diseases
+            report.save()
+        except IncoherentValue:
+            message.respond(_(u"FAILED. Sorry, your report seems to contain duplicates or incoherent datas. Please check syntax and try again."))
+            return True
 
         # Add to Master Report
         master_report   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
         master_report.diseases  = report
+        master_report.save()      
+
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(summary)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'summary': report.summary})
+
+        self.completed_report(message, master_report)
+        return True
+
+    ################################
+    #  MALARIA CASES REPORTING (2/4)
+    ################################
+
+    keyword.prefix = ""
+    @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
+    @registered
+    def malaria_cases_report(self, message, period, encounters, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+
+        # reporter
+        reporter    = message.persistant_connection.reporter
+
+        # period
+        period      = 0 if not period else int(period[1:])
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
+
+        # input verification
+        try:
+            encounters          = int(encounters)
+            suspected_cases     = int(suspected_cases)
+            rdt_tests           = int(rdt_tests)
+            rdt_positive_tests  = int(rdt_positive_tests)
+            microscopy_tests    =int(microscopy_tests)
+            microscopy_positive =int(microscopy_positive)
+            positive_under_five =int(positive_under_five)
+            positive_over_five  =int(positive_over_five)
+        except:
+            message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
+            return True
+
+        # create report object
+        if MalariaCasesReport.objects.filter(reporter=reporter, period=period).count() > 0:
+            pass
+
+        report  = MalariaCasesReport.by_reporter_period(reporter=reporter, period=report_week)
+        report.reset()
+
+        try:
+            report.update(encounters=encounters, suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
+        except IncoherentValue:
+            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+            return True
+
+        # Add to Master Report
+        master_report               = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report.malaria_cases = report
         master_report.save()
 
-        answer  = ""
-        for dis in report.diseases.all():
-            if dis.cases > 0:
-                answer += _(u"%(disease)s ") % {'disease': dis}
-        answer  = answer[:-1]
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(summary)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'summary': report.summary})
 
-        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(answer)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'answer': answer})
+        self.completed_report(message, master_report)
+        return True
 
+    #####################################
+    #  MALARIA TREATMENTS REPORTING (3/4)
+    #####################################
+
+    keyword.prefix = ""
+    @keyword(r'treat(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
+    @registered
+    def malaria_treatments_report(self, message, period, rdt_positive, rdt_negative, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
+
+        # reporter
+        reporter    = message.persistant_connection.reporter
+
+        # period
+        period      = 0 if not period else int(period[1:])
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
+
+        # input verification
+        try:
+            rdt_positive        = int(rdt_positive)
+            rdt_negative        = int(rdt_negative)
+            four_months_to_three= int(four_months_to_three)
+            three_to_seven      = int(three_to_seven)
+            seven_to_twelve     = int(seven_to_twelve)
+            twelve_and_above    = int(twelve_and_above)
+
+        except:
+            message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
+            return True
+
+        # create report object
+        if MalariaTreatmentsReport.objects.filter(reporter=reporter, period=period).count() > 0:
+            pass
+
+        report  = MalariaTreatmentsReport.by_reporter_period(reporter=reporter, period=report_week)
+        report.reset()
+
+        try:
+            report.update(rdt_positive=rdt_positive, rdt_negative=rdt_negative, four_months_to_three=four_months_to_three, three_to_seven=three_to_seven, seven_to_twelve=seven_to_twelve, twelve_and_above=twelve_and_above)
+        except IncoherentValue:
+            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+            return True
+
+        # Add to Master Report
+        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report.malaria_treatments= report
+        master_report.save()
+
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(summary)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'summary': report.summary})
+
+        self.completed_report(message, master_report)
+        return True
+
+    ##################################
+    #  ACT CONSUMPTION REPORTING (4/4)
+    ##################################
+
+    keyword.prefix = ""
+    @keyword(r'act(\-[0-9])? (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n])')
+    @registered
+    def act_consumption_report(self, message, period, yellow_used, yellow_instock, blue_used, blue_instock, brown_used, brown_instock, green_used, green_instock, quinine_used, quinine_instock, other_act_used, other_act_instock):
+
+        # reporter
+        reporter    = message.persistant_connection.reporter
+
+        # period
+        period      = 0 if not period else int(period[1:])
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
+
+        # input verification
+        try:
+            yellow_used         = int(yellow_used)
+            yellow_instock      = bool(ACTConsumptionReport.text_to_stock(yellow_instock))
+            blue_used           = int(blue_used)
+            blue_instock        = bool(ACTConsumptionReport.text_to_stock(blue_instock))
+            brown_used          = int(brown_used)
+            brown_instock       = bool(ACTConsumptionReport.text_to_stock(brown_instock))
+            green_used          = int(green_used)
+            green_instock       = bool(ACTConsumptionReport.text_to_stock(green_instock))
+            quinine_used        = int(quinine_used)
+            quinine_instock     = bool(ACTConsumptionReport.text_to_stock(quinine_instock))
+            other_act_used      = int(other_act_used)
+            other_act_instock   = bool(ACTConsumptionReport.text_to_stock(other_act_instock))
+        except:
+            raise
+            message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
+            return True
+
+        # create report object
+        if ACTConsumptionReport.objects.filter(reporter=reporter, period=period).count() > 0:
+            pass
+
+        report  = ACTConsumptionReport.by_reporter_period(reporter=reporter, period=report_week)
+        report.reset()
+
+        try:
+            report.update(yellow_used=yellow_used, yellow_instock=yellow_instock, blue_used=blue_used, blue_instock=blue_instock, brown_used=brown_used, brown_instock=brown_instock, green_used=green_used, green_instock=green_instock, quinine_used=quinine_used, quinine_instock=quinine_instock, other_act_used=other_act_used, other_act_instock=other_act_instock)
+        except IncoherentValue:
+            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+            return True
+
+        # Add to Master Report
+        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report.act_consumption   = report
+        master_report.save()
+
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(summary)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'summary': report.summary})
+
+        self.completed_report(message, master_report)
+        return True
+
+    ####################
+    #  REMARKS REPORTING
+    ####################
+
+    keyword.prefix = ""
+    @keyword(r'remarks(\-[0-9])? (.+)')
+    @registered
+    def remarks_report(self, message, period, text):
+
+        # reporter
+        reporter    = message.persistant_connection.reporter
+
+        # period
+        period      = 0 if not period else int(period[1:])
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
+
+        # Add to Master Report
+        master_report           = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report.remarks   = text[:160]
+        master_report.save()
+
+        message.respond(_(u"%(comp)s Thank you for adding a comment to %(date)s %(title)s!") % {'date': master_report.period, 'title': master_report.title, 'comp': master_report.quarters})
+
+        self.completed_report(message, master_report)
+        return True
+
+    ############################
+    #  COMPLETED REPORT FEEDBACK
+    ############################
+
+    def completed_report(self, message, report):
+
+        if report.complete and not report.completed:
+
+            report.completed_on = datetime.now()
+            report.status = report.STATUS_COMPLETED
+            report.save()
+
+            message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
+
+        return True
+
+    ############################
+    #  STATUS OF REPORT FEEDBACK
+    ############################
+
+    keyword.prefix = ""
+    @keyword(r'report(\-[0-9])?')
+    @registered
+    def report_status(self, message, period):
+
+        # reporter
+        reporter    = message.persistant_connection.reporter
+
+        # period
+        period      = 0 if not period else int(period[1:])
+        try:
+            report_week = ReportPeriod.from_index(period)
+        except ErroneousDate:
+            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            return True
+
+        # Get Master Report
+        try:
+            report = EpidemiologicalReport.objects.get(clinic=reporter.location, period=report_week)
+        except EpidemiologicalReport.DoesNotExist:
+            message.respond(_(u"I am sorry but there is no such report for %(date)s yet.") % {'date': report_week})
+            return True
+
+        message.respond(_(u"%(status)s %(date)s %(title)s! %(summary)s") % {'date': report.period, 'status': report.verbose_status, 'title': report.title, 'summary': report.summary})
+
+        return True
 

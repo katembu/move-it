@@ -9,6 +9,7 @@ admin.site.register(Configuration)
 
 admin.site.register(ReportPeriod)
 admin.site.register(Disease)
+admin.site.register(DiseaseObservation)
 admin.site.register(DiseasesReport)
 admin.site.register(EpidemiologicalReport)
 admin.site.register(MalariaCasesReport)
