@@ -22,12 +22,9 @@ from models.general import Provider, User
 from models.general import Facility, Case, CaseNote, Zone
 
 from models.reports import  Observation, DiarrheaObservation, ReportDiarrhea
-from models.reports import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
+
 
 import re, time, datetime
-
-find_diagnostic_re = re.compile('( -[\d\.]+)' ,re.I)
-find_lab_re =  re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
 
 def authenticated (func):
     def wrapper (self, message, *args):
@@ -381,72 +378,7 @@ class App (rapidsms.app.App):
         log(case, "note_added")        
         return True
 
-    @keyword(r'd \+(\d+ )(.*)')
-    @authenticated
-    def diagnosis(self, message, ref_id, text):
-        case = self.find_case(ref_id)
-        provider = message.sender.provider
-        diags = []
-        labs = []
-
-        hits = find_diagnostic_re.findall(message.text)
-        for hit in hits:
-            code = hit[2:]
-            try:
-                diags.append(Diagnosis.objects.get(code__iexact=code))
-            except Diagnosis.DoesNotExist:
-                raise HandlerFailed("Unknown diagnosis code: %s" % code)
-
-        hits = find_lab_re.findall(text)
-        for hit in hits:
-            code, sign, number = hit
-            try:
-                # the code starts with /
-                labs.append([Lab.objects.get(code__iexact=code[1:]), sign, number])
-            except Lab.DoesNotExist:
-                raise HandlerFailed("Unknown lab code: %s" % code)
-
-        self.delete_similar(case.reportdiagnosis_set)
-        report = ReportDiagnosis(case=case, provider=provider, text=message.text)
-        report.save()
-        for diag in diags:
-            report.diagnosis.add(diag)
-        for lab, sign, number in labs:
-            ld = LabDiagnosis()
-            ld.lab = lab
-            ld.result = int(sign == "+")
-            if number:
-                ld.amount = number
-            ld.diagnosis = report
-            ld.save()
-        report.save()
-
-        info = case.get_dictionary()
-        info.update(report.get_dictionary())
-        if info["labs_text"]:
-            info["labs_text"] = "%sLabs: %s" % (info["diagnosis"] and " " or "", info["labs_text"])
-
-        message.respond(_("D> +%(ref_id)s %(first_name_short)s.%(last_name)s %(diagnosis)s%(labs_text)s") % info)
-        
-        # add in the forward of instructions to the case provider
-        # if that it is not the reporter of the issue        
-
-        
-        instructions = []       
-        for diagnosis in report.diagnosis.all():
-            if diagnosis.instructions:
-                instructions.append(diagnosis.instructions)
-
-        if instructions:
-            if provider != case.provider:
-                # there's a different provider
-                info = {"ref_id":ref_id, "instructions":(", ".join(instructions))}
-                message.forward(case.provider.mobile, "D> +%(ref_id)s %(instructions)s" % info)
-                
-                
-        log(case, "diagnosis_taken")        
-        return True            
-
+    
     # DIARRHEA
     # follow up on diarrhea
     @keyword(r'ors \+(\d+) ([yn])')
