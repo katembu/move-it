@@ -278,7 +278,7 @@ class Case(models.Model):
 
 class CaseNote(models.Model):
     case        = models.ForeignKey(Case, related_name="notes", db_index=True)
-    created_by  = models.ForeignKey(User, db_index=True)
+    created_by  = models.ForeignKey(Reporter, db_index=True)
     created_at  = models.DateTimeField(auto_now_add=True, db_index=True)
     text        = models.TextField()
 
