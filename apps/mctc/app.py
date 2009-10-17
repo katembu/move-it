@@ -571,5 +571,3 @@ class App (rapidsms.app.App):
                 else:
                     observed.append(obj)
         return observed, choices
-
-    #records cases that have had a measles shot
