@@ -4,6 +4,7 @@
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
+from django.db import models
 from django.utils.translation import ugettext as _
 
 from mctc.models.logs import MessageLog, log
