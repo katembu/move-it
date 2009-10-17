@@ -14,8 +14,9 @@ from mctc.forms.login import LoginForm
 from mctc.shortcuts import as_html, login_required
 from mctc.models.logs import log, MessageLog, EventLog
 from mctc.models.general import Case, Zone, Provider, Facility
-from mctc.models.reports import ReportCHWStatus, ReportAllPatients, ReportMalaria
+from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
+from mrdt.models import ReportMalaria
 from libreport.pdfreport import PDFReport
 from django.utils.translation import ugettext_lazy as _
 
