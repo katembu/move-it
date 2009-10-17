@@ -47,12 +47,6 @@ admin.site.register(Provider,TheProviderAdmin)
 admin.site.register(Zone)
 admin.site.register(Facility)
 
-class ReportMalnutritionAdmin(admin.ModelAdmin):
-    list_display = ("case", "name","zone", "muac", "entered_at","provider","provider_number")
-    search_fields = ['case__ref_id' ]
-
-admin.site.register(ReportMalnutrition, ReportMalnutritionAdmin)
-
 class ReportMalariaAdmin(admin.ModelAdmin):
     list_display = ("case","name","zone","result", "bednet","entered_at","provider","provider_number")
     verbose_name = "Malaria Report"
