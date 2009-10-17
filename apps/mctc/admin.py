@@ -3,7 +3,6 @@ from django.contrib.auth.admin import UserAdmin
 from models.general import Zone, Facility, Case, Provider, User 
 from models.logs import MessageLog, EventLog, SystemErrorLog
 from models.reports import Observation
-from models.measles import ReportMeasles
 from django.utils.translation import ugettext_lazy as _
 
  
@@ -68,10 +67,3 @@ admin.site.register(SystemErrorLog, SystemErrorLogAdmin)
 
 
 admin.site.register(Observation)
-
-class ReportMeaslesAdmin(admin.ModelAdmin):
-    list_display = ("case", "provider", "taken", "entered_at", "zone")
-    list_filter = ("taken",)
-    search_fields = ['case__zone__name', ]
-    
-admin.site.register(ReportMeasles, ReportMeaslesAdmin)
