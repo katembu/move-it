@@ -14,13 +14,12 @@ import time
 
 def _(txt): return txt
 
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -92,7 +91,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     @keyword(r'measles ?(.*)')
-    @authenticated
+    @registered
     def measles(self, message, text):        
         provider = message.sender.provider
         cases, notcases = self.str_to_cases(text)
