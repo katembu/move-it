@@ -7,7 +7,7 @@ from rapidsms.parsers.keyworder import Keyworder
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Provider, Case
-from mctc.models.reports import ReportMalnutrition, Observation
+from models import ReportMalnutrition, Observation
 
 import re, datetime
 
@@ -136,8 +136,8 @@ class App (rapidsms.app.App):
         observed, choices = self.get_observations(complications)
         self.delete_similar(case.reportmalnutrition_set)
 
-        provider = message.sender.provider
-        report = ReportMalnutrition(case=case, provider=provider, muac=muac,
+        reporter = message.persistant_connection.reporter
+        report = ReportMalnutrition(case=case, reporter=reporter, muac=muac,
                         weight=weight, height=height)
         report.save()
         for obs in observed:
@@ -145,7 +145,7 @@ class App (rapidsms.app.App):
         report.diagnose()
         report.save()
 
-        choice_term = dict(choices)
+        #choice_term = dict(choices)
 
         info = case.get_dictionary()
         info.update(report.get_dictionary())
