@@ -7,11 +7,10 @@ from django.db import models
 
 from datetime import datetime
 
-from mctc.models.reports import Report
 from mctc.models.general import Case
 from reporters.models import Reporter
  
-class ReportMeasles(Report, models.Model):
+class ReportMeasles(models.Model):
     class Meta:
         get_latest_by = 'entered_at'
         ordering = ("-entered_at",)
