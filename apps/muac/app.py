@@ -158,7 +158,8 @@ class App (rapidsms.app.App):
 
         message.respond("MUAC> " + msg)
         
-
+        """ @todo   enable alerts      """
+        """
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.SEVERE_COMP_STATUS):
@@ -170,5 +171,6 @@ class App (rapidsms.app.App):
                     if recipient in recipients: continue
                     recipients.append(recipient)
                     #message.forward(recipient.mobile, alert)
+        """
         log(case, "muac_taken")
         return True
