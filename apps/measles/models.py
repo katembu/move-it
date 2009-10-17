@@ -8,18 +8,19 @@ from django.db import models
 from datetime import datetime
 
 from mctc.models.reports import Report
-from mctc.models.general import Case, Provider
+from mctc.models.general import Case
+from reporters.models import Reporter
  
 class ReportMeasles(Report, models.Model):
     class Meta:
         get_latest_by = 'entered_at'
         ordering = ("-entered_at",)
-        app_label = "mctc"
+        app_label = "measles"
         verbose_name = "Measles Report"
         verbose_name_plural = "Measles Reports"
     
     case = models.ForeignKey(Case, db_index=True)
-    provider = models.ForeignKey(Provider, db_index=True)
+    reporter = models.ForeignKey(Reporter, db_index=True)
     entered_at = models.DateTimeField(db_index=True)
     taken = models.BooleanField(db_index=True)
     
@@ -28,8 +29,8 @@ class ReportMeasles(Report, models.Model):
             self.entered_at = datetime.now()
         super(ReportMeasles, self).save(*args)
         
-    def zone(self):
-        return self.case.zone
+    def location(self):
+        return self.case.location
 
     @classmethod
     def is_vaccinated(cls,case):
@@ -50,20 +51,20 @@ class ReportMeasles(Report, models.Model):
             return False
     
     @classmethod
-    def summary_by_zone(cls):
+    def summary_by_location(cls):
         try:
-            rpts = cls.objects.order_by("case__zone")
+            rpts = cls.objects.order_by("case__location")
             zones = []
             zcount = 0
             l = ""
             for z in rpts:
                 if l == "":
                     zcount = 0
-                    l = z.case.zone
-                if l != z.case.zone:
+                    l = z.case.location
+                if l != z.case.location:
                     zones.append((l.name,zcount))
                     zcount = 0
-                    l = z.case.zone
+                    l = z.case.location
                 zcount += 1
             zones.append((l.name,zcount))
             return zones

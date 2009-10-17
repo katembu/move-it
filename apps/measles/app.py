@@ -8,7 +8,8 @@ from rapidsms.parsers.keyworder import Keyworder
 from mctc.models.logs import MessageLog
 from mctc.models.general import Provider, Case
 from mctc.models.reports import ReportCHWStatus
-from mctc.models.measles import ReportMeasles
+from reporters.models import Reporter
+from models import ReportMeasles
 
 import time
 
@@ -34,16 +35,6 @@ class App (rapidsms.app.App):
         pass
 
     def parse (self, message):
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
         message.was_handled = False
 
     def handle (self, message):
@@ -93,12 +84,12 @@ class App (rapidsms.app.App):
     @keyword(r'measles ?(.*)')
     @registered
     def measles(self, message, text):        
-        provider = message.sender.provider
+        reporter = message.persistant_connection.reporter
         cases, notcases = self.str_to_cases(text)
         result = ""
         for case in cases:
             result = result + "+%s "%case.ref_id
-            report = ReportMeasles(case=case, provider=provider, taken=True)
+            report = ReportMeasles(case=case, reporter=reporter, taken=True)
             report.save()
         message.respond(_(result + " received measles shot."))
         if notcases:
@@ -143,14 +134,13 @@ class App (rapidsms.app.App):
             tmp += item
         if tmp != header:
             result.append(tmp)
-        message.forward(u"0733202270", u"Start...")    
+        #message.forward(u"0733202270", u"Start Measles Summary...")    
         time.sleep(10)
-        providers = Provider.objects.filter(alerts=True).order_by("mobile").reverse()
+        reporters = Reporter.objects.all()
         for text in result:
-            for provider in providers:
-                mobile = u"0" + provider.mobile[4:]
+            for reporter in reporters:
+                mobile = reporter.connection().identity
                 message.forward(mobile, text)
                 time.sleep(10)
-            message.forward(u"0733858137", text)
-        message.forward(u"0733202270", u"...End")
+        #message.forward(u"0733202270", u"...Measles Summary End")
         return True
