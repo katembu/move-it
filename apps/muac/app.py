@@ -13,13 +13,12 @@ import re, datetime
 
 def _(txt): return txt
 
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -113,7 +112,7 @@ class App (rapidsms.app.App):
         except models.ObjectDoesNotExist:
             pass
         
-    @authenticated
+    @registered
     @keyword(r'muac \+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
     def report_case (self, message, ref_id, muac,
                      weight, height, complications):
