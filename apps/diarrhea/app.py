@@ -109,7 +109,7 @@ class App (rapidsms.app.App):
             message.respond("DIARRHEA> " + msg)
             
         
-        
+        """
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.DANGER_STATUS):
@@ -121,7 +121,7 @@ class App (rapidsms.app.App):
                     if recipient in recipients: continue
                     recipients.append(recipient)
                     message.forward(recipient.mobile, alert)
-                 
+        """      
         log(case, "diarrhea_fu_taken")
         return True
 
@@ -155,7 +155,7 @@ class App (rapidsms.app.App):
 
         message.respond("DIARRHEA> " + msg)
         
-
+        """
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.DANGER_STATUS):
@@ -167,7 +167,7 @@ class App (rapidsms.app.App):
                     if recipient in recipients: continue
                     recipients.append(recipient)
                     message.forward(recipient.mobile, alert)
-                    
+        """
         log(case, "diarrhea_taken")
         return True            
 
