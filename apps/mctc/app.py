@@ -358,44 +358,6 @@ class App (rapidsms.app.App):
         log(case, "case_transferred")        
         return True
  
-    @keyword(r'list(?: \+)?')
-    @authenticated
-    def list_cases (self, message):
-        # FIXME: should only return active cases here
-        # needs order by to cope with what unit tests expect
-        cases = Case.objects.filter(provider=message.sender.provider).order_by("ref_id")
-        text  = ""
-        for case in cases:
-            item = "+%s %s %s. %s/%s" % (case.ref_id, case.last_name.upper(),
-                case.first_name[0].upper(), case.gender, case.age())
-            if len(text) + len(item) + 2 >= self.MAX_MSG_LEN:
-                message.respond(text)
-                
-                text = ""
-            if text: text += ", "
-            text += item
-        if text:
-            message.respond(text)
-            
-        return True
-
-    @keyword(r'list\s@')
-    @authenticated
-    def list_providers (self, message):
-        providers = Provider.objects.all()
-        text  = ""
-        for provider in providers:
-            item = "@%s %s" % (provider.id, provider.user.username)
-            if len(text) + len(item) + 2 >= self.MAX_MSG_LEN:
-                message.respond(text)
-                
-                text = ""
-            if text: text += ", "
-            text += item
-        if text:
-            message.respond(text)
-        return True
-
     @keyword(r's(?:how)? \+?(\d+)')
     @authenticated
     def show_case (self, message, ref_id):
