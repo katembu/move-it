@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 from django.db import models
+from django.utils.translation import ugettext as _
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
@@ -10,8 +11,6 @@ from mctc.models.general import Provider, Case
 from models import ReportMalnutrition, Observation
 
 import re, datetime
-
-def _(txt): return txt
 
 def registered (func):
     def wrapper (self, message, *args):
