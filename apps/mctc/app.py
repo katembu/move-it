@@ -213,17 +213,16 @@ class App (rapidsms.app.App):
     def find_provider (self, target):
         try:
             if re.match(r'^\d+$', target):
-                provider = Provider.objects.get(id=target)
+                reporter = Reporter.objects.get(id=target)
             else:
-                user = User.objects.get(username__iexact=target)
-                provider = Provider.objects.get(user=user)
-            return provider
+                reporter = Reporter.objects.get(alias__iexact=target)                
+            return reporter
         except models.ObjectDoesNotExist:
             # FIXME: try looking up a group
             self.respond_not_registered(message, target)
 
     @keyword(r'\@(\w+) (.+)')
-    @authenticated
+    @registered
     def direct_message (self, message, target, text):
         provider = self.find_provider(target)
         try:
@@ -336,20 +335,25 @@ class App (rapidsms.app.App):
         return True
 
     @keyword(r'transfer \+?(\d+) (?:to )?\@?(\w+)')
-    @authenticated
+    @registered
     def transfer_case (self, message, ref_id, target):
-        provider = message.sender.provider
+        reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         new_provider = self.find_provider(target) 
-        case.provider = new_provider
+        case.reporter = new_provider
         case.save()
-        info = new_provider.get_dictionary()
+        info = {
+            'username': new_provider.alias,
+            'name': new_provider.full_name(),
+            'location':new_provider.location
+        }
         info["ref_id"] = case.ref_id
         message.respond(_("Case +%(ref_id)s transferred to @%(username)s " +
-                         "(%(user_last_name)s, %(user_last_name)s).") % info)
+                         "(%(name)s - %(location)s).") % info)
         
-        message.forward(_("Case +%s transferred to you from @%s.") % (
-                         case.ref_id, provider.user.username))
+        message.forward(new_provider.connection().identity,
+                        _("Case +%s transferred to you from @%s (%s - %s).")%
+                        (case.ref_id, reporter.alias, reporter.full_name(), reporter.location))
         
         log(case, "case_transferred")        
         return True
