@@ -371,10 +371,11 @@ class App (rapidsms.app.App):
         return True
     
     @keyword(r'n(?:ote)? \+(\d+) (.+)')
-    @authenticated
+    @registered
     def note_case (self, message, ref_id, note):
+        reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
-        CaseNote(case=case, created_by=message.sender, text=note).save()
+        CaseNote(case=case, created_by=reporter, text=note).save()
         message.respond(_("Note added to case +%s.") % ref_id)
         
         log(case, "note_added")        
