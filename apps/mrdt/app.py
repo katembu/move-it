@@ -14,13 +14,12 @@ import re, datetime
 
 def _(txt): return txt
 
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -115,7 +114,7 @@ class App (rapidsms.app.App):
             pass
         
     @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
-    @authenticated
+    @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
         case = self.find_case(ref_id)
         observed, choices = self.get_observations(observed)
