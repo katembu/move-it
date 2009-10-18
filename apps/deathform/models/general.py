@@ -59,7 +59,7 @@ class ReportDeath(models.Model):
     
     def age_as_text(self):
         txt = ""
-        if (self.age % 12) == 0:
+        if self.age >= 12 and (self.age % 12) == 0:
             txt = "%d years"%(int(self.age/12))
         else:
             txt = "%d months"%(self.age)

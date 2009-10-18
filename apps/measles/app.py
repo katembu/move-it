@@ -125,7 +125,10 @@ class App (rapidsms.app.App):
         result = []
         tmp = header;
         for info in summary:
-            info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0); 
+            if info["eligible_cases"] != 0:
+                info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0);
+            else:
+                info["percentage"] = 0 
             item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s,"%info
             if len(tmp) + len(item) + 2 >= self.MAX_MSG_LEN:
                 result.append(tmp)
