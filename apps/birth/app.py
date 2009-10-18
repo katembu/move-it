@@ -14,13 +14,12 @@ from birth.models import ReportBirth
 import re
 import time, datetime
 
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -86,7 +85,7 @@ class App (rapidsms.app.App):
         pass
     
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
-    @authenticated
+    @registered
     @transaction.commit_on_success
     def report_birth(self, message, last, first, gender, dob, weight,location, guardian, complications=""):
         if len(dob) != 6:
