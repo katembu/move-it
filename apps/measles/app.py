@@ -4,6 +4,7 @@ from django.db import models
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
+from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog
 from mctc.models.general import Provider, Case
@@ -12,8 +13,6 @@ from reporters.models import Reporter
 from models import ReportMeasles
 
 import time
-
-def _(txt): return txt
 
 def registered (func):
     def wrapper (self, message, *args):
