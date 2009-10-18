@@ -123,7 +123,7 @@ class App (rapidsms.app.App):
     ############################
 
     # SUBSCRIBE
-    keyword.prefix = ["subscribe"]
+    keyword.prefix = ["subscribe","register"]
     @keyword(r'(\w+) (.+)')
     def join(self, message, clinic_code, name):
         ''' register a user and join the system '''
