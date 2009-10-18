@@ -10,7 +10,7 @@ from django.contrib import admin
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
@@ -144,7 +144,6 @@ class DiseaseObservation(models.Model):
     deaths  = models.PositiveIntegerField()
 
     def __unicode__(self):
-        #deathfmt  = _(u"+%(deaths)s") % {'deaths': self.deaths} if self.deaths > 0 else ""
         return _(u"%(code)s:%(cases)s/%(deaths)s") % {'code': self.disease.code.upper(), 'cases': self.cases, 'deaths': self.deaths}
 
     @classmethod
@@ -155,6 +154,15 @@ class DiseaseObservation(models.Model):
             do = cls(disease=disease, cases=cases, deaths=deaths)
             do.save()
             return do
+
+def DiseaseObservation_pre_save_handler(sender, **kwargs):
+
+    instance    = kwargs['instance']
+
+    if instance.deaths > instance.cases:
+        raise IncoherentValue
+
+pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
 class DiseasesReport(models.Model,FindReport):
 
@@ -221,52 +229,21 @@ class DiseasesReport(models.Model,FindReport):
             report.save()
             return report
 
-def DiseasesReport_pre_save_handler(sender, **kwargs):
-    print "PRE SAVE!!"
+def DiseasesReport_m2m_changed_handler(sender, **kwargs):
+
     instance    = kwargs['instance']
-    if not instance.id:
-        print "POST NO ID."
-        return
+    action      = kwargs['action']
 
-    diseases    = []
-    for obs in instance.diseases.all():
-        if diseases.count(obs.disease) > 0:
-            raise IncoherentValue
-        else:
-            diseases.append(obs.disease)
+    if action == 'add':
 
-def DiseasesReport_post_save_handler(sender, **kwargs):
-    print "POST SAVE!!"
-    instance    = kwargs['instance']
-    try:
-        if not kwargs['created']:
-            print "NO CREATED ARG"
-            return
-    except:
-        print "NOT CREATED"
-        return
+        diseases    = []
+        for obs in instance.diseases.all():
+            if diseases.count(obs.disease) > 0:
+                raise IncoherentValue
+            else:
+                diseases.append(obs.disease)
 
-    if not instance.id:
-        print "POST NO ID."
-        #return
-
-    print instance.id
-    print instance.diseases.all()
-    x = sender.objects.get(id=instance.id)
-    print x.diseases.all()
-
-
-    diseases    = []
-    for obs in instance.diseases.all():
-        print "-- %s" % obs.disease
-        if diseases.count(obs.disease) > 0:
-            instance.delete()
-            raise IncoherentValue
-        else:
-            diseases.append(obs.disease)
-
-pre_save.connect(DiseasesReport_pre_save_handler, sender=DiseasesReport)
-post_save.connect(DiseasesReport_post_save_handler, sender=DiseasesReport)
+m2m_changed.connect(DiseasesReport_m2m_changed_handler, sender=DiseasesReport)
 
 # MALARIA CASES
 class MalariaCasesReport(models.Model,FindReport):
@@ -383,10 +360,6 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_under_five(self):
         return self.__positive_under_five
     def set_positive_under_five(self, value):
-        print value
-        print self.encounters
-        print value + self.positive_over_five
-        print self.suspected_cases
         if value > self.encounters or (value + self.positive_over_five) > self.suspected_cases:
             raise IncoherentValue
         self.__positive_under_five = value
@@ -407,7 +380,7 @@ class MalariaCasesReport(models.Model,FindReport):
         return text
 
 def MalariaCasesReport_pre_save_handler(sender, **kwargs):
-    print "MalariaCasesReport PRE SAVE"
+
     instance    = kwargs['instance']
 
     instcopy    = copy.copy(instance)
@@ -527,7 +500,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
         return text
 
 def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
-    print "MalariaCasesReport PRE SAVE"
+
     instance    = kwargs['instance']
 
     if (instance.rdt_positive + instance.rdt_negative) != (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
@@ -736,7 +709,7 @@ class EpidemiologicalReport(models.Model):
     def __unicode__(self):
         return _(u"W%(week)s - %(clinic)s - %(completion)s") % {'week': self.period.weeky, 'clinic': self.clinic, 'completion': self.quarters}
 
-    # diseases property
+    # status property
     def get_status(self):
         return int(self.__status)
     def set_status(self, value):
@@ -756,10 +729,6 @@ class EpidemiologicalReport(models.Model):
     def get_malaria_cases(self):
         return self.__malaria_cases
     def set_malaria_cases(self, value):
-        print "rep loc: %s" % value.reporter.location
-        print "clinic: %s" % self.clinic
-        print "value period: %s" % value.period
-        print "period: %s" % self.period
         if value.reporter.location != self.clinic or value.period != self.period:
             raise IncoherentValue
         self.__malaria_cases = value
@@ -853,4 +822,17 @@ class EpidemiologicalReport(models.Model):
             return text.lower() == 'y'
 
         return _(u"%(diseases)s:%(diseases_done)s, %(malaria_cases)s:%(malaria_cases_done)s, %(malaria_treatments)s:%(malaria_treatments_done)s, %(act_consumption)s:%(act_consumption_done)s, %(remarks)s:%(remarks_done)s (%(comp)s)") % {'comp': self.quarters, 'diseases': DiseasesReport.TITLE, 'diseases_done': bool_to_text(self.diseases), 'malaria_cases': MalariaCasesReport.TITLE, 'malaria_cases_done': bool_to_text(self.malaria_cases), 'malaria_treatments': MalariaTreatmentsReport.TITLE, 'malaria_treatments_done': bool_to_text(self.malaria_treatments), 'act_consumption': ACTConsumptionReport.TITLE, 'act_consumption_done': bool_to_text(self.act_consumption), 'remarks': "Remarks", 'remarks_done': bool_to_text(self.remarks)}
+
+def EpidemiologicalReport_pre_save_handler(sender, **kwargs):
+
+    instance    = kwargs['instance']
+
+    for value in (instance.diseases, instance.malaria_cases, instance.malaria_treatments, instance.act_consumption):
+        try:
+            if value.reporter.location != instance.clinic or value.period != instance.period:
+                raise IncoherentValue
+        except AttributeError:
+            pass
+
+pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalReport)
 
