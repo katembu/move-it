@@ -13,13 +13,12 @@ from deathform.models.general import ReportDeath
 import re
 import time, datetime
 
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -91,7 +90,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
     
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
-    @authenticated
+    @registered
     def report_death(self, message, last, first, gender, age, dod, cause, location, description=""):
         
         if age[len(age)-1].upper() == 'Y':
@@ -130,7 +129,7 @@ class App (rapidsms.app.App):
         return True
     
     @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
-    @authenticated
+    @registered
     def report_cdeath(self, message, ref_id, dod, cause, location, description=""):
         #Is the child registered with us?
         case = self.find_case(ref_id)
