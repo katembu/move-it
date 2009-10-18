@@ -5,6 +5,7 @@ import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Provider, Case
@@ -13,15 +14,12 @@ from birth.models import ReportBirth
 import re
 import time, datetime
 
-def _(txt): return txt
-
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -87,9 +85,9 @@ class App (rapidsms.app.App):
         pass
     
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
-    @authenticated
+    @registered
     @transaction.commit_on_success
-    def report_birth(self, message, last, first, gender, dob, weight,location, guardian, complications=""):
+    def report_birth(self, message, last, first, gender, dob, weight,where, guardian, complications=""):
         if len(dob) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
@@ -104,11 +102,11 @@ class App (rapidsms.app.App):
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dob)
             dob = datetime.date(*dob[:3])        
-        provider = message.sender.provider
-        zone = None
-        if not zone:
-            if provider.clinic:
-                zone = provider.clinic.zone
+        reporter = message.persistant_connection.reporter
+        location = None
+        if not location:
+            if reporter.location:
+                location = reporter.location
         
         info = {
             "first_name" : first.title(),
@@ -117,16 +115,16 @@ class App (rapidsms.app.App):
             "dob"        : dob,
             "guardian"   : guardian.title(),
             "mobile"     : "",
-            "provider"   : provider,
-            "zone"       : zone
+            "reporter"   : reporter,
+            "location"       : location
         }
         
-        abirth = ReportBirth(location=location.upper())
+        abirth = ReportBirth(where=where.upper())
         #Perform Location checks
-        if abirth.get_location() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        if abirth.get_where() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
         
-        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], provider=info['provider'], dob=info['dob'])
+        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
         if iscase:
             info["PID"] = iscase[0].ref_id
             self.info(iscase[0].id)
@@ -150,8 +148,8 @@ class App (rapidsms.app.App):
         info2 = {
             "case":case,
             "weight": weight,
-            "location": location,
-            "provider": provider,
+            "where": where,
+            "reporter": reporter,
             "complications": complications
         }
         
@@ -160,17 +158,17 @@ class App (rapidsms.app.App):
         
         if rbirth:
             raise HandlerFailed(_(
-            "The birth of %(last_name)s, %(first_name)s (+%(PID)s) has already been reported by %(provider)s.") % info)
+            "The birth of %(last_name)s, %(first_name)s (+%(PID)s) has already been reported by %(reporter)s.") % info)
             
         
         abirth = ReportBirth(**info2)
         abirth.save()
         
-        if zone:
-            info["zone"] = zone.name
+        info.update({"where":abirth.get_where()})
+        
         message.respond(_(
             "Birth +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(dob)s " +
-            "(%(guardian)s) %(zone)s") % info)
+            "(%(guardian)s) %(location)s at %(where)s") % info)
         
         
         return True

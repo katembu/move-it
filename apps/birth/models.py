@@ -2,15 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.reports import Report
-from mctc.models.general import Provider, Case
+from mctc.models.general import Case
+from reporters.models import Reporter
 
 from datetime import datetime
 
-def _(txt): return txt
-
-class ReportBirth(Report, models.Model):    
+class ReportBirth(models.Model):    
         
     LOCATION_CHOICES = (
         ('H', _('Home')), 
@@ -21,9 +20,9 @@ class ReportBirth(Report, models.Model):
     
     case            = models.ForeignKey(Case, db_index=True, null=False)
     weight          = models.FloatField(db_index=True, null=False)
-    location        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
+    where        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     complications   = models.CharField(max_length=255, db_index=True)
-    provider    = models.ForeignKey(Provider, db_index=True)    
+    reporter    = models.ForeignKey(Reporter, db_index=True)    
     entered_at  = models.DateTimeField(db_index=True)
     
     
@@ -42,9 +41,9 @@ class ReportBirth(Report, models.Model):
             self.entered_at = datetime.now()
         super(ReportBirth, self).save(*args)
     
-    def get_location(self):
-        locations = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
-        return locations.get(self.location, None)
+    def get_where(self):
+        where = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        return where.get(self.where, None)
     
     def display_name(self):
         return u"%s %s"%(self.case.first_name, self.case.last_name)
