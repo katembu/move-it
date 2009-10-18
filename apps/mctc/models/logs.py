@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from datetime import datetime, date
 
-from mctc.models.general import Provider
+from reporters.models import Reporter
 
 # since there's only ever going to be a limited number of message
 # on a strict one to one basis, lets just define them here,
@@ -80,7 +80,7 @@ def log(source, message):
 class MessageLog(models.Model):
     """ This is the raw dirt message log, useful for some things """
     mobile      = models.CharField(max_length=255, db_index=True)
-    sent_by     = models.ForeignKey(User, null=True)
+    sent_by     = models.ForeignKey(Reporter, null=True)
     text        = models.TextField(max_length=255)
     was_handled = models.BooleanField(default=False, db_index=True)
     created_at  = models.DateTimeField(db_index=True)
@@ -95,11 +95,8 @@ class MessageLog(models.Model):
     def sent_by_name(self):
         return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
 
-    def provider_clinic(self):
-        p = Provider.objects.get(user=self.sent_by)
-        if p:
-            return "%s"%p.clinic
-        return ""
+    def location(self):
+        return u"%s"%self.sent_by.location
 
     def save(self, *args):
         if not self.id:

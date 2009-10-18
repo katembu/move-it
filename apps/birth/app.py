@@ -70,11 +70,12 @@ class App (rapidsms.app.App):
         return handled
 
     def cleanup (self, message):
-        log = MessageLog(mobile=message.peer,
-                         sent_by=message.sender,
+        if message.was_handled:
+            log = MessageLog(mobile=message.peer,
+                         sent_by=message.persistant_connection.reporter,
                          text=message.text,
                          was_handled=message.was_handled)
-        log.save()
+            log.save()
 
     def outgoing (self, message):
         """Handle outgoing message notifications."""

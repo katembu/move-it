@@ -47,7 +47,7 @@ admin.site.register(Zone)
 admin.site.register(Facility)
 
 class MessageLogAdmin(admin.ModelAdmin):
-    list_display = ("sent_by_name","provider_clinic","mobile", "text", "created_at", "was_handled")
+    list_display = ("sent_by", "location","mobile", "text", "created_at", "was_handled")
     list_filter = ("was_handled","sent_by")
     search_fields = ['mobile', 'text', ]
     
