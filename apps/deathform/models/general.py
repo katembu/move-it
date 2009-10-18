@@ -4,13 +4,13 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.reports import Report
-from mctc.models.general import Provider, Case
+from mctc.models.general import Case
+from reporters.models import Reporter
 
 from datetime import datetime
 
 
-class ReportDeath(Report, models.Model):    
+class ReportDeath(models.Model):    
     GENDER_CHOICES = (
         ('M', _('Male')), 
         ('F', _('Female')), 
@@ -36,7 +36,7 @@ class ReportDeath(Report, models.Model):
     gender      = models.CharField(max_length=1, choices=GENDER_CHOICES)
     age         = models.IntegerField(db_index=True)
     dod         = models.DateField(_('Date of Death'))
-    provider    = models.ForeignKey(Provider, db_index=True)
+    reporter    = models.ForeignKey(Reporter, db_index=True)
     entered_at  = models.DateTimeField(db_index=True)
     where    = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     cause       = models.CharField(max_length=1, choices=CAUSE_CHOICES)

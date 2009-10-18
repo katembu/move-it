@@ -112,9 +112,9 @@ class App (rapidsms.app.App):
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
             dod = datetime.date(*dod[:3])        
-        provider = message.sender.provider
+        reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
-                            age=age, provider=provider, where=where.upper(),cause=cause.upper(),
+                            age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         #Perform Location checks
         if death.get_where() is None:
@@ -154,9 +154,9 @@ class App (rapidsms.app.App):
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
             dod = datetime.date(*dod[:3])        
-        provider = message.sender.provider
+        reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
-                            age=age, provider=provider, where=where.upper(),cause=cause.upper(),
+                            age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),
                             description=description, dod=dod, case=case)
         #Perform Location checks
         if death.get_where() is None:
