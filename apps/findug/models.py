@@ -239,6 +239,7 @@ def DiseasesReport_m2m_changed_handler(sender, **kwargs):
         diseases    = []
         for obs in instance.diseases.all():
             if diseases.count(obs.disease) > 0:
+                instance.delete()
                 raise IncoherentValue
             else:
                 diseases.append(obs.disease)
