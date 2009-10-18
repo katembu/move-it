@@ -38,7 +38,7 @@ class ReportDeath(Report, models.Model):
     dod         = models.DateField(_('Date of Death'))
     provider    = models.ForeignKey(Provider, db_index=True)
     entered_at  = models.DateTimeField(db_index=True)
-    location    = models.CharField(max_length=1, choices=LOCATION_CHOICES)
+    where    = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     cause       = models.CharField(max_length=1, choices=CAUSE_CHOICES)
     description   = models.CharField(max_length=255, db_index=True)
     case = models.ForeignKey(Case, db_index=True, null=True)
@@ -69,14 +69,14 @@ class ReportDeath(Report, models.Model):
         causes = dict([ (k, v) for (k,v) in self.CAUSE_CHOICES])
         return causes.get(self.cause, None)
     
-    def get_location(self):
-        locations = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
-        return locations.get(self.location, None)
+    def get_where(self):
+        where = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        return where.get(self.where, None)
     
     def get_dictionary(self):
         return {'name': "%s %s" % (self.last_name, self.first_name),
                 'age': self.age_as_text(),
                 'cause': self.get_cause(),
-                'location': self.get_location(),
+                'where': self.get_where(),
                 'dod': self.dod.strftime("%d/%m/%y")
                 }

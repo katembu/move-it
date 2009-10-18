@@ -91,7 +91,7 @@ class App (rapidsms.app.App):
     
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
-    def report_death(self, message, last, first, gender, age, dod, cause, location, description=""):
+    def report_death(self, message, last, first, gender, age, dod, cause, where, description=""):
         
         if age[len(age)-1].upper() == 'Y':
             age = int(age[:len(age)-1])*12
@@ -114,23 +114,23 @@ class App (rapidsms.app.App):
             dod = datetime.date(*dod[:3])        
         provider = message.sender.provider
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
-                            age=age, provider=provider, location=location.upper(),cause=cause.upper(),
+                            age=age, provider=provider, where=where.upper(),cause=cause.upper(),
                             description=description, dod=dod)
         #Perform Location checks
-        if death.get_location() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        if death.get_where() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
         #Perform Cause Check  
         if death.get_cause() is None:
             raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
         
         death.save()
         info = death.get_dictionary()
-        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
     
     @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
-    def report_cdeath(self, message, ref_id, dod, cause, location, description=""):
+    def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
         #Is the child registered with us?
         case = self.find_case(ref_id)
         age = case.age()
@@ -156,11 +156,11 @@ class App (rapidsms.app.App):
             dod = datetime.date(*dod[:3])        
         provider = message.sender.provider
         death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
-                            age=age, provider=provider, location=location.upper(),cause=cause.upper(),
+                            age=age, provider=provider, where=where.upper(),cause=cause.upper(),
                             description=description, dod=dod, case=case)
         #Perform Location checks
-        if death.get_location() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        if death.get_where() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
         #Perform Cause Check  
         if death.get_cause() is None:
             raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
@@ -169,5 +169,5 @@ class App (rapidsms.app.App):
         case.set_status(Case.STATUS_DEAD);
         case.save()
         info = death.get_dictionary()
-        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(location)s")%info)
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
