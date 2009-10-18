@@ -164,6 +164,8 @@ class App (rapidsms.app.App):
         abirth = ReportBirth(**info2)
         abirth.save()
         
+        info.update({"where":abirth.get_where()})
+        
         message.respond(_(
             "Birth +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(dob)s " +
             "(%(guardian)s) %(location)s at %(where)s") % info)
