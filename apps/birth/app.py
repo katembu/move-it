@@ -102,11 +102,11 @@ class App (rapidsms.app.App):
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dob)
             dob = datetime.date(*dob[:3])        
-        provider = message.sender.provider
-        zone = None
+        reporter = message.persistant_connection.reporter
+        location = None
         if not zone:
-            if provider.clinic:
-                zone = provider.clinic.zone
+            if reporter.location:
+                zone = reporter.location
         
         info = {
             "first_name" : first.title(),
@@ -115,8 +115,8 @@ class App (rapidsms.app.App):
             "dob"        : dob,
             "guardian"   : guardian.title(),
             "mobile"     : "",
-            "provider"   : provider,
-            "zone"       : zone
+            "reporter"   : reporter,
+            "location"       : location
         }
         
         abirth = ReportBirth(location=location.upper())
@@ -124,7 +124,7 @@ class App (rapidsms.app.App):
         if abirth.get_location() is None:
             raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
         
-        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], provider=info['provider'], dob=info['dob'])
+        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
         if iscase:
             info["PID"] = iscase[0].ref_id
             self.info(iscase[0].id)
@@ -149,7 +149,7 @@ class App (rapidsms.app.App):
             "case":case,
             "weight": weight,
             "location": location,
-            "provider": provider,
+            "reporter": reporter,
             "complications": complications
         }
         
@@ -158,17 +158,15 @@ class App (rapidsms.app.App):
         
         if rbirth:
             raise HandlerFailed(_(
-            "The birth of %(last_name)s, %(first_name)s (+%(PID)s) has already been reported by %(provider)s.") % info)
+            "The birth of %(last_name)s, %(first_name)s (+%(PID)s) has already been reported by %(reporter)s.") % info)
             
         
         abirth = ReportBirth(**info2)
         abirth.save()
         
-        if zone:
-            info["zone"] = zone.name
         message.respond(_(
             "Birth +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(dob)s " +
-            "(%(guardian)s) %(zone)s") % info)
+            "(%(guardian)s) %(location)s") % info)
         
         
         return True
