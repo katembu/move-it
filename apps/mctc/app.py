@@ -69,7 +69,7 @@ class App (rapidsms.app.App):
 
     def cleanup (self, message):
         log = MessageLog(mobile=message.peer,
-                         sent_by=message.sender,
+                         sent_by=message.persistant_connection.reporter,
                          text=message.text,
                          was_handled=message.was_handled)
         log.save()
