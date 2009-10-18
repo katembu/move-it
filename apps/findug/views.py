@@ -7,9 +7,7 @@ from rapidsms.webui.utils import render_to_response
 
 from models import *
 from utils import *
-from datas import *
 from apps.locations.models import *
-from apps.rdtreporting.models import *
 
 from apps.libreport.pdfreport import PDFReport
 from apps.libreport.csvreport import CSVReport
@@ -25,7 +23,6 @@ def index(req):
     for location in locations:
         loc = {}
         loc['obj']      = location
-        loc['stats']    = location_stats_dict(location)
         all.append(loc)
 
     return render_to_response(req, 'findug/index.html', {'locations': all})
@@ -41,8 +38,6 @@ def locations_view(req):
         loc = {}
         loc['obj']      = location
         loc['alias']    = location.code.upper()
-        loc['stock']    = stock_for_location(location)
-        loc['reports']  = report_for_location_date(location=location, day=today)
         all.append(loc)
 
     # sort by date, descending
@@ -61,15 +56,13 @@ def reporters_view(req):
 
     def nb_alerts_for(reporter):
         
-        return RDTAlert.objects.filter(reporter=reporter, status=RDTAlert.STATUS_SENT).count()
+        return 0
 
     reporters= Reporter.objects.filter()
     all = []
     for reporter in reporters:
         rep = {}
         rep['obj']      = reporter
-        rep['stock']    = stock_for_reporter(reporter)
-        rep['last_report']= last_report(reporter)
         rep['nb_alerts']= nb_alerts_for(reporter)
         rep['up2date']  = rep['nb_alerts'] == 0
         all.append(rep)
