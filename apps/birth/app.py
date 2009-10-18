@@ -87,7 +87,7 @@ class App (rapidsms.app.App):
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
     @registered
     @transaction.commit_on_success
-    def report_birth(self, message, last, first, gender, dob, weight,location, guardian, complications=""):
+    def report_birth(self, message, last, first, gender, dob, weight,where, guardian, complications=""):
         if len(dob) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
@@ -104,9 +104,9 @@ class App (rapidsms.app.App):
             dob = datetime.date(*dob[:3])        
         reporter = message.persistant_connection.reporter
         location = None
-        if not zone:
+        if not location:
             if reporter.location:
-                zone = reporter.location
+                location = reporter.location
         
         info = {
             "first_name" : first.title(),
@@ -119,10 +119,10 @@ class App (rapidsms.app.App):
             "location"       : location
         }
         
-        abirth = ReportBirth(location=location.upper())
+        abirth = ReportBirth(where=where.upper())
         #Perform Location checks
-        if abirth.get_location() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % location)
+        if abirth.get_where() is None:
+            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
         
         iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
         if iscase:
@@ -148,7 +148,7 @@ class App (rapidsms.app.App):
         info2 = {
             "case":case,
             "weight": weight,
-            "location": location,
+            "where": where,
             "reporter": reporter,
             "complications": complications
         }
@@ -166,7 +166,7 @@ class App (rapidsms.app.App):
         
         message.respond(_(
             "Birth +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(dob)s " +
-            "(%(guardian)s) %(location)s") % info)
+            "(%(guardian)s) %(location)s at %(where)s") % info)
         
         
         return True

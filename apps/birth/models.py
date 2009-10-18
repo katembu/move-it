@@ -20,7 +20,7 @@ class ReportBirth(Report, models.Model):
     
     case            = models.ForeignKey(Case, db_index=True, null=False)
     weight          = models.FloatField(db_index=True, null=False)
-    location        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
+    where        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     complications   = models.CharField(max_length=255, db_index=True)
     reporter    = models.ForeignKey(Reporter, db_index=True)    
     entered_at  = models.DateTimeField(db_index=True)
@@ -41,9 +41,9 @@ class ReportBirth(Report, models.Model):
             self.entered_at = datetime.now()
         super(ReportBirth, self).save(*args)
     
-    def get_location(self):
-        locations = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
-        return locations.get(self.location, None)
+    def get_where(self):
+        where = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        return where.get(self.where, None)
     
     def display_name(self):
         return u"%s %s"%(self.case.first_name, self.case.last_name)
