@@ -9,7 +9,7 @@ from reporters.models import Reporter
 
 from datetime import datetime
 
-class ReportBirth(Report, models.Model):    
+class ReportBirth(models.Model):    
         
     LOCATION_CHOICES = (
         ('H', _('Home')), 
