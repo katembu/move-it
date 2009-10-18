@@ -2,13 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.reports import Report
 from mctc.models.general import Provider, Case
 
 from datetime import datetime
-
-def _(txt): return txt
 
 class ReportBirth(Report, models.Model):    
         

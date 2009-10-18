@@ -5,6 +5,7 @@ import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
 from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Provider, Case
@@ -12,8 +13,6 @@ from birth.models import ReportBirth
 
 import re
 import time, datetime
-
-def _(txt): return txt
 
 def authenticated (func):
     def wrapper (self, message, *args):
