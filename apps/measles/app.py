@@ -4,23 +4,22 @@ from django.db import models
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
+from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog
 from mctc.models.general import Provider, Case
 from mctc.models.reports import ReportCHWStatus
-from mctc.models.measles import ReportMeasles
+from reporters.models import Reporter
+from models import ReportMeasles
 
 import time
 
-def _(txt): return txt
-
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -35,16 +34,6 @@ class App (rapidsms.app.App):
         pass
 
     def parse (self, message):
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
         message.was_handled = False
 
     def handle (self, message):
@@ -92,14 +81,14 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     @keyword(r'measles ?(.*)')
-    @authenticated
+    @registered
     def measles(self, message, text):        
-        provider = message.sender.provider
+        reporter = message.persistant_connection.reporter
         cases, notcases = self.str_to_cases(text)
         result = ""
         for case in cases:
             result = result + "+%s "%case.ref_id
-            report = ReportMeasles(case=case, provider=provider, taken=True)
+            report = ReportMeasles(case=case, reporter=reporter, taken=True)
             report.save()
         message.respond(_(result + " received measles shot."))
         if notcases:
@@ -136,7 +125,10 @@ class App (rapidsms.app.App):
         result = []
         tmp = header;
         for info in summary:
-            info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0); 
+            if info["eligible_cases"] != 0:
+                info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0);
+            else:
+                info["percentage"] = 0 
             item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s,"%info
             if len(tmp) + len(item) + 2 >= self.MAX_MSG_LEN:
                 result.append(tmp)
@@ -144,14 +136,13 @@ class App (rapidsms.app.App):
             tmp += item
         if tmp != header:
             result.append(tmp)
-        message.forward(u"0733202270", u"Start...")    
+        #message.forward(u"0733202270", u"Start Measles Summary...")    
         time.sleep(10)
-        providers = Provider.objects.filter(alerts=True).order_by("mobile").reverse()
+        reporters = Reporter.objects.all()
         for text in result:
-            for provider in providers:
-                mobile = u"0" + provider.mobile[4:]
+            for reporter in reporters:
+                mobile = reporter.connection().identity
                 message.forward(mobile, text)
                 time.sleep(10)
-            message.forward(u"0733858137", text)
-        message.forward(u"0733202270", u"...End")
+        #message.forward(u"0733202270", u"...Measles Summary End")
         return True

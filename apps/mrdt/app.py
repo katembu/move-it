@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+
 from django.db import models
+from django.utils.translation import ugettext as _
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Provider, Case
-from mctc.models.reports import ReportMalaria, Observation
+from mctc.models.reports import Observation
+from models import ReportMalaria
 
 import re, datetime
 
-def _(txt): return txt
-
-def authenticated (func):
+def registered (func):
     def wrapper (self, message, *args):
-        if message.sender:
+        if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_(u"Sorry, only registered users can access this program."))
             return True
     return wrapper
 
@@ -114,17 +114,17 @@ class App (rapidsms.app.App):
             pass
         
     @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
-    @authenticated
+    @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
         case = self.find_case(ref_id)
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
-        provider = message.sender.provider
+        reporter = message.persistant_connection.reporter
 
         result = result.lower() == "y"
         bednet = bednet.lower() == "y"
 
-        report = ReportMalaria(case=case, provider=provider, result=result, bednet=bednet)
+        report = ReportMalaria(case=case, reporter=reporter, result=result, bednet=bednet)
         report.save()
         for obs in observed:
             report.observed.add(obs)
@@ -133,21 +133,25 @@ class App (rapidsms.app.App):
         # build up an information dictionary
         info = case.get_dictionary()
         info.update(report.get_dictionary())
-        info.update(provider.get_dictionary())
+        info.update({
+            "reporter_name": reporter.full_name(),
+            "reporter_alias":reporter.alias,
+            "reporter_identity":reporter.connection().identity,
+        })
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
             if observed: info["observed"] = ", (%s)" % info["observed"]
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(months)s (%(guardian)s), %(village)s. RDT=%(result_text)s,"\
+                    "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
                     " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
                     "for clinical evaluation" % info)
             # alerts to health team
             alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
-                      " %(first_name)s, %(gender)s/%(months)s %(village)s. Patient "\
-                      "requires IMMEDIATE referral. Reported by CHW %(provider_name)s "\
-                      "@%(provider_user)s m:%(provider_mobile)s." % info)
+                      " %(first_name)s, %(gender)s/%(age)s %(location)s. Patient "\
+                      "requires IMMEDIATE referral. Reported by CHW %(reporter_name)s "\
+                      "@%(reporter_alias)s m:%(reporter_identity)s." % info)
 
         else:
             # this is all for if child has tested postive
@@ -182,18 +186,19 @@ class App (rapidsms.app.App):
 
             # finally build out the messages
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(months)s has MALARIA%(danger)s. %(instructions)s" % info)
+                    "%(gender)s/%(age)s has MALARIA%(danger)s. %(instructions)s" % info)
 
             alert = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                      "%(gender)s/%(months)s (%(village)s) has MALARIA%(danger)s. "\
-                      "CHW: @%(provider_user)s %(provider_mobile)s" % info)
+                      "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
+                      "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         message.respond(msg)
-        
+        """ @todo: enable alerts """
+        """
         recipients = report.get_alert_recipients()
         for recipient in recipients:
             message.forward(recipient.mobile, alert)
-            
+        """    
 
         log(case, "mrdt_taken")        
         return True
