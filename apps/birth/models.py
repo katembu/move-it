@@ -4,8 +4,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.reports import Report
-from mctc.models.general import Provider, Case
+from mctc.models.general import Case
+from reporters.models import Reporter
 
 from datetime import datetime
 
@@ -22,7 +22,7 @@ class ReportBirth(Report, models.Model):
     weight          = models.FloatField(db_index=True, null=False)
     location        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     complications   = models.CharField(max_length=255, db_index=True)
-    provider    = models.ForeignKey(Provider, db_index=True)    
+    reporter    = models.ForeignKey(Reporter, db_index=True)    
     entered_at  = models.DateTimeField(db_index=True)
     
     
