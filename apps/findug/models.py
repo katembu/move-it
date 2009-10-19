@@ -257,7 +257,6 @@ class MalariaCasesReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    __encounters          = models.PositiveIntegerField(default=0, verbose_name=_(u"Encounters"))
     __suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
     __rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
     __rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
@@ -274,7 +273,6 @@ class MalariaCasesReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self.__encounters         = 0
         self.__suspected_cases    = 0
         self.__rdt_tests          = 0
         self.__rdt_positive_tests = 0
@@ -292,10 +290,9 @@ class MalariaCasesReport(models.Model,FindReport):
             report.save()
             return report
 
-    def update(self, encounters, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+    def update(self, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
         ''' saves all datas at once '''
 
-        self.encounters         = encounters
         self.suspected_cases    = suspected_cases
         self.rdt_tests          = rdt_tests
         self.rdt_positive_tests = rdt_positive_tests
@@ -305,19 +302,10 @@ class MalariaCasesReport(models.Model,FindReport):
         self.positive_over_five = positive_over_five
         self.save()
 
-    # encounters property
-    def get_encounters(self):
-        return self.__encounters
-    def set_encounters(self, value):
-        self.__encounters = value
-    encounters  = property(get_encounters, set_encounters)
-
     # suspected_cases property
     def get_suspected_cases(self):
         return self.__suspected_cases
     def set_suspected_cases(self, value):
-        if value > self.encounters:
-            raise IncoherentValue
         self.__suspected_cases = value
     suspected_cases  = property(get_suspected_cases, set_suspected_cases)
 
@@ -325,8 +313,6 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_rdt_tests(self):
         return self.__rdt_tests
     def set_rdt_tests(self, value):
-        if value > self.encounters:
-            raise IncoherentValue
         self.__rdt_tests = value
     rdt_tests  = property(get_rdt_tests, set_rdt_tests)
 
@@ -334,7 +320,7 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_rdt_positive_tests(self):
         return self.__rdt_positive_tests
     def set_rdt_positive_tests(self, value):
-        if value > self.encounters or value > self.rdt_tests:
+        if value > self.rdt_tests:
             raise IncoherentValue
         self.__rdt_positive_tests = value
     rdt_positive_tests  = property(get_rdt_positive_tests, set_rdt_positive_tests)
@@ -343,8 +329,6 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_microscopy_tests(self):
         return self.__microscopy_tests
     def set_microscopy_tests(self, value):
-        if value > self.encounters:
-            raise IncoherentValue
         self.__microscopy_tests = value
     microscopy_tests  = property(get_microscopy_tests, set_microscopy_tests)
 
@@ -352,8 +336,6 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_microscopy_positive(self):
         return self.__microscopy_positive
     def set_microscopy_positive(self, value):
-        if value > self.encounters:
-            raise IncoherentValue
         self.__microscopy_positive = value
     microscopy_positive  = property(get_microscopy_positive, set_microscopy_positive)
 
@@ -361,7 +343,7 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_under_five(self):
         return self.__positive_under_five
     def set_positive_under_five(self, value):
-        if value > self.encounters or (value + self.positive_over_five) > self.suspected_cases:
+        if value + self.positive_over_five > self.suspected_cases:
             raise IncoherentValue
         self.__positive_under_five = value
     positive_under_five  = property(get_positive_under_five, set_positive_under_five)
@@ -370,14 +352,14 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_over_five(self):
         return self.__positive_over_five
     def set_positive_over_five(self, value):
-        if value > self.encounters or (value + self.positive_over_five) > self.suspected_cases:
+        if value + self.positive_over_five > self.suspected_cases:
             raise IncoherentValue
         self.__positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
     @property
     def summary(self):
-        text    = _(u"TOTAL: %(encounters)s, SUSPECT: %(suspected_cases)s, RDT: %(rdt_tests)s, RDT.POS: %(rdt_positive_tests)s, MICROS: %(microscopy_tests)s, MICROS+: %(microscopy_positive)s, 0-5 POS: %(positive_under_five)s, 5+ POS: %(positive_over_five)s") % {'encounters': self.encounters, 'suspected_cases': self.suspected_cases, 'rdt_tests': self.rdt_tests, 'rdt_positive_tests': self.rdt_positive_tests, 'microscopy_tests': self.microscopy_tests, 'microscopy_positive': self.microscopy_positive, 'positive_under_five': self.positive_under_five, 'positive_over_five': self.positive_over_five}
+        text    = _(u"SUSPECT: %(suspected_cases)s, RDT: %(rdt_tests)s, RDT.POS: %(rdt_positive_tests)s, MICROS: %(microscopy_tests)s, MICROS+: %(microscopy_positive)s, 0-5 POS: %(positive_under_five)s, 5+ POS: %(positive_over_five)s") % {'suspected_cases': self.suspected_cases, 'rdt_tests': self.rdt_tests, 'rdt_positive_tests': self.rdt_positive_tests, 'microscopy_tests': self.microscopy_tests, 'microscopy_positive': self.microscopy_positive, 'positive_under_five': self.positive_under_five, 'positive_over_five': self.positive_over_five}
         return text
 
 def MalariaCasesReport_pre_save_handler(sender, **kwargs):
@@ -388,7 +370,6 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.reset()
 
     # call all setters
-    instcopy.encounters         = instance.encounters
     instcopy.suspected_cases    = instance.suspected_cases
     instcopy.rdt_tests          = instance.rdt_tests
     instcopy.rdt_positive_tests = instance.rdt_positive_tests

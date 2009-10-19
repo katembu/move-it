@@ -123,7 +123,7 @@ class App (rapidsms.app.App):
     ############################
 
     # SUBSCRIBE
-    keyword.prefix = ["subscribe","register"]
+    keyword.prefix = ["subscribe"]
     @keyword(r'(\w+) (.+)')
     def join(self, message, clinic_code, name):
         ''' register a user and join the system '''
@@ -467,9 +467,9 @@ class App (rapidsms.app.App):
     ################################
 
     keyword.prefix = ""
-    @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
+    @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
     @registered
-    def malaria_cases_report(self, message, period, encounters, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+    def malaria_cases_report(self, message, period, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
 
         # reporter
         reporter    = message.persistant_connection.reporter
@@ -484,7 +484,6 @@ class App (rapidsms.app.App):
 
         # input verification
         try:
-            encounters          = int(encounters)
             suspected_cases     = int(suspected_cases)
             rdt_tests           = int(rdt_tests)
             rdt_positive_tests  = int(rdt_positive_tests)
@@ -504,7 +503,7 @@ class App (rapidsms.app.App):
         report.reset()
 
         try:
-            report.update(encounters=encounters, suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
+            report.update(suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
         except IncoherentValue:
             message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
             return True
