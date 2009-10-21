@@ -179,7 +179,7 @@ class App (rapidsms.app.App):
         return self.join_reporter(message, reporter, clinic_code, role_code)
 
     # JOIN (ADMIN)
-    keyword.prefix = ["subscribe", "join"]
+    keyword.prefix = ["join"]
     @keyword(r'\@(slug) (letters)\s?(\w*)')
     @registered
     @admin
