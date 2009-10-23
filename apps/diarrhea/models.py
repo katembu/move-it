@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from django.db import models
+from django.utils.translation import ugettext as _
 from datetime import datetime
 
 from mctc.models.general import Case

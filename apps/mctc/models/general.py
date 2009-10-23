@@ -89,8 +89,8 @@ class Provider(models.Model):
     alerts  = models.BooleanField(default=False, db_index=True)
     clinic  = models.ForeignKey(Facility, null=True, db_index=True)
     manager = models.ForeignKey("Provider", blank=True, null=True)
-    following_users = models.ManyToManyField("Provider", related_name="following_users", blank=True, null=True)
-    following_clinics = models.ManyToManyField(Facility, related_name="following_clinics", blank=True, null=True)
+    following_users = models.ManyToManyField(Reporter, related_name="following_users", blank=True, null=True)
+    following_clinics = models.ManyToManyField(Location, related_name="following_clinics", blank=True, null=True)
 
 
     def get_name_display(self):
