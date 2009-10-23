@@ -487,10 +487,10 @@ class App (rapidsms.app.App):
             suspected_cases     = int(suspected_cases)
             rdt_tests           = int(rdt_tests)
             rdt_positive_tests  = int(rdt_positive_tests)
-            microscopy_tests    =int(microscopy_tests)
-            microscopy_positive =int(microscopy_positive)
-            positive_under_five =int(positive_under_five)
-            positive_over_five  =int(positive_over_five)
+            microscopy_tests    = int(microscopy_tests)
+            microscopy_positive = int(microscopy_positive)
+            positive_under_five = int(positive_under_five)
+            positive_over_five  = int(positive_over_five)
         except:
             message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
             return True
@@ -579,9 +579,9 @@ class App (rapidsms.app.App):
     ##################################
 
     keyword.prefix = ""
-    @keyword(r'act(\-[0-9])? (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n])')
+    @keyword(r'act(\-[0-9])? (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n])')# (numbers) ([y|n])')
     @registered
-    def act_consumption_report(self, message, period, yellow_used, yellow_instock, blue_used, blue_instock, brown_used, brown_instock, green_used, green_instock, quinine_used, quinine_instock, other_act_used, other_act_instock):
+    def act_consumption_report(self, message, period, yellow_used, yellow_instock, blue_used, blue_instock, brown_used, brown_instock, green_used, green_instock, quinine_used, quinine_instock): #, other_act_used, other_act_instock):
 
         # reporter
         reporter    = message.persistant_connection.reporter
@@ -606,8 +606,8 @@ class App (rapidsms.app.App):
             green_instock       = bool(ACTConsumptionReport.text_to_stock(green_instock))
             quinine_used        = int(quinine_used)
             quinine_instock     = bool(ACTConsumptionReport.text_to_stock(quinine_instock))
-            other_act_used      = int(other_act_used)
-            other_act_instock   = bool(ACTConsumptionReport.text_to_stock(other_act_instock))
+            other_act_used      = 0 #int(other_act_used)
+            other_act_instock   = False #bool(ACTConsumptionReport.text_to_stock(other_act_instock))
         except:
             raise
             message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))

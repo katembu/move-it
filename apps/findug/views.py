@@ -23,6 +23,8 @@ def index(req):
     for location in locations:
         loc = {}
         loc['obj']      = location
+        loc['reporters']= Reporter.objects.filter(location=location)
+        loc['reports']  = list(EpidemiologicalReport.objects.filter(clinic=location))
         all.append(loc)
 
     return render_to_response(req, 'findug/index.html', {'locations': all})

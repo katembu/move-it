@@ -229,6 +229,17 @@ class DiseasesReport(models.Model,FindReport):
             report.save()
             return report
 
+    @classmethod
+    def total_cases(cls, disease, period, location):
+        total   = 0
+        reports = cls.objects.filter(period=period, location__in=location_parents(location))
+        for report in reports:
+            try:
+                total   += report.diseases.get(disease=disease).cases
+            except:
+                pass
+        return total
+
 def DiseasesReport_m2m_changed_handler(sender, **kwargs):
 
     instance    = kwargs['instance']
@@ -505,15 +516,15 @@ class ACTConsumptionReport(models.Model,FindReport):
     __yellow_used         = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow used"))
     __yellow_instock      = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
     __blue_used           = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue used"))
-    __blue_instock        = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    __blue_instock        = models.BooleanField(default=True, verbose_name=_(u"Blue in stock"))
     __brown_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown used"))
-    __brown_instock       = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    __brown_instock       = models.BooleanField(default=True, verbose_name=_(u"Brown in stock"))
     __green_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Green used"))
-    __green_instock       = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    __green_instock       = models.BooleanField(default=True, verbose_name=_(u"Green in stock"))
     __quinine_used        = models.PositiveIntegerField(default=0, verbose_name=_(u"Quinine used"))
-    __quinine_instock     = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    __quinine_instock     = models.BooleanField(default=True, verbose_name=_(u"Quinine in stock"))
     __other_act_used      = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT used"))
-    __other_act_instock   = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    __other_act_instock   = models.BooleanField(default=True, verbose_name=_(u"Other ACT in stock"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -817,4 +828,78 @@ def EpidemiologicalReport_pre_save_handler(sender, **kwargs):
             pass
 
 pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalReport)
+
+# ALERTS
+
+def location_parents(location):
+
+    ancestors   = []
+
+    while (location.parent):
+        ancestors.append(location.parent)
+
+    return ancestors
+
+
+class DiseaseAlertTrigger(models.Model):
+
+    disease     = models.ForeignKey(Disease)
+    threshold   = models.PositiveIntegerField()
+    location    = models.ForeignKey(Location)
+    subscribers = models.ManyToManyField(Reporter)
+
+    def test(self, disease, location, value):
+        ''' test validity of Alert Trigger with values '''
+
+        if not disease == self.disease and self.location in location_parents(location):
+            return False
+
+        total   = DiseasesReport.total_cases(disease=disease, period=period, location=location)
+        if total >= self.threshold:
+            return True
+        else:
+            return False
+    
+
+    def raise_alert(self, location, value):
+        ''' create an Alert object from values '''
+
+        if not self.test(self.disease, location, value):
+            return False
+
+        #alert   = DiseaseAlert(
+
+    def recipients(self):
+        ''' list of subscribers who should receive alert now '''
+        recipients  = []
+        for subscriber in self.subscribers:
+            if subscriber.registered_self and ReporterGroup.objects.get(title='alerts') in subscriber.groups.only():
+                recipients.append(subscriber)
+        return recipients
+
+    
+
+class DiseaseAlert(models.Model):
+
+    STATUS_STARTED  = 0
+    STATUS_COMPLETED= 1
+
+    STATUSES        = (
+        (STATUS_STARTED, _(u"Started")),
+        (STATUS_COMPLETED, _(u"Completed")),
+    )
+
+    class Meta:
+        unique_together = ("period", "trigger")
+
+    period      = models.ForeignKey(ReportPeriod)
+    trigger     = models.ForeignKey(DiseaseAlertTrigger)
+
+    value       = models.PositiveIntegerField()
+    status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
+    recipients  = models.ManyToManyField(Reporter)
+
+    started_on  = models.DateTimeField(auto_now_add=True)
+    completed_on= models.DateTimeField(null=True, blank=True)
+
 

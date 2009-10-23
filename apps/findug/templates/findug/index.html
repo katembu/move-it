@@ -19,7 +19,7 @@ points	= [
 	{
 		coord: new GLatLng({{ location.obj.latitude }},{{ location.obj.longitude }}), 
 		title:"{{ location.obj }} ({{ location.obj.type }})",
-		text:"{{ location.obj.code|upper }} - {{ location.obj.parent }}</p><p>Total People Tested: <strong>{{ location.stats.tested }}</strong><br />Positive People: <strong>{{ location.stats.confirmed }}</strong><br />Treatments: <strong>{{ location.stats.treatments }}</strong><br />Tests used: <strong>{{ location.stats.used }}</strong>",
+		text:"{{ location.obj.code|upper }} - {{ location.obj.parent }}</p><p>{% for reporter in location.reporters %}{% if forloop.first %}Reporters: {% endif %}{{ reporter}} ({{reporter.connection.identity}})<br />{% endfor %}{% for report in location.reports %}{% if forloop.first %}Reports: {% endif %}{{ report }}<br />{% endfor %}</strong><br />",
 	},
 {% endif %}{% endfor %}
 ];
