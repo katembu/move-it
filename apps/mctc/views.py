@@ -183,10 +183,10 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     pdfrpt.setTitle("RapidResponse MVP Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
     
     if object_id is None:
-        clinics = Provider.objects.values('clinic').filter(role=1).distinct()
+        clinics = Location.objects.filter(type__name="Clinic")
         for clinic in clinics:
-            queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, clinic["clinic"])
-            c = Facility.objects.filter(id=clinic["clinic"])[0]
+            queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, clinic)
+            c = clinic
             pdfrpt.setTableData(queryset, fields, c.name)
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
@@ -194,8 +194,9 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
         queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, object_id)
-        c = Facility.objects.filter(id=object_id)[0]
+        c = object_id
         
         if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
             file_name = c.name + ".csv"
