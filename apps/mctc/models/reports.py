@@ -3,7 +3,7 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.general import Case, Provider, Facility
+from mctc.models.general import Case
 from mctc.models.logs import MessageLog
 from measles.models import ReportMeasles
 

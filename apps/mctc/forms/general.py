@@ -4,7 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.forms.util import ErrorList
 
 from mctc.forms.base import BaseForm, BaseModelForm
-from mctc.models.general import Provider, Case
+from mctc.models.general import  Case
 
 from urllib import quote
 

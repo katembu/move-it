@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.webui.utils import render_to_response
-from models.general import Provider
 from django.db.models import ObjectDoesNotExist, Q
 from django.contrib.auth.models import User, Group
 from datetime import datetime, timedelta
@@ -13,7 +12,7 @@ from pygsm.gsmmodem import GsmModem
 from mctc.forms.login import LoginForm
 from mctc.shortcuts import as_html, login_required
 from mctc.models.logs import log, MessageLog, EventLog
-from mctc.models.general import Case, Zone, Provider, Facility
+from mctc.models.general import Case
 from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
