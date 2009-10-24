@@ -16,7 +16,7 @@
 				
 				<select name="clinic">
 					{% for clinic in clinics %}
-					    <option value="{{ clinic.clinic__id }}">{{ clinic.clinic__name }}</option>
+					    <option value="{{ clinic.id }}">{{ clinic.name }}</option>
 					{% endfor %}
 				</select>
 				
@@ -30,7 +30,7 @@
 				
 				<select name="clinic">
 					{% for clinic in clinics %}
-					    <option value="{{ clinic.clinic__id }}">{{ clinic.clinic__name }}</option>
+					    <option value="{{ clinic.id }}">{{ clinic.name }}</option>
 					{% endfor %}
 				</select>
 				
@@ -44,9 +44,9 @@
 				
 				CHWs: <select name="provider">
 					{% for zone in zones %}
-						<optgroup label="{{zone.zone__name}}">
+						<optgroup label="{{zone.location__name}}">
 						{% for provider in providers %}
-							{% ifequal provider.zone zone.zone %}
+							{% ifequal provider.location.id zone.location.id %}
 								<option value="{{ provider.id }}">{{ provider.name }}</option>
 							{% endifequal %}
 						{% endfor %}
@@ -61,7 +61,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.zone__name }}</option>						
+						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />
@@ -74,9 +74,9 @@
 				
 				CHWs: <select name="provider">
 					{% for zone in zones %}
-						<optgroup label="{{zone.zone__name}}">
+						<optgroup label="{{zone.location__name}}">
 						{% for provider in providers %}
-							{% ifequal provider.zone zone.zone %}
+							{% ifequal provider.location.id zone.location.id %}
 								<option value="{{ provider.id }}">{{ provider.name }}</option>
 							{% endifequal %}
 						{% endfor %}
@@ -91,7 +91,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.zone__name }}</option>						
+						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />
@@ -104,9 +104,9 @@
 				
 				CHWs: <select name="provider">
 					{% for zone in zones %}
-						<optgroup label="{{zone.zone__name}}">
+						<optgroup label="{{zone.location__name}}">
 						{% for provider in providers %}
-							{% ifequal provider.zone zone.zone %}
+							{% ifequal provider.location.id zone.location.id %}
 								<option value="{{ provider.id }}">{{ provider.name }}</option>
 							{% endifequal %}
 						{% endfor %}
@@ -121,7 +121,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.zone__name }}</option>						
+						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />
@@ -134,9 +134,9 @@
 				
 				CHWs: <select name="provider">
 					{% for zone in zones %}
-						<optgroup label="{{zone.zone__name}}">
+						<optgroup label="{{zone.location__name}}">
 						{% for provider in providers %}
-							{% ifequal provider.zone zone.zone %}
+							{% ifequal provider.location.id zone.location.id %}
 								<option value="{{ provider.id }}">{{ provider.name }}</option>
 							{% endifequal %}
 						{% endfor %}
@@ -151,7 +151,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.zone__name }}</option>						
+						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />
@@ -163,9 +163,9 @@
 				
 				CHWs: <select name="provider">
 					{% for zone in zones %}
-						<optgroup label="{{zone.zone__name}}">
+						<optgroup label="{{zone.location__name}}">
 						{% for provider in providers %}
-							{% ifequal provider.zone zone.zone %}
+							{% ifequal provider.location.id zone.location.id %}
 								<option value="{{ provider.id }}">{{ provider.name }}</option>
 							{% endifequal %}
 						{% endfor %}
@@ -180,7 +180,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.zone__name }}</option>						
+						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />

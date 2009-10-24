@@ -16,6 +16,7 @@ from mctc.models.general import Case
 from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
+from locations.models import Location
 from libreport.pdfreport import PDFReport
 from django.utils.translation import ugettext_lazy as _
 
@@ -135,16 +136,17 @@ def message_users(mobile, message=None, groups=None, users=None):
 @login_required
 def reports(request):
     template_name="mctc/reports/reports.html"
-    clinics = Provider.objects.values('clinic__id','clinic__name').distinct()
     
-    zones = Case.objects.order_by("zone").values('zone', 'zone__name').distinct()
-    p = Case.objects.order_by("zone").filter(provider__role=1).values('provider', 'provider__user__first_name', 'provider__user__last_name', 'zone').distinct()
+    clinics = Location.objects.filter(type__name="Clinic")
+    
+    zones = Case.objects.order_by("location").values('location', 'location__name').distinct()
+    p = Case.objects.order_by("location").values('reporter', 'reporter__first_name', 'reporter__last_name', 'location').distinct()
     providers = []
     for provider in p:
         tmp = {}
-        tmp['id'] = provider['provider']
-        tmp['name'] = provider['provider__user__last_name'] + " " + provider['provider__user__first_name']
-        tmp['zone'] = provider['zone']
+        tmp['id'] = provider['reporter']
+        tmp['name'] = provider['reporter__last_name'] + " " + provider['reporter__first_name']
+        tmp['zone'] = provider['location']
         providers.append(tmp)  
         
     now = datetime.today()
