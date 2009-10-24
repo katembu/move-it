@@ -7,28 +7,6 @@ from datetime import datetime, timedelta, date
 from reporters.models import Reporter
 from locations.models import Location
 
-class Facility(models.Model):
-    def __unicode__ (self): 
-        return self.name
-        
-    class Meta:
-        verbose_name_plural = "Facilities"
-        app_label = "mctc"
-
-    CLINIC_ROLE  = 1
-    DISTRIB_ROLE = 2
-    ROLE_CHOICES = (
-        (CLINIC_ROLE,  _('Clinic')),
-        (DISTRIB_ROLE, _('Distribution Point')),
-    )
-    
-    name        = models.CharField(max_length=255)
-    role        = models.IntegerField(choices=ROLE_CHOICES, default=CLINIC_ROLE)
-    zone        = models.ForeignKey(Zone,db_index=True)
-    codename    = models.CharField(max_length=255,unique=True,db_index=True)
-    lon         = models.FloatField(null=True,blank=True)
-    lat         = models.FloatField(null=True,blank=True)
-
 class Provider(models.Model):
     def __unicode__ (self): 
         return self.mobile
