@@ -7,32 +7,6 @@ from datetime import datetime, timedelta, date
 from reporters.models import Reporter
 from locations.models import Location
 
-class Zone(models.Model):
-    def __unicode__ (self): 
-        return self.name
-
-    class Meta:
-        app_label = "mctc"
-    
-    CLUSTER_ZONE = 1
-    VILLAGE_ZONE = 2
-    SUBVILLAGE_ZONE = 3
-    ZONE_TYPES = (
-        (CLUSTER_ZONE, _('Cluster')),
-        (VILLAGE_ZONE, _('Village')),
-        (SUBVILLAGE_ZONE, _('Sub village'))
-    )
-    
-    number = models.PositiveIntegerField(unique=True,db_index=True)
-    name = models.CharField(max_length=255)
-    head = models.ForeignKey("self", null=True,blank=True)
-    category = models.IntegerField(choices=ZONE_TYPES, default=VILLAGE_ZONE)
-    lon = models.FloatField(null=True,blank=True)
-    lat = models.FloatField(null=True,blank=True)
-    
-    def __unicode__ (self):
-        return self.name
-
 class Facility(models.Model):
     def __unicode__ (self): 
         return self.name
