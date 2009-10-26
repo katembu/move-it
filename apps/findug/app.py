@@ -420,8 +420,8 @@ class App (rapidsms.app.App):
         except InvalidInput:
             message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
             return True
-        except IncoherentValue:
-            message.respond(_(u"FAILED. Sorry, your report seems to contain more Deaths than Cases. Please check syntax and try again."))
+        except IncoherentValue, e:
+            message.respond(e.message)
             return True
 
         # create report object
@@ -448,8 +448,8 @@ class App (rapidsms.app.App):
 
             # save diseases
             report.save()
-        except IncoherentValue:
-            message.respond(_(u"FAILED. Sorry, your report seems to contain duplicates or incoherent datas. Please check syntax and try again."))
+        except IncoherentValue, e:
+            message.respond(e.message)
             return True
 
         # Disease treshold search
@@ -513,8 +513,8 @@ class App (rapidsms.app.App):
 
         try:
             report.update(suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
-        except IncoherentValue:
-            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+        except IncoherentValue, e:
+            message.respond(e.message)
             return True
 
         # Add to Master Report
@@ -569,8 +569,8 @@ class App (rapidsms.app.App):
 
         try:
             report.update(rdt_positive=rdt_positive, rdt_negative=rdt_negative, four_months_to_three=four_months_to_three, three_to_seven=three_to_seven, seven_to_twelve=seven_to_twelve, twelve_and_above=twelve_and_above)
-        except IncoherentValue:
-            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+        except IncoherentValue, e:
+            message.respond(e.message)
             return True
 
         # Add to Master Report
@@ -631,8 +631,8 @@ class App (rapidsms.app.App):
 
         try:
             report.update(yellow_used=yellow_used, yellow_instock=yellow_instock, blue_used=blue_used, blue_instock=blue_instock, brown_used=brown_used, brown_instock=brown_instock, green_used=green_used, green_instock=green_instock, quinine_used=quinine_used, quinine_instock=quinine_instock, other_act_used=other_act_used, other_act_instock=other_act_instock)
-        except IncoherentValue:
-            message.respond(_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check syntax and try again."))
+        except IncoherentValue, e:
+            message.respond(e.message)
             return True
 
         # Add to Master Report
