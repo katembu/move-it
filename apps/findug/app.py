@@ -476,9 +476,9 @@ class App (rapidsms.app.App):
     ################################
 
     keyword.prefix = ""
-    @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
+    @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
     @registered
-    def malaria_cases_report(self, message, period, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+    def malaria_cases_report(self, message, period, opd_attendance, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
 
         # reporter
         reporter    = message.persistant_connection.reporter
@@ -493,6 +493,7 @@ class App (rapidsms.app.App):
 
         # input verification
         try:
+            opd_attendance      = int(opd_attendance)
             suspected_cases     = int(suspected_cases)
             rdt_tests           = int(rdt_tests)
             rdt_positive_tests  = int(rdt_positive_tests)
@@ -512,7 +513,7 @@ class App (rapidsms.app.App):
         report.reset()
 
         try:
-            report.update(suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
+            report.update(opd_attendance=opd_attendance, suspected_cases=suspected_cases, rdt_tests=rdt_tests, rdt_positive_tests=rdt_positive_tests, microscopy_tests=microscopy_tests, microscopy_positive=microscopy_positive, positive_under_five=positive_under_five, positive_over_five=positive_over_five)
         except IncoherentValue, e:
             message.respond(e.message)
             return True

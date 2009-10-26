@@ -269,6 +269,7 @@ class MalariaCasesReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
+    _opd_attendance      = models.PositiveIntegerField(default=0, verbose_name=_(u"OPD Attendance"))
     _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
     _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
     _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
@@ -285,6 +286,7 @@ class MalariaCasesReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
+        self._opd_attendance     = 0
         self._suspected_cases    = 0
         self._rdt_tests          = 0
         self._rdt_positive_tests = 0
@@ -302,9 +304,10 @@ class MalariaCasesReport(models.Model,FindReport):
             report.save()
             return report
 
-    def update(self, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+    def update(self, opd_attendance, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
         ''' saves all datas at once '''
 
+        self.opd_attendance     = opd_attendance
         self.suspected_cases    = suspected_cases
         self.rdt_tests          = rdt_tests
         self.rdt_positive_tests = rdt_positive_tests
@@ -314,10 +317,19 @@ class MalariaCasesReport(models.Model,FindReport):
         self.positive_over_five = positive_over_five
         self.save()
 
+    # opd_attendance property
+    def get_opd_attendance(self):
+        return self._opd_attendance
+    def set_opd_attendance(self, value):
+        self._opd_attendance = value
+    opd_attendance  = property(get_opd_attendance, set_opd_attendance)
+
     # suspected_cases property
     def get_suspected_cases(self):
         return self._suspected_cases
     def set_suspected_cases(self, value):
+        if value > self.opd_attendance:
+            raise IncoherentValue(_("FAILED: Suspected malaria cases cannot be greater than total OPD attendance. Please check and try again."))
         self._suspected_cases = value
     suspected_cases  = property(get_suspected_cases, set_suspected_cases)
 
@@ -325,6 +337,10 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_rdt_tests(self):
         return self._rdt_tests
     def set_rdt_tests(self, value):
+        if value > self.opd_attendance:
+            raise IncoherentValue(_("FAILED: RDT tested cases cannot be greater than total OPD attendance. Please check and try again."))
+        if value > self.suspected_cases:
+            raise IncoherentValue(_("FAILED: RDT tested cases cannot be greater than suspected malaria cases. Please check and try again."))
         self._rdt_tests = value
     rdt_tests  = property(get_rdt_tests, set_rdt_tests)
 
@@ -341,6 +357,10 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_microscopy_tests(self):
         return self._microscopy_tests
     def set_microscopy_tests(self, value):
+        if value > self.opd_attendance:
+            raise IncoherentValue(_("FAILED: Microscopy tested cases cannot be greater than total OPD attendance. Please check and try again."))
+        if value > self.suspected_cases:
+            raise IncoherentValue(_("FAILED: Microscopy tested cases cannot be greater than suspected malaria cases. Please check and try again."))
         self._microscopy_tests = value
     microscopy_tests  = property(get_microscopy_tests, set_microscopy_tests)
 
@@ -364,14 +384,16 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_over_five(self):
         return self._positive_over_five
     def set_positive_over_five(self, value):
-        if value + self.positive_under_five > self.suspected_cases:
+        if (value + self.positive_under_five) > self.suspected_cases:
             raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than suspected malaria cases. Please check and try again."))
+        if (value + self.positive_under_five) > self.opd_attendance:
+            raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than total OPD attendance. Please check and try again."))
         self.__positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
     @property
     def summary(self):
-        text    = _(u"SUSPECT: %(suspected_cases)s, RDT: %(rdt_tests)s, RDT.POS: %(rdt_positive_tests)s, MICROS: %(microscopy_tests)s, MICROS+: %(microscopy_positive)s, 0-5 POS: %(positive_under_five)s, 5+ POS: %(positive_over_five)s") % {'suspected_cases': self.suspected_cases, 'rdt_tests': self.rdt_tests, 'rdt_positive_tests': self.rdt_positive_tests, 'microscopy_tests': self.microscopy_tests, 'microscopy_positive': self.microscopy_positive, 'positive_under_five': self.positive_under_five, 'positive_over_five': self.positive_over_five}
+        text    = _(u"OPD: %(opd_attendance)s, SUSPECT: %(suspected_cases)s, RDT: %(rdt_tests)s, RDT.POS: %(rdt_positive_tests)s, MICROS: %(microscopy_tests)s, MICROS+: %(microscopy_positive)s, 0-5 POS: %(positive_under_five)s, 5+ POS: %(positive_over_five)s") % {'opd_attendance': self.opd_attendance, 'suspected_cases': self.suspected_cases, 'rdt_tests': self.rdt_tests, 'rdt_positive_tests': self.rdt_positive_tests, 'microscopy_tests': self.microscopy_tests, 'microscopy_positive': self.microscopy_positive, 'positive_under_five': self.positive_under_five, 'positive_over_five': self.positive_over_five}
         return text
 
 def MalariaCasesReport_pre_save_handler(sender, **kwargs):
@@ -382,6 +404,7 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.reset()
 
     # call all setters
+    instcopy.opd_attendance     = instance.opd_attendance
     instcopy.suspected_cases    = instance.suspected_cases
     instcopy.rdt_tests          = instance.rdt_tests
     instcopy.rdt_positive_tests = instance.rdt_positive_tests
