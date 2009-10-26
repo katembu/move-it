@@ -232,7 +232,7 @@ class DiseasesReport(models.Model,FindReport):
     @classmethod
     def total_cases(cls, disease, period, location):
         total   = 0
-        reports = cls.objects.filter(period=period, location__in=location_parents(location))
+        reports = cls.objects.filter(period=period, location_in=location_parents(location))
         for report in reports:
             try:
                 total   += report.diseases.get(disease=disease).cases
@@ -268,13 +268,13 @@ class MalariaCasesReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    __suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
-    __rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
-    __rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
-    __microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy Tests"))
-    __microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy+ Tested"))
-    __positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives under 5"))
-    __positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives over 5"))
+    _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
+    _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
+    _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
+    _microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy Tests"))
+    _microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy+ Tested"))
+    _positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives under 5"))
+    _positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives over 5"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -284,13 +284,13 @@ class MalariaCasesReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self.__suspected_cases    = 0
-        self.__rdt_tests          = 0
-        self.__rdt_positive_tests = 0
-        self.__microscopy_tests   = 0
-        self.__microscopy_positive= 0
-        self.__positive_under_five= 0
-        self.__positive_over_five = 0
+        self._suspected_cases    = 0
+        self._rdt_tests          = 0
+        self._rdt_positive_tests = 0
+        self._microscopy_tests   = 0
+        self._microscopy_positive= 0
+        self._positive_under_five= 0
+        self._positive_over_five = 0
 
     @classmethod
     def by_reporter_period(cls, reporter, period):
@@ -315,57 +315,57 @@ class MalariaCasesReport(models.Model,FindReport):
 
     # suspected_cases property
     def get_suspected_cases(self):
-        return self.__suspected_cases
+        return self._suspected_cases
     def set_suspected_cases(self, value):
-        self.__suspected_cases = value
+        self._suspected_cases = value
     suspected_cases  = property(get_suspected_cases, set_suspected_cases)
 
     # rdt_tests property
     def get_rdt_tests(self):
-        return self.__rdt_tests
+        return self._rdt_tests
     def set_rdt_tests(self, value):
-        self.__rdt_tests = value
+        self._rdt_tests = value
     rdt_tests  = property(get_rdt_tests, set_rdt_tests)
 
     # rdt_positive_tests property
     def get_rdt_positive_tests(self):
-        return self.__rdt_positive_tests
+        return self._rdt_positive_tests
     def set_rdt_positive_tests(self, value):
         if value > self.rdt_tests:
             raise IncoherentValue
-        self.__rdt_positive_tests = value
+        self._rdt_positive_tests = value
     rdt_positive_tests  = property(get_rdt_positive_tests, set_rdt_positive_tests)
 
     # microscopy_tests property
     def get_microscopy_tests(self):
-        return self.__microscopy_tests
+        return self._microscopy_tests
     def set_microscopy_tests(self, value):
-        self.__microscopy_tests = value
+        self._microscopy_tests = value
     microscopy_tests  = property(get_microscopy_tests, set_microscopy_tests)
 
     # microscopy_positive property
     def get_microscopy_positive(self):
-        return self.__microscopy_positive
+        return self._microscopy_positive
     def set_microscopy_positive(self, value):
-        self.__microscopy_positive = value
+        self._microscopy_positive = value
     microscopy_positive  = property(get_microscopy_positive, set_microscopy_positive)
 
     # positive_under_five property
     def get_positive_under_five(self):
-        return self.__positive_under_five
+        return self._positive_under_five
     def set_positive_under_five(self, value):
         if value + self.positive_over_five > self.suspected_cases:
             raise IncoherentValue
-        self.__positive_under_five = value
+        self._positive_under_five = value
     positive_under_five  = property(get_positive_under_five, set_positive_under_five)
 
     # property
     def get_positive_over_five(self):
-        return self.__positive_over_five
+        return self._positive_over_five
     def set_positive_over_five(self, value):
         if value + self.positive_over_five > self.suspected_cases:
             raise IncoherentValue
-        self.__positive_over_five = value
+        self._positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
     @property
@@ -402,12 +402,12 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    __rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Cases Treated"))
-    __rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT- Cases Treated"))
-    __four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4 months - 3 years"))
-    __three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3 - 7 years"))
-    __seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7 - 12 years"))
-    __twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12 years & above"))
+    _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Cases Treated"))
+    _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT- Cases Treated"))
+    _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4 months - 3 years"))
+    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3 - 7 years"))
+    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7 - 12 years"))
+    _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12 years & above"))
 
 
     sent_on     = models.DateTimeField(auto_now_add=True)
@@ -418,12 +418,12 @@ class MalariaTreatmentsReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self.__rdt_positive           = 0
-        self.__rdt_negative           = 0
-        self.__four_months_to_three   = 0
-        self.__three_to_seven         = 0
-        self.__seven_to_twelve        = 0
-        self.__twelve_and_above       = 0
+        self._rdt_positive           = 0
+        self._rdt_negative           = 0
+        self._four_months_to_three   = 0
+        self._three_to_seven         = 0
+        self._seven_to_twelve        = 0
+        self._twelve_and_above       = 0
 
     @classmethod
     def by_reporter_period(cls, reporter, period):
@@ -447,44 +447,44 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     # rdt_positive property
     def get_rdt_positive(self):
-        return self.__rdt_positive
+        return self._rdt_positive
     def set_rdt_positive(self, value):
-        self.__rdt_positive = value
+        self._rdt_positive = value
     rdt_positive  = property(get_rdt_positive, set_rdt_positive)
 
     # rdt_negative property
     def get_rdt_negative(self):
-        return self.__rdt_negative
+        return self._rdt_negative
     def set_rdt_negative(self, value):
-        self.__rdt_negative = value
+        self._rdt_negative = value
     rdt_negative  = property(get_rdt_negative, set_rdt_negative)
 
     # four_months_to_three property
     def get_four_months_to_three(self):
-        return self.__four_months_to_three
+        return self._four_months_to_three
     def set_four_months_to_three(self, value):
-        self.__four_months_to_three = value
+        self._four_months_to_three = value
     four_months_to_three  = property(get_four_months_to_three, set_four_months_to_three)
 
     # three_to_seven property
     def get_three_to_seven(self):
-        return self.__three_to_seven
+        return self._three_to_seven
     def set_three_to_seven(self, value):
-        self.__three_to_seven = value
+        self._three_to_seven = value
     three_to_seven  = property(get_three_to_seven, set_three_to_seven)
 
     # seven_to_twelve property
     def get_seven_to_twelve(self):
-        return self.__seven_to_twelve
+        return self._seven_to_twelve
     def set_seven_to_twelve(self, value):
-        self.__seven_to_twelve = value
+        self._seven_to_twelve = value
     seven_to_twelve  = property(get_seven_to_twelve, set_seven_to_twelve)
 
     # twelve_and_above property
     def get_twelve_and_above(self):
-        return self.__twelve_and_above
+        return self._twelve_and_above
     def set_twelve_and_above(self, value):
-        self.__twelve_and_above = value
+        self._twelve_and_above = value
     twelve_and_above  = property(get_twelve_and_above, set_twelve_and_above)
 
     @property
@@ -513,18 +513,18 @@ class ACTConsumptionReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    __yellow_used         = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow used"))
-    __yellow_instock      = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
-    __blue_used           = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue used"))
-    __blue_instock        = models.BooleanField(default=True, verbose_name=_(u"Blue in stock"))
-    __brown_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown used"))
-    __brown_instock       = models.BooleanField(default=True, verbose_name=_(u"Brown in stock"))
-    __green_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Green used"))
-    __green_instock       = models.BooleanField(default=True, verbose_name=_(u"Green in stock"))
-    __quinine_used        = models.PositiveIntegerField(default=0, verbose_name=_(u"Quinine used"))
-    __quinine_instock     = models.BooleanField(default=True, verbose_name=_(u"Quinine in stock"))
-    __other_act_used      = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT used"))
-    __other_act_instock   = models.BooleanField(default=True, verbose_name=_(u"Other ACT in stock"))
+    _yellow_used         = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow used"))
+    _yellow_instock      = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
+    _blue_used           = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue used"))
+    _blue_instock        = models.BooleanField(default=True, verbose_name=_(u"Blue in stock"))
+    _brown_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown used"))
+    _brown_instock       = models.BooleanField(default=True, verbose_name=_(u"Brown in stock"))
+    _green_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Green used"))
+    _green_instock       = models.BooleanField(default=True, verbose_name=_(u"Green in stock"))
+    _quinine_used        = models.PositiveIntegerField(default=0, verbose_name=_(u"Quinine used"))
+    _quinine_instock     = models.BooleanField(default=True, verbose_name=_(u"Quinine in stock"))
+    _other_act_used      = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT used"))
+    _other_act_instock   = models.BooleanField(default=True, verbose_name=_(u"Other ACT in stock"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -534,18 +534,18 @@ class ACTConsumptionReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self.__yellow_used         = 0
-        self.__yellow_instock      = True
-        self.__blue_used           = 0
-        self.__blue_instock        = True
-        self.__brown_used          = 0
-        self.__brown_instock       = True
-        self.__green_used          = 0
-        self.__green_instock       = True
-        self.__quinine_used        = 0
-        self.__quinine_instock     = True
-        self.__other_act_used      = 0
-        self.__other_act_instock   = True
+        self._yellow_used         = 0
+        self._yellow_instock      = True
+        self._blue_used           = 0
+        self._blue_instock        = True
+        self._brown_used          = 0
+        self._brown_instock       = True
+        self._green_used          = 0
+        self._green_instock       = True
+        self._quinine_used        = 0
+        self._quinine_instock     = True
+        self._other_act_used      = 0
+        self._other_act_instock   = True
 
     @classmethod
     def by_reporter_period(cls, reporter, period):
@@ -575,86 +575,86 @@ class ACTConsumptionReport(models.Model,FindReport):
 
     # yellow_used property
     def get_yellow_used(self):
-        return self.__yellow_used
+        return self._yellow_used
     def set_yellow_used(self, value):
-        self.__yellow_used = value
+        self._yellow_used = value
     yellow_used  = property(get_yellow_used, set_yellow_used)
 
     # yellow_instock property
     def get_yellow_instock(self):
-        return self.__yellow_instock
+        return self._yellow_instock
     def set_yellow_instock(self, value):
-        self.__yellow_instock = value
+        self._yellow_instock = value
     yellow_instock  = property(get_yellow_instock, set_yellow_instock)
 
     # blue_used property
     def get_blue_used(self):
-        return self.__blue_used
+        return self._blue_used
     def set_blue_used(self, value):
-        self.__blue_used = value
+        self._blue_used = value
     blue_used  = property(get_blue_used, set_blue_used)
 
     # blue_instock property
     def get_blue_instock(self):
-        return self.__blue_instock
+        return self._blue_instock
     def set_blue_instock(self, value):
-        self.__blue_instock = value
+        self._blue_instock = value
     blue_instock  = property(get_blue_instock, set_blue_instock)
 
     # brown_used property
     def get_brown_used(self):
-        return self.__brown_used
+        return self._brown_used
     def set_brown_used(self, value):
-        self.__brown_used = value
+        self._brown_used = value
     brown_used  = property(get_brown_used, set_brown_used)
 
     # brown_instock property
     def get_brown_instock(self):
-        return self.__brown_instock
+        return self._brown_instock
     def set_brown_instock(self, value):
-        self.__brown_instock = value
+        self._brown_instock = value
     brown_instock  = property(get_brown_instock, set_brown_instock)
 
     # green_used property
     def get_green_used(self):
-        return self.__green_used
+        return self._green_used
     def set_green_used(self, value):
-        self.__green_used = value
+        self._green_used = value
     green_used  = property(get_green_used, set_green_used)
 
     # green_instock property
     def get_green_instock(self):
-        return self.__green_instock
+        return self._green_instock
     def set_green_instock(self, value):
-        self.__green_instock = value
+        self._green_instock = value
     green_instock  = property(get_green_instock, set_green_instock)
 
     # quinine_used property
     def get_quinine_used(self):
-        return self.__quinine_used
+        return self._quinine_used
     def set_quinine_used(self, value):
-        self.__quinine_used = value
+        self._quinine_used = value
     quinine_used  = property(get_quinine_used, set_quinine_used)
 
     # quinine_instock property
     def get_quinine_instock(self):
-        return self.__quinine_instock
+        return self._quinine_instock
     def set_quinine_instock(self, value):
-        self.__quinine_instock = value
+        self._quinine_instock = value
     quinine_instock  = property(get_quinine_instock, set_quinine_instock)
 
     # other_act_used property
     def get_other_act_used(self):
-        return self.__other_act_used
+        return self._other_act_used
     def set_other_act_used(self, value):
-        self.__other_act_used = value
+        self._other_act_used = value
     other_act_used  = property(get_other_act_used, set_other_act_used)
 
     # other_act_instock property
     def get_other_act_instock(self):
-        return self.__other_act_instock
+        return self._other_act_instock
     def set_other_act_instock(self, value):
-        self.__other_act_instock = value
+        self._other_act_instock = value
     other_act_instock  = property(get_other_act_instock, set_other_act_instock)
 
     @classmethod
@@ -689,13 +689,13 @@ class EpidemiologicalReport(models.Model):
     clinic  = models.ForeignKey(Location, related_name='clinic')
     period  = models.ForeignKey(ReportPeriod, related_name='period')
 
-    __diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, related_name='diseases_report', verbose_name=DiseasesReport.TITLE)
-    __malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, related_name='cases_report', verbose_name=MalariaCasesReport.TITLE)
-    __malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, related_name='treatments_report', verbose_name=MalariaTreatmentsReport.TITLE)
-    __act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, related_name='act_report', verbose_name=ACTConsumptionReport.TITLE)
-    __remarks             = models.CharField(max_length=160, blank=True, null=True, verbose_name=_(u"Remarks"))
+    _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, related_name='diseases_report', verbose_name=DiseasesReport.TITLE)
+    _malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, related_name='cases_report', verbose_name=MalariaCasesReport.TITLE)
+    _malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, related_name='treatments_report', verbose_name=MalariaTreatmentsReport.TITLE)
+    _act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, related_name='act_report', verbose_name=ACTConsumptionReport.TITLE)
+    _remarks             = models.CharField(max_length=160, blank=True, null=True, verbose_name=_(u"Remarks"))
 
-    __status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
+    _status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
     started_on  = models.DateTimeField(auto_now_add=True)
     completed_on= models.DateTimeField(null=True, blank=True)
 
@@ -704,52 +704,52 @@ class EpidemiologicalReport(models.Model):
 
     # status property
     def get_status(self):
-        return int(self.__status)
+        return int(self._status)
     def set_status(self, value):
-        self.__status = value.__str__()
+        self._status = value.__str__()
     status  = property(get_status, set_status)
 
     # diseases property
     def get_diseases(self):
-        return self.__diseases
+        return self._diseases
     def set_diseases(self, value):
         if value.reporter.location != self.clinic or value.period != self.period:
             raise IncoherentValue
-        self.__diseases = value
+        self._diseases = value
     diseases  = property(get_diseases, set_diseases)
 
     # malaria_cases property
     def get_malaria_cases(self):
-        return self.__malaria_cases
+        return self._malaria_cases
     def set_malaria_cases(self, value):
         if value.reporter.location != self.clinic or value.period != self.period:
             raise IncoherentValue
-        self.__malaria_cases = value
+        self._malaria_cases = value
     malaria_cases  = property(get_malaria_cases, set_malaria_cases)
 
     # malaria_treatments property
     def get_malaria_treatments(self):
-        return self.__malaria_treatments
+        return self._malaria_treatments
     def set_malaria_treatments(self, value):
         if value.reporter.location != self.clinic or value.period != self.period:
             raise IncoherentValue
-        self.__malaria_treatments = value
+        self._malaria_treatments = value
     malaria_treatments  = property(get_malaria_treatments, set_malaria_treatments)
 
     # act_consumption property
     def get_act_consumption(self):
-        return self.__act_consumption
+        return self._act_consumption
     def set_act_consumption(self, value):
         if value.reporter.location != self.clinic or value.period != self.period:
             raise IncoherentValue
-        self.__act_consumption = value
+        self._act_consumption = value
     act_consumption  = property(get_act_consumption, set_act_consumption)
 
     # remarks property
     def get_remarks(self):
-        return self.__remarks
+        return self._remarks
     def set_remarks(self, value):
-        self.__remarks = value
+        self._remarks = value
     remarks  = property(get_remarks, set_remarks)
 
     @classmethod
@@ -834,12 +834,12 @@ pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalR
 def location_parents(location):
 
     ancestors   = []
+    ancestors.append(location)
 
     while (location.parent):
         ancestors.append(location.parent)
 
     return ancestors
-
 
 class DiseaseAlertTrigger(models.Model):
 
@@ -848,29 +848,42 @@ class DiseaseAlertTrigger(models.Model):
     location    = models.ForeignKey(Location)
     subscribers = models.ManyToManyField(Reporter)
 
-    def test(self, disease, location, value):
+    def test(self, period, location):
         ''' test validity of Alert Trigger with values '''
 
-        if not disease == self.disease and self.location in location_parents(location):
+        # check existence of similar alert
+        try:
+            existing    = DiseaseAlert.by_period_trigger(period=period, trigger=trigger)
+            if existing: return False
+        except:
+            pass
+
+        if not self.location in location_parents(location):
             return False
 
-        total   = DiseasesReport.total_cases(disease=disease, period=period, location=location)
+        total   = DiseasesReport.total_cases(disease=self.disease, period=period, location=self.location)
         if total >= self.threshold:
-            return True
+            return total
         else:
             return False
     
 
-    def raise_alert(self, location, value):
+    def raise_alert(self, period, location):
         ''' create an Alert object from values '''
 
-        if not self.test(self.disease, location, value):
+        total   = self.test(period, location, value)
+        if not total:
             return False
 
-        #alert   = DiseaseAlert(
+        alert   = DiseaseAlert(period=period, trigger=self, value=total, recipients=self.recipients)
+        alert.save()
 
+        return alert
+
+    @property
     def recipients(self):
         ''' list of subscribers who should receive alert now '''
+
         recipients  = []
         for subscriber in self.subscribers:
             if subscriber.registered_self and ReporterGroup.objects.get(title='alerts') in subscriber.groups.only():
@@ -901,5 +914,11 @@ class DiseaseAlert(models.Model):
 
     started_on  = models.DateTimeField(auto_now_add=True)
     completed_on= models.DateTimeField(null=True, blank=True)
+
+    @classmethod
+    def by_period_trigger(cls, period, trigger):
+
+        return cls.objects.get(period=period, trigger=trigger)
+
 
 

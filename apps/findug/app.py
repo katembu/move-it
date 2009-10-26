@@ -452,6 +452,15 @@ class App (rapidsms.app.App):
             message.respond(_(u"FAILED. Sorry, your report seems to contain duplicates or incoherent datas. Please check syntax and try again."))
             return True
 
+        # Disease treshold search
+        location_parents=  location_parents(location)
+        alerts          = []
+        for disease in diseases:
+            triggers = DiseaseAlertTrigger.objects.filter(disease=disease, location__in=location_parents)
+            for trigger in triggers:
+                alert   = trigger.raise_alert(period=report_week, location=location)
+                if alert: alerts.append(alert)
+
         # Add to Master Report
         master_report   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
         master_report.diseases  = report
