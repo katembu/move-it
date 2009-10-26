@@ -6,8 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 from mctc.models.general import Case
 from mctc.models.logs import MessageLog
 from measles.models import ReportMeasles
-from mrdt.models import ReportMalaria
-from muac.models import ReportMalnutrition
+
+
 from reporters.models import Reporter
 
 from datetime import datetime, date, timedelta
@@ -51,6 +51,8 @@ class Observation(models.Model):
     def __unicode__(self):
         return self.name
 
+from mrdt.models import ReportMalaria
+from muac.models import ReportMalnutrition
         
 class ReportCHWStatus(Report, models.Model):
     class Meta:
