@@ -9,7 +9,7 @@ import copy
 from django.contrib import admin
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
@@ -35,7 +35,8 @@ class ErroneousDate(Exception):
     pass
 
 class IncoherentValue(Exception):
-    pass
+    def __init__(self, message=_(u"FAILED. Sorry, your report seems to contain incoherent values. Please check and send again.")):
+        self.message = message
 
 class InvalidInput(Exception):
     pass
@@ -160,7 +161,7 @@ def DiseaseObservation_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if instance.deaths > instance.cases:
-        raise IncoherentValue
+        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases.  Cases should include all deaths.  Please check and try again."))
 
 pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
@@ -251,7 +252,7 @@ def DiseasesReport_m2m_changed_handler(sender, **kwargs):
         for obs in instance.diseases.all():
             if diseases.count(obs.disease) > 0:
                 instance.delete()
-                raise IncoherentValue
+                raise IncoherentValue(_(u'FAILED: Duplicate disease codes received. Please check and try again.'))
             else:
                 diseases.append(obs.disease)
 
@@ -332,7 +333,7 @@ class MalariaCasesReport(models.Model,FindReport):
         return self.__rdt_positive_tests
     def set_rdt_positive_tests(self, value):
         if value > self.rdt_tests:
-            raise IncoherentValue
+            raise IncoherentValue(_(u"FAILED: RDT positive cases cannot be greater than RDT tested cases. Please check and try again."))
         self.__rdt_positive_tests = value
     rdt_positive_tests  = property(get_rdt_positive_tests, set_rdt_positive_tests)
 
@@ -347,6 +348,8 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_microscopy_positive(self):
         return self.__microscopy_positive
     def set_microscopy_positive(self, value):
+        if value > self.microscopy_tests:
+            raise IncoherentValue(_(u"FAILED: Microscopy positive cases cannot be greater than microscopy tested cases. Please check and try again."))
         self.__microscopy_positive = value
     microscopy_positive  = property(get_microscopy_positive, set_microscopy_positive)
 
@@ -354,8 +357,6 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_under_five(self):
         return self.__positive_under_five
     def set_positive_under_five(self, value):
-        if value + self.positive_over_five > self.suspected_cases:
-            raise IncoherentValue
         self.__positive_under_five = value
     positive_under_five  = property(get_positive_under_five, set_positive_under_five)
 
@@ -363,8 +364,8 @@ class MalariaCasesReport(models.Model,FindReport):
     def get_positive_over_five(self):
         return self.__positive_over_five
     def set_positive_over_five(self, value):
-        if value + self.positive_over_five > self.suspected_cases:
-            raise IncoherentValue
+        if value + self.positive_under_five > self.suspected_cases:
+            raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than suspected malaria cases. Please check and try again."))
         self.__positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
@@ -388,6 +389,9 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.microscopy_positive= instance.microscopy_positive
     instcopy.positive_under_five= instance.positive_under_five
     instcopy.positive_over_five = instance.positive_over_five
+
+    if (instance.positive_under_five + instance.positive_over_five) > (instance.microscopy_positive + instance.rdt_positive_tests):
+        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases."))
 
 pre_save.connect(MalariaCasesReport_pre_save_handler, sender=MalariaCasesReport)
 
@@ -496,8 +500,8 @@ def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
 
     instance    = kwargs['instance']
 
-    if (instance.rdt_positive + instance.rdt_negative) != (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
-        raise IncoherentValue
+    if (instance.rdt_positive + instance.rdt_negative) > (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
+        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated."))
 
 pre_save.connect(MalariaTreatmentsReport_pre_save_handler, sender=MalariaTreatmentsReport)
 

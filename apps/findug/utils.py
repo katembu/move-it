@@ -28,14 +28,10 @@ def diseases_from_string(text):
         except:
             raise InvalidInput
 
-        # Value consistency check
-        if cases < deaths:
-            raise IncoherentValue
-
         try:
             disease = Disease.by_code(abbr)
         except Disease.DoesNotExist:
-            InvalidInput
+            raise IncoherentValue(_(u'FAILED: %s is not a valid disease code.  Please try again.' % abbr))
 
         diseases.append({'disease': disease, 'cases': cases, 'deaths': deaths})
 
