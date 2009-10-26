@@ -589,9 +589,9 @@ class App (rapidsms.app.App):
     ##################################
 
     keyword.prefix = ""
-    @keyword(r'act(\-[0-9])? (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n]) (numbers) ([y|n])')# (numbers) ([y|n])')
+    @keyword(r'act(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
     @registered
-    def act_consumption_report(self, message, period, yellow_used, yellow_instock, blue_used, blue_instock, brown_used, brown_instock, green_used, green_instock, quinine_used, quinine_instock): #, other_act_used, other_act_instock):
+    def act_consumption_report(self, message, period, yellow_dispensed, yellow_balance, blue_dispensed, blue_balance, brown_dispensed, brown_balance, green_dispensed, green_balance, other_act_dispensed, other_act_balance):
 
         # reporter
         reporter    = message.persistant_connection.reporter
@@ -606,18 +606,16 @@ class App (rapidsms.app.App):
 
         # input verification
         try:
-            yellow_used         = int(yellow_used)
-            yellow_instock      = bool(ACTConsumptionReport.text_to_stock(yellow_instock))
-            blue_used           = int(blue_used)
-            blue_instock        = bool(ACTConsumptionReport.text_to_stock(blue_instock))
-            brown_used          = int(brown_used)
-            brown_instock       = bool(ACTConsumptionReport.text_to_stock(brown_instock))
-            green_used          = int(green_used)
-            green_instock       = bool(ACTConsumptionReport.text_to_stock(green_instock))
-            quinine_used        = int(quinine_used)
-            quinine_instock     = bool(ACTConsumptionReport.text_to_stock(quinine_instock))
-            other_act_used      = 0 #int(other_act_used)
-            other_act_instock   = False #bool(ACTConsumptionReport.text_to_stock(other_act_instock))
+            yellow_dispensed    = int(yellow_dispensed)
+            yellow_balance      = int(yellow_balance)
+            blue_dispensed      = int(blue_dispensed)
+            blue_balance        = int(blue_balance)
+            brown_dispensed     = int(brown_dispensed)
+            brown_balance       = int(brown_balance)
+            green_dispensed     = int(green_dispensed)
+            green_balance       = int(green_balance)
+            other_act_dispensed = int(other_act_dispensed)
+            other_act_balance   = int(other_act_balance)
         except:
             raise
             message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
@@ -631,7 +629,7 @@ class App (rapidsms.app.App):
         report.reset()
 
         try:
-            report.update(yellow_used=yellow_used, yellow_instock=yellow_instock, blue_used=blue_used, blue_instock=blue_instock, brown_used=brown_used, brown_instock=brown_instock, green_used=green_used, green_instock=green_instock, quinine_used=quinine_used, quinine_instock=quinine_instock, other_act_used=other_act_used, other_act_instock=other_act_instock)
+            report.update(yellow_dispensed=yellow_dispensed, yellow_balance=yellow_balance, blue_dispensed=blue_dispensed, blue_balance=blue_balance, brown_dispensed=brown_dispensed, brown_balance=brown_balance, green_dispensed=green_dispensed, green_balance=green_balance, other_act_dispensed=other_act_dispensed, other_act_balance=other_act_balance)
         except IncoherentValue, e:
             message.respond(e.message)
             return True

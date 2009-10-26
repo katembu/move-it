@@ -532,7 +532,7 @@ pre_save.connect(MalariaTreatmentsReport_pre_save_handler, sender=MalariaTreatme
 # ACT CONSUMPTION
 class ACTConsumptionReport(models.Model,FindReport):
 
-    TITLE       = _(u"ACT Consumption Report")
+    TITLE       = _(u"ACT Stock Data")
 
     class Meta:
         unique_together = ("reporter", "period")
@@ -540,18 +540,16 @@ class ACTConsumptionReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    _yellow_used         = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow used"))
-    _yellow_instock      = models.BooleanField(default=True, verbose_name=_(u"Yellow in stock"))
-    _blue_used           = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue used"))
-    _blue_instock        = models.BooleanField(default=True, verbose_name=_(u"Blue in stock"))
-    _brown_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown used"))
-    _brown_instock       = models.BooleanField(default=True, verbose_name=_(u"Brown in stock"))
-    _green_used          = models.PositiveIntegerField(default=0, verbose_name=_(u"Green used"))
-    _green_instock       = models.BooleanField(default=True, verbose_name=_(u"Green in stock"))
-    _quinine_used        = models.PositiveIntegerField(default=0, verbose_name=_(u"Quinine used"))
-    _quinine_instock     = models.BooleanField(default=True, verbose_name=_(u"Quinine in stock"))
-    _other_act_used      = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT used"))
-    _other_act_instock   = models.BooleanField(default=True, verbose_name=_(u"Other ACT in stock"))
+    _yellow_dispensed    = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow dispensed"))
+    _yellow_balance      = models.PositiveIntegerField(default=0, verbose_name=_(u"Yellow balance"))
+    _blue_dispensed      = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue dispensed"))
+    _blue_balance        = models.PositiveIntegerField(default=0, verbose_name=_(u"Blue balance"))
+    _brown_dispensed     = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown dispensed"))
+    _brown_balance       = models.PositiveIntegerField(default=0, verbose_name=_(u"Brown balance"))
+    _green_dispensed     = models.PositiveIntegerField(default=0, verbose_name=_(u"Green dispensed"))
+    _green_balance       = models.PositiveIntegerField(default=0, verbose_name=_(u"Green balance"))
+    _other_act_dispensed = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT dispensed"))
+    _other_act_balance   = models.PositiveIntegerField(default=0, verbose_name=_(u"Other ACT balance"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -561,18 +559,16 @@ class ACTConsumptionReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self._yellow_used         = 0
-        self._yellow_instock      = True
-        self._blue_used           = 0
-        self._blue_instock        = True
-        self._brown_used          = 0
-        self._brown_instock       = True
-        self._green_used          = 0
-        self._green_instock       = True
-        self._quinine_used        = 0
-        self._quinine_instock     = True
-        self._other_act_used      = 0
-        self._other_act_instock   = True
+        self._yellow_dispensed    = 0
+        self._yellow_balance      = 0
+        self._blue_dispensed      = 0
+        self._blue_balance        = 0
+        self._brown_dispensed     = 0
+        self._brown_balance       = 0
+        self._green_dispensed     = 0
+        self._green_balance       = 0
+        self._other_act_dispensed = 0
+        self._other_act_balance   = 0
 
     @classmethod
     def by_reporter_period(cls, reporter, period):
@@ -583,106 +579,90 @@ class ACTConsumptionReport(models.Model,FindReport):
             report.save()
             return report
 
-    def update(self, yellow_used, yellow_instock, blue_used, blue_instock, brown_used, brown_instock, green_used, green_instock, quinine_used, quinine_instock, other_act_used, other_act_instock):
+    def update(self, yellow_dispensed, yellow_balance, blue_dispensed, blue_balance, brown_dispensed, brown_balance, green_dispensed, green_balance,  other_act_dispensed, other_act_balance):
         ''' saves all datas at once '''
 
-        self.yellow_used         = yellow_used
-        self.yellow_instock      = yellow_instock
-        self.blue_used           = blue_used
-        self.blue_instock        = blue_instock
-        self.brown_used          = brown_used
-        self.brown_instock       = brown_instock
-        self.green_used          = green_used
-        self.green_instock       = green_instock
-        self.quinine_used        = quinine_used
-        self.quinine_instock     = quinine_instock
-        self.other_act_used      = other_act_used
-        self.other_act_instock   = other_act_instock
+        self.yellow_dispensed    = yellow_dispensed
+        self.yellow_balance      = yellow_balance
+        self.blue_dispensed      = blue_dispensed
+        self.blue_balance        = blue_balance
+        self.brown_dispensed     = brown_dispensed
+        self.brown_balance       = brown_balance
+        self.green_dispensed     = green_dispensed
+        self.green_balance       = green_balance
+        self.other_act_dispensed = other_act_dispensed
+        self.other_act_balance   = other_act_balance
         self.save()
 
-    # yellow_used property
-    def get_yellow_used(self):
-        return self._yellow_used
-    def set_yellow_used(self, value):
-        self._yellow_used = value
-    yellow_used  = property(get_yellow_used, set_yellow_used)
+    # yellow_dispensed property
+    def get_yellow_dispensed(self):
+        return self._yellow_dispensed
+    def set_yellow_dispensed(self, value):
+        self._yellow_dispensed = value
+    yellow_dispensed  = property(get_yellow_dispensed, set_yellow_dispensed)
 
-    # yellow_instock property
-    def get_yellow_instock(self):
-        return self._yellow_instock
-    def set_yellow_instock(self, value):
-        self._yellow_instock = value
-    yellow_instock  = property(get_yellow_instock, set_yellow_instock)
+    # yellow_balance property
+    def get_yellow_balance(self):
+        return self._yellow_balance
+    def set_yellow_balance(self, value):
+        self._yellow_balance = value
+    yellow_balance  = property(get_yellow_balance, set_yellow_balance)
 
-    # blue_used property
-    def get_blue_used(self):
-        return self._blue_used
-    def set_blue_used(self, value):
-        self._blue_used = value
-    blue_used  = property(get_blue_used, set_blue_used)
+    # blue_dispensed property
+    def get_blue_dispensed(self):
+        return self._blue_dispensed
+    def set_blue_dispensed(self, value):
+        self._blue_dispensed = value
+    blue_dispensed  = property(get_blue_dispensed, set_blue_dispensed)
 
-    # blue_instock property
-    def get_blue_instock(self):
-        return self._blue_instock
-    def set_blue_instock(self, value):
-        self._blue_instock = value
-    blue_instock  = property(get_blue_instock, set_blue_instock)
+    # blue_balance property
+    def get_blue_balance(self):
+        return self._blue_balance
+    def set_blue_balance(self, value):
+        self._blue_balance = value
+    blue_balance  = property(get_blue_balance, set_blue_balance)
 
-    # brown_used property
-    def get_brown_used(self):
-        return self._brown_used
-    def set_brown_used(self, value):
-        self._brown_used = value
-    brown_used  = property(get_brown_used, set_brown_used)
+    # brown_dispensed property
+    def get_brown_dispensed(self):
+        return self._brown_dispensed
+    def set_brown_dispensed(self, value):
+        self._brown_dispensed = value
+    brown_dispensed  = property(get_brown_dispensed, set_brown_dispensed)
 
-    # brown_instock property
-    def get_brown_instock(self):
-        return self._brown_instock
-    def set_brown_instock(self, value):
-        self._brown_instock = value
-    brown_instock  = property(get_brown_instock, set_brown_instock)
+    # brown_balance property
+    def get_brown_balance(self):
+        return self._brown_balance
+    def set_brown_balance(self, value):
+        self._brown_balance = value
+    brown_balance  = property(get_brown_balance, set_brown_balance)
 
-    # green_used property
-    def get_green_used(self):
-        return self._green_used
-    def set_green_used(self, value):
-        self._green_used = value
-    green_used  = property(get_green_used, set_green_used)
+    # green_dispensed property
+    def get_green_dispensed(self):
+        return self._green_dispensed
+    def set_green_dispensed(self, value):
+        self._green_dispensed = value
+    green_dispensed  = property(get_green_dispensed, set_green_dispensed)
 
-    # green_instock property
-    def get_green_instock(self):
-        return self._green_instock
-    def set_green_instock(self, value):
-        self._green_instock = value
-    green_instock  = property(get_green_instock, set_green_instock)
+    # green_balance property
+    def get_green_balance(self):
+        return self._green_balance
+    def set_green_balance(self, value):
+        self._green_balance = value
+    green_balance  = property(get_green_balance, set_green_balance)
 
-    # quinine_used property
-    def get_quinine_used(self):
-        return self._quinine_used
-    def set_quinine_used(self, value):
-        self._quinine_used = value
-    quinine_used  = property(get_quinine_used, set_quinine_used)
+    # other_act_dispensed property
+    def get_other_act_dispensed(self):
+        return self._other_act_dispensed
+    def set_other_act_dispensed(self, value):
+        self._other_act_dispensed = value
+    other_act_dispensed  = property(get_other_act_dispensed, set_other_act_dispensed)
 
-    # quinine_instock property
-    def get_quinine_instock(self):
-        return self._quinine_instock
-    def set_quinine_instock(self, value):
-        self._quinine_instock = value
-    quinine_instock  = property(get_quinine_instock, set_quinine_instock)
-
-    # other_act_used property
-    def get_other_act_used(self):
-        return self._other_act_used
-    def set_other_act_used(self, value):
-        self._other_act_used = value
-    other_act_used  = property(get_other_act_used, set_other_act_used)
-
-    # other_act_instock property
-    def get_other_act_instock(self):
-        return self._other_act_instock
-    def set_other_act_instock(self, value):
-        self._other_act_instock = value
-    other_act_instock  = property(get_other_act_instock, set_other_act_instock)
+    # other_act_balance property
+    def get_other_act_balance(self):
+        return self._other_act_balance
+    def set_other_act_balance(self, value):
+        self._other_act_balance = value
+    other_act_balance  = property(get_other_act_balance, set_other_act_balance)
 
     @classmethod
     def bool_to_stock(cls, boolean):
@@ -694,7 +674,7 @@ class ACTConsumptionReport(models.Model,FindReport):
 
     @property
     def summary(self):
-        text    = _(u"YELLOW: %(yellow_used)s/%(yellow_instock)s, BLUE: %(blue_used)s/%(blue_instock)s, BROWN: %(brown_used)s/%(brown_instock)s, GREEN: %(green_used)s/%(green_instock)s, QUININE: %(quinine_used)s/%(quinine_instock)s, OTHER.ACT: %(other_act_used)s/%(other_act_instock)s") % {'yellow_used': self.yellow_used, 'yellow_instock': ACTConsumptionReport.bool_to_stock(self.yellow_instock), 'blue_used': self.blue_used, 'blue_instock': ACTConsumptionReport.bool_to_stock(self.blue_instock), 'brown_used': self.brown_used, 'brown_instock': ACTConsumptionReport.bool_to_stock(self.brown_instock), 'green_used': self.green_used, 'green_instock': ACTConsumptionReport.bool_to_stock(self.green_instock), 'quinine_used': self.quinine_used, 'quinine_instock': ACTConsumptionReport.bool_to_stock(self.quinine_instock), 'other_act_used': self.other_act_used, 'other_act_instock': ACTConsumptionReport.bool_to_stock(self.other_act_instock)}
+        text    = _(u"YELLOW: %(yellow_dispensed)s/%(yellow_balance)s, BLUE: %(blue_dispensed)s/%(blue_balance)s, BROWN: %(brown_dispensed)s/%(brown_balance)s, GREEN: %(green_dispensed)s/%(green_balance)s, OTHER.ACT: %(other_act_dispensed)s/%(other_act_balance)s") % {'yellow_dispensed': self.yellow_dispensed, 'yellow_balance': self.yellow_balance, 'blue_dispensed': self.blue_dispensed, 'blue_balance': self.blue_balance, 'brown_dispensed': self.brown_dispensed, 'brown_balance': self.brown_balance, 'green_dispensed': self.green_dispensed, 'green_balance': self.green_balance, 'other_act_dispensed': self.other_act_dispensed, 'other_act_balance': self.other_act_balance}
         return text
 
 # EPIDEMIOLOGICAL REPORT
