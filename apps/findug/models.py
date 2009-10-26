@@ -231,9 +231,11 @@ class DiseasesReport(models.Model,FindReport):
             return report
 
     @classmethod
-    def total_cases(cls, disease, period, location):
+    def total_cases(cls, disease, period, locations):
         total   = 0
-        reports = cls.objects.filter(period=period, location_in=location_parents(location))
+        print locations
+        reports = cls.objects.filter(period=period, reporter__location__in=locations)
+        print reports
         for report in reports:
             try:
                 total   += report.diseases.get(disease=disease).cases
@@ -845,6 +847,7 @@ def location_parents(location):
 
     while (location.parent):
         ancestors.append(location.parent)
+        location    = location.parent
 
     return ancestors
 
@@ -854,6 +857,9 @@ class DiseaseAlertTrigger(models.Model):
     threshold   = models.PositiveIntegerField()
     location    = models.ForeignKey(Location)
     subscribers = models.ManyToManyField(Reporter)
+
+    def __unicode__(self):
+        return _(u"%(threshold)s cases of %(disease)s in %(location)s") % {'threshold': self.threshold, 'disease': self.disease, 'location': self.location}
 
     def test(self, period, location):
         ''' test validity of Alert Trigger with values '''
@@ -865,10 +871,12 @@ class DiseaseAlertTrigger(models.Model):
         except:
             pass
 
-        if not self.location in location_parents(location):
+        parents = location_parents(location)
+        if not self.location in parents:
             return False
 
-        total   = DiseasesReport.total_cases(disease=self.disease, period=period, location=self.location)
+        total   = DiseasesReport.total_cases(disease=self.disease, period=period, locations=parents)
+        print total
         if total >= self.threshold:
             return total
         else:
@@ -878,11 +886,12 @@ class DiseaseAlertTrigger(models.Model):
     def raise_alert(self, period, location):
         ''' create an Alert object from values '''
 
-        total   = self.test(period, location, value)
+        total   = self.test(period, location)
         if not total:
             return False
 
-        alert   = DiseaseAlert(period=period, trigger=self, value=total, recipients=self.recipients)
+        alert   = DiseaseAlert(period=period, trigger=self, value=total)
+        for recipient in self.recipients: alert.recipients.add(recipient)
         alert.save()
 
         return alert
@@ -892,8 +901,8 @@ class DiseaseAlertTrigger(models.Model):
         ''' list of subscribers who should receive alert now '''
 
         recipients  = []
-        for subscriber in self.subscribers:
-            if subscriber.registered_self and ReporterGroup.objects.get(title='alerts') in subscriber.groups.only():
+        for subscriber in list(self.subscribers.all()):
+            if subscriber.registered_self and ReporterGroup.objects.get(title='diseases_alerts') in subscriber.groups.only():
                 recipients.append(subscriber)
         return recipients
 
@@ -921,6 +930,9 @@ class DiseaseAlert(models.Model):
 
     started_on  = models.DateTimeField(auto_now_add=True)
     completed_on= models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return _(u"%(value)s >= %(trigger)s on %(period)s") % {'value': self.value, 'trigger': self.trigger, 'period': self.period}
 
     @classmethod
     def by_period_trigger(cls, period, trigger):
