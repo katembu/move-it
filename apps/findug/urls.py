@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^findug/reporter/(\d+)$', views.reporter_view),
     url(r'^static/findug/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'apps/findug/static', 'show_indexes': True}),
     url(r'^findug/report$', views.report),
+    url(r'^findug/epidemiological_report_pdf/(\d+)$', views.epidemiological_report_pdf),
 )
