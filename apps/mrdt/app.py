@@ -39,12 +39,6 @@ class App (rapidsms.app.App):
             mobile = "+" + message.peer
         else:
             mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
-        message.was_handled = False
 
     def handle (self, message):
         try:
