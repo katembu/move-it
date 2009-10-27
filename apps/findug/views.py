@@ -119,7 +119,8 @@ def epidemiological_report_pdf(req, report_id):
 
     DATE_FORMAT = '%d/%m/%Y'
 
-    DEFAULT_FONT_SIZE = 12
+    DEFAULT_FONT_SIZE = 11
+    FONT = 'Courier-Bold'
 
     epi_report = EpidemiologicalReport.objects.get(id=report_id)
 
@@ -128,7 +129,7 @@ def epidemiological_report_pdf(req, report_id):
 
     # setup the empty canvas
     c = canvas.Canvas(buffer)
-    c.setFont("Helvetica", DEFAULT_FONT_SIZE)
+    c.setFont(FONT, DEFAULT_FONT_SIZE)
     
     # REPORT HEADER AND FOOTER
     def report_header_footer():
@@ -184,15 +185,15 @@ def epidemiological_report_pdf(req, report_id):
             {"x":11.2*cm, "y":third_row_y, "value":district  }, # District
 
             {"x":5.5*cm, "y":footer_row_y, "value":epi_report.completed_on.strftime(DATE_FORMAT)  }, # Submitted on (Date)
-            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':10 }, # By
-            {"x":16.3*cm, "y":footer_row_y, "value":epi_report.receipt, 'size':11  }, # Receipt Number
+            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':9 }, # By
+            {"x":16.3*cm, "y":footer_row_y, "value":epi_report.receipt, 'size':10  }, # Receipt Number
         ]
         
         # draw the data onto the pdf overlay
         for field in data:
-            if field.has_key('size'): c.setFont("Helvetica", field['size'])
+            if field.has_key('size'): c.setFont(FONT, field['size'])
             c.drawString(field['x'],field['y'],unicode(field['value']))
-            if field.has_key('size'): c.setFont("Helvetica", DEFAULT_FONT_SIZE)
+            if field.has_key('size'): c.setFont(FONT, DEFAULT_FONT_SIZE)
 
     # DISEASE REPORT
     def disease_report():
