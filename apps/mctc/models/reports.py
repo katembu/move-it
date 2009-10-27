@@ -84,7 +84,7 @@ class ReportCHWStatus(Report, models.Model):
                 p_muac = ReportMalaria.count_by_provider(provider, duration_end, duration_start)
                 p['num_malaria_reports'] = p_muac
                 clinic_mrdt = clinic_mrdt + p_muac 
-                num_cases = Case.count_by_provider(provider)
+                num_cases = p['num_cases']
                 clinic_cases = clinic_cases + num_cases
                 num_muac = ReportMalnutrition.count_by_provider(provider, duration_end, muac_duration_start)                
                 clinic_muac = clinic_muac + num_muac

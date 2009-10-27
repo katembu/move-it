@@ -61,13 +61,13 @@ class ReportMalaria(models.Model):
         super(ReportMalaria, self).save(*args)
         
     @classmethod
-    def count_by_provider(cls,provider, duration_end=None,duration_start=None):
-        if provider is None:
+    def count_by_provider(cls,reporter, duration_end=None,duration_start=None):
+        if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(provider=provider).count()
-            return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(provider=provider).count()
+                return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(reporter=reporter).count()
         except models.ObjectDoesNotExist:
             return None
     

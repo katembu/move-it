@@ -124,19 +124,19 @@ class Case(models.Model):
             return None
         
     @classmethod
-    def count_by_provider(cls, provider):
+    def count_by_provider(cls, reporter):
         try:
-            return cls.objects.filter(provider=provider).count()
+            return cls.objects.filter(reporter=reporter).count()
         except models.ObjectDoesNotExist:
             return None
     
     @classmethod
-    def count_for_last_30_days(cls, provider):
+    def count_for_last_30_days(cls, reporter):
         thirty_days = timedelta(days=30)
         end_date = date.today()
         start_date = end_date - thirty_days
         try:
-            return cls.objects.filter(provider=provider, created_at__lte=end_date, created_at__gte=start_date).count()
+            return cls.objects.filter(reporter=reporter, created_at__lte=end_date, created_at__gte=start_date).count()
         except models.ObjectDoesNotExist:
             return None
 
