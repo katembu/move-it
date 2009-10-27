@@ -18,8 +18,8 @@ from rapidsms.connection import Connection
 
 from models.logs import MessageLog, log, elog
 
-from models.general import Provider, User
-from models.general import Facility, Case, CaseNote, Zone
+from models.general import  User
+from models.general import Case, CaseNote
 
 
 import re, time, datetime

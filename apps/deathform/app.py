@@ -7,7 +7,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog
-from mctc.models.general import Provider, Case
+from mctc.models.general import Case
 from deathform.models.general import ReportDeath
 
 import re
