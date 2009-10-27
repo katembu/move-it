@@ -50,10 +50,11 @@ class App (rapidsms.app.App):
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
-            # didn't find a matching function
-            # make sure we tell them that we got a problem
-            #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            
+            #If the command included 'mrdt', respond by reminding the user of the correct format for the command           
+            mrdt_input = message.text
+            if not (mrdt_input.find("mrdt") == -1):
+                message.respond(self.get_mrdt_format_reminder())
+                return True
             return False
         try:
             handled = func(self, message, *captures)
@@ -114,16 +115,25 @@ class App (rapidsms.app.App):
         except models.ObjectDoesNotExist:
             pass
         
-    @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
+    
+
+    def get_mrdt_format_reminder(self):
+        """Expected format for mrdt input, sent as a reminder"""
+        return "Format:  mrdt +[patient_ID\] malaria[+/-] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
+
+    @keyword(r'^mrdt\s*\+(\d+)\s*([a-zA-z+-])\s*(\S)\s*(.*)$')
     @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
+        """Processes incoming mrdt reports.  Expected format is as above.  Can process inputs without spaces, but symptoms must have spaces between them.  '+' and 'y' register as positive for malaria, all other characters register as negative. 'y' registers as yes for a bednet, all other characters register as no."""
+        
+       
         case = self.find_case(ref_id)
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
         reporter = message.persistant_connection.reporter
 
-        result = result.lower() == "y"
-        bednet = bednet.lower() == "y"
+        result = (result == "+" or result.lower() == "y")
+        bednet = (bednet.lower() == "y")
 
         report = ReportMalaria(case=case, reporter=reporter, result=result, bednet=bednet)
         report.save()
@@ -201,5 +211,5 @@ class App (rapidsms.app.App):
             message.forward(recipient.mobile, alert)
         """    
 
-        log(case, "mrdt_taken")        
-        return True
+        log(case, "mrdt_taken")       
+        return True 
