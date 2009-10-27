@@ -906,8 +906,6 @@ class DiseaseAlertTrigger(models.Model):
                 recipients.append(subscriber)
         return recipients
 
-    
-
 class DiseaseAlert(models.Model):
 
     STATUS_STARTED  = 0
@@ -926,7 +924,7 @@ class DiseaseAlert(models.Model):
 
     value       = models.PositiveIntegerField()
     status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
-    recipients  = models.ManyToManyField(Reporter)
+    recipients  = models.ManyToManyField(Reporter, blank=True, null=True)
 
     started_on  = models.DateTimeField(auto_now_add=True)
     completed_on= models.DateTimeField(null=True, blank=True)

@@ -48,7 +48,33 @@ def allow_me2u(message):
     except:
         return False
 
+def cb_disease_alerts(router, *args, **kwargs):
+    ''' Sends Alert messages to recipients
 
+    Raised by Scheduler'''
 
+    # retrieve unsent alerts
+    alerts  = DiseaseAlert.objects.filter(status=DiseaseAlert.STATUS_STARTED)
+
+    for alert in alerts:
+
+        alert_msg   = _(u"ALERT. At least %(nbcases)s cases of %(disease)s in %(location)s during %(period)s") % {'nbcases': alert.value, 'disease': alert.trigger.disease, 'location': alert.trigger.location, 'period': alert.period}
+
+        for reporter in list(alert.recipients.all()):
+
+            try:
+                real_backend = router.get_backend(reporter.connection().backend.slug)
+                if real_backend:
+                    connection  = Connection(real_backend, reporter.connection().identity)
+                    message     = Message(connection=connection)
+                    message.text= alert_msg
+                    message.send()
+            except Exception, e:
+                print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': reporter, 'err': e}
+                pass
+
+        # change alert status
+        alert.status    = DiseaseAlert.STATUS_COMPLETED
+        alert.save()
 
 
