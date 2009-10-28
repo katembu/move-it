@@ -161,7 +161,7 @@ def DiseaseObservation_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if instance.deaths > instance.cases:
-        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases.  Cases should include all deaths.  Please check and try again."))
+        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases. Cases should include all deaths. Please check and try again."))
 
 pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
