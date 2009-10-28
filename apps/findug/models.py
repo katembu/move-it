@@ -970,8 +970,31 @@ class ReporterExtra(models.Model):
             return user
 
     @classmethod
-    def from_scracth(cls, alias):
-        pass
+    def from_scratch(cls, name, password=None, identity=None, backend_slug='kannel'):
+
+        # retrieve alias and names
+        alias, fn, ln   = Reporter.parse_name(name)
+        str             = alias.lower()
+        while Reporter.objects.filter(alias__iexact=alias).count() or User.objects.filter(username__iexact=alias).count():
+            alias = "%s%d" % (str.lower(), n)
+            n += 1
+
+        # create reporter
+        reporter        = Reporter(alias=alias, first_name=fn, last_name=ln)
+        reporter.save()
+        backend         = PersistantBackend.objects.get(slug=backend_slug)
+        connection      = PersistantConnection(backend=backend, identity=identity, reporter=reporter, last_seen=datetime.now()) 
+        connection.save()
+
+        # create user
+        user            = User.objects.create_user(alias, email='', password=password)
+        user.save()
+
+        # create ReporterExtra
+        extra           = cls(user=user, reporter=reporter)
+        extra.save()
+
+        return extra
 
 class LocationExtra(models.Model):
     ''' Extra fields for Locations '''

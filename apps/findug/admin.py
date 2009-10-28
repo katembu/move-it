@@ -19,4 +19,5 @@ admin.site.register(ACTConsumptionReport)
 admin.site.register(DiseaseAlertTrigger)
 admin.site.register(DiseaseAlert)
 
-admin.site.register(UnifiedUser)
+admin.site.register(ReporterExtra)
+admin.site.register(LocationExtra)
