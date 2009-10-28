@@ -772,7 +772,7 @@ class EpidemiologicalReport(models.Model):
 
     @classmethod
     def by_receipt(cls, receipt):
-        clinic_id, week_id, date, report_id = re.search('([0-9]+)W([0-9]+)\-([0-9]{6})\/([0-9]+)', receipt).groups()
+        clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
         return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
 
     @property
@@ -783,7 +783,7 @@ class EpidemiologicalReport(models.Model):
     @property
     def receipt(self):
         if self.completed and self.completed_on:
-            return _(u"%(clinic)sW%(week)s-%(datesent)s/%(reportid)s") % {'clinic': self.clinic.id, 'datesent': self.completed_on.strftime("%d%m%y"), 'week': self.period.id, 'reportid': self.id}
+            return _(u"%(clinic)sW%(week)s/%(reportid)s") % {'clinic': self.clinic.id, 'week': self.period.id, 'reportid': self.id}
         else:
             return None
 
