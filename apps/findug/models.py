@@ -937,5 +937,54 @@ class DiseaseAlert(models.Model):
 
         return cls.objects.get(period=period, trigger=trigger)
 
+# USERS
 
+class ReporterExtra(models.Model):
+    ''' Extra fields for Reporter and/or User '''
+
+    class Meta:
+        unique_together = ("user", "reporter")
+
+    user        = models.OneToOneField(User, unique=True)
+    reporter    = models.OneToOneField(Reporter, unique=True)
+    
+    def __unicode__(self):
+        return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+
+    @classmethod
+    def by_user(cls, user):
+        return cls.objects.get(user=user)
+
+    @classmethod
+    def by_reporter(cls, reporter):
+        return cls.objects.get(reporter=reporter)
+
+    @classmethod
+    def create_user(cls, reporter, password):
+        try:
+            extra   = cls.by_reporter(reporter)
+            return extra.user
+        except cls.DoesNotExist:
+            # may raise IntegrityError if alias taken
+            user    = User.objects.create_user(reporter.alias, email='', password=password)
+            return user
+
+    @classmethod
+    def from_scracth(cls, alias):
+        pass
+
+class LocationExtra(models.Model):
+    ''' Extra fields for Locations '''
+
+    location    = models.OneToOneField(Location, unique=True)
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+
+    def __unicode__(self):
+        return _(u"%(location)s Extra") % {'location': self.location}
+
+    @classmethod
+    def by_location(cls, location):
+        return cls.objects.get(location=location)
+    
 
