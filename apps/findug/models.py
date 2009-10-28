@@ -161,7 +161,7 @@ def DiseaseObservation_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if instance.deaths > instance.cases:
-        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases.  Cases should include all deaths.  Please check and try again."))
+        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases. Cases should include all deaths. Please check and try again."))
 
 pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
@@ -416,7 +416,7 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.positive_over_five = instance.positive_over_five
 
     if (instance.positive_under_five + instance.positive_over_five) > (instance.microscopy_positive + instance.rdt_positive_tests):
-        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases."))
+        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases. Please check and try again."))
 
 pre_save.connect(MalariaCasesReport_pre_save_handler, sender=MalariaCasesReport)
 
@@ -526,7 +526,7 @@ def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if (instance.rdt_positive + instance.rdt_negative) > (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
-        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated."))
+        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated. Please check and try again."))
 
 pre_save.connect(MalariaTreatmentsReport_pre_save_handler, sender=MalariaTreatmentsReport)
 
