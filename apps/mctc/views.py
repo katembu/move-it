@@ -252,7 +252,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
     pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    
+    pdfrpt.setNumOfColumns(2)
     if object_id is None:        
         if request.POST and request.POST['zone']:
             providers = Case.objects.filter(location=request.POST['zone']).values('reporter', 'location').distinct()
