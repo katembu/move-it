@@ -697,7 +697,7 @@ class App (rapidsms.app.App):
     ############################
 
     keyword.prefix = ""
-    @keyword(r'report(\-[0-9])?')
+    @keyword(r'progress(\-[0-9])?')
     @registered
     def report_status(self, message, period):
 
