@@ -400,7 +400,7 @@ class App (rapidsms.app.App):
     ############################
 
     keyword.prefix = ""
-    @keyword(r'diseases(\-[0-9])? (.*)')
+    @keyword(r'report(\-[0-9])? (.*)')
     @registered
     def diseases_report(self, message, period, text):
 
