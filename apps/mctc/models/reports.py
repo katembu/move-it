@@ -6,7 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 from mctc.models.general import Case
 from mctc.models.logs import MessageLog
 from measles.models import ReportMeasles
-
+from diarrhea.models import ReportDiarrhea
+from diagnosis.models import ReportDiagnosis
 
 from reporters.models import Reporter
 
@@ -270,12 +271,12 @@ class ReportAllPatients(Report, models.Model):
         verbose_name = "CHW Perfomance Report"
         app_label = "mctc"
     @classmethod
-    def by_provider(cls, provider_id=None):    
+    def by_provider(cls, reporter=None):    
         qs      = []
         fields  = []
         counter = 0
-        if provider_id is not None:
-            cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+        if reporter is not None:
+            cases   = Case.objects.order_by("last_name").filter(reporter=reporter)
             
             for case in cases:
                 q   = {}

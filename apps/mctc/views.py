@@ -17,6 +17,7 @@ from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
 from locations.models import Location
+from reporters.models import Reporter
 from libreport.pdfreport import PDFReport
 from django.utils.translation import ugettext_lazy as _
 
@@ -249,20 +250,21 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
-    pdfrpt.setLandscape(False)
+    pdfrpt.setLandscape(True)
     pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     
     if object_id is None:        
         if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
+            providers = Case.objects.filter(location=request.POST['zone']).values('reporter', 'location').distinct()
             per_page = "1"
         else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        for provider in providers:
-            queryset, fields = ReportAllPatients.by_provider(provider['provider'])
+            providers = Case.objects.order_by("location").values('reporter', 'location').distinct()
+            providers = Reporter.objects.order_by("location").all()
+        for reporter in providers:
+            queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
-                c = Provider.objects.get(id=provider["provider"])
-                pdfrpt.setTableData(queryset, fields, provider['zone__name']+": "+c.get_name_display())
+                c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
+                pdfrpt.setTableData(queryset, fields, c)
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
                     pdfrpt.setFilename("report_per_page")
@@ -272,7 +274,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         
         queryset, fields = ReportAllPatients.by_provider(object_id)
         if queryset:
-            c = Provider.objects.get(id=object_id)
+            c = Reporter.objects.get(id=object_id)
             
             if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
                 file_name = c.get_name_display() + ".csv"
