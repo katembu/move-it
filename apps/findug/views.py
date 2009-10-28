@@ -122,6 +122,13 @@ def epidemiological_report_pdf(req, report_id):
     DEFAULT_FONT_SIZE = 11
     FONT = 'Courier-Bold'
 
+    # A simple function to return a leading 0 on any single digit int.  
+    def double_zero(value):
+        try:
+            return '%02d' % value
+        except TypeError:
+            return value
+
     epi_report = EpidemiologicalReport.objects.get(id=report_id)
 
     # temporary file-like object in which to build the pdf containing only the data numbers
@@ -139,6 +146,7 @@ def epidemiological_report_pdf(req, report_id):
         second_row_y    = 25.25*cm
         third_row_y     = 24.35*cm
         footer_row_y    =  2.10*cm
+        remarks_row_y   =  1.70*cm
 
         # find the health center's subcounty parent location object
         sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
@@ -156,9 +164,11 @@ def epidemiological_report_pdf(req, report_id):
 
         # initialize an empty string for the 'By' field in the form.  There can be multiple submitters
         reporters_string = ""
+
         # if there is only one reporter we have space for the full name
         if len(reporters) == 1: 
             reporters_string = reporters.pop().full_name().title()
+            reporters_font_size = DEFAULT_FONT_SIZE
 
         # if there are more than one reporters lets only use first name + last initial and pray that the fit
         elif len(reporters) > 1:
@@ -167,6 +177,7 @@ def epidemiological_report_pdf(req, report_id):
                 if reporter.last_name: reporters_string += reporter.last_name[0].upper()
                 reporters_string += ', '
             # remove trailing comma and space
+            reporters_font_size = 8
             reporters_string = reporters_string[:-2]
                     
 
@@ -177,22 +188,25 @@ def epidemiological_report_pdf(req, report_id):
             {"x":10.6*cm, "y":first_row_y, "value":epi_report.period.start_date.strftime(DATE_FORMAT)}, # For Period (Date)
             {"x":16.0*cm, "y":first_row_y, "value":epi_report.period.end_date.strftime(DATE_FORMAT)}, # To (Date)
 
-            {"x":4.5*cm, "y":second_row_y, "value":'%s %s' % (epi_report.clinic, epi_report.clinic.type) }, # Health Unit
-            #TODO {"x":4.5*cm, "y":second_row_y, "value":  }, # Health Unit Code
-            {"x":16.2*cm, "y":second_row_y, "value":sub_county }, # Sub-County
+            {"x":4.2*cm, "y":second_row_y, "value":'%s %s' % (epi_report.clinic, epi_report.clinic.type) }, # Health Unit
+            {"x":12.0*cm, "y":second_row_y, "value":epi_report.clinic.code  }, # Health Unit Code
+            {"x":15.9*cm, "y":second_row_y, "value":sub_county }, # Sub-County
 
             #TODO {"x":4.5*cm, "y":third_row_y, "value":  }, # HSD
             {"x":11.2*cm, "y":third_row_y, "value":district  }, # District
 
             {"x":5.5*cm, "y":footer_row_y, "value":epi_report.completed_on.strftime(DATE_FORMAT)  }, # Submitted on (Date)
-            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':9 }, # By
+            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':reporters_font_size }, # By
             {"x":16.3*cm, "y":footer_row_y, "value":epi_report.receipt, 'size':10  }, # Receipt Number
         ]
+
+        if epi_report.remarks: 
+            data.append({"x":2.0*cm, "y":remarks_row_y, "value":'Remarks: %s' % epi_report.remarks})  
         
         # draw the data onto the pdf overlay
         for field in data:
             if field.has_key('size'): c.setFont(FONT, field['size'])
-            c.drawString(field['x'],field['y'],unicode(field['value']))
+            c.drawString(field['x'],field['y'],unicode(double_zero(field['value'])))
             if field.has_key('size'): c.setFont(FONT, DEFAULT_FONT_SIZE)
 
     # DISEASE REPORT
@@ -213,8 +227,8 @@ def epidemiological_report_pdf(req, report_id):
             disease_observation = epi_report.diseases.diseases.get(disease__code=disease.lower())
             cases = disease_observation.cases
             deaths = disease_observation.deaths
-            c.drawRightString(x,y,unicode(cases))
-            c.drawRightString(x+horizontal_space,y,unicode(deaths))
+            c.drawRightString(x,y,unicode(double_zero(cases)))
+            c.drawRightString(x+horizontal_space,y,unicode(double_zero(deaths)))
             y -= vertical_space
     
     # TEST REPORT
@@ -227,7 +241,7 @@ def epidemiological_report_pdf(req, report_id):
         mc = epi_report.malaria_cases
         values = [mc.opd_attendance, mc.suspected_cases, mc.rdt_tests, mc.rdt_positive_tests, mc.microscopy_tests, mc.microscopy_positive, mc.positive_over_five, mc.positive_under_five]
         for value in values:
-            c.drawRightString(x,y,unicode(value))
+            c.drawRightString(x,y,unicode(double_zero(value)))
             x += horizontal_space
 
     # TREAT REPORT
@@ -240,7 +254,7 @@ def epidemiological_report_pdf(req, report_id):
         mt = epi_report.malaria_treatments
         values = [mt.rdt_positive, mt.rdt_negative, mt.four_months_to_three, mt.three_to_seven, mt.seven_to_twelve, mt.twelve_and_above]
         for value in values:
-            c.drawRightString(x,y,unicode(value))
+            c.drawRightString(x,y,unicode(double_zero(value)))
             x += horizontal_space
 
     # ACT REPORT
@@ -253,7 +267,7 @@ def epidemiological_report_pdf(req, report_id):
         act = epi_report.act_consumption
         values = [act.yellow_dispensed, act.yellow_balance, act.blue_dispensed, act.blue_balance, act.brown_dispensed, act.brown_balance, act.green_dispensed, act.green_balance, act.other_act_dispensed, act.other_act_balance]
         for value in values:
-            c.drawRightString(x,y,unicode(value))
+            c.drawRightString(x,y,unicode(double_zero(value)))
             x += horizontal_space
 
     # generate the overlay report
