@@ -148,11 +148,20 @@ def epidemiological_report_pdf(req, report_id):
         footer_row_y    =  2.10*cm
         remarks_row_y   =  1.70*cm
 
-        # find the health center's subcounty parent location object
-        sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
-
         # find the health center's district parent location object
         district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
+        #Remove unnecessary ' District'
+        district = district.name.replace(' District','')
+
+        # find the health center's health sub district parent location object
+        hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
+        #Remove unnecessary ' HSD'
+        hsd = hsd.name.replace(' HSD','')
+
+        # find the health center's subcounty parent location object
+        sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
+        # remove unncessary ' SC'
+        sub_county = sub_county.name.replace(' SC','')
 
         # create a list containing unique reporters that submitted the subreports
         reporters = set([
@@ -192,7 +201,7 @@ def epidemiological_report_pdf(req, report_id):
             {"x":12.0*cm, "y":second_row_y, "value":epi_report.clinic.code  }, # Health Unit Code
             {"x":15.9*cm, "y":second_row_y, "value":sub_county }, # Sub-County
 
-            #TODO {"x":4.5*cm, "y":third_row_y, "value":  }, # HSD
+            {"x":3.5*cm, "y":third_row_y, "value":hsd  }, # HSD
             {"x":11.2*cm, "y":third_row_y, "value":district  }, # District
 
             {"x":5.5*cm, "y":footer_row_y, "value":epi_report.completed_on.strftime(DATE_FORMAT)  }, # Submitted on (Date)
