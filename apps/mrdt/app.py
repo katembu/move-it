@@ -34,11 +34,7 @@ class App (rapidsms.app.App):
         pass
 
     def parse (self, message):
-        # allow authentication to occur when httptester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
+        message.was_handled = False
 
     def handle (self, message):
         try:

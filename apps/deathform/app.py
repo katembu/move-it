@@ -32,12 +32,7 @@ class App (rapidsms.app.App):
         """Configure your app in the start phase."""
         pass
 
-    def parse (self, message):
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
+    def parse (self, message):        
         message.was_handled = False
 
     def handle (self, message):
