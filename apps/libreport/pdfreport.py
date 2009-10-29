@@ -113,7 +113,7 @@ class PDFReport():
             values = [ Template(h["bit"]).render(ctx) for h in fields ]
             data.append(values)
         
-        table = PDFTable(data,None,None,None,1)
+        table = PDFTable(data,[0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch],None,None,1)
         #table rows n cols formatting
         ts = [
             ('ALIGNMENT', (0,0), (-1,-1), 'LEFT'),
@@ -146,13 +146,14 @@ class PDFReport():
             table is going to overlap hence you place a header/subtitle
             in that position for it to be printed appropriately
         """
-        c = len(queryset)/90
+        c = float(len(queryset))/90
             
         if int(c)< c:
            c = int(c) + 1
-               
-           for i in range(c):
-               self.headers.append(title)
+        if int(c) == 0:
+            c = 1       
+        for i in range(c):
+            self.headers.append(title)
         
     def render(self):
         elements = []
@@ -179,7 +180,7 @@ class PDFReport():
         
         if self.landscape is True:
             self.PAGESIZE = landscape(A4)
-        doc = MultiColDocTemplate(filename, self.cols, pagesize=self.PAGESIZE, allowSplitting=1)
+        doc = MultiColDocTemplate(filename, self.cols, pagesize=self.PAGESIZE, allowSplitting=1, showBoundary=0)
         doc.setTitle(self.title)
         doc.setHeaders(self.headers)        
         doc.build(elements)
@@ -237,12 +238,13 @@ class MultiColDocTemplate(BaseDocTemplate):
         
         self.addPageTemplates(self.firstPage())
         
-        frameWidth = self.width/frameCount
+        frameWidth = (self.width/frameCount) + .85*inch
         frameHeight = self.height-.5*inch
         frames = []
+        
         for frame in range(frameCount):
-            leftMargin = self.leftMargin + frame*frameWidth
-            column = Frame(leftMargin, self.bottomMargin-.95*inch, frameWidth, frameHeight+1.75*inch,leftPadding=0, topPadding=0, rightPadding=0, bottomPadding=0)
+            leftMargin = self.leftMargin + frame*frameWidth-.85*inch
+            column = Frame(leftMargin, self.bottomMargin-.95*inch, frameWidth, frameHeight+1.75*inch,leftPadding=1, topPadding=1, rightPadding=1, bottomPadding=1)
             frames.append(column)
         
         template = PageTemplate(frames=frames, id="laterPages", onPage=self.addHeader)
