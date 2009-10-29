@@ -270,18 +270,20 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                     pdfrpt.setFilename("report_per_page")
     else:        
         if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-        
-        queryset, fields = ReportAllPatients.by_provider(object_id)
+            object_id = request.POST['provider']        
+        reporter = Reporter.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.by_provider(reporter)
         if queryset:
-            c = Reporter.objects.get(id=object_id)
-            
+            c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
             if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
+                file_name = reporter.last_name + ".csv"
                 file_name = file_name.replace(" ","_").replace("'","")
                 return handle_csv(request, queryset, fields, file_name)
             
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
+            pdfrpt.setTableData(queryset, fields, c)
+            if (int(per_page) == 1) is True:
+                pdfrpt.setPageBreak()
+                pdfrpt.setFilename("report_per_page")
     
     return pdfrpt.render()
 
