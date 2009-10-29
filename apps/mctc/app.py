@@ -54,8 +54,7 @@ class App (rapidsms.app.App):
         """Configure your app in the start phase."""
         pass
 
-    def parse (self, message):
-         
+    def parse (self, message):         
         message.was_handled = False
 
     def cleanup (self, message):
