@@ -280,7 +280,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     @keyword(r'cancel \+?(\d+)')
-    @authenticated
+    @registered
     def cancel_case (self, message, ref_id):
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
@@ -303,7 +303,7 @@ class App (rapidsms.app.App):
         return True
     
     @keyword(r'inactive \+?(\d+)?(.+)')
-    @authenticated
+    @registered
     def inactive_case (self, message, ref_id, reason=""):
         case = self.find_case(ref_id)
         case.set_status(Case.STATUS_INACTIVE)
