@@ -93,7 +93,10 @@ class MessageLog(models.Model):
         return self.reporter.conection().identity
     
     def sent_by_name(self):
-        return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
+        try:
+            return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
+        except:
+            return "Unknown"
 
     def location(self):
         return u"%s"%self.sent_by.location
