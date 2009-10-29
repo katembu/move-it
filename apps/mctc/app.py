@@ -176,24 +176,18 @@ class App (rapidsms.app.App):
     def respond_to_join(self, message, info):
         message.respond(
            _("%(mobile)s registered to @%(username)s " +
-              "(%(user_last_name)s, %(user_first_name)s) at %(clinic)s.") % info)
+              "(%(last_name)s, %(first_name)s) at %(clinic)s.") % info)
         
     @keyword(r'confirm (\w+)')
     def confirm_join (self, message, username):
-        mobile   = message.peer
-        try:
-            user = User.objects.get(username__iexact=username)
-        except User.DoesNotExist:
-            self.respond_not_registered(username)
-        for provider in Provider.objects.filter(mobile=mobile):
-            if provider.user.id == user.id:
-                provider.active = True
-            else:
-                provider.active = False
-            provider.save()
-        info = provider.get_dictionary()
-        self.respond_to_join(message, info)
-        log(provider, "confirmed_join")
+        reporter = self.find_provider(username)
+        self.respond_to_join(message, {
+                                       "clinic": reporter.location,
+                                       "mobile": reporter.connection().identity,
+                                       "last_name": reporter.last_name,
+                                       "first_name": reporter.first_name
+                                       })
+        log(reporter, "confirmed_join")
         return True
 
     
