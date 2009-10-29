@@ -53,7 +53,7 @@ class Case(models.Model):
                 n *= 2
                 if n > 9: n -= 9
             sum += n
-        return x * 10 + 10 - sum % 10
+        return x * 10 + 15 - sum % 10
 
     def save (self, *args):
         if not self.id:
