@@ -32,6 +32,8 @@ class HandlerFailed (Exception):
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
+    handled = False
+    
     def start (self):
         """Configure your app in the start phase."""
         pass
@@ -49,21 +51,21 @@ class App (rapidsms.app.App):
             
             return False
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
             
-            handled = True
+            self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call 0733202270."))
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.handled
 
     def cleanup (self, message):
-        if message.was_handled:
+        if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
                          text=message.text,

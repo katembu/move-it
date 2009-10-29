@@ -49,6 +49,7 @@ def registered (func):
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
+    handled = False
 
     def start (self):
         """Configure your app in the start phase."""
@@ -58,11 +59,12 @@ class App (rapidsms.app.App):
         message.was_handled = False
 
     def cleanup (self, message):
-        log = MessageLog(mobile=message.peer,
-                         sent_by=message.persistant_connection.reporter,
-                         text=message.text,
-                         was_handled=message.was_handled)
-        log.save()
+        if bool(self.handled):
+            log = MessageLog(mobile=message.peer,
+                             sent_by=message.persistant_connection.reporter,
+                             text=message.text,
+                             was_handled=message.was_handled)
+            log.save()
 
     def handle (self, message):
         try:
@@ -74,11 +76,11 @@ class App (rapidsms.app.App):
             
             return False
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
             
-            handled = True
+            self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
@@ -86,8 +88,8 @@ class App (rapidsms.app.App):
             
             elog(message.sender, message.text)
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.handled
 
     @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
     def join (self, message, clinic_code, last_name, first_name, username=None):
