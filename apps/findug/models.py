@@ -1010,4 +1010,13 @@ class LocationExtra(models.Model):
     def by_location(cls, location):
         return cls.objects.get(location=location)
     
+    @classmethod
+    def by_location_create(cls, location):
+        try:
+             return cls.objects.get(location=location)
+        except cls.DoesNotExist:
+            # create it and return
+            extra   = cls(location=location)
+            extra.save()
+            return extra
 
