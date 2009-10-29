@@ -86,7 +86,7 @@ class App (rapidsms.app.App):
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call 0733202270."))
             
-            elog(message.sender, message.text)
+            elog(message.persistant_connection.reporter, message.text)
             raise
         message.was_handled = bool(self.handled)
         return self.handled
