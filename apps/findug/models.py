@@ -840,17 +840,6 @@ pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalR
 
 # ALERTS
 
-def location_parents(location):
-
-    ancestors   = []
-    ancestors.append(location)
-
-    while (location.parent):
-        ancestors.append(location.parent)
-        location    = location.parent
-
-    return ancestors
-
 class DiseaseAlertTrigger(models.Model):
 
     disease     = models.ForeignKey(Disease)
@@ -871,7 +860,7 @@ class DiseaseAlertTrigger(models.Model):
         except:
             pass
 
-        parents = location_parents(location)
+        parents = location.ancestors(include_self=True)
         if not self.location in parents:
             return False
 
