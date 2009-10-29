@@ -4,8 +4,8 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from reporters.models import Role, ReporterGroup, Reporter, PersistantConnection
-from locations.models import Location, LocationType, RecursiveManager
+from reporters.models import Role, Reporter 
+from locations.models import Location, LocationType
 
 #def _(txt): return txt
 
@@ -184,8 +184,7 @@ class App (rapidsms.app.App):
                                        })
         log(reporter, "confirmed_join")
         return True
-
-    
+        
     def respond_not_registered (self, message, target):
         raise HandlerFailed(_("User @%s is not registered.") % target)
 
