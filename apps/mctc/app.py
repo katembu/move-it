@@ -24,16 +24,6 @@ from models.general import Case, CaseNote
 
 import re, time, datetime
 
-def authenticated (func):
-    def wrapper (self, message, *args):
-        if message.sender:
-            return func(self, message, *args)
-        else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
-            return True
-    return wrapper
-
 class HandlerFailed (Exception):
     pass
 
