@@ -17,7 +17,7 @@ from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
 from locations.models import Location
-from reporters.models import Reporter
+from reporters.models import Reporter, Role
 from libreport.pdfreport import PDFReport
 from django.utils.translation import ugettext_lazy as _
 
@@ -439,17 +439,19 @@ def report_monitoring_csv(request, object_id, file_name):
         sms_refused.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, was_handled=False).count())
         
         # Total # of CHW in System
-        chw_tot.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__lte=ref_date)).count())
+        chwrole = Role.objects.get(code="chw")
+        
+        chw_tot.append(Reporter.objects.filter(role=chwrole).count())
         
         # New Registered CHW
-        chw_reg.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__gte=morning, date_joined__lte=evening)).count())
-        
+        #chw_reg.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__gte=morning, date_joined__lte=evening)).count())
+        chw_reg.append(0)
         # Failed CHW Registration
         chw_reg_err.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="provider_registered").count() - EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="confirmed_join").count())
         
         # Active CHWs
         a = Case.objects.filter(created_at__gte=morning, created_at__lte=evening)
-        a.query.group_by = ['mctc_case.provider_id']
+        a.query.group_by = ['mctc_case.reporter_id']
         chw_on.append(a.__len__())
         
         # New Patient Registered
