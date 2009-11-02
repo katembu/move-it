@@ -289,7 +289,7 @@ class App (rapidsms.app.App):
         message.respond(_("Case +%s cancelled.") % ref_id)
         
         
-        log(message.sender.provider, "case_cancelled")        
+        log(message.persistant_connection.reporter, "case_cancelled")        
         return True
     
     @keyword(r'inactive \+?(\d+)?(.+)')
