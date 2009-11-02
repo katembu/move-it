@@ -85,54 +85,6 @@ def index(request):
             "has_provider": has_provider})
     
     
-def message_users(mobile, message=None, groups=None, users=None):
-    # problems that might still exist here
-    # timeouts in the browser because we have to post all the messages
-    # timeouts in the url request filtering up to the above
-    recipients = []
-    # get all the users
-    provider_objects = [ Provider.objects.get(id=user) for user in users ]
-    for provider in provider_objects:
-        try:
-            if provider not in recipients:
-                recipients.append(provider)
-        except models.ObjectDoesNotExist:
-            pass
-     # get all the users for the groups
-    group_objects = [ Group.objects.get(id=group) for group in groups ]
-    for group in group_objects:
-        for user in group.user_set.all():
-            try:
-                if user.provider not in recipients:
-                    recipients.append(user.provider)
-            except models.ObjectDoesNotExist:
-                pass
-    port = "ttyUSB0"
-    conf = []
-    modem = GsmModem(port=port, **conf)
-    passed = []
-    failed = []
-    for recipient in recipients:
-        msg = "@%s %s" % (recipient.id, message)
-        #cmd = "http://%s:%s/spomc/%s/%s" % (domain, port, mobile, msg)
-        try:
-            modem.send_sms(recipient, msg)
-            passed.append(recipient)
-        except IOError:
-            # if the mobile number is badly formed and the number regex fails
-            # this is the error that is raised
-            failed.append(recipient)
-    
-    results_text = ""
-    if not passed and not failed:
-        results_text = "No recipients were sent that message."
-    elif not failed and passed:
-        results_text = "The message was sent to %s recipients" % (len(passed))
-    elif failed and passed:
-        results_text = "The message was sent to %s recipients, but failed for the following: %s" % (len(passed), ", ".join([ str(f) for f in failed]))
-    elif not passed and failed:
-        results_text = "No-one was sent that message. Failed for the following: %s" % ", ".join([ str(f) for f in failed])
-    return results_text
 
 @login_required
 def reports(request):
