@@ -22,7 +22,7 @@ admin.site.register(MessageLog, MessageLogAdmin)
 
 class EventLogAdmin(admin.ModelAdmin):
     list_display = ("__unicode__",)
-    list_filter = ("message", "content_type")
+    list_filter = ("created_at", "message", "content_type")
     
 admin.site.register(EventLog, EventLogAdmin)
 
