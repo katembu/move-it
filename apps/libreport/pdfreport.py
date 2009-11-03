@@ -94,7 +94,7 @@ class PDFReport():
         """ force/add a page break """
         self.data.append(PageBreak())
         
-    def setTableData(self, queryset, fields, title):        
+    def setTableData(self, queryset, fields, title, colWidths=None):        
         """
         set table data
         @var queryset: data
@@ -113,7 +113,7 @@ class PDFReport():
             values = [ Template(h["bit"]).render(ctx) for h in fields ]
             data.append(values)
         
-        table = PDFTable(data,[0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch],None,None,1)
+        table = PDFTable(data,colWidths,None,None,1)
         #table rows n cols formatting
         ts = [
             ('ALIGNMENT', (0,0), (-1,-1), 'LEFT'),
