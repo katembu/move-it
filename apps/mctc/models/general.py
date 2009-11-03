@@ -138,6 +138,13 @@ class Case(models.Model):
             return None        
     
     @classmethod
+    def inactive_by_provider(cls, reporter):
+        try:
+            return cls.objects.filter(reporter=reporter, status=Case.STATUS_INACTIVE).count()
+        except models.ObjectDoesNotExist:
+            return None
+    
+    @classmethod
     def count_for_last_30_days(cls, reporter):
         thirty_days = timedelta(days=30)
         end_date = date.today()
