@@ -126,7 +126,7 @@ class Case(models.Model):
     @classmethod
     def count_by_provider(cls, reporter):
         try:
-            return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(reporter=reporter, status=Case.STATUS_ACTIVE).count()
         except models.ObjectDoesNotExist:
             return None
     
