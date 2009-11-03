@@ -148,7 +148,7 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": '# NEW CASES', "column": None, "bit": "{{ object.num_new_cases}}" })
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.num_malaria_reports }}" })
             fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.num_muac_reports }}" })
-            fields.append({"name": 'RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
+            fields.append({"name": 'SMS RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
             fields.append({"name": 'LAST ACTVITY', "column": None, "bit": "{{ object.days_since_last_activity }}" })
             return ps, fields 
         
