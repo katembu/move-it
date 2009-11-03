@@ -18,7 +18,10 @@ from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
 from locations.models import Location
 from reporters.models import Reporter, Role
+
 from libreport.pdfreport import PDFReport
+from reportlab.lib.units import inch
+
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -216,7 +219,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
             queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
                 c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
-                pdfrpt.setTableData(queryset, fields, c)
+                pdfrpt.setTableData(queryset, fields, c, [0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch])
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
                     pdfrpt.setFilename("report_per_page")
@@ -232,7 +235,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                 file_name = file_name.replace(" ","_").replace("'","")
                 return handle_csv(request, queryset, fields, file_name)
             
-            pdfrpt.setTableData(queryset, fields, c)
+            pdfrpt.setTableData(queryset, fields, c, [0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
