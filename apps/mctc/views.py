@@ -410,13 +410,13 @@ def report_monitoring_csv(request, object_id, file_name):
         patient_reg.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="patient_created").count())
         
         # Failed Patient Registration
-        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="new").count() - patient_reg[-1])
+        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="new").count() - patient_reg[-1])
         
         # Total Malaria Reports
         malaria_tot.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="mrdt_taken").count())
         
         # Failed Malaria Reports
-        malaria_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="mrdt").count() - malaria_tot[-1])
+        malaria_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="mrdt").count() - malaria_tot[-1])
         
         # Malaria Test Positive
         malaria_pos.append(ReportMalaria.objects.filter(entered_at__gte=morning, entered_at__lte=evening, result=True).count())
@@ -440,7 +440,7 @@ def report_monitoring_csv(request, object_id, file_name):
         malnut_tot.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="muac_taken").count())
         
         # Failed Malnutrition Reports
-        malnut_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="muac").count() - malnut_tot[-1])
+        malnut_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="muac").count() - malnut_tot[-1])
         
         # Total SAM+
         samp_tot.append(ReportMalnutrition.objects.filter(entered_at__lte=evening, status=ReportMalnutrition.SEVERE_COMP_STATUS).count())
