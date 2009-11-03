@@ -410,7 +410,7 @@ def report_monitoring_csv(request, object_id, file_name):
         patient_reg.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="patient_created").count())
         
         # Failed Patient Registration
-        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="new").count() - patient_reg[-1])
+        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="new").count() + MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="birth").count() - patient_reg[-1])
         
         # Total Malaria Reports
         malaria_tot.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="mrdt_taken").count())
