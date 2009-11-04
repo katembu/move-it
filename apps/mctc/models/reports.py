@@ -81,6 +81,8 @@ class ReportCHWStatus(Report, models.Model):
                 p['counter'] = "%d"%counter
                 p['provider'] = provider
                 p['num_cases'] = Case.count_by_provider(provider)
+                p['num_cases_inactive'] = Case.count_by_provider(provider, Case.STATUS_INACTIVE)
+                p['num_cases_dead'] = Case.count_by_provider(provider,Case.STATUS_DEAD)
                 p['num_new_cases'] = Case.count_for_last_30_days(provider)
                 p_muac = ReportMalaria.count_by_provider(provider, duration_end, duration_start)
                 p['num_malaria_reports'] = p_muac
@@ -146,6 +148,8 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": 'PROVIDER', "column": None, "bit": "{{ object.provider }}" })
             fields.append({"name": 'TOTAL CASES', "column": None, "bit": "{{ object.num_cases}}" })
             fields.append({"name": '# NEW CASES', "column": None, "bit": "{{ object.num_new_cases}}" })
+            fields.append({"name": '# INACTIVE', "column": None, "bit": "{{ object.num_cases_inactive}}" })
+            fields.append({"name": '# DEAD', "column": None, "bit": "{{ object.num_cases_dead}}" })
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.num_malaria_reports }}" })
             fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.num_muac_reports }}" })
             fields.append({"name": 'SMS RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
@@ -276,7 +280,7 @@ class ReportAllPatients(Report, models.Model):
         fields  = []
         counter = 0
         if reporter is not None:
-            cases   = Case.objects.order_by("last_name").filter(reporter=reporter)
+            cases   = Case.objects.order_by("last_name").filter(reporter=reporter, status=Case.STATUS_ACTIVE)
             
             for case in cases:
                 q   = {}
