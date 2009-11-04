@@ -3,9 +3,13 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.general import Case, Provider, Facility
+from mctc.models.general import Case
 from mctc.models.logs import MessageLog
 from measles.models import ReportMeasles
+from diarrhea.models import ReportDiarrhea
+from diagnosis.models import ReportDiagnosis
+
+from reporters.models import Reporter
 
 from datetime import datetime, date, timedelta
 
@@ -48,6 +52,8 @@ class Observation(models.Model):
     def __unicode__(self):
         return self.name
 
+from mrdt.models import ReportMalaria
+from muac.models import ReportMalnutrition
         
 class ReportCHWStatus(Report, models.Model):
     class Meta:
@@ -68,18 +74,20 @@ class ReportCHWStatus(Report, models.Model):
         clinic_refused = 0
         
         if clinic_id is not None:
-            providers = Provider.list_by_clinic(clinic_id)
+            providers = Reporter.objects.filter(location=clinic_id)
             for provider in providers:
                 p = {}
                 counter = counter + 1
                 p['counter'] = "%d"%counter
                 p['provider'] = provider
                 p['num_cases'] = Case.count_by_provider(provider)
+                p['num_cases_inactive'] = Case.count_by_provider(provider, Case.STATUS_INACTIVE)
+                p['num_cases_dead'] = Case.count_by_provider(provider,Case.STATUS_DEAD)
                 p['num_new_cases'] = Case.count_for_last_30_days(provider)
                 p_muac = ReportMalaria.count_by_provider(provider, duration_end, duration_start)
                 p['num_malaria_reports'] = p_muac
                 clinic_mrdt = clinic_mrdt + p_muac 
-                num_cases = Case.count_by_provider(provider)
+                num_cases = p['num_cases']
                 clinic_cases = clinic_cases + num_cases
                 num_muac = ReportMalnutrition.count_by_provider(provider, duration_end, muac_duration_start)                
                 clinic_muac = clinic_muac + num_muac
@@ -140,9 +148,11 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": 'PROVIDER', "column": None, "bit": "{{ object.provider }}" })
             fields.append({"name": 'TOTAL CASES', "column": None, "bit": "{{ object.num_cases}}" })
             fields.append({"name": '# NEW CASES', "column": None, "bit": "{{ object.num_new_cases}}" })
+            fields.append({"name": '# INACTIVE', "column": None, "bit": "{{ object.num_cases_inactive}}" })
+            fields.append({"name": '# DEAD', "column": None, "bit": "{{ object.num_cases_dead}}" })
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.num_malaria_reports }}" })
             fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.num_muac_reports }}" })
-            fields.append({"name": 'RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
+            fields.append({"name": 'SMS RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
             fields.append({"name": 'LAST ACTVITY', "column": None, "bit": "{{ object.days_since_last_activity }}" })
             return ps, fields 
         
@@ -265,12 +275,12 @@ class ReportAllPatients(Report, models.Model):
         verbose_name = "CHW Perfomance Report"
         app_label = "mctc"
     @classmethod
-    def by_provider(cls, provider_id=None):    
+    def by_provider(cls, reporter=None):    
         qs      = []
         fields  = []
         counter = 0
-        if provider_id is not None:
-            cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+        if reporter is not None:
+            cases   = Case.objects.order_by("last_name").filter(reporter=reporter, status=Case.STATUS_ACTIVE)
             
             for case in cases:
                 q   = {}

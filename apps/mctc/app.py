@@ -4,8 +4,8 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from reporters.models import Role, ReporterGroup, Reporter, PersistantConnection
-from locations.models import Location, LocationType, RecursiveManager
+from reporters.models import Role, Reporter 
+from locations.models import Location, LocationType
 
 #def _(txt): return txt
 
@@ -18,21 +18,11 @@ from rapidsms.connection import Connection
 
 from models.logs import MessageLog, log, elog
 
-from models.general import Provider, User
-from models.general import Facility, Case, CaseNote, Zone
+from models.general import  User
+from models.general import Case, CaseNote
 
 
 import re, time, datetime
-
-def authenticated (func):
-    def wrapper (self, message, *args):
-        if message.sender:
-            return func(self, message, *args)
-        else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
-            return True
-    return wrapper
 
 class HandlerFailed (Exception):
     pass
@@ -49,30 +39,22 @@ def registered (func):
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
+    handled = False
 
     def start (self):
         """Configure your app in the start phase."""
         pass
 
-    def parse (self, message):
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
+    def parse (self, message):         
         message.was_handled = False
 
     def cleanup (self, message):
-        log = MessageLog(mobile=message.peer,
-                         sent_by=message.persistant_connection.reporter,
-                         text=message.text,
-                         was_handled=message.was_handled)
-        log.save()
+        if bool(self.handled):
+            log = MessageLog(mobile=message.peer,
+                             sent_by=message.persistant_connection.reporter,
+                             text=message.text,
+                             was_handled=message.was_handled)
+            log.save()
 
     def handle (self, message):
         try:
@@ -84,20 +66,20 @@ class App (rapidsms.app.App):
             
             return False
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
             
-            handled = True
+            self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call 0733202270."))
             
-            elog(message.sender, message.text)
+            elog(message.persistant_connection.reporter, message.text)
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.handled
 
     @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
     def join (self, message, clinic_code, last_name, first_name, username=None):
@@ -181,27 +163,20 @@ class App (rapidsms.app.App):
     def respond_to_join(self, message, info):
         message.respond(
            _("%(mobile)s registered to @%(username)s " +
-              "(%(user_last_name)s, %(user_first_name)s) at %(clinic)s.") % info)
+              "(%(last_name)s, %(first_name)s) at %(clinic)s.") % info)
         
     @keyword(r'confirm (\w+)')
     def confirm_join (self, message, username):
-        mobile   = message.peer
-        try:
-            user = User.objects.get(username__iexact=username)
-        except User.DoesNotExist:
-            self.respond_not_registered(username)
-        for provider in Provider.objects.filter(mobile=mobile):
-            if provider.user.id == user.id:
-                provider.active = True
-            else:
-                provider.active = False
-            provider.save()
-        info = provider.get_dictionary()
-        self.respond_to_join(message, info)
-        log(provider, "confirmed_join")
+        reporter = self.find_provider(username)
+        self.respond_to_join(message, {
+                                       "clinic": reporter.location,
+                                       "mobile": reporter.connection().identity,
+                                       "last_name": reporter.last_name,
+                                       "first_name": reporter.first_name
+                                       })
+        log(reporter, "confirmed_join")
         return True
-
-    
+        
     def respond_not_registered (self, message, target):
         raise HandlerFailed(_("User @%s is not registered.") % target)
 
@@ -295,7 +270,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     @keyword(r'cancel \+?(\d+)')
-    @authenticated
+    @registered
     def cancel_case (self, message, ref_id):
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
@@ -314,11 +289,11 @@ class App (rapidsms.app.App):
         message.respond(_("Case +%s cancelled.") % ref_id)
         
         
-        log(message.sender.provider, "case_cancelled")        
+        log(message.persistant_connection.reporter, "case_cancelled")        
         return True
     
     @keyword(r'inactive \+?(\d+)?(.+)')
-    @authenticated
+    @registered
     def inactive_case (self, message, ref_id, reason=""):
         case = self.find_case(ref_id)
         case.set_status(Case.STATUS_INACTIVE)
