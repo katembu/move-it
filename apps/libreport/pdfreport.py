@@ -152,7 +152,7 @@ class PDFReport():
            c = int(c) + 1
         if int(c) == 0:
             c = 1       
-        for i in range(c):
+        for i in range(int(c)):
             self.headers.append(title)
         
     def render(self):
