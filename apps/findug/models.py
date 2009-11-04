@@ -161,7 +161,7 @@ def DiseaseObservation_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if instance.deaths > instance.cases:
-        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases.  Cases should include all deaths.  Please check and try again."))
+        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases. Cases should include all deaths. Please check and try again."))
 
 pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
@@ -416,7 +416,7 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.positive_over_five = instance.positive_over_five
 
     if (instance.positive_under_five + instance.positive_over_five) > (instance.microscopy_positive + instance.rdt_positive_tests):
-        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases."))
+        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases. Please check and try again."))
 
 pre_save.connect(MalariaCasesReport_pre_save_handler, sender=MalariaCasesReport)
 
@@ -526,7 +526,7 @@ def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if (instance.rdt_positive + instance.rdt_negative) > (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
-        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated."))
+        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated. Please check and try again."))
 
 pre_save.connect(MalariaTreatmentsReport_pre_save_handler, sender=MalariaTreatmentsReport)
 
@@ -772,7 +772,7 @@ class EpidemiologicalReport(models.Model):
 
     @classmethod
     def by_receipt(cls, receipt):
-        clinic_id, week_id, date, report_id = re.search('([0-9]+)W([0-9]+)\-([0-9]{6})\/([0-9]+)', receipt).groups()
+        clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
         return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
 
     @property
@@ -783,7 +783,7 @@ class EpidemiologicalReport(models.Model):
     @property
     def receipt(self):
         if self.completed and self.completed_on:
-            return _(u"%(clinic)sW%(week)s-%(datesent)s/%(reportid)s") % {'clinic': self.clinic.id, 'datesent': self.completed_on.strftime("%d%m%y"), 'week': self.period.id, 'reportid': self.id}
+            return _(u"%(clinic)sW%(week)s/%(reportid)s") % {'clinic': self.clinic.id, 'week': self.period.id, 'reportid': self.id}
         else:
             return None
 
@@ -840,17 +840,6 @@ pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalR
 
 # ALERTS
 
-def location_parents(location):
-
-    ancestors   = []
-    ancestors.append(location)
-
-    while (location.parent):
-        ancestors.append(location.parent)
-        location    = location.parent
-
-    return ancestors
-
 class DiseaseAlertTrigger(models.Model):
 
     disease     = models.ForeignKey(Disease)
@@ -871,7 +860,7 @@ class DiseaseAlertTrigger(models.Model):
         except:
             pass
 
-        parents = location_parents(location)
+        parents = location.ancestors(include_self=True)
         if not self.location in parents:
             return False
 
@@ -937,5 +926,86 @@ class DiseaseAlert(models.Model):
 
         return cls.objects.get(period=period, trigger=trigger)
 
+# USERS
 
+class ReporterExtra(models.Model):
+    ''' Extra fields for Reporter and/or User '''
+
+    class Meta:
+        unique_together = ("user", "reporter")
+
+    user        = models.OneToOneField(User, unique=True)
+    reporter    = models.OneToOneField(Reporter, unique=True)
+    
+    def __unicode__(self):
+        return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+
+    @classmethod
+    def by_user(cls, user):
+        return cls.objects.get(user=user)
+
+    @classmethod
+    def by_reporter(cls, reporter):
+        return cls.objects.get(reporter=reporter)
+
+    @classmethod
+    def create_user(cls, reporter, password):
+        try:
+            extra   = cls.by_reporter(reporter)
+            return extra.user
+        except cls.DoesNotExist:
+            # may raise IntegrityError if alias taken
+            user    = User.objects.create_user(reporter.alias, email='', password=password)
+            return user
+
+    @classmethod
+    def from_scratch(cls, name, password=None, identity=None, backend_slug='kannel'):
+
+        # retrieve alias and names
+        alias, fn, ln   = Reporter.parse_name(name)
+        str             = alias.lower()
+        while Reporter.objects.filter(alias__iexact=alias).count() or User.objects.filter(username__iexact=alias).count():
+            alias = "%s%d" % (str.lower(), n)
+            n += 1
+
+        # create reporter
+        reporter        = Reporter(alias=alias, first_name=fn, last_name=ln)
+        reporter.save()
+        backend         = PersistantBackend.objects.get(slug=backend_slug)
+        connection      = PersistantConnection(backend=backend, identity=identity, reporter=reporter, last_seen=datetime.now()) 
+        connection.save()
+
+        # create user
+        user            = User.objects.create_user(alias, email='', password=password)
+        user.save()
+
+        # create ReporterExtra
+        extra           = cls(user=user, reporter=reporter)
+        extra.save()
+
+        return extra
+
+class LocationExtra(models.Model):
+    ''' Extra fields for Locations '''
+
+    location    = models.OneToOneField(Location, unique=True)
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+
+    def __unicode__(self):
+        return _(u"%(location)s Extra") % {'location': self.location}
+
+    @classmethod
+    def by_location(cls, location):
+        return cls.objects.get(location=location)
+    
+    @classmethod
+    def by_location_create(cls, location):
+        try:
+             return cls.objects.get(location=location)
+        except cls.DoesNotExist:
+            # create it and return
+            extra   = cls(location=location)
+            extra.save()
+            return extra
 

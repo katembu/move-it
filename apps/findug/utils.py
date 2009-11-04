@@ -77,4 +77,37 @@ def cb_disease_alerts(router, *args, **kwargs):
         alert.status    = DiseaseAlert.STATUS_COMPLETED
         alert.save()
 
+def report_completed_alerts(router, report):
+    ''' send alerts about a completed report. '''
+
+    # verify report is done
+    if not report.status == EpidemiologicalReport.STATUS_COMPLETED:
+        return False
+
+    # get sub districts
+    targets = []
+    for ancestor in report.clinic.ancestors():
+        if ancestor.type.name.lower().__contains__('health sub district'): targets.append(ancestor)
+
+    # get reporters
+    recipients  = []
+    reporters   = Reporter.objects.filter(registered_self=True, location__in=targets)
+    for reporter in reporters:
+        if ReporterGroup.objects.get(title='weekly_completion_alerts') in reporter.groups.only(): recipients.append(reporter)
+
+    # send alerts
+    alert_msg   = _(u"%(clinic)s has fully reported %(period)s %(title)s on %(date)s.") % {'clinic': report.clinic, 'period': report.period, 'title': report.TITLE, 'date': report.completed_on.strftime("%d/%m/%y %H:%M")}
+
+    for recipient in recipients:
+        try:
+            real_backend = router.get_backend(recipient.connection().backend.slug)
+            if real_backend:
+                connection  = Connection(real_backend, recipient.connection().identity)
+                message     = Message(connection=connection)
+                message.text= alert_msg
+                message.send()
+        except Exception, e:
+            print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': recipient, 'err': e}
+            pass
+  
 
