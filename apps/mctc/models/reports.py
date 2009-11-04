@@ -479,7 +479,7 @@ class ReportAllPatients(Report, models.Model):
                 q   = {}
                 
                 q['case']   = case.case
-                q['provider']   = case.provider
+                q['reporter']   = case.reporter
                 counter = counter + 1
                 q['counter'] = "%d"%counter
                     
@@ -511,7 +511,7 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.malaria_result }}" })
             fields.append({"name": 'BEDNET', "column": None, "bit": "{{ object.malaria_bednet }}" })
             fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
-            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.provider }} {{ object.provider.mobile }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter}}" })
             fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
             
             return qs, fields
@@ -530,7 +530,7 @@ class ReportAllPatients(Report, models.Model):
                 q   = {}
                 
                 q['case']   = muacc.case
-                q['provider']   = muacc.provider
+                q['reporter']   = muacc.reporter
                 counter = counter + 1
                 q['counter'] = "%d"%counter
                 try:
@@ -553,7 +553,7 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.short_dob }} - {{ object.case.age }}" })            
             fields.append({"name": 'CMAM', "column": None, "bit": "{{ object.malnut_muac }} {{object.malnut_days_since_last_update}}" })
             fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.malnut_symptoms}}" })
-            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.provider }} {{ object.provider.mobile }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter }}" })
             fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
             
             return qs, fields
