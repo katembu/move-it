@@ -124,26 +124,14 @@ class Case(models.Model):
             return None
         
     @classmethod
-    def count_by_provider(cls, reporter):
+    def count_by_provider(cls, reporter, status=None):
         try:
-            return cls.objects.filter(reporter=reporter, status=Case.STATUS_ACTIVE).count()
+            if status is None:
+                status  = Case.STATUS_ACTIVE
+            return cls.objects.filter(reporter=reporter, status=status).count()
         except models.ObjectDoesNotExist:
             return None
         
-    @classmethod
-    def dead_by_provider(cls, reporter):
-        try:
-            return cls.objects.filter(reporter=reporter, status=Case.STATUS_DEAD).count()
-        except models.ObjectDoesNotExist:
-            return None        
-    
-    @classmethod
-    def inactive_by_provider(cls, reporter):
-        try:
-            return cls.objects.filter(reporter=reporter, status=Case.STATUS_INACTIVE).count()
-        except models.ObjectDoesNotExist:
-            return None
-    
     @classmethod
     def count_for_last_30_days(cls, reporter):
         thirty_days = timedelta(days=30)
