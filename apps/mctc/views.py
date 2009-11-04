@@ -143,7 +143,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
         for clinic in clinics:
             queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, clinic)
             c = clinic
-            pdfrpt.setTableData(queryset, fields, c.name)
+            pdfrpt.setTableData(queryset, fields, c.name, [0.3*inch, 1*inch,0.8*inch,0.8*inch, .8*inch,.8*inch,0.8*inch, 1*inch,1*inch,1*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
