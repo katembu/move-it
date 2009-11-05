@@ -128,32 +128,13 @@
 				
 			</form>
 		</li>
-		<li> Malaria by CHW <a href="/malaria">PDF</a> <a href="/malaria/per_page/1">per page PDF</a>
-  		 <a href="/malaria_patients_by_chw">Malaria</a> <a href="/cmam_patients_by_chw">CMAM</a>  
-  			<form action="/malaria/1" method="post">
-				
-				CHWs: <select name="provider">
-					{% for zone in zones %}
-						<optgroup label="{{zone.location__name}}">
-						{% for provider in providers %}
-							{% ifequal provider.location.id zone.location.id %}
-								<option value="{{ provider.id }}">{{ provider.name }}</option>
-							{% endifequal %}
-						{% endfor %}
-						</optgroup>
-						
-					{% endfor %}
-				</select>
-				<input type="submit" name="format" value="Get Report" />
-				<input type="submit" name="format" value="CSV" />
-			</form>
+		<li> Malaria by CHW <a href="/malaria">PDF</a> <a href="/malaria/per_page/1">per page PDF</a>  		   
 			<form action="/malaria/" method="post">
-				
-				Zones: <select name="zone">
-					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
-					{% endfor %}
-				</select>
+              Clinic:  <select name="clinic">
+                    {% for clinic in clinics %}
+                        <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+                    {% endfor %}
+                </select>
 				<input type="submit" name="format" value="Get Report" />
 				
 			</form>
