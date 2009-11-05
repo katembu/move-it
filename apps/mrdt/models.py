@@ -82,6 +82,7 @@ class ReportMalaria(models.Model):
             return cls.objects.filter(case=case).count()
         except models.ObjectDoesNotExist:
             return None
+        
     @classmethod
     def days_since_last_mrdt(cls, case):
         today = date.today()
