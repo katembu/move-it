@@ -46,6 +46,7 @@ class PDFReport():
     cols = 1
     PAGESIZE = A4
     fontSize = 8
+    rowsperpage = 90
     
     def __init__(self):
         self.headers.append("")
@@ -55,6 +56,12 @@ class PDFReport():
             @var state: True or False
         """
         self.landscape = state
+        
+    def setRowsPerPage(self, num):
+        """ Sets the number of rows per page for Table daya
+            @var num: int
+        """
+        self.rowsperpage = int(num)
     
     def enableFooter(self, state):
         """
@@ -112,41 +119,43 @@ class PDFReport():
             ctx = Context({"object": row })
             values = [ Template(h["bit"]).render(ctx) for h in fields ]
             data.append(values)
-        
-        table = PDFTable(data,colWidths,None,None,1)
-        #table rows n cols formatting
-        ts = [
-            ('ALIGNMENT', (0,0), (-1,-1), 'LEFT'),
-            ('LINEBELOW', (0,0), (-1,-0), 2, colors.black),            
-            ('LINEBELOW', (0,1), (-1,-1), 0.8, colors.lightgrey),
-            ('FONT', (0,0), (-1, -1), "Times-Roman", self.fontSize),
-            ('ROWBACKGROUNDS', (0,0), (-1, -1), [colors.whitesmoke, colors.white]),    
-            ('LEFTPADDING', (0,0), (-1, -1), 1),
-            ('RIGHTPADDING', (0,0), (-1, -1), 1),
-            ('TOPPADDING', (0,0), (-1, -1), 1),
-            ('BOTTOMPADDING', (0,0), (-1, -1), 1),        
-        ]
-        
-        #last row formatting when required
-        if self.hasfooter is True:
-            ts.append(('LINEABOVE', (0,-1), (-1,-1), 1, colors.black))
-            ts.append(('LINEBELOW', (0,-1), (-1,-1), 2, colors.black))
-            ts.append(('LINEBELOW', (0,3), (-0,-0), 2, colors.green))             
-            ts.append(('LINEBELOW', (0,-1), (-1,-1), 0.8, colors.lightgrey))
-            ts.append(('FONT', (0,-1), (-1, -1), "Times-Roman", 7))
-            
-        table.setStyle(TableStyle(ts))
 
-        table.hAlign = "LEFT"
-        self.data.append(table)
-        
+        if len(data):
+            table = PDFTable(data,colWidths,None,None,1)
+            #table rows n cols formatting
+            ts = [
+                ('ALIGNMENT', (0,0), (-1,-1), 'LEFT'),
+                ('LINEBELOW', (0,0), (-1,-0), 2, colors.black),            
+                ('LINEBELOW', (0,1), (-1,-1), 0.8, colors.lightgrey),
+                ('FONT', (0,0), (-1, -1), "Times-Roman", self.fontSize),
+                ('ROWBACKGROUNDS', (0,0), (-1, -1), [colors.whitesmoke, colors.white]),    
+                ('LEFTPADDING', (0,0), (-1, -1), 1),
+                ('RIGHTPADDING', (0,0), (-1, -1), 1),
+                ('TOPPADDING', (0,0), (-1, -1), 1),
+                ('BOTTOMPADDING', (0,0), (-1, -1), 1),        
+            ]
+            
+            #last row formatting when required
+            if self.hasfooter is True:
+                ts.append(('LINEABOVE', (0,-1), (-1,-1), 1, colors.black))
+                ts.append(('LINEBELOW', (0,-1), (-1,-1), 2, colors.black))
+                ts.append(('LINEBELOW', (0,3), (-0,-0), 2, colors.green))             
+                ts.append(('LINEBELOW', (0,-1), (-1,-1), 0.8, colors.lightgrey))
+                ts.append(('FONT', (0,-1), (-1, -1), "Times-Roman", 7))
+                
+            table.setStyle(TableStyle(ts))
+    
+            table.hAlign = "LEFT"
+            self.data.append(table)
+        else:
+            self.data.append(Paragraph("No Report", self.styles['Normal']))        
         """
             The number of rows per page for two columns is about 90.
             using this information you can figure how many pages the
             table is going to overlap hence you place a header/subtitle
             in that position for it to be printed appropriately
         """
-        c = float(len(queryset))/90
+        c = float(len(queryset))/self.rowsperpage
             
         if int(c)< c:
            c = int(c) + 1
