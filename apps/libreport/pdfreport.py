@@ -46,6 +46,7 @@ class PDFReport():
     cols = 1
     PAGESIZE = A4
     fontSize = 8
+    rowsperpage = 90
     
     def __init__(self):
         self.headers.append("")
@@ -55,6 +56,12 @@ class PDFReport():
             @var state: True or False
         """
         self.landscape = state
+        
+    def setRowsPerPage(self, num):
+        """ Sets the number of rows per page for Table daya
+            @var num: int
+        """
+        self.rowsperpage = int(num)
     
     def enableFooter(self, state):
         """
@@ -148,7 +155,7 @@ class PDFReport():
             table is going to overlap hence you place a header/subtitle
             in that position for it to be printed appropriately
         """
-        c = float(len(queryset))/90
+        c = float(len(queryset))/self.rowsperpage
             
         if int(c)< c:
            c = int(c) + 1
