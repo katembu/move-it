@@ -184,7 +184,11 @@ class App (rapidsms.app.App):
                       "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
-        message.respond(msg)
+        if len(msg) > self.MAX_MSG_LEN:
+            msg.respond(msg[:self.MAX_MSG_LEN])
+            msg.respond(msg[self.MAX_MSG_LEN:])
+        else:
+            message.respond(msg)
         """ @todo: enable alerts """
         """
         recipients = report.get_alert_recipients()
