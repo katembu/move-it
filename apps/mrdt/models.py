@@ -45,7 +45,7 @@ class ReportMalaria(models.Model):
 
     def results_for_malaria_result(self):
         result = "-"
-        if self.bednet is True:
+        if self.result:
            result = "+"    
         return "%s"%(result)
 
