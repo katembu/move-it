@@ -564,6 +564,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     duration_end = today
     
     pdfrpt.setTitle("ChildCount Kenya: Positive RDT Cases from %s to %s"%(duration_start.date(), duration_end.date()))
+    pdfrpt.setRowsPerPage(66)
     
     if object_id is None and not request.POST:
         clinics = Location.objects.filter(type__name="Clinic")
