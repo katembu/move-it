@@ -560,6 +560,53 @@ class ReportAllPatients(Report, models.Model):
         return qs, fields
     
     @classmethod
+    def malnutrition_at_risk(cls, duration_start, duration_end, clinic=None):
+        """
+        Show at risk Cases for malnutrition reports
+        """    
+        qs      = []
+        fields  = []
+        counter = 0
+        if clinic is None:
+            #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+            malrpts = ReportMalnutrition.objects.filter(entered_at__gte=duration_start,entered_at__lte=duration_end).exclude(status=ReportMalnutrition.HEALTHY_STATUS).values("case").distinct().order_by("status")
+        else:
+            malrpts = ReportMalnutrition.objects.filter(entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).exclude(status=ReportMalnutrition.HEALTHY_STATUS).values("case").distinct().order_by("status")
+        for case in malrpts:
+            q   = {}
+            muac = ReportMalnutrition.objects.filter(case__id=case["case"]).latest()
+            q['case']   = muac.case
+            q['date']   = muac.entered_at.strftime("%d.%m.%y")
+            q['mobile']   = muac.provider_number()
+            q['reporter']   = muac.reporter
+            
+            q['malnut_muac'] = "%s (%smm)"%(muac.get_status_display(), muac.muac)
+                        
+            q['name'] =  u"%s %s"%(q['case'].last_name, q['case'].first_name)
+            counter = counter + 1
+            q['counter'] = "%d"%counter
+                
+            num_of_muac_cases = ReportMalnutrition.num_reports_by_case(muac.case)                
+            q['num_of_muac_cases'] = "%d"%num_of_muac_cases
+            q['symptoms'] = muac.symptoms_keys()
+            qs.append(q)
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+        fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
+        fields.append({"name": 'NAME', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.age }}" })            
+        fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.malnut_muac }}" })
+        fields.append({"name": 'DATE', "column": None, "bit": "{{ object.date }}" })
+        fields.append({"name": '#', "column": None, "bit": "{{ object.num_of_muac_cases }}" })
+        fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter.last_name}}" })
+        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        
+        return qs, fields
+    
+    
+    @classmethod
     def malnut_by_provider(cls):    
         qs      = []
         fields  = []
