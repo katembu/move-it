@@ -52,6 +52,9 @@ class ReportMalaria(models.Model):
     def name(self):
         return "%s %s" % (self.case.first_name, self.case.last_name)
     
+    def symptoms(self):
+        return ", ".join([k.name for k in self.observed.all()])
+    
     def provider_number(self):
         return self.reporter.connection().identity
         
