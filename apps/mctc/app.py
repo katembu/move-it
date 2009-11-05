@@ -24,6 +24,7 @@ from models.general import Facility, Case, CaseNote, Zone
 
 import re, time, datetime
 
+
 def authenticated (func):
     def wrapper (self, message, *args):
         if message.sender:
@@ -55,8 +56,9 @@ class App (rapidsms.app.App):
         pass
 
     def parse (self, message):
+        """parser """
         # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
+        if message.peer[:3] == '233':
             mobile = "+" + message.peer
         else:
             mobile = message.peer 
@@ -68,6 +70,7 @@ class App (rapidsms.app.App):
         message.was_handled = False
 
     def cleanup (self, message):
+        """cleanup """
         log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
                          text=message.text,
@@ -75,12 +78,30 @@ class App (rapidsms.app.App):
         log.save()
 
     def handle (self, message):
+        """Handles things. """
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
-            # didn't find a matching function
-            # make sure we tell them that we got a problem
-            message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
+            #message.respond(dir(self))
+            
+            #If the command included 'join', respond by reminding the user of the correct format for the command           
+            mctc_input = message.text.lower()
+            if not (mctc_input.find("join") == -1):
+                message.respond(self.get_join_format_reminder())
+                return True
+
+            if mctc_input.find("transfer") > -1:
+                message.respond(self.get_transfer_format_reminder())
+                return True
+
+            if mctc_input.find("new") > -1:
+                message.respond(self.get_new_patient_format_reminder())
+                return True
+
+            #command_list = [method for method in dir(self) if callable(getattr(self, method))]
+            #info_list = [str(method) + "--->" + str(getattr(self, method).__doc__) + "\n" for method in dir(self) if callable(getattr(self, method))]
+            #message.respond(info_list)
+            message.respond(_("Sorry Unknown command: '%(msg)s...' Please try again") % {"msg":message.text[:20]})
             
             return False
         try:
@@ -99,12 +120,19 @@ class App (rapidsms.app.App):
         message.was_handled = bool(handled)
         return handled
 
-    @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
-    def join (self, message, clinic_code, last_name, first_name, username=None):
-        ''' register a user and join the system '''
+    def get_join_format_reminder(self):
+        """Expected format for join command, sent as a reminder"""
+        return "Format:  join [location] [your last name] [your first name] (your role - leave blank for CHEW)"
 
-        # skip roles for now
-        role_code   = None
+    @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
+    def join (self, message, location_code, last_name, first_name, role=None):
+        """ Format <<<<<<>>>>>>join [location code] [last name] [first name] [role - leave blank for CHEW]<>
+            Purpose: register as a user and join the system """
+
+        #default alias for everyone until further notice
+        username=None        
+        # do not skip roles for now
+        role_code   = role
         try:
             name = "%s %s"%(first_name, last_name)
             # parse the name, and create a reporter            
@@ -134,22 +162,22 @@ class App (rapidsms.app.App):
 
         reporter    = message.persistant_connection.reporter
         
-        # check clinic code
+        # check location code
         try:
-            clinic  = Location.objects.get(code=clinic_code)
+            location  = Location.objects.get(code=location_code)
         except models.ObjectDoesNotExist:
             message.forward(reporter.connection().identity, \
-                _(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+                _(u"Join Error. Provided location code (%(loc)s) is wrong.") % {'loc': location_code})
             return True
     
         # check that location is a clinic (not sure about that)
-        if not clinic.type in LocationType.objects.filter(name='Clinic'):
-            message.forward(reporter.connection().identity, \
-                _(u"Join Error. You must provide a Clinic code."))
-            return True
+        #if not clinic.type in LocationType.objects.filter(name='Clinic'):
+        #    message.forward(reporter.connection().identity, \
+        #        _(u"Join Error. You must provide a Clinic code."))
+        #    return True
 
         # set location
-        reporter.location = clinic
+        reporter.location = location
 
         # check role code
         try:
@@ -170,22 +198,26 @@ class App (rapidsms.app.App):
 
         # inform target
         message.forward(reporter.connection().identity, \
-            _("Success. You are now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
+            _("Success. You are now registered as %(role)s at %(loc)s with alias @%(alias)s.") % {'loc': location, 'role': reporter.role, 'alias': reporter.alias})
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
             message.respond( \
-            _("Success. %(reporter)s is now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'reporter': reporter, 'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
+            _("Success. %(reporter)s is now registered as %(role)s at %(loc)s with alias @%(alias)s.") % {'reporter': reporter, 'loc': location, 'role': reporter.role, 'alias': reporter.alias})
         return True
 
     def respond_to_join(self, message, info):
+        """respond to join """
         message.respond(
            _("%(mobile)s registered to @%(username)s " +
-              "(%(user_last_name)s, %(user_first_name)s) at %(clinic)s.") % info)
+              "(%(user_last_name)s, %(user_first_name)s) at %(location)s.") % info)
         
     @keyword(r'confirm (\w+)')
     def confirm_join (self, message, username):
+        """confirm that a user is part of the system """
         mobile   = message.peer
+        message.respond("youwanna confirm eh?")
+        
         try:
             user = User.objects.get(username__iexact=username)
         except User.DoesNotExist:
@@ -203,9 +235,11 @@ class App (rapidsms.app.App):
 
     
     def respond_not_registered (self, message, target):
+        """user not registered """
         raise HandlerFailed(_("User @%s is not registered.") % target)
 
     def find_provider (self, target):
+        """FIND PROVIDER """
         try:
             if re.match(r'^\d+$', target):
                 reporter = Reporter.objects.get(id=target)
@@ -218,7 +252,10 @@ class App (rapidsms.app.App):
 
     @keyword(r'\@(\w+) (.+)')
     @registered
+
     def direct_message (self, message, target, text):
+        """Direct your message to my DOCSTRING"""
+
         provider = self.find_provider(target)
         try:
             mobile = provider.mobile
@@ -227,12 +264,20 @@ class App (rapidsms.app.App):
         sender = message.sender.username
         return message.forward(mobile, "@%s> %s" % (sender, text))
         
+    def get_new_patient_format_reminder(self):
+        """Expected format for new command, sent as a reminder"""
+        return "Format:  new [patient last name] [patient first name] [patient gender m/f] [patient dob ddmmyyyy] [patient guardian] (contact number)"
+
 
     # Register a new patient
     @keyword(r'new (\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
-    def new_case (self, message, last, first, gender, dob,
-                  guardian="", contact="", zone=None):
+    def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
+        """Expected format for nnnnew command, sent as a reminder"""
+        """Format: <>new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional]<> 
+       Purpose: register a new patient into the system.  Receive patient ID number back"""
+
+
         # reporter
         reporter    = message.persistant_connection.reporter
         
@@ -289,6 +334,7 @@ class App (rapidsms.app.App):
         return True
 
     def find_case (self, ref_id):
+        """look up a patient id """
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
@@ -297,6 +343,7 @@ class App (rapidsms.app.App):
     @keyword(r'cancel \+?(\d+)')
     @authenticated
     def cancel_case (self, message, ref_id):
+        """OOOOOOPSIES CANCEL """
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
             raise HandlerFailed(_(
@@ -320,6 +367,7 @@ class App (rapidsms.app.App):
     @keyword(r'inactive \+?(\d+)?(.+)')
     @authenticated
     def inactive_case (self, message, ref_id, reason=""):
+        """set case status to inactive. """
         case = self.find_case(ref_id)
         case.set_status(Case.STATUS_INACTIVE)
         case.save()
@@ -329,9 +377,15 @@ class App (rapidsms.app.App):
             "(%(guardian)s) has been made inactive") % info)
         return True
 
+    def get_transfer_format_reminder(self):
+        """Expected format for transfer command, sent as a reminder"""
+        return "Format:  transfer [+patient ID] [new person in charge of the patient]"
+
     @keyword(r'transfer \+?(\d+) (?:to )?\@?(\w+)')
     @registered
     def transfer_case (self, message, ref_id, target):
+        """heyExpected format for transfer command, sent as a reminder"""
+
         reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         new_provider = self.find_provider(target) 
@@ -356,6 +410,7 @@ class App (rapidsms.app.App):
     @keyword(r's(?:how)? \+?(\d+)')
     @registered
     def show_case (self, message, ref_id):
+        """THIS IS MY DOCSTRING  """
         case = self.find_case(ref_id)
         info = case.get_dictionary()
 
@@ -368,6 +423,9 @@ class App (rapidsms.app.App):
     @keyword(r'n(?:ote)? \+(\d+) (.+)')
     @registered
     def note_case (self, message, ref_id, note):
+        """NOTE MY DOCSTRING :(
+        """
+
         reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         CaseNote(case=case, created_by=reporter, text=note).save()
