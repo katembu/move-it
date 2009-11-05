@@ -517,7 +517,7 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
     
     @classmethod
-    def malaria(cls, duration_start, duration_end, clinic=None):    
+    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):    
         qs      = []
         fields  = []
         counter = 0

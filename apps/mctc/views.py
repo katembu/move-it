@@ -569,7 +569,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     if object_id is None and not request.POST:
         clinics = Location.objects.filter(type__name="Clinic")
         for clinic in clinics:
-            queryset, fields = ReportAllPatients.malaria(duration_start, duration_end, clinic)
+            queryset, fields = ReportAllPatients.malaria_at_risk(duration_start, duration_end, clinic)
             c = clinic
             subtitle = "%s: Positive RDT Cases from %s to %s"%(c.name, duration_start.date(), duration_end.date())
             pdfrpt.setTableData(queryset, fields, subtitle, [0.3*inch, 0.4*inch,1*inch,0.4*inch, .4*inch,.4*inch,0.5*inch, .8*inch, .4*inch,1*inch,1*inch,1.4*inch])
@@ -580,7 +580,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
         if request.POST['clinic']:
             object_id = request.POST['clinic']
             object_id = Location.objects.get(id=object_id)
-        queryset, fields = ReportAllPatients.malaria(duration_start, duration_end, object_id)
+        queryset, fields = ReportAllPatients.malaria_at_risk(duration_start, duration_end, object_id)
         
         subtitle = "%s: Positive RDT Cases from %s to %s"%(object_id.name, duration_start.date(), duration_end.date())
         pdfrpt.setTableData(queryset, fields, subtitle, [0.3*inch, 0.4*inch,1*inch,0.4*inch, .4*inch,.4*inch,0.5*inch, .8*inch, .4*inch,1*inch,1*inch,1.4*inch])
