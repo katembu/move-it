@@ -523,12 +523,12 @@ class ReportAllPatients(Report, models.Model):
         counter = 0
         if clinic is None:
             #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
-            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end).order_by("case__location")
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end).values("case").distinct().order_by("case__location")
         else:
-            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).order_by("case__location")
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).values("case").distinct().order_by("case__location")
         for case in malrpts:
             q   = {}
-            
+            case = ReportMalaria.objects.filter(case__id=case["case"]).latest()
             q['case']   = case.case
             q['date']   = case.entered_at.strftime("%d.%m.%y")
             q['mobile']   = case.provider_number()
