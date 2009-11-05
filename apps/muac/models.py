@@ -72,7 +72,7 @@ class ReportMalnutrition(models.Model):
         return "%s %s" % (self.case.first_name, self.case.last_name) 
         
     def provider_number(self):
-        return self.provider.mobile
+        return self.reporter.connection().identity
             
     def diagnose (self):
         complications = [c for c in self.observed.all() if c.uid != "edema"]
