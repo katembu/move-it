@@ -517,6 +517,49 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
     
     @classmethod
+    def malaria(cls, duration_start, duration_end, clinic=None):    
+        qs      = []
+        fields  = []
+        counter = 0
+        if clinic is None:
+            #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end).order_by("case__location")
+        else:
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).order_by("case__location")
+        for case in malrpts:
+            q   = {}
+            
+            q['case']   = case.case
+            q['date']   = case.entered_at.strftime("%d.%m.%y")
+            q['mobile']   = case.provider_number()
+            q['reporter']   = case.reporter
+            q['result']   = case.results_for_malaria_result()
+            q['bednet'] = case.results_for_malaria_bednet()            
+            q['name'] =  u"%s %s"%(q['case'].last_name, q['case'].first_name)
+            counter = counter + 1
+            q['counter'] = "%d"%counter
+                
+            num_of_malaria_cases = ReportMalaria.num_reports_by_case(case.case)                
+            q['num_of_malaria_cases'] = "%d"%num_of_malaria_cases
+            q['symptoms'] = case.symptoms()
+            qs.append(q)
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+        fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
+        fields.append({"name": 'NAME', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.age }}" })            
+        fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.result }}" })
+        fields.append({"name": 'BEDNET', "column": None, "bit": "{{ object.bednet }}" })
+        fields.append({"name": 'DATE', "column": None, "bit": "{{ object.date }}" })
+        fields.append({"name": 'TIMES', "column": None, "bit": "{{ object.num_of_malaria_cases }}" })
+        fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter}}" })
+        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        
+        return qs, fields
+    
+    @classmethod
     def malnut_by_provider(cls):    
         qs      = []
         fields  = []
