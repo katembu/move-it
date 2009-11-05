@@ -112,6 +112,15 @@ class ReportMalnutrition(models.Model):
                 return cls.objects.filter(reporter=reporter).count()
             return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(reporter=reporter).count()
         except models.ObjectDoesNotExist:
-            return None 
-
+            return None
+    
+    @classmethod
+    def num_reports_by_case(cls, case=None):
+        if case is None:
+            return None
+        try:
+            return cls.objects.filter(case=case).count()
+        except models.ObjectDoesNotExist:
+            return None
+        
 
