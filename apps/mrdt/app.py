@@ -185,6 +185,9 @@ class App (rapidsms.app.App):
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         if len(msg) > self.MAX_MSG_LEN:
+            """
+            FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
+            """
             message.respond(msg[:self.MAX_MSG_LEN])
             message.respond(msg[self.MAX_MSG_LEN:])
         else:
