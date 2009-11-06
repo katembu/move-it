@@ -9,7 +9,7 @@ from measles.models import ReportMeasles
 from diarrhea.models import ReportDiarrhea
 from diagnosis.models import ReportDiagnosis
 
-from reporters.models import Reporter
+from reporters.models import Reporter, Role
 
 from datetime import datetime, date, timedelta
 
@@ -74,7 +74,8 @@ class ReportCHWStatus(Report, models.Model):
         clinic_refused = 0
         
         if clinic_id is not None:
-            providers = Reporter.objects.filter(location=clinic_id)
+            chwrole = Role.objects.get(code="chw")
+            providers = Reporter.objects.filter(location=clinic_id, role=chwrole)
             for provider in providers:
                 p = {}
                 counter = counter + 1
