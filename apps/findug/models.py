@@ -14,6 +14,7 @@ from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
+from utils import health_unit_filter
 
 # CONFIGURATION
 class Configuration(models.Model):
@@ -771,6 +772,14 @@ class EpidemiologicalReport(models.Model):
             return report
 
     @classmethod
+    def last_completed_by_clinic(cls, clinic):
+        reports = cls.objects.filter(clinic=clinic,completed_on__isnull=False).order_by('-period')
+        if len(reports) == 0:
+            return False
+        else:
+            return reports[0]
+
+    @classmethod
     def by_receipt(cls, receipt):
         clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
         return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
@@ -939,6 +948,26 @@ class ReporterExtra(models.Model):
     
     def __unicode__(self):
         return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+
+    def health_units(self):
+        ''' Return the health units within the location of the related reporter '''
+
+        if self.reporter.location:
+            locations = self.reporter.location.descendants()
+        else:
+            locations = Location.objects.all()
+        
+        return filter(health_unit_filter, locations)
+
+    def health_workers(self):
+        ''' Return the reporters with health worker role within the health units of the related reporter '''
+
+        health_units = self.health_units()
+        hws = []
+        for hw in Reporter.objects.filter(role__code='hw'):
+            if hw.location in health_units:
+                hws.append(hw)
+        return hws
 
     @classmethod
     def by_user(cls, user):
