@@ -92,7 +92,6 @@ def report_completed_alerts(router, report):
         if ReporterGroup.objects.get(title='weekly_completion_alerts') in reporter.groups.only(): recipients.append(reporter)
 
     # send alerts
-    #alert_msg   = _(u"%(clinic)s has fully reported %(period)s %(title)s on %(date)s.") % {'clinic': report.clinic, 'period': report.period, 'title': report.TITLE, 'date': report.completed_on.strftime("%d/%m/%y %H:%M")}
     alert_header = _(u"%(clinic)s report: " % {'clinic': report.clinic})
 
     alert_msg = "%s %s %s" % (alert_header, report.diseases.summary, report.act_consumption.sms_stock_summary)
