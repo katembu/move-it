@@ -70,7 +70,11 @@ def map(req):
 def health_units_view(req):
     ''' List all health units with links to individual pages '''
 
-    locations = ReporterExtra.by_user(req.user).health_units()
+    if len(ReporterExtra.objects.filter(user=req.user)) > 0 and ReporterExtra.by_user(req.user).reporter:
+        locations = ReporterExtra.by_user(req.user).health_units()
+    else:
+        locations = filter(health_unit_filter, Location.objects.all())
+
     today    = datetime.today()
     all = []
     for location in locations:
@@ -112,8 +116,11 @@ def reporters_view(req):
     def nb_alerts_for(reporter):
         
         return 0
-
-    reporters = ReporterExtra.by_user(req.user).health_workers()
+    if len(ReporterExtra.objects.filter(user=req.user)) > 0 and ReporterExtra.by_user(req.user).reporter:
+        locations = ReporterExtra.by_user(req.user).health_units()
+        reporters = ReporterExtra.by_user(req.user).health_workers()
+    else:
+        reporters = Reporter.objects.filter(role__code='hw')
     all = []
     for reporter in reporters:
         rep = {}

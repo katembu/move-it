@@ -435,8 +435,8 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT negative cases treated"))
     _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT positive cases treated"))
     _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4+ months to 3 years"))
-    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3+ - 7 years"))
-    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7+ - 12 years"))
+    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3+ to 7 years"))
+    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7+ to 12 years"))
     _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12+ years"))
 
 
