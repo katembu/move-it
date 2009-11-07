@@ -7,7 +7,14 @@ from django.utils.translation import ugettext as _
 from rapidsms import Message
 from rapidsms.connection import *
 from apps.reporters.models import *
-from models import *
+from apps.findug.models import *
+
+def health_unit_filter(location):
+    ''' Takes a location, and returns true if that location is a health unit (HCII, HCIII, HCIV, or Hospital)
+        Use this to filter a list of locations: filter(health_unit_filter, Location.objects.all())
+    '''
+    health_unit_types = ['HC II', 'HC III', 'HC IV', 'Hospital']
+    return location.type.name in health_unit_types
 
 def diseases_from_string(text):
     ''' returns a list of Disease with numbers build from SMS-syntax
@@ -36,17 +43,6 @@ def diseases_from_string(text):
         diseases.append({'disease': disease, 'cases': cases, 'deaths': deaths})
 
     return diseases
-
-def allow_me2u(message):
-    ''' free2u App helper. Allow only registered users. '''
-
-    try:
-        if message.persistant_connection.reporter.registered_self:
-            return True
-        else:
-            return False
-    except:
-        return False
 
 def cb_disease_alerts(router, *args, **kwargs):
     ''' Sends Alert messages to recipients
