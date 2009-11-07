@@ -2,27 +2,27 @@
 {% block subtitle %}Locations{% endblock %}
 
 {% block content %}
-<h2>Clinics</h2> 
+<h2>Health Units</h2> 
 <table width="100%"> 
     <thead>
         <tr>
             <th>Code</th>
             <th>Name</th>
-            <th>Type</type>
-            <th>Parent</th>
-            <th>MRDT Stock</th>
-            <th>Today's Reports</th>
+            <th>Type</th>
+            <th>Parish</th>
+            <th>HSD</th>
+            <th>Last Report</th>
         </tr>
     </thead>
     <tbody>
         {% for location in locations %}
             <tr>
-                <td><a href="/findug/location/{{ location.obj.id }}">{{location.alias}}</a></td>
+                <td><a href="/findug/health_unit/{{ location.obj.id }}">{{location.alias}}</a></td>
                 <td>{{location.obj}}</td>
                 <td>{{location.obj.type}}</td>
                 <td>{{location.obj.parent}}</td>
-                <td>{{location.stock}}</td>
-                <td>{{location.reports}}</td>
+                <td>{{location.hsd}}</td>
+                <td><span style="color:{{location.last_color}};">{{location.last}}</span></td>
             </tr>
         {% endfor %}
     </tbody>

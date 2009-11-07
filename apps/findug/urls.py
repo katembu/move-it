@@ -7,8 +7,9 @@ import findug.views as views
 
 urlpatterns = patterns('',
     url(r'^findug/?$', views.index),
-    url(r'^findug/locations/?$', views.locations_view),
-    url(r'^findug/location/(\d+)$', views.location_view),
+    url(r'^findug/map?$', views.map),
+    url(r'^findug/health_units/?$', views.health_units_view),
+    url(r'^findug/health_unit/(\d+)$', views.health_unit_view),
     url(r'^findug/reporters/?$', views.reporters_view),
     url(r'^findug/reporter/(\d+)$', views.reporter_view),
     url(r'^static/findug/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'apps/findug/static', 'show_indexes': True}),
