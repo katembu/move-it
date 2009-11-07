@@ -156,6 +156,83 @@ def report(req):
 
     return csvreport.render()
 
+def epidemiological_report(req, report_id):
+    DATE_FORMAT = settings.DATE_FORMAT
+    epi_report = EpidemiologicalReport.objects.get(id=report_id)
+
+    headers = {}
+    headers['date']  =   {'label':'Date', 'value':datetime.today().strftime(DATE_FORMAT)}
+    headers['for']   =   {'label':'For Period (Date)', 'value':epi_report.period.start_date.strftime(DATE_FORMAT)}
+    headers['to']    =   {'label':'To (Date)', 'value':epi_report.period.end_date.strftime(DATE_FORMAT)}
+    headers['hu']    =   {'label':'Health Unit', 'value':'%s %s' % (epi_report.clinic, epi_report.clinic.type)}
+    headers['huc']   =   {'label':'Health Unit Code', 'value':epi_report.clinic.code}
+
+    sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
+    headers['sc']    =   {'label':'Sub-County', 'value':sub_county}
+    
+    hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
+    headers['hsd']   =   {'label':'HSD', 'value':hsd}
+
+    district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
+    #Remove unnecessary ' District'
+    district = district.name.replace(' District','')
+    headers['dis']   =   {'label':'District', 'value':district}
+
+
+    disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
+    diseases = []
+    number = 0
+    for disease in disease_order:
+        dis = {}
+        number += 1
+        disease_observation = epi_report.diseases.diseases.get(disease__code=disease.lower())
+        dis['number']   = number
+        dis['name']     = disease_observation.disease
+        dis['cases']    = disease_observation.cases
+        dis['deaths']   = disease_observation.deaths
+        diseases.append(dis)
+
+    mc = epi_report.malaria_cases
+    test = {}
+    test['opd']     = {'label':mc._meta.get_field('_opd_attendance').verbose_name, 'value':mc.opd_attendance}
+    test['susp']    = {'label':mc._meta.get_field('_suspected_cases').verbose_name, 'value':mc.suspected_cases}
+    test['rdt']     = {'label':mc._meta.get_field('_rdt_tests').verbose_name, 'value':mc.rdt_tests}
+    test['rdtp']    = {'label':mc._meta.get_field('_rdt_positive_tests').verbose_name, 'value':mc.rdt_positive_tests}
+    test['mic']     = {'label':mc._meta.get_field('_microscopy_tests').verbose_name, 'value':mc.microscopy_tests}
+    test['micp']    = {'label':mc._meta.get_field('_microscopy_positive').verbose_name, 'value':mc.microscopy_positive}
+    test['un5']     = {'label':mc._meta.get_field('_positive_under_five').verbose_name, 'value':mc.positive_under_five}
+    test['ov5']     = {'label':mc._meta.get_field('_positive_over_five').verbose_name, 'value':mc.positive_over_five}
+ 
+    mt = epi_report.malaria_treatments
+    treat = {}
+    treat['rdtp']   = {'label':mt._meta.get_field('_rdt_positive').verbose_name, 'value':mt.rdt_positive}
+    treat['rdtn']   = {'label':mt._meta.get_field('_rdt_negative').verbose_name, 'value':mt.rdt_negative}
+    treat['4m']     = {'label':mt._meta.get_field('_four_months_to_three').verbose_name, 'value':mt.four_months_to_three}
+    treat['3y']     = {'label':mt._meta.get_field('_three_to_seven').verbose_name, 'value':mt.three_to_seven}
+    treat['7y']     = {'label':mt._meta.get_field('_seven_to_twelve').verbose_name, 'value':mt.seven_to_twelve}
+    treat['12y']    = {'label':mt._meta.get_field('_twelve_and_above').verbose_name, 'value':mt.twelve_and_above}
+
+    ar = epi_report.act_consumption
+    act={}
+    act['yd']   = {'label':ar._meta.get_field('_yellow_dispensed').verbose_name, 'value':ar.yellow_dispensed}
+    act['yb']   = {'label':ar._meta.get_field('_yellow_balance').verbose_name, 'value':ar.yellow_balance}
+    act['bld']   = {'label':ar._meta.get_field('_blue_dispensed').verbose_name, 'value':ar.blue_dispensed}
+    act['blb']   = {'label':ar._meta.get_field('_blue_balance').verbose_name, 'value':ar.blue_balance}
+    act['brd']   = {'label':ar._meta.get_field('_brown_dispensed').verbose_name, 'value':ar.brown_dispensed}
+    act['brb']   = {'label':ar._meta.get_field('_brown_balance').verbose_name, 'value':ar.brown_balance}
+    act['gd']   = {'label':ar._meta.get_field('_green_dispensed').verbose_name, 'value':ar.green_dispensed}
+    act['gb']   = {'label':ar._meta.get_field('_green_balance').verbose_name, 'value':ar.green_balance}
+    act['od']   = {'label':ar._meta.get_field('_other_act_dispensed').verbose_name, 'value':ar.other_act_dispensed}
+    act['ob']   = {'label':ar._meta.get_field('_other_act_balance').verbose_name, 'value':ar.other_act_balance}
+    
+    report = {}
+    report['diseases']  = diseases
+    report['headers']   = headers
+    report['test']      = test
+    report['treat']     = treat
+    report['act']     = act
+    return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
+
 def epidemiological_report_pdf(req, report_id):
     ''' Generates filled-in pdf copy of a completed EpidemiologicalReport object '''
 
@@ -293,7 +370,7 @@ def epidemiological_report_pdf(req, report_id):
         horizontal_space = 1.5*cm
 
         mc = epi_report.malaria_cases
-        values = [mc.opd_attendance, mc.suspected_cases, mc.rdt_tests, mc.rdt_positive_tests, mc.microscopy_tests, mc.microscopy_positive, mc.positive_over_five, mc.positive_under_five]
+        values = [mc.opd_attendance, mc.suspected_cases, mc.rdt_tests, mc.rdt_positive_tests, mc.microscopy_tests, mc.microscopy_positive, mc.positive_under_five, mc.positive_over_five]
         for value in values:
             c.drawRightString(x,y,unicode(double_zero(value)))
             x += horizontal_space
@@ -354,3 +431,4 @@ def epidemiological_report_pdf(req, report_id):
     response.write(pdf)
 
     return response
+
