@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from rapidsms.webui.utils import render_to_response
 
 from models import *
-from utils import *
+from apps.findug.utils import *
 from apps.locations.models import *
 
 from apps.libreport.pdfreport import PDFReport
@@ -18,6 +18,9 @@ from reportlab.pdfgen import canvas
 from subprocess import Popen, PIPE
 from cStringIO import StringIO
 from reportlab.lib.units import cm
+
+# import the settings so we can access DATE_FORMAT
+from django.conf import settings
 
 
 def index(req):
@@ -37,29 +40,71 @@ def index(req):
 
     return render_to_response(req, 'findug/index.html', {'locations': all})
 
-def locations_view(req):
-    ''' List all locations with links to individual pages '''
+def map(req):
+    ''' Map view '''
+    
+    types    = LocationType.objects.filter(name__startswith="HC")
+    locations= Location.objects.filter(type__in=types)
 
-    clinics  = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=clinics)
+    previous_period = ReportPeriod.from_index(1)
+
+    all = []
+    for location in locations:
+        loc = {}
+        loc['obj'] = location
+        loc['name'] = '%s %s' % (location.name, location.type.name)
+        act_reports = ACTConsumptionReport.objects.filter(reporter__location=location).filter(period=previous_period)
+        if not act_reports: 
+            loc['act_unknown'] = True
+        else:
+            rpt = act_reports[0]
+            if rpt.yellow_balance: loc['yellow'] = True
+            if rpt.blue_balance: loc['blue'] = True
+            if rpt.brown_balance: loc['brown'] = True
+            if rpt.green_balance: loc['green'] = True
+             
+        all.append(loc)
+
+    return render_to_response(req, 'findug/map.html', {'locations': all})
+
+def health_units_view(req):
+    ''' List all health units with links to individual pages '''
+
+    locations = ReporterExtra.by_user(req.user).health_units()
     today    = datetime.today()
     all = []
     for location in locations:
         loc = {}
+        last            = EpidemiologicalReport.last_completed_by_clinic(location)
+        if last:
+            loc['last'] = last.completed_on.strftime(settings.DATE_FORMAT)
+            if last.period == ReportPeriod.from_index(0):
+                loc['last_color'] = 'green'
+            elif last.period == ReportPeriod.from_index(1):
+                loc['last_color'] = 'yellow'
+            else:
+                loc['last_color'] = 'red'
+               
+        else: #the health unit has not filed a report.
+            loc['last']         = 'N/A'
+            loc['last_color']   = 'red'
+        
         loc['obj']      = location
         loc['alias']    = location.code.upper()
+        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0]
+
         all.append(loc)
 
     # sort by date, descending
     all.sort(lambda x, y: cmp(x['obj'].name, y['obj'].name))
-    return render_to_response(req, 'findug/locations.html', { "locations": all})
+    return render_to_response(req, 'findug/health_units.html', { "locations": all})
 
-def location_view(req, location_id):
+def health_unit_view(req, location_id):
     ''' Displays a summary of location activities and history '''
 
     location    = Location.objects.get(id=location_id)
 
-    return render_to_response(req, 'findug/location.html', { "location": location})
+    return render_to_response(req, 'findug/health_unit.html', { "location": location})
 
 def reporters_view(req):
     ''' Displays a list of reporters '''
@@ -68,7 +113,7 @@ def reporters_view(req):
         
         return 0
 
-    reporters= Reporter.objects.filter()
+    reporters = ReporterExtra.by_user(req.user).health_workers()
     all = []
     for reporter in reporters:
         rep = {}
@@ -117,7 +162,7 @@ def epidemiological_report_pdf(req, report_id):
     # Static source pdf to be overlayed
     PDF_SOURCE = 'apps/findug/static/epi_form_20091027.pdf'
 
-    DATE_FORMAT = '%d/%m/%Y'
+    DATE_FORMAT = settings.DATE_FORMAT
 
     DEFAULT_FONT_SIZE = 11
     FONT = 'Courier-Bold'
