@@ -680,6 +680,11 @@ class ACTConsumptionReport(models.Model,FindReport):
         text    = _(u"YELLOW: %(yellow_dispensed)s/%(yellow_balance)s, BLUE: %(blue_dispensed)s/%(blue_balance)s, BROWN: %(brown_dispensed)s/%(brown_balance)s, GREEN: %(green_dispensed)s/%(green_balance)s, OTHER.ACT: %(other_act_dispensed)s/%(other_act_balance)s") % {'yellow_dispensed': self.yellow_dispensed, 'yellow_balance': self.yellow_balance, 'blue_dispensed': self.blue_dispensed, 'blue_balance': self.blue_balance, 'brown_dispensed': self.brown_dispensed, 'brown_balance': self.brown_balance, 'green_dispensed': self.green_dispensed, 'green_balance': self.green_balance, 'other_act_dispensed': self.other_act_dispensed, 'other_act_balance': self.other_act_balance}
         return text
 
+    @property
+    def sms_stock_summary(self):
+        text    = _(u"ACT Stock YEL:%(yellow_balance)s, BLU:%(blue_balance)s, BRO:%(brown_balance)s, GRE:%(green_balance)s, OTH:%(other_act_balance)s") % {'yellow_balance': self.yellow_balance, 'blue_balance': self.blue_balance, 'brown_balance': self.brown_balance, 'green_balance': self.green_balance, 'other_act_balance': self.other_act_balance}
+        return text
+
 # EPIDEMIOLOGICAL REPORT
 class EpidemiologicalReport(models.Model):
 
