@@ -514,40 +514,40 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
 
 @login_required
 def malnut(request, object_id=None, per_page="0", rformat="pdf"):
+    """ List @Risk Malnutrition Cases per clinic
+    """
     pdfrpt = PDFReport()
+    
+    fourteen_days = timedelta(days=30)
+    today = datetime.now()
+    
+    duration_start = day_start(today - fourteen_days)
+    duration_end = today
+    
+    pdfrpt.setTitle("ChildCount Kenya: @Risk Malnutrition Cases from %s to %s"%(duration_start.date(), duration_end.date()))
+    #pdfrpt.setRowsPerPage(66)
+    pdfrpt.setNumOfColumns(2)
     pdfrpt.setLandscape(True)
-    #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    pdfrpt.setTitle("RapidResponse MVP Kenya: Malnutrition Report")
-    if object_id is None:        
-        if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
-            per_page = "1"
-        else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        #for provider in providers:
-        queryset, fields = ReportAllPatients.malnut_by_provider()
-        if queryset:
-            
-            pdfrpt.setTableData(queryset, fields, "")
+    
+    if object_id is None and not request.POST:
+        clinics = Location.objects.filter(type__name="Clinic")
+        for clinic in clinics:
+            queryset, fields = ReportAllPatients.malnutrition_at_risk(duration_start, duration_end, clinic)
+            c = clinic
+            subtitle = "%s: @Risk Malnutrition Cases from %s to %s"%(c.name, duration_start.date(), duration_end.date())
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 0.4*inch,1*inch,0.3*inch, .3*inch,.8*inch, .5*inch, .2*inch,0.5*inch, 0.8*inch,1*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("malnutrition_at_risk")
     else:        
-        if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-            
-            
+        if request.POST['clinic']:
+            object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.malnutrition_at_risk(duration_start, duration_end, object_id)
         
-        queryset, fields = ReportAllPatients.malnut_by_provider(object_id)
-        if queryset:
-            c = Provider.objects.get(id=object_id)
-            
-            if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
-                file_name = file_name.replace(" ","_").replace("'","")
-                return handle_csv(request, queryset, fields, file_name)
-            
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
+        subtitle = "%s: @Risk Malnutrition Cases from %s to %s"%(object_id.name, duration_start.date(), duration_end.date())
+        pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 0.4*inch,1*inch,0.3*inch, .3*inch,.8*inch, .5*inch, .2*inch,0.5*inch, 0.8*inch,1*inch])
+        pdfrpt.setFilename("malnutrition_at_risk")
     
     return pdfrpt.render()
 
