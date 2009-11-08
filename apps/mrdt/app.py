@@ -206,16 +206,7 @@ class App (rapidsms.app.App):
                       "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
-        if len(msg) > self.MAX_MSG_LEN:
-            """
-            FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
-            """
-            message.respond(msg[:self.MAX_MSG_LEN])
-            message.respond(msg[self.MAX_MSG_LEN:])
-        else:
-            message.respond(msg)
-        """FIXME: Ghana specific
-        """
+        message.respond(msg)
         message.respond(_(info["instructions"]))
         
         """ @todo: enable alerts """
