@@ -32,7 +32,7 @@ def registered (func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"Sorry, only registered users can access this program."))
+            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
             return True
     return wrapper
 
@@ -161,6 +161,7 @@ class App (rapidsms.app.App):
         return True
 
     def respond_to_join(self, message, info):
+
         message.respond(
            _("%(mobile)s registered to @%(username)s " +
               "(%(last_name)s, %(first_name)s) at %(clinic)s.") % info)
@@ -172,7 +173,8 @@ class App (rapidsms.app.App):
                                        "clinic": reporter.location,
                                        "mobile": reporter.connection().identity,
                                        "last_name": reporter.last_name,
-                                       "first_name": reporter.first_name
+                                       "first_name": reporter.first_name,
+                                       "username": reporter.alias
                                        })
         log(reporter, "confirmed_join")
         return True

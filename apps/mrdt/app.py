@@ -19,7 +19,7 @@ def registered (func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"Sorry, only registered users can access this program."))
+            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
             return True
     return wrapper
 
@@ -184,7 +184,14 @@ class App (rapidsms.app.App):
                       "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
-        message.respond(msg)
+        if len(msg) > self.MAX_MSG_LEN:
+            """
+            FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
+            """
+            message.respond(msg[:self.MAX_MSG_LEN])
+            message.respond(msg[self.MAX_MSG_LEN:])
+        else:
+            message.respond(msg)
         """ @todo: enable alerts """
         """
         recipients = report.get_alert_recipients()
