@@ -47,6 +47,8 @@ class ReportPeriod(models.Model):
 
     class Meta:
         unique_together = ("start_date", "end_date")
+        get_latest_by   = "end_date"
+        ordering        = ["-end_date"]
 
     start_date  = models.DateTimeField()
     end_date    = models.DateTimeField()
@@ -977,6 +979,14 @@ class ReporterExtra(models.Model):
     @classmethod
     def by_user(cls, user):
         return cls.objects.get(user=user)
+
+    @classmethod
+    def location_by_user(cls, user):
+        if len(cls.objects.filter(user=user)) == 0:
+            return None
+        if not cls.by_user(user).reporter.location:
+            return None
+        return cls.by_user(user).reporter.location
 
     @classmethod
     def by_reporter(cls, reporter):

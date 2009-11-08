@@ -1,28 +1,22 @@
 {% extends "findug/index.html" %}
 {% block subtitle %}Reporters{% endblock %}
-{% load humanize %}
+
 {% block content %}
-<h2>Reporters</h2> 
+<h2>{{scope}} Reporters</h2> 
 <table width="100%"> 
-    <thead>
-        <tr>
-            <th>Alias</th>
-            <th>Name</th>
-            <th>Location</th>
-            <th>MRDT Stock</th>
-            <th>Last Report</th>
-            <th>Up-to-date?</th>
-        </tr>
-    </thead>
+    <thead><tr>
+        {% for column in table.columns %}
+            <th>
+            {% if column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
+            {{ column }}
+            {% if column.sortable %}</a>{% endif %}
+            </th>
+        {% endfor %}
+    <tr></thead>
     <tbody>
-        {% for reporter in reporters %}
+        {% for row in table.rows %}
             <tr>
-                <td><a href="/findug/reporter/{{ reporter.obj.id }}">{{reporter.obj.alias}}</a></td>
-                <td>{{reporter.obj}}</td>
-                <td>{{reporter.obj.location}}</td>
-                <td>{{reporter.stock}}</td>
-                <td>{{reporter.last_report.date|naturalday}}</td>
-                <td>{% if reporter.up2date %}YES{% else %}NO{% endif %}</td>
+                {% for value in row %}<td>{{ value }}</td>{% endfor %}
             </tr>
         {% endfor %}
     </tbody>

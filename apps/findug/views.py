@@ -22,6 +22,10 @@ from reportlab.lib.units import cm
 # import the settings so we can access DATE_FORMAT
 from django.conf import settings
 
+from tables import *
+from django.core.paginator import Paginator
+
+
 
 def index(req):
     ''' Display Dashboard
@@ -46,7 +50,7 @@ def map(req):
     types    = LocationType.objects.filter(name__startswith="HC")
     locations= Location.objects.filter(type__in=types)
 
-    previous_period = ReportPeriod.from_index(1)
+    previous_period = ReportPeriod.objects.latest()
 
     all = []
     for location in locations:
@@ -68,12 +72,15 @@ def map(req):
     return render_to_response(req, 'findug/map.html', {'locations': all})
 
 def health_units_view(req):
-    ''' List all health units with links to individual pages '''
+    ''' List health units in scope with links to individual pages '''
 
-    if len(ReporterExtra.objects.filter(user=req.user)) > 0 and ReporterExtra.by_user(req.user).reporter:
-        locations = ReporterExtra.by_user(req.user).health_units()
-    else:
+    scope_location = ReporterExtra.location_by_user(req.user)
+    if scope_location == None:
         locations = filter(health_unit_filter, Location.objects.all())
+        scope = "All"
+    else:
+        locations = ReporterExtra.by_user(req.user).health_units()
+        scope = scope_location.name
 
     today    = datetime.today()
     all = []
@@ -81,27 +88,36 @@ def health_units_view(req):
         loc = {}
         last            = EpidemiologicalReport.last_completed_by_clinic(location)
         if last:
+            # the last column is the visible, nicely formated date
             loc['last'] = last.completed_on.strftime(settings.DATE_FORMAT)
-            if last.period == ReportPeriod.from_index(0):
+
+            # the last_sost is not visible, it is used to sort the date column
+            loc['last_sort'] = last.completed_on
+            if last.period == ReportPeriod.objects.all()[0]:
                 loc['last_color'] = 'green'
-            elif last.period == ReportPeriod.from_index(1):
+            elif last.period == ReportPeriod.objects.all()[1]:
                 loc['last_color'] = 'yellow'
             else:
                 loc['last_color'] = 'red'
                
         else: #the health unit has not filed a report.
-            loc['last']         = 'N/A'
+            loc['last']         = 'N / A'
             loc['last_color']   = 'red'
-        
-        loc['obj']      = location
-        loc['alias']    = location.code.upper()
-        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0]
+            # if they never filed a report, we need to set last_sort to some arbitrarily old date to make sure it sorts at the bottom]
+            # if django templates compared None objects as they should, we wouldn't have to do this
+            loc['last_sort'] = datetime(year=2000,month=1,day=1)
+
+        loc['name']     = location.name
+        loc['hctype']   = location.type.name
+        loc['code']     = location.code.upper()
+        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0].name
 
         all.append(loc)
+    table = HealthUnitsTable(all, order_by=req.GET.get('sort'))
+    #table.paginate(Paginator, 10, page=1, orphans=2)
 
     # sort by date, descending
-    all.sort(lambda x, y: cmp(x['obj'].name, y['obj'].name))
-    return render_to_response(req, 'findug/health_units.html', { "locations": all})
+    return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table})
 
 def health_unit_view(req, location_id):
     ''' Displays a summary of location activities and history '''
@@ -113,25 +129,26 @@ def health_unit_view(req, location_id):
 def reporters_view(req):
     ''' Displays a list of reporters '''
 
-    def nb_alerts_for(reporter):
-        
-        return 0
-    if len(ReporterExtra.objects.filter(user=req.user)) > 0 and ReporterExtra.by_user(req.user).reporter:
-        locations = ReporterExtra.by_user(req.user).health_units()
-        reporters = ReporterExtra.by_user(req.user).health_workers()
-    else:
+    scope_location = ReporterExtra.location_by_user(req.user)
+    if scope_location == None:
         reporters = Reporter.objects.filter(role__code='hw')
+        scope = "All"
+    else:
+        reporters = ReporterExtra.by_user(req.user).health_workers()
+        scope = scope_location.name
+
     all = []
     for reporter in reporters:
         rep = {}
-        rep['obj']      = reporter
-        rep['nb_alerts']= nb_alerts_for(reporter)
-        rep['up2date']  = rep['nb_alerts'] == 0
+        rep['alias']    = reporter.alias
+        rep['name']     = '%s %s' % (reporter.first_name.title(), reporter.last_name.title())
+        rep['hu']       = '%s %s' % (reporter.location.name, reporter.location.type.name)
+        rep['contact']    = reporter.connection().identity
         all.append(rep)
 
-    # sort by date, descending
-    all.sort(lambda x, y: cmp(x['obj'].alias, y['obj'].alias))
-    return render_to_response(req, 'findug/reporters.html', { "reporters": all})
+    table = HWReportersTable(all, order_by=req.GET.get('sort'))
+
+    return render_to_response(req, 'findug/reporters.html', { "scope":scope, "table": table})
 
 def reporter_view(req, reporter_id):
     ''' Displays a summary of his activities and history '''
