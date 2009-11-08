@@ -7,7 +7,14 @@ from django.utils.translation import ugettext as _
 from rapidsms import Message
 from rapidsms.connection import *
 from apps.reporters.models import *
-from models import *
+from apps.findug.models import *
+
+def health_unit_filter(location):
+    ''' Takes a location, and returns true if that location is a health unit (HCII, HCIII, HCIV, or Hospital)
+        Use this to filter a list of locations: filter(health_unit_filter, Location.objects.all())
+    '''
+    health_unit_types = ['HC II', 'HC III', 'HC IV', 'Hospital']
+    return location.type.name in health_unit_types
 
 def diseases_from_string(text):
     ''' returns a list of Disease with numbers build from SMS-syntax
@@ -37,18 +44,68 @@ def diseases_from_string(text):
 
     return diseases
 
-def allow_me2u(message):
-    ''' free2u App helper. Allow only registered users. '''
+def cb_disease_alerts(router, *args, **kwargs):
+    ''' Sends Alert messages to recipients
 
-    try:
-        if message.persistant_connection.reporter.registered_self:
-            return True
-        else:
-            return False
-    except:
+    Raised by Scheduler'''
+
+    # retrieve unsent alerts
+    alerts  = DiseaseAlert.objects.filter(status=DiseaseAlert.STATUS_STARTED)
+
+    for alert in alerts:
+
+        alert_msg   = _(u"ALERT. At least %(nbcases)s cases of %(disease)s in %(location)s during %(period)s") % {'nbcases': alert.value, 'disease': alert.trigger.disease, 'location': alert.trigger.location, 'period': alert.period}
+
+        for reporter in list(alert.recipients.all()):
+
+            try:
+                real_backend = router.get_backend(reporter.connection().backend.slug)
+                if real_backend:
+                    connection  = Connection(real_backend, reporter.connection().identity)
+                    message     = Message(connection=connection)
+                    message.text= alert_msg
+                    message.send()
+            except Exception, e:
+                print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': reporter, 'err': e}
+                pass
+
+        # change alert status
+        alert.status    = DiseaseAlert.STATUS_COMPLETED
+        alert.save()
+
+def report_completed_alerts(router, report):
+    ''' send alerts about a completed report. '''
+
+    # verify report is done
+    if not report.status == EpidemiologicalReport.STATUS_COMPLETED:
         return False
 
+    # get sub districts
+    targets = []
+    for ancestor in report.clinic.ancestors():
+        if ancestor.type.name.lower().__contains__('health sub district'): targets.append(ancestor)
 
+    # get reporters
+    recipients  = []
+    reporters   = Reporter.objects.filter(registered_self=True, location__in=targets)
+    for reporter in reporters:
+        if ReporterGroup.objects.get(title='weekly_completion_alerts') in reporter.groups.only(): recipients.append(reporter)
 
+    # send alerts
+    alert_header = _(u"%(clinic)s report: " % {'clinic': report.clinic})
 
+    alert_msg = "%s %s %s" % (alert_header, report.diseases.summary, report.act_consumption.sms_stock_summary)
+
+    for recipient in recipients:
+        try:
+            real_backend = router.get_backend(recipient.connection().backend.slug)
+            if real_backend:
+                connection  = Connection(real_backend, recipient.connection().identity)
+                message     = Message(connection=connection)
+                message.text= alert_msg
+                message.send()
+        except Exception, e:
+            print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': recipient, 'err': e}
+            pass
+  
 

@@ -15,3 +15,9 @@ admin.site.register(EpidemiologicalReport)
 admin.site.register(MalariaCasesReport)
 admin.site.register(MalariaTreatmentsReport)
 admin.site.register(ACTConsumptionReport)
+
+admin.site.register(DiseaseAlertTrigger)
+admin.site.register(DiseaseAlert)
+
+admin.site.register(ReporterExtra)
+admin.site.register(LocationExtra)

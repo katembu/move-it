@@ -1,0 +1,68 @@
+{% extends "findug/index.html" %}
+{% block title %}FIND Uganda - {% block subtitle %}Home{% endblock %}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="/static/findug/googlemap.css" type="text/css" />
+
+<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA5Ye18xnHrI7VkvnQMnf_QRTyuD45dD9UKIBq2TUbnNDUkS5VlBQHA41lsYRZQAahAIPJNwQ5ympw9A" type="text/javascript"></script>
+<script src="http://www.openlayers.org/api/OpenLayers.js" type="text/javascript"></script>
+<script type="text/javascript">
+
+var map, act_stock_layer;   
+
+function init() {
+    map = new OpenLayers.Map('map');
+    map.addControl(new OpenLayers.Control.LayerSwitcher());
+    
+    var gphy = new OpenLayers.Layer.Google(
+        "Google Physical",
+        {type: G_PHYSICAL_MAP}
+    );
+    var gsat = new OpenLayers.Layer.Google(
+        "Google Satellite",
+        {type: G_SATELLITE_MAP, numZoomLevels: 20}
+    );
+    act_stock_layer = new OpenLayers.Layer.Markers(
+        "ACT Stock",
+        {
+            isBaseLayer: false,
+            rendererOptions: {yOrdering: true}
+        }
+    );
+
+    map.addLayers([gphy, gsat, act_stock_layer]);
+    
+    map.setCenter(new OpenLayers.LonLat(30.060654, -1.20935), 10);
+    var size20 = new OpenLayers.Size(20,20);
+    var white_background = new OpenLayers.Icon("/static/findug/white.png", size20);
+    var shadow = new OpenLayers.Icon("/static/findug/shadow.png", new OpenLayers.Size(14,8), new OpenLayers.Pixel(1,-1));
+    var act_yellow = new OpenLayers.Icon("/static/findug/act_yellow.png", size20);
+    var act_blue = new OpenLayers.Icon("/static/findug/act_blue.png", size20);
+    var act_brown = new OpenLayers.Icon("/static/findug/act_brown.png", size20);
+    var act_green = new OpenLayers.Icon("/static/findug/act_green.png", size20);
+    var act_unknown = new OpenLayers.Icon("/static/findug/unknown.png", size20);
+    var location;
+    {% for location in locations %}{% if location.obj.latitude and location.obj.longitude %}
+        location = new OpenLayers.LonLat({{location.obj.longitude}}, {{location.obj.latitude}});
+        act_stock_layer.addMarker(new OpenLayers.Marker(location, shadow.clone()));
+        act_stock_layer.addMarker(new OpenLayers.Marker(location, white_background.clone()));
+
+        {% if location.act_unknown %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_unknown.clone()));
+        {% else %}
+            {% if location.yellow %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_yellow.clone()));{% endif %}
+            {% if location.blue %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_blue.clone()));{% endif %}
+            {% if location.brown %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_brown.clone()));{% endif %}
+            {% if location.green %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_green.clone()));{% endif %}
+        {% endif %}
+    {% endif %}{% endfor %}
+}
+
+</script>
+<h2>Map</h2>
+
+<h3>Health Units Map</h3>
+
+<div id="map" style="width: 78em;height: 40em;border: 0;"></div>
+<script type="text/javascript">init();</script>
+
+{% endblock %}

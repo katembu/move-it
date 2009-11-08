@@ -1,0 +1,33 @@
+{% extends "findug/index.html" %}
+{% block subtitle %}Locations{% endblock %}
+
+{% block content %}
+<h2>{{ scope }} Health Units</h2>
+<table width="100%">
+    <thead>
+        <tr>
+            {% for column in table.columns %}
+                <th>
+                    {% ifequal column.name "last" %}
+                        <div style="text-align:center;"><a href="?sort={{ table.columns.last_sort.name_toggled }}">{{ column }}</a></div>
+                    {% else %}
+                        <a href="?sort={{ column.name_toggled }}">{{ column }}</a>
+                    {% endifequal %}
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table.rows %}
+            <tr>
+                <td>{{row.code}}</td>
+                <td>{{row.name}}</td>
+                <td>{{row.hctype}}</td>
+                <td>{{row.hsd}}</td>
+                <td align="center"><span style="color:{{row.last_color}};">{{row.last}}</span></td>
+             </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

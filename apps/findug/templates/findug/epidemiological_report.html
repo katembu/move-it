@@ -1,0 +1,111 @@
+<html>
+    <table border="0">
+        <tr>
+            <th align="right">{{report.headers.date.label}}:</th>
+            <td align="left">{{report.headers.date.value}}</td>
+            <td width="35"></td>
+            <th algin="right">{{report.headers.for.label}}:</th>
+            <td align="left">{{report.headers.for.value}}</td>
+            <td width="35"></td>
+            <th algin="right">{{report.headers.to.label}}:</th>
+            <td align="left">{{report.headers.to.value}}</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th align="right">{{report.headers.hu.label}}:</th>
+            <td align="left">{{report.headers.hu.value}}</td>
+            <td width="35"></td>
+            <th algin="right">{{report.headers.huc.label}}:</th>
+            <td align="left">{{report.headers.huc.value}}</td>
+            <td width="35"></td>
+            <th algin="right">{{report.headers.sc.label}}:</th>
+            <td align="left">{{report.headers.sc.value}}</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th align="right">{{report.headers.hsd.label}}:</th>
+            <td align="left">{{report.headers.hsd.value}}</td>
+            <td width="35"></td>
+            <th algin="right">{{report.headers.dis.label}}:</th>
+            <td align="left">{{report.headers.dis.value}}</td>
+        </tr>
+    </table>
+    <table border="1">
+        <tr><th></th><th width="325">Disease</th><th>Cases this week</th><th>Deaths this week</th></tr>
+        {% for disease in report.diseases %}
+            <tr><td>{{disease.number}}</td><td>{{disease.name}}</td><td align="center">{{disease.cases}}</td><td align="center">{{disease.deaths}}</td></tr>
+        {% endfor %}
+    </table>
+
+    <table>
+        <tr><th colspan="5">CONFIRMATION OF MALARIA CASES</th></tr>
+        <tr>
+            <th>{{report.test.opd.label}}:</th><td>{{report.test.opd.value}}</td>
+            <td width="35"></td>
+            <th>{{report.test.susp.label}}:</th><td>{{report.test.susp.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.test.rdt.label}}:</th><td>{{report.test.rdt.value}}</td>
+            <td width="35"></td>
+            <th>{{report.test.rdtp.label}}:</th><td>{{report.test.rdtp.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.test.mic.label}}:</th><td>{{report.test.mic.value}}</td>
+            <td width="35"></td>
+            <th>{{report.test.micp.label}}:</th><td>{{report.test.micp.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.test.un5.label}}:</th><td>{{report.test.un5.value}}</td>
+            <td width="35"></td>
+            <th>{{report.test.ov5.label}}:</th><td>{{report.test.ov5.value}}</td>
+    </table>
+    <table>
+        <tr><th colspan="5">SUMMARY OF MALARIA CASES TREATED</th></tr>
+        <tr>
+            <th>{{report.treat.rdtn.label}}:</th><td>{{report.treat.rdtn.value}}</td>
+            <td width="35"></td>
+            <th>{{report.treat.rdtp.label}}:</th><td>{{report.treat.rdtp.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.treat.4m.label}}:</th><td>{{report.treat.4m.value}}</td>
+            <td width="35"></td>
+            <th>{{report.treat.3y.label}}:</th><td>{{report.treat.3y.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.treat.7y.label}}:</th><td>{{report.treat.7y.value}}</td>
+            <td width="35"></td>
+            <th>{{report.treat.12y.label}}:</th><td>{{report.treat.12y.value}}</td>
+        </tr>
+    </table>
+    <table>
+        <tr><th colspan="5">ACT STOCK DATA</th></tr>
+        <tr>
+            <th>{{report.act.yd.label}}:</th><td>{{report.act.yd.value}}</td>
+            <td width="35"></td>
+            <th>{{report.act.yb.label}}:</th><td>{{report.act.yb.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.act.bld.label}}:</th><td>{{report.act.bld.value}}</td>
+            <td width="35"></td>
+            <th>{{report.act.blb.label}}:</th><td>{{report.act.blb.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.act.brd.label}}:</th><td>{{report.act.brd.value}}</td>
+            <td width="35"></td>
+            <th>{{report.act.brb.label}}:</th><td>{{report.act.brb.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.act.gd.label}}:</th><td>{{report.act.gd.value}}</td>
+            <td width="35"></td>
+            <th>{{report.act.gb.label}}:</th><td>{{report.act.gb.value}}</td>
+        </tr>
+        <tr>
+            <th>{{report.act.od.label}}:</th><td>{{report.act.od.value}}</td>
+            <td width="35"></td>
+            <th>{{report.act.ob.label}}:</th><td>{{report.act.ob.value}}</td>
+        </tr>
+    </table>
+
+</html>

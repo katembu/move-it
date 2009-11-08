@@ -400,7 +400,7 @@ class App (rapidsms.app.App):
     ############################
 
     keyword.prefix = ""
-    @keyword(r'diseases(\-[0-9])? (.*)')
+    @keyword(r'report(\-[0-9])? (.*)')
     @registered
     def diseases_report(self, message, period, text):
 
@@ -452,15 +452,17 @@ class App (rapidsms.app.App):
             message.respond(e.message)
             return True
 
-        # Disease treshold search
-        location_parents=  location_parents(location)
+        # Disease threshold search
+        locations       =  reporter.location.ancestors(include_self=True)
         alerts          = []
         for disease in diseases:
-            triggers = DiseaseAlertTrigger.objects.filter(disease=disease, location__in=location_parents)
+            print disease
+            triggers = DiseaseAlertTrigger.objects.filter(disease=disease['disease'], location__in=locations)
             for trigger in triggers:
-                alert   = trigger.raise_alert(period=report_week, location=location)
+                print trigger
+                alert   = trigger.raise_alert(period=report_week, location=reporter.location)
                 if alert: alerts.append(alert)
-
+        
         # Add to Master Report
         master_report   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
         master_report.diseases  = report
@@ -688,6 +690,9 @@ class App (rapidsms.app.App):
 
             message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
 
+        # send notification
+        report_completed_alerts(self.router, report)
+
         return True
 
     ############################
@@ -695,7 +700,7 @@ class App (rapidsms.app.App):
     ############################
 
     keyword.prefix = ""
-    @keyword(r'report(\-[0-9])?')
+    @keyword(r'progress(\-[0-9])?')
     @registered
     def report_status(self, message, period):
 

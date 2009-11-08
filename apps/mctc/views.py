@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 from rapidsms.webui.utils import render_to_response
-from models.general import Provider
 from django.db.models import ObjectDoesNotExist, Q
 from django.contrib.auth.models import User, Group
 from datetime import datetime, timedelta
@@ -13,11 +12,16 @@ from pygsm.gsmmodem import GsmModem
 from mctc.forms.login import LoginForm
 from mctc.shortcuts import as_html, login_required
 from mctc.models.logs import log, MessageLog, EventLog
-from mctc.models.general import Case, Zone, Provider, Facility
+from mctc.models.general import Case
 from mctc.models.reports import ReportCHWStatus, ReportAllPatients
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
+from locations.models import Location
+from reporters.models import Reporter, Role
+
 from libreport.pdfreport import PDFReport
+from reportlab.lib.units import inch
+
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -84,68 +88,21 @@ def index(request):
             "has_provider": has_provider})
     
     
-def message_users(mobile, message=None, groups=None, users=None):
-    # problems that might still exist here
-    # timeouts in the browser because we have to post all the messages
-    # timeouts in the url request filtering up to the above
-    recipients = []
-    # get all the users
-    provider_objects = [ Provider.objects.get(id=user) for user in users ]
-    for provider in provider_objects:
-        try:
-            if provider not in recipients:
-                recipients.append(provider)
-        except models.ObjectDoesNotExist:
-            pass
-     # get all the users for the groups
-    group_objects = [ Group.objects.get(id=group) for group in groups ]
-    for group in group_objects:
-        for user in group.user_set.all():
-            try:
-                if user.provider not in recipients:
-                    recipients.append(user.provider)
-            except models.ObjectDoesNotExist:
-                pass
-    port = "ttyUSB0"
-    conf = []
-    modem = GsmModem(port=port, **conf)
-    passed = []
-    failed = []
-    for recipient in recipients:
-        msg = "@%s %s" % (recipient.id, message)
-        #cmd = "http://%s:%s/spomc/%s/%s" % (domain, port, mobile, msg)
-        try:
-            modem.send_sms(recipient, msg)
-            passed.append(recipient)
-        except IOError:
-            # if the mobile number is badly formed and the number regex fails
-            # this is the error that is raised
-            failed.append(recipient)
-    
-    results_text = ""
-    if not passed and not failed:
-        results_text = "No recipients were sent that message."
-    elif not failed and passed:
-        results_text = "The message was sent to %s recipients" % (len(passed))
-    elif failed and passed:
-        results_text = "The message was sent to %s recipients, but failed for the following: %s" % (len(passed), ", ".join([ str(f) for f in failed]))
-    elif not passed and failed:
-        results_text = "No-one was sent that message. Failed for the following: %s" % ", ".join([ str(f) for f in failed])
-    return results_text
 
 @login_required
 def reports(request):
     template_name="mctc/reports/reports.html"
-    clinics = Provider.objects.values('clinic__id','clinic__name').distinct()
     
-    zones = Case.objects.order_by("zone").values('zone', 'zone__name').distinct()
-    p = Case.objects.order_by("zone").filter(provider__role=1).values('provider', 'provider__user__first_name', 'provider__user__last_name', 'zone').distinct()
+    clinics = Location.objects.filter(type__name="Clinic")
+    
+    zones = Case.objects.order_by("location").values('location', 'location__name').distinct()
+    p = Case.objects.order_by("location").values('reporter', 'reporter__first_name', 'reporter__last_name', 'location').distinct()
     providers = []
     for provider in p:
         tmp = {}
-        tmp['id'] = provider['provider']
-        tmp['name'] = provider['provider__user__last_name'] + " " + provider['provider__user__first_name']
-        tmp['zone'] = provider['zone']
+        tmp['id'] = provider['reporter']
+        tmp['name'] = provider['reporter__last_name'] + " " + provider['reporter__first_name']
+        tmp['zone'] = provider['location']
         providers.append(tmp)  
         
     now = datetime.today()
@@ -182,19 +139,20 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     pdfrpt.setTitle("RapidResponse MVP Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
     
     if object_id is None:
-        clinics = Provider.objects.values('clinic').filter(role=1).distinct()
+        clinics = Location.objects.filter(type__name="Clinic")
         for clinic in clinics:
-            queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, clinic["clinic"])
-            c = Facility.objects.filter(id=clinic["clinic"])[0]
-            pdfrpt.setTableData(queryset, fields, c.name)
+            queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, clinic)
+            c = clinic
+            pdfrpt.setTableData(queryset, fields, c.name, [0.3*inch, 1*inch,0.8*inch,0.8*inch, .8*inch,.8*inch,0.8*inch, 1*inch,1*inch,1*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
         queryset, fields = ReportCHWStatus.get_providers_by_clinic(duration_start, duration_end, muac_duration_start, object_id)
-        c = Facility.objects.filter(id=object_id)[0]
+        c = object_id
         
         if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
             file_name = c.name + ".csv"
@@ -247,37 +205,40 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
-    pdfrpt.setLandscape(False)
+    pdfrpt.setLandscape(True)
     pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    
+    pdfrpt.setNumOfColumns(2)
     if object_id is None:        
         if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
+            providers = Case.objects.filter(location=request.POST['zone']).values('reporter', 'location').distinct()
             per_page = "1"
         else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        for provider in providers:
-            queryset, fields = ReportAllPatients.by_provider(provider['provider'])
+            providers = Case.objects.order_by("location").values('reporter', 'location').distinct()
+            providers = Reporter.objects.order_by("location").all()
+        for reporter in providers:
+            queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
-                c = Provider.objects.get(id=provider["provider"])
-                pdfrpt.setTableData(queryset, fields, provider['zone__name']+": "+c.get_name_display())
+                c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
+                pdfrpt.setTableData(queryset, fields, c, [0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch])
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
                     pdfrpt.setFilename("report_per_page")
     else:        
         if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-        
-        queryset, fields = ReportAllPatients.by_provider(object_id)
+            object_id = request.POST['provider']        
+        reporter = Reporter.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.by_provider(reporter)
         if queryset:
-            c = Provider.objects.get(id=object_id)
-            
+            c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
             if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
+                file_name = reporter.last_name + ".csv"
                 file_name = file_name.replace(" ","_").replace("'","")
                 return handle_csv(request, queryset, fields, file_name)
             
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
+            pdfrpt.setTableData(queryset, fields, c, [0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch])
+            if (int(per_page) == 1) is True:
+                pdfrpt.setPageBreak()
+                pdfrpt.setFilename("report_per_page")
     
     return pdfrpt.render()
 
@@ -433,30 +394,32 @@ def report_monitoring_csv(request, object_id, file_name):
         sms_refused.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, was_handled=False).count())
         
         # Total # of CHW in System
-        chw_tot.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__lte=ref_date)).count())
+        chwrole = Role.objects.get(code="chw")
+        
+        chw_tot.append(Reporter.objects.filter(role=chwrole).count())
         
         # New Registered CHW
-        chw_reg.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__gte=morning, date_joined__lte=evening)).count())
-        
+        #chw_reg.append(Provider.objects.filter(role=Provider.CHW_ROLE,user__in=User.objects.filter(date_joined__gte=morning, date_joined__lte=evening)).count())
+        chw_reg.append(0)
         # Failed CHW Registration
         chw_reg_err.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="provider_registered").count() - EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="confirmed_join").count())
         
         # Active CHWs
         a = Case.objects.filter(created_at__gte=morning, created_at__lte=evening)
-        a.query.group_by = ['mctc_case.provider_id']
+        a.query.group_by = ['mctc_case.reporter_id']
         chw_on.append(a.__len__())
         
         # New Patient Registered
         patient_reg.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="patient_created").count())
         
         # Failed Patient Registration
-        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="new").count() - patient_reg[-1])
+        patient_reg_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="new").count() + MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="birth").count() - patient_reg[-1])
         
         # Total Malaria Reports
         malaria_tot.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="mrdt_taken").count())
         
         # Failed Malaria Reports
-        malaria_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="mrdt").count() - malaria_tot[-1])
+        malaria_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="mrdt").count() - malaria_tot[-1])
         
         # Malaria Test Positive
         malaria_pos.append(ReportMalaria.objects.filter(entered_at__gte=morning, entered_at__lte=evening, result=True).count())
@@ -480,7 +443,7 @@ def report_monitoring_csv(request, object_id, file_name):
         malnut_tot.append(EventLog.objects.filter(created_at__gte=morning, created_at__lte=evening, message="muac_taken").count())
         
         # Failed Malnutrition Reports
-        malnut_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__startswith="muac").count() - malnut_tot[-1])
+        malnut_err.append(MessageLog.objects.filter(created_at__gte=morning, created_at__lte=evening, text__istartswith="muac").count() - malnut_tot[-1])
         
         # Total SAM+
         samp_tot.append(ReportMalnutrition.objects.filter(entered_at__lte=evening, status=ReportMalnutrition.SEVERE_COMP_STATUS).count())
@@ -551,78 +514,80 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
 
 @login_required
 def malnut(request, object_id=None, per_page="0", rformat="pdf"):
+    """ List @Risk Malnutrition Cases per clinic
+    """
     pdfrpt = PDFReport()
+    
+    fourteen_days = timedelta(days=30)
+    today = datetime.now()
+    
+    duration_start = day_start(today - fourteen_days)
+    duration_end = today
+    
+    pdfrpt.setTitle("ChildCount Kenya: @Risk Malnutrition Cases from %s to %s"%(duration_start.date(), duration_end.date()))
+    #pdfrpt.setRowsPerPage(66)
+    pdfrpt.setNumOfColumns(2)
     pdfrpt.setLandscape(True)
-    #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    pdfrpt.setTitle("RapidResponse MVP Kenya: Malnutrition Report")
-    if object_id is None:        
-        if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
-            per_page = "1"
-        else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        #for provider in providers:
-        queryset, fields = ReportAllPatients.malnut_by_provider()
-        if queryset:
-            
-            pdfrpt.setTableData(queryset, fields, "")
+    
+    if object_id is None and not request.POST:
+        clinics = Location.objects.filter(type__name="Clinic")
+        for clinic in clinics:
+            queryset, fields = ReportAllPatients.malnutrition_at_risk(duration_start, duration_end, clinic)
+            c = clinic
+            subtitle = "%s: @Risk Malnutrition Cases from %s to %s"%(c.name, duration_start.date(), duration_end.date())
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 0.4*inch,1*inch,0.3*inch, .3*inch,.8*inch, .5*inch, .2*inch,0.5*inch, 0.8*inch,1*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("malnutrition_at_risk")
     else:        
-        if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-            
-            
+        if request.POST['clinic']:
+            object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.malnutrition_at_risk(duration_start, duration_end, object_id)
         
-        queryset, fields = ReportAllPatients.malnut_by_provider(object_id)
-        if queryset:
-            c = Provider.objects.get(id=object_id)
-            
-            if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
-                file_name = file_name.replace(" ","_").replace("'","")
-                return handle_csv(request, queryset, fields, file_name)
-            
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
+        subtitle = "%s: @Risk Malnutrition Cases from %s to %s"%(object_id.name, duration_start.date(), duration_end.date())
+        pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 0.4*inch,1*inch,0.3*inch, .3*inch,.8*inch, .5*inch, .2*inch,0.5*inch, 0.8*inch,1*inch])
+        pdfrpt.setFilename("malnutrition_at_risk")
     
     return pdfrpt.render()
 
 @login_required
 def malaria(request, object_id=None, per_page="0", rformat="pdf"):
+    """ List Positive RDT Test Cases per clinic
+    """
     pdfrpt = PDFReport()
-    pdfrpt.setLandscape(True)
-    #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    pdfrpt.setTitle("RapidResponse MVP Kenya: Malaria Report")
-    if object_id is None:        
-        if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
-            per_page = "1"
-        else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        #for provider in providers:
-        queryset, fields = ReportAllPatients.malaria_by_provider()
-        if queryset:
-            pdfrpt.setTableData(queryset, fields, "")
+    
+    fourteen_days = timedelta(days=14)
+    today = datetime.now()
+    
+    duration_start = day_start(today - fourteen_days)
+    duration_end = today
+    
+    pdfrpt.setTitle("ChildCount Kenya: Positive RDT Cases from %s to %s"%(duration_start.date(), duration_end.date()))
+    pdfrpt.setRowsPerPage(66)
+    
+    if object_id is None and not request.POST:
+        clinics = Location.objects.filter(type__name="Clinic")
+        for clinic in clinics:
+            queryset, fields = ReportAllPatients.malaria_at_risk(duration_start, duration_end, clinic)
+            c = clinic
+            subtitle = "%s: Positive RDT Cases from %s to %s"%(c.name, duration_start.date(), duration_end.date())
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.3*inch, 0.4*inch,1*inch,0.4*inch, .4*inch,.4*inch,0.5*inch, .8*inch, .4*inch,1*inch,1*inch,1.4*inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("malaria_cases")
     else:        
-        if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
+        if request.POST['clinic']:
+            object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.malaria_at_risk(duration_start, duration_end, object_id)
         
-        queryset, fields = ReportAllPatients.malaria_by_provider(object_id)
-        if queryset:
-            c = Provider.objects.get(id=object_id)
-            
-            if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
-                file_name = file_name.replace(" ","_").replace("'","")
-                return handle_csv(request, queryset, fields, file_name)
-            
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
+        subtitle = "%s: Positive RDT Cases from %s to %s"%(object_id.name, duration_start.date(), duration_end.date())
+        pdfrpt.setTableData(queryset, fields, subtitle, [0.3*inch, 0.4*inch,1*inch,0.4*inch, .4*inch,.4*inch,0.5*inch, .8*inch, .4*inch,1*inch,1*inch,1.4*inch])
+        pdfrpt.setFilename("malaria_cases")
     
     return pdfrpt.render()
+
 def trend(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)

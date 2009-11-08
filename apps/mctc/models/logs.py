@@ -90,10 +90,13 @@ class MessageLog(models.Model):
         ordering = ("-created_at",)        
         
     def provider_number(self):
-        return self.provider.mobile
+        return self.reporter.conection().identity
     
     def sent_by_name(self):
-        return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
+        try:
+            return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
+        except:
+            return "Unknown"
 
     def location(self):
         return u"%s"%self.sent_by.location
@@ -104,42 +107,42 @@ class MessageLog(models.Model):
         super(MessageLog, self).save(*args)
     
     @classmethod
-    def count_by_provider(cls,provider, duration_end=None,duration_start=None):
-        if provider is None:
+    def count_by_provider(cls,reporter, duration_end=None,duration_start=None):
+        if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(provider=provider).count()
-            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=provider.user_id).count()
+                return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=reporter).count()
         except models.ObjectDoesNotExist:
             return None
         
     @classmethod
-    def count_processed_by_provider(cls,provider, duration_end=None,duration_start=None):
-        if provider is None:
+    def count_processed_by_provider(cls,reporter, duration_end=None,duration_start=None):
+        if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(provider=provider.user_id).count()
-            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=provider.user_id, was_handled=True).count()
+                return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=reporter, was_handled=True).count()
         except models.ObjectDoesNotExist:
             return None
     
     @classmethod
-    def count_refused_by_provider(cls,provider, duration_end=None,duration_start=None):
-        if provider is None:
+    def count_refused_by_provider(cls,reporter, duration_end=None,duration_start=None):
+        if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(provider=provider).count()
-            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=provider.user_id, was_handled=True).count()
+                return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(created_at__lte=duration_end, created_at__gte=duration_start).filter(sent_by=reporter, was_handled=True).count()
         except models.ObjectDoesNotExist:
             return None
     
     @classmethod
-    def days_since_last_activity(cls,provider):
+    def days_since_last_activity(cls,reporter):
         today = date.today()
-        logs = MessageLog.objects.order_by("created_at").filter(created_at__lte=today,sent_by=provider.user_id).reverse()
+        logs = MessageLog.objects.order_by("created_at").filter(created_at__lte=today,sent_by=reporter).reverse()
         if not logs:
             return ""
         return (today - logs[0].created_at.date()).days

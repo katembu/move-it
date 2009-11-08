@@ -14,6 +14,7 @@ from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
+from utils import health_unit_filter
 
 # CONFIGURATION
 class Configuration(models.Model):
@@ -46,6 +47,8 @@ class ReportPeriod(models.Model):
 
     class Meta:
         unique_together = ("start_date", "end_date")
+        get_latest_by   = "end_date"
+        ordering        = ["-end_date"]
 
     start_date  = models.DateTimeField()
     end_date    = models.DateTimeField()
@@ -161,7 +164,7 @@ def DiseaseObservation_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if instance.deaths > instance.cases:
-        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases.  Cases should include all deaths.  Please check and try again."))
+        raise IncoherentValue(_(u"FAILED: Deaths cannot be greater than cases. Cases should include all deaths. Please check and try again."))
 
 pre_save.connect(DiseaseObservation_pre_save_handler, sender=DiseaseObservation)
 
@@ -231,9 +234,11 @@ class DiseasesReport(models.Model,FindReport):
             return report
 
     @classmethod
-    def total_cases(cls, disease, period, location):
+    def total_cases(cls, disease, period, locations):
         total   = 0
-        reports = cls.objects.filter(period=period, location_in=location_parents(location))
+        print locations
+        reports = cls.objects.filter(period=period, reporter__location__in=locations)
+        print reports
         for report in reports:
             try:
                 total   += report.diseases.get(disease=disease).cases
@@ -269,14 +274,14 @@ class MalariaCasesReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    _opd_attendance      = models.PositiveIntegerField(default=0, verbose_name=_(u"OPD Attendance"))
-    _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
-    _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
-    _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
-    _microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy Tests"))
-    _microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy+ Tested"))
-    _positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives under 5"))
-    _positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives over 5"))
+    _opd_attendance      = models.PositiveIntegerField(default=0, verbose_name=_(u"Total OPD Attendance"))
+    _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected malaria cases"))
+    _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT tested cases"))
+    _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT positive cases"))
+    _microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy tested cases"))
+    _microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy positive cases"))
+    _positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positive cases under 5 years"))
+    _positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positive cases 5+ years"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -414,7 +419,7 @@ def MalariaCasesReport_pre_save_handler(sender, **kwargs):
     instcopy.positive_over_five = instance.positive_over_five
 
     if (instance.positive_under_five + instance.positive_over_five) > (instance.microscopy_positive + instance.rdt_positive_tests):
-        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases."))
+        raise IncoherentValue(_(u"FAILED: The sum of positive cases cannot be greater than the sum of RDT positive cases and Microscopy positive cases. Please check and try again."))
 
 pre_save.connect(MalariaCasesReport_pre_save_handler, sender=MalariaCasesReport)
 
@@ -429,12 +434,12 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Cases Treated"))
-    _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT- Cases Treated"))
-    _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4 months - 3 years"))
-    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3 - 7 years"))
-    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7 - 12 years"))
-    _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12 years & above"))
+    _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT negative cases treated"))
+    _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT positive cases treated"))
+    _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4+ months to 3 years"))
+    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3+ to 7 years"))
+    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7+ to 12 years"))
+    _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12+ years"))
 
 
     sent_on     = models.DateTimeField(auto_now_add=True)
@@ -524,7 +529,7 @@ def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
     instance    = kwargs['instance']
 
     if (instance.rdt_positive + instance.rdt_negative) > (instance.four_months_to_three + instance.three_to_seven + instance.seven_to_twelve + instance.twelve_and_above):
-        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated."))
+        raise IncoherentValue(_(u"FAILED: The sum of RDT negative cases treated and RDT positive cases treated cannot be greater than the sum of age groups treated. Please check and try again."))
 
 pre_save.connect(MalariaTreatmentsReport_pre_save_handler, sender=MalariaTreatmentsReport)
 
@@ -677,6 +682,11 @@ class ACTConsumptionReport(models.Model,FindReport):
         text    = _(u"YELLOW: %(yellow_dispensed)s/%(yellow_balance)s, BLUE: %(blue_dispensed)s/%(blue_balance)s, BROWN: %(brown_dispensed)s/%(brown_balance)s, GREEN: %(green_dispensed)s/%(green_balance)s, OTHER.ACT: %(other_act_dispensed)s/%(other_act_balance)s") % {'yellow_dispensed': self.yellow_dispensed, 'yellow_balance': self.yellow_balance, 'blue_dispensed': self.blue_dispensed, 'blue_balance': self.blue_balance, 'brown_dispensed': self.brown_dispensed, 'brown_balance': self.brown_balance, 'green_dispensed': self.green_dispensed, 'green_balance': self.green_balance, 'other_act_dispensed': self.other_act_dispensed, 'other_act_balance': self.other_act_balance}
         return text
 
+    @property
+    def sms_stock_summary(self):
+        text    = _(u"ACT Stock YEL:%(yellow_balance)s, BLU:%(blue_balance)s, BRO:%(brown_balance)s, GRE:%(green_balance)s, OTH:%(other_act_balance)s") % {'yellow_balance': self.yellow_balance, 'blue_balance': self.blue_balance, 'brown_balance': self.brown_balance, 'green_balance': self.green_balance, 'other_act_balance': self.other_act_balance}
+        return text
+
 # EPIDEMIOLOGICAL REPORT
 class EpidemiologicalReport(models.Model):
 
@@ -769,8 +779,16 @@ class EpidemiologicalReport(models.Model):
             return report
 
     @classmethod
+    def last_completed_by_clinic(cls, clinic):
+        reports = cls.objects.filter(clinic=clinic,completed_on__isnull=False).order_by('-period')
+        if len(reports) == 0:
+            return False
+        else:
+            return reports[0]
+
+    @classmethod
     def by_receipt(cls, receipt):
-        clinic_id, week_id, date, report_id = re.search('([0-9]+)W([0-9]+)\-([0-9]{6})\/([0-9]+)', receipt).groups()
+        clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
         return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
 
     @property
@@ -781,7 +799,7 @@ class EpidemiologicalReport(models.Model):
     @property
     def receipt(self):
         if self.completed and self.completed_on:
-            return _(u"%(clinic)sW%(week)s-%(datesent)s/%(reportid)s") % {'clinic': self.clinic.id, 'datesent': self.completed_on.strftime("%d%m%y"), 'week': self.period.id, 'reportid': self.id}
+            return _(u"%(clinic)sW%(week)s/%(reportid)s") % {'clinic': self.clinic.id, 'week': self.period.id, 'reportid': self.id}
         else:
             return None
 
@@ -838,22 +856,15 @@ pre_save.connect(EpidemiologicalReport_pre_save_handler, sender=EpidemiologicalR
 
 # ALERTS
 
-def location_parents(location):
-
-    ancestors   = []
-    ancestors.append(location)
-
-    while (location.parent):
-        ancestors.append(location.parent)
-
-    return ancestors
-
 class DiseaseAlertTrigger(models.Model):
 
     disease     = models.ForeignKey(Disease)
     threshold   = models.PositiveIntegerField()
     location    = models.ForeignKey(Location)
     subscribers = models.ManyToManyField(Reporter)
+
+    def __unicode__(self):
+        return _(u"%(threshold)s cases of %(disease)s in %(location)s") % {'threshold': self.threshold, 'disease': self.disease, 'location': self.location}
 
     def test(self, period, location):
         ''' test validity of Alert Trigger with values '''
@@ -865,10 +876,12 @@ class DiseaseAlertTrigger(models.Model):
         except:
             pass
 
-        if not self.location in location_parents(location):
+        parents = location.ancestors(include_self=True)
+        if not self.location in parents:
             return False
 
-        total   = DiseasesReport.total_cases(disease=self.disease, period=period, location=self.location)
+        total   = DiseasesReport.total_cases(disease=self.disease, period=period, locations=parents)
+        print total
         if total >= self.threshold:
             return total
         else:
@@ -878,11 +891,12 @@ class DiseaseAlertTrigger(models.Model):
     def raise_alert(self, period, location):
         ''' create an Alert object from values '''
 
-        total   = self.test(period, location, value)
+        total   = self.test(period, location)
         if not total:
             return False
 
-        alert   = DiseaseAlert(period=period, trigger=self, value=total, recipients=self.recipients)
+        alert   = DiseaseAlert(period=period, trigger=self, value=total)
+        for recipient in self.recipients: alert.recipients.add(recipient)
         alert.save()
 
         return alert
@@ -892,12 +906,10 @@ class DiseaseAlertTrigger(models.Model):
         ''' list of subscribers who should receive alert now '''
 
         recipients  = []
-        for subscriber in self.subscribers:
-            if subscriber.registered_self and ReporterGroup.objects.get(title='alerts') in subscriber.groups.only():
+        for subscriber in list(self.subscribers.all()):
+            if subscriber.registered_self and ReporterGroup.objects.get(title='diseases_alerts') in subscriber.groups.only():
                 recipients.append(subscriber)
         return recipients
-
-    
 
 class DiseaseAlert(models.Model):
 
@@ -917,15 +929,127 @@ class DiseaseAlert(models.Model):
 
     value       = models.PositiveIntegerField()
     status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
-    recipients  = models.ManyToManyField(Reporter)
+    recipients  = models.ManyToManyField(Reporter, blank=True, null=True)
 
     started_on  = models.DateTimeField(auto_now_add=True)
     completed_on= models.DateTimeField(null=True, blank=True)
+
+    def __unicode__(self):
+        return _(u"%(value)s >= %(trigger)s on %(period)s") % {'value': self.value, 'trigger': self.trigger, 'period': self.period}
 
     @classmethod
     def by_period_trigger(cls, period, trigger):
 
         return cls.objects.get(period=period, trigger=trigger)
 
+# USERS
 
+class ReporterExtra(models.Model):
+    ''' Extra fields for Reporter and/or User '''
+
+    class Meta:
+        unique_together = ("user", "reporter")
+
+    user        = models.OneToOneField(User, unique=True)
+    reporter    = models.OneToOneField(Reporter, unique=True)
+    
+    def __unicode__(self):
+        return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+
+    def health_units(self):
+        ''' Return the health units within the location of the related reporter '''
+
+        if self.reporter.location:
+            locations = self.reporter.location.descendants()
+        else:
+            locations = Location.objects.all()
+        
+        return filter(health_unit_filter, locations)
+
+    def health_workers(self):
+        ''' Return the reporters with health worker role within the health units of the related reporter '''
+
+        health_units = self.health_units()
+        hws = []
+        for hw in Reporter.objects.filter(role__code='hw'):
+            if hw.location in health_units:
+                hws.append(hw)
+        return hws
+
+    @classmethod
+    def by_user(cls, user):
+        return cls.objects.get(user=user)
+
+    @classmethod
+    def location_by_user(cls, user):
+        if len(cls.objects.filter(user=user)) == 0:
+            return None
+        if not cls.by_user(user).reporter.location:
+            return None
+        return cls.by_user(user).reporter.location
+
+    @classmethod
+    def by_reporter(cls, reporter):
+        return cls.objects.get(reporter=reporter)
+
+    @classmethod
+    def create_user(cls, reporter, password):
+        try:
+            extra   = cls.by_reporter(reporter)
+            return extra.user
+        except cls.DoesNotExist:
+            # may raise IntegrityError if alias taken
+            user    = User.objects.create_user(reporter.alias, email='', password=password)
+            return user
+
+    @classmethod
+    def from_scratch(cls, name, password=None, identity=None, backend_slug='kannel'):
+
+        # retrieve alias and names
+        alias, fn, ln   = Reporter.parse_name(name)
+        str             = alias.lower()
+        while Reporter.objects.filter(alias__iexact=alias).count() or User.objects.filter(username__iexact=alias).count():
+            alias = "%s%d" % (str.lower(), n)
+            n += 1
+
+        # create reporter
+        reporter        = Reporter(alias=alias, first_name=fn, last_name=ln)
+        reporter.save()
+        backend         = PersistantBackend.objects.get(slug=backend_slug)
+        connection      = PersistantConnection(backend=backend, identity=identity, reporter=reporter, last_seen=datetime.now()) 
+        connection.save()
+
+        # create user
+        user            = User.objects.create_user(alias, email='', password=password)
+        user.save()
+
+        # create ReporterExtra
+        extra           = cls(user=user, reporter=reporter)
+        extra.save()
+
+        return extra
+
+class LocationExtra(models.Model):
+    ''' Extra fields for Locations '''
+
+    location    = models.OneToOneField(Location, unique=True)
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+
+    def __unicode__(self):
+        return _(u"%(location)s Extra") % {'location': self.location}
+
+    @classmethod
+    def by_location(cls, location):
+        return cls.objects.get(location=location)
+    
+    @classmethod
+    def by_location_create(cls, location):
+        try:
+             return cls.objects.get(location=location)
+        except cls.DoesNotExist:
+            # create it and return
+            extra   = cls(location=location)
+            extra.save()
+            return extra
 
