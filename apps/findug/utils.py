@@ -95,6 +95,8 @@ def report_completed_alerts(router, report):
     alert_header = _(u"%(clinic)s report: " % {'clinic': report.clinic})
 
     alert_msg = "%s %s %s" % (alert_header, report.diseases.summary, report.act_consumption.sms_stock_summary)
+    if report.remarks:
+        alert_msg = "%s Remarks: %s" % (alert_msg, report.remarks)
 
     for recipient in recipients:
         try:
