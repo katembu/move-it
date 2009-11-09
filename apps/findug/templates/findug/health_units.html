@@ -20,7 +20,7 @@
     <tbody>
         {% for row in table.rows %}
             <tr>
-                <td>{{row.code}}</td>
+                <td><a href="../health_unit/{{row.pk}}">{{row.code}}</a></td>
                 <td>{{row.name}}</td>
                 <td>{{row.hctype}}</td>
                 <td>{{row.hsd}}</td>
