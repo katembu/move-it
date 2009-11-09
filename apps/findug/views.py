@@ -86,6 +86,11 @@ def health_units_view(req):
     all = []
     for location in locations:
         loc = {}
+        loc['pk']     = location.pk
+        loc['name']     = location.name
+        loc['hctype']   = location.type.name
+        loc['code']     = location.code.upper()
+        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0].name
         last            = EpidemiologicalReport.last_completed_by_clinic(location)
         if last:
             # the last column is the visible, nicely formated date
@@ -107,10 +112,6 @@ def health_units_view(req):
             # if django templates compared None objects as they should, we wouldn't have to do this
             loc['last_sort'] = datetime(year=2000,month=1,day=1)
 
-        loc['name']     = location.name
-        loc['hctype']   = location.type.name
-        loc['code']     = location.code.upper()
-        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0].name
 
         all.append(loc)
     table = HealthUnitsTable(all, order_by=req.GET.get('sort'))

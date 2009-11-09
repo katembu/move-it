@@ -4,6 +4,7 @@
 import django_tables as tables
 
 class HealthUnitsTable(tables.Table):
+    pk = tables.Column(visible=False, sortable=False)
     code = tables.Column(verbose_name="Code")
     name = tables.Column(verbose_name="Name")
     hctype = tables.Column(verbose_name="Type")
@@ -13,6 +14,7 @@ class HealthUnitsTable(tables.Table):
     last_color = tables.Column(sortable=False, visible=False)
 
 class HWReportersTable(tables.Table):
+    pk = tables.Column(visible=False, sortable=False)
     alias = tables.Column(verbose_name="Alias")
     name = tables.Column(verbose_name="Name")
     hu = tables.Column(verbose_name="Health Unit")
