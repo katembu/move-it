@@ -346,6 +346,29 @@ class App (rapidsms.app.App):
             "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
             "(%(guardian)s) has been made inactive") % info)
         return True
+    
+    @keyword(r'activate \+?(\d+)?(.+)')
+    @registered
+    def activate_case (self, message, ref_id, reason=""):
+        """set case status to inactive. """
+        case = self.find_case(ref_id)
+        info = case.get_dictionary()
+        
+        if case.status == Case.STATUS_INACTIVE:
+            case.set_status(Case.STATUS_ACTIVE)
+            case.save()
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) has been activated") % info)
+        elif case.status == Case.STATUS_ACTIVE:
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) is active") % info)
+        elif case.status == Case.STATUS_DEAD:
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) was reported as dead") % info)
+        return True
 
     def get_transfer_format_reminder(self):
         """Expected format for transfer command, sent as a reminder"""
