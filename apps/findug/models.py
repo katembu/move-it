@@ -521,7 +521,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     @property
     def summary(self):
-        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y+: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
+        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
         return text
 
 def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
