@@ -350,7 +350,7 @@ class App (rapidsms.app.App):
     @keyword(r'activate \+?(\d+)?(.+)')
     @registered
     def activate_case (self, message, ref_id, reason=""):
-        """set case status to inactive. """
+        """set case status to active. """
         case = self.find_case(ref_id)
         info = case.get_dictionary()
         
