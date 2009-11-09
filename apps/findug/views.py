@@ -95,6 +95,7 @@ def health_units_view(req):
         if last:
             # the last column is the visible, nicely formated date
             loc['last'] = last.completed_on.strftime(settings.DATE_FORMAT)
+            loc['last_pk'] = last.pk
 
             # the last_sost is not visible, it is used to sort the date column
             loc['last_sort'] = last.completed_on
