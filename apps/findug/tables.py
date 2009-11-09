@@ -10,6 +10,7 @@ class HealthUnitsTable(tables.Table):
     hctype = tables.Column(verbose_name="Type")
     hsd = tables.Column(verbose_name="HSD")
     last = tables.Column(verbose_name="Last Report", sortable=False)
+    last_pk = tables.Column(visible=False, sortable=False)
     last_sort = tables.Column(visible=False)
     last_color = tables.Column(sortable=False, visible=False)
 
