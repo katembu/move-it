@@ -67,14 +67,17 @@ class App (rapidsms.app.App):
             mctc_input = message.text.lower()
             if not (mctc_input.find("join") == -1):
                 message.respond(self.get_join_format_reminder())
+                self.handled = True
                 return True
 
             if mctc_input.find("transfer") > -1:
                 message.respond(self.get_transfer_format_reminder())
+                self.handled = True
                 return True
 
             if mctc_input.find("new") > -1:
                 message.respond(self.get_new_patient_format_reminder())
+                self.handled = True
                 return True
             
             if mctc_input.find("inactive") > -1:
