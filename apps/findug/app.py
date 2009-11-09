@@ -689,7 +689,7 @@ class App (rapidsms.app.App):
             report.status = report.STATUS_COMPLETED
             report.save()
 
-            message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
+            message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt number is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
 
         # send notification
         report_completed_alerts(self.router, report)
