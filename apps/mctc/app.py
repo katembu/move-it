@@ -76,6 +76,16 @@ class App (rapidsms.app.App):
             if mctc_input.find("new") > -1:
                 message.respond(self.get_new_patient_format_reminder())
                 return True
+            
+            if mctc_input.find("inactive") > -1:
+                message.respond(self.get_inactive_format_reminder())
+                self.handled = True
+                return True
+            
+            if mctc_input.find("activate") > -1:
+                message.respond(self.get_active_format_reminder())
+                self.handled = True
+                return True
 
             #command_list = [method for method in dir(self) if callable(getattr(self, method))]
             #info_list = [str(method) + "--->" + str(getattr(self, method).__doc__) + "\n" for method in dir(self) if callable(getattr(self, method))]
@@ -334,6 +344,10 @@ class App (rapidsms.app.App):
         log(message.persistant_connection.reporter, "case_cancelled")        
         return True
     
+    def get_inactive_format_reminder(self):
+        """Expected format for new command, sent as a reminder"""
+        return "Format: inactive +[PATIENT ID] free form comments[reason]"
+    
     @keyword(r'inactive \+?(\d+)?(.+)')
     @registered
     def inactive_case (self, message, ref_id, reason=""):
@@ -346,6 +360,11 @@ class App (rapidsms.app.App):
             "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
             "(%(guardian)s) has been made inactive") % info)
         return True
+    
+    
+    def get_active_format_reminder(self):
+        """Expected format for new command, sent as a reminder"""
+        return "Format: activate +[PATIENT ID] free form comments[reason]"
     
     @keyword(r'activate \+?(\d+)?(.+)')
     @registered
