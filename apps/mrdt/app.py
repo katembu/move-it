@@ -46,6 +46,9 @@ class App (rapidsms.app.App):
             if not (mrdt_input.find("mts") == -1):
                 message.respond(self.get_mrdt_format_reminder())
                 return True
+            if not (mrdt_input.find("mrdt") == -1):
+                message.respond("Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]")
+                return True
             return False
         try:
             self.handled = func(self, message, *captures)
