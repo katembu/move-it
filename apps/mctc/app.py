@@ -363,8 +363,7 @@ class App (rapidsms.app.App):
             "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
             "(%(guardian)s) has been made inactive") % info)
         return True
-    
-    
+        
     def get_active_format_reminder(self):
         """Expected format for active command, sent as a reminder"""
         return "Format: activate +[PATIENT ID] free form comments[reason]"
