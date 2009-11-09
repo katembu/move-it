@@ -45,7 +45,7 @@ class App (rapidsms.app.App):
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
             input_text = message.text.lower()
-            if not (input_text.find("muac") == -1):
+            if not (input_text.find("birth") == -1):
                 message.respond(self.get_birth_report_format_reminder())
                 self.handled = True
                 return True
