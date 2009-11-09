@@ -43,7 +43,15 @@ class App (rapidsms.app.App):
             # didn't find a matching function
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            
+            input_text = message.text.lower()
+            if not (input_text.find("cdeath") == -1):
+                message.respond(self.get_cdeath_report_format_reminder())
+                self.handled = True
+                return True
+            if not (input_text.find("death") == -1):
+                message.respond(self.get_death_report_format_reminder())
+                self.handled = True
+                return True
             return False
         try:
             self.handled = func(self, message, *captures)
@@ -80,6 +88,10 @@ class App (rapidsms.app.App):
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
+
+    def get_death_report_format_reminder(self):
+        """Expected format for death command, sent as a reminder"""
+        return "Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
     
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
@@ -120,6 +132,10 @@ class App (rapidsms.app.App):
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
     
+    def get_cdeath_report_format_reminder(self):
+        """Expected format for cdeath command, sent as a reminder"""
+        return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
+        
     @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
