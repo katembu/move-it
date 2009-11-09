@@ -45,9 +45,11 @@ class App (rapidsms.app.App):
             mrdt_input = message.text.lower()
             if not (mrdt_input.find("mts") == -1):
                 message.respond(self.get_mrdt_format_reminder())
+                self.handled = True
                 return True
             if not (mrdt_input.find("mrdt") == -1):
-                message.respond("Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]")
+                message.respond(self.get_mrdt_report_format_reminder())
+                self.handled = True
                 return True
             return False
         try:
@@ -221,6 +223,10 @@ class App (rapidsms.app.App):
 
         log(case, "mrdt_taken")       
         return True 
+
+    def get_mrdt_report_format_reminder(self):
+        """Expected format for mrdt command, sent as a reminder"""
+        return "Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
     @registered

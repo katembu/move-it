@@ -67,14 +67,27 @@ class App (rapidsms.app.App):
             mctc_input = message.text.lower()
             if not (mctc_input.find("join") == -1):
                 message.respond(self.get_join_format_reminder())
+                self.handled = True
                 return True
 
             if mctc_input.find("transfer") > -1:
                 message.respond(self.get_transfer_format_reminder())
+                self.handled = True
                 return True
 
             if mctc_input.find("new") > -1:
                 message.respond(self.get_new_patient_format_reminder())
+                self.handled = True
+                return True
+            
+            if mctc_input.find("inactive") > -1:
+                message.respond(self.get_inactive_format_reminder())
+                self.handled = True
+                return True
+            
+            if mctc_input.find("activate") > -1:
+                message.respond(self.get_active_format_reminder())
+                self.handled = True
                 return True
 
             #command_list = [method for method in dir(self) if callable(getattr(self, method))]
@@ -334,6 +347,10 @@ class App (rapidsms.app.App):
         log(message.persistant_connection.reporter, "case_cancelled")        
         return True
     
+    def get_inactive_format_reminder(self):
+        """Expected format for inactive command, sent as a reminder"""
+        return "Format: inactive +[PATIENT ID] free form comments[reason]"
+    
     @keyword(r'inactive \+?(\d+)?(.+)')
     @registered
     def inactive_case (self, message, ref_id, reason=""):
@@ -345,6 +362,33 @@ class App (rapidsms.app.App):
         message.respond(_(
             "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
             "(%(guardian)s) has been made inactive") % info)
+        return True
+        
+    def get_active_format_reminder(self):
+        """Expected format for active command, sent as a reminder"""
+        return "Format: activate +[PATIENT ID] free form comments[reason]"
+    
+    @keyword(r'activate \+?(\d+)?(.+)')
+    @registered
+    def activate_case (self, message, ref_id, reason=""):
+        """set case status to active. """
+        case = self.find_case(ref_id)
+        info = case.get_dictionary()
+        
+        if case.status == Case.STATUS_INACTIVE:
+            case.set_status(Case.STATUS_ACTIVE)
+            case.save()
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) has been activated") % info)
+        elif case.status == Case.STATUS_ACTIVE:
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) is active") % info)
+        elif case.status == Case.STATUS_DEAD:
+            message.respond(_(
+                "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s " +
+                "(%(guardian)s) was reported as dead") % info)
         return True
 
     def get_transfer_format_reminder(self):

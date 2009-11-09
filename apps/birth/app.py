@@ -44,7 +44,11 @@ class App (rapidsms.app.App):
             # didn't find a matching function
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            
+            input_text = message.text.lower()
+            if not (input_text.find("birth") == -1):
+                message.respond(self.get_birth_report_format_reminder())
+                self.handled = True
+                return True
             return False
         try:
             self.handled = func(self, message, *captures)
@@ -76,6 +80,10 @@ class App (rapidsms.app.App):
         """Perform global app cleanup when the application is stopped."""
         pass
     
+    def get_birth_report_format_reminder(self):
+        """Expected format for birth command, sent as a reminder"""
+        return "Format:  birth [last name] [first name] [gender m/f] [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian] (complications)"
+
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
     @registered
     @transaction.commit_on_success
