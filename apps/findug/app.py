@@ -163,7 +163,7 @@ class App (rapidsms.app.App):
 
     # JOIN
     keyword.prefix = ["join"]
-    @keyword(r'(\w+)\s?(\w*)')
+    @keyword(r'(\w+)')
     @registered
     def join(self, message, clinic_code):
         ''' Adds a self-registered reporter to the mrdt system '''
