@@ -212,7 +212,8 @@ class App (rapidsms.app.App):
             return True
     
         # check that location is a clinic (not sure about that)
-        if not clinic.type in LocationType.objects.filter(name__startswith='HC'):
+        clinic_types = ['Hosptial', 'HC II', 'HC III', 'HC IV']
+        if not clinic.type.name in clinic_types:
             message.forward(reporter.connection().identity, \
                 _(u"Join Error. You must provide a Clinic code."))
             return True
