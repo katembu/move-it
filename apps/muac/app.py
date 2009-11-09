@@ -44,7 +44,7 @@ class App (rapidsms.app.App):
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
             input_text = message.text.lower()
             if not (input_text.find("muac") == -1):
-                message.respond("Format:  muac +[patient_ID\] muac[measurement] edema[e/n] symptoms separated by spaces[CG D A F V NR UF]")
+                message.respond(self.get_muac_report_format_reminder())
                 self.handled = True
                 return True
             return False
@@ -106,6 +106,10 @@ class App (rapidsms.app.App):
                 last_report.delete()
         except models.ObjectDoesNotExist:
             pass
+        
+    def get_muac_report_format_reminder(self):
+        """Expected format for muac command, sent as a reminder"""
+        return "Format:  muac +[patient_ID\] muac[measurement] edema[e/n] symptoms separated by spaces[CG D A F V NR UF]"        
         
     @registered
     @keyword(r'muac \+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
