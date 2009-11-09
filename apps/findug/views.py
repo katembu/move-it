@@ -143,7 +143,10 @@ def reporters_view(req):
         rep['alias']    = reporter.alias
         rep['name']     = '%s %s' % (reporter.first_name.title(), reporter.last_name.title())
         rep['hu']       = '%s %s' % (reporter.location.name, reporter.location.type.name)
-        rep['contact']    = reporter.connection().identity
+        if reporter.connection():
+            rep['contact']  = reporter.connection().identity
+        else:
+            rep['contact']  = ''
         all.append(rep)
 
     table = HWReportersTable(all, order_by=req.GET.get('sort'))
