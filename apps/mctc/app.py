@@ -348,7 +348,7 @@ class App (rapidsms.app.App):
         return True
     
     def get_inactive_format_reminder(self):
-        """Expected format for new command, sent as a reminder"""
+        """Expected format for inactive command, sent as a reminder"""
         return "Format: inactive +[PATIENT ID] free form comments[reason]"
     
     @keyword(r'inactive \+?(\d+)?(.+)')
@@ -366,7 +366,7 @@ class App (rapidsms.app.App):
     
     
     def get_active_format_reminder(self):
-        """Expected format for new command, sent as a reminder"""
+        """Expected format for active command, sent as a reminder"""
         return "Format: activate +[PATIENT ID] free form comments[reason]"
     
     @keyword(r'activate \+?(\d+)?(.+)')
