@@ -132,6 +132,10 @@ class App (rapidsms.app.App):
         role_code   = None
 
         try:
+            # this will raise an exception if the clinic code doesn't exist
+            # let's not even create the reporter if the clinic_code is invalid
+            clinic = Location.objects.get(code=clinic_code)
+
             # parse the name, and create a reporter
             alias, fn, ln = Reporter.parse_name(name)
 
@@ -153,6 +157,7 @@ class App (rapidsms.app.App):
             # moment, we don't care what
         except:
             message.respond("Join Error. Unable to register your account.")
+            return True
 
         if role_code == None or role_code.__len__() < 1:
             role_code   = 'hw'
