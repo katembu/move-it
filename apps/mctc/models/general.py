@@ -87,7 +87,7 @@ class Case(models.Model):
         return self.created_at.strftime("%d.%m.%y")
     
     def provider_mobile(self):
-        return self.provider.mobile
+        return self.reporter.connection().identity
     
     def short_name(self):
         return "%s %s."%(self.first_name, self.last_name[0])
