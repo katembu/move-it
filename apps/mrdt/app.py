@@ -311,12 +311,8 @@ class App (rapidsms.app.App):
             """
             FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
             """
-            msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(age)s has MALARIA%(danger)s." % info)
-            message.respond(msg)
-            
-            msg = _("%(instructions)s" % info)
-            message.respond(msg)
+            message.respond(msg[:msg.rfind(". ")+1])            
+            message.respond(msg[msg.rfind(". ")+1:])
         else:
             message.respond(msg)
         """ @todo: enable alerts """
