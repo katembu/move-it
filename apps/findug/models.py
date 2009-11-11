@@ -521,7 +521,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     @property
     def summary(self):
-        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y+: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
+        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
         return text
 
 def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
@@ -703,13 +703,13 @@ class EpidemiologicalReport(models.Model):
     class Meta:
         unique_together = ("clinic", "period")
 
-    clinic  = models.ForeignKey(Location, related_name='clinic')
-    period  = models.ForeignKey(ReportPeriod, related_name='period')
+    clinic  = models.ForeignKey(Location)
+    period  = models.ForeignKey(ReportPeriod)
 
-    _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, related_name='diseases_report', verbose_name=DiseasesReport.TITLE)
-    _malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, related_name='cases_report', verbose_name=MalariaCasesReport.TITLE)
-    _malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, related_name='treatments_report', verbose_name=MalariaTreatmentsReport.TITLE)
-    _act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, related_name='act_report', verbose_name=ACTConsumptionReport.TITLE)
+    _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, verbose_name=DiseasesReport.TITLE)
+    _malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, verbose_name=MalariaCasesReport.TITLE)
+    _malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, verbose_name=MalariaTreatmentsReport.TITLE)
+    _act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, verbose_name=ACTConsumptionReport.TITLE)
     _remarks             = models.CharField(max_length=160, blank=True, null=True, verbose_name=_(u"Remarks"))
 
     _status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)

@@ -20,11 +20,13 @@
     <tbody>
         {% for row in table.rows %}
             <tr>
-                <td>{{row.code}}</td>
+                <td><a href="../health_unit/{{row.pk}}">{{row.code}}</a></td>
                 <td>{{row.name}}</td>
                 <td>{{row.hctype}}</td>
                 <td>{{row.hsd}}</td>
-                <td align="center"><span style="color:{{row.last_color}};">{{row.last}}</span></td>
+                <td align="center">
+                {% if row.last_pk %}<a href="../epidemiological_report_pdf/{{row.last_pk}}">{% endif %}
+                <span style="color:{{row.last_color}};">{{row.last}}</span>{% if row.last_pk %}</a>{% endif %}</td>
              </tr>
         {% endfor %}
     </tbody>
