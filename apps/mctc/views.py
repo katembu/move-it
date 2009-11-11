@@ -23,8 +23,6 @@ from libreport.pdfreport import PDFReport
 from reportlab.lib.units import inch
 
 from django.utils.translation import ugettext_lazy as _
-
-
 from django.template import Template, Context
 from django.template.loader import get_template
 from django.core.paginator import Paginator, InvalidPage
@@ -35,6 +33,37 @@ from datetime import datetime, timedelta, date
 import os
 import csv
 import StringIO
+
+
+from reportlab.platypus import *
+from reportlab.lib.styles import getSampleStyleSheet
+
+styles = getSampleStyleSheet()
+Elements = []
+
+HeaderStyle = styles["Heading1"] # XXXX
+
+def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
+    s = Spacer(0.2*inch, sep*inch)
+    Elements.append(s)
+    para = klass(txt, style)
+    Elements.append(para)
+
+ParaStyle = styles["Normal"]
+
+def p(txt):
+    return header(txt, style=ParaStyle, sep=0.1)
+
+#pre = p # XXX
+
+PreStyle = styles["Code"]
+
+def pre(txt):
+    s = Spacer(0.1*inch, 0.1*inch)
+    Elements.append(s)
+    p = Preformatted(txt, PreStyle)
+    Elements.append(p)
+
 
 app = {}
 app['name'] = "RapidResponse:Health"
@@ -616,3 +645,4 @@ def trend(request, object_id=None, per_page="0", rformat="pdf"):
             pdfrpt.setTableData(queryset, fields, c.get_name_display())
     
     return pdfrpt.render()
+
