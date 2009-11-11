@@ -646,3 +646,77 @@ def trend(request, object_id=None, per_page="0", rformat="pdf"):
     
     return pdfrpt.render()
 
+def commands_pdf(request):
+    pdfrpt = PDFReport()
+    pdfrpt.setLandscape(True)
+    pdfrpt.setNumOfColumns(2)
+    pdfrpt.setFilename("shortlist")
+    
+    header("Malnutrition Monitoring Report")
+
+    p("MUAC +PatientID MUACMeasurement Edema (E/N) Symptoms")
+    pre("Example: MUAC +1410 105 E V D Or      MUAC +1385 140 n")
+    
+    header("Malaria Rapid Diagnostic Test Reports (MRDT)")
+    p("MRDT +PatientID RDTResult (Y/N) BedNet (Y/N) Symtoms")
+    pre("Example: MRDT +28 Y N D CV")
+    
+    pre("""\
+     
+     Code | Symptom                 | Danger Sign
+     =============================================
+      CG  |  Coughing               |
+      D   |  Diarrhea               |  CMAM
+      A   |  Appetite Loss          |  CMAM
+      F   |  Fever                  |  CMAM
+      V   |  Vomiting               |  CMAM, RDT
+      NR  |  Nonresponsive          |  CMAM, RDT
+      UF  |  Unable to Feed         |  CMAM, RDT
+      B   |  Breathing Difficulty   |  RDT
+      CV  |  Convulsions/Fits       |  RDT
+      CF  |  Confusion              |  RDT
+     ==============================================
+    """)
+    
+    header("Death Report")
+    p("DEATH LAST FIRST GENDER AGE  DateOfDeath (DDMMYY) CauseOfDeath Location Description")
+    pre("Example: DEATH RUTH BABE M 50m 041055 S H Sudden heart attack")
+    
+    header("Child Death Report")
+    p("CDEATH +ID DateOfDeath(DDMMYY) Cause Location Description")
+    pre("Example: CDEATH +782 101109 I C severe case of pneumonia")
+    
+    pre("""\
+    CauseOfDeath - Likely causes of death
+    ===========================
+    P   |   Pregnancy related
+    B   |   Child Birth
+    A   |   Accident
+    I   |   Illness
+    S   |   Sudden Death
+    ===========================
+    """)
+    
+    pre("""\
+    Location - where the death occured
+    ===================================================
+    H   |   Home
+    C   |   Health Facility
+    T   |   Transport - On route to Clinic/Hospital
+    ===================================================
+    """)
+    
+    header("Birth Report")
+    p("BIRTH Last First Gender(M/F) DOB (DDMMYY) WEIGHT Location Guardian Complications")
+    pre("BIRTH Onyango James M 051009 4.5 C Anyango No Complications")
+    
+    header("Inactive Cases")
+    p("INACTIVE +PID ReasonOfInactivity")
+    pre(" INACTIVE +23423 immigrated to another town(Siaya)")
+    
+    header("Activate Inactive Cases")
+    p("ACTIVATE +PID ReasonForActivating")
+    pre(" ACTIVATE +23423 came back from Nairobi")
+    
+    pdfrpt.setElements(Elements)
+    return pdfrpt.render()
