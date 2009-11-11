@@ -52,5 +52,7 @@ urlpatterns = patterns('',
     (r'^trend/(?P<object_id>\d*)$', "mctc.views.trend"),
     (r'^trend/per_page/(?P<per_page>\d*)$', "mctc.views.trend"),
     (r'^trend/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', "mctc.views.trend"),
+    # commands shortlist
+    (r'^mctc/commands-shortlist', "mctc.views.commands_pdf")
 )
 
