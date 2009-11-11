@@ -132,10 +132,12 @@ class App (rapidsms.app.App):
         role_code   = None
 
         try:
-            # this will raise an exception if the clinic code doesn't exist
-            # let's not even create the reporter if the clinic_code is invalid
-            clinic = Location.objects.get(code=clinic_code)
+            clinic  = Location.objects.get(code=clinic_code.lower())
+        except models.ObjectDoesNotExist:
+            message.respond(_(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            return True
 
+        try:
             # parse the name, and create a reporter
             alias, fn, ln = Reporter.parse_name(name)
 
@@ -210,7 +212,7 @@ class App (rapidsms.app.App):
 
         # check clinic code
         try:
-            clinic  = Location.objects.get(code=clinic_code)
+            clinic  = Location.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
             message.forward(reporter.connection().identity, \
                 _(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
