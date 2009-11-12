@@ -87,7 +87,7 @@ class Case(models.Model):
         return self.created_at.strftime("%d.%m.%y")
     
     def provider_mobile(self):
-        return self.provider.mobile
+        return self.reporter.connection().identity
     
     def short_name(self):
         return "%s %s."%(self.first_name, self.last_name[0])
@@ -149,6 +149,22 @@ class Case(models.Model):
             return None
         self.status = state
         return state
+    
+    @classmethod
+    def update_overage_status(cls):
+        sixtym = date.today() - timedelta(int(30.4375*60))
+        
+        try:
+            cases = cls.objects.filter(dob__lte=sixtym, status=Case.STATUS_ACTIVE)
+            count = cases.count()
+            for case in cases:
+                case.set_status(Case.STATUS_INACTIVE)
+                case.save()
+                
+            return count
+        except models.ObjectDoesNotExist:
+            return None
+    
 
 class CaseNote(models.Model):
     case        = models.ForeignKey(Case, related_name="notes", db_index=True)
