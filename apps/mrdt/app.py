@@ -238,6 +238,7 @@ class App (rapidsms.app.App):
 
         result = result.lower() == "y"
         bednet = bednet.lower() == "y"
+        alert = None
 
         report = ReportMalaria(case=case, reporter=reporter, result=result, bednet=bednet)
         report.save()
@@ -257,16 +258,21 @@ class App (rapidsms.app.App):
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
-            if observed: info["observed"] = ", (%s)" % info["observed"]
-            msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
-                    " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
-                    "for clinical evaluation" % info)
-            # alerts to health team
-            alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
+            if observed: 
+                info["observed"] = ", (%s)" % info["observed"]
+                msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
+                        "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
+                        " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
+                        "for clinical evaluation" % info)
+                # alerts to health team
+                alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
                       " %(first_name)s, %(gender)s/%(age)s %(location)s. Patient "\
                       "requires IMMEDIATE referral. Reported by CHW %(reporter_name)s "\
                       "@%(reporter_alias)s m:%(reporter_identity)s." % info)
+            else:
+                msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
+                        "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
+                        " Bednet=%(bednet_text)s." % info)
 
         else:
             # this is all for if child has tested postive
@@ -315,14 +321,15 @@ class App (rapidsms.app.App):
             message.respond(msg[msg.rfind(". ")+1:])
         else:
             message.respond(msg)
-                
-        recipients = report.get_alert_recipients()
-        for recipient in recipients:
-            if len(alert) > self.MAX_MSG_LEN:
-                message.forward(recipient.connection().identity, alert[:alert.rfind(". ")+1])            
-                message.forward(recipient.connection().identity, alert[alert.rfind(". ")+1:])
-            else:
-                message.forward(recipient.connection().identity, alert)
+        
+        if alert:
+            recipients = report.get_alert_recipients()
+            for recipient in recipients:
+                if len(alert) > self.MAX_MSG_LEN:
+                    message.forward(recipient.connection().identity, alert[:alert.rfind(". ")+1])            
+                    message.forward(recipient.connection().identity, alert[alert.rfind(". ")+1:])
+                else:
+                    message.forward(recipient.connection().identity, alert)
             
 
         log(case, "mrdt_taken")        
