@@ -100,6 +100,11 @@ class PDFReport():
     def setPageBreak(self):
         """ force/add a page break """
         self.data.append(PageBreak())
+    
+    def setElements(self, elements):
+        """ Add elements like paragraphs to the overall data """
+        for i in elements:
+            self.data.append(i)
         
     def setTableData(self, queryset, fields, title, colWidths=None):        
         """

@@ -13,6 +13,35 @@ import re
 class HandlerFailed (Exception):
     pass
 
+from functools import wraps
+
+def adeco(func):
+    @wraps(func)
+    def wrapper(self, *args):
+        print("A decorator func")
+        print func.__doc__
+        return func(self, *args)
+    return wrapper
+
+def anotherdeco(func):
+    @wraps(func)
+    def wrapper(self, *args):
+        print("Another decorator func")        
+        print func.__doc__
+        return func(self, *args)
+    return wrapper
+
+def registered (func):
+    @wraps(func)
+    def wrapper (self, message, *args):
+        if message.persistant_connection.reporter:
+            return func(self, message, *args)
+        else:
+            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
+            return True
+    return wrapper
+
+
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
@@ -63,8 +92,13 @@ class App (rapidsms.app.App):
         """Perform global app cleanup when the application is stopped."""
         pass
 
+    
     @keyword(r'takeover (\w+)')
+    @adeco
+    @registered
+    @anotherdeco
     def reporter_http_identity(self, message, username):
+        """Hello World! This is a docstring"""
         reporter = self.find_provider(message, username)
         # attach the reporter to the current connection
         if PersistantBackend.from_message(message).title == "http":

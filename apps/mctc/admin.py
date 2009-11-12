@@ -6,7 +6,7 @@ from models.reports import Observation
 from django.utils.translation import ugettext_lazy as _
 
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","location","created_at","reporter", "age","eligible_for_measles")
+    list_display = ("ref_id", "first_name", "last_name", "gender", "dob","location","created_at","reporter", "provider_mobile", "age","eligible_for_measles")
     search_fields = ['ref_id', 'first_name', 'last_name']
     list_filter = ("dob",'status')
     ordering = ('-dob',)

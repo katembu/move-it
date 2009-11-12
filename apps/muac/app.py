@@ -167,19 +167,19 @@ class App (rapidsms.app.App):
 
         message.respond("MUAC> " + msg)
         
-        """ @todo   enable alerts      """
-        """
+        
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.SEVERE_COMP_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":provider.user.username, "msg":msg}
-            recipients = [provider]
-            for query in (Provider.objects.filter(alerts=True),
-                          Provider.objects.filter(clinic=provider.clinic)):
-                for recipient in query:
-                    if recipient in recipients: continue
-                    recipients.append(recipient)
-                    #message.forward(recipient.mobile, alert)
-        """
+            alert = _("@%(username)s reports %(msg)s") % {"username":report.reporter.alias, "msg":msg}
+            
+            recipients = report.get_alert_recipients()
+            for recipient in recipients:
+                if len(alert) > self.MAX_MSG_LEN:
+                    message.forward(recipient.connection().identity, alert[:alert.rfind(". ")+1])            
+                    message.forward(recipient.connection().identity, alert[alert.rfind(". ")+1:])
+                else:
+                    message.forward(recipient.connection().identity, alert)
+        
         log(case, "muac_taken")
         return True
