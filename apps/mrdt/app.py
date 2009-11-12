@@ -315,12 +315,15 @@ class App (rapidsms.app.App):
             message.respond(msg[msg.rfind(". ")+1:])
         else:
             message.respond(msg)
-        """ @todo: enable alerts """
-        """
+                
         recipients = report.get_alert_recipients()
         for recipient in recipients:
-            message.forward(recipient.mobile, alert)
-        """    
+            if len(alert) > self.MAX_MSG_LEN:
+                message.forward(recipient.connection().identity, alert[:alert.rfind(". ")+1])            
+                message.forward(recipient.connection().identity, alert[alert.rfind(". ")+1:])
+            else:
+                message.forward(recipient.connection().identity, alert)
+            
 
         log(case, "mrdt_taken")        
         return True
