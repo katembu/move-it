@@ -3,9 +3,13 @@ from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.general import Case, Provider, Facility
+from mctc.models.general import Case
 from mctc.models.logs import MessageLog
 from measles.models import ReportMeasles
+from diarrhea.models import ReportDiarrhea
+from diagnosis.models import ReportDiagnosis
+
+from reporters.models import Reporter, Role
 
 from datetime import datetime, date, timedelta
 
@@ -48,6 +52,8 @@ class Observation(models.Model):
     def __unicode__(self):
         return self.name
 
+from mrdt.models import ReportMalaria
+from muac.models import ReportMalnutrition
         
 class ReportCHWStatus(Report, models.Model):
     class Meta:
@@ -68,18 +74,21 @@ class ReportCHWStatus(Report, models.Model):
         clinic_refused = 0
         
         if clinic_id is not None:
-            providers = Provider.list_by_clinic(clinic_id)
+            chwrole = Role.objects.get(code="chw")
+            providers = Reporter.objects.filter(location=clinic_id, role=chwrole)
             for provider in providers:
                 p = {}
                 counter = counter + 1
                 p['counter'] = "%d"%counter
                 p['provider'] = provider
                 p['num_cases'] = Case.count_by_provider(provider)
+                p['num_cases_inactive'] = Case.count_by_provider(provider, Case.STATUS_INACTIVE)
+                p['num_cases_dead'] = Case.count_by_provider(provider,Case.STATUS_DEAD)
                 p['num_new_cases'] = Case.count_for_last_30_days(provider)
                 p_muac = ReportMalaria.count_by_provider(provider, duration_end, duration_start)
                 p['num_malaria_reports'] = p_muac
                 clinic_mrdt = clinic_mrdt + p_muac 
-                num_cases = Case.count_by_provider(provider)
+                num_cases = p['num_cases']
                 clinic_cases = clinic_cases + num_cases
                 num_muac = ReportMalnutrition.count_by_provider(provider, duration_end, muac_duration_start)                
                 clinic_muac = clinic_muac + num_muac
@@ -140,9 +149,11 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": 'PROVIDER', "column": None, "bit": "{{ object.provider }}" })
             fields.append({"name": 'TOTAL CASES', "column": None, "bit": "{{ object.num_cases}}" })
             fields.append({"name": '# NEW CASES', "column": None, "bit": "{{ object.num_new_cases}}" })
+            fields.append({"name": '# INACTIVE', "column": None, "bit": "{{ object.num_cases_inactive}}" })
+            fields.append({"name": '# DEAD', "column": None, "bit": "{{ object.num_cases_dead}}" })
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.num_malaria_reports }}" })
             fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.num_muac_reports }}" })
-            fields.append({"name": 'RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
+            fields.append({"name": 'SMS RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
             fields.append({"name": 'LAST ACTVITY', "column": None, "bit": "{{ object.days_since_last_activity }}" })
             return ps, fields 
         
@@ -265,12 +276,12 @@ class ReportAllPatients(Report, models.Model):
         verbose_name = "CHW Perfomance Report"
         app_label = "mctc"
     @classmethod
-    def by_provider(cls, provider_id=None):    
+    def by_provider(cls, reporter=None):    
         qs      = []
         fields  = []
         counter = 0
-        if provider_id is not None:
-            cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+        if reporter is not None:
+            cases   = Case.objects.order_by("last_name").filter(reporter=reporter, status=Case.STATUS_ACTIVE)
             
             for case in cases:
                 q   = {}
@@ -469,7 +480,7 @@ class ReportAllPatients(Report, models.Model):
                 q   = {}
                 
                 q['case']   = case.case
-                q['provider']   = case.provider
+                q['reporter']   = case.reporter
                 counter = counter + 1
                 q['counter'] = "%d"%counter
                     
@@ -501,10 +512,100 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.malaria_result }}" })
             fields.append({"name": 'BEDNET', "column": None, "bit": "{{ object.malaria_bednet }}" })
             fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
-            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.provider }} {{ object.provider.mobile }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter}}" })
             fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
             
             return qs, fields
+    
+    @classmethod
+    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):    
+        qs      = []
+        fields  = []
+        counter = 0
+        if clinic is None:
+            #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end).values("case").distinct().order_by("case__location")
+        else:
+            malrpts = ReportMalaria.objects.filter(result=True, entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).values("case").distinct().order_by("case__location")
+        for case in malrpts:
+            q   = {}
+            case = ReportMalaria.objects.filter(case__id=case["case"]).latest()
+            q['case']   = case.case
+            q['date']   = case.entered_at.strftime("%d.%m.%y")
+            q['mobile']   = case.provider_number()
+            q['reporter']   = case.reporter
+            q['result']   = case.results_for_malaria_result()
+            q['bednet'] = case.results_for_malaria_bednet()            
+            q['name'] =  u"%s %s"%(q['case'].last_name, q['case'].first_name)
+            counter = counter + 1
+            q['counter'] = "%d"%counter
+                
+            num_of_malaria_cases = ReportMalaria.num_reports_by_case(case.case)                
+            q['num_of_malaria_cases'] = "%d"%num_of_malaria_cases
+            q['symptoms'] = case.symptoms()
+            qs.append(q)
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+        fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
+        fields.append({"name": 'NAME', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.age }}" })            
+        fields.append({"name": 'MRDT', "column": None, "bit": "{{ object.result }}" })
+        fields.append({"name": 'BEDNET', "column": None, "bit": "{{ object.bednet }}" })
+        fields.append({"name": 'DATE', "column": None, "bit": "{{ object.date }}" })
+        fields.append({"name": 'TIMES', "column": None, "bit": "{{ object.num_of_malaria_cases }}" })
+        fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter}}" })
+        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        
+        return qs, fields
+    
+    @classmethod
+    def malnutrition_at_risk(cls, duration_start, duration_end, clinic=None):
+        """
+        Show at risk Cases for malnutrition reports
+        """    
+        qs      = []
+        fields  = []
+        counter = 0
+        if clinic is None:
+            #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+            malrpts = ReportMalnutrition.objects.filter(entered_at__gte=duration_start,entered_at__lte=duration_end).exclude(status=ReportMalnutrition.HEALTHY_STATUS).values("case").distinct().order_by("status")
+        else:
+            malrpts = ReportMalnutrition.objects.filter(entered_at__gte=duration_start,entered_at__lte=duration_end, case__location=clinic).exclude(status=ReportMalnutrition.HEALTHY_STATUS).values("case").distinct().order_by("status")
+        for case in malrpts:
+            q   = {}
+            muac = ReportMalnutrition.objects.filter(case__id=case["case"]).latest()
+            q['case']   = muac.case
+            q['date']   = muac.entered_at.strftime("%d.%m.%y")
+            q['mobile']   = muac.provider_number()
+            q['reporter']   = muac.reporter
+            
+            q['malnut_muac'] = "%s (%smm)"%(muac.get_status_display(), muac.muac)
+                        
+            q['name'] =  u"%s %s"%(q['case'].last_name, q['case'].first_name)
+            counter = counter + 1
+            q['counter'] = "%d"%counter
+                
+            num_of_muac_cases = ReportMalnutrition.num_reports_by_case(muac.case)                
+            q['num_of_muac_cases'] = "%d"%num_of_muac_cases
+            q['symptoms'] = muac.symptoms_keys()
+            qs.append(q)
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+        fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
+        fields.append({"name": 'NAME', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.age }}" })            
+        fields.append({"name": 'MUAC', "column": None, "bit": "{{ object.malnut_muac }}" })
+        fields.append({"name": 'DATE', "column": None, "bit": "{{ object.date }}" })
+        fields.append({"name": '#', "column": None, "bit": "{{ object.num_of_muac_cases }}" })
+        fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter.last_name}}" })
+        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        
+        return qs, fields
+    
     
     @classmethod
     def malnut_by_provider(cls):    
@@ -520,7 +621,7 @@ class ReportAllPatients(Report, models.Model):
                 q   = {}
                 
                 q['case']   = muacc.case
-                q['provider']   = muacc.provider
+                q['reporter']   = muacc.reporter
                 counter = counter + 1
                 q['counter'] = "%d"%counter
                 try:
@@ -543,7 +644,7 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.short_dob }} - {{ object.case.age }}" })            
             fields.append({"name": 'CMAM', "column": None, "bit": "{{ object.malnut_muac }} {{object.malnut_days_since_last_update}}" })
             fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.malnut_symptoms}}" })
-            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.provider }} {{ object.provider.mobile }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter }}" })
             fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
             
             return qs, fields

@@ -14,6 +14,7 @@ from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
+from utils import health_unit_filter
 
 # CONFIGURATION
 class Configuration(models.Model):
@@ -46,6 +47,8 @@ class ReportPeriod(models.Model):
 
     class Meta:
         unique_together = ("start_date", "end_date")
+        get_latest_by   = "end_date"
+        ordering        = ["-end_date"]
 
     start_date  = models.DateTimeField()
     end_date    = models.DateTimeField()
@@ -271,14 +274,14 @@ class MalariaCasesReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    _opd_attendance      = models.PositiveIntegerField(default=0, verbose_name=_(u"OPD Attendance"))
-    _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected Cases"))
-    _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT Tests"))
-    _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Tested"))
-    _microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy Tests"))
-    _microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy+ Tested"))
-    _positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives under 5"))
-    _positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positives over 5"))
+    _opd_attendance      = models.PositiveIntegerField(default=0, verbose_name=_(u"Total OPD Attendance"))
+    _suspected_cases     = models.PositiveIntegerField(default=0, verbose_name=_(u"Suspected malaria cases"))
+    _rdt_tests           = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT tested cases"))
+    _rdt_positive_tests  = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT positive cases"))
+    _microscopy_tests    = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy tested cases"))
+    _microscopy_positive = models.PositiveIntegerField(default=0, verbose_name=_(u"Microscopy positive cases"))
+    _positive_under_five = models.PositiveIntegerField(default=0, verbose_name=_(u"Positive cases under 5 years"))
+    _positive_over_five  = models.PositiveIntegerField(default=0, verbose_name=_(u"Positive cases 5+ years"))
 
     sent_on     = models.DateTimeField(auto_now_add=True)
     edited_by   = models.ForeignKey(User, blank=True, null=True)
@@ -431,12 +434,12 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT+ Cases Treated"))
-    _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT- Cases Treated"))
-    _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4 months - 3 years"))
-    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3 - 7 years"))
-    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7 - 12 years"))
-    _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12 years & above"))
+    _rdt_negative        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT negative cases treated"))
+    _rdt_positive        = models.PositiveIntegerField(default=0, verbose_name=_(u"RDT positive cases treated"))
+    _four_months_to_three= models.PositiveIntegerField(default=0, verbose_name=_(u"4+ months to 3 years"))
+    _three_to_seven      = models.PositiveIntegerField(default=0, verbose_name=_(u"3+ to 7 years"))
+    _seven_to_twelve     = models.PositiveIntegerField(default=0, verbose_name=_(u"7+ to 12 years"))
+    _twelve_and_above    = models.PositiveIntegerField(default=0, verbose_name=_(u"12+ years"))
 
 
     sent_on     = models.DateTimeField(auto_now_add=True)
@@ -679,6 +682,11 @@ class ACTConsumptionReport(models.Model,FindReport):
         text    = _(u"YELLOW: %(yellow_dispensed)s/%(yellow_balance)s, BLUE: %(blue_dispensed)s/%(blue_balance)s, BROWN: %(brown_dispensed)s/%(brown_balance)s, GREEN: %(green_dispensed)s/%(green_balance)s, OTHER.ACT: %(other_act_dispensed)s/%(other_act_balance)s") % {'yellow_dispensed': self.yellow_dispensed, 'yellow_balance': self.yellow_balance, 'blue_dispensed': self.blue_dispensed, 'blue_balance': self.blue_balance, 'brown_dispensed': self.brown_dispensed, 'brown_balance': self.brown_balance, 'green_dispensed': self.green_dispensed, 'green_balance': self.green_balance, 'other_act_dispensed': self.other_act_dispensed, 'other_act_balance': self.other_act_balance}
         return text
 
+    @property
+    def sms_stock_summary(self):
+        text    = _(u"ACT Stock YEL:%(yellow_balance)s, BLU:%(blue_balance)s, BRO:%(brown_balance)s, GRE:%(green_balance)s, OTH:%(other_act_balance)s") % {'yellow_balance': self.yellow_balance, 'blue_balance': self.blue_balance, 'brown_balance': self.brown_balance, 'green_balance': self.green_balance, 'other_act_balance': self.other_act_balance}
+        return text
+
 # EPIDEMIOLOGICAL REPORT
 class EpidemiologicalReport(models.Model):
 
@@ -695,13 +703,13 @@ class EpidemiologicalReport(models.Model):
     class Meta:
         unique_together = ("clinic", "period")
 
-    clinic  = models.ForeignKey(Location, related_name='clinic')
-    period  = models.ForeignKey(ReportPeriod, related_name='period')
+    clinic  = models.ForeignKey(Location)
+    period  = models.ForeignKey(ReportPeriod)
 
-    _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, related_name='diseases_report', verbose_name=DiseasesReport.TITLE)
-    _malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, related_name='cases_report', verbose_name=MalariaCasesReport.TITLE)
-    _malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, related_name='treatments_report', verbose_name=MalariaTreatmentsReport.TITLE)
-    _act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, related_name='act_report', verbose_name=ACTConsumptionReport.TITLE)
+    _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, verbose_name=DiseasesReport.TITLE)
+    _malaria_cases       = models.ForeignKey(MalariaCasesReport, null=True, blank=True, verbose_name=MalariaCasesReport.TITLE)
+    _malaria_treatments  = models.ForeignKey(MalariaTreatmentsReport, null=True, blank=True, verbose_name=MalariaTreatmentsReport.TITLE)
+    _act_consumption     = models.ForeignKey(ACTConsumptionReport, null=True, blank=True, verbose_name=ACTConsumptionReport.TITLE)
     _remarks             = models.CharField(max_length=160, blank=True, null=True, verbose_name=_(u"Remarks"))
 
     _status      = models.CharField(max_length=1, choices=STATUSES,default=STATUS_STARTED)
@@ -769,6 +777,14 @@ class EpidemiologicalReport(models.Model):
             report  = cls(clinic=clinic, period=period)
             report.save()
             return report
+
+    @classmethod
+    def last_completed_by_clinic(cls, clinic):
+        reports = cls.objects.filter(clinic=clinic,completed_on__isnull=False).order_by('-period')
+        if len(reports) == 0:
+            return False
+        else:
+            return reports[0]
 
     @classmethod
     def by_receipt(cls, receipt):
@@ -940,9 +956,37 @@ class ReporterExtra(models.Model):
     def __unicode__(self):
         return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
 
+    def health_units(self):
+        ''' Return the health units within the location of the related reporter '''
+
+        if self.reporter.location:
+            locations = self.reporter.location.descendants()
+        else:
+            locations = Location.objects.all()
+        
+        return filter(health_unit_filter, locations)
+
+    def health_workers(self):
+        ''' Return the reporters with health worker role within the health units of the related reporter '''
+
+        health_units = self.health_units()
+        hws = []
+        for hw in Reporter.objects.filter(role__code='hw'):
+            if hw.location in health_units:
+                hws.append(hw)
+        return hws
+
     @classmethod
     def by_user(cls, user):
         return cls.objects.get(user=user)
+
+    @classmethod
+    def location_by_user(cls, user):
+        if len(cls.objects.filter(user=user)) == 0:
+            return None
+        if not cls.by_user(user).reporter.location:
+            return None
+        return cls.by_user(user).reporter.location
 
     @classmethod
     def by_reporter(cls, reporter):

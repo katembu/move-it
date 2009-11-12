@@ -72,7 +72,7 @@ class ReportMalnutrition(models.Model):
         return "%s %s" % (self.case.first_name, self.case.last_name) 
         
     def provider_number(self):
-        return self.provider.mobile
+        return self.reporter.connection().identity
             
     def diagnose (self):
         complications = [c for c in self.observed.all() if c.uid != "edema"]
@@ -104,14 +104,23 @@ class ReportMalnutrition(models.Model):
         super(ReportMalnutrition, self).save(*args)
        
     @classmethod
-    def count_by_provider(cls,provider, duration_end=None,duration_start=None):
-        if provider is None:
+    def count_by_provider(cls,reporter, duration_end=None,duration_start=None):
+        if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(provider=provider).count()
-            return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(provider=provider).count()
+                return cls.objects.filter(reporter=reporter).count()
+            return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(reporter=reporter).count()
         except models.ObjectDoesNotExist:
-            return None 
-
+            return None
+    
+    @classmethod
+    def num_reports_by_case(cls, case=None):
+        if case is None:
+            return None
+        try:
+            return cls.objects.filter(case=case).count()
+        except models.ObjectDoesNotExist:
+            return None
+        
 

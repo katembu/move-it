@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
 from mctc.models.logs import MessageLog, log
-from mctc.models.general import Provider, Case
+from mctc.models.general import Case
 from birth.models import ReportBirth
 
 import re
@@ -19,7 +19,7 @@ def registered (func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"Sorry, only registered users can access this program."))
+            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
             return True
     return wrapper
 
@@ -29,21 +29,12 @@ class HandlerFailed (Exception):
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
+    handled = False
     def start (self):
         """Configure your app in the start phase."""
         pass
 
-    def parse (self, message):
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '254':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
+    def parse (self, message):        
         message.was_handled = False
 
     def handle (self, message):
@@ -53,24 +44,28 @@ class App (rapidsms.app.App):
             # didn't find a matching function
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            
+            input_text = message.text.lower()
+            if not (input_text.find("birth") == -1):
+                message.respond(self.get_birth_report_format_reminder())
+                self.handled = True
+                return True
             return False
         try:
-            handled = func(self, message, *captures)
+            self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
             
-            handled = True
+            self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call 0733202270."))
             raise
-        message.was_handled = bool(handled)
-        return handled
+        message.was_handled = bool(self.handled)
+        return self.handled
 
     def cleanup (self, message):
-        if message.was_handled:
+        if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
                          text=message.text,
@@ -85,6 +80,10 @@ class App (rapidsms.app.App):
         """Perform global app cleanup when the application is stopped."""
         pass
     
+    def get_birth_report_format_reminder(self):
+        """Expected format for birth command, sent as a reminder"""
+        return "Format:  birth [last name] [first name] [gender m/f] [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian] (complications)"
+
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
     @registered
     @transaction.commit_on_success
