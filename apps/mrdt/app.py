@@ -209,7 +209,6 @@ class App (rapidsms.app.App):
 
         message.respond(msg)
         message.respond(_(info["instructions"]))
-        
         """ @todo: enable alerts """
         """
         recipients = report.get_alert_recipients()
