@@ -8,7 +8,7 @@ from datetime import datetime, date
 
 from mctc.models.general import Case
 from mctc.models.reports import Observation
-from reporters.models import Reporter
+from reporters.models import Reporter, ReporterGroup
 
 class ReportMalaria(models.Model):
     class Meta:
@@ -91,4 +91,11 @@ class ReportMalaria(models.Model):
         if not logs:
             return ""
         return (today - logs[0].entered_at.date()).days
-
+    
+    def get_alert_recipients(self):
+        recipients = []
+        subscribers = Reporter.objects.all()
+        for subscriber in subscribers:
+            if subscriber.registered_self and ReporterGroup.objects.get(title='mrdt_notifications') in subscriber.groups.only():
+                recipients.append(subscriber)
+        return recipients

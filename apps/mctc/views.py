@@ -23,8 +23,6 @@ from libreport.pdfreport import PDFReport
 from reportlab.lib.units import inch
 
 from django.utils.translation import ugettext_lazy as _
-
-
 from django.template import Template, Context
 from django.template.loader import get_template
 from django.core.paginator import Paginator, InvalidPage
@@ -35,6 +33,37 @@ from datetime import datetime, timedelta, date
 import os
 import csv
 import StringIO
+
+
+from reportlab.platypus import *
+from reportlab.lib.styles import getSampleStyleSheet
+
+styles = getSampleStyleSheet()
+Elements = []
+
+HeaderStyle = styles["Heading1"] # XXXX
+
+def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
+    s = Spacer(0.2*inch, sep*inch)
+    Elements.append(s)
+    para = klass(txt, style)
+    Elements.append(para)
+
+ParaStyle = styles["Normal"]
+
+def p(txt):
+    return header(txt, style=ParaStyle, sep=0.1)
+
+#pre = p # XXX
+
+PreStyle = styles["Code"]
+
+def pre(txt):
+    s = Spacer(0.1*inch, 0.1*inch)
+    Elements.append(s)
+    p = Preformatted(txt, PreStyle)
+    Elements.append(p)
+
 
 app = {}
 app['name'] = "RapidResponse:Health"
@@ -615,4 +644,79 @@ def trend(request, object_id=None, per_page="0", rformat="pdf"):
             
             pdfrpt.setTableData(queryset, fields, c.get_name_display())
     
+    return pdfrpt.render()
+
+def commands_pdf(request):
+    pdfrpt = PDFReport()
+    pdfrpt.setLandscape(True)
+    pdfrpt.setNumOfColumns(2)
+    pdfrpt.setFilename("shortlist")
+    
+    header("Malnutrition Monitoring Report")
+
+    p("MUAC +PatientID MUACMeasurement Edema (E/N) Symptoms")
+    pre("Example: MUAC +1410 105 E V D Or      MUAC +1385 140 n")
+    
+    header("Malaria Rapid Diagnostic Test Reports (MRDT)")
+    p("MRDT +PatientID RDTResult (Y/N) BedNet (Y/N) Symtoms")
+    pre("Example: MRDT +28 Y N D CV")
+    
+    pre("""\
+     
+     Code | Symptom                 | Danger Sign
+     =============================================
+      CG  |  Coughing               |
+      D   |  Diarrhea               |  CMAM
+      A   |  Appetite Loss          |  CMAM
+      F   |  Fever                  |  CMAM
+      V   |  Vomiting               |  CMAM, RDT
+      NR  |  Nonresponsive          |  CMAM, RDT
+      UF  |  Unable to Feed         |  CMAM, RDT
+      B   |  Breathing Difficulty   |  RDT
+      CV  |  Convulsions/Fits       |  RDT
+      CF  |  Confusion              |  RDT
+     ==============================================
+    """)
+    
+    header("Death Report")
+    p("DEATH LAST FIRST GENDER AGE  DateOfDeath (DDMMYY) CauseOfDeath Location Description")
+    pre("Example: DEATH RUTH BABE M 50m 041055 S H Sudden heart attack")
+    
+    header("Child Death Report")
+    p("CDEATH +ID DateOfDeath(DDMMYY) Cause Location Description")
+    pre("Example: CDEATH +782 101109 I C severe case of pneumonia")
+    
+    pre("""\
+    CauseOfDeath - Likely causes of death
+    ===========================
+    P   |   Pregnancy related
+    B   |   Child Birth
+    A   |   Accident
+    I   |   Illness
+    S   |   Sudden Death
+    ===========================
+    """)
+    
+    pre("""\
+    Location - where the death occured
+    ===================================================
+    H   |   Home
+    C   |   Health Facility
+    T   |   Transport - On route to Clinic/Hospital
+    ===================================================
+    """)
+    
+    header("Birth Report")
+    p("BIRTH Last First Gender(M/F) DOB (DDMMYY) WEIGHT Location Guardian Complications")
+    pre("BIRTH Onyango James M 051009 4.5 C Anyango No Complications")
+    
+    header("Inactive Cases")
+    p("INACTIVE +PID ReasonOfInactivity")
+    pre(" INACTIVE +23423 immigrated to another town(Siaya)")
+    
+    header("Activate Inactive Cases")
+    p("ACTIVATE +PID ReasonForActivating")
+    pre(" ACTIVATE +23423 came back from Nairobi")
+    
+    pdfrpt.setElements(Elements)
     return pdfrpt.render()

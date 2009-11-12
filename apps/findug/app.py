@@ -132,6 +132,12 @@ class App (rapidsms.app.App):
         role_code   = None
 
         try:
+            clinic  = Location.objects.get(code=clinic_code.lower())
+        except models.ObjectDoesNotExist:
+            message.respond(_(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            return True
+
+        try:
             # parse the name, and create a reporter
             alias, fn, ln = Reporter.parse_name(name)
 
@@ -153,6 +159,7 @@ class App (rapidsms.app.App):
             # moment, we don't care what
         except:
             message.respond("Join Error. Unable to register your account.")
+            return True
 
         if role_code == None or role_code.__len__() < 1:
             role_code   = 'hw'
@@ -205,7 +212,7 @@ class App (rapidsms.app.App):
 
         # check clinic code
         try:
-            clinic  = Location.objects.get(code=clinic_code)
+            clinic  = Location.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
             message.forward(reporter.connection().identity, \
                 _(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
@@ -689,7 +696,7 @@ class App (rapidsms.app.App):
             report.status = report.STATUS_COMPLETED
             report.save()
 
-            message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
+            message.respond(_(u"Thank you for completing %(date)s %(title)s! Your receipt number is %(receipt)s") % {'date': report.period, 'title': report.title, 'receipt': report.receipt})
 
         # send notification
         report_completed_alerts(self.router, report)
