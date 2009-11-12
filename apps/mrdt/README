@@ -8,8 +8,15 @@ the malnutrition report.
 If the patient tests positive for malaria, RapidResponse provides a Coartem dosage recommendation based on the
 patient’s age. If the patient is a child under five and the result is negative or presents with any of the risk symptoms,
 RapidResponse will refer the child immediately to a clinic for further evaluation.
-MRDT reports start with the form code MRDT and follow the following syntax:
-MRDT +28 Y N D CV
+
+
+This reflects treatment protocol for Ghana.
+MRDT reports start with the form code MTS and follow the following syntax:
+MTS +75 Y N D CV
+[to indicate the mts test was done on patient .  The result was positive for malaria and the patient has no bed net at home.  D and CV are symptoms.  Symptoms are optional.]
 and would return:
-Child +28, DIALLO Fatimata F/13M has MALARIA. Child is less than 3.
-Please provide 1 tab of Coartem (ACT) twice a day for 3 days.
+Message number 1 of 2: confirmation
+Patient +75, Fatimata DIALLO, F/29m (Amie). Bednet=N Diarrhea, Fits/Convulsions. Patient has MALARIA and danger signs (Fits/Convulsions).
+
+Message number 2 of 2: instructions
+Refer to clinic after one half each of Artesunate 50mg and Amodiaquine 150mg is given	 characters
