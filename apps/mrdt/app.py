@@ -47,7 +47,7 @@ class App (rapidsms.app.App):
                 message.respond(self.get_mrdt_format_reminder())
                 self.handled = True
                 return True
-           return False
+            return False
         try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
