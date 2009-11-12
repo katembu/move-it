@@ -8,7 +8,7 @@ from datetime import datetime, date
 
 from mctc.models.general import Case
 from mctc.models.reports import Observation
-from reporters.models import Reporter
+from reporters.models import Reporter,ReporterGroup
 
 class ReportMalnutrition(models.Model):
     
@@ -122,5 +122,11 @@ class ReportMalnutrition(models.Model):
             return cls.objects.filter(case=case).count()
         except models.ObjectDoesNotExist:
             return None
-        
-
+            
+    def get_alert_recipients(self):
+        recipients = []
+        subscribers = Reporter.objects.all()
+        for subscriber in subscribers:
+            if subscriber.registered_self and ReporterGroup.objects.get(title='muac_notifications') in subscriber.groups.only():
+                recipients.append(subscriber)
+        return recipients
