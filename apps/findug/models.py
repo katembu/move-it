@@ -355,7 +355,7 @@ class MalariaCasesReport(models.Model,FindReport):
     def set_rdt_positive_tests(self, value):
         if value > self.rdt_tests:
             raise IncoherentValue(_(u"FAILED: RDT positive cases cannot be greater than RDT tested cases. Please check and try again."))
-        self.__rdt_positive_tests = value
+        self._rdt_positive_tests = value
     rdt_positive_tests  = property(get_rdt_positive_tests, set_rdt_positive_tests)
 
     # microscopy_tests property
@@ -375,14 +375,14 @@ class MalariaCasesReport(models.Model,FindReport):
     def set_microscopy_positive(self, value):
         if value > self.microscopy_tests:
             raise IncoherentValue(_(u"FAILED: Microscopy positive cases cannot be greater than microscopy tested cases. Please check and try again."))
-        self.__microscopy_positive = value
+        self._microscopy_positive = value
     microscopy_positive  = property(get_microscopy_positive, set_microscopy_positive)
 
     # positive_under_five property
     def get_positive_under_five(self):
         return self._positive_under_five
     def set_positive_under_five(self, value):
-        self.__positive_under_five = value
+        self._positive_under_five = value
     positive_under_five  = property(get_positive_under_five, set_positive_under_five)
 
     # property
@@ -393,7 +393,7 @@ class MalariaCasesReport(models.Model,FindReport):
             raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than suspected malaria cases. Please check and try again."))
         if (value + self.positive_under_five) > self.opd_attendance:
             raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than total OPD attendance. Please check and try again."))
-        self.__positive_over_five = value
+        self._positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
     @property
