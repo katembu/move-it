@@ -20,4 +20,4 @@ admin.site.register(DiseaseAlertTrigger)
 admin.site.register(DiseaseAlert)
 
 admin.site.register(ReporterExtra)
-admin.site.register(LocationExtra)
+admin.site.register(HealthUnit)

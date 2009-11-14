@@ -1061,4 +1061,47 @@ class HealthUnit(Location):
 
     @classmethod
     def by_location(cls, location):
-        return cls.objects.get(location_ptr=location)
+        try:
+            return cls.objects.get(location_ptr=location)
+        except cls.DoesNotExist:
+            return None
+
+    @property
+    def district(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def hsd(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'health sub district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def county(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def subcounty(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'sub county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def parish(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'parish', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
