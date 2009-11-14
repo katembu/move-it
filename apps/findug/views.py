@@ -75,7 +75,8 @@ def map(req):
     for location in locations:
         loc = {}
         loc['obj'] = location
-        loc['name'] = '%s %s' % (location.name, location.type.name)
+        loc['name'] = unicode(location)
+        loc['type'] = location.type.name.lower().replace(' ','')
         act_reports = ACTConsumptionReport.objects.filter(reporter__location=location).filter(period=previous_period)
         if not act_reports: 
             loc['act_unknown'] = True
