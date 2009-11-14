@@ -50,26 +50,6 @@ def rec_type_from_string(rec_type):
         rec_type    = Location
     return rec_type
 
-def stock_answer(target):
-
-
-    stores   = StockItem.by_peer(peer=target)
- 
-    total = stores.extra(select={'total': 'SUM(quantity)'})[0].total
-    if total == None:
-        total = 0
-
-    if total == 0:
-        return _(u"%(user)s has nothing") % {'user': target}
- 
-    answer  = _(u"%(user)s has: ") % {'user': target}
-    sep     = u", "
-    stock   = stores
-    for couple in stock:
-        answer += _(u"%(med)s (#%(sku)s|%(k)s): %(q)s") % {'med': couple.item.name, 'q': couple.quantity, 'k': couple.item.kind.code, 'sku': couple.item.sku}
-        answer += sep
-    return answer[:-sep.__len__()]
-
 def peer_from_alias(alias, of_type=None):
 
     try:
@@ -104,7 +84,7 @@ class App (rapidsms.app.App):
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-            message.respond(_(u"Error. Your message could not be recognized by the system. Please check syntax and retry."))
+            message.respond(_(u"Error. Your message could not be recognized by the system. Please check and try again."))
             return False
         try:
             handled = func(self, message, *captures)
@@ -132,9 +112,9 @@ class App (rapidsms.app.App):
         role_code   = None
 
         try:
-            clinic  = Location.objects.get(code=clinic_code.lower())
+            clinic  = HealthUnit.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
-            message.respond(_(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            message.respond(_(u"Subscribe error. Provided health unit code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
             return True
 
         try:
@@ -158,7 +138,7 @@ class App (rapidsms.app.App):
             # something went wrong - at the
             # moment, we don't care what
         except:
-            message.respond("Join Error. Unable to register your account.")
+            message.respond("Subscribe error. Unable to register your account.")
             return True
 
         if role_code == None or role_code.__len__() < 1:
@@ -173,7 +153,7 @@ class App (rapidsms.app.App):
     @keyword(r'(\w+)')
     @registered
     def join(self, message, clinic_code):
-        ''' Adds a self-registered reporter to the mrdt system '''
+        ''' Adds a self-registered reporter to the system '''
 
         # skip roles for now
         role_code   = None
@@ -212,21 +192,14 @@ class App (rapidsms.app.App):
 
         # check clinic code
         try:
-            clinic  = Location.objects.get(code=clinic_code.lower())
+            clinic  = HealthUnit.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
             message.forward(reporter.connection().identity, \
-                _(u"Join Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
-            return True
-    
-        # check that location is a clinic (not sure about that)
-        clinic_types = ['Hospital', 'HC II', 'HC III', 'HC IV']
-        if not clinic.type.name in clinic_types:
-            message.forward(reporter.connection().identity, \
-                _(u"Join Error. You must provide a Clinic code."))
+                _(u"Subscribe error. Provided clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
             return True
 
         # set location
-        reporter.location = clinic
+        reporter.location = clinic.location_ptr
 
         # check role code
         try:
@@ -529,7 +502,7 @@ class App (rapidsms.app.App):
             return True
 
         # Add to Master Report
-        master_report               = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report               = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.malaria_cases = report
         master_report.save()
 
@@ -585,7 +558,7 @@ class App (rapidsms.app.App):
             return True
 
         # Add to Master Report
-        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.malaria_treatments= report
         master_report.save()
 
@@ -645,7 +618,7 @@ class App (rapidsms.app.App):
             return True
 
         # Add to Master Report
-        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report                   = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.act_consumption   = report
         master_report.save()
 
@@ -725,7 +698,7 @@ class App (rapidsms.app.App):
 
         # Get Master Report
         try:
-            report = EpidemiologicalReport.objects.get(clinic=reporter.location, period=report_week)
+            report = EpidemiologicalReport.objects.get(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         except EpidemiologicalReport.DoesNotExist:
             message.respond(_(u"I am sorry but there is no such report for %(date)s yet.") % {'date': report_week})
             return True

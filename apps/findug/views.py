@@ -195,18 +195,12 @@ def epidemiological_report(req, report_id):
     headers['to']    =   {'label':'To (Date)', 'value':epi_report.period.end_date.strftime(DATE_FORMAT)}
     headers['hu']    =   {'label':'Health Unit', 'value':'%s %s' % (epi_report.clinic, epi_report.clinic.type)}
     headers['huc']   =   {'label':'Health Unit Code', 'value':epi_report.clinic.code}
+    headers['sc']    =   {'label':'Sub-County', 'value':epi_report.clinic.subcounty}
+    headers['hsd']   =   {'label':'HSD', 'value':epi_report.clinic.hsd}
 
-    sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
-    headers['sc']    =   {'label':'Sub-County', 'value':sub_county}
-    
-    hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
-    headers['hsd']   =   {'label':'HSD', 'value':hsd}
-
-    district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
     #Remove unnecessary ' District'
-    district = district.name.replace(' District','')
+    district = epi_report.clinic.district.name.replace(' District','')
     headers['dis']   =   {'label':'District', 'value':district}
-
 
     disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
     diseases = []
@@ -299,20 +293,14 @@ def epidemiological_report_pdf(req, report_id):
         footer_row_y    =  2.10*cm
         remarks_row_y   =  1.70*cm
 
-        # find the health center's district parent location object
-        district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
         #Remove unnecessary ' District'
-        district = district.name.replace(' District','')
+        district = epi_report.clinic.district.name.replace(' District','')
 
-        # find the health center's health sub district parent location object
-        hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
         #Remove unnecessary ' HSD'
-        hsd = hsd.name.replace(' HSD','')
+        hsd = epi_report.clinic.hsd.name.replace(' HSD','')
 
-        # find the health center's subcounty parent location object
-        sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
         # remove unncessary ' SC'
-        sub_county = sub_county.name.replace(' SC','')
+        sub_county = epi_report.clinic.subcounty.name.replace(' SC','')
 
         # create a list containing unique reporters that submitted the subreports
         reporters = set([
@@ -348,7 +336,7 @@ def epidemiological_report_pdf(req, report_id):
             {"x":10.6*cm, "y":first_row_y, "value":epi_report.period.start_date.strftime(DATE_FORMAT)}, # For Period (Date)
             {"x":16.0*cm, "y":first_row_y, "value":epi_report.period.end_date.strftime(DATE_FORMAT)}, # To (Date)
 
-            {"x":4.2*cm, "y":second_row_y, "value":'%s %s' % (epi_report.clinic, epi_report.clinic.type) }, # Health Unit
+            {"x":3.8*cm, "y":second_row_y, "value":epi_report.clinic }, # Health Unit
             {"x":12.0*cm, "y":second_row_y, "value":epi_report.clinic.code  }, # Health Unit Code
             {"x":15.9*cm, "y":second_row_y, "value":sub_county }, # Sub-County
 

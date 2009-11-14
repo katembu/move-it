@@ -783,7 +783,7 @@ class EpidemiologicalReport(models.Model):
     def get_diseases(self):
         return self._diseases
     def set_diseases(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._diseases = value
     diseases  = property(get_diseases, set_diseases)
@@ -792,7 +792,7 @@ class EpidemiologicalReport(models.Model):
     def get_malaria_cases(self):
         return self._malaria_cases
     def set_malaria_cases(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._malaria_cases = value
     malaria_cases  = property(get_malaria_cases, set_malaria_cases)
@@ -801,7 +801,7 @@ class EpidemiologicalReport(models.Model):
     def get_malaria_treatments(self):
         return self._malaria_treatments
     def set_malaria_treatments(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._malaria_treatments = value
     malaria_treatments  = property(get_malaria_treatments, set_malaria_treatments)
@@ -810,7 +810,7 @@ class EpidemiologicalReport(models.Model):
     def get_act_consumption(self):
         return self._act_consumption
     def set_act_consumption(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._act_consumption = value
     act_consumption  = property(get_act_consumption, set_act_consumption)
@@ -900,7 +900,7 @@ def EpidemiologicalReport_pre_save_handler(sender, **kwargs):
 
     for value in (instance.diseases, instance.malaria_cases, instance.malaria_treatments, instance.act_consumption):
         try:
-            if value.reporter.location != instance.clinic or value.period != instance.period:
+            if value.reporter.location != instance.clinic.location_ptr or value.period != instance.period:
                 raise IncoherentValue
         except AttributeError:
             pass
