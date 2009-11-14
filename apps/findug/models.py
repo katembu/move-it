@@ -164,6 +164,13 @@ class HealthUnit(Location):
         else:
             return list[0]
 
+    def up2date(self):
+        if EpidemiologicalReport.last_completed_by_clinic(self) and \
+           EpidemiologicalReport.last_completed_by_clinic(self).period == ReportPeriod.objects.latest():
+            return True
+        else:
+            return False
+
 # FIND REPORT (GENERIC)
 class FindReport:
 
@@ -842,6 +849,14 @@ class EpidemiologicalReport(models.Model):
     def by_receipt(cls, receipt):
         clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
         return cls.objects.get(clinic=HealthUnit.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
+
+    def completed_by(self):
+        if not self.completed: return None
+        reports = []
+        for obj in [self.diseases,self.malaria_cases,self.malaria_treatments, self.act_consumption]:
+            reports.append({'obj':obj, 'sent_on':obj.sent_on})
+        reports.sort(key=lambda report:report['sent_on'], reverse=True)
+        return reports[3]['obj'].reporter
 
     @property
     def verbose_status(self):

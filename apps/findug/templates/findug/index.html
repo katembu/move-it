@@ -1,5 +1,5 @@
 {% extends base_template %}
-{% block title %}FIND Uganda - {% block subtitle %}Home{% endblock %}{% endblock %}
+{% block title %}FIND Uganda - {% block subtitle %}Dashboard{% endblock %}{% endblock %}
 
 {% block page_tabs %}
 <ul id="page-tabs">
@@ -12,63 +12,33 @@
 {% endblock %}
 
 {% block content %}
-<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=ABQIAAAA5Ye18xnHrI7VkvnQMnf_QRQdkkQ23dfIqqS9J8sCvzdHLqy75hSoFRE2luVYtBwg38YrLbCdq9XuyQ" type="text/javascript"></script>
-<script type="text/javascript">
-//<![CDATA[
-
-points	= [
-{% for location in locations %}{% if location.obj.latitude and location.obj.longitude %}
-	{
-		coord: new GLatLng({{ location.obj.latitude }},{{ location.obj.longitude }}), 
-		title:"{{ location.obj }} ({{ location.obj.type }})",
-		text:"{{ location.obj.code|upper }} - {{ location.obj.parent }}</p><p>{% for reporter in location.reporters %}{% if forloop.first %}Reporters: {% endif %}{{ reporter}} ({{reporter.connection.identity}})<br />{% endfor %}{% for report in location.reports %}{% if forloop.first %}Reports: {% endif %}{{ report }}<br />{% endfor %}</strong><br />",
-	},
-{% endif %}{% endfor %}
-];
-
-function load() {
-  if (GBrowserIsCompatible()) {
-    var map = new GMap2(document.getElementById("map"));
-    map.setCenter(new GLatLng(-1.20935,30.060654), 12);
-    map.setMapType(G_PHYSICAL_MAP);
-
-
-	//var bds = new GLatLngBounds(new GLatLng(-1.20935,30.060654), new GLatLng(-1.242731,30.101166));
-	//map.setZoom(map.getBoundsZoomLevel(bds));
-	map.setZoom(11);
-	map.addControl(new GLargeMapControl());
-	map.addControl(new GScaleControl());
-	map.enableScrollWheelZoom();
-
-	
-	function createMarker(point, number) {
-		var sourceIcon	= new GIcon(G_DEFAULT_ICON);
-		sourceIcon.image= "/static/findug/red-cross-32x32.png";
-		var markerOptions	= {icon: sourceIcon, title: point.title};
-		var marker		= new GMarker(point.coord, markerOptions);
-		//var marker		= new GMarker(point.coord);
-		marker.value		= number;
-	    	GEvent.addListener(marker,"click", function() {
-	      		var myHtml	= "<strong>" + point.title
-	      				+ "</strong><br/>" + point.text;
-	      		map.openInfoWindowHtml(point.coord, myHtml);
-	    	});
-		return marker;
-	}
-
-	for (i in points) {
-		map.addOverlay(createMarker(points[i], i));	
-	}
-
-  }
+<style type="text/css">
+.box {
+    margin-top:10px;
+    margin-left:5px;
+    margin-right:5px;
+    border:1px solid black;
 }
-//]]>
-</script>
+</style>
 <h2>Dashboard</h2>
 
-<h3>Health Facilities Map</h3>
+<div class="box" style="width:400px;height:180px;float:left;"><h3>Summary</h3>
+    <div style="padding:5px;"> 
+        <p>The current weekly report period is:<br/>
+        <strong>{{ summary.period.start_date|date:"D d/m/Y" }} - {{ summary.period.end_date|date:"D d/m/Y" }}</strong></p>
+        <p><a href="health_units"><strong>{{ summary.total_units }}</strong> health units</a> are registered.<br/>
+        <p><a href="health_units/?filter=current"><strong>{{ summary.up2date }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} completed the report for this period.</p>
+        <p><a href="health_units/?filter=missing"><strong>{{ summary.missing }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} <strong>not</strong> completed the report for this period.</p>
+    </div>
+</div>
 
-<div id="map" style="width: 78em;height: 40em;border: 0;"></div>
-<script type="text/javascript">load();</script>
+<div class="box" style="width:510px;height:180px;float:left;"><h3>Recent Activity</h3>
+    <div style="padding:5px;"> 
+        {% for report in recent %}
+        <strong>{{report.date}}</strong> - <a href="reporter/{{report.by_id}}">{{report.by}}</a> from <a href="health_unit/{{report.clinic_id}}">{{report.clinic}}</a> submitted their <a href="{{report.id}}">report.</a><br/>
+        {% endfor %}
+    </div>
+</div>
+
 
 {% endblock %}

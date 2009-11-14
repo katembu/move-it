@@ -41,7 +41,7 @@ function init() {
 
     map.setCenter(new OpenLayers.LonLat(31.000654, 0.00935), 10);
 
-    //var bounds = new OpenLayers.Bounds();
+    var bounds = new OpenLayers.Bounds();
 
     var size20 = new OpenLayers.Size(20,20);
     var white_background = new OpenLayers.Icon("/static/findug/white.png", size20);
@@ -54,7 +54,7 @@ function init() {
     var location;
     {% for location in locations %}{% if location.obj.latitude and location.obj.longitude %}        
         location = new OpenLayers.LonLat({{location.obj.longitude}}, {{location.obj.latitude}});
-        //bounds.extend(location);
+        bounds.extend(location);
         popup = new OpenLayers.Popup(null,location,new OpenLayers.Size(200,18),'<span id="label{{forloop.counter}}" class="maplabel">{{location.name}}</span>',false);
         //popup.autoSize = true;
         popup.backgroundColor = 'transparent';
@@ -72,7 +72,7 @@ function init() {
             {% if location.green %}act_stock_layer.addMarker(new OpenLayers.Marker(location, act_green.clone()));{% endif %}
         {% endif %}
     {% endif %}{% endfor %}
-    //map.zoomToExtent(bounds,true);
+    map.zoomToExtent(bounds,true);
 }
 
 </script>

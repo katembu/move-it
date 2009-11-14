@@ -1,17 +1,17 @@
 {% extends "findug/index.html" %}
-{% block subtitle %}Locations{% endblock %}
+{% block subtitle %}{{scope}} Health Units{% endblock %}
 
 {% block content %}
-<h2>{{ scope }} Health Units</h2>
+<h2>{{ scope }} Health Units{% ifequal filter "missing"%} Missing Report{% endifequal %}{% ifequal filter "current"%} Completed Reports{% endifequal %}</h2>
 <table width="100%">
     <thead>
         <tr>
             {% for column in table.columns %}
                 <th>
                     {% ifequal column.name "last" %}
-                        <div style="text-align:center;"><a href="?sort={{ table.columns.last_sort.name_toggled }}">{{ column }}</a></div>
+                        <div style="text-align:center;"><a href="?sort={{ table.columns.last_sort.name_toggled }}&filter={{filter}}">{{ column }}</a></div>
                     {% else %}
-                        <a href="?sort={{ column.name_toggled }}">{{ column }}</a>
+                        <a href="?sort={{ column.name_toggled }}&filter={{filter}}">{{ column }}</a>
                     {% endifequal %}
                 </th>
             {% endfor %}

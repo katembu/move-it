@@ -28,29 +28,48 @@ from django.core.paginator import Paginator
 
 
 def index(req):
-    ''' Display Dashboard
+    ''' Display Dashboard '''
 
-    List Alert and conflicts'''
+    webuser = WebUser.by_user(req.user)
+    scope = webuser.scope_string()
 
-    types    = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=types)
-    all = []
-    for location in locations:
-        loc = {}
-        loc['obj']      = location
-        loc['reporters']= Reporter.objects.filter(location=location)
-        loc['reports']  = list(EpidemiologicalReport.objects.filter(clinic=location))
-        all.append(loc)
+    summary = {}
+    if datetime.today().weekday() == 6:
+        period = ReportPeriod.objects.latest()
+    else:
+        period = ReportPeriod.from_day(datetime.today())
+    summary['period'] = period    
+    summary['total_units'] = len(webuser.health_units())
+    summary['up2date'] = len(filter(lambda hc: hc.up2date(), webuser.health_units()))
+    summary['missing'] = summary['total_units'] - summary['up2date']
 
-    return render_to_response(req, 'findug/index.html', {'locations': all})
+    recent = []
+    for report in EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED).order_by('-completed_on')[:10]:
+        recent.append({
+            'id':report.id,
+            'date':report.completed_on.strftime("%a %H:%M"), 
+            'by': ('%s %s' % (report.completed_by().first_name, report.completed_by().last_name)).title(),
+            'by_id':report.completed_by().id,
+            'clinic':report.clinic,
+            'clinic_id':report.clinic.id
+        })
+    
+
+
+    return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
 
 def map(req):
     ''' Map view '''
     
-    types    = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=types)
+    webuser = WebUser.by_user(req.user)
 
-    previous_period = ReportPeriod.objects.latest()
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    if datetime.today().weekday() == 6:
+        previous_period = ReportPeriod.objects.latest()
+    else:
+        previous_period = ReportPeriod.from_day(datetime.today())
 
     all = []
     for location in locations:
@@ -79,6 +98,16 @@ def health_units_view(req):
     locations = webuser.health_units()
     scope = webuser.scope_string()
 
+    if req.GET.get('filter') == 'missing':
+        locations = filter(lambda hc: not hc.up2date(), locations)
+    elif req.GET.get('filter') == 'current':
+        locations = filter(lambda hc: hc.up2date(), locations)
+
+    if datetime.today().weekday() == 6:
+        previous_period = ReportPeriod.objects.latest()
+    else:
+        previous_period = ReportPeriod.from_day(datetime.today())
+
     today    = datetime.today()
     all = []
     for location in locations:
@@ -96,7 +125,7 @@ def health_units_view(req):
 
             # the last_sost is not visible, it is used to sort the date column
             loc['last_sort'] = last.completed_on
-            if last.period == ReportPeriod.objects.all()[0]:
+            if last.period == previous_period:
                 loc['last_color'] = 'green'
             elif last.period == ReportPeriod.objects.all()[1]:
                 loc['last_color'] = 'yellow'
@@ -116,7 +145,7 @@ def health_units_view(req):
     #table.paginate(Paginator, 10, page=1, orphans=2)
 
     # sort by date, descending
-    return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table})
+    return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table, 'filter':req.GET.get('filter')})
 
 def health_unit_view(req, location_id):
     ''' Displays a summary of location activities and history '''
