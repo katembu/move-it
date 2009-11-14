@@ -112,6 +112,59 @@ class ReportPeriod(models.Model):
             # sunday can't bind
             raise ErroneousDate
 
+class HealthUnit(Location):
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.name, self.type.name)
+
+    @classmethod
+    def by_location(cls, location):
+        try:
+            return cls.objects.get(location_ptr=location)
+        except cls.DoesNotExist:
+            return None
+
+    @property
+    def district(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def hsd(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'health sub district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def county(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def subcounty(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'sub county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def parish(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'parish', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
 # FIND REPORT (GENERIC)
 class FindReport:
 
@@ -703,7 +756,7 @@ class EpidemiologicalReport(models.Model):
     class Meta:
         unique_together = ("clinic", "period")
 
-    clinic  = models.ForeignKey(Location)
+    clinic  = models.ForeignKey(HealthUnit)
     period  = models.ForeignKey(ReportPeriod)
 
     _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, verbose_name=DiseasesReport.TITLE)
@@ -789,7 +842,7 @@ class EpidemiologicalReport(models.Model):
     @classmethod
     def by_receipt(cls, receipt):
         clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
-        return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
+        return cls.objects.get(clinic=HealthUnit.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
 
     @property
     def verbose_status(self):
@@ -1028,80 +1081,5 @@ class ReporterExtra(models.Model):
         extra.save()
 
         return extra
-'''
-class LocationExtra(models.Model):
 
-    location    = models.OneToOneField(Location, unique=True)
-    catchment   = models.PositiveIntegerField(null=True, blank=True)
-    
 
-    def __unicode__(self):
-        return _(u"%(location)s Extra") % {'location': self.location}
-
-    @classmethod
-    def by_location(cls, location):
-        return cls.objects.get(location=location)
-    
-    @classmethod
-    def by_location_create(cls, location):
-        try:
-             return cls.objects.get(location=location)
-        except cls.DoesNotExist:
-            # create it and return
-            extra   = cls(location=location)
-            extra.save()
-            return extra
-'''
-
-class HealthUnit(Location):
-    catchment   = models.PositiveIntegerField(null=True, blank=True)
-    
-    def __unicode__(self):
-        return u'%s %s' % (self.name, self.type.name)
-
-    @classmethod
-    def by_location(cls, location):
-        try:
-            return cls.objects.get(location_ptr=location)
-        except cls.DoesNotExist:
-            return None
-
-    @property
-    def district(self):
-        list = filter(lambda hc: hc.type.name.lower() == 'district', self.ancestors())
-        if len(list) == 0:
-            return None
-        else:
-            return list[0]
-
-    @property
-    def hsd(self):
-        list = filter(lambda hc: hc.type.name.lower() == 'health sub district', self.ancestors())
-        if len(list) == 0:
-            return None
-        else:
-            return list[0]
-
-    @property
-    def county(self):
-        list = filter(lambda hc: hc.type.name.lower() == 'county', self.ancestors())
-        if len(list) == 0:
-            return None
-        else:
-            return list[0]
-
-    @property
-    def subcounty(self):
-        list = filter(lambda hc: hc.type.name.lower() == 'sub county', self.ancestors())
-        if len(list) == 0:
-            return None
-        else:
-            return list[0]
-
-    @property
-    def parish(self):
-        list = filter(lambda hc: hc.type.name.lower() == 'parish', self.ancestors())
-        if len(list) == 0:
-            return None
-        else:
-            return list[0]
