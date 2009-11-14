@@ -1028,9 +1028,8 @@ class ReporterExtra(models.Model):
         extra.save()
 
         return extra
-
+'''
 class LocationExtra(models.Model):
-    ''' Extra fields for Locations '''
 
     location    = models.OneToOneField(Location, unique=True)
     catchment   = models.PositiveIntegerField(null=True, blank=True)
@@ -1052,4 +1051,12 @@ class LocationExtra(models.Model):
             extra   = cls(location=location)
             extra.save()
             return extra
+'''
+
+class HealthUnit(Location):
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.name, self.type.name)
+    pass
 
