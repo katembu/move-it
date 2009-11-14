@@ -1008,7 +1008,7 @@ class WebUser(User):
     # Use UserManager to get the create_user method, etc.
     objects = UserManager()
 
-    location = models.OneToOneField(Location, blank=True, null=True)
+    location = models.ForeignKey(Location, blank=True, null=True)
 
     def health_units(self):
         ''' Return the health units within the location of the user '''
