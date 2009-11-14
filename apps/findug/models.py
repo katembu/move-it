@@ -1058,5 +1058,7 @@ class HealthUnit(Location):
     
     def __unicode__(self):
         return u'%s %s' % (self.name, self.type.name)
-    pass
 
+    @classmethod
+    def by_location(cls, location):
+        return cls.objects.get(location_ptr=location)
