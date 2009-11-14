@@ -74,13 +74,10 @@ def map(req):
 def health_units_view(req):
     ''' List health units in scope with links to individual pages '''
 
-    scope_location = ReporterExtra.location_by_user(req.user)
-    if scope_location == None:
-        locations = filter(health_unit_filter, Location.objects.all())
-        scope = "All"
-    else:
-        locations = ReporterExtra.by_user(req.user).health_units()
-        scope = scope_location.name
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
 
     today    = datetime.today()
     all = []
@@ -131,13 +128,10 @@ def health_unit_view(req, location_id):
 def reporters_view(req):
     ''' Displays a list of reporters '''
 
-    scope_location = ReporterExtra.location_by_user(req.user)
-    if scope_location == None:
-        reporters = Reporter.objects.filter(role__code='hw')
-        scope = "All"
-    else:
-        reporters = ReporterExtra.by_user(req.user).health_workers()
-        scope = scope_location.name
+    webuser = WebUser.by_user(req.user)
+
+    reporters = webuser.health_workers()
+    scope = webuser.scope_string()
 
     all = []
     for reporter in reporters:

@@ -8,13 +8,12 @@ import copy
 
 from django.contrib import admin
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, UserManager
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
-from utils import health_unit_filter
 
 # CONFIGURATION
 class Configuration(models.Model):
@@ -997,27 +996,36 @@ class DiseaseAlert(models.Model):
 
 # USERS
 
-class ReporterExtra(models.Model):
-    ''' Extra fields for Reporter and/or User '''
+class WebUser(User):
+    ''' Extra fields for web users '''
 
     class Meta:
-        unique_together = ("user", "reporter")
+        pass
 
-    user        = models.OneToOneField(User, unique=True)
-    reporter    = models.OneToOneField(Reporter, unique=True)
-    
     def __unicode__(self):
-        return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+        return unicode(self.user_ptr)
+
+    # Use UserManager to get the create_user method, etc.
+    objects = UserManager()
+
+    location = models.OneToOneField(Location, blank=True, null=True)
 
     def health_units(self):
-        ''' Return the health units within the location of the related reporter '''
-
-        if self.reporter.location:
-            locations = self.reporter.location.descendants()
+        ''' Return the health units within the location of the user '''
+        if self.location == None:
+            return HealthUnit.objects.all()
         else:
-            locations = Location.objects.all()
-        
-        return filter(health_unit_filter, locations)
+            health_units = []
+            for location in self.location.descendants():
+                health_units.append(HealthUnit.by_location(location))
+            return filter(lambda hc: hc != None, health_units)
+            
+    
+    def scope_string(self):
+        if self.location == None:
+            return 'All'
+        else:
+            return self.location.name
 
     def health_workers(self):
         ''' Return the reporters with health worker role within the health units of the related reporter '''
@@ -1025,61 +1033,15 @@ class ReporterExtra(models.Model):
         health_units = self.health_units()
         hws = []
         for hw in Reporter.objects.filter(role__code='hw'):
-            if hw.location in health_units:
+            if HealthUnit.by_location(hw.location) in health_units:
                 hws.append(hw)
         return hws
 
     @classmethod
     def by_user(cls, user):
-        return cls.objects.get(user=user)
-
-    @classmethod
-    def location_by_user(cls, user):
-        if len(cls.objects.filter(user=user)) == 0:
-            return None
-        if not cls.by_user(user).reporter.location:
-            return None
-        return cls.by_user(user).reporter.location
-
-    @classmethod
-    def by_reporter(cls, reporter):
-        return cls.objects.get(reporter=reporter)
-
-    @classmethod
-    def create_user(cls, reporter, password):
         try:
-            extra   = cls.by_reporter(reporter)
-            return extra.user
+            return cls.objects.get(user_ptr=user)
         except cls.DoesNotExist:
-            # may raise IntegrityError if alias taken
-            user    = User.objects.create_user(reporter.alias, email='', password=password)
-            return user
-
-    @classmethod
-    def from_scratch(cls, name, password=None, identity=None, backend_slug='kannel'):
-
-        # retrieve alias and names
-        alias, fn, ln   = Reporter.parse_name(name)
-        str             = alias.lower()
-        while Reporter.objects.filter(alias__iexact=alias).count() or User.objects.filter(username__iexact=alias).count():
-            alias = "%s%d" % (str.lower(), n)
-            n += 1
-
-        # create reporter
-        reporter        = Reporter(alias=alias, first_name=fn, last_name=ln)
-        reporter.save()
-        backend         = PersistantBackend.objects.get(slug=backend_slug)
-        connection      = PersistantConnection(backend=backend, identity=identity, reporter=reporter, last_seen=datetime.now()) 
-        connection.save()
-
-        # create user
-        user            = User.objects.create_user(alias, email='', password=password)
-        user.save()
-
-        # create ReporterExtra
-        extra           = cls(user=user, reporter=reporter)
-        extra.save()
-
-        return extra
-
-
+            new_user = cls(user_ptr=user)
+            new_user.save_base(raw=True)
+            return new_user
