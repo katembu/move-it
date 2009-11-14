@@ -5,11 +5,8 @@
 <link rel="stylesheet" href="/static/findug/googlemap.css" type="text/css" />
 <style type="text/css">
 .maplabel {
-    padding-left:12px;
-    padding-top:0px;
-    padding-bottom:0px;
-    padding-right:8px;
-    font-size:6pt;
+    padding-left:10px;
+    font-size:8pt;
 }
 </style>
 
@@ -44,7 +41,7 @@ function init() {
 
     map.setCenter(new OpenLayers.LonLat(31.000654, 0.00935), 10);
 
-    var bounds = new OpenLayers.Bounds();
+    //var bounds = new OpenLayers.Bounds();
 
     var size20 = new OpenLayers.Size(20,20);
     var white_background = new OpenLayers.Icon("/static/findug/white.png", size20);
@@ -57,13 +54,12 @@ function init() {
     var location;
     {% for location in locations %}{% if location.obj.latitude and location.obj.longitude %}        
         location = new OpenLayers.LonLat({{location.obj.longitude}}, {{location.obj.latitude}});
-        bounds.extend(location);
-        popup = new OpenLayers.Popup(null,location,null,'<span id="label{{forloop.counter}}" class="maplabel">{{location.name}}</span>',false);
-        popup.autoSize = true;
+        //bounds.extend(location);
+        popup = new OpenLayers.Popup(null,location,new OpenLayers.Size(200,18),'<span id="label{{forloop.counter}}" class="maplabel">{{location.name}}</span>',false);
+        //popup.autoSize = true;
         popup.backgroundColor = 'transparent';
         map.addPopup(popup);
         document.getElementById("label{{forloop.counter}}").style.display="block";
-        //document.getElementById("label{{forloop.counter}}").style.backgroundColor="transparent";
 
         act_stock_layer.addMarker(new OpenLayers.Marker(location, shadow.clone()));
 
