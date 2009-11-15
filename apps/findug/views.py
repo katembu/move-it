@@ -195,7 +195,7 @@ def epidemiological_report(req, report_id):
     headers['for']   =   {'label':'For Period (Date)', 'value':epi_report.period.start_date.strftime(DATE_FORMAT)}
     headers['to']    =   {'label':'To (Date)', 'value':epi_report.period.end_date.strftime(DATE_FORMAT)}
     headers['hu']    =   {'label':'Health Unit', 'value':epi_report.clinic}
-    headers['huc']   =   {'label':'Health Unit Code', 'value':epi_report.clinic.code}
+    headers['huc']   =   {'label':'Health Unit Code', 'value':re.sub(r'^\D+','',epi_report.clinic.code)}
     headers['sc']    =   {'label':'Sub-County', 'value':epi_report.clinic.subcounty}
     headers['hsd']   =   {'label':'HSD', 'value':epi_report.clinic.hsd}
 
@@ -240,21 +240,27 @@ def epidemiological_report(req, report_id):
     act={}
     act['yd']   = {'label':ar._meta.get_field('_yellow_dispensed').verbose_name, 'value':'%02d' % ar.yellow_dispensed}
     act['yb']   = {'label':ar._meta.get_field('_yellow_balance').verbose_name, 'value':'%02d' % ar.yellow_balance}
-    act['bld']   = {'label':ar._meta.get_field('_blue_dispensed').verbose_name, 'value':'%02d' % ar.blue_dispensed}
-    act['blb']   = {'label':ar._meta.get_field('_blue_balance').verbose_name, 'value':'%02d' % ar.blue_balance}
-    act['brd']   = {'label':ar._meta.get_field('_brown_dispensed').verbose_name, 'value':'%02d' % ar.brown_dispensed}
-    act['brb']   = {'label':ar._meta.get_field('_brown_balance').verbose_name, 'value':'%02d' % ar.brown_balance}
+    act['bld']  = {'label':ar._meta.get_field('_blue_dispensed').verbose_name, 'value':'%02d' % ar.blue_dispensed}
+    act['blb']  = {'label':ar._meta.get_field('_blue_balance').verbose_name, 'value':'%02d' % ar.blue_balance}
+    act['brd']  = {'label':ar._meta.get_field('_brown_dispensed').verbose_name, 'value':'%02d' % ar.brown_dispensed}
+    act['brb']  = {'label':ar._meta.get_field('_brown_balance').verbose_name, 'value':'%02d' % ar.brown_balance}
     act['gd']   = {'label':ar._meta.get_field('_green_dispensed').verbose_name, 'value':'%02d' % ar.green_dispensed}
     act['gb']   = {'label':ar._meta.get_field('_green_balance').verbose_name, 'value':'%02d' % ar.green_balance}
     act['od']   = {'label':ar._meta.get_field('_other_act_dispensed').verbose_name, 'value':'%02d' % ar.other_act_dispensed}
     act['ob']   = {'label':ar._meta.get_field('_other_act_balance').verbose_name, 'value':'%02d' % ar.other_act_balance}
+
+    footer = {}
+    footer['date']      = {'label':'Submitted on (Date)', 'value':epi_report.completed_on.strftime(settings.DATE_FORMAT)}
+    footer['by']        = {'label':'By', 'value':epi_report.completed_by().full_name().title()}
+    footer['receipt']  = {'label':'Receipt Number', 'value':epi_report.receipt}
     
     report = {}
     report['diseases']  = diseases
     report['headers']   = headers
     report['test']      = test
     report['treat']     = treat
-    report['act']     = act
+    report['act']       = act
+    report['footer']    = footer
     return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
 
 def epidemiological_report_pdf(req, report_id):
@@ -303,33 +309,6 @@ def epidemiological_report_pdf(req, report_id):
         # remove unncessary ' SC'
         sub_county = epi_report.clinic.subcounty.name.replace(' SC','')
 
-        # create a list containing unique reporters that submitted the subreports
-        reporters = set([
-            epi_report.diseases.reporter,
-            epi_report.malaria_cases.reporter, 
-            epi_report.malaria_treatments.reporter, 
-            epi_report.act_consumption.reporter,
-        ])
-
-        # initialize an empty string for the 'By' field in the form.  There can be multiple submitters
-        reporters_string = ""
-
-        # if there is only one reporter we have space for the full name
-        if len(reporters) == 1: 
-            reporters_string = reporters.pop().full_name().title()
-            reporters_font_size = DEFAULT_FONT_SIZE
-
-        # if there are more than one reporters lets only use first name + last initial and pray that the fit
-        elif len(reporters) > 1:
-            for reporter in reporters:
-                reporters_string += reporter.first_name.title()
-                if reporter.last_name: reporters_string += reporter.last_name[0].upper()
-                reporters_string += ', '
-            # remove trailing comma and space
-            reporters_font_size = 8
-            reporters_string = reporters_string[:-2]
-                    
-
         # A list containing dictionaries of each field in the header and footer
         # Each item in the list is a dictionary with the x and y coords and the value of the data
         data = [
@@ -338,14 +317,14 @@ def epidemiological_report_pdf(req, report_id):
             {"x":16.0*cm, "y":first_row_y, "value":epi_report.period.end_date.strftime(DATE_FORMAT)}, # To (Date)
 
             {"x":3.8*cm, "y":second_row_y, "value":epi_report.clinic }, # Health Unit
-            {"x":12.0*cm, "y":second_row_y, "value":epi_report.clinic.code  }, # Health Unit Code
+            {"x":12.0*cm, "y":second_row_y, "value":re.sub(r'^\D+','',epi_report.clinic.code)  }, # Health Unit Code
             {"x":15.9*cm, "y":second_row_y, "value":sub_county }, # Sub-County
 
             {"x":3.5*cm, "y":third_row_y, "value":hsd  }, # HSD
             {"x":11.2*cm, "y":third_row_y, "value":district  }, # District
 
             {"x":5.5*cm, "y":footer_row_y, "value":epi_report.completed_on.strftime(DATE_FORMAT)  }, # Submitted on (Date)
-            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':reporters_font_size }, # By
+            {"x":9.1*cm, "y":footer_row_y, "value":epi_report.completed_by().full_name().title() }, # By
             {"x":16.3*cm, "y":footer_row_y, "value":epi_report.receipt, 'size':10  }, # Receipt Number
         ]
 

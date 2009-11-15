@@ -35,7 +35,7 @@
 <div class="box" style="width:510px;height:180px;float:left;"><h3>Recent Activity</h3>
     <div style="padding:5px;"> 
         {% for report in recent %}
-        <strong>{{report.date}}</strong> - <a href="reporter/{{report.by_id}}">{{report.by}}</a> from <a href="health_unit/{{report.clinic_id}}">{{report.clinic}}</a> submitted their <a href="{{report.id}}">report.</a><br/>
+        <strong>{{report.date}}</strong> - <a href="reporter/{{report.by_id}}">{{report.by}}</a> from <a href="health_unit/{{report.clinic_id}}">{{report.clinic}}</a> submitted their <a href="epidemiological_report/{{report.id}}" target="_blank">report.</a><br/>
         {% endfor %}
     </div>
 </div>

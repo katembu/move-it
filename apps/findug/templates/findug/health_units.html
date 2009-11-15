@@ -25,7 +25,7 @@
                 <td>{{row.hctype}}</td>
                 <td>{{row.hsd}}</td>
                 <td align="center">
-                {% if row.last_pk %}<a href="../epidemiological_report_pdf/{{row.last_pk}}">{% endif %}
+                {% if row.last_pk %}<a href="../epidemiological_report/{{row.last_pk}}" target="_blank">{% endif %}
                 <span style="color:{{row.last_color}};">{{row.last}}</span>{% if row.last_pk %}</a>{% endif %}</td>
              </tr>
         {% endfor %}

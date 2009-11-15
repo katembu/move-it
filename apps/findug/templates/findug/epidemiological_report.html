@@ -18,18 +18,25 @@ table {
     font-weight:bold;
 }
 
+table.header {
+    margin-top:6px;
+}
+
 .header th {
     text-align:right;
 }
 .header td {
     text-align:left;
+    border-bottom:1px solid black;
 }
     
 td.spacer {
-    width:35px;
+    width:25px;
+    border:0;
 }
 
 table.diseases {
+    margin-top:6px;
     width:700px;
     border:2px solid black;
     border-collapse: collapse;
@@ -92,7 +99,7 @@ table.report {
             <td>{{report.headers.sc.value}}</td>
         </tr>
     </table>
-    <table>
+    <table class="header">
         <tr>
             <th>{{report.headers.hsd.label}}:</th>
             <td>{{report.headers.hsd.value}}</td>
@@ -165,6 +172,18 @@ table.report {
         <tr>
             <th>{{report.act.od.label}}:</th><td class="num">{{report.act.od.value}}</td>
             <th>{{report.act.ob.label}}:</th><td class="num">{{report.act.ob.value}}</td>
+        </tr>
+    </table>
+    <table class="header">
+        <tr>
+            <th>{{report.footer.date.label}}:</th>
+            <td>{{report.footer.date.value}}</td>
+            <td class="spacer"></td>
+            <th>{{report.footer.by.label}}:</th>
+            <td>{{report.footer.by.value}}</td>
+            <td class="spacer"></td>
+            <th>{{report.footer.receipt.label}}:</th>
+            <td>{{report.footer.receipt.value}}</td>
         </tr>
     </table>
 </body>
