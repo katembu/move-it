@@ -16,7 +16,10 @@
     <tbody>
         {% for row in table.rows %}
             <tr>
-                {% for value in row %}<td>{{ value }}</td>{% endfor %}
+                <td>{{row.alias}}</td>
+                <td>{{row.name}}</td>
+                <td><a href="../health_unit/{{row.hu_pk}}">{{row.hu}}</a></td>
+                <td>{{row.contact}}</td>
             </tr>
         {% endfor %}
     </tbody>

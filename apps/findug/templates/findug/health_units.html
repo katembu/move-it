@@ -21,9 +21,10 @@
         {% for row in table.rows %}
             <tr>
                 <td><a href="../health_unit/{{row.pk}}">{{row.code}}</a></td>
-                <td>{{row.name}}</td>
+                <td><a href="../health_unit/{{row.pk}}">{{row.name}}</a></td>
                 <td>{{row.hctype}}</td>
                 <td>{{row.hsd}}</td>
+                <td align="center">{{row.reporters}}</td>
                 <td align="center">
                 {% if row.last_pk %}<a href="../epidemiological_report/{{row.last_pk}}" target="_blank">{% endif %}
                 <span style="color:{{row.last_color}};">{{row.last}}</span>{% if row.last_pk %}</a>{% endif %}</td>
