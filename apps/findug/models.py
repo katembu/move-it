@@ -124,6 +124,13 @@ class HealthUnit(Location):
         except cls.DoesNotExist:
             return None
 
+    @classmethod
+    def list_by_location(cls, location):
+        health_units = []
+        for loc in location.descendants():
+            health_units.append(cls.by_location(loc))
+        return filter(lambda hc: hc != None, health_units)
+
     @property
     def district(self):
         list = filter(lambda hc: hc.type.name.lower() == 'district', self.ancestors())
@@ -1030,11 +1037,7 @@ class WebUser(User):
         if self.location == None:
             return HealthUnit.objects.all()
         else:
-            health_units = []
-            for location in self.location.descendants():
-                health_units.append(HealthUnit.by_location(location))
-            return filter(lambda hc: hc != None, health_units)
-            
+            return HealthUnit.list_by_location(self.location)
     
     def scope_string(self):
         if self.location == None:
