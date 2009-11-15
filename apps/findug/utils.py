@@ -8,6 +8,7 @@ from rapidsms import Message
 from rapidsms.connection import *
 from apps.reporters.models import *
 from apps.findug.models import *
+from django.test import client
 
 def diseases_from_string(text):
     ''' returns a list of Disease with numbers build from SMS-syntax
@@ -101,6 +102,28 @@ def report_completed_alerts(router, report):
                 message.send()
         except Exception, e:
             print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': recipient, 'err': e}
-            pass
-  
 
+def email_report(router,recipient,report):
+    email_backend = router.get_backend('email')
+    if not email_backend: return True
+    print type(email_backend)
+    print dir(email_backend)
+    if len(recipient.connections.filter(backend__slug=email_backend.slug))==0: return True
+    connection = Connection(email_backend, recipient.connections.get(backend__slug=email_backend.slug).identity)
+    message = Message(connection=connection)
+    c = client.Client()
+    message_lines = []
+    message_lines.append('From: hmis@findug.buildafrica.org')
+    message_lines.append('Subject: Weekly report from %s' % report.clinic)
+    message_lines.append('')
+    begin = False
+    for line in str(c.get('/findug/epidemiological_report/%d' % report.id)).split('\n'):
+        if not begin and line.lower().find('<html') != -1:
+            begin = True
+        if begin:
+            message_lines.append(line)
+    message.text = '\n'.join(message_lines)
+    try:
+        message.send()
+    except Exception, e:
+        print _(u"Can't send email to %(rec)s: %(err)s") % {'rec': recipient, 'err': e}
