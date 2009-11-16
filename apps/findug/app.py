@@ -445,7 +445,7 @@ class App (rapidsms.app.App):
                 if alert: alerts.append(alert)
         
         # Add to Master Report
-        master_report   = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report   = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.diseases  = report
         master_report.save()      
 
