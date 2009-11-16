@@ -846,7 +846,7 @@ class EpidemiologicalReport(models.Model):
 
     @classmethod
     def last_completed_by_clinic(cls, clinic):
-        reports = cls.objects.filter(clinic=clinic,completed_on__isnull=False).order_by('-period')
+        reports = cls.objects.filter(clinic=clinic,completed_on__isnull=False).order_by('-period__end_date')
         if len(reports) == 0:
             return False
         else:
