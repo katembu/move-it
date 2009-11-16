@@ -1,0 +1,76 @@
+{% extends "findug/index.html" %}
+{% block subtitle %}{{scope}} Diseases Report{% endblock %}
+
+{% block content %}
+<style type="text/css">
+body {
+    margin:10px;
+	font-family: sans-serif;
+}
+
+#diseases {
+    font-size:12px;
+    border:2px solid black;
+    border-collapse: collapse;
+}
+
+#diseases td {
+    padding:0px;
+    width:30px;
+    text-align:center;
+    border:1px solid black;
+}
+
+td.hu {
+    width:100px;
+    text-align:left;
+    padding:0px;
+}
+
+th.disease {
+    font-size:8px;
+    border-left:2px solid black;
+    border-right:2px solid black;
+}
+td.sub {
+    font-size:13px;
+    padding:0;
+    margin:0;
+    text-align:center;
+}
+td.left {
+    border-left:2px solid black;
+}
+td.right {
+    border-right:2px solid black;
+}
+</style>
+<h2>Diseases Report</h2> 
+Health Units: {{scope}}<br/>
+<table width="100%" id="diseases"> 
+    <tr>
+        <th rowspan="2">Health Unit</th>
+        {% for disease in diseases %}
+            <th class="disease" colspan="2">{{disease}}</th>
+        {% endfor %}
+    </tr><tr>
+    {% for column in table.columns %}
+        {% if not forloop.first %}
+           <td class="sub {% cycle 'left' 'right' %}">
+            {% if column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
+            {{column}}
+            {% if column.sortable %}</a>{% endif %}
+            </td>
+        {% endif %}
+    {% endfor %}
+    </tr>
+        {% for row in table.rows %}
+
+            <tr>
+            {% for value in row %}<td class="{% if forloop.first %}hu {% endif %}{% cycle 'left' 'right' %}">{{value|default_if_none:"*"}}</td>{% endfor %}
+            </tr>
+        {% endfor %}
+
+</table>
+
+{% endblock %}
