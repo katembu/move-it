@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 
 from rapidsms.webui.utils import render_to_response
+from django.contrib.auth.decorators import login_required
 
 from models import *
 from apps.findug.utils import *
@@ -26,7 +27,7 @@ from tables import *
 from django.core.paginator import Paginator
 
 
-
+@login_required
 def index(req):
     ''' Display Dashboard '''
 
@@ -58,6 +59,7 @@ def index(req):
 
     return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
 
+@login_required
 def map(req):
     ''' Map view '''
     
@@ -91,6 +93,7 @@ def map(req):
 
     return render_to_response(req, 'findug/map.html', {'locations': all})
 
+@login_required
 def health_units_view(req):
     ''' List health units in scope with links to individual pages '''
 
@@ -149,6 +152,7 @@ def health_units_view(req):
     # sort by date, descending
     return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table, 'filter':req.GET.get('filter')})
 
+@login_required
 def health_unit_view(req, health_unit_id):
     ''' Displays a summary of location activities and history '''
 
@@ -168,6 +172,7 @@ def health_unit_view(req, health_unit_id):
     del(reporters_table.base_columns['hu'])
     return render_to_response(req, 'findug/health_unit.html', { "health_unit": health_unit, 'reporters_table':reporters_table})
 
+@login_required
 def reporters_view(req):
     ''' Displays a list of reporters '''
 
@@ -193,6 +198,7 @@ def reporters_view(req):
 
     return render_to_response(req, 'findug/reporters.html', { "scope":scope, "table": table})
 
+@login_required
 def reporter_view(req, reporter_id):
     ''' Displays a summary of his activities and history '''
 
@@ -277,6 +283,7 @@ def epidemiological_report(req, report_id):
     report['footer']    = footer
     return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
 
+@login_required
 def epidemiological_report_pdf(req, report_id):
     ''' Generates filled-in pdf copy of a completed EpidemiologicalReport object '''
 
