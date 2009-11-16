@@ -34,7 +34,7 @@ class ReportBirth(models.Model):
         ordering = ("-entered_at",)
         
     def __unicode__ (self):
-        return "%s %s" % (self.last_name, self.first_name)
+        return "%s %s" % (self.case.last_name, self.case.first_name)
     
     def save(self, *args):
         if not self.id:
