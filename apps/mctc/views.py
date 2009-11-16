@@ -66,7 +66,7 @@ def pre(txt):
 
 
 app = {}
-app['name'] = "RapidResponse:Health"
+app['name'] = "ChildCount:Health"
 
 def month_end(date):
     for n in (31,30,28):
@@ -165,7 +165,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     muac_duration_start = today - ninty_days
     duration_end = today
     
-    pdfrpt.setTitle("RapidResponse MVP Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
+    pdfrpt.setTitle("ChildCount Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
     
     if object_id is None:
         clinics = Location.objects.filter(type__name="Clinic")
@@ -235,7 +235,7 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
-    pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
+    pdfrpt.setTitle("ChildCount Kenya: Cases Reports by CHW")
     pdfrpt.setNumOfColumns(2)
     if object_id is None:        
         if request.POST and request.POST['zone']:
@@ -620,7 +620,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
 def trend(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
-    pdfrpt.setTitle("RapidResponse MVP Kenya: Malnutrition Trend by Case Report")
+    pdfrpt.setTitle("ChildCount Kenya: Malnutrition Trend by Case Report")
     
     if object_id is None:        
         queryset, fields = ReportAllPatients.malnut_trend_by_provider()
