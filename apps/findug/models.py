@@ -516,8 +516,8 @@ class MalariaTreatmentsReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self._rdt_positive           = 0
         self._rdt_negative           = 0
+        self._rdt_positive           = 0
         self._four_months_to_three   = 0
         self._three_to_seven         = 0
         self._seven_to_twelve        = 0
@@ -532,23 +532,16 @@ class MalariaTreatmentsReport(models.Model,FindReport):
             report.save()
             return report
 
-    def update(self, rdt_positive, rdt_negative, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
+    def update(self, rdt_negative, rdt_positive, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
         ''' saves all datas at once '''
 
-        self.rdt_positive           = rdt_positive
         self.rdt_negative           = rdt_negative
+        self.rdt_positive           = rdt_positive
         self.four_months_to_three   = four_months_to_three
         self.three_to_seven         = three_to_seven
         self.seven_to_twelve        = seven_to_twelve
         self.twelve_and_above       = twelve_and_above
         self.save()
-
-    # rdt_positive property
-    def get_rdt_positive(self):
-        return self._rdt_positive
-    def set_rdt_positive(self, value):
-        self._rdt_positive = value
-    rdt_positive  = property(get_rdt_positive, set_rdt_positive)
 
     # rdt_negative property
     def get_rdt_negative(self):
@@ -556,6 +549,13 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     def set_rdt_negative(self, value):
         self._rdt_negative = value
     rdt_negative  = property(get_rdt_negative, set_rdt_negative)
+
+    # rdt_positive property
+    def get_rdt_positive(self):
+        return self._rdt_positive
+    def set_rdt_positive(self, value):
+        self._rdt_positive = value
+    rdt_positive  = property(get_rdt_positive, set_rdt_positive)
 
     # four_months_to_three property
     def get_four_months_to_three(self):
@@ -587,7 +587,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     @property
     def summary(self):
-        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
+        text    = _(u"RDT.NEG %(rdt_negative)s, RDT.POS: %(rdt_positive)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_negative':self.rdt_negative, 'rdt_positive': self.rdt_positive, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
         return text
 
 def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):

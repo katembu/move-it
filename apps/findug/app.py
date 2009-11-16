@@ -518,7 +518,7 @@ class App (rapidsms.app.App):
     keyword.prefix = ""
     @keyword(r'treat(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
     @registered
-    def malaria_treatments_report(self, message, period, rdt_positive, rdt_negative, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
+    def malaria_treatments_report(self, message, period, rdt_negative, rdt_positive, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
 
         # reporter
         reporter    = message.persistant_connection.reporter
@@ -533,8 +533,8 @@ class App (rapidsms.app.App):
 
         # input verification
         try:
-            rdt_positive        = int(rdt_positive)
             rdt_negative        = int(rdt_negative)
+            rdt_positive        = int(rdt_positive)
             four_months_to_three= int(four_months_to_three)
             three_to_seven      = int(three_to_seven)
             seven_to_twelve     = int(seven_to_twelve)
@@ -552,7 +552,7 @@ class App (rapidsms.app.App):
         report.reset()
 
         try:
-            report.update(rdt_positive=rdt_positive, rdt_negative=rdt_negative, four_months_to_three=four_months_to_three, three_to_seven=three_to_seven, seven_to_twelve=seven_to_twelve, twelve_and_above=twelve_and_above)
+            report.update(rdt_negative=rdt_negative, rdt_positive=rdt_positive, four_months_to_three=four_months_to_three, three_to_seven=three_to_seven, seven_to_twelve=seven_to_twelve, twelve_and_above=twelve_and_above)
         except IncoherentValue, e:
             message.respond(e.message)
             return True
@@ -648,7 +648,7 @@ class App (rapidsms.app.App):
             return True
 
         # Add to Master Report
-        master_report           = EpidemiologicalReport.by_clinic_period(clinic=reporter.location, period=report_week)
+        master_report           = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.remarks   = text[:160]
         master_report.save()
 
