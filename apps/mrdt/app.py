@@ -47,10 +47,6 @@ class App (rapidsms.app.App):
                 message.respond(self.get_mrdt_format_reminder())
                 self.handled = True
                 return True
-            if not (mrdt_input.find("mrdt") == -1):
-                message.respond(self.get_mrdt_report_format_reminder())
-                self.handled = True
-                return True
             return False
         try:
             self.handled = func(self, message, *captures)
@@ -213,7 +209,6 @@ class App (rapidsms.app.App):
 
         message.respond(msg)
         message.respond(_(info["instructions"]))
-        
         """ @todo: enable alerts """
         """
         recipients = report.get_alert_recipients()
@@ -334,3 +329,4 @@ class App (rapidsms.app.App):
 
         log(case, "mrdt_taken")        
         return True
+

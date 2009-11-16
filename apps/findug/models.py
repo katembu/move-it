@@ -8,13 +8,12 @@ import copy
 
 from django.contrib import admin
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, UserManager
 from django.utils.translation import ugettext as _
 from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
 from apps.locations.models import *
-from utils import health_unit_filter
 
 # CONFIGURATION
 class Configuration(models.Model):
@@ -111,6 +110,73 @@ class ReportPeriod(models.Model):
         else:
             # sunday can't bind
             raise ErroneousDate
+
+class HealthUnit(Location):
+    catchment   = models.PositiveIntegerField(null=True, blank=True)
+    
+    def __unicode__(self):
+        return u'%s %s' % (self.name, self.type.name)
+
+    @classmethod
+    def by_location(cls, location):
+        try:
+            return cls.objects.get(location_ptr=location)
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
+    def list_by_location(cls, location):
+        health_units = []
+        for loc in location.descendants():
+            health_units.append(cls.by_location(loc))
+        return filter(lambda hc: hc != None, health_units)
+
+    @property
+    def district(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def hsd(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'health sub district', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def county(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def subcounty(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'sub county', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    @property
+    def parish(self):
+        list = filter(lambda hc: hc.type.name.lower() == 'parish', self.ancestors())
+        if len(list) == 0:
+            return None
+        else:
+            return list[0]
+
+    def up2date(self):
+        if EpidemiologicalReport.last_completed_by_clinic(self) and \
+           EpidemiologicalReport.last_completed_by_clinic(self).period == ReportPeriod.objects.latest():
+            return True
+        else:
+            return False
 
 # FIND REPORT (GENERIC)
 class FindReport:
@@ -355,7 +421,7 @@ class MalariaCasesReport(models.Model,FindReport):
     def set_rdt_positive_tests(self, value):
         if value > self.rdt_tests:
             raise IncoherentValue(_(u"FAILED: RDT positive cases cannot be greater than RDT tested cases. Please check and try again."))
-        self.__rdt_positive_tests = value
+        self._rdt_positive_tests = value
     rdt_positive_tests  = property(get_rdt_positive_tests, set_rdt_positive_tests)
 
     # microscopy_tests property
@@ -375,14 +441,14 @@ class MalariaCasesReport(models.Model,FindReport):
     def set_microscopy_positive(self, value):
         if value > self.microscopy_tests:
             raise IncoherentValue(_(u"FAILED: Microscopy positive cases cannot be greater than microscopy tested cases. Please check and try again."))
-        self.__microscopy_positive = value
+        self._microscopy_positive = value
     microscopy_positive  = property(get_microscopy_positive, set_microscopy_positive)
 
     # positive_under_five property
     def get_positive_under_five(self):
         return self._positive_under_five
     def set_positive_under_five(self, value):
-        self.__positive_under_five = value
+        self._positive_under_five = value
     positive_under_five  = property(get_positive_under_five, set_positive_under_five)
 
     # property
@@ -393,7 +459,7 @@ class MalariaCasesReport(models.Model,FindReport):
             raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than suspected malaria cases. Please check and try again."))
         if (value + self.positive_under_five) > self.opd_attendance:
             raise IncoherentValue(_(u"FAILED: Positive cases cannot be greater than total OPD attendance. Please check and try again."))
-        self.__positive_over_five = value
+        self._positive_over_five = value
     positive_over_five  = property(get_positive_over_five, set_positive_over_five)
 
     @property
@@ -450,8 +516,8 @@ class MalariaTreatmentsReport(models.Model,FindReport):
         return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
 
     def reset(self):
-        self._rdt_positive           = 0
         self._rdt_negative           = 0
+        self._rdt_positive           = 0
         self._four_months_to_three   = 0
         self._three_to_seven         = 0
         self._seven_to_twelve        = 0
@@ -466,23 +532,16 @@ class MalariaTreatmentsReport(models.Model,FindReport):
             report.save()
             return report
 
-    def update(self, rdt_positive, rdt_negative, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
+    def update(self, rdt_negative, rdt_positive, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
         ''' saves all datas at once '''
 
-        self.rdt_positive           = rdt_positive
         self.rdt_negative           = rdt_negative
+        self.rdt_positive           = rdt_positive
         self.four_months_to_three   = four_months_to_three
         self.three_to_seven         = three_to_seven
         self.seven_to_twelve        = seven_to_twelve
         self.twelve_and_above       = twelve_and_above
         self.save()
-
-    # rdt_positive property
-    def get_rdt_positive(self):
-        return self._rdt_positive
-    def set_rdt_positive(self, value):
-        self._rdt_positive = value
-    rdt_positive  = property(get_rdt_positive, set_rdt_positive)
 
     # rdt_negative property
     def get_rdt_negative(self):
@@ -490,6 +549,13 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     def set_rdt_negative(self, value):
         self._rdt_negative = value
     rdt_negative  = property(get_rdt_negative, set_rdt_negative)
+
+    # rdt_positive property
+    def get_rdt_positive(self):
+        return self._rdt_positive
+    def set_rdt_positive(self, value):
+        self._rdt_positive = value
+    rdt_positive  = property(get_rdt_positive, set_rdt_positive)
 
     # four_months_to_three property
     def get_four_months_to_three(self):
@@ -521,7 +587,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     @property
     def summary(self):
-        text    = _(u"RDT.POS: %(rdt_positive)s, RDT.NEG: %(rdt_negative)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_positive': self.rdt_positive, 'rdt_negative': self.rdt_negative, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
+        text    = _(u"RDT.NEG %(rdt_negative)s, RDT.POS: %(rdt_positive)s, 4M-3Y: %(four_months_to_three)s, 3Y-7Y: %(three_to_seven)s, 7Y-12Y: %(seven_to_twelve)s, 12Y+: %(twelve_and_above)s") % {'rdt_negative':self.rdt_negative, 'rdt_positive': self.rdt_positive, 'four_months_to_three': self.four_months_to_three, 'three_to_seven': self.three_to_seven, 'seven_to_twelve': self.seven_to_twelve, 'twelve_and_above': self.twelve_and_above}
         return text
 
 def MalariaTreatmentsReport_pre_save_handler(sender, **kwargs):
@@ -703,7 +769,7 @@ class EpidemiologicalReport(models.Model):
     class Meta:
         unique_together = ("clinic", "period")
 
-    clinic  = models.ForeignKey(Location)
+    clinic  = models.ForeignKey(HealthUnit)
     period  = models.ForeignKey(ReportPeriod)
 
     _diseases            = models.ForeignKey(DiseasesReport, null=True, blank=True, verbose_name=DiseasesReport.TITLE)
@@ -730,7 +796,7 @@ class EpidemiologicalReport(models.Model):
     def get_diseases(self):
         return self._diseases
     def set_diseases(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._diseases = value
     diseases  = property(get_diseases, set_diseases)
@@ -739,7 +805,7 @@ class EpidemiologicalReport(models.Model):
     def get_malaria_cases(self):
         return self._malaria_cases
     def set_malaria_cases(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._malaria_cases = value
     malaria_cases  = property(get_malaria_cases, set_malaria_cases)
@@ -748,7 +814,7 @@ class EpidemiologicalReport(models.Model):
     def get_malaria_treatments(self):
         return self._malaria_treatments
     def set_malaria_treatments(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._malaria_treatments = value
     malaria_treatments  = property(get_malaria_treatments, set_malaria_treatments)
@@ -757,7 +823,7 @@ class EpidemiologicalReport(models.Model):
     def get_act_consumption(self):
         return self._act_consumption
     def set_act_consumption(self, value):
-        if value.reporter.location != self.clinic or value.period != self.period:
+        if value.reporter.location != self.clinic.location_ptr or value.period != self.period:
             raise IncoherentValue
         self._act_consumption = value
     act_consumption  = property(get_act_consumption, set_act_consumption)
@@ -789,7 +855,15 @@ class EpidemiologicalReport(models.Model):
     @classmethod
     def by_receipt(cls, receipt):
         clinic_id, week_id, report_id = re.search('([0-9]+)W([0-9]+)\/([0-9]+)', receipt).groups()
-        return cls.objects.get(clinic=Location.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
+        return cls.objects.get(clinic=HealthUnit.objects.get(id=clinic_id), period=ReportPeriod.objects.get(id=week_id), id=report_id)
+
+    def completed_by(self):
+        if not self.completed: return None
+        reports = []
+        for obj in [self.diseases,self.malaria_cases,self.malaria_treatments, self.act_consumption]:
+            reports.append({'obj':obj, 'sent_on':obj.sent_on})
+        reports.sort(key=lambda report:report['sent_on'], reverse=True)
+        return reports[3]['obj'].reporter
 
     @property
     def verbose_status(self):
@@ -847,7 +921,7 @@ def EpidemiologicalReport_pre_save_handler(sender, **kwargs):
 
     for value in (instance.diseases, instance.malaria_cases, instance.malaria_treatments, instance.act_consumption):
         try:
-            if value.reporter.location != instance.clinic or value.period != instance.period:
+            if value.reporter.location != instance.clinic.location_ptr or value.period != instance.period:
                 raise IncoherentValue
         except AttributeError:
             pass
@@ -944,27 +1018,32 @@ class DiseaseAlert(models.Model):
 
 # USERS
 
-class ReporterExtra(models.Model):
-    ''' Extra fields for Reporter and/or User '''
+class WebUser(User):
+    ''' Extra fields for web users '''
 
     class Meta:
-        unique_together = ("user", "reporter")
+        pass
 
-    user        = models.OneToOneField(User, unique=True)
-    reporter    = models.OneToOneField(Reporter, unique=True)
-    
     def __unicode__(self):
-        return _(u"%(user)s/%(reporter)s") % {'user': self.user, 'reporter': self.reporter}
+        return unicode(self.user_ptr)
+
+    # Use UserManager to get the create_user method, etc.
+    objects = UserManager()
+
+    location = models.ForeignKey(Location, blank=True, null=True)
 
     def health_units(self):
-        ''' Return the health units within the location of the related reporter '''
-
-        if self.reporter.location:
-            locations = self.reporter.location.descendants()
+        ''' Return the health units within the location of the user '''
+        if self.location == None:
+            return HealthUnit.objects.all()
         else:
-            locations = Location.objects.all()
-        
-        return filter(health_unit_filter, locations)
+            return HealthUnit.list_by_location(self.location)
+    
+    def scope_string(self):
+        if self.location == None:
+            return 'All'
+        else:
+            return self.location.name
 
     def health_workers(self):
         ''' Return the reporters with health worker role within the health units of the related reporter '''
@@ -972,84 +1051,15 @@ class ReporterExtra(models.Model):
         health_units = self.health_units()
         hws = []
         for hw in Reporter.objects.filter(role__code='hw'):
-            if hw.location in health_units:
+            if HealthUnit.by_location(hw.location) in health_units:
                 hws.append(hw)
         return hws
 
     @classmethod
     def by_user(cls, user):
-        return cls.objects.get(user=user)
-
-    @classmethod
-    def location_by_user(cls, user):
-        if len(cls.objects.filter(user=user)) == 0:
-            return None
-        if not cls.by_user(user).reporter.location:
-            return None
-        return cls.by_user(user).reporter.location
-
-    @classmethod
-    def by_reporter(cls, reporter):
-        return cls.objects.get(reporter=reporter)
-
-    @classmethod
-    def create_user(cls, reporter, password):
         try:
-            extra   = cls.by_reporter(reporter)
-            return extra.user
+            return cls.objects.get(user_ptr=user)
         except cls.DoesNotExist:
-            # may raise IntegrityError if alias taken
-            user    = User.objects.create_user(reporter.alias, email='', password=password)
-            return user
-
-    @classmethod
-    def from_scratch(cls, name, password=None, identity=None, backend_slug='kannel'):
-
-        # retrieve alias and names
-        alias, fn, ln   = Reporter.parse_name(name)
-        str             = alias.lower()
-        while Reporter.objects.filter(alias__iexact=alias).count() or User.objects.filter(username__iexact=alias).count():
-            alias = "%s%d" % (str.lower(), n)
-            n += 1
-
-        # create reporter
-        reporter        = Reporter(alias=alias, first_name=fn, last_name=ln)
-        reporter.save()
-        backend         = PersistantBackend.objects.get(slug=backend_slug)
-        connection      = PersistantConnection(backend=backend, identity=identity, reporter=reporter, last_seen=datetime.now()) 
-        connection.save()
-
-        # create user
-        user            = User.objects.create_user(alias, email='', password=password)
-        user.save()
-
-        # create ReporterExtra
-        extra           = cls(user=user, reporter=reporter)
-        extra.save()
-
-        return extra
-
-class LocationExtra(models.Model):
-    ''' Extra fields for Locations '''
-
-    location    = models.OneToOneField(Location, unique=True)
-    catchment   = models.PositiveIntegerField(null=True, blank=True)
-    
-
-    def __unicode__(self):
-        return _(u"%(location)s Extra") % {'location': self.location}
-
-    @classmethod
-    def by_location(cls, location):
-        return cls.objects.get(location=location)
-    
-    @classmethod
-    def by_location_create(cls, location):
-        try:
-             return cls.objects.get(location=location)
-        except cls.DoesNotExist:
-            # create it and return
-            extra   = cls(location=location)
-            extra.save()
-            return extra
-
+            new_user = cls(user_ptr=user)
+            new_user.save_base(raw=True)
+            return new_user

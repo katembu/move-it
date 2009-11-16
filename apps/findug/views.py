@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 
 from rapidsms.webui.utils import render_to_response
+from django.contrib.auth.decorators import login_required
 
 from models import *
 from apps.findug.utils import *
@@ -26,37 +27,58 @@ from tables import *
 from django.core.paginator import Paginator
 
 
-
+@login_required
 def index(req):
-    ''' Display Dashboard
+    ''' Display Dashboard '''
 
-    List Alert and conflicts'''
+    webuser = WebUser.by_user(req.user)
+    scope = webuser.scope_string()
 
-    types    = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=types)
-    all = []
-    for location in locations:
-        loc = {}
-        loc['obj']      = location
-        loc['reporters']= Reporter.objects.filter(location=location)
-        loc['reports']  = list(EpidemiologicalReport.objects.filter(clinic=location))
-        all.append(loc)
+    summary = {}
+    if datetime.today().weekday() == 6:
+        period = ReportPeriod.objects.latest()
+    else:
+        period = ReportPeriod.from_day(datetime.today())
+    summary['period'] = period    
+    summary['total_units'] = len(webuser.health_units())
+    summary['up2date'] = len(filter(lambda hc: hc.up2date(), webuser.health_units()))
+    summary['missing'] = summary['total_units'] - summary['up2date']
 
-    return render_to_response(req, 'findug/index.html', {'locations': all})
+    recent = []
+    for report in EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED).order_by('-completed_on')[:10]:
+        recent.append({
+            'id':report.id,
+            'date':report.completed_on.strftime("%a %H:%M"), 
+            'by': ('%s %s' % (report.completed_by().first_name, report.completed_by().last_name)).title(),
+            'by_id':report.completed_by().id,
+            'clinic':report.clinic,
+            'clinic_id':report.clinic.id
+        })
+    
 
+
+    return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
+
+@login_required
 def map(req):
     ''' Map view '''
     
-    types    = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=types)
+    webuser = WebUser.by_user(req.user)
 
-    previous_period = ReportPeriod.objects.latest()
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    if datetime.today().weekday() == 6:
+        previous_period = ReportPeriod.objects.latest()
+    else:
+        previous_period = ReportPeriod.from_day(datetime.today())
 
     all = []
     for location in locations:
         loc = {}
         loc['obj'] = location
-        loc['name'] = '%s %s' % (location.name, location.type.name)
+        loc['name'] = unicode(location)
+        loc['type'] = location.type.name.lower().replace(' ','')
         act_reports = ACTConsumptionReport.objects.filter(reporter__location=location).filter(period=previous_period)
         if not act_reports: 
             loc['act_unknown'] = True
@@ -71,26 +93,35 @@ def map(req):
 
     return render_to_response(req, 'findug/map.html', {'locations': all})
 
+@login_required
 def health_units_view(req):
     ''' List health units in scope with links to individual pages '''
 
-    scope_location = ReporterExtra.location_by_user(req.user)
-    if scope_location == None:
-        locations = filter(health_unit_filter, Location.objects.all())
-        scope = "All"
-    else:
-        locations = ReporterExtra.by_user(req.user).health_units()
-        scope = scope_location.name
+    webuser = WebUser.by_user(req.user)
 
-    today    = datetime.today()
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    if req.GET.get('filter') == 'missing':
+        locations = filter(lambda hc: not hc.up2date(), locations)
+    elif req.GET.get('filter') == 'current':
+        locations = filter(lambda hc: hc.up2date(), locations)
+
+    if datetime.today().weekday() == 6:
+        previous_period = ReportPeriod.objects.latest()
+    else:
+        previous_period = ReportPeriod.from_day(datetime.today())
+
+    today = datetime.today()
     all = []
     for location in locations:
         loc = {}
-        loc['pk']     = location.pk
+        loc['pk']       = location.pk
         loc['name']     = location.name
         loc['hctype']   = location.type.name
         loc['code']     = location.code.upper()
-        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0].name
+        loc['hsd']      = unicode(location.hsd)
+        loc['reporters']= len(Reporter.objects.filter(location=location.location_ptr))
         last            = EpidemiologicalReport.last_completed_by_clinic(location)
         if last:
             # the last column is the visible, nicely formated date
@@ -99,7 +130,7 @@ def health_units_view(req):
 
             # the last_sost is not visible, it is used to sort the date column
             loc['last_sort'] = last.completed_on
-            if last.period == ReportPeriod.objects.all()[0]:
+            if last.period == previous_period:
                 loc['last_color'] = 'green'
             elif last.period == ReportPeriod.objects.all()[1]:
                 loc['last_color'] = 'yellow'
@@ -119,32 +150,74 @@ def health_units_view(req):
     #table.paginate(Paginator, 10, page=1, orphans=2)
 
     # sort by date, descending
-    return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table})
+    return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table, 'filter':req.GET.get('filter')})
 
-def health_unit_view(req, location_id):
+@login_required
+def health_unit_view(req, health_unit_id):
     ''' Displays a summary of location activities and history '''
 
-    location    = Location.objects.get(id=location_id)
+    health_unit    = HealthUnit.objects.get(id=health_unit_id)
+    reporters = Reporter.objects.filter(location=health_unit.location_ptr)
+    all = []
+    for reporter in reporters:
+        rep = {}
+        rep['alias']    = reporter.alias
+        rep['name']     = reporter.full_name().title()
+        if reporter.connection():
+            rep['contact']  = reporter.connection().identity
+        else:
+            rep['contact']  = ''
+        all.append(rep)
+    reporters_table = HWReportersTable(all)
+    del(reporters_table.base_columns['hu'])
+    return render_to_response(req, 'findug/health_unit.html', { "health_unit": health_unit, 'reporters_table':reporters_table})
 
-    return render_to_response(req, 'findug/health_unit.html', { "location": location})
+@login_required
+def diseases_report_view(req):
+    disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
+    disease_names = []
+    for disease in disease_order:
+        disease_names.append(Disease.objects.get(code=disease.lower()).name)
 
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+
+    periods = [ReportPeriod.objects.latest()]
+    rows = []
+    for hu in locations:
+        for period in periods:
+            row={}
+            row['hu'] = unicode(hu)
+            row['hu_id'] = hu.id
+            reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+            if len(reports) > 0:
+                report = reports[0]
+                for disease in diseases_order:
+                    disease_observation = report.diseases.diseases.get(disease__code=disease.lower())
+                    row['%s_cases' % disease.lower()] = disease_observation.cases
+                    row['%s_deaths' % disease.lower()] = disease_observation.deaths
+            rows.append(row)
+                    
+    diseases_table = DiseasesReportTable(rows)
+    return render_to_response(req, 'findug/diseases_report.html', { 'table':diseases_table, 'diseases':disease_names})
+
+@login_required
 def reporters_view(req):
     ''' Displays a list of reporters '''
 
-    scope_location = ReporterExtra.location_by_user(req.user)
-    if scope_location == None:
-        reporters = Reporter.objects.filter(role__code='hw')
-        scope = "All"
-    else:
-        reporters = ReporterExtra.by_user(req.user).health_workers()
-        scope = scope_location.name
+    webuser = WebUser.by_user(req.user)
+
+    reporters = webuser.health_workers()
+    scope = webuser.scope_string()
 
     all = []
     for reporter in reporters:
         rep = {}
         rep['alias']    = reporter.alias
-        rep['name']     = '%s %s' % (reporter.first_name.title(), reporter.last_name.title())
-        rep['hu']       = '%s %s' % (reporter.location.name, reporter.location.type.name)
+        rep['name']     = reporter.full_name().title()
+        rep['hu']       = unicode(HealthUnit.by_location(reporter.location))
+        rep['hu_pk']    = HealthUnit.by_location(reporter.location).pk
         if reporter.connection():
             rep['contact']  = reporter.connection().identity
         else:
@@ -155,35 +228,13 @@ def reporters_view(req):
 
     return render_to_response(req, 'findug/reporters.html', { "scope":scope, "table": table})
 
+@login_required
 def reporter_view(req, reporter_id):
     ''' Displays a summary of his activities and history '''
 
     reporter    = Reporter.objects.get(id=reporter_id)
 
     return render_to_response(req, 'findug/reporter.html', { "reporter": reporter})
-
-def report(req):
-
-    clinics  = LocationType.objects.filter(name__startswith="HC")
-    locations= Location.objects.filter(type__in=clinics)
-    fields   = []
-    fields.append({"name": 'PID#', "column": None, "bit": "{{ object.id }}" })
-    fields.append({"name": 'NAME', "column": None, "bit": "{{ object }} {{ object.type }}" })
-    
-    pdfreport = PDFReport()
-    pdfreport.setLandscape(False)
-    pdfreport.setTitle("FIND Clinics")
-    pdfreport.setTableData(locations, fields, "Table Title")
-    pdfreport.setFilename("clinics")
-
-    csvreport = CSVReport()
-    csvreport.setLandscape(False)
-    csvreport.setTitle("FIND Clinics")
-    csvreport.setTableData(locations, fields, "Table Title")
-    csvreport.setFilename("clinics")
-    
-
-    return csvreport.render()
 
 def epidemiological_report(req, report_id):
     DATE_FORMAT = settings.DATE_FORMAT
@@ -193,20 +244,14 @@ def epidemiological_report(req, report_id):
     headers['date']  =   {'label':'Date', 'value':datetime.today().strftime(DATE_FORMAT)}
     headers['for']   =   {'label':'For Period (Date)', 'value':epi_report.period.start_date.strftime(DATE_FORMAT)}
     headers['to']    =   {'label':'To (Date)', 'value':epi_report.period.end_date.strftime(DATE_FORMAT)}
-    headers['hu']    =   {'label':'Health Unit', 'value':'%s %s' % (epi_report.clinic, epi_report.clinic.type)}
-    headers['huc']   =   {'label':'Health Unit Code', 'value':epi_report.clinic.code}
+    headers['hu']    =   {'label':'Health Unit', 'value':epi_report.clinic}
+    headers['huc']   =   {'label':'Health Unit Code', 'value':re.sub(r'^\D+','',epi_report.clinic.code)}
+    headers['sc']    =   {'label':'Sub-County', 'value':epi_report.clinic.subcounty}
+    headers['hsd']   =   {'label':'HSD', 'value':epi_report.clinic.hsd}
 
-    sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
-    headers['sc']    =   {'label':'Sub-County', 'value':sub_county}
-    
-    hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
-    headers['hsd']   =   {'label':'HSD', 'value':hsd}
-
-    district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
     #Remove unnecessary ' District'
-    district = district.name.replace(' District','')
+    district = epi_report.clinic.district.name.replace(' District','')
     headers['dis']   =   {'label':'District', 'value':district}
-
 
     disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
     diseases = []
@@ -217,51 +262,58 @@ def epidemiological_report(req, report_id):
         disease_observation = epi_report.diseases.diseases.get(disease__code=disease.lower())
         dis['number']   = number
         dis['name']     = disease_observation.disease
-        dis['cases']    = disease_observation.cases
-        dis['deaths']   = disease_observation.deaths
+        dis['cases']    = '%02d' % disease_observation.cases
+        dis['deaths']   = '%02d' % disease_observation.deaths
         diseases.append(dis)
 
     mc = epi_report.malaria_cases
     test = {}
-    test['opd']     = {'label':mc._meta.get_field('_opd_attendance').verbose_name, 'value':mc.opd_attendance}
-    test['susp']    = {'label':mc._meta.get_field('_suspected_cases').verbose_name, 'value':mc.suspected_cases}
-    test['rdt']     = {'label':mc._meta.get_field('_rdt_tests').verbose_name, 'value':mc.rdt_tests}
-    test['rdtp']    = {'label':mc._meta.get_field('_rdt_positive_tests').verbose_name, 'value':mc.rdt_positive_tests}
-    test['mic']     = {'label':mc._meta.get_field('_microscopy_tests').verbose_name, 'value':mc.microscopy_tests}
-    test['micp']    = {'label':mc._meta.get_field('_microscopy_positive').verbose_name, 'value':mc.microscopy_positive}
-    test['un5']     = {'label':mc._meta.get_field('_positive_under_five').verbose_name, 'value':mc.positive_under_five}
-    test['ov5']     = {'label':mc._meta.get_field('_positive_over_five').verbose_name, 'value':mc.positive_over_five}
+    test['opd']     = {'label':mc._meta.get_field('_opd_attendance').verbose_name, 'value':'%02d' % mc.opd_attendance}
+    test['susp']    = {'label':mc._meta.get_field('_suspected_cases').verbose_name, 'value':'%02d' % mc.suspected_cases}
+    test['rdt']     = {'label':mc._meta.get_field('_rdt_tests').verbose_name, 'value':'%02d' % mc.rdt_tests}
+    test['rdtp']    = {'label':mc._meta.get_field('_rdt_positive_tests').verbose_name, 'value':'%02d' % mc.rdt_positive_tests}
+    test['mic']     = {'label':mc._meta.get_field('_microscopy_tests').verbose_name, 'value':'%02d' % mc.microscopy_tests}
+    test['micp']    = {'label':mc._meta.get_field('_microscopy_positive').verbose_name, 'value':'%02d' % mc.microscopy_positive}
+    test['un5']     = {'label':mc._meta.get_field('_positive_under_five').verbose_name, 'value':'%02d' % mc.positive_under_five}
+    test['ov5']     = {'label':mc._meta.get_field('_positive_over_five').verbose_name, 'value':'%02d' % mc.positive_over_five}
  
     mt = epi_report.malaria_treatments
     treat = {}
-    treat['rdtp']   = {'label':mt._meta.get_field('_rdt_positive').verbose_name, 'value':mt.rdt_positive}
-    treat['rdtn']   = {'label':mt._meta.get_field('_rdt_negative').verbose_name, 'value':mt.rdt_negative}
-    treat['4m']     = {'label':mt._meta.get_field('_four_months_to_three').verbose_name, 'value':mt.four_months_to_three}
-    treat['3y']     = {'label':mt._meta.get_field('_three_to_seven').verbose_name, 'value':mt.three_to_seven}
-    treat['7y']     = {'label':mt._meta.get_field('_seven_to_twelve').verbose_name, 'value':mt.seven_to_twelve}
-    treat['12y']    = {'label':mt._meta.get_field('_twelve_and_above').verbose_name, 'value':mt.twelve_and_above}
+    treat['rdtp']   = {'label':mt._meta.get_field('_rdt_positive').verbose_name, 'value':'%02d' % mt.rdt_positive}
+    treat['rdtn']   = {'label':mt._meta.get_field('_rdt_negative').verbose_name, 'value':'%02d' % mt.rdt_negative}
+    treat['4m']     = {'label':mt._meta.get_field('_four_months_to_three').verbose_name, 'value':'%02d' % mt.four_months_to_three}
+    treat['3y']     = {'label':mt._meta.get_field('_three_to_seven').verbose_name, 'value':'%02d' % mt.three_to_seven}
+    treat['7y']     = {'label':mt._meta.get_field('_seven_to_twelve').verbose_name, 'value':'%02d' % mt.seven_to_twelve}
+    treat['12y']    = {'label':mt._meta.get_field('_twelve_and_above').verbose_name, 'value':'%02d' % mt.twelve_and_above}
 
     ar = epi_report.act_consumption
     act={}
-    act['yd']   = {'label':ar._meta.get_field('_yellow_dispensed').verbose_name, 'value':ar.yellow_dispensed}
-    act['yb']   = {'label':ar._meta.get_field('_yellow_balance').verbose_name, 'value':ar.yellow_balance}
-    act['bld']   = {'label':ar._meta.get_field('_blue_dispensed').verbose_name, 'value':ar.blue_dispensed}
-    act['blb']   = {'label':ar._meta.get_field('_blue_balance').verbose_name, 'value':ar.blue_balance}
-    act['brd']   = {'label':ar._meta.get_field('_brown_dispensed').verbose_name, 'value':ar.brown_dispensed}
-    act['brb']   = {'label':ar._meta.get_field('_brown_balance').verbose_name, 'value':ar.brown_balance}
-    act['gd']   = {'label':ar._meta.get_field('_green_dispensed').verbose_name, 'value':ar.green_dispensed}
-    act['gb']   = {'label':ar._meta.get_field('_green_balance').verbose_name, 'value':ar.green_balance}
-    act['od']   = {'label':ar._meta.get_field('_other_act_dispensed').verbose_name, 'value':ar.other_act_dispensed}
-    act['ob']   = {'label':ar._meta.get_field('_other_act_balance').verbose_name, 'value':ar.other_act_balance}
+    act['yd']   = {'label':ar._meta.get_field('_yellow_dispensed').verbose_name, 'value':'%02d' % ar.yellow_dispensed}
+    act['yb']   = {'label':ar._meta.get_field('_yellow_balance').verbose_name, 'value':'%02d' % ar.yellow_balance}
+    act['bld']  = {'label':ar._meta.get_field('_blue_dispensed').verbose_name, 'value':'%02d' % ar.blue_dispensed}
+    act['blb']  = {'label':ar._meta.get_field('_blue_balance').verbose_name, 'value':'%02d' % ar.blue_balance}
+    act['brd']  = {'label':ar._meta.get_field('_brown_dispensed').verbose_name, 'value':'%02d' % ar.brown_dispensed}
+    act['brb']  = {'label':ar._meta.get_field('_brown_balance').verbose_name, 'value':'%02d' % ar.brown_balance}
+    act['gd']   = {'label':ar._meta.get_field('_green_dispensed').verbose_name, 'value':'%02d' % ar.green_dispensed}
+    act['gb']   = {'label':ar._meta.get_field('_green_balance').verbose_name, 'value':'%02d' % ar.green_balance}
+    act['od']   = {'label':ar._meta.get_field('_other_act_dispensed').verbose_name, 'value':'%02d' % ar.other_act_dispensed}
+    act['ob']   = {'label':ar._meta.get_field('_other_act_balance').verbose_name, 'value':'%02d' % ar.other_act_balance}
+
+    footer = {}
+    footer['date']      = {'label':'Submitted on (Date)', 'value':epi_report.completed_on.strftime(settings.DATE_FORMAT)}
+    footer['by']        = {'label':'By', 'value':epi_report.completed_by().full_name().title()}
+    footer['receipt']  = {'label':'Receipt Number', 'value':epi_report.receipt}
     
     report = {}
     report['diseases']  = diseases
     report['headers']   = headers
     report['test']      = test
     report['treat']     = treat
-    report['act']     = act
+    report['act']       = act
+    report['footer']    = footer
     return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
 
+@login_required
 def epidemiological_report_pdf(req, report_id):
     ''' Generates filled-in pdf copy of a completed EpidemiologicalReport object '''
 
@@ -299,47 +351,14 @@ def epidemiological_report_pdf(req, report_id):
         footer_row_y    =  2.10*cm
         remarks_row_y   =  1.70*cm
 
-        # find the health center's district parent location object
-        district = filter(lambda hc: hc.type.name == 'District', epi_report.clinic.ancestors())[0]
         #Remove unnecessary ' District'
-        district = district.name.replace(' District','')
+        district = epi_report.clinic.district.name.replace(' District','')
 
-        # find the health center's health sub district parent location object
-        hsd = filter(lambda hc: hc.type.name == 'Health Sub District', epi_report.clinic.ancestors())[0]
         #Remove unnecessary ' HSD'
-        hsd = hsd.name.replace(' HSD','')
+        hsd = epi_report.clinic.hsd.name.replace(' HSD','')
 
-        # find the health center's subcounty parent location object
-        sub_county = filter(lambda hc: hc.type.name == 'Sub County', epi_report.clinic.ancestors())[0]
         # remove unncessary ' SC'
-        sub_county = sub_county.name.replace(' SC','')
-
-        # create a list containing unique reporters that submitted the subreports
-        reporters = set([
-            epi_report.diseases.reporter,
-            epi_report.malaria_cases.reporter, 
-            epi_report.malaria_treatments.reporter, 
-            epi_report.act_consumption.reporter,
-        ])
-
-        # initialize an empty string for the 'By' field in the form.  There can be multiple submitters
-        reporters_string = ""
-
-        # if there is only one reporter we have space for the full name
-        if len(reporters) == 1: 
-            reporters_string = reporters.pop().full_name().title()
-            reporters_font_size = DEFAULT_FONT_SIZE
-
-        # if there are more than one reporters lets only use first name + last initial and pray that the fit
-        elif len(reporters) > 1:
-            for reporter in reporters:
-                reporters_string += reporter.first_name.title()
-                if reporter.last_name: reporters_string += reporter.last_name[0].upper()
-                reporters_string += ', '
-            # remove trailing comma and space
-            reporters_font_size = 8
-            reporters_string = reporters_string[:-2]
-                    
+        sub_county = epi_report.clinic.subcounty.name.replace(' SC','')
 
         # A list containing dictionaries of each field in the header and footer
         # Each item in the list is a dictionary with the x and y coords and the value of the data
@@ -348,15 +367,15 @@ def epidemiological_report_pdf(req, report_id):
             {"x":10.6*cm, "y":first_row_y, "value":epi_report.period.start_date.strftime(DATE_FORMAT)}, # For Period (Date)
             {"x":16.0*cm, "y":first_row_y, "value":epi_report.period.end_date.strftime(DATE_FORMAT)}, # To (Date)
 
-            {"x":4.2*cm, "y":second_row_y, "value":'%s %s' % (epi_report.clinic, epi_report.clinic.type) }, # Health Unit
-            {"x":12.0*cm, "y":second_row_y, "value":epi_report.clinic.code  }, # Health Unit Code
+            {"x":3.8*cm, "y":second_row_y, "value":epi_report.clinic }, # Health Unit
+            {"x":12.0*cm, "y":second_row_y, "value":re.sub(r'^\D+','',epi_report.clinic.code)  }, # Health Unit Code
             {"x":15.9*cm, "y":second_row_y, "value":sub_county }, # Sub-County
 
             {"x":3.5*cm, "y":third_row_y, "value":hsd  }, # HSD
             {"x":11.2*cm, "y":third_row_y, "value":district  }, # District
 
             {"x":5.5*cm, "y":footer_row_y, "value":epi_report.completed_on.strftime(DATE_FORMAT)  }, # Submitted on (Date)
-            {"x":9.1*cm, "y":footer_row_y, "value":reporters_string, 'size':reporters_font_size }, # By
+            {"x":9.1*cm, "y":footer_row_y, "value":epi_report.completed_by().full_name().title() }, # By
             {"x":16.3*cm, "y":footer_row_y, "value":epi_report.receipt, 'size':10  }, # Receipt Number
         ]
 
