@@ -173,6 +173,36 @@ def health_unit_view(req, health_unit_id):
     return render_to_response(req, 'findug/health_unit.html', { "health_unit": health_unit, 'reporters_table':reporters_table})
 
 @login_required
+def diseases_report_view(req):
+    disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
+    disease_names = []
+    for disease in disease_order:
+        disease_names.append(Disease.objects.get(code=disease.lower()).name)
+
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+
+    periods = [ReportPeriod.objects.latest()]
+    rows = []
+    for hu in locations:
+        for period in periods:
+            row={}
+            row['hu'] = unicode(hu)
+            row['hu_id'] = hu.id
+            reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+            if len(reports) > 0:
+                report = reports[0]
+                for disease in diseases_order:
+                    disease_observation = report.diseases.diseases.get(disease__code=disease.lower())
+                    row['%s_cases' % disease.lower()] = disease_observation.cases
+                    row['%s_deaths' % disease.lower()] = disease_observation.deaths
+            rows.append(row)
+                    
+    diseases_table = DiseasesReportTable(rows)
+    return render_to_response(req, 'findug/diseases_report.html', { 'table':diseases_table, 'diseases':disease_names})
+
+@login_required
 def reporters_view(req):
     ''' Displays a list of reporters '''
 
