@@ -109,15 +109,16 @@ def health_units_view(req):
     else:
         previous_period = ReportPeriod.from_day(datetime.today())
 
-    today    = datetime.today()
+    today = datetime.today()
     all = []
     for location in locations:
         loc = {}
-        loc['pk']     = location.pk
+        loc['pk']       = location.pk
         loc['name']     = location.name
         loc['hctype']   = location.type.name
         loc['code']     = location.code.upper()
-        loc['hsd']      = filter(lambda hc: hc.type.name == 'Health Sub District', location.ancestors())[0].name
+        loc['hsd']      = unicode(location.hsd)
+        loc['reporters']= len(Reporter.objects.filter(location=location.location_ptr))
         last            = EpidemiologicalReport.last_completed_by_clinic(location)
         if last:
             # the last column is the visible, nicely formated date
@@ -148,12 +149,24 @@ def health_units_view(req):
     # sort by date, descending
     return render_to_response(req, 'findug/health_units.html', {'scope':scope, 'table': table, 'filter':req.GET.get('filter')})
 
-def health_unit_view(req, location_id):
+def health_unit_view(req, health_unit_id):
     ''' Displays a summary of location activities and history '''
 
-    location    = Location.objects.get(id=location_id)
-
-    return render_to_response(req, 'findug/health_unit.html', { "location": location})
+    health_unit    = HealthUnit.objects.get(id=health_unit_id)
+    reporters = Reporter.objects.filter(location=health_unit.location_ptr)
+    all = []
+    for reporter in reporters:
+        rep = {}
+        rep['alias']    = reporter.alias
+        rep['name']     = reporter.full_name().title()
+        if reporter.connection():
+            rep['contact']  = reporter.connection().identity
+        else:
+            rep['contact']  = ''
+        all.append(rep)
+    reporters_table = HWReportersTable(all)
+    del(reporters_table.base_columns['hu'])
+    return render_to_response(req, 'findug/health_unit.html', { "health_unit": health_unit, 'reporters_table':reporters_table})
 
 def reporters_view(req):
     ''' Displays a list of reporters '''
@@ -167,8 +180,9 @@ def reporters_view(req):
     for reporter in reporters:
         rep = {}
         rep['alias']    = reporter.alias
-        rep['name']     = '%s %s' % (reporter.first_name.title(), reporter.last_name.title())
-        rep['hu']       = '%s %s' % (reporter.location.name, reporter.location.type.name)
+        rep['name']     = reporter.full_name().title()
+        rep['hu']       = unicode(HealthUnit.by_location(reporter.location))
+        rep['hu_pk']    = HealthUnit.by_location(reporter.location).pk
         if reporter.connection():
             rep['contact']  = reporter.connection().identity
         else:
