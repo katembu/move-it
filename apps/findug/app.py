@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from apps.reporters.models import *
 from apps.locations.models import *
 
-from models import *
+from apps.findug.models import *
 from utils import *
 
 class HandlerFailed (Exception):
