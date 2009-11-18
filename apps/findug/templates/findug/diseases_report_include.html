@@ -17,6 +17,7 @@ td#first {
     width:{% if diseases_table.by_date %}100px{% else %}140px{% endif %};
     text-align:left;
     padding:0px;
+    border-bottom:1px solid black;
 }
 
 th.disease {
@@ -35,10 +36,12 @@ td.sub {
 td.left {
     border-left:2px solid black;
     border-right:1px solid black;
+    border-bottom:1px solid black;
 }
 td.right {
     border-right:2px solid black;
     border-left:1px solid black;
+    border-bottom:1px solid black;
 }
 </style>
 
@@ -55,7 +58,7 @@ td.right {
            <td class="sub {% cycle 'left' 'right' %}">
             {% if not diseases_table.dont_sort and column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
             {{column}}
-            {% if column.sortable %}</a>{% endif %}
+            {% if not diseases_table.dont_sort and column.sortable %}</a>{% endif %}
             </td>
         {% endif %}
     {% endfor %}
@@ -64,7 +67,7 @@ td.right {
 
             <tr>
             {% for value in row %}
-                <td {% if forloop.first %}id="first" {% else %}class="{% cycle 'left' 'right'%}{% endif %}">
+                <td {% if forloop.first %}id="first" {% else %}class="{% cycle 'left' 'right'%}"{% endif %}>
                 {% if forloop.first %}
                     {% if diseases_table.by_date %}
                         {{ value|date:"d/m/Y" }}

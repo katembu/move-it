@@ -28,7 +28,7 @@ td#first {
             <th>
             {% if not act_table.dont_sort and column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
             {{column}}
-            {% if column.sortable %}</a>{% endif %}
+            {% if not act_table.dont_sort and column.sortable %}</a>{% endif %}
             </th>
         {% endif %}
     {% endfor %}
@@ -37,7 +37,7 @@ td#first {
 
             <tr>
             {% for value in row %}
-                <td {% if forloop.first %}id="first"{% endif %}">
+                <td {% if forloop.first %}id="first"{% endif %}>
                 {% if forloop.first %}
                     {% if treatments_table.by_date %}
                         {{ value|date:"d/m/Y" }}
