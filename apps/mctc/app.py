@@ -60,16 +60,6 @@ class App (rapidsms.app.App):
 
     def parse (self, message):
         """parser """
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '233':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
         message.was_handled = False
 
     def cleanup (self, message):
