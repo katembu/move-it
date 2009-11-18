@@ -400,7 +400,7 @@ class MalariaCasesReport(models.Model,FindReport):
         return self._suspected_cases
     def set_suspected_cases(self, value):
         if value > self.opd_attendance:
-            raise IncoherentValue(_("FAILED: Suspected malaria cases cannot be greater than total OPD attendance. Please check and try again."))
+            raise IncoherentValue(_(u"FAILED: Suspected malaria cases cannot be greater than total OPD attendance. Please check and try again."))
         self._suspected_cases = value
     suspected_cases  = property(get_suspected_cases, set_suspected_cases)
 
@@ -409,9 +409,9 @@ class MalariaCasesReport(models.Model,FindReport):
         return self._rdt_tests
     def set_rdt_tests(self, value):
         if value > self.opd_attendance:
-            raise IncoherentValue(_("FAILED: RDT tested cases cannot be greater than total OPD attendance. Please check and try again."))
+            raise IncoherentValue(_(u"FAILED: RDT tested cases cannot be greater than total OPD attendance. Please check and try again."))
         if value > self.suspected_cases:
-            raise IncoherentValue(_("FAILED: RDT tested cases cannot be greater than suspected malaria cases. Please check and try again."))
+            raise IncoherentValue(_(u"FAILED: RDT tested cases cannot be greater than suspected malaria cases. Please check and try again."))
         self._rdt_tests = value
     rdt_tests  = property(get_rdt_tests, set_rdt_tests)
 
@@ -429,9 +429,9 @@ class MalariaCasesReport(models.Model,FindReport):
         return self._microscopy_tests
     def set_microscopy_tests(self, value):
         if value > self.opd_attendance:
-            raise IncoherentValue(_("FAILED: Microscopy tested cases cannot be greater than total OPD attendance. Please check and try again."))
+            raise IncoherentValue(_(u"FAILED: Microscopy tested cases cannot be greater than total OPD attendance. Please check and try again."))
         if value > self.suspected_cases:
-            raise IncoherentValue(_("FAILED: Microscopy tested cases cannot be greater than suspected malaria cases. Please check and try again."))
+            raise IncoherentValue(_(u"FAILED: Microscopy tested cases cannot be greater than suspected malaria cases. Please check and try again."))
         self._microscopy_tests = value
     microscopy_tests  = property(get_microscopy_tests, set_microscopy_tests)
 
