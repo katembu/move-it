@@ -4,6 +4,7 @@
 {% block page_tabs %}
 <ul id="page-tabs">
 
+	<li class="page"><a href="/findug/">Dashboard</a></li>
 	<li class="page"><a href="/findug/health_units">Health Units</a></li>
 	<li class="page"><a href="/findug/reporters">Reporters</a></li>
     <li class="page"><a href="/findug/map">Map</a></li>
@@ -11,7 +12,7 @@
 </ul>
 {% endblock %}
 
-{% block content %}
+{% block page_stylesheets %}
 <style type="text/css">
 .box {
     margin-top:10px;
@@ -19,7 +20,15 @@
     margin-right:5px;
     border:1px solid black;
 }
+#branding h1 {
+        background:none;
+}
 </style>
+{% endblock page_stylesheets %}
+
+{% block content %}
+
+
 <h2>Dashboard</h2>
 
 <div class="box" style="width:400px;height:180px;float:left;"><h3>Summary</h3>
@@ -51,4 +60,4 @@
 </div>
 
 
-{% endblock %}
+{% endblock content %}

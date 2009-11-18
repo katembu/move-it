@@ -1,7 +1,7 @@
 {% extends "findug/index.html" %}
 {% block subtitle %}{{scope}} Diseases Report{% endblock %}
 
-{% block content %}
+{% block page_stylesheets %}
 <style type="text/css">
 body {
     margin:10px;
@@ -45,6 +45,10 @@ td.right {
     border-right:2px solid black;
 }
 </style>
+{% endblock page_stylesheets %}
+
+{% block content %}
+
 <h2>Diseases Report</h2> 
 Health Units: {{scope}}<br/>
 <table width="100%" id="diseases"> 
