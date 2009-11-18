@@ -1,0 +1,57 @@
+<style type="text/css">
+#cases {
+    font-size:13px;
+    border:2px solid black;
+    border-collapse: collapse;
+}
+
+#cases td, #cases th {
+    padding:0px;
+    text-align:center;
+    border:1px solid black;
+}
+
+td#first {
+    width:{% if cases_table.by_date %}100px{% else %}140px{% endif %};
+    text-align:left;
+    padding:0px;
+}
+</style>
+
+<h2>Malaria Cases Report{% if scope %}: {{scope}}{% endif %}</h2>
+<table width="100%" id="cases"> 
+    <tr>
+    {% for column in cases_table.columns %}
+        {% if forloop.first %}
+        <th>{% if cases_table.by_date %}{{column}}{% else %}<a href="?sort={{ cases_table.columns.hu.name_toggled }}">{{column}}</a>{% endif %}</th>
+        {% else %}
+            <th>
+            {% if not cases_table.dont_sort and column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
+            {{column}}
+            {% if not cases_table.dont_sort and column.sortable %}</a>{% endif %}
+            </th>
+        {% endif %}
+    {% endfor %}
+    </tr>
+        {% for row in cases_table.rows %}
+
+            <tr>
+            {% for value in row %}
+                <td {% if forloop.first %}id="first"{% endif %}>
+                {% if forloop.first %}
+                    {% if cases_table.by_date %}
+                        {{ value|date:"d/m/Y" }}
+                    {% else %}
+                        <a href="/findug/health_unit/{{row.hu_pk}}">{{value}}</a>
+                    {% endif %}
+                {% else %}
+                    {{value|default_if_none:"*"}}
+                {% endif %}
+                </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+
+</table>
+
+

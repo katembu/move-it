@@ -54,8 +54,6 @@ def index(req):
             'clinic':report.clinic,
             'clinic_id':report.clinic.id
         })
-    
-
 
     return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
 
@@ -156,6 +154,8 @@ def health_units_view(req):
 def health_unit_view(req, health_unit_id):
     ''' Displays a summary of location activities and history '''
 
+    RECENT_REPORTS=5
+
     health_unit    = HealthUnit.objects.get(id=health_unit_id)
     reporters = Reporter.objects.filter(location=health_unit.location_ptr)
     all = []
@@ -170,7 +170,108 @@ def health_unit_view(req, health_unit_id):
         all.append(rep)
     reporters_table = HWReportersTable(all)
     del(reporters_table.base_columns['hu'])
-    return render_to_response(req, 'findug/health_unit.html', { "health_unit": health_unit, 'reporters_table':reporters_table})
+
+    disease_order = ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
+    disease_names = []
+    for disease in disease_order:
+        disease_names.append(Disease.objects.get(code=disease.lower()).name)
+
+    webuser = WebUser.by_user(req.user)
+    locations = webuser.health_units()
+
+    periods = ReportPeriod.objects.all().order_by('-end_date')[:RECENT_REPORTS]
+    rows = []
+    for period in periods:
+        row={}
+        row['date'] = period.start_date
+        reports = EpidemiologicalReport.objects.filter(clinic=health_unit).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+        if len(reports) > 0:
+            for disease in disease_order:
+                disease_observation = reports[0].diseases.diseases.get(disease__code=disease.lower())
+                row['%s_cases' % disease.lower()] = disease_observation.cases
+                row['%s_deaths' % disease.lower()] = disease_observation.deaths
+        rows.append(row)
+
+    diseases_table              = DiseasesReportTable(rows)
+    diseases_table.by_date      = True
+    diseases_table.dont_sort    = True
+    del(diseases_table.base_columns['hu'])
+
+    rows = []    
+    for period in periods:
+        row={}
+        row['date'] = period.start_date
+        reports = EpidemiologicalReport.objects.filter(clinic=health_unit).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+        if len(reports) > 0:
+            cases_report = reports[0].malaria_cases
+            row['opd']          = cases_report.opd_attendance
+            row['suspected']    = cases_report.suspected_cases
+            row['rdt_test']     = cases_report.rdt_tests
+            row['rdt_positive'] = cases_report.rdt_positive_tests
+            row['mic_test']     = cases_report.microscopy_tests
+            row['mic_positive'] = cases_report.microscopy_positive
+            row['pos_u5']       = cases_report.positive_under_five
+            row['pos_o5']       = cases_report.positive_over_five
+        rows.append(row)
+    cases_table              = CasesReportTable(rows)
+    cases_table.by_date      = True
+    cases_table.dont_sort    = True
+    del(cases_table.base_columns['hu'])
+
+    rows = []    
+    for period in periods:
+        row={}
+        row['date'] = period.start_date
+        reports = EpidemiologicalReport.objects.filter(clinic=health_unit).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+        if len(reports) > 0:
+            treatments_report       = reports[0].malaria_treatments
+            row['rdt_negative']     = treatments_report.rdt_negative
+            row['rdt_positive']     = treatments_report.rdt_positive
+            row['four_to_three']    = treatments_report.four_months_to_three
+            row['three_to_seven']   = treatments_report.three_to_seven
+            row['seven_to_twelve']  = treatments_report.seven_to_twelve
+            row['twelve_and_above'] = treatments_report.twelve_and_above
+        rows.append(row)
+
+    treatments_table            = TreatmentsReportTable(rows)
+    treatments_table.by_date    = True
+    treatments_table.dont_sort  = True
+    del(treatments_table.base_columns['hu'])
+
+    rows = []    
+    for period in periods:
+        row={}
+        row['date'] = period.start_date
+        reports = EpidemiologicalReport.objects.filter(clinic=health_unit).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+        if len(reports) > 0:
+            act_report                  = reports[0].act_consumption
+            row['yellow_dispensed']     = act_report.yellow_dispensed
+            row['yellow_balance']       = act_report.yellow_balance
+            row['blue_dispensed']       = act_report.blue_dispensed 
+            row['blue_balance']         = act_report.blue_balance
+            row['brown_dispensed']      = act_report.brown_dispensed
+            row['brown_balance']        = act_report.brown_balance
+            row['green_dispensed']      = act_report.green_dispensed
+            row['green_balance']        = act_report.green_balance
+            row['other_act_dispensed']  = act_report.other_act_dispensed
+            row['other_act_balance']    = act_report.other_act_balance
+        rows.append(row)
+
+    act_table            = ACTReportTable(rows)
+    act_table.by_date    = True
+    act_table.dont_sort  = True
+    del(act_table.base_columns['hu'])
+
+
+    return render_to_response(req, 'findug/health_unit.html', { 
+        "health_unit": health_unit,
+        'reporters_table':reporters_table,
+        'diseases_table':diseases_table,
+        'diseases':disease_names,
+        'cases_table':cases_table,
+        'treatments_table':treatments_table,
+        'act_table':act_table,
+    })
 
 @login_required
 def diseases_report_view(req):
@@ -182,6 +283,7 @@ def diseases_report_view(req):
     webuser = WebUser.by_user(req.user)
 
     locations = webuser.health_units()
+    scope = webuser.scope_string()
 
     periods = [ReportPeriod.objects.latest()]
     rows = []
@@ -189,18 +291,117 @@ def diseases_report_view(req):
         for period in periods:
             row={}
             row['hu'] = unicode(hu)
-            row['hu_id'] = hu.id
+            row['hu_pk'] = hu.id
             reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
             if len(reports) > 0:
                 report = reports[0]
-                for disease in diseases_order:
+                for disease in disease_order:
                     disease_observation = report.diseases.diseases.get(disease__code=disease.lower())
                     row['%s_cases' % disease.lower()] = disease_observation.cases
                     row['%s_deaths' % disease.lower()] = disease_observation.deaths
             rows.append(row)
                     
-    diseases_table = DiseasesReportTable(rows)
-    return render_to_response(req, 'findug/diseases_report.html', { 'table':diseases_table, 'diseases':disease_names})
+    diseases_table = DiseasesReportTable(rows, order_by=req.GET.get('sort'))
+    del(diseases_table.base_columns['date'])
+    return render_to_response(req, 'findug/diseases_report.html', { 'scope':scope, 'diseases_table':diseases_table, 'diseases':disease_names})
+
+@login_required
+def cases_report_view(req):
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    periods = [ReportPeriod.objects.latest()]
+    rows = []
+
+    for hu in locations:
+        for period in periods:
+            row={}
+            row['hu'] = unicode(hu)
+            row['hu_pk'] = hu.id
+            reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+            if len(reports) > 0:
+                cases_report = reports[0].malaria_cases
+                row['opd']          = cases_report.opd_attendance
+                row['suspected']    = cases_report.suspected_cases
+                row['rdt_test']     = cases_report.rdt_tests
+                row['rdt_positive'] = cases_report.rdt_positive_tests
+                row['mic_test']     = cases_report.microscopy_tests
+                row['mic_positive'] = cases_report.microscopy_positive
+                row['pos_u5']       = cases_report.positive_under_five
+                row['pos_o5']       = cases_report.positive_over_five
+            rows.append(row)
+                    
+    cases_table = CasesReportTable(rows, order_by=req.GET.get('sort'))
+    del(cases_table.base_columns['date'])
+    return render_to_response(req, 'findug/cases_report.html', { 'scope':scope, 'cases_table':cases_table})
+
+@login_required
+def treatments_report_view(req):
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    periods = [ReportPeriod.objects.latest()]
+    rows = []
+
+    for hu in locations:
+        for period in periods:
+            row={}
+            row['hu'] = unicode(hu)
+            row['hu_pk'] = hu.id
+            reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+
+            if len(reports) > 0:
+                treatments_report       = reports[0].malaria_treatments
+                row['rdt_negative']     = treatments_report.rdt_negative
+                row['rdt_positive']     = treatments_report.rdt_positive
+                row['four_to_three']    = treatments_report.four_months_to_three
+                row['three_to_seven']   = treatments_report.three_to_seven
+                row['seven_to_twelve']  = treatments_report.seven_to_twelve
+                row['twelve_and_above'] = treatments_report.twelve_and_above
+            rows.append(row)
+                    
+    treatments_table = TreatmentsReportTable(rows, order_by=req.GET.get('sort'))
+    del(treatments_table.base_columns['date'])
+    return render_to_response(req, 'findug/treatments_report.html', { 'scope':scope, 'treatments_table':treatments_table})
+
+@login_required
+def act_report_view(req):
+    webuser = WebUser.by_user(req.user)
+
+    locations = webuser.health_units()
+    scope = webuser.scope_string()
+
+    periods = [ReportPeriod.objects.latest()]
+    rows = []
+
+    for hu in locations:
+        for period in periods:
+            row={}
+            row['hu'] = unicode(hu)
+            row['hu_pk'] = hu.id
+            reports = EpidemiologicalReport.objects.filter(clinic=hu).filter(_status=EpidemiologicalReport.STATUS_COMPLETED).filter(period=period)
+
+            if len(reports) > 0:
+                act_report                  = reports[0].act_consumption
+                row['yellow_dispensed']     = act_report.yellow_dispensed
+                row['yellow_balance']       = act_report.yellow_balance
+                row['blue_dispensed']       = act_report.blue_dispensed 
+                row['blue_balance']         = act_report.blue_balance
+                row['brown_dispensed']      = act_report.brown_dispensed
+                row['brown_balance']        = act_report.brown_balance
+                row['green_dispensed']      = act_report.green_dispensed
+                row['green_balance']        = act_report.green_balance
+                row['other_act_dispensed']  = act_report.other_act_dispensed
+                row['other_act_balance']    = act_report.other_act_balance
+            rows.append(row)
+                    
+    act_table = ACTReportTable(rows, order_by=req.GET.get('sort'))
+    del(act_table.base_columns['date'])
+    return render_to_response(req, 'findug/act_report.html', { 'scope':scope, 'act_table':act_table})
 
 @login_required
 def reporters_view(req):
@@ -310,7 +511,9 @@ def epidemiological_report(req, report_id):
     report['test']      = test
     report['treat']     = treat
     report['act']       = act
+    report['remarks']   = epi_report.remarks
     report['footer']    = footer
+
     return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
 
 @login_required

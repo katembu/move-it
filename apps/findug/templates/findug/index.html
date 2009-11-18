@@ -4,6 +4,7 @@
 {% block page_tabs %}
 <ul id="page-tabs">
 
+	<li class="page"><a href="/findug/">Dashboard</a></li>
 	<li class="page"><a href="/findug/health_units">Health Units</a></li>
 	<li class="page"><a href="/findug/reporters">Reporters</a></li>
     <li class="page"><a href="/findug/map">Map</a></li>
@@ -11,7 +12,7 @@
 </ul>
 {% endblock %}
 
-{% block content %}
+{% block page_stylesheets %}
 <style type="text/css">
 .box {
     margin-top:10px;
@@ -19,7 +20,15 @@
     margin-right:5px;
     border:1px solid black;
 }
+#branding h1 {
+        background:none;
+}
 </style>
+{% endblock page_stylesheets %}
+
+{% block content %}
+
+
 <h2>Dashboard</h2>
 
 <div class="box" style="width:400px;height:180px;float:left;"><h3>Summary</h3>
@@ -39,7 +48,7 @@
         {% endfor %}
     </div>
 </div>
-
+<div style="clear:both;"></div>
 <div class="box" style="width:400px;float:left;"><h3>Resources</h3>
     <div style="padding:5px;">
         <p><a href="/static/findug/epi_form_20091027.pdf">HMIS Form 033B SMS (pdf)</a></p>
@@ -49,6 +58,14 @@
 
     </div>
 </div>
+<div class="box" style="width:510px;float:left;"><h3>Current Period Reports</h3>
+    <div style="padding:5px;">
+        <p><a href="diseases_report">Diseases Report</a></p>
+        <p><a href="cases_report">Malaria Cases Report</a></p>
+        <p><a href="treatments_report">Malaria Treatments Report</a></p>
+        <p><a href="act_report">ACT Stock Report</a></p>
+    </div>
+</div>
 
 
-{% endblock %}
+{% endblock content %}
