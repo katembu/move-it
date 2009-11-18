@@ -54,8 +54,6 @@ def index(req):
             'clinic':report.clinic,
             'clinic_id':report.clinic.id
         })
-    
-
 
     return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
 
@@ -310,7 +308,9 @@ def epidemiological_report(req, report_id):
     report['test']      = test
     report['treat']     = treat
     report['act']       = act
+    report['remarks']   = epi_report.remarks
     report['footer']    = footer
+
     return render_to_response(req, 'findug/epidemiological_report.html', {'report':report})
 
 @login_required
