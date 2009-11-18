@@ -1,14 +1,10 @@
 {% extends "findug/index.html" %}
-{% block title %}{{ location }}{% endblock %}
+{% block subtitle %}{{ health_unit }}{% endblock %}
 
-{% block content %}
+
+{% block page_stylesheets %}
+{{ block.super }}
 <style type="text/css">
-.box {
-    margin-top:10px;
-    margin-left:5px;
-    margin-right:5px;
-    border:1px solid black;
-}
 #details {
     margin-top:10px;
     margin-left:5px;
@@ -22,6 +18,8 @@
     font-weight:bold;
 }
 </style>
+{% endblock page_stylesheets %}
+{% block content %}
 <h2>{{ health_unit }}</h2>
 
 <div class="box" style="width:455px;float:left;"><h3>Details</h3>
@@ -29,8 +27,9 @@
         <table id="details">
             <tr><th>Name:</th><td>{{ health_unit.location_ptr }}</td><th>Parish:</th><td>{{ health_unit.parish }}</td></tr>
             <tr><th>Type:</th><td>{{ health_unit.type }}</td><th>Sub County:</th><td>{{ health_unit.subcounty }}</td></tr>
-            <tr><th>Latitude:</th><td>{{ health_unit.latitude }}</td><th>County:</th><td>{{ health_unit.county }}</td></tr>
-            <tr><th>Longitude:</th><td>{{ health_unit.longitude }}</td><th>District:</th><td>{{ health_unit.district }}</td></tr>
+            <tr><th>Latitude:</th><td>{{ health_unit.latitude|default_if_none:"Unknown" }}</td><th>County:</th><td>{{ health_unit.county }}</td></tr>
+            <tr><th>Longitude:</th><td>{{ health_unit.longitude|default_if_none:"Unknown" }}</td><th>HSD:</th><td>{{ health_unit.hsd }}</td></tr>
+            <tr><th>Catchment:</th><td>{{ health_unit.catchment|default_if_none:"Unknown" }}</td><th>District:</th><td>{{ health_unit.district }}</td></tr>
         </table>
 </div>
 
@@ -52,4 +51,18 @@
     </tbody>
 </table>
 </div>
-{% endblock %}
+<div style="clear:both;"></div>
+<div class="box" style="width:922px;"><h3>Recent Reports</h3>
+{% include "findug/diseases_report_include.html" %}
+<div style="height:20px"></div>
+{% include "findug/cases_report_include.html" %}
+<div style="height:20px"></div>
+{% include "findug/treatments_report_include.html" %}
+<div style="height:20px"></div>
+{% include "findug/act_report_include.html" %}
+</div>
+
+
+
+
+{% endblock content %}
