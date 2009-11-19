@@ -114,12 +114,12 @@ class Case(models.Model):
         return False
     
     @classmethod
-    def list_e_4_measles(cls,provider):
+    def list_e_4_measles(cls,reporter):
         ninem = date.today() - timedelta(int(30.4375*9))
         sixtym = date.today() - timedelta(int(30.4375*60))
         
         try:
-            return cls.objects.filter(provider=provider, dob__lte=ninem, dob__gte=sixtym)
+            return cls.objects.filter(reporter=reporter, dob__lte=ninem, dob__gte=sixtym)
         except models.ObjectDoesNotExist:
             return None
         

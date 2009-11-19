@@ -10,6 +10,7 @@ from diarrhea.models import ReportDiarrhea
 from diagnosis.models import ReportDiagnosis
 
 from reporters.models import Reporter, Role
+from locations.models import Location
 
 from datetime import datetime, date, timedelta
 
@@ -158,22 +159,25 @@ class ReportCHWStatus(Report, models.Model):
             return ps, fields 
         
     @classmethod
-    def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic_id=None):            
+    def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic=None):            
         ps      = []
         fields  = []
         counter = 0
         eligible_cases=0
         vaccinated_cases = 0
         clinic_cases = 0
-        if clinic_id is not None:
-            providers = Provider.list_by_clinic(clinic_id)
-            for provider in providers:
+        if clinic is not None:
+            # providers = Provider.list_by_clinic(clinic_id)
+            chwrole = Role.objects.get(code="chw")
+            reporters = Reporter.objects.filter(location=clinic, role=chwrole)
+            # for provider in providers:
+            for reporter in reporters:
                 p = {}
                 counter = counter + 1
                 p['counter'] = "%d"%counter
-                p['provider'] = provider
-                p['num_cases'] = Case.count_by_provider(provider)
-                cases = Case.list_e_4_measles(provider)
+                p['reporter'] = reporter
+                p['num_cases'] = Case.count_by_provider(reporter)
+                cases = Case.list_e_4_measles(reporter)
                 p['eligible_cases'] = cases.count()                
                 eligible_cases += p['eligible_cases'] 
                 clinic_cases = clinic_cases + p['num_cases']
@@ -182,7 +186,7 @@ class ReportCHWStatus(Report, models.Model):
                 for case in cases:
                     if ReportMeasles.is_vaccinated(case):
                         slowcount += 1 
-                mcases = ReportMeasles.get_vaccinated(provider)
+                mcases = ReportMeasles.get_vaccinated(reporter)
                 #p['vaccinated_cases'] = mcases.count()                
                 p['vaccinated_cases'] = slowcount
                 p['not_vaccinated_cases'] = p['eligible_cases'] - p['vaccinated_cases']
@@ -195,7 +199,7 @@ class ReportCHWStatus(Report, models.Model):
             # Summary    
             p = {}
             p['counter'] = ""
-            p['provider'] = "Summary"
+            p['reporter'] = "Summary"
             p['num_cases'] = clinic_cases
             p['eligible_cases'] = eligible_cases
             p['vaccinated_cases'] = vaccinated_cases     
@@ -205,7 +209,7 @@ class ReportCHWStatus(Report, models.Model):
             ps.append(p)
                     # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
             fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
-            fields.append({"name": 'PROVIDER', "column": None, "bit": "{{ object.provider }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter }}" })
             fields.append({"name": 'TOTAL CASES', "column": None, "bit": "{{ object.num_cases}}" })
             fields.append({"name": '# ELIGIBLE CASES', "column": None, "bit": "{{ object.eligible_cases}}" })
             fields.append({"name": '# VACCINATED', "column": None, "bit": "{{ object.vaccinated_cases }}" })
@@ -221,9 +225,10 @@ class ReportCHWStatus(Report, models.Model):
         teligible_cases=0
         tvaccinated_cases = 0
         tclinic_cases = 0
-        clinics = Facility.objects.all()
+        clinics = Location.objects.filter(type__name="Clinic")
         for clinic in clinics:
-            providers = Provider.list_by_clinic(clinic)
+            chwrole = Role.objects.get(code="chw")
+            reporters = Reporter.objects.filter(location=clinic, role=chwrole)
             p = {}
             eligible_cases=0
             vaccinated_cases = 0
@@ -233,13 +238,13 @@ class ReportCHWStatus(Report, models.Model):
             p['num_cases'] = 0
             p['eligible_cases'] = 0
             p['vaccinated_cases'] = 0
-            for provider in providers:                
+            for reporter in reporters:                
                 counter = counter + 1
                 #p['counter'] = "%d"%counter                
-                cases = Case.list_e_4_measles(provider)                 
+                cases = Case.list_e_4_measles(reporter)                 
                 eligible_cases += cases.count() 
-                clinic_cases = clinic_cases + Case.count_by_provider(provider)
-                mcases = ReportMeasles.get_vaccinated(provider)
+                clinic_cases = clinic_cases + Case.count_by_provider(reporter)
+                mcases = ReportMeasles.get_vaccinated(reporter)
                 #slow count
                 slowcount = 0
                 for case in cases:

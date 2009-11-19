@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from mctc.models.logs import MessageLog
 from mctc.models.general import Case
 from mctc.models.reports import ReportCHWStatus
-from reporters.models import Reporter
+from reporters.models import Reporter, ReporterGroup
 from models import ReportMeasles
 
 import time
@@ -125,14 +125,15 @@ class App (rapidsms.app.App):
     and those who are to receive alerts
     '''
     @keyword(r'msummary')
-    def measles_summary(self, message):
-        summary =  ReportCHWStatus.measles_mini_summary()
+    def measles_summary(self, message):        
         header = u"Measles Summary by facility:"
         result = []
-        tmp = header;
+        
+        summary =  ReportCHWStatus.measles_mini_summary()
+        tmp = header
         for info in summary:
             if info["eligible_cases"] != 0:
-                info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0);
+                info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0)
             else:
                 info["percentage"] = 0 
             item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s,"%info
@@ -142,13 +143,20 @@ class App (rapidsms.app.App):
             tmp += item
         if tmp != header:
             result.append(tmp)
-        #message.forward(u"0733202270", u"Start Measles Summary...")    
-        time.sleep(10)
-        reporters = Reporter.objects.all()
+        #message.forward(u"0733202270", u"Start Measles Summary...")
+            
+        subscribers = Reporter.objects.all()
         for text in result:
-            for reporter in reporters:
-                mobile = reporter.connection().identity
-                message.forward(mobile, text)
-                time.sleep(10)
+            for subscriber in subscribers:
+                try:
+                    if subscriber.registered_self and ReporterGroup.objects.get(title='measles_summary') in subscriber.groups.only():                
+                        mobile = subscriber.connection().identity
+                        message.forward(mobile, _("%s")%text)          
+                except:
+                    """
+                    FIXME: The group might have not been created, need to alert the developer/in charge here
+                    """
+                    pass
+                
         #message.forward(u"0733202270", u"...Measles Summary End")
         return True
