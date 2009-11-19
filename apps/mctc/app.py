@@ -432,3 +432,20 @@ class App (rapidsms.app.App):
         return True
     note_case.format = "note [patient id] [your note]"
     
+    #Whereami
+    keyword.prefix = ["whereami"]
+    @keyword.blank()
+    @registered
+    def whereami(self, message):
+        ''' returns location of chw '''
+
+        reporter    = message.persistant_connection.reporter
+        
+        info = {"reporter":reporter,
+                "location": reporter.location,
+                "loc_code": reporter.location.code
+                }
+        
+        message.respond(_("%(location)s (%(loc_code)s)")%info)
+
+        return True
