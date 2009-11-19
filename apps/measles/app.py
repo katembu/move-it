@@ -119,13 +119,13 @@ class App (rapidsms.app.App):
             except HandlerFailed:
                 notcases.append(c)
         return cases, notcases
-    
-    '''
-    Send measles summary to health facilitators
-    and those who are to receive alerts
-    '''
+        
     @keyword(r'msummary')
-    def measles_summary(self, message):        
+    def measles_summary(self, message):
+        '''
+        Send measles summary to health facilitators
+        and those who are to receive alerts
+        '''        
         header = u"Measles Summary by facility:"
         result = []
         
@@ -136,7 +136,7 @@ class App (rapidsms.app.App):
                 info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 0)
             else:
                 info["percentage"] = 0 
-            item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s,"%info
+            item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s %(percentage)s%%,"%info
             if len(tmp) + len(item) + 2 >= self.MAX_MSG_LEN:
                 result.append(tmp)
                 tmp = header
