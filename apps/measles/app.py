@@ -92,12 +92,15 @@ class App (rapidsms.app.App):
             result = result + "+%s "%case.ref_id
             report = ReportMeasles(case=case, reporter=reporter, taken=True)
             report.save()
-        message.respond(_(result + " received measles shot."))
+        if result != "":
+            msg = result + " received measles shot."
+            message.respond(_("%s")%msg)
         if notcases:
             nresult = "" 
             for nc in notcases:
-                nresult = nresult +"%s "%nc            
-            message.respond(_(nresult + " not found!!"))
+                nresult = nresult +"%s "%nc
+            msg = nresult + " not found!!"            
+            message.respond(_("%s")%msg)
         return True
     
     
