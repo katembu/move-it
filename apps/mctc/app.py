@@ -81,10 +81,13 @@ class App (rapidsms.app.App):
             mctc_input = message.text.lower()
             for command in command_list:
                 format = getattr(self, command).format
-                first_word = (format.split(" "))[0]
-                if mctc_input.find(first_word) > -1:
-                    message.respond(format)
-                    return True
+                try:
+                    first_word = (format.split(" "))[0]
+                    if mctc_input.find(first_word) > -1:
+                        message.respond(format)
+                        return True
+                except:
+                    pass
 
             message.respond(_("Sorry Unknown command: '%(msg)s...' Please try again") % {"msg":message.text[:20]})
             
