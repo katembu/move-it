@@ -310,6 +310,83 @@ class App (rapidsms.app.App):
         return True
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
+    # [CC SENEGAL / FRENCH] Register a new patient
+    @keyword(r'nouv @(\S*) (\S+) (\S+) ([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
+    @registered
+    def new_case_frccsn (self, message, location_code, last, first, gender, dob, guardian_last, guardian_first, contact=""):
+        """Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
+       Purpose: register a new patient into the system.  Receive patient ID number back"""
+        
+        # reporter
+        reporter    = message.persistant_connection.reporter
+        
+        # compute Date Of Birth
+        dob = re.sub(r'\D', '', dob)
+        try:
+            dob = time.strptime(dob, "%d%m%y")
+        except ValueError:
+            try:
+                dob = time.strptime(dob, "%d%m%Y")
+            except ValueError:
+                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+        dob = datetime.date(*dob[:3])
+
+        # Concatenate Mother's name
+        guardian    = "%s %s" % (guardian_last, guardian_first)
+
+        # compute location
+        if location_code == "":
+            # reporter wants to reuse last location
+            try:
+                today       = datetime.datetime.now()
+                today       = today.replace(hour=0, minute=0, second=0)
+                location    = list(Case.objects.filter(reporter=reporter, created_at__gte=today).all())[-1].location
+            except:
+                message.respond(_(u"Can't figure out where you are today. Please resend with location code."))
+                return True
+        else:
+            try:
+                location    = Location.objects.get(code=location_code)
+            except:
+                message.respond(_(u"Can't find your location based on the code your sent. Please resend."))
+                return True
+
+        # store case info in object
+        info = {
+            "first_name" : first.title(),
+            "last_name"  : last.title(),
+            "gender"     : gender.upper()[0],
+            "dob"        : dob,
+            "guardian"   : guardian.title(),
+            "mobile"     : contact,
+            "reporter"   : reporter,
+            "location"   : location
+        }
+
+        ## check to see if the case already exists
+        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
+        if iscase:
+            info["PID"] = iscase[0].ref_id
+            message.respond(_(
+            "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s.") % info)
+
+            return True
+        case = Case(**info)
+        case.save()
+
+        info.update({
+            "id": case.ref_id,
+            "last_name": last.upper(),
+            "age": case.age()
+        })
+        
+        message.respond(_(
+            "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
+            "(%(guardian)s) %(location)s") % info)
+        
+        log(case, "patient_created")
+        return True
+    new_case_frccsn.format = "nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] (contact #)"
 
     def find_case (self, ref_id):
         """look up a patient id """
