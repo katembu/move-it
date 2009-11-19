@@ -449,3 +449,32 @@ class App (rapidsms.app.App):
         message.respond(_("%(location)s (%(loc_code)s)")%info)
 
         return True
+    
+    #change location
+    keyword.prefix = ["location", "loc"]
+    @keyword(r'(slug)')
+    @registered
+    def change_location(self, message, location_code):
+        ''' returns location of chw '''
+
+        reporter    = message.persistant_connection.reporter
+        
+        # check location code
+        try:
+            location  = Location.objects.get(code=location_code)
+        except models.ObjectDoesNotExist:
+            message.forward(reporter.connection().identity, \
+                _(u"Location Error. Provided location code (%(loc)s) is wrong.") % {'loc': location_code})
+            return True
+        
+        reporter.location = location
+        reporter.save()
+        
+        info = {"reporter":reporter,
+                "location": reporter.location,
+                "loc_code": reporter.location.code
+                }
+        
+        message.respond(_("Your location is now %(location)s (%(loc_code)s)")%info)
+
+        return True
