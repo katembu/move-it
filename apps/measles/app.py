@@ -100,11 +100,12 @@ class App (rapidsms.app.App):
             message.respond(_(nresult + " not found!!"))
         return True
     
-    '''
+    
+    def str_to_cases(self, text): 
+        '''
         @text a string containing space separeted +PID, e.g +78 +98 ..or 78 98 ...
         @return: Case Object list, and a list of numbers that were not cases
-    '''
-    def str_to_cases(self, text):        
+        '''       
         text = text.replace("+","")
         cs = text.split(" ")
         cases = []
