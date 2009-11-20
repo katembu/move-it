@@ -223,7 +223,7 @@ class App (rapidsms.app.App):
         """user not registered """
         raise HandlerFailed(_("User @%s is not registered.") % target)
 
-    def find_provider (self, target):
+    def find_provider (self, message, target):
         """FIND PROVIDER """
         try:
             if re.match(r'^\d+$', target):
@@ -238,7 +238,7 @@ class App (rapidsms.app.App):
     @keyword(r'\@(\w+) (.+)')
     @registered
     def direct_message (self, message, target, text):
-        provider = self.find_provider(target)
+        provider = self.find_provider(message, target)
         try:
             mobile = provider.mobile
         except:
@@ -463,7 +463,7 @@ class App (rapidsms.app.App):
     def transfer_case (self, message, ref_id, target):
         reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
-        new_provider = self.find_provider(target) 
+        new_provider = self.find_provider(message, target) 
         case.reporter = new_provider
         case.save()
         info = {
