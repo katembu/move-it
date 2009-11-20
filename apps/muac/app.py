@@ -57,7 +57,7 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("%s")%"An error occurred. Please call 0733202270.")
             raise
         message.was_handled = bool(self.handled)
         return self.handled
