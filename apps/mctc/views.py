@@ -197,6 +197,7 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
     pdfrpt = PDFReport()
     d = int(d)
     pdfrpt.enableFooter(True)
+    
     thirty_days = timedelta(days=d)
     ninty_days = timedelta(days=90)
     today = date.today()
@@ -208,26 +209,30 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
     #pdfrpt.setTitle("RapidResponse MVP Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
     pdfrpt.setTitle("Measles Campaign Summary")
     if object_id is None:
-        clinics = Provider.objects.values('clinic').filter(role=1).distinct()
+        # clinics = Provider.objects.values('clinic').filter(role=1).distinct()
+        
+        clinics = Location.objects.filter(type__name="Clinic")
+        
         for clinic in clinics:
-            queryset, fields = ReportCHWStatus.measles_summary(duration_start, duration_end, muac_duration_start, clinic["clinic"])
-            c = Facility.objects.filter(id=clinic["clinic"])[0]
-            pdfrpt.setTableData(queryset, fields, c.name)
+            queryset, fields = ReportCHWStatus.measles_summary(duration_start, duration_end, muac_duration_start, clinic)
+            
+            pdfrpt.setTableData(queryset, fields, clinic)
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
-        queryset, fields = ReportCHWStatus.measles_summary(duration_start, duration_end, muac_duration_start, object_id)
-        c = Facility.objects.filter(id=object_id)[0]
+        clinic = Location.objects.get(id=object_id)
+        queryset, fields = ReportCHWStatus.measles_summary(duration_start, duration_end, muac_duration_start, clinic)
+        
         
         if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-            file_name = c.name + ".csv"
+            file_name = clinic + ".csv"
             file_name = file_name.replace(" ","_").replace("'","")
             return handle_csv(request, queryset, fields, file_name)
         
-        pdfrpt.setTableData(queryset, fields, c.name)
+        pdfrpt.setTableData(queryset, fields, clinic)
     
     return pdfrpt.render()
 

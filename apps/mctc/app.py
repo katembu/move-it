@@ -60,16 +60,6 @@ class App (rapidsms.app.App):
 
     def parse (self, message):
         """parser """
-        # allow authentication to occur when http tester is used
-        if message.peer[:3] == '233':
-            mobile = "+" + message.peer
-        else:
-            mobile = message.peer 
-        provider = Provider.by_mobile(mobile)
-        if provider:
-            message.sender = provider.user
-        else:
-            message.sender = None
         message.was_handled = False
 
     def cleanup (self, message):
@@ -91,10 +81,13 @@ class App (rapidsms.app.App):
             mctc_input = message.text.lower()
             for command in command_list:
                 format = getattr(self, command).format
-                first_word = (format.split(" "))[0]
-                if mctc_input.find(first_word) > -1:
-                    message.respond(format)
-                    return True
+                try:
+                    first_word = (format.split(" "))[0]
+                    if mctc_input.find(first_word) > -1:
+                        message.respond(format)
+                        return True
+                except:
+                    pass
 
             message.respond(_("Sorry Unknown command: '%(msg)s...' Please try again") % {"msg":message.text[:20]})
             
@@ -254,7 +247,8 @@ class App (rapidsms.app.App):
         return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
-    @keyword(r'new (\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
+    keyword.prefix = ["new"]
+    @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
         """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
@@ -316,6 +310,83 @@ class App (rapidsms.app.App):
         return True
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
+    # [CC SENEGAL / FRENCH] Register a new patient
+    @keyword(r'nouv @(\S*) (\S+) (\S+) ([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
+    @registered
+    def new_case_frccsn (self, message, location_code, last, first, gender, dob, guardian_last, guardian_first, contact=""):
+        """Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
+       Purpose: register a new patient into the system.  Receive patient ID number back"""
+        
+        # reporter
+        reporter    = message.persistant_connection.reporter
+        
+        # compute Date Of Birth
+        dob = re.sub(r'\D', '', dob)
+        try:
+            dob = time.strptime(dob, "%d%m%y")
+        except ValueError:
+            try:
+                dob = time.strptime(dob, "%d%m%Y")
+            except ValueError:
+                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+        dob = datetime.date(*dob[:3])
+
+        # Concatenate Mother's name
+        guardian    = "%s %s" % (guardian_last, guardian_first)
+
+        # compute location
+        if location_code == "":
+            # reporter wants to reuse last location
+            try:
+                today       = datetime.datetime.now()
+                today       = today.replace(hour=0, minute=0, second=0)
+                location    = list(Case.objects.filter(reporter=reporter, created_at__gte=today).all())[-1].location
+            except:
+                message.respond(_(u"Can't figure out where you are today. Please resend with location code."))
+                return True
+        else:
+            try:
+                location    = Location.objects.get(code=location_code)
+            except:
+                message.respond(_(u"Can't find your location based on the code your sent. Please resend."))
+                return True
+
+        # store case info in object
+        info = {
+            "first_name" : first.title(),
+            "last_name"  : last.title(),
+            "gender"     : gender.upper()[0],
+            "dob"        : dob,
+            "guardian"   : guardian.title(),
+            "mobile"     : contact,
+            "reporter"   : reporter,
+            "location"   : location
+        }
+
+        ## check to see if the case already exists
+        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
+        if iscase:
+            info["PID"] = iscase[0].ref_id
+            message.respond(_(
+            "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s.") % info)
+
+            return True
+        case = Case(**info)
+        case.save()
+
+        info.update({
+            "id": case.ref_id,
+            "last_name": last.upper(),
+            "age": case.age()
+        })
+        
+        message.respond(_(
+            "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
+            "(%(guardian)s) %(location)s") % info)
+        
+        log(case, "patient_created")
+        return True
+    new_case_frccsn.format = "nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] (contact #)"
 
     def find_case (self, ref_id):
         """look up a patient id """
@@ -438,3 +509,49 @@ class App (rapidsms.app.App):
         return True
     note_case.format = "note [patient id] [your note]"
     
+    #Whereami
+    keyword.prefix = ["whereami"]
+    @keyword.blank()
+    @registered
+    def whereami(self, message):
+        ''' returns location of chw '''
+
+        reporter    = message.persistant_connection.reporter
+        
+        info = {"reporter":reporter,
+                "location": reporter.location,
+                "loc_code": reporter.location.code
+                }
+        
+        message.respond(_("%(location)s (%(loc_code)s)")%info)
+
+        return True
+    
+    #change location
+    keyword.prefix = ["location", "loc"]
+    @keyword(r'(slug)')
+    @registered
+    def change_location(self, message, location_code):
+        ''' returns location of chw '''
+
+        reporter    = message.persistant_connection.reporter
+        
+        # check location code
+        try:
+            location  = Location.objects.get(code=location_code)
+        except models.ObjectDoesNotExist:
+            message.forward(reporter.connection().identity, \
+                _(u"Location Error. Provided location code (%(loc)s) is wrong.") % {'loc': location_code})
+            return True
+        
+        reporter.location = location
+        reporter.save()
+        
+        info = {"reporter":reporter,
+                "location": reporter.location,
+                "loc_code": reporter.location.code
+                }
+        
+        message.respond(_("Your location is now %(location)s (%(loc_code)s)")%info)
+
+        return True

@@ -75,8 +75,10 @@ class ReportMalnutrition(models.Model):
         return self.reporter.connection().identity
             
     def diagnose (self):
-        complications = [c for c in self.observed.all() if c.uid != "edema"]
+        complications = [c for c in self.observed.all() if c.uid != "edema" or c.uid != "oedema"]
         edema = "edema" in [ c.uid for c in self.observed.all() ]
+        if not edema:
+            edema = "oedema" in [ c.uid for c in self.observed.all() ]
         self.status = ReportMalnutrition.HEALTHY_STATUS
         if edema or self.muac < 110:
             if complications:
