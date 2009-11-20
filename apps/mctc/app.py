@@ -243,7 +243,7 @@ class App (rapidsms.app.App):
             mobile = provider.connection().identity
         except:
             self.respond_not_registered(message, target)
-        sender = message.sender.username
+        sender = message.persistant_connection.reporter.alias
         return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
