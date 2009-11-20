@@ -21,7 +21,7 @@ class ReportBirth(models.Model):
     case            = models.ForeignKey(Case, db_index=True, null=False)
     weight          = models.FloatField(db_index=True, null=False)
     where        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
-    complications   = models.CharField(max_length=255, db_index=True)
+    complications   = models.CharField(max_length=255, db_index=True, null=True)
     reporter    = models.ForeignKey(Reporter, db_index=True)    
     entered_at  = models.DateTimeField(db_index=True)
     
