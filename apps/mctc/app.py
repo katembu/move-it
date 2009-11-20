@@ -95,13 +95,13 @@ class App (rapidsms.app.App):
         try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
-            message.respond(e.message)
+            message.respond(e)
             
             self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("%s")%"An error occurred. Please call 0733202270.")
             
             elog(message.persistant_connection.reporter, message.text)
             raise
