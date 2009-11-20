@@ -223,7 +223,7 @@ class App (rapidsms.app.App):
         """Expected format for mrdt command, sent as a reminder"""
         return "Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
-    @keyword(r'mrdt \+(\d+) ([yn]) ([yn])(.*)?')
+    @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
     @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
         case = self.find_case(ref_id)
