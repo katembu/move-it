@@ -36,8 +36,8 @@
         <p>The current weekly report period is:<br/>
         <strong>{{ summary.period.start_date|date:"D d/m/Y" }} - {{ summary.period.end_date|date:"D d/m/Y" }}</strong></p>
         <p><a href="health_units"><strong>{{ summary.total_units }}</strong> health units</a> are registered.<br/>
-        <p><a href="health_units/?filter=current"><strong>{{ summary.up2date }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} completed the report for this period.</p>
-        <p><a href="health_units/?filter=missing"><strong>{{ summary.missing }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} <strong>not</strong> completed the report for this period.</p>
+        <a href="health_units/?filter=current"><strong>{{ summary.up2date }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} completed the report for this period.<br/>
+        <a href="health_units/?filter=missing"><strong>{{ summary.missing }}</strong> health unit{{ summary.up2date|pluralize }}</a> ha{{ summary.up2date|pluralize:"s,ve" }} <strong>not</strong> completed the report for this period.</p>
     </div>
 </div>
 
