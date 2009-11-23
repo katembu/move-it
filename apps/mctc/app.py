@@ -250,6 +250,7 @@ class App (rapidsms.app.App):
     #keyword.prefix = ["new"]
     #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
+
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
         """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
        Purpose: register a new patient into the system.  Receive patient ID number back"""
@@ -328,7 +329,8 @@ class App (rapidsms.app.App):
         
         # reporter
         reporter    = message.persistant_connection.reporter
-        
+        location_code=message.persistant_connection.reporter.location.code
+        self.debug('location_code= '+location_code)
         # compute Date Of Birth
         dob = re.sub(r'\D', '', dob)
         try:
@@ -351,7 +353,7 @@ class App (rapidsms.app.App):
                 today       = today.replace(hour=0, minute=0, second=0)
                 location    = list(Case.objects.filter(reporter=reporter, created_at__gte=today).all())[-1].location
             except:
-                message.respond(_(u"Can't figure out where you are today. Please resend with location code."))
+                message.respond(_(u"Can't figure out where you are today. Please use message: Location locationcode to set your location."))
                 return True
         else:
             try:
@@ -360,6 +362,7 @@ class App (rapidsms.app.App):
                 message.respond(_(u"Can't find your location based on the code your sent. Please resend."))
                 return True
 
+        
         # store case info in object
         info = {
             "first_name" : first.title(),
@@ -390,7 +393,7 @@ class App (rapidsms.app.App):
         })
         
         message.respond(_(
-            "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
+            "Nouv +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
             "(%(guardian)s) %(location)s") % info)
         
         log(case, "patient_created")
@@ -532,7 +535,7 @@ class App (rapidsms.app.App):
                 "loc_code": reporter.location.code
                 }
         
-        message.respond(_("%(location)s (%(loc_code)s)")%info)
+        message.respond(_("You are in %(location)s (%(loc_code)s)")%info)
 
         return True
     
@@ -564,3 +567,64 @@ class App (rapidsms.app.App):
         message.respond(_("Your location is now %(location)s (%(loc_code)s)")%info)
 
         return True
+
+#assane
+ # Modify dob of patient
+    keyword.prefix = ["age"]
+    @keyword(r'\+?(\d+) ([\d\-]+)')
+    @registered
+    def update_age (self, message, ref_id, dob):
+        """Format: age [numero patien] [date de naissance] 
+       Purpose: update the dob of a patient into the system.  Receive patient ID number back"""
+        self.debug('update_age ...')     
+        # reporter
+        reporter    = message.persistant_connection.reporter
+        
+        
+        dob = re.sub(r'\D', '', dob)
+        try:
+            dob = time.strptime(dob, "%d%m%y")
+        except ValueError:
+            try:
+                dob = time.strptime(dob, "%d%m%Y")
+            except ValueError:
+                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+        dob = datetime.date(*dob[:3])
+        delta=datetime.datetime.now().date() - dob
+        years = delta.days / 365.25
+        if years < 0:
+            raise HandlerFailed(_("The age couldn't be greater than now, please retape the date!!! "))
+        
+        # todo: move this to a more generic get_description
+        info = {
+            "ref_id" : ref_id,
+            "dob"        : dob           
+        }
+
+        ## check to see if the case already exists
+        iscase = Case.objects.filter(ref_id=info['ref_id'])
+        if iscase.count() == 1:
+            first_case = iscase[0]        
+            #message.respond(_(
+            #"%(last_name)s, %(first_name)s has already been registered by you.") % info)
+            #iscase = Case(**info)
+            first_case.dob =info['dob']            
+            first_case.save()
+        else:
+            message.respond(_(
+            " The patient  %(ref_id)s is not registred.") % info)
+            # TODO: log this message
+            return True
+        info.update({
+            "id": first_case.ref_id,
+            "dob": first_case.age()
+        })
+        
+        message.respond(_(
+            "l'age du patient +%(id)s a ete modifie, il est maintenant age de  %(dob)s") % info)
+        
+        #log(first_case, "age_patient_update")
+        return True
+
+
+   

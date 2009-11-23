@@ -139,6 +139,7 @@ def reports(request):
     date    = first.created_at
 
     months=[]
+    tab_mois=range(1,61,1)
     while ((now - date).days > 0):
         months.append({'id': date.strftime("%m%Y"), 'label': date.strftime("%B %Y"), 'date': date})
         date = next_month(date)
@@ -148,7 +149,8 @@ def reports(request):
         "clinics": clinics,
         "providers": providers,
         "zones": zones,
-        "months": months
+        "months": months,
+        "lesmois": tab_mois
     }
     return render_to_response(request, template_name, context)
 
@@ -273,6 +275,92 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
+    
+    return pdfrpt.render()
+#Modification Assane
+def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
+    """ Children Screening per age for SN CC """
+    
+    pdfrpt = PDFReport()
+    
+    pdfrpt.setTitle("ChildCount Senegal: Listing Enfant par Age")
+    #pdfrpt.setRowsPerPage(66)
+    pdfrpt.setNumOfColumns(1)
+    pdfrpt.setLandscape(True)
+    
+    if object_id is None and not request.POST:
+        cases = Case.objects.order_by("location").distinct()
+        for case in cases:
+            queryset, fields = ReportAllPatients.by_age(case)
+            subtitle = "Registre des Enfants pour: " #%(site.name)
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
+            if (int(per_page) == 1) is True:
+                pdfrpt.setPageBreak()
+                pdfrpt.setFilename("Listing_Enfant")
+    else:
+        cases = Case.objects.order_by("location").distinct()        
+        if request.POST['age']:
+            age_mois = int(request.POST['age'])
+            str_age=request.POST['age']
+
+        for case in cases:
+            delta = datetime.now().date() - case.dob    
+       
+            age=int(delta.days/30.4375)
+            if (age==age_mois):
+                
+                queryset, fields = ReportAllPatients.by_age(case)
+        
+                subtitle = "Registre des Enfants de : %s mois"%(str_age)
+        # no nom sex dob age mere sms numero pb poids oedems depistage consulter
+                pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
+                filename="Listing_Enfant_"+ datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
+    
+                pdfrpt.setFilename(filename)
+    
+    return pdfrpt.render()
+
+#Fin Ajout
+@login_required
+def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf"):
+    """ Malnutrition Screening Form Originally for SN CC """
+    
+    pdfrpt = []
+    pdfrpt = PDFReport()
+    
+    #fourteen_days = timedelta(days=30)
+    today = datetime.now()
+    
+    #duration_start = day_start(today - fourteen_days)
+    #duration_end = today
+    
+    #pdfrpt.setTitle("ChildCount Kenya: @Risk Malnutrition Cases from %s to %s"%(duration_start.date(), duration_end.date()))
+    pdfrpt.setTitle("ChildCount Senegal: Formulaire de Depistage")
+    #pdfrpt.setRowsPerPage(66)
+    pdfrpt.setNumOfColumns(1)
+    pdfrpt.setLandscape(True)
+    
+    if object_id is None and not request.POST:
+        sites = Location.objects.filter(type__name="Site")
+        for site in sites:
+            queryset, fields = ReportAllPatients.malnutrition_screening_info(site)
+            subtitle = "%s: Registre des Enfants pour: "%(site.name)
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 0.4*inch,1*inch,0.3*inch, .3*inch,.8*inch, .5*inch, .2*inch,0.5*inch, 0.8*inch,1*inch])
+            if (int(per_page) == 1) is True:
+                pdfrpt.setPageBreak()
+                pdfrpt.setFilename("malnutrition_at_risk")
+    else:        
+        if request.POST['zone']:
+            site_id = request.POST['zone']
+            site = Location.objects.get(id=site_id)
+            queryset, fields = ReportAllPatients.malnutrition_screening_info(site)
+        
+            subtitle = "Registre des Enfants pour: %s"%(site.name)
+        # no nom sex dob age mere sms numero pb poids oedems ddepistage consulter
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 1.0*inch, 0.5*inch,0.5*inch, 0.5*inch,0.5*inch,1.0*inch,1*inch])
+            filename="formulaire_de_depistage"+ datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
+
+            pdfrpt.setFilename(filename)
     
     return pdfrpt.render()
 

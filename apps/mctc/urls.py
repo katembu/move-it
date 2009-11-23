@@ -52,7 +52,14 @@ urlpatterns = patterns('',
     (r'^trend/(?P<object_id>\d*)$', "mctc.views.trend"),
     (r'^trend/per_page/(?P<per_page>\d*)$', "mctc.views.trend"),
     (r'^trend/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', "mctc.views.trend"),
+    #patients_by_age
+    (r'^List_Enfant_Age/$', "mctc.views.patients_by_age"),
+    (r'^List_Enfant_Age/(?P<object_id>\d*)$', "mctc.views.patients_by_age"),
+    (r'^List_Enfant_Age/per_page/(?P<per_page>\d*)$', "mctc.views.patients_by_age"),
+    (r'^List_Enfant_Age/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', "mctc.views.patients_by_age"),
     # commands shortlist
-    (r'^mctc/commands-shortlist', "mctc.views.commands_pdf")
+    (r'^mctc/commands-shortlist', "mctc.views.commands_pdf"),
+    #malnutrition_screening
+    (r'^malnutrition_screening/$', "mctc.views.malnutrition_screening"),
 )
 
