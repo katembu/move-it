@@ -6,7 +6,7 @@ from django.db.models import ObjectDoesNotExist, Q
 from django.contrib.auth.models import User, Group
 from datetime import datetime, timedelta
 from mctc.forms.general import MessageForm
-from pygsm.gsmmodem import GsmModem
+#from pygsm.gsmmodem import GsmModem
 
 
 from mctc.forms.login import LoginForm
