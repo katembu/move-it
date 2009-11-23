@@ -238,13 +238,9 @@ class DiseasesReport(models.Model,FindReport):
 
     TITLE       = _(u"Diseases Report")
 
-    class Meta:
-        unique_together = ("reporter", "period")
-
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
-    
     diseases    = models.ManyToManyField(DiseaseObservation, blank=True, null=True)
 
     sent_on     = models.DateTimeField(auto_now_add=True)
@@ -253,7 +249,7 @@ class DiseasesReport(models.Model,FindReport):
 
     def __unicode__(self):
         cd  = self.cases_deaths
-        return _(u"W%(week)s - %(clinic)s - %(cases)s+%(deaths)s") % {'week': self.period.week, 'clinic': self.reporter.location, 'cases': cd[0], 'deaths': cd[1]}
+        return _(u"W%(week)s - %(reporter)s - %(cases)s+%(deaths)s") % {'week': self.period.week, 'reporter': self.reporter, 'cases': cd[0], 'deaths': cd[1]}
 
     def add(self, disease, cases=0, deaths=0):
         ''' add a disease declatation to the list '''
@@ -293,7 +289,7 @@ class DiseasesReport(models.Model,FindReport):
     @classmethod
     def by_reporter_period(cls, reporter, period):
         try:
-            return cls.objects.get(reporter=reporter, period=period)
+            return cls.objects.get(reporter=reporter, period=period, epidemiologicalreport__clinic=HealthUnit.by_location(reporter.location))
         except cls.DoesNotExist:
             report  = cls(reporter=reporter, period=period)
             report.save()
@@ -334,9 +330,6 @@ class MalariaCasesReport(models.Model,FindReport):
 
     TITLE       = _(u"Malaria Cases Report")
 
-    class Meta:
-        unique_together = ("reporter", "period")
-
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
@@ -354,7 +347,7 @@ class MalariaCasesReport(models.Model,FindReport):
     edited_on   = models.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
-        return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
+        return _(u"W%(week)s - %(reporter)s") % {'week': self.period.week, 'reporter': self.reporter}
 
     def reset(self):
         self._opd_attendance     = 0
@@ -369,7 +362,7 @@ class MalariaCasesReport(models.Model,FindReport):
     @classmethod
     def by_reporter_period(cls, reporter, period):
         try:
-            return cls.objects.get(reporter=reporter, period=period)
+            return cls.objects.get(reporter=reporter, period=period, epidemiologicalreport__clinic=HealthUnit.by_location(reporter.location))
         except cls.DoesNotExist:
             report  = cls(reporter=reporter, period=period)
             report.save()
@@ -494,9 +487,6 @@ class MalariaTreatmentsReport(models.Model,FindReport):
 
     TITLE       = _(u"Malaria Treatments Report")
 
-    class Meta:
-        unique_together = ("reporter", "period")
-
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
@@ -513,7 +503,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     edited_on   = models.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
-        return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
+        return _(u"W%(week)s - %(reporter)s") % {'week': self.period.week, 'reporter': self.reporter}
 
     def reset(self):
         self._rdt_negative           = 0
@@ -526,7 +516,7 @@ class MalariaTreatmentsReport(models.Model,FindReport):
     @classmethod
     def by_reporter_period(cls, reporter, period):
         try:
-            return cls.objects.get(reporter=reporter, period=period)
+            return cls.objects.get(reporter=reporter, period=period, epidemiologicalreport__clinic=HealthUnit.by_location(reporter.location))
         except cls.DoesNotExist:
             report  = cls(reporter=reporter, period=period)
             report.save()
@@ -605,9 +595,6 @@ class ACTConsumptionReport(models.Model,FindReport):
 
     TITLE       = _(u"ACT Stock Data")
 
-    class Meta:
-        unique_together = ("reporter", "period")
-
     reporter    = models.ForeignKey(Reporter)
     period      = models.ForeignKey(ReportPeriod)
 
@@ -627,7 +614,7 @@ class ACTConsumptionReport(models.Model,FindReport):
     edited_on   = models.DateTimeField(blank=True, null=True)
 
     def __unicode__(self):
-        return _(u"W%(week)s - %(clinic)s") % {'week': self.period.week, 'clinic': self.reporter.location}
+        return _(u"W%(week)s - %(reporter)s") % {'week': self.period.week, 'reporter': self.reporter}
 
     def reset(self):
         self._yellow_dispensed    = 0
@@ -644,7 +631,7 @@ class ACTConsumptionReport(models.Model,FindReport):
     @classmethod
     def by_reporter_period(cls, reporter, period):
         try:
-            return cls.objects.get(reporter=reporter, period=period)
+            return cls.objects.get(reporter=reporter, period=period, epidemiologicalreport__clinic=HealthUnit.by_location(reporter.location))
         except cls.DoesNotExist:
             report  = cls(reporter=reporter, period=period)
             report.save()
