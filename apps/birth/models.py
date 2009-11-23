@@ -21,7 +21,7 @@ class ReportBirth(models.Model):
     case            = models.ForeignKey(Case, db_index=True, null=False)
     weight          = models.FloatField(db_index=True, null=False)
     where        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
-    complications   = models.CharField(max_length=255, db_index=True)
+    complications   = models.CharField(max_length=255, db_index=True, null=True)
     reporter    = models.ForeignKey(Reporter, db_index=True)    
     entered_at  = models.DateTimeField(db_index=True)
     
@@ -34,7 +34,7 @@ class ReportBirth(models.Model):
         ordering = ("-entered_at",)
         
     def __unicode__ (self):
-        return "%s %s" % (self.last_name, self.first_name)
+        return "%s %s" % (self.case.last_name, self.case.first_name)
     
     def save(self, *args):
         if not self.id:

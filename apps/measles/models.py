@@ -42,9 +42,9 @@ class ReportMeasles(models.Model):
             return False
     
     @classmethod
-    def get_vaccinated(cls,provider):
+    def get_vaccinated(cls,reporter):
         try:
-            rpt = cls.objects.values("case").distinct().filter(provider=provider)
+            rpt = cls.objects.values("case").distinct().filter(reporter=reporter)
             return rpt            
         except models.ObjectDoesNotExist:
             return False

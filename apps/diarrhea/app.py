@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 
 from mctc.models.logs import MessageLog, log
 from mctc.models.general import Case
-from models import ReportDiarrhea
+from models import ReportDiarrhea, DiarrheaObservation
 
 import re, datetime
 
@@ -128,6 +128,20 @@ class App (rapidsms.app.App):
         """      
         log(case, "diarrhea_fu_taken")
         return True
+    
+    def get_diarrheaobservations(self, text):
+        choices  = dict( [ (o.letter, o) for o in DiarrheaObservation.objects.all() ] )
+        observed = []
+        if text:
+            text = re.sub(r'\W+', ' ', text).lower()
+            for observation in text.split(' '):
+                obj = choices.get(observation, None)
+                if not obj:
+                    if observation != 'n':
+                        raise HandlerFailed("Unknown observation code: %s" % observation)
+                else:
+                    observed.append(obj)
+        return observed, choices
 
     @keyword(r'ors \+(\d+) ([yn]) (\d+)\s?([a-z\s]*)')
     @registered

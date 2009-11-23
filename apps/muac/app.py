@@ -57,7 +57,7 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("%s")%"An error occurred. Please call 0733202270.")
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -110,9 +110,12 @@ class App (rapidsms.app.App):
     def get_muac_report_format_reminder(self):
         """Expected format for muac command, sent as a reminder"""
         return "Format:  muac +[patient_ID\] muac[measurement] edema[e/n] symptoms separated by spaces[CG D A F V NR UF]"        
-        
+    
+    #change location    
+    
+    keyword.prefix = ["muac", "pb"]
+    @keyword(r'\+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
     @registered
-    @keyword(r'muac \+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
     def report_case (self, message, ref_id, muac,
                      weight, height, complications):
         case = self.find_case(ref_id)

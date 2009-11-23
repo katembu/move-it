@@ -230,7 +230,7 @@ class App (rapidsms.app.App):
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
         reporter = message.persistant_connection.reporter
-
+        self.log("debug", bednet)
         result = result.lower() == "y"
         bednet = bednet.lower() == "y"
         alert = None
