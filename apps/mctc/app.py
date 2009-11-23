@@ -247,8 +247,8 @@ class App (rapidsms.app.App):
         return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
-    keyword.prefix = ["new"]
-    @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
+    #keyword.prefix = ["new"]
+    #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
         """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
@@ -311,11 +311,20 @@ class App (rapidsms.app.App):
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
     # [CC SENEGAL / FRENCH] Register a new patient
-    @keyword(r'nouv @(\S*) (\S+) (\S+) ([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
+    @keyword(r'nouv @(\S*) ([\S\S+\s]+)([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
     @registered
-    def new_case_frccsn (self, message, location_code, last, first, gender, dob, guardian_last, guardian_first, contact=""):
-        """Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
-       Purpose: register a new patient into the system.  Receive patient ID number back"""
+    def new_case_frccsn (self, message, location_code, name, gender, dob, guardian_last, guardian_first, contact=""):
+        """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
+            Purpose: register a new patient into the system.  Receive patient ID number back"""
+
+        # ([\S\S+\s]+) greedily matches groups of at least two nonspace
+        # characters followed by a space.
+        # So, we are expecting the name token to be 'lastname firstname ' or 
+        # 'lastname firstname secondname '
+        # Strip the trailing space and partition into last and first,
+        # where last contains 'lastname' and first contains either 'firstname'
+        # or 'firstname secondname'
+        last, sep, first = name.rstrip().partition(' ')
         
         # reporter
         reporter    = message.persistant_connection.reporter
