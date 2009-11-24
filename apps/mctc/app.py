@@ -314,7 +314,7 @@ class App (rapidsms.app.App):
     # [CC SENEGAL / FRENCH] Register a new patient
     @keyword(r'nouv @(\S*) ([\S\S+\s]+)([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
     @registered
-    def new_case_frccsn (self, message, location_code, name, gender, dob, guardian_last, guardian_first, contact=""):
+    def new_case_frccsn (self, message, location_code, name, gender, dob, guardian_first, guardian_last, contact=""):
         """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
             Purpose: register a new patient into the system.  Receive patient ID number back"""
 
