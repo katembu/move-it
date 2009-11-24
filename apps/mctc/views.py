@@ -357,7 +357,7 @@ def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf")
         
             subtitle = "Registre des Enfants pour: %s"%(site.name)
         # no nom sex dob age mere sms numero pb poids oedems ddepistage consulter
-            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 1.0*inch, 0.5*inch,0.5*inch, 0.5*inch,0.5*inch,1.0*inch,1*inch])
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.4*inch, 1.5*inch,0.4*inch,0.7*inch, 0.3*inch,1.5*inch, 1.0*inch,0.5*inch, 0.7*inch,0.5*inch, 0.7*inch,0.7*inch,1.0*inch,0.5*inch])
             filename="formulaire_de_depistage"+ datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
 
             pdfrpt.setFilename(filename)
