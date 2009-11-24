@@ -163,6 +163,7 @@ def import_cases_from_csv(csvfile):
 
                 # if there is no date_of_birth, estimate date of birth instead and set flag
                 else: 
+                    # TODO DRY
                     if row.has_key('age'):
                         if row['age'] != "":
                             try:
@@ -178,26 +179,34 @@ def import_cases_from_csv(csvfile):
                     case.update({'guardian' : row['guardian']}) 
 
             if row.has_key('guardian_id'):
-                if row['guardian_id'] != "":
+                # not sure how one of these became None
+                if row['guardian_id'] != "" and row['guardian_id'] is not None:
                     case.update({'guardian_id' : row['guardian_id']})
 
-            try:
-                case.update({'reporter' : reporter, 'location' : location})
-            except Exception, e:
-                sys.exit(e + " " + case)
 
-            # if case already exists do nothing
+            # if case already exists, or we haven't
+            # gathered any fields, do nothing
             try:
-                exists = general.Case.objects.get(**case)
+                if len(case) > 0:
+                    exists = general.Case.objects.get(**case)
+                else:
+                    continue
+
             # if it does not exist, create and save
             except ObjectDoesNotExist:
+                try:
+                    case.update({'reporter' : reporter, 'location' : location})
+                except Exception, e:
+                    sys.exit(e + " " + case)
                 new_case = general.Case(**case)
                 new_case.save()
+
+            # if many exist, you are probably surprised, so exit
             except MultipleObjectsReturned:
-                pass
+                sys.exit(case)    
 
     except csv.Error, e:
-        # TODO handle this error
+        # TODO handle this error?
         sys.exit('%d : %s' % (reader.reader.line_num, e))
 
 
