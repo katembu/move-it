@@ -31,6 +31,10 @@ sys.path.extend(libs)
 
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.core.management import setup_environ
+
+# you may have to set an environment variable specifying your ini file
+# on a *nix system, do something like this from the command line:
+# $ export RAPIDSMS_INI=/absolute/path/to/my/local.ini
 from rapidsms.webui import settings
 setup_environ(settings)
 
@@ -46,17 +50,16 @@ def get_good_date(date):
         try:
             year = Allsect[2]
             day = Allsect[0]
-            #if day not in range(1,31):
-            #    sys.exit('DAY: ' + day)
             month = Allsect[1]         
+
+            # make sure we have a real date
             if int(month) == 2:
                 if int(day) > 28:
                     day = 28
             if int(month) in [4, 6, 9, 11]:
                 if int(day) > 30:
                     day = 30
-            #if month not in range(1,12):
-                #sys.exit('MONTH: ' + month)
+
             # add leading digits if they are missing
             if len(year) < 4 : 
                 year = "20%s" % year        
@@ -77,8 +80,6 @@ def age_to_estimated_bday(age_in_months):
     months = int(age_in_months) % 12
     return ("%s-%s-%s" % ((datetime.date.today().year - int(years)),\
                             (datetime.date.today().month - int(months)), 15))
-    #return  datetime.date((datetime.date.today().year - years),\
-    #                    (datetime.date.today().month - months), 15)
 
 
 def import_cases_from_csv(csvfile):
@@ -94,11 +95,14 @@ def import_cases_from_csv(csvfile):
         sys.exit("Cases require a foreign key relationship with a location.\
                     You must create a location with code=cmkayar")
 
-    #csvee = csvfile['content'].split('\n')
+    # use codecs.open() instead of open() so all characters are utf-8 encoded
+    # BEFORE we start dealing with them. 
+    # rU option is for universal-newline mode which takes care of \n or \r etc
     csvee = codecs.open("cayar.csv", "rU", encoding='utf-8', errors='ignore')
+
+    # sniffer attempts to guess the file's dialect e.g., excel, etc
     dialect = csv.Sniffer().sniff(csvee.read(1024))
     csvee.seek(0)
-    #reader = csv.reader(csvfile, dialect)
     # DictReader uses first row of csv as key for data in corresponding column
     reader = csv.DictReader(csvee, dialect=dialect)
 
@@ -107,13 +111,10 @@ def import_cases_from_csv(csvfile):
     try:
         for row in reader:
             case = {}
-            #id, name, date_of_birth, age, guardian, guardian_id, guardian_age = line
-            #row = {'name' : name, 'date_of_birth' : date_of_birth, 'age' : age,\
-            #        'guardian' : guardian, 'guardian_id' : guardian_id}
 
             if row.has_key('name'):
                 first_name, sep, last_name = row['name'].rstrip().rpartition(' ')
-                case.update({'last_name' : unicode(last_name, errors='ignore'), 'first_name' : unicode(first_name, errors='ignore')})
+                case.update({'last_name' : last_name, 'first_name' : first_name})
 
             if row.has_key('date_of_birth'):
                 try:
@@ -122,6 +123,7 @@ def import_cases_from_csv(csvfile):
                 except Exception, e:
                     sys.exit(e)
 
+            # if there is no date_of_birth, estimate date of birth instead
             else: 
                 if row.has_key('age'):
                     try:
