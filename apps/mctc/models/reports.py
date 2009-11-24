@@ -348,7 +348,61 @@ class ReportAllPatients(Report, models.Model):
             #fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
             
             return qs, fields
+# Ajout Assane
+    @classmethod
+    def by_age(cls, case=None):    
+        """
+        Show information required for malnutrition screening forms. SNCC
+        """    
+        qs      = []
+        fields  = []
 
+        counter = 0
+       
+        #for case in cases:
+        q   = {}
+        q['case']   = case
+        q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
+        counter = counter + 1
+        q['counter'] = "%d"%counter
+        try:
+            muacc   = ReportMalnutrition.objects.filter(case=case).latest()
+                
+                #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
+            q['malnut_muac'] = "%smm"%(muacc.muac)
+            q['malnut_weight'] = "%s kg"%(muacc.weight)
+            q['malnut_symptoms'] = muacc.symptoms_keys()
+            q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
+        except ObjectDoesNotExist:
+            q['malnut_muac'] = ""
+            q['malnut_symptoms'] = ""
+            q['malnut_days_since_last_update'] = ""
+
+        qs.append(q)
+
+
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+
+        fields.append({"name": 'No', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'Nom', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'Sexe', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'DN', "column": None, "bit": "{{ object.case.dob }}" }) 
+        fields.append({"name": 'Age', "column": None, "bit": "{{ object.case.age }}" })
+        fields.append({"name": 'Nom de Mere', "column": None, "bit": "{{ object.case.guardian }}" })
+        fields.append({"name": 'SMS', "column": None, "bit": "PB" })          
+        fields.append({"name": 'No Enfant', "column": None, "bit": "+{{ object.case.ref_id }}" })
+        fields.append({"name": 'PB', "column": None, "bit": "{{ object.malnut_muac }}" })
+#        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        fields.append({"name": 'Poids', "column": None, "bit": "{{ object.malnut_weight }}" })
+        fields.append({"name": 'Oedemes', "column": None, "bit": "" })
+        fields.append({"name": 'Dernier Depistage', "column": None, "bit": "{{ object.case.updated_at }}" })
+        fields.append({"name": 'CONSULTER', "column": None, "bit": "[  ]" })
+#        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+
+        
+        return qs, fields
+
+#Fin Ajout
     @classmethod
     def malnut_trend_by_provider(cls, provider_id=None):    
         qs      = []
@@ -653,3 +707,70 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
             
             return qs, fields
+
+    @classmethod
+    def malnutrition_screening_info(cls,site=None):
+        """
+        Show information required for malnutrition screening forms. SNCC
+        """    
+        qs      = []
+        fields  = []
+
+        counter = 0
+	
+        if site is None:
+            #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
+            cases   = Case.objects.order_by("last_name","first_name").filter(status=Case.STATUS_ACTIVE).distinct()
+        else:
+            cases   = Case.objects.order_by("last_name","first_name").filter(location=site, status=Case.STATUS_ACTIVE).distinct()
+
+        for case in cases:
+            q   = {}
+            q['case']   = case
+            q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
+
+            counter = counter + 1
+            q['counter'] = "%d"%counter
+            try:
+                muacc   = ReportMalnutrition.objects.filter(case=case).latest()
+                
+                #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
+                q['malnut_muac'] = "%s"%(muacc.muac)
+                if muacc.weight > 0:
+                    q['malnut_weight'] = "%s"%(muacc.weight)
+                else:
+                    q['malnut_weight'] = ""
+                
+                q['malnut_symptoms'] = muacc.symptoms_keys()
+                q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
+                q['malnut_entered_at'] = muacc.entered_at.strftime("%d.%m.%Y")
+            except ObjectDoesNotExist:
+                q['malnut_muac'] = ""
+                q['malnut_symptoms'] = ""
+                q['malnut_days_since_last_update'] = ""
+
+            qs.append(q)
+
+
+        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+
+        fields.append({"name": 'No', "column": None, "bit": "{{ object.counter }}" })
+        fields.append({"name": 'Nom', "column": None, "bit": "{{ object.name }}" })
+        fields.append({"name": 'Sexe', "column": None, "bit": "{{ object.case.gender }}" })
+        fields.append({"name": 'DN', "column": None, "bit": "{{ object.case.dob }}" }) 
+        fields.append({"name": 'Age', "column": None, "bit": "{{ object.case.age }}" })
+        fields.append({"name": 'Nom de Mere', "column": None, "bit": "{{ object.case.guardian }}" })
+        fields.append({"name": 'Dernier Depistage', "column": None, "bit": "{{ object.malnut_entered_at }}" })
+        fields.append({"name": 'SMS', "column": None, "bit": "PB" })          
+        fields.append({"name": 'No Enfant', "column": None, "bit": "+{{ object.case.ref_id }}" })
+        fields.append({"name": 'PB (mm)', "column": None, "bit": "{{ object.malnut_muac }}" })
+#        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        fields.append({"name": 'Poids (kg)', "column": None, "bit": "{{ object.malnut_weight }}" })
+        fields.append({"name": 'Oedemes', "column": None, "bit": "" })
+        fields.append({"name": 'CONSULTER', "column": None, "bit": "[  ]" })
+#        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+
+        
+        return qs, fields
+
+    

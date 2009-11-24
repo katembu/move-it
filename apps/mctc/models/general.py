@@ -28,14 +28,16 @@ class Case(models.Model):
     ref_id      = models.IntegerField(_('Case ID #'), null=True, db_index=True)
     first_name  = models.CharField(max_length=255, db_index=True)
     last_name   = models.CharField(max_length=255, db_index=True)
-    gender      = models.CharField(max_length=1, choices=GENDER_CHOICES)
-    dob         = models.DateField(_('Date of Birth'))
+    gender      = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
+    dob         = models.DateField(_('Date of Birth'), null=True,blank=True)
+    estimated_dob   = models.NullBooleanField(null=True,blank=True)
     guardian    = models.CharField(max_length=255, null=True, blank=True)
+    guardian_id  = models.CharField(max_length=255, null=True, blank=True)
     mobile      = models.CharField(max_length=16, null=True, blank=True)
     reporter    = models.ForeignKey(Reporter, db_index=True)
     location    = models.ForeignKey(Location, db_index=True)
-    created_at  = models.DateTimeField()
-    updated_at  = models.DateTimeField()
+    created_at  = models.DateTimeField(auto_now_add=True)
+    updated_at  = models.DateTimeField(auto_now=True)
     status      = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE)
 
     def get_absolute_url(self):
@@ -96,22 +98,24 @@ class Case(models.Model):
         return self.dob.strftime("%d.%m.%y")
     
     def age(self):
-        delta = datetime.now().date() - self.dob
-        """
-        years = delta.days / 365.25
-        if years > 3:
-            return str(int(years))
-        else:"""
-        # FIXME: i18n
-        return str(int(delta.days/30.4375))+"m"
+        if self.dob is not None:
+            delta = datetime.now().date() - self.dob
+            """
+            years = delta.days / 365.25
+            if years > 3:
+                return str(int(years))
+            else:"""
+            # FIXME: i18n
+            return str(int(delta.days/30.4375))+"m"
     
     def eligible_for_measles(self):
-        delta = datetime.now().date() - self.dob
-        months = int(delta.days/30.4375)
-        
-        if months >= 9 and months <= 60:
-            return True            
-        return False
+        if self.dob is not None:
+            delta = datetime.now().date() - self.dob
+            months = int(delta.days/30.4375)
+            
+            if months >= 9 and months <= 60:
+                return True            
+            return False
     
     @classmethod
     def list_e_4_measles(cls,reporter):

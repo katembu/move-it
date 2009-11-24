@@ -32,7 +32,7 @@ class App (rapidsms.app.App):
         """Configure your app in the start phase."""
         pass
 
-    def parse (self, message):        
+    def parse (self, message):
         message.was_handled = False
 
     def handle (self, message):
@@ -114,10 +114,35 @@ class App (rapidsms.app.App):
     #change location    
     
     keyword.prefix = ["muac", "pb"]
-    @keyword(r'\+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)')
+    @keyword(r'\+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
     @registered
     def report_case (self, message, ref_id, muac,
-                     weight, height, complications):
+                     weight="", height="", complications=""):
+        # TODO use gettext instead of this dodgy dictionary
+        _i = {
+                'units' : {'MUAC' : 'mm', 'weight' : 'kg', 'height' : 'cm'},
+                'en' : {'error'    : "Can't understand %s (%s): %s",
+                        },
+                'fr' : {'error'    : "Ne peux pas comprendre %s (%s): %s",
+                        },
+        }
+        def guess_language(msg):
+            if msg.upper().startswith('MUAC'):
+                return 'en'
+            if msg.upper().startswith('PB'):
+                return 'fr'
+
+        # use reporter's preferred language, if possible
+        if message.reporter:
+            if message.reporter.language is not None:
+                lang = message.reporter.language
+            else:
+                # otherwise make a crude guess
+                lang = guess_language(message.text)
+                message.reporter.language = lang
+        else:
+            lang = 'fr'
+
         case = self.find_case(ref_id)
         try:
             muac = float(muac)
@@ -125,8 +150,9 @@ class App (rapidsms.app.App):
                 muac *= 10
             muac = int(muac)
         except ValueError:
-            raise HandlerFailed(
-                _("Can't understand MUAC (mm): %s") % muac)
+            raise HandlerFailed( (_i[lang] % ('MUAC', _i['units']['MUAC'], muac)))
+                #_("Can't understand MUAC (mm): %s") % muac)
+
 
         if weight is not None:
             try:
@@ -134,7 +160,8 @@ class App (rapidsms.app.App):
                 if weight > 100: # weight is in g?
                     weight /= 1000.0
             except ValueError:
-                raise HandlerFailed("Can't understand weight (kg): %s" % weight)
+                #raise HandlerFailed("Can't understand weight (kg): %s" % weight)
+                raise HandlerFailed( (_i[lang] % ('weight', _i['units']['weight'], weight)))
 
         if height is not None:
             try:
@@ -143,7 +170,8 @@ class App (rapidsms.app.App):
                     height *= 100
                 height = int(height)
             except ValueError:
-                raise HandlerFailed("Can't understand height (cm): %s" % height)
+                #raise HandlerFailed("Can't understand height (cm): %s" % height)
+                raise HandlerFailed( (_i[lang] % ('height', _i['units']['height'], height)))
 
         observed, choices = self.get_observations(complications)
         self.delete_similar(case.reportmalnutrition_set)

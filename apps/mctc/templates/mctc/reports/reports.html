@@ -91,7 +91,7 @@
 				
 				Zones: <select name="zone">
 					{% for zone in zones %}
-						<option value="{{ zone.zone }}">{{ zone.location__name }}</option>						
+						<option value="{{ zone.location }}">{{ zone.location__name }}</option>						
 					{% endfor %}
 				</select>
 				<input type="submit" name="format" value="Get Report" />
@@ -108,6 +108,33 @@
                 <input type="submit" name="format" value="Get Report" />
 			</form>
 		</li>
+<li> Malnutrition Screening Form <a href="/malnutrition_screening">PDF</a> <a href="/malnutrition_screening/per_page/1">per page PDF</a>  			
+			<form action="/malnutrition_screening/" method="post">
+				Zones: <select name="zone">
+					{% for zone in zones %}
+						<option value="{{ zone.location}}"> {{ zone.location__name }}</option>
+					{% endfor %}
+                </select>
+                <input type="submit" name="format" value="Get Report" />
+			</form>
+		</li>
+
+
+<li> Liste des Enfants par Age <a href="/List_Enfant_Age">PDF</a> <a href="/List_Enfant_Age/per_page/1">per page PDF</a>  		   
+			<form action="/List_Enfant_Age/" method="post">
+              Age:  <select name="age">
+
+	{% for nb in lesmois %}
+		<option value="{{ nb }}">{{ nb }}</option>						
+	{% endfor %}
+                  
+                </select>
+				<input type="submit" name="format" value="Get Report" />
+				
+			</form>
+		</li>
+
+
 		<li> Malaria by CHW <a href="/malaria">PDF</a> <a href="/malaria/per_page/1">per page PDF</a>  		   
 			<form action="/malaria/" method="post">
               Clinic:  <select name="clinic">
