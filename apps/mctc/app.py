@@ -312,12 +312,20 @@ class App (rapidsms.app.App):
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
     # [CC SENEGAL / FRENCH] Register a new patient
-    @keyword(r'nouv @(\S*) ([\S\S+\s]+)([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
+    @keyword(r'nouv @(\S*) (\S\S+\s)+([MF]) (\d+\S+)+ (\S+) (\S+)?( \d+)?')
     @registered
     def new_case_frccsn (self, message, location_code, name, gender, dob, guardian_first, guardian_last, contact=""):
         """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
             Purpose: register a new patient into the system.  Receive patient ID number back"""
 
+        self.debug(location_code)
+        self.debug(name)
+        self.debug(gender)
+        self.debug(dob)
+        self.debug(guardian_first)
+        self.debug(guardian_last)
+        self.debug(contact)
+        self.debug("******")
         # ([\S\S+\s]+) greedily matches groups of at least two nonspace
         # characters followed by a space.
         # So, we are expecting the name token to be 'lastname firstname ' or 
@@ -328,19 +336,58 @@ class App (rapidsms.app.App):
         last, sep, first = name.rstrip().partition(' ')
         
         # reporter
+        # (there should already be a reporter object attached to the message
+        #  e.g., message.reporter)
         reporter    = message.persistant_connection.reporter
         location_code=message.persistant_connection.reporter.location.code
         self.debug('location_code= '+location_code)
-        # compute Date Of Birth
+        self.debug(dob)
+
+        # remove all non-digit characters from dob string
         dob = re.sub(r'\D', '', dob)
-        try:
-            dob = time.strptime(dob, "%d%m%y")
-        except ValueError:
+        estimated_dob = False # set this now to avoid error
+        self.debug(dob)
+
+        # if there are three or more digits, we are 
+        # probably dealing with a date
+        if len(dob) >= 3:
+            self.debug("3 or less")
             try:
-                dob = time.strptime(dob, "%d%m%Y")
+                # TODO this 2 step conversion is too complex, simplify!
+                dob = time.strptime(dob, "%d%m%y")
+                dob = datetime.date(*dob[:3])
             except ValueError:
-                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
-        dob = datetime.date(*dob[:3])
+                try:
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(dob, "%d%m%Y")
+                    dob = datetime.date(*dob[:3])
+                except ValueError:
+                    raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+            self.debug(dob)
+
+        # if there are fewer than three digits, we are
+        # probably dealing with an age (in months),
+        # so attempt to estimate a dob
+        else:
+            self.debug("less than 3")
+            # TODO move to a utils file? (almost same code is in import_cases.py)
+            try:
+                if dob.isdigit():
+                    self.debug("is digit...")
+                    years = int(dob) / 12
+                    months = int(dob) % 12
+                    est_year = abs(datetime.date.today().year - int(years))
+                    est_month = abs(datetime.date.today().month - int(months))
+                    if est_month == 0:
+                        est_month = 1
+                    estimate = ("%s-%s-%s" % (est_year, est_month, 15))
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(estimate, "%Y-%m-%d")
+                    dob = datetime.date(*dob[:3])
+                    self.debug(dob)
+                    estimated_dob = True
+            except Exception, e:
+                self.debug(e)    
 
         # Concatenate Mother's name
         guardian    = "%s %s" % (guardian_last, guardian_first)
@@ -365,14 +412,15 @@ class App (rapidsms.app.App):
         
         # store case info in object
         info = {
-            "first_name" : first.title(),
-            "last_name"  : last.title(),
-            "gender"     : gender.upper()[0],
-            "dob"        : dob,
-            "guardian"   : guardian.title(),
-            "mobile"     : contact,
-            "reporter"   : reporter,
-            "location"   : location
+            "first_name"    : first.title(),
+            "last_name"     : last.title(),
+            "gender"        : gender.upper()[0],
+            "dob"           : dob,
+            "estimated_dob" : estimated_dob,
+            "guardian"      : guardian.title(),
+            "mobile"        : contact,
+            "reporter"      : reporter,
+            "location"      : location
         }
 
         ## check to see if the case already exists
