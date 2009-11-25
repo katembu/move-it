@@ -46,6 +46,7 @@ from reporters.models import Reporter
 from reporters.models import Location
 
 def get_good_date(date):
+    # TODO move to a utils file?
     delimiters = r"[./\\-]+"
     # expecting DD-MM-YYYY, DD-MM-YY, D-M-YY, etc (with any of the delimiters)
     Allsect=re.split(delimiters,date)            
@@ -73,6 +74,7 @@ def get_good_date(date):
                 return None
 
             # add leading digits if they are missing
+            # TODO use datetime.strptime for this?
             if len(year) < 4 : 
                 year = "20%s" % year        
             if len(month) < 2:
@@ -88,6 +90,7 @@ def get_good_date(date):
             return None
 
 def age_to_estimated_bday(age_in_months):
+    # TODO move to a utils file? (same code is in apps/mctc/app.py)
     try:
         if age_in_months.isdigit():
             years = int(age_in_months) / 12
