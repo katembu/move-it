@@ -114,10 +114,10 @@ class App (rapidsms.app.App):
     #change location    
     
     keyword.prefix = ["muac", "pb"]
-    @keyword(r'\+(\d+) ([\d\.]+)( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
+    @keyword(r'\+(\d+) ([\d\.]+)?( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
     @registered
-    def report_case (self, message, ref_id, muac,
-                     weight="", height="", complications=""):
+    def report_case (self, message, ref_id, muac=None,
+                     weight=None, height=None, complications=""):
         # TODO use gettext instead of this dodgy dictionary
         _i = {
                 'units' : {'MUAC' : 'mm', 'weight' : 'kg', 'height' : 'cm'},
@@ -142,6 +142,15 @@ class App (rapidsms.app.App):
                 message.reporter.language = lang
         else:
             lang = 'fr'
+
+        # if there is no height, ASSUME that muac is the (newly) optional
+        # field that has been omitted. swap weight and height to their
+        # ASSUMED values. TODO change the order of the fields in the form
+        if height is None:
+           wt = weight
+           mu = muac
+           weight = mu
+           height = wt
 
         case = self.find_case(ref_id)
         try:
