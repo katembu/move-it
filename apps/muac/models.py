@@ -90,13 +90,13 @@ class ReportMalnutrition(models.Model):
 
     def diagnosis_msg(self):
         if self.status == ReportMalnutrition.MODERATE_STATUS:
-            msg = "MAM Child requires supplemental feeding."
+            msg = "MAM Enfant a besoin de nourriture supplementaire."
         elif self.status == ReportMalnutrition.SEVERE_STATUS:
-            msg = "SAM Patient requires OTP care"
+            msg = "SAM Patient a besoin d aller au poste de sante"
         elif self.status == ReportMalnutrition.SEVERE_COMP_STATUS:
-            msg = "SAM+ Patient requires IMMEDIATE inpatient care"
+            msg = "SAM+ Patient a besoin d aller immediatement au poste de sante"
         else:
-            msg = "Child is not malnourished"
+            msg = "Enfant nest pas malnutri"
    
         return msg
 
