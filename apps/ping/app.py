@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 encoding=utf-8
 
 import rapidsms
+import re
 from datetime import datetime
 
 def import_function(func):
@@ -52,10 +53,16 @@ class App (rapidsms.app.App):
             if auth_func contained function and it returned True => reply
             else return'''
 
-        # We only want to answer ping request
-        if not message.text.lower() == 'ping':
+        # We only want to answer ping alone, or ping followed by a space and other characters
+        if not re.match(r'^ping( +|$)', message.text.lower()):
             return False
-
+        
+        identifier_match = re.match(r'^ping +(?P<identifier>\w+).*$', message.text.lower())
+        if not identifier_match:
+            identifier = False
+        else: 
+            identifier = identifier_match.groupdict()['identifier']
+        
         # deny has higher priority
         if self.disallow:
             return False
@@ -66,7 +73,8 @@ class App (rapidsms.app.App):
             (self.func and self.func(message)):
 
             now = datetime.now()
-            message.respond("pong on %s" % now.strftime("%c"))
+            if identifier:                
+                message.respond("pong %s on %s" % (identifier, now.strftime("%c")))
+            else:
+                message.respond("pong on %s" % now.strftime("%c"))
             return True
-
-

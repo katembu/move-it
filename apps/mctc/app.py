@@ -312,35 +312,142 @@ class App (rapidsms.app.App):
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
     # [CC SENEGAL / FRENCH] Register a new patient
-    @keyword(r'nouv @(\S*) ([\S\S+\s]+)([MF]) ([\d\-]+) (\S+) (\S+)?( \d+)?')
+    @keyword(r'nouv (.*)')
     @registered
-    def new_case_frccsn (self, message, location_code, name, gender, dob, guardian_first, guardian_last, contact=""):
-        """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] [contact #]
+    def new_case_frccsn (self, message, token_string):
+        """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy | age_in_months] [guardian last name] [guardian first name] [contact #]
             Purpose: register a new patient into the system.  Receive patient ID number back"""
 
-        # ([\S\S+\s]+) greedily matches groups of at least two nonspace
-        # characters followed by a space.
-        # So, we are expecting the name token to be 'lastname firstname ' or 
-        # 'lastname firstname secondname '
+        # replace multiple spaces with a single space
+        # (consider running the stringcleaning app,
+        # which removes commas, cleans numbers, etc)
+        whitespace = re.compile("(\s+)")
+        clean_token_string = re.sub(whitespace, " ", token_string)
+
+        # split clean_token_string by spaces
+        tokens = clean_token_string.split(" ")
+        self.debug(tokens)
+
+        # create empty strings we can add to
+        patient_name = ""
+        guardian_name = ""
+        # declare contact, since its optional
+        contact = ""
+        for token in tokens[:4]:
+            self.debug('find patient name in first four tokens...')
+            self.debug(token)
+
+            # any tokens more than one non-digit character are probably parts
+            # of the patient's name, so add to patient_name and
+            # remove from tokens list
+            if len(token) > 1 and not token.isdigit():
+                patient_name = patient_name + (tokens.pop(tokens.index(token))) + " "
+                self.debug('PATIENT NAME:')
+                self.debug(patient_name)
+
+        for token in tokens:
+            self.debug("TOKENS:")
+            self.debug(tokens)
+            self.debug("TOKEN:")
+            self.debug(token)
+
+            # attempt to match gender
+            gender_matches = re.match(r'[mf]', token, re.IGNORECASE)
+            if gender_matches is not None:
+                self.debug('matched gender...')
+                gender = token.upper()
+                continue
+
+            if token.isdigit():
+                self.debug('matched contact...')
+                # only save if its more than six digits
+                # so we dont accidently put the dob or age in months,
+                # which might sometimes match this
+                if len(token) > 6:
+                    contact = token
+                    continue
+
+            # attempt to match date of birth or age in months
+            # if token is more than six digits, save as guardian's contact
+            # this should match up between one and six digits, followed by an
+            # optional word (e.g., 020301, 22m, 22mo)
+            date_or_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
+            if date_or_age is not None:
+                self.debug('matched date or age...')
+                # only save if its less than six digits
+                # so we dont accidently put the guardian's contact number,
+                # which might sometimes match this
+                if len(token) <= 6:
+                    dob = token
+                    continue
+
+            # if token is letters, add it to the guardian_name
+            if token.isalpha():
+                self.debug('GUARDIAN NAME:')
+                guardian_name = guardian_name + token + " "
+                self.debug(guardian_name)
+                continue
+
         # Strip the trailing space and partition into last and first,
         # where last contains 'lastname' and first contains either 'firstname'
         # or 'firstname secondname'
-        last, sep, first = name.rstrip().partition(' ')
+        guardian_first, sep, guardian_last = guardian_name.rstrip().rpartition(' ')
+
+        # Strip the trailing space and partition into last and first,
+        # where last contains 'lastname' and first contains either 'firstname'
+        # or 'firstname secondname'
+        first, sep, last = patient_name.rstrip().rpartition(' ')
         
         # reporter
+        # TODO (there should already be a reporter object attached to the message
+        #  e.g., message.reporter)
         reporter    = message.persistant_connection.reporter
         location_code=message.persistant_connection.reporter.location.code
         self.debug('location_code= '+location_code)
-        # compute Date Of Birth
+        self.debug(dob)
+
+        # remove all non-digit characters from dob string
         dob = re.sub(r'\D', '', dob)
-        try:
-            dob = time.strptime(dob, "%d%m%y")
-        except ValueError:
+        estimated_dob = False # set this now to avoid error if we dont match
+        self.debug(dob)
+
+        # if there are three or more digits, we are 
+        # probably dealing with a date
+        if len(dob) >= 3:
             try:
-                dob = time.strptime(dob, "%d%m%Y")
+                # TODO this 2 step conversion is too complex, simplify!
+                dob = time.strptime(dob, "%d%m%y")
+                dob = datetime.date(*dob[:3])
             except ValueError:
-                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
-        dob = datetime.date(*dob[:3])
+                try:
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(dob, "%d%m%Y")
+                    dob = datetime.date(*dob[:3])
+                except ValueError:
+                    raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+            self.debug(dob)
+
+        # if there are fewer than three digits, we are
+        # probably dealing with an age (in months),
+        # so attempt to estimate a dob
+        else:
+            # TODO move to a utils file? (almost same code is in import_cases.py)
+            try:
+                if dob.isdigit():
+                    years = int(dob) / 12
+                    months = int(dob) % 12
+                    est_year = abs(datetime.date.today().year - int(years))
+                    est_month = abs(datetime.date.today().month - int(months))
+                    if est_month == 0:
+                        est_month = 1
+                    estimate = ("%s-%s-%s" % (est_year, est_month, 15))
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(estimate, "%Y-%m-%d")
+                    dob = datetime.date(*dob[:3])
+                    self.debug(dob)
+                    estimated_dob = True
+            except Exception, e:
+                self.debug(e)    
 
         # Concatenate Mother's name
         guardian    = "%s %s" % (guardian_last, guardian_first)
@@ -362,17 +469,17 @@ class App (rapidsms.app.App):
                 message.respond(_(u"Can't find your location based on the code your sent. Please resend."))
                 return True
 
-        
         # store case info in object
         info = {
-            "first_name" : first.title(),
-            "last_name"  : last.title(),
-            "gender"     : gender.upper()[0],
-            "dob"        : dob,
-            "guardian"   : guardian.title(),
-            "mobile"     : contact,
-            "reporter"   : reporter,
-            "location"   : location
+            "first_name"    : first.title(),
+            "last_name"     : last.title(),
+            "gender"        : gender.upper()[0],
+            "dob"           : dob,
+            "estimated_dob" : estimated_dob,
+            "guardian"      : guardian.title(),
+            "mobile"        : contact,
+            "reporter"      : reporter,
+            "location"      : location
         }
 
         ## check to see if the case already exists
@@ -398,7 +505,7 @@ class App (rapidsms.app.App):
         
         log(case, "patient_created")
         return True
-    new_case_frccsn.format = "nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] (contact #)"
+    new_case_frccsn.format = "nouv [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] (contact #)"
 
     def find_case (self, ref_id):
         """look up a patient id """
