@@ -277,7 +277,8 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                 pdfrpt.setFilename("report_per_page")
     
     return pdfrpt.render()
-#Modification Assane
+@login_required
+#Modification Assane new
 def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     """ Children Screening per age for SN CC """
     
@@ -289,38 +290,35 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setLandscape(True)
     
     if object_id is None and not request.POST:
+        age_mois=0
         cases = Case.objects.order_by("location").distinct()
-        for case in cases:
-            queryset, fields = ReportAllPatients.by_age(case)
-            subtitle = "Registre des Enfants pour: " #%(site.name)
-            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
-            if (int(per_page) == 1) is True:
-                pdfrpt.setPageBreak()
-                pdfrpt.setFilename("Listing_Enfant")
+        queryset, fields = ReportAllPatients.by_age(age_mois,case)
+        subtitle = "Registre des Enfants pour: " #%(site.name)
+        pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
+        if (int(per_page) == 1) is True:
+            pdfrpt.setPageBreak()
+            pdfrpt.setFilename("Listing_Enfant")
+        
     else:
-        cases = Case.objects.order_by("location").distinct()        
+        cases = Case.objects.order_by("location").distinct() 
+              
         if request.POST['age']:
             age_mois = int(request.POST['age'])
             str_age=request.POST['age']
 
-        for case in cases:
-            delta = datetime.now().date() - case.dob    
-       
-            age=int(delta.days/30.4375)
-            if (age==age_mois):
-                
-                queryset, fields = ReportAllPatients.by_age(case)
+            queryset, fields = ReportAllPatients.by_age(age_mois,cases)
         
-                subtitle = "Registre des Enfants de : %s mois"%(str_age)
+            subtitle = "Registre des Enfants de : %s mois"%(str_age)
         # no nom sex dob age mere sms numero pb poids oedems depistage consulter
-                pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
-                filename="Listing_Enfant_"+ datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
+            pdfrpt.setTableData(queryset, fields, subtitle, [0.2*inch, 1.5*inch,0.3*inch,0.7*inch, 0.3*inch,1.5*inch, 0.5*inch, 0.7*inch,0.5*inch, 0.5*inch,0.5*inch,1.5*inch,1*inch])
+            filename="Listing_Enfant_"+ datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
     
-                pdfrpt.setFilename(filename)
+            pdfrpt.setFilename(filename)
     
+        
     return pdfrpt.render()
 
-#Fin Ajout
+#Fin Ajout new
 @login_required
 def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf"):
     """ Malnutrition Screening Form Originally for SN CC """
