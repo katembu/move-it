@@ -728,6 +728,16 @@ class ReportAllPatients(Report, models.Model):
             q   = {}
             q['case']   = case
             q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
+            if case.dob == None:
+               q['dob'] = ''
+            else:
+               q['dob'] = case.dob.strftime("%d.%m.%y")
+            
+            if case.guardian_id == None:
+                case.guardian_id = ''
+
+            if case.gender == None:
+                case.gender = ''
 
             counter = counter + 1
             q['counter'] = "%d"%counter
@@ -744,6 +754,7 @@ class ReportAllPatients(Report, models.Model):
                 q['malnut_symptoms'] = muacc.symptoms_keys()
                 q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
                 q['malnut_entered_at'] = muacc.entered_at.strftime("%d.%m.%Y")
+
             except ObjectDoesNotExist:
                 q['malnut_muac'] = ""
                 q['malnut_symptoms'] = ""
@@ -757,10 +768,11 @@ class ReportAllPatients(Report, models.Model):
         fields.append({"name": 'No', "column": None, "bit": "{{ object.counter }}" })
         fields.append({"name": 'Nom', "column": None, "bit": "{{ object.name }}" })
         fields.append({"name": 'Sexe', "column": None, "bit": "{{ object.case.gender }}" })
-        fields.append({"name": 'DN', "column": None, "bit": "{{ object.case.dob }}" }) 
+        fields.append({"name": 'DN', "column": None, "bit": "{{ object.dob }}" }) 
         fields.append({"name": 'Age', "column": None, "bit": "{{ object.case.age }}" })
         fields.append({"name": 'Nom de Mere', "column": None, "bit": "{{ object.case.guardian }}" })
-        fields.append({"name": 'Dernier Depistage', "column": None, "bit": "{{ object.malnut_entered_at }}" })
+        fields.append({"name": 'Carte ID', "column": None, "bit": "{{ object.case.guardian_id }}" })
+#        fields.append({"name": 'Dernier Depistage', "column": None, "bit": "{{ object.malnut_entered_at }}" })
         fields.append({"name": 'SMS', "column": None, "bit": "PB" })          
         fields.append({"name": 'No Enfant', "column": None, "bit": "+{{ object.case.ref_id }}" })
         fields.append({"name": 'PB (mm)', "column": None, "bit": "{{ object.malnut_muac }}" })
