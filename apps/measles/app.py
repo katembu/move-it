@@ -6,9 +6,9 @@ import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.logs import MessageLog
-from mctc.models.general import Case
-from mctc.models.reports import ReportCHWStatus
+from childcount.models.logs import MessageLog
+from childcount.models.general import Case
+from childcount.models.reports import ReportCHWStatus
 from reporters.models import Reporter, ReporterGroup
 from models import ReportMeasles
 

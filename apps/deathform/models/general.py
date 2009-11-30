@@ -4,7 +4,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.general import Case
+from childcount.models.general import Case
 from reporters.models import Reporter
 
 from datetime import datetime

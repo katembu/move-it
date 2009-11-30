@@ -6,8 +6,8 @@ from django.utils.translation import ugettext as _
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
-from mctc.models.logs import MessageLog, log
-from mctc.models.general import Case
+from childcount.models.logs import MessageLog, log
+from childcount.models.general import Case
 from models import ReportMalnutrition, Observation
 
 import re, datetime

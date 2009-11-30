@@ -4,7 +4,7 @@
 from django.db import models
 from datetime import datetime
 
-from mctc.models.general import Case
+from childcount.models.general import Case
 from reporters.models import Reporter
 
 class Lab(models.Model):

@@ -41,7 +41,7 @@ except:
     $ export RAPIDSMS_INI=/absolute/path/to/my/local.ini")
 
 
-from mctc.models import general
+from childcount.models import general
 from reporters.models import Reporter
 from reporters.models import Location
 
@@ -90,7 +90,7 @@ def get_good_date(date):
             return None
 
 def age_to_estimated_bday(age_in_months):
-    # TODO move to a utils file? (same code is in apps/mctc/app.py)
+    # TODO move to a utils file? (same code is in apps/childcount/app.py)
     try:
         if age_in_months.isdigit():
             years = int(age_in_months) / 12

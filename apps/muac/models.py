@@ -6,8 +6,8 @@ from django.utils.translation import ugettext as _
 
 from datetime import datetime, date
 
-from mctc.models.general import Case
-from mctc.models.reports import Observation
+from childcount.models.general import Case
+from childcount.models.reports import Observation
 from reporters.models import Reporter,ReporterGroup
 
 class ReportMalnutrition(models.Model):

@@ -6,7 +6,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from django.utils.translation import ugettext as _
 from django.db import models
 from reporters.models import PersistantBackend, Reporter
-from mctc.models.logs import MessageLog
+from childcount.models.logs import MessageLog
 
 import re
 
