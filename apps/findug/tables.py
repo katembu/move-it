@@ -24,9 +24,6 @@ class HWReportersTable(tables.Table):
     contact = tables.Column(verbose_name=u"Contact", sortable=False)
 
 class DiseasesReportTable(tables.Table):
-    hu          = tables.Column(verbose_name=u"Health Unit")
-    hu_pk   = tables.Column(visible=False, sortable=False)
-    date        = tables.Column(verbose_name=u"Date Period", sortable=False)
     af_cases    = tables.Column(verbose_name=u"C")
     af_deaths   = tables.Column(verbose_name=u"D")
     ab_cases    = tables.Column(verbose_name=u"C")
@@ -55,11 +52,17 @@ class DiseasesReportTable(tables.Table):
     vf_deaths   = tables.Column(verbose_name=u"D")
     ei_cases    = tables.Column(verbose_name=u"C")
     ei_deaths   = tables.Column(verbose_name=u"D")
+    complete    = tables.Column(visible=False, sortable=False)
+
+    def first_column(self):
+        #return self.base_columns.values()[0]
+        return self.columns.all().next()
+
+    @property
+    def by_date(self):
+        return self.base_columns.has_key('date')
 
 class CasesReportTable(tables.Table):
-    hu          = tables.Column(verbose_name=u"Health Unit")
-    hu_pk       = tables.Column(visible=False, sortable=False)
-    date        = tables.Column(verbose_name=u"Date Period", sortable=False)
     opd         = tables.Column(verbose_name=u"Total OPD attendence")
     suspected   = tables.Column(verbose_name=u"Suspected malaria cases")
     rdt_test    = tables.Column(verbose_name=u"RDT tested cases")
@@ -68,22 +71,26 @@ class CasesReportTable(tables.Table):
     mic_positive= tables.Column(verbose_name=u"Microscopy positive cases")
     pos_u5      = tables.Column(verbose_name=u"Positive cases under 5 years")
     pos_o5      = tables.Column(verbose_name=u"Positive 5+ years")
+    complete    = tables.Column(visible=False, sortable=False)
+
+    @property
+    def by_date(self):
+        return self.base_columns.has_key('date')
 
 class TreatmentsReportTable(tables.Table):
-    hu              = tables.Column(verbose_name=u"Health Unit")
-    hu_pk           = tables.Column(visible=False, sortable=False)
-    date            = tables.Column(verbose_name=u"Date Period", sortable=False)
     rdt_negative    = tables.Column(verbose_name=u"RDT negative cases treated")
     rdt_positive    = tables.Column(verbose_name=u"RDT positive cases treated")
     four_to_three   = tables.Column(verbose_name=u"4+ months to 3 years")
     three_to_seven  = tables.Column(verbose_name=u"3+ to 7 years")
     seven_to_twelve = tables.Column(verbose_name=u"7+ to 12 years")
     twelve_and_above= tables.Column(verbose_name=u"12+ years")
+    complete    = tables.Column(visible=False, sortable=False)
+
+    @property
+    def by_date(self):
+        return self.base_columns.has_key('date')
 
 class ACTReportTable(tables.Table):
-    hu                  = tables.Column(verbose_name=u"Health Unit")
-    hu_pk               = tables.Column(visible=False, sortable=False)
-    date                = tables.Column(verbose_name=u"Date Period", sortable=False)
     yellow_dispensed    = tables.Column(verbose_name=u"Yellow dispensed")
     yellow_balance      = tables.Column(verbose_name=u"Yellow balance")
     blue_dispensed      = tables.Column(verbose_name=u"Blue dispensed")
@@ -94,3 +101,8 @@ class ACTReportTable(tables.Table):
     green_balance       = tables.Column(verbose_name=u"Green balance")
     other_act_dispensed = tables.Column(verbose_name=u"Other ACT dispensed")
     other_act_balance   = tables.Column(verbose_name=u"Other ACT balance")
+    complete            = tables.Column(visible=False, sortable=False)
+
+    @property
+    def by_date(self):
+        return self.base_columns.has_key('date')

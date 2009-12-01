@@ -77,6 +77,14 @@ class ReportPeriod(models.Model):
         return cls.from_day(today)
 
     @classmethod
+    def list_from_boundries(cls,start,end):
+        if start == end or end==None:
+            return [start]
+        if start.start_date > end.start_date:
+            start, end = end, start
+        return cls.objects.filter(start_date__range=(start.start_date,end.start_date))
+
+    @classmethod
     def from_day(cls, day):
         start, end  = cls.weekboundaries_from_day(day)
         try:
@@ -125,11 +133,14 @@ class HealthUnit(Location):
             return None
 
     @classmethod
-    def list_by_location(cls, location):
+    def list_by_location(cls, location, type=None):
         health_units = []
-        for loc in location.descendants():
+        for loc in location.descendants(include_self=True):
             health_units.append(cls.by_location(loc))
-        return filter(lambda hc: hc != None, health_units)
+        health_units = filter(lambda hc: hc != None, health_units)
+        if type != None:
+            health_units = filter(lambda hc: hc.type == type, health_units)
+        return health_units
 
     @property
     def district(self):
@@ -203,6 +214,17 @@ class Disease(models.Model):
     @classmethod
     def by_code(cls, code):
         return cls.objects.get(code=code)
+
+    @classmethod
+    def ug_disease_codes(cls):
+        return ['AF','AB','RB','CH','DY','GW','MA','ME','MG','NT','PL','YF','VF','EI']
+
+    @classmethod
+    def ug_diseases(cls):
+        diseases = []   
+        for disease in cls.ug_disease_codes():
+            diseases.append(cls.by_code(disease))
+        return diseases
 
 class DiseaseObservation(models.Model):
 
@@ -287,6 +309,33 @@ class DiseasesReport(models.Model,FindReport):
         return self.diseases.clear()
 
     @classmethod
+    def aggregate_report(cls, location, periods, type=None):
+        health_units = HealthUnit.list_by_location(location, type)
+
+        results = {'complete'  : True,}
+
+        for disease in Disease.ug_disease_codes():
+            results['%s_cases' % disease.lower()] = None
+            results['%s_deaths' % disease.lower()] = None
+
+        for period in periods:
+            period_report = EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, period=period)
+            for hu in health_units:
+                report = period_report.filter(clinic=hu)
+                if len(report) == 0:
+                    results['complete'] = False
+                    continue
+                report = report[0].diseases
+
+                for key, value in results.iteritems():
+                    if value == None: results[key] = 0
+                for disease in Disease.ug_disease_codes():
+                    observation = report.diseases.get(disease__code=disease.lower())
+                    results['%s_cases' % disease.lower()] += observation.cases
+                    results['%s_deaths' % disease.lower()] += observation.deaths
+        return results               
+
+    @classmethod
     def by_reporter_period(cls, reporter, period):
         try:
             return cls.objects.get(reporter=reporter, period=period, epidemiologicalreport__clinic=HealthUnit.by_location(reporter.location))
@@ -367,6 +416,35 @@ class MalariaCasesReport(models.Model,FindReport):
             report  = cls(reporter=reporter, period=period)
             report.save()
             return report
+
+    @classmethod
+    def aggregate_report(cls, location, periods, type=None):
+        health_units = HealthUnit.list_by_location(location, type)
+
+        results = {'complete'  : True,}
+        for key in ['opd','suspected','rdt_test','rdt_positive','mic_test','mic_positive','pos_u5','pos_o5']:
+            results[key] = None
+
+        for period in periods:
+            period_report = EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, period=period)
+            for hu in health_units:
+                report = period_report.filter(clinic=hu)
+                if len(report) == 0:
+                    results['complete'] = False
+                    continue
+                report = report[0].malaria_cases
+                for key, value in results.iteritems():
+                    if value == None: results[key] = 0
+                results['opd']          += report.opd_attendance
+                results['suspected']    += report.suspected_cases
+                results['rdt_test']     += report.rdt_tests
+                results['rdt_positive'] += report.rdt_positive_tests
+                results['mic_test']     += report.microscopy_tests
+                results['mic_positive'] += report.microscopy_positive
+                results['pos_u5']       += report.positive_under_five
+                results['pos_o5']       += report.positive_over_five
+        return results               
+
 
     def update(self, opd_attendance, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
         ''' saves all datas at once '''
@@ -522,6 +600,33 @@ class MalariaTreatmentsReport(models.Model,FindReport):
             report.save()
             return report
 
+    @classmethod
+    def aggregate_report(cls, location, periods, type=None):
+        health_units = HealthUnit.list_by_location(location, type)
+
+        results = {'complete'  : True,}
+        for key in ['rdt_negative','rdt_positive','four_to_three','three_to_seven','seven_to_twelve','twelve_and_above']:
+            results[key] = None
+
+        for period in periods:
+            period_report = EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, period=period)
+            for hu in health_units:
+                report = period_report.filter(clinic=hu)
+                if len(report) == 0:
+                    results['complete'] = False
+                    continue
+                report = report[0].malaria_treatments
+                for key, value in results.iteritems():
+                    if value == None: results[key] = 0
+                results['rdt_negative']     += report.rdt_negative
+                results['rdt_positive']     += report.rdt_positive
+                results['four_to_three']    += report.four_months_to_three
+                results['three_to_seven']   += report.three_to_seven
+                results['seven_to_twelve']  += report.seven_to_twelve
+                results['twelve_and_above'] += report.twelve_and_above
+
+        return results               
+
     def update(self, rdt_negative, rdt_positive, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
         ''' saves all datas at once '''
 
@@ -636,6 +741,50 @@ class ACTConsumptionReport(models.Model,FindReport):
             report  = cls(reporter=reporter, period=period)
             report.save()
             return report
+
+    @classmethod
+    def aggregate_report(cls, location, periods, type=None):
+        health_units = HealthUnit.list_by_location(location, type)
+
+        periods = list(periods)
+        periods.sort(key = lambda period: period.start_date)
+
+        results = {'complete'  : True,}
+        keys = ['yellow_dispensed',
+                'yellow_balance',
+                'blue_dispensed',
+                'blue_balance',
+                'brown_dispensed',
+                'brown_balance',
+                'green_dispensed',
+                'green_balance',
+                'other_act_dispensed',
+                'other_act_balance']
+        for key in keys:
+            results[key] = None
+
+        for period in periods:
+            period_report = EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, period=period)
+            for hu in health_units:
+                report = period_report.filter(clinic=hu)
+                if len(report) == 0:
+                    results['complete'] = False
+                    continue
+                report = report[0].act_consumption
+                for key, value in results.iteritems():
+                    if value == None: results[key] = 0
+                results['yellow_dispensed']     += report.yellow_dispensed
+                results['blue_dispensed']       += report.blue_dispensed
+                results['brown_dispensed']      += report.brown_dispensed
+                results['green_dispensed']      += report.green_dispensed
+                results['other_act_dispensed']  += report.other_act_dispensed
+
+                results['yellow_balance']       = report.yellow_balance
+                results['blue_balance']         = report.blue_balance
+                results['brown_balance']        = report.brown_balance
+                results['green_balance']        = report.green_balance
+                results['other_act_balance']    = report.other_act_balance
+        return results     
 
     def update(self, yellow_dispensed, yellow_balance, blue_dispensed, blue_balance, brown_dispensed, brown_balance, green_dispensed, green_balance,  other_act_dispensed, other_act_balance):
         ''' saves all datas at once '''
@@ -755,6 +904,7 @@ class EpidemiologicalReport(models.Model):
 
     class Meta:
         unique_together = ("clinic", "period")
+        get_latest_by   = "period__end_date"
 
     clinic  = models.ForeignKey(HealthUnit)
     period  = models.ForeignKey(ReportPeriod)
@@ -1050,3 +1200,4 @@ class WebUser(User):
             new_user = cls(user_ptr=user)
             new_user.save_base(raw=True)
             return new_user
+
