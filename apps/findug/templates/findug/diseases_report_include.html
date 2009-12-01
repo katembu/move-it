@@ -1,20 +1,20 @@
 <style type="text/css">
 
 
-#diseases {
+.diseases {
     font-size:12px;
     border:2px solid black;
     border-collapse: collapse;
 }
 
-#diseases td {
+td.diseases {
     padding:0px;
     width:30px;
     text-align:center;
 }
 
 td#first {
-    width:{% if diseases_table.by_date %}100px{% else %}140px{% endif %};
+    width:{% if table.by_date %}100px{% else %}140px{% endif %};
     text-align:left;
     padding:0px;
     border-bottom:1px solid black;
@@ -37,18 +37,29 @@ td.left {
     border-left:2px solid black;
     border-right:1px solid black;
     border-bottom:1px solid black;
+    font-family:monospace;
+    text-align:right;
+    padding:0px 6px 0px 6px !important;
 }
 td.right {
+    text-align:right;
+    font-family:monospace;
     border-right:2px solid black;
     border-left:1px solid black;
     border-bottom:1px solid black;
+    padding:0px 6px 0px 6px !important;
 }
 </style>
 
 <h2>Diseases Report{% if scope %}: {{scope}}{% endif %}</h2>
-<table width="100%" id="diseases"> 
+
+<table width="100%" class="diseases"> 
     <tr>
-        <th rowspan="2" style="border-bottom:1px solid black;">{% if diseases_table.by_date %}Date Period{% else %}<a href="?sort={{ diseases_table.columns.hu.name_toggled }}">Health Unit</a>{% endif %}</th>
+        <th rowspan="2" style="border-bottom:1px solid black;">
+        {% if diseases_table.first_column.sortable %}<a href="?r={{report}}&grp={{grouping}}&sort={{ diseases_table.first_column.name_toggled }}">{% endif %}
+        {{diseases_table.first_column}}
+        {% if diseases_table.first_column.sortable %}</a>{% endif %}
+        </th>
         {% for disease in diseases %}
             <th class="disease" colspan="2">{{disease}}</th>
         {% endfor %}
@@ -56,15 +67,14 @@ td.right {
     {% for column in diseases_table.columns %}
         {% if not forloop.first %}
            <td class="sub {% cycle 'left' 'right' %}">
-            {% if not diseases_table.dont_sort and column.sortable %}<a href="?sort={{ column.name_toggled }}">{% endif %}
+            {% if column.sortable %}<a href="?r={{ report }}&grp={{grouping}}&sort={{ column.name_toggled }}">{% endif %}
             {{column}}
-            {% if not diseases_table.dont_sort and column.sortable %}</a>{% endif %}
+            {% if column.sortable %}</a>{% endif %}
             </td>
         {% endif %}
     {% endfor %}
     </tr>
         {% for row in diseases_table.rows %}
-
             <tr>
             {% for value in row %}
                 <td {% if forloop.first %}id="first" {% else %}class="{% cycle 'left' 'right'%}"{% endif %}>
@@ -72,10 +82,12 @@ td.right {
                     {% if diseases_table.by_date %}
                         {{ value|date:"d/m/Y" }}
                     {% else %}
-                        <a href="/findug/health_unit/{{row.hu_pk}}">{{value}}</a>
+                        {% if row.hu_pk %}<a href="/findug/health_unit/{{row.hu_pk}}">{% endif %}
+                        {{value}}
+                        {% if row.hu_pk %}</a>{% endif %}
                     {% endif %}
                 {% else %}
-                    {{value|default_if_none:"*"}}
+                    {{value|default_if_none:""}}{% if not row.complete %}*{% else %}&nbsp;{% endif %}
                 {% endif %}
                 </td>
             {% endfor %}
