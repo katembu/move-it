@@ -247,8 +247,8 @@ class App (rapidsms.app.App):
         return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
-    #keyword.prefix = ["new"]
-    #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
+    keyword.prefix = ["new"]
+    @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
 
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
