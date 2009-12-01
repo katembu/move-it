@@ -207,7 +207,7 @@ class App (rapidsms.app.App):
         try:
             user = User.objects.get(username__iexact=username)
         except User.DoesNotExist:
-            self.respond_not_registered(username)
+            self.respond_not_registered(message, username)
         for provider in Provider.objects.filter(mobile=mobile):
             if provider.user.id == user.id:
                 provider.active = True
