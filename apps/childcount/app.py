@@ -250,7 +250,6 @@ class App (rapidsms.app.App):
     keyword.prefix = ["new"]
     @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
-
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
         """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
        Purpose: register a new patient into the system.  Receive patient ID number back"""
