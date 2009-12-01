@@ -6,8 +6,8 @@ from django.utils.translation import ugettext as _
 
 from datetime import datetime, date
 
-from mctc.models.general import Case
-from mctc.models.reports import Observation
+from childcount.models.general import Case
+from childcount.models.reports import Observation
 from reporters.models import Reporter,ReporterGroup
 
 class ReportMalnutrition(models.Model):
@@ -44,7 +44,7 @@ class ReportMalnutrition(models.Model):
             'muac'      : "%d mm" % self.muac,
             'observed'  : ", ".join([k.name for k in self.observed.all()]),
             'diagnosis' : self.get_status_display(),
-            'diagnosis_msg' : self.diagnosis_msg(),
+            'diagnosis_msg' : self.diagnosis_msg(self.reporter.language),
         }
                                
                         
@@ -88,17 +88,27 @@ class ReportMalnutrition(models.Model):
         elif self.muac < 125:
             self.status =  ReportMalnutrition.MODERATE_STATUS
 
-    def diagnosis_msg(self):
+    def diagnosis_msg(self,lang=None):
+        if lang is None:
+            lang = 'en'
+        msg = {}
         if self.status == ReportMalnutrition.MODERATE_STATUS:
-            msg = "MAM Child requires supplemental feeding."
+            msg['fr'] = "MAM Enfant a besoin de nourriture supplementaire."
+            msg['en'] = "MAM Child requires supplemental feeding."
         elif self.status == ReportMalnutrition.SEVERE_STATUS:
-            msg = "SAM Patient requires OTP care"
+            msg['fr'] = "SAM Patient a besoin d aller au poste de sante"
+            msg['en'] = "SAM Patient requires OTP care"
         elif self.status == ReportMalnutrition.SEVERE_COMP_STATUS:
-            msg = "SAM+ Patient requires IMMEDIATE inpatient care"
+            msg['fr'] = "SAM+ Patient a besoin d aller immediatement au poste de sante"
+            msg['en'] = "SAM+ Patient requires IMMEDIATE inpatient care"
         else:
-            msg = "Child is not malnourished"
+            msg['fr'] = "Enfant nest pas malnutri"
+            msg['en'] = "Child is not malnourished"
+        
+        if not lang in msg:
+            lang = 'en'
    
-        return msg
+        return msg[lang]
 
     def save(self, *args):
         if not self.id:

@@ -9,7 +9,7 @@ from locations.models import Location
 
 class Case(models.Model):    
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
     STATUS_ACTIVE = 1
     STATUS_INACTIVE = 0
     STATUS_DEAD = -1
@@ -182,4 +182,4 @@ class CaseNote(models.Model):
         super(CaseNote, self).save(*args)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"

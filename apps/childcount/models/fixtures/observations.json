@@ -1,7 +1,7 @@
 [
   {
     "pk": 1, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "e", 
       "uid": "edema", 
@@ -10,7 +10,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "a", 
       "uid": "appetite", 
@@ -19,7 +19,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "d", 
       "uid": "diarrhea", 
@@ -28,7 +28,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "v", 
       "uid": "vomiting", 
@@ -37,7 +37,7 @@
   }, 
   {
     "pk": 7, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "u", 
       "uid": "unresponsive", 
@@ -46,7 +46,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "f", 
       "uid": "fever", 
@@ -55,7 +55,7 @@
   }, 
   {
     "pk": 8, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "b", 
       "uid": "breathing", 
@@ -64,7 +64,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "cg", 
       "uid": "cough", 
@@ -73,7 +73,7 @@
   }, 
   {
     "pk": 9, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "cf", 
       "uid": "confusion", 
@@ -82,7 +82,7 @@
   }, 
   {
     "pk": 10, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "nr", 
       "uid": "responsive", 
@@ -91,7 +91,7 @@
   }, 
   {
     "pk": 11, 
-    "model": "mctc.observation", 
+    "model": "childcount.observation", 
     "fields": {
       "letter": "cv", 
       "uid": "fits", 

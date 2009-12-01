@@ -35,7 +35,7 @@ class EventLog(models.Model):
     created_at  = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
         ordering = ("-created_at",)
 
     def get_absolute_url(self):
@@ -50,7 +50,7 @@ class SystemErrorLog(models.Model):
     created_at  = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
         ordering = ("-created_at",)
 
     def get_absolute_url(self):
@@ -86,7 +86,7 @@ class MessageLog(models.Model):
     created_at  = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
         ordering = ("-created_at",)        
         
     def provider_number(self):

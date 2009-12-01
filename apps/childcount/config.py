@@ -5,4 +5,4 @@
 @author: ukanga
 '''
 title = "ChildCount"
-tab_link = "/mctc/reports"
+tab_link = "/childcount/reports"

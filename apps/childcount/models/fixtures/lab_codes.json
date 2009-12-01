@@ -1,7 +1,7 @@
 [
   {
     "pk": 1, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "BS", 
       "name": "Blood Smear"
@@ -9,7 +9,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "ELISA", 
       "name": "Rapid ELISA"
@@ -17,7 +17,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "HB", 
       "name": "Hemoglobin"
@@ -25,7 +25,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "PCR", 
       "name": "PCR"
@@ -33,7 +33,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "RDT", 
       "name": "Rapid Diagnostic Test"
@@ -41,7 +41,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "mctc.lab", 
+    "model": "childcount.lab", 
     "fields": {
       "code": "SM", 
       "name": "Stool Microscopy"

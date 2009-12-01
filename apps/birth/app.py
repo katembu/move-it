@@ -7,8 +7,8 @@ from rapidsms.parsers.keyworder import Keyworder
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
 
-from mctc.models.logs import MessageLog, log
-from mctc.models.general import Case
+from childcount.models.logs import MessageLog, log
+from childcount.models.general import Case
 from birth.models import ReportBirth
 
 import re

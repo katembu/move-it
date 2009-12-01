@@ -5,7 +5,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 from datetime import datetime
 
-from mctc.models.general import Case
+from childcount.models.general import Case
 from reporters.models import Reporter
 
 
@@ -16,7 +16,7 @@ class DiarrheaObservation(models.Model):
     letter = models.CharField(max_length=2, unique=True)
 
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
         ordering = ("name",)
 
     def __unicode__(self):
@@ -44,7 +44,7 @@ class ReportDiarrhea(models.Model):
     status      = models.IntegerField(choices=STATUS_CHOICES, db_index=True, blank=True, null=True)
     
     class Meta:
-        app_label = "mctc"
+        app_label = "childcount"
         verbose_name = "Diarrhea Report"
         verbose_name_plural = "Diarrhea Reports"
         get_latest_by = 'entered_at'

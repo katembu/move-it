@@ -6,7 +6,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from django.utils.translation import ugettext as _
 from django.db import models
 from reporters.models import PersistantBackend, Reporter
-from mctc.models.logs import MessageLog
+from childcount.models.logs import MessageLog
 
 import re
 
@@ -94,9 +94,10 @@ class App (rapidsms.app.App):
 
     
     @keyword(r'takeover (\w+)')
-    @adeco
-    @registered
-    @anotherdeco
+    #uncomment this to test multiple decorators- was a test for eliane by ukanga.
+    #@adeco
+    #@registered
+    #@anotherdeco
     def reporter_http_identity(self, message, username):
         """Hello World! This is a docstring"""
         reporter = self.find_provider(message, username)

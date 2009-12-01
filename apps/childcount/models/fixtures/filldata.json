@@ -992,7 +992,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "mctc.zone", 
+    "model": "childcount.zone", 
     "fields": {
       "lat": null, 
       "lon": null, 
@@ -1002,7 +1002,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.zone", 
+    "model": "childcount.zone", 
     "fields": {
       "lat": null, 
       "lon": null, 
@@ -1012,7 +1012,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.zone", 
+    "model": "childcount.zone", 
     "fields": {
       "lat": null, 
       "lon": null, 
@@ -1022,7 +1022,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.zone", 
+    "model": "childcount.zone", 
     "fields": {
       "lat": null, 
       "lon": null, 
@@ -1032,7 +1032,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "mctc.facility", 
+    "model": "childcount.facility", 
     "fields": {
       "name": "Sauri Clinic", 
       "zone": 1, 
@@ -1044,7 +1044,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.facility", 
+    "model": "childcount.facility", 
     "fields": {
       "name": "Ramula Clinic", 
       "zone": 2, 
@@ -1056,7 +1056,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.facility", 
+    "model": "childcount.facility", 
     "fields": {
       "name": "Lihanda Clinic", 
       "zone": 3, 
@@ -1068,7 +1068,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.facility", 
+    "model": "childcount.facility", 
     "fields": {
       "name": "Uranga Clinic", 
       "zone": 4, 
@@ -1080,7 +1080,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254715456709", 
       "alerts": false, 
@@ -1093,7 +1093,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738935069", 
       "alerts": false, 
@@ -1106,7 +1106,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962187", 
       "alerts": false, 
@@ -1119,7 +1119,7 @@
   }, 
   {
     "pk": 7, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962199", 
       "alerts": false, 
@@ -1132,7 +1132,7 @@
   }, 
   {
     "pk": 8, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962200", 
       "alerts": false, 
@@ -1145,7 +1145,7 @@
   }, 
   {
     "pk": 9, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962195", 
       "alerts": false, 
@@ -1158,7 +1158,7 @@
   }, 
   {
     "pk": 10, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962198", 
       "alerts": false, 
@@ -1171,7 +1171,7 @@
   }, 
   {
     "pk": 11, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962197", 
       "alerts": false, 
@@ -1184,7 +1184,7 @@
   }, 
   {
     "pk": 12, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962194", 
       "alerts": false, 
@@ -1197,7 +1197,7 @@
   }, 
   {
     "pk": 13, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962201", 
       "alerts": false, 
@@ -1210,7 +1210,7 @@
   }, 
   {
     "pk": 14, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "+254738962193", 
       "alerts": false, 
@@ -1223,7 +1223,7 @@
   }, 
   {
     "pk": 15, 
-    "model": "mctc.provider", 
+    "model": "childcount.provider", 
     "fields": {
       "mobile": "1234235345", 
       "alerts": false, 
@@ -1236,7 +1236,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "John", 
       "last_name": "Ochieng", 
@@ -1255,7 +1255,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "James", 
       "last_name": "Otieno", 
@@ -1274,7 +1274,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Eury", 
       "last_name": "Obida", 
@@ -1293,7 +1293,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "John", 
       "last_name": "Omondi", 
@@ -1312,7 +1312,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Rose", 
       "last_name": "Akiny", 
@@ -1331,7 +1331,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Judy", 
       "last_name": "Achieng", 
@@ -1350,7 +1350,7 @@
   }, 
   {
     "pk": 7, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Mary", 
       "last_name": "Atieno", 
@@ -1369,7 +1369,7 @@
   }, 
   {
     "pk": 8, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Judy", 
       "last_name": "Amondi", 
@@ -1388,7 +1388,7 @@
   }, 
   {
     "pk": 9, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Samwel", 
       "last_name": "Owino", 
@@ -1407,7 +1407,7 @@
   }, 
   {
     "pk": 10, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Susan", 
       "last_name": "Otieno", 
@@ -1426,7 +1426,7 @@
   }, 
   {
     "pk": 11, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Josina", 
       "last_name": "Atieno", 
@@ -1445,7 +1445,7 @@
   }, 
   {
     "pk": 12, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Josphine", 
       "last_name": "Achieng", 
@@ -1464,7 +1464,7 @@
   }, 
   {
     "pk": 13, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Margret", 
       "last_name": "Adhiambo", 
@@ -1483,7 +1483,7 @@
   }, 
   {
     "pk": 14, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Mercelline", 
       "last_name": "Anyango", 
@@ -1502,7 +1502,7 @@
   }, 
   {
     "pk": 15, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Jane", 
       "last_name": "Awino", 
@@ -1521,7 +1521,7 @@
   }, 
   {
     "pk": 16, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Felix", 
       "last_name": "Ochieng", 
@@ -1540,7 +1540,7 @@
   }, 
   {
     "pk": 17, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Mecelline", 
       "last_name": "Anyango", 
@@ -1559,7 +1559,7 @@
   }, 
   {
     "pk": 18, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Everlyne", 
       "last_name": "Adhiambo", 
@@ -1578,7 +1578,7 @@
   }, 
   {
     "pk": 19, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Margret", 
       "last_name": "Adhiambo", 
@@ -1597,7 +1597,7 @@
   }, 
   {
     "pk": 20, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Mecelline", 
       "last_name": "Anyango", 
@@ -1616,7 +1616,7 @@
   }, 
   {
     "pk": 21, 
-    "model": "mctc.case", 
+    "model": "childcount.case", 
     "fields": {
       "first_name": "Lydia", 
       "last_name": "Awuor", 
@@ -1635,7 +1635,7 @@
   }, 
   {
     "pk": 18, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 1, 
       "muac": 100, 
@@ -1647,7 +1647,7 @@
   }, 
   {
     "pk": 17, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 11, 
       "muac": 140, 
@@ -1659,7 +1659,7 @@
   }, 
   {
     "pk": 16, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 21, 
       "muac": 134, 
@@ -1671,7 +1671,7 @@
   }, 
   {
     "pk": 15, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 8, 
       "muac": 145, 
@@ -1683,7 +1683,7 @@
   }, 
   {
     "pk": 14, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 18, 
       "muac": 106, 
@@ -1695,7 +1695,7 @@
   }, 
   {
     "pk": 13, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 19, 
       "muac": 150, 
@@ -1707,7 +1707,7 @@
   }, 
   {
     "pk": 12, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 15, 
       "muac": 162, 
@@ -1719,7 +1719,7 @@
   }, 
   {
     "pk": 11, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 16, 
       "muac": 152, 
@@ -1731,7 +1731,7 @@
   }, 
   {
     "pk": 10, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 12, 
       "muac": 159, 
@@ -1743,7 +1743,7 @@
   }, 
   {
     "pk": 8, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 7, 
       "muac": 103, 
@@ -1755,7 +1755,7 @@
   }, 
   {
     "pk": 7, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 4, 
       "muac": 105, 
@@ -1767,7 +1767,7 @@
   }, 
   {
     "pk": 6, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 2, 
       "muac": 105, 
@@ -1779,7 +1779,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 9, 
       "muac": 108, 
@@ -1791,7 +1791,7 @@
   }, 
   {
     "pk": 3, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 5, 
       "muac": 108, 
@@ -1803,7 +1803,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 3, 
       "muac": 125, 
@@ -1815,7 +1815,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 1, 
       "muac": 125, 
@@ -1827,7 +1827,7 @@
   }, 
   {
     "pk": 19, 
-    "model": "mctc.reportmalnutrition", 
+    "model": "childcount.reportmalnutrition", 
     "fields": {
       "case": 1, 
       "muac": 100, 
@@ -1839,7 +1839,7 @@
   }, 
   {
     "pk": 1, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+123", 
       "text": "Your subscription to Club 20 has been successfully renewed.Zain. A Wonderful world.", 
@@ -1850,7 +1850,7 @@
   }, 
   {
     "pk": 2, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "Join sauri berg matt mberg", 
@@ -1861,7 +1861,7 @@
   }, 
   {
     "pk": 5, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254733484261", 
       "text": "JOIN SAURI ONYANGO MATHEWS OMATHEWS", 
@@ -1872,7 +1872,7 @@
   }, 
   {
     "pk": 32, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254715456709", 
       "text": "join ramula subaiya saleena saleena", 
@@ -1883,7 +1883,7 @@
   }, 
   {
     "pk": 35, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254715456709", 
       "text": "*1 holler", 
@@ -1894,7 +1894,7 @@
   }, 
   {
     "pk": 36, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "Join ramula ouma richard yang", 
@@ -1905,7 +1905,7 @@
   }, 
   {
     "pk": 37, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "Join ramula marari chuo", 
@@ -1916,7 +1916,7 @@
   }, 
   {
     "pk": 38, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "JOIN ramula Otieno Peter pizie", 
@@ -1927,7 +1927,7 @@
   }, 
   {
     "pk": 39, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "Join ramula achieng magdaline asco", 
@@ -1938,7 +1938,7 @@
   }, 
   {
     "pk": 40, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "Join Ramula odhis Eric pastor", 
@@ -1949,7 +1949,7 @@
   }, 
   {
     "pk": 41, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "Join  ramula  apiyo rose  paty", 
@@ -1960,7 +1960,7 @@
   }, 
   {
     "pk": 42, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "Join ramula mbuchu joyce papy", 
@@ -1971,7 +1971,7 @@
   }, 
   {
     "pk": 43, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "Join Ramula Opisi Jane JOpisi", 
@@ -1982,7 +1982,7 @@
   }, 
   {
     "pk": 44, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "Join olando rose rozimo", 
@@ -1993,7 +1993,7 @@
   }, 
   {
     "pk": 45, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962190", 
       "text": "Join Ramula achieng magret atwech", 
@@ -2004,7 +2004,7 @@
   }, 
   {
     "pk": 46, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254715456709", 
       "text": "list *", 
@@ -2015,7 +2015,7 @@
   }, 
   {
     "pk": 48, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "Join ramula olando rose rozimo", 
@@ -2026,7 +2026,7 @@
   }, 
   {
     "pk": 107, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "List", 
@@ -2037,7 +2037,7 @@
   }, 
   {
     "pk": 108, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2048,7 +2048,7 @@
   }, 
   {
     "pk": 109, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2059,7 +2059,7 @@
   }, 
   {
     "pk": 110, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "List", 
@@ -2070,7 +2070,7 @@
   }, 
   {
     "pk": 111, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "254733100111", 
       "text": "Pay your KPLC bill with ZAP for free. Go to Zap or Me2U, Money, To Nickname-type KPLC, type amount, password, under Reference type KPLC Acc No and press OK.", 
@@ -2081,7 +2081,7 @@
   }, 
   {
     "pk": 112, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "List", 
@@ -2092,7 +2092,7 @@
   }, 
   {
     "pk": 113, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "Join lihanda berg matt mberg", 
@@ -2103,7 +2103,7 @@
   }, 
   {
     "pk": 114, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "Join lihanda gkj", 
@@ -2114,7 +2114,7 @@
   }, 
   {
     "pk": 115, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "Join lihanda ogango stephene oste", 
@@ -2125,7 +2125,7 @@
   }, 
   {
     "pk": 116, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "Join lihanda achieng esther jaber", 
@@ -2136,7 +2136,7 @@
   }, 
   {
     "pk": 117, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "Join lihanda gladys jum", 
@@ -2147,7 +2147,7 @@
   }, 
   {
     "pk": 118, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "Join lihanda  ochola mary sue", 
@@ -2158,7 +2158,7 @@
   }, 
   {
     "pk": 119, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "Join lihanda odhiambo henry odhis", 
@@ -2169,7 +2169,7 @@
   }, 
   {
     "pk": 120, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "Join lihanda rambaya peter ochieng", 
@@ -2180,7 +2180,7 @@
   }, 
   {
     "pk": 121, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "Join lihanda auma sylvia jatelo", 
@@ -2191,7 +2191,7 @@
   }, 
   {
     "pk": 122, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "Join llihanda eunia omole", 
@@ -2202,7 +2202,7 @@
   }, 
   {
     "pk": 123, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "Jn.", 
@@ -2213,7 +2213,7 @@
   }, 
   {
     "pk": 124, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "Join lihanda eunia omole", 
@@ -2224,7 +2224,7 @@
   }, 
   {
     "pk": 125, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "OK", 
@@ -2235,7 +2235,7 @@
   }, 
   {
     "pk": 126, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "List *", 
@@ -2246,7 +2246,7 @@
   }, 
   {
     "pk": 127, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "List*", 
@@ -2257,7 +2257,7 @@
   }, 
   {
     "pk": 128, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "Iist*", 
@@ -2268,7 +2268,7 @@
   }, 
   {
     "pk": 129, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "List *", 
@@ -2279,7 +2279,7 @@
   }, 
   {
     "pk": 130, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "List*", 
@@ -2290,7 +2290,7 @@
   }, 
   {
     "pk": 131, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "List *", 
@@ -2301,7 +2301,7 @@
   }, 
   {
     "pk": 132, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "List *", 
@@ -2312,7 +2312,7 @@
   }, 
   {
     "pk": 133, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "Join lihanda ouma jared jakom", 
@@ -2323,7 +2323,7 @@
   }, 
   {
     "pk": 134, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "List*", 
@@ -2334,7 +2334,7 @@
   }, 
   {
     "pk": 135, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "List *", 
@@ -2345,7 +2345,7 @@
   }, 
   {
     "pk": 136, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "*4 hallo howz kisumu", 
@@ -2356,7 +2356,7 @@
   }, 
   {
     "pk": 137, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "List*", 
@@ -2367,7 +2367,7 @@
   }, 
   {
     "pk": 138, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "*11  hello  achieng", 
@@ -2378,7 +2378,7 @@
   }, 
   {
     "pk": 139, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "*5 please.come calvin sick", 
@@ -2389,7 +2389,7 @@
   }, 
   {
     "pk": 140, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "*6 HALLO TO YOU", 
@@ -2400,7 +2400,7 @@
   }, 
   {
     "pk": 141, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "*8 howz uranga", 
@@ -2411,7 +2411,7 @@
   }, 
   {
     "pk": 142, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "*jaber thanks coming soon", 
@@ -2422,7 +2422,7 @@
   }, 
   {
     "pk": 143, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "*7 come please", 
@@ -2433,7 +2433,7 @@
   }, 
   {
     "pk": 144, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "*4 morning ;-) wellcome to lihanda health center", 
@@ -2444,7 +2444,7 @@
   }, 
   {
     "pk": 145, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "Eliud ochieng abonyo id no. 22867591 working as busness man", 
@@ -2455,7 +2455,7 @@
   }, 
   {
     "pk": 146, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "*4 hello", 
@@ -2466,7 +2466,7 @@
   }, 
   {
     "pk": 147, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "*10 howz the job", 
@@ -2477,7 +2477,7 @@
   }, 
   {
     "pk": 148, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254715456709", 
       "text": "*jatelo amosi", 
@@ -2488,7 +2488,7 @@
   }, 
   {
     "pk": 149, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "*12 pliz come,there is a casualty", 
@@ -2499,7 +2499,7 @@
   }, 
   {
     "pk": 150, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "*6 come tomorrow in the morning", 
@@ -2510,7 +2510,7 @@
   }, 
   {
     "pk": 151, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "New ochieng john m 080322 peter", 
@@ -2521,7 +2521,7 @@
   }, 
   {
     "pk": 152, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "New otieno james m 060324 jane", 
@@ -2532,7 +2532,7 @@
   }, 
   {
     "pk": 153, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "New obida eury m 080612 jackylne", 
@@ -2543,7 +2543,7 @@
   }, 
   {
     "pk": 154, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "New omondi john  m 070420 mary", 
@@ -2554,7 +2554,7 @@
   }, 
   {
     "pk": 155, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "New akiny rose f\n090120 caren", 
@@ -2565,7 +2565,7 @@
   }, 
   {
     "pk": 156, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "New  achieng judy f 040906 anne otieno", 
@@ -2576,7 +2576,7 @@
   }, 
   {
     "pk": 157, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New owino samwel m 031231esther", 
@@ -2587,7 +2587,7 @@
   }, 
   {
     "pk": 158, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "New atieno mary f 080210 jane", 
@@ -2598,7 +2598,7 @@
   }, 
   {
     "pk": 159, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "New amondi judy f 080215 mary", 
@@ -2609,7 +2609,7 @@
   }, 
   {
     "pk": 160, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "OK", 
@@ -2620,7 +2620,7 @@
   }, 
   {
     "pk": 161, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New owino samwel m 081231esther", 
@@ -2631,7 +2631,7 @@
   }, 
   {
     "pk": 162, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New owino samwel m 081231 esther", 
@@ -2642,7 +2642,7 @@
   }, 
   {
     "pk": 163, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "#26  1", 
@@ -2653,7 +2653,7 @@
   }, 
   {
     "pk": 164, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "#18 125  f d", 
@@ -2664,7 +2664,7 @@
   }, 
   {
     "pk": 165, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "#34 125 n fd", 
@@ -2675,7 +2675,7 @@
   }, 
   {
     "pk": 166, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "#59 108 e vd", 
@@ -2686,7 +2686,7 @@
   }, 
   {
     "pk": 167, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "#83 23  f d", 
@@ -2697,7 +2697,7 @@
   }, 
   {
     "pk": 168, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "New otieno susan f mary", 
@@ -2708,7 +2708,7 @@
   }, 
   {
     "pk": 169, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "#91 108 e a v f d", 
@@ -2719,7 +2719,7 @@
   }, 
   {
     "pk": 170, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "#26 105 e d f", 
@@ -2730,7 +2730,7 @@
   }, 
   {
     "pk": 171, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "#42 105 e f v d", 
@@ -2741,7 +2741,7 @@
   }, 
   {
     "pk": 172, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2752,7 +2752,7 @@
   }, 
   {
     "pk": 173, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "New otieno susan f 030608 mary", 
@@ -2763,7 +2763,7 @@
   }, 
   {
     "pk": 174, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "OK", 
@@ -2774,7 +2774,7 @@
   }, 
   {
     "pk": 175, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2785,7 +2785,7 @@
   }, 
   {
     "pk": 176, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "#75 103 e d v f a", 
@@ -2796,7 +2796,7 @@
   }, 
   {
     "pk": 177, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "New atieno josina f 080510 perez", 
@@ -2807,7 +2807,7 @@
   }, 
   {
     "pk": 178, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New adhiambo mary f 14 mary", 
@@ -2818,7 +2818,7 @@
   }, 
   {
     "pk": 179, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "New anyango merceline f 143", 
@@ -2829,7 +2829,7 @@
   }, 
   {
     "pk": 180, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "New ochieng 081107 janet", 
@@ -2840,7 +2840,7 @@
   }, 
   {
     "pk": 181, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "New achieng josphine f 071215 beryl", 
@@ -2851,7 +2851,7 @@
   }, 
   {
     "pk": 182, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "New adhiambo margret f 080411 joyce", 
@@ -2862,7 +2862,7 @@
   }, 
   {
     "pk": 183, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "List", 
@@ -2873,7 +2873,7 @@
   }, 
   {
     "pk": 184, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "New anyango mercelline f 080225\nAtieno", 
@@ -2884,7 +2884,7 @@
   }, 
   {
     "pk": 185, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New adhiambo everlyne f loyce", 
@@ -2895,7 +2895,7 @@
   }, 
   {
     "pk": 186, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254733484261", 
       "text": "#26 105 d v f", 
@@ -2906,7 +2906,7 @@
   }, 
   {
     "pk": 187, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2917,7 +2917,7 @@
   }, 
   {
     "pk": 188, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "#116 14 n", 
@@ -2928,7 +2928,7 @@
   }, 
   {
     "pk": 189, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "List", 
@@ -2939,7 +2939,7 @@
   }, 
   {
     "pk": 190, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "New omondi m 080206 atieno", 
@@ -2950,7 +2950,7 @@
   }, 
   {
     "pk": 191, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "New awino jane f 070410 rose", 
@@ -2961,7 +2961,7 @@
   }, 
   {
     "pk": 192, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "New ochieng felix m 080923 jane", 
@@ -2972,7 +2972,7 @@
   }, 
   {
     "pk": 193, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -2983,7 +2983,7 @@
   }, 
   {
     "pk": 194, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "List", 
@@ -2994,7 +2994,7 @@
   }, 
   {
     "pk": 195, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "List", 
@@ -3005,7 +3005,7 @@
   }, 
   {
     "pk": 196, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "List", 
@@ -3016,7 +3016,7 @@
   }, 
   {
     "pk": 197, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "List", 
@@ -3027,7 +3027,7 @@
   }, 
   {
     "pk": 198, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "List", 
@@ -3038,7 +3038,7 @@
   }, 
   {
     "pk": 199, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "List", 
@@ -3049,7 +3049,7 @@
   }, 
   {
     "pk": 200, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "List", 
@@ -3060,7 +3060,7 @@
   }, 
   {
     "pk": 201, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "OK", 
@@ -3071,7 +3071,7 @@
   }, 
   {
     "pk": 202, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "List", 
@@ -3082,7 +3082,7 @@
   }, 
   {
     "pk": 203, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "New anyango mecelline f 081225 atieno 143", 
@@ -3093,7 +3093,7 @@
   }, 
   {
     "pk": 204, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "New adhiambo everlyne f 070812 loyce", 
@@ -3104,7 +3104,7 @@
   }, 
   {
     "pk": 205, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "#157 162", 
@@ -3115,7 +3115,7 @@
   }, 
   {
     "pk": 206, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "New adhiambo margret f 080411 jane", 
@@ -3126,7 +3126,7 @@
   }, 
   {
     "pk": 207, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962193", 
       "text": "#124 159 n f", 
@@ -3137,7 +3137,7 @@
   }, 
   {
     "pk": 208, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -3148,7 +3148,7 @@
   }, 
   {
     "pk": 209, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "New anyango mecelline f 081225 atieno", 
@@ -3159,7 +3159,7 @@
   }, 
   {
     "pk": 210, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "List *", 
@@ -3170,7 +3170,7 @@
   }, 
   {
     "pk": 211, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "OK", 
@@ -3181,7 +3181,7 @@
   }, 
   {
     "pk": 212, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "OK", 
@@ -3192,7 +3192,7 @@
   }, 
   {
     "pk": 213, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962197", 
       "text": "List", 
@@ -3203,7 +3203,7 @@
   }, 
   {
     "pk": 214, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "#165 152 d e f", 
@@ -3214,7 +3214,7 @@
   }, 
   {
     "pk": 215, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "New awuor lydia f 080206 e sam", 
@@ -3225,7 +3225,7 @@
   }, 
   {
     "pk": 216, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962194", 
       "text": "#157 162 n", 
@@ -3236,7 +3236,7 @@
   }, 
   {
     "pk": 217, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "#199 15 n", 
@@ -3247,7 +3247,7 @@
   }, 
   {
     "pk": 218, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "OK", 
@@ -3258,7 +3258,7 @@
   }, 
   {
     "pk": 219, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962199", 
       "text": "#181 106  d f v a  e", 
@@ -3269,7 +3269,7 @@
   }, 
   {
     "pk": 220, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "OK", 
@@ -3280,7 +3280,7 @@
   }, 
   {
     "pk": 221, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962200", 
       "text": "#165 152", 
@@ -3291,7 +3291,7 @@
   }, 
   {
     "pk": 222, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962201", 
       "text": "#83 145 n v f", 
@@ -3302,7 +3302,7 @@
   }, 
   {
     "pk": 223, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962195", 
       "text": "#214 134 e", 
@@ -3313,7 +3313,7 @@
   }, 
   {
     "pk": 224, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962187", 
       "text": "#116 14 n", 
@@ -3324,7 +3324,7 @@
   }, 
   {
     "pk": 225, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -3335,7 +3335,7 @@
   }, 
   {
     "pk": 226, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738962198", 
       "text": "OK", 
@@ -3346,7 +3346,7 @@
   }, 
   {
     "pk": 227, 
-    "model": "mctc.messagelog", 
+    "model": "childcount.messagelog", 
     "fields": {
       "mobile": "+254738935069", 
       "text": "Hey we are done have a beer if you need one. So if it dies no worries", 

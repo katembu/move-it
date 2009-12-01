@@ -3,8 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, Group
 from django.forms.util import ErrorList
 
-from mctc.forms.base import BaseForm, BaseModelForm
-from mctc.models.general import  Case
+from childcount.forms.base import BaseForm, BaseModelForm
+from childcount.models.general import  Case
 
 from urllib import quote
 
