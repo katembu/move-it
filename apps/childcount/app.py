@@ -201,20 +201,14 @@ class App (rapidsms.app.App):
     keyword.prefix = ["confirm"]    
     @keyword(r'(\w+)')
     def confirm_join (self, message, username):
-        """confirm that a user is part of the system """
-        mobile   = message.peer
-        
+        """confirm that a user is part of the system """              
         try:
-            user = User.objects.get(username__iexact=username)
-        except User.DoesNotExist:
+            user = Reporter.objects.get(alias__iexact=username)
+        except Reporter.DoesNotExist:
             self.respond_not_registered(message, username)
-        for provider in Provider.objects.filter(mobile=mobile):
-            if provider.user.id == user.id:
-                provider.active = True
-            else:
-                provider.active = False
-            provider.save()
-        info = provider.get_dictionary()
+        user.registered_self = True
+        user.save()        
+        info = user.get_dictionary()
         self.respond_to_join(message, info)
         log(provider, "confirmed_join")
         return True
