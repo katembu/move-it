@@ -195,8 +195,8 @@ class App (rapidsms.app.App):
     def respond_to_join(self, message, info):
         """respond to join """
         message.respond(
-           _("%(mobile)s registered to @%(username)s " +
-              "(%(user_last_name)s, %(user_first_name)s) at %(location)s.") % info)
+           _("%(mobile)s registered to @%(alias)s " +
+              "(%(last_name)s %(first_name)s) at %(location)s.") % info)
     
     keyword.prefix = ["confirm"]    
     @keyword(r'(\w+)')
@@ -204,13 +204,18 @@ class App (rapidsms.app.App):
         """confirm that a user is part of the system """              
         try:
             user = Reporter.objects.get(alias__iexact=username)
-        except Reporter.DoesNotExist:
+        except object.DoesNotExist:
             self.respond_not_registered(message, username)
         user.registered_self = True
         user.save()        
-        info = user.get_dictionary()
+        info = {"mobile":user.connection().identity,
+                "last_name": user.last_name.title(),
+                "first_name": user.first_name.title(),
+                "alias": user.alias,
+                "location": user.location
+                }
         self.respond_to_join(message, info)
-        log(provider, "confirmed_join")
+        log(user, "confirmed_join")
         return True
     confirm_join.format = "confirm [user alias]"
 
