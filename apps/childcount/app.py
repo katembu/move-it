@@ -601,7 +601,8 @@ class App (rapidsms.app.App):
         return True
     transfer_case.format = "transfer [patient id] [new person in charge of the patient]"
 
-    @keyword(r's(?:how)? \+?(\d+)')
+    keyword.prefix = ["s","show"]
+    @keyword(r'\+?(\d+)')
     @registered
     def show_case (self, message, ref_id):
         """THIS IS MY DOCSTRING  """
