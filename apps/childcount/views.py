@@ -240,9 +240,10 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
+    today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
-    pdfrpt.setTitle("ChildCount Kenya: Cases Reports by CHW")
+    pdfrpt.setTitle("ChildCount Kenya: Cases Reports by CHW as of %s"%today)
     pdfrpt.setNumOfColumns(2)
     if object_id is None:        
         if request.POST and request.POST['zone']:
@@ -254,7 +255,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         for reporter in providers:
             queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
-                c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
+                c = "%s: %s %s: %s"%(reporter.location, reporter.last_name, reporter.first_name, today)
                 pdfrpt.setTableData(queryset, fields, c, [0.3*inch, 0.4*inch,1*inch,0.4*inch,0.3*inch, 0.4*inch,0.5*inch,1*inch,1*inch])
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
@@ -265,7 +266,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         reporter = Reporter.objects.get(id=object_id)
         queryset, fields = ReportAllPatients.by_provider(reporter)
         if queryset:
-            c = "%s: %s %s"%(reporter.location, reporter.last_name, reporter.first_name)
+            c = "%s: %s %s : %s"%(reporter.location, reporter.last_name, reporter.first_name,today)
             if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
                 file_name = reporter.last_name + ".csv"
                 file_name = file_name.replace(" ","_").replace("'","")
