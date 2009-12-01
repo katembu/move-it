@@ -108,6 +108,17 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
+    @keyword(r'\@(\w+) (.+)')
+    @registered
+    def direct_message (self, message, target, text):
+        provider = self.find_provider(message, target)
+        try:
+            mobile = provider.connection().identity
+        except:
+            self.respond_not_registered(message, target)
+        sender = message.persistant_connection.reporter.alias
+        return message.forward(mobile, "@%s> %s" % (sender, text))
+
     keyword.prefix = ["join"]
     @keyword("(\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
     def join (self, message, location_code, last_name, first_name, role=None):
@@ -234,17 +245,6 @@ class App (rapidsms.app.App):
         except models.ObjectDoesNotExist:
             # FIXME: try looking up a group
             self.respond_not_registered(message, target)
-
-    @keyword(r'\@(\w+) (.+)')
-    @registered
-    def direct_message (self, message, target, text):
-        provider = self.find_provider(message, target)
-        try:
-            mobile = provider.connection().identity
-        except:
-            self.respond_not_registered(message, target)
-        sender = message.persistant_connection.reporter.alias
-        return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
     keyword.prefix = ["new"]
