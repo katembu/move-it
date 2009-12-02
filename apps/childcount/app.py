@@ -535,7 +535,7 @@ class App (rapidsms.app.App):
         # Strip the trailing space and partition into last and first,
         # where last contains 'lastname' and first contains either 'firstname'
         # or 'firstname secondname'
-        first, sep, last = patient_name.rstrip().rpartition(' ')
+        last, sep, first = patient_name.rstrip().rpartition(' ')
         
         # reporter
         # TODO (there should already be a reporter object attached to the message
