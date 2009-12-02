@@ -62,7 +62,7 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("%s")%"An error occurred. Please call 0733202270.")
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -115,7 +115,9 @@ class App (rapidsms.app.App):
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
-            dod = datetime.date(*dod[:3])        
+            dod = datetime.date(*dod[:3])       
+        if description is None:
+            description = "No description"
         reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
                             age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),
@@ -136,7 +138,8 @@ class App (rapidsms.app.App):
         """Expected format for cdeath command, sent as a reminder"""
         return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
         
-    @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
+    keyword.prefix = ["cdeath", "death"]
+    @keyword("\+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
         #Is the child registered with us?
@@ -161,7 +164,9 @@ class App (rapidsms.app.App):
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
-            dod = datetime.date(*dod[:3])        
+            dod = datetime.date(*dod[:3])
+        if description is None:
+            description = "No description"        
         reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
                             age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),

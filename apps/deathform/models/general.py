@@ -40,7 +40,7 @@ class ReportDeath(models.Model):
     entered_at  = models.DateTimeField(db_index=True)
     where    = models.CharField(max_length=1, choices=LOCATION_CHOICES)
     cause       = models.CharField(max_length=1, choices=CAUSE_CHOICES)
-    description   = models.CharField(max_length=255, db_index=True)
+    description   = models.CharField(max_length=255, db_index=True, null=True, blank=True)
     case = models.ForeignKey(Case, db_index=True, null=True)
     class Meta:
         app_label = "deathform"
