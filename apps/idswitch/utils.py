@@ -1,7 +1,14 @@
-# coding=utf-8
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+
+''' functions to transform recipient ID's (numbers)
+
+    takes a message as parameter
+    returns a string (the ID) '''
 
 # Object-receiving functions
 def nothing(obj):
+    ''' returns as sent '''
     return snothing(obj.connection.identity)
 
 def intl2dom1(obj):
@@ -30,6 +37,7 @@ def intl2dom3zero(obj):
 
 # String-receiving functions
 def snothing(number):
+    ''' returns as sent '''
     return number
 
 def sintl2dom1(number):
