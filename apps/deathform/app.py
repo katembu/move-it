@@ -115,8 +115,8 @@ class App (rapidsms.app.App):
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
-            dod = datetime.date(*dod[:3])        
-        if description == "":
+            dod = datetime.date(*dod[:3])       
+        if description is None:
             description = "No description"
         reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
@@ -165,7 +165,7 @@ class App (rapidsms.app.App):
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %s") % dod)
             dod = datetime.date(*dod[:3])
-        if description == "":
+        if description is None:
             description = "No description"        
         reporter = message.persistant_connection.reporter
         death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
