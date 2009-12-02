@@ -70,22 +70,9 @@ app['name'] = "ChildCount:Health"
 
 def index(request):
     template_name="childcount/index.html"
-    has_provider = True
-    try:
-        mobile = request.user.provider.mobile
-        if request.method == "POST":
-            messageform = MessageForm(request.POST)
-            if messageform.is_valid():
-                result = message_users(mobile, **messageform.cleaned_data)
-                context["msg"] = result
-        else:
-            messageform = MessageForm()
-    except ObjectDoesNotExist:
-        has_provider = False
-        messageform = None
+    todo = "To add child count here"
     return render_to_response(request, template_name, {
-            "message_form": messageform,
-            "has_provider": has_provider})
+            "todo": todo})
 
 def commands_pdf(request):
     pdfrpt = PDFReport()
