@@ -138,7 +138,8 @@ class App (rapidsms.app.App):
         """Expected format for cdeath command, sent as a reminder"""
         return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
         
-    @keyword("cdeath \+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
+    keyword.prefix = ["cdeath", "death"]
+    @keyword("\+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
         #Is the child registered with us?
