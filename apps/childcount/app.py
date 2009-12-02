@@ -247,77 +247,14 @@ class App (rapidsms.app.App):
             self.respond_not_registered(message, target)
         
     # Register a new patient
-    keyword.prefix = ["new"]
-    @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
-    @registered
-    def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
-        """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
-       Purpose: register a new patient into the system.  Receive patient ID number back"""
-        
-        # reporter
-        reporter    = message.persistant_connection.reporter
-        
-        
-        dob = re.sub(r'\D', '', dob)
-        try:
-            dob = time.strptime(dob, "%d%m%y")
-        except ValueError:
-            try:
-                dob = time.strptime(dob, "%d%m%Y")
-            except ValueError:
-                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
-        dob = datetime.date(*dob[:3])
-        if guardian:
-            guardian = guardian.title()
-        # todo: move this to a more generic get_description
-        info = {
-            "first_name" : first.title(),
-            "last_name"  : last.title(),
-            "gender"     : gender.upper()[0],
-            "dob"        : dob,
-            "guardian"   : guardian,
-            "mobile"     : contact,
-            "reporter"   : reporter,
-            "location"       : reporter.location
-        }
-
-        ## check to see if the case already exists
-        iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
-        if iscase:
-            #message.respond(_(
-            #"%(last_name)s, %(first_name)s has already been registered by you.") % info)
-            info["PID"] = iscase[0].ref_id
-            self.info(iscase[0].id)
-            self.info(info)
-            message.respond(_(
-            "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s.") % info)
-            # TODO: log this message
-            return True
-        case = Case(**info)
-        case.save()
-
-        info.update({
-            "id": case.ref_id,
-            "last_name": last.upper(),
-            "age": case.age()
-        })
-        
-        message.respond(_(
-            "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
-            "(%(guardian)s) %(location)s") % info)
-        
-        log(case, "patient_created")
-        return True
-    new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
-
-    # [CC SENEGAL / FRENCH] Register a new patient
-    keyword.prefix = ["nouv"]
+    keyword.prefix = ["new", "nouv"]
+    #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @keyword(r'(.*)')
     @registered
-    def new_case_frccsn (self, message, token_string):
-        """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy | age_in_months] [guardian last name] [guardian first name] [contact #]
-            Purpose: register a new patient into the system.  Receive patient ID number back"""
-
+    def new_case (self, message, token_string):
+        """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
+           Purpose: register a new patient into the system.  Receive patient ID number back"""
+               
         # replace multiple spaces with a single space
         # (consider running the stringcleaning app,
         # which removes commas, cleans numbers, etc)
@@ -396,12 +333,19 @@ class App (rapidsms.app.App):
         # Strip the trailing space and partition into last and first,
         # where last contains 'lastname' and first contains either 'firstname'
         # or 'firstname secondname'
-        first, sep, last = patient_name.rstrip().rpartition(' ')
+        self.debug(patient_name)
+        last, sep, first = patient_name.rstrip().rpartition(' ')
         
         # reporter
         # TODO (there should already be a reporter object attached to the message
         #  e.g., message.reporter)
         reporter    = message.persistant_connection.reporter
+        
+        #get language of the reporter, default to english
+        lang        = message.persistant_connection.reporter.language
+        if not lang:
+            lang = "en"
+            
         location_code=message.persistant_connection.reporter.location.code
         self.debug('location_code= '+location_code)
         self.debug(dob)
@@ -485,10 +429,14 @@ class App (rapidsms.app.App):
         ## check to see if the case already exists
         iscase = Case.objects.filter(first_name=info['first_name'], last_name=info['last_name'], reporter=info['reporter'], dob=info['dob'])
         if iscase:
+            #message.respond(_(
+            #"%(last_name)s, %(first_name)s has already been registered by you.") % info)
             info["PID"] = iscase[0].ref_id
+            self.info(iscase[0].id)
+            self.info(info)
             message.respond(_(
             "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s.") % info)
-
+            # TODO: log this message
             return True
         case = Case(**info)
         case.save()
@@ -498,14 +446,16 @@ class App (rapidsms.app.App):
             "last_name": last.upper(),
             "age": case.age()
         })
-        
-        message.respond(_(
-            "Nouv +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
-            "(%(guardian)s) %(location)s") % info)
+        #set up the languages
+        msg = {}
+        msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s (%(guardian)s) %(location)s" % info
+        msg["fr"] = "Nouv +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s (%(guardian)s) %(location)s" % info
+        message.respond(_("%s")%msg[lang])
         
         log(case, "patient_created")
         return True
-    new_case_frccsn.format = "nouv [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian last name] [guardian first name] (contact #)"
+    new_case.format = "[new/nouv] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
+
 
     def find_case (self, ref_id):
         """look up a patient id """
