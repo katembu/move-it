@@ -632,33 +632,32 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
     pdfrpt.setTitle("Measles Campaign")
     if object_id is None:        
-        if request.POST and request.POST['zone']:
-            providers = Case.objects.filter(zone=request.POST['zone']).values('provider', 'zone__name').distinct()
+        if request.POST and request.POST['zone']:            
+            reporters = Case.objects.filter(location=request.POST['zone']).values('reporter', 'location').distinct()
             per_page = "1"
         else:
-            providers = Case.objects.order_by("zone").values('provider', 'zone__name').distinct()
-        for provider in providers:
-            queryset, fields = ReportAllPatients.measles_by_provider(provider['provider'])
+            reporters = Reporter.objects.order_by("location").all()
+        for reporter in reporters:
+            queryset, fields = ReportAllPatients.measles_by_provider(reporter)
             if queryset:
-                c = Provider.objects.get(id=provider["provider"])
-                pdfrpt.setTableData(queryset, fields, provider['zone__name']+": "+c.get_name_display()+" (sms format: `MEASLES +PID +PID +PID`)")
+                title = reporter.location.name + ": "+ reporter.full_name()+" (sms format: `MEASLES +PID +PID +PID`)"
+                pdfrpt.setTableData(queryset, fields, title)
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
                     pdfrpt.setFilename("report_per_page")
     else:        
         if request.POST and request.POST['provider']:
             object_id = request.POST['provider']
-        
-        queryset, fields = ReportAllPatients.measles_by_provider(object_id)
+        reporter = Reporter.objects.get(id=object_id)
+        queryset, fields = ReportAllPatients.measles_by_provider(reporter)
         if queryset:
-            c = Provider.objects.get(id=object_id)
-            
+            title = reporter.full_name() + " (sms format: `MEASLES +PID +PID +PID`)"
             if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
+                file_name = reporter.full_name() + ".csv"
                 file_name = file_name.replace(" ","_").replace("'","")
                 return handle_csv(request, queryset, fields, file_name)
             
-            pdfrpt.setTableData(queryset, fields, c.get_name_display()+" (sms format: `MEASLES +PID +PID +PID`)")
+            pdfrpt.setTableData(queryset, fields, title)
     
     return pdfrpt.render()
 
