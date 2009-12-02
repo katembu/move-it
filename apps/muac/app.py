@@ -9,6 +9,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from models import ReportMalnutrition, Observation
+from reporters.models import PersistantBackend
 
 import re, datetime
 
@@ -205,7 +206,19 @@ class App (rapidsms.app.App):
         if height: msg += ", %.1d cm" % height
         if observed: msg += ", " + info["observed"]
 
-        message.respond("MUAC> " + msg)
+        #get the last reported muac b4 this one
+        last_muac = report.get_last_muac()
+        last_muac_msg = ""
+        if last_muac is not None:
+            psign = "%%"
+            #take care for cases when testing using httptester, % sign prevents feedback.
+            if PersistantBackend.from_message(message).title == "http":
+                psign = "&#37;"
+            last_muac.update({"psign": psign})
+            last_muac_msg = _(". Last MUAC (%(reported_date)s): %(muac)s (%(percentage)s%(psign)s).")%last_muac
+                   
+
+        message.respond("MUAC> " + msg + last_muac_msg)
         
         
         if report.status in (report.MODERATE_STATUS,
