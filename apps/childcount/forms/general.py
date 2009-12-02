@@ -5,6 +5,7 @@ from django.forms.util import ErrorList
 
 from childcount.forms.base import BaseForm, BaseModelForm
 from childcount.models.general import  Case
+from reporters.models import Reporter, ReporterGroup
 
 from urllib import quote
 
@@ -48,13 +49,13 @@ class MessageForm(BaseForm):
     def __init__(self, *args, **kw):
         super(MessageForm, self).__init__(*args, **kw)
         
-        groups = [ (str(g.id), g.name) for g in Group.objects.all() ]
+        groups = [ (str(g.id), g.title) for g in ReporterGroup.objects.all() ]
         users = []
-        for p in Provider.objects.all().order_by('user__last_name'):
-            if p.user.first_name and p.user.last_name:
-                users.append([str(p.id), "%s %s" % (p.user.first_name, p.user.last_name)])
+        for p in Reporter.objects.all().order_by('last_name'):
+            if p.first_name and p.last_name:
+                users.append([str(p.id), "%s %s" % (p.first_name, p.last_name)])
             else:
-                users.append([str(p.id), "%s (name not entered)" % p.mobile ])
+                users.append([str(p.id), "%s (name not entered)" % p.connection().identity ])
                 
         self.fields["groups"].choices = groups
         self.fields["users"].choices = users
