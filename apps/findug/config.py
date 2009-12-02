@@ -3,4 +3,4 @@
 
 title = "FIND"
 tab_link = "/findug"
-#steal_dashboard = True
+steal_dashboard = True
