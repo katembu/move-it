@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: rgaudin
 
 ''' functions to transform recipient ID's (numbers)
 
-    takes a message as parameter
-    returns a string (the ID) '''
+takes a message as parameter
+returns a string (the ID) '''
 
 # Object-receiving functions
 def nothing(obj):

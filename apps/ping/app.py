@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: rgaudin
 
 ''' Reply to `ping` messages to confirm system is up and running. '''
 
@@ -11,8 +12,7 @@ import rapidsms
 def import_function(func):
     ''' import a function from full python path string 
 
-        returns function.'''
-
+    returns function.'''
     if func.find('.') == -1:
         f = eval(func)
     else:
@@ -24,23 +24,22 @@ def import_function(func):
 def parse_numbers(sauth):
     ''' transform a string of comma separated cell numbers into a list
 
-        return array. '''
-
+    return array. '''
     nums = sauth.replace(" ","").split(",")
     for num in nums:
         if num == "": nums.remove(num)
     return nums
 
 class App (rapidsms.app.App):
+
     ''' Reply to `ping` messages to confirm system is up and running.
 
-        One can specify a number or authentication function to
-        limit users who can ping the system. '''
+    One can specify a number or authentication function to
+    limit users who can ping the system. '''
 
     def configure (self, auth_func=None, auth=None):
         ''' set up authentication mechanism
-            configured from [ping] in rapidsms.ini '''
-    
+        configured from [ping] in rapidsms.ini ''' 
         # add custom function
         try:
             self.func = import_function(auth_func)
@@ -62,12 +61,11 @@ class App (rapidsms.app.App):
 
     def handle (self, message):
         ''' check authorization and respond 
-            if auth contained deny string => return
-            if auth contained allow string => answer
-            if auth contained number and number is asking => reply
-            if auth_func contained function and it returned True => reply
-            else return'''
-
+        if auth contained deny string => return
+        if auth contained allow string => answer
+        if auth contained number and number is asking => reply
+        if auth_func contained function and it returned True => reply
+        else return'''
         # We only want to answer ping alone, or ping followed by a space 
         # and other characters
         if not re.match(r'^ping( +|$)', message.text.lower()):
