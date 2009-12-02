@@ -660,32 +660,3 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
             pdfrpt.setTableData(queryset, fields, title)
     
     return pdfrpt.render()
-
-def trend(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = PDFReport()
-    pdfrpt.setLandscape(False)
-    pdfrpt.setTitle("ChildCount Kenya: Malnutrition Trend by Case Report")
-    
-    if object_id is None:        
-        queryset, fields = ReportAllPatients.malnut_trend_by_provider()
-        if queryset:
-            pdfrpt.setTableData(queryset, fields, "")
-            if (int(per_page) == 1) is True:
-                pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
-    else:        
-        if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-        
-        queryset, fields = ReportAllPatients.malnut_trend_by_provider(object_id)
-        if queryset:
-            c = Provider.objects.get(id=object_id)
-            
-            if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
-                file_name = file_name.replace(" ","_").replace("'","")
-                return handle_csv(request, queryset, fields, file_name)
-            
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
-    
-    return pdfrpt.render()
