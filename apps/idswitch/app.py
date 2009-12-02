@@ -21,7 +21,7 @@ def import_function(func):
     return f
 
 class App (rapidsms.app.App):
-''' Transform ID (number) of a recipient before it gets sent by the router '''
+    ''' Transform ID (number) of a recipient before it gets sent by the router '''
 
     def configure (self, function='nothing'):
         ''' set the function to use to transform the ID
