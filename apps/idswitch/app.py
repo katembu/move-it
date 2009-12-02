@@ -1,25 +1,39 @@
-# coding=utf-8
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+
+''' Transform ID (number) of a recipient before it gets sent by the router '''
 
 import rapidsms
-from utils import *
+
+from apps.utils import *
 
 def import_function(func):
+    ''' import a function from full python path string 
+
+        returns function.'''
+
     if func.find('.') == -1:
-        f   = eval(func)
+        f = eval(func)
     else:
-        s   = func.rsplit(".", 1)
-        x   = __import__(s[0], fromlist=[s[0]])
-        f   = eval("x.%s" % s[1])
+        s = func.rsplit(".", 1)
+        x = __import__(s[0], fromlist=[s[0]])
+        f = eval("x.%s" % s[1])
     return f
 
 class App (rapidsms.app.App):
+''' Transform ID (number) of a recipient before it gets sent by the router '''
 
     def configure (self, function='nothing'):
+        ''' set the function to use to transform the ID
+
+        default is internal function `nothing`'''
+
         try:
-            self.func       = import_function(function)
+            self.func = import_function(function)
         except:
-            self.func       = nothing
+            self.func = nothing
 
     def parse (self, message):
-        message.idswitch    = self.func
+        ''' stores ref to transformation function in idswitch property '''
+        message.idswitch = self.func
 
