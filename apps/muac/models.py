@@ -114,6 +114,20 @@ class ReportMalnutrition(models.Model):
         if not self.id:
             self.entered_at = datetime.now()
         super(ReportMalnutrition, self).save(*args)
+      
+    def get_last_muac(self):
+        b4 = self.entered_at.replace(day=self.entered_at.day-1)
+        
+        p = ReportMalnutrition.objects.filter(case=self.case,entered_at__lte=b4)
+        if p:
+            prev = p[0]
+            info = prev.get_dictionary()
+            change = int(float(( self.muac-prev.muac)/float(self.muac))*100)
+            info.update({"reported_date": prev.entered_at.strftime("%d.%m.%y"),
+                         "percentage": change
+                         })
+            return info
+        return None
        
     @classmethod
     def count_by_provider(cls,reporter, duration_end=None,duration_start=None):

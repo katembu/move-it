@@ -9,6 +9,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from models import ReportMalnutrition, Observation
+from reporters.models import PersistantBackend
 
 import re, datetime
 
@@ -205,13 +206,28 @@ class App (rapidsms.app.App):
         if height: msg += ", %.1d cm" % height
         if observed: msg += ", " + info["observed"]
 
-        message.respond("MUAC> " + msg)
-        
+        #get the last reported muac b4 this one
+        last_muac = report.get_last_muac()
+        if last_muac is not None:
+            psign = "%%"
+            #take care for cases when testing using httptester, % sign prevents feedback.
+            if PersistantBackend.from_message(message).title == "http":
+                psign = "&#37;"
+            last_muac.update({"psign": psign})
+            msg += _(". Last MUAC (%(reported_date)s): %(muac)s (%(percentage)s%(psign)s)")%last_muac
+                   
+
+        msg = "MUAC> " + msg
+        if len(msg) > self.MAX_MSG_LEN:
+                    message.respond( msg[:msg.rfind(". ")+1])            
+                    message.respond(msg[msg.rfind(". ")+1:])
+        else:
+            message.respond(msg)
         
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.SEVERE_COMP_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":report.reporter.alias, "msg":msg}
+            alert = _("@%(username)s reports %(msg)s [%(mobile)s]") % {"username":report.reporter.alias, "msg":msg, "mobile":reporter.connection().identity}
             
             recipients = report.get_alert_recipients()
             for recipient in recipients:
