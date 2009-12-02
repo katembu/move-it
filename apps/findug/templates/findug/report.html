@@ -1,0 +1,19 @@
+{% extends "findug/index.html" %}
+{% block subtitle %}{{scope}} {{report_title}}{% endblock %}
+
+{% block sub_content %}
+
+<div><p><strong>Reporting Period:</strong> {{dates.start|date:"D d/m/Y"}} through {{dates.end|date:"D d/m/Y"}}<br/>
+{% if aggregate %}<strong>Note:</strong> This table contains aggregate data.  Any cell which contains a number <strong>and</strong> an asterisk is an aggregate value that includes a missing report from one or more clinics for one or more reporting periods.<br/>
+
+    {% ifequal report "act" %}<strong>Note:</strong> ACT Balance columns are not aggregates.  They contain the last reported balance from the health unit(s).<br/>
+    {% endifequal %}
+{% endif %}
+</p>
+</div>
+
+{% include include_template %}
+
+
+
+{% endblock %}

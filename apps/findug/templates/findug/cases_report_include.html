@@ -29,7 +29,7 @@ th#first {
     <tr>
     {% for column in cases_table.columns %}
             <th>
-            {% if column.sortable %}<a href="?r={{ report }}&grp={{grouping}}&sort={{ column.name_toggled }}">{% endif %}
+            {% if column.sortable %}<a href="?start={{start}}&end={{end}}&r={{ report }}&grp={{grouping}}&sort={{ column.name_toggled }}">{% endif %}
             {{column}}
             {% if column.sortable %}</a>{% endif %}
             </th>

@@ -1,7 +1,7 @@
 {% extends "findug/index.html" %}
 {% block subtitle %}{{scope}} Health Units{% endblock %}
 
-{% block content %}
+{% block sub_content %}
 <h2>{{ scope }} Health Units{% ifequal filter "missing"%} Missing Report{% endifequal %}{% ifequal filter "current"%} Completed Reports{% endifequal %}</h2>
 <table width="100%">
     <thead>

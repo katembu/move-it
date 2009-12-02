@@ -30,13 +30,69 @@ from django.core.paginator import Paginator
 
 from django.db.models import Sum, Count
 
+class Scope:
+    def __init__(self, location):
+        self.is_global = location == None
+        self.location = location
+        self.district_id = -1
+
+    def __unicode__(self):
+        if self.location == None:
+                return u'All'
+        else:
+            return self.location.name
+
+    def districts(self):
+        if self.is_global:
+            return Location.objects.filter(type__name='district')
+        else:
+            return [self.location.district]
+
+    def set_district(self, district_id):
+        self.district_id = district_id
+        if district_id == -1:
+            self.location = None
+        else:
+            try:
+                self.location = Location.objects.get(id=district_id)
+            except Location.DoesNotExist:
+                self.location = None
+
+    def health_units(self):
+        ''' Return the health units within scope location '''
+        if self.location == None:
+            return HealthUnit.objects.all()
+        else:
+            return HealthUnit.list_by_location(self.location)
+
+    def health_workers(self):
+        ''' Return the reporters with health worker role within the health units of the scope '''
+
+        health_units = self.health_units()
+        hws = []
+        for hw in Reporter.objects.filter(role__code='hw'):
+            if HealthUnit.by_location(hw.location) in health_units:
+                hws.append(hw)
+        return hws
+
+def define_scope(f):
+    """
+    Decorator to define the scope for any webuser
+    """
+    def _inner(req, *args, **kwargs):
+        webuser = WebUser.by_user(req.user)
+        scope = Scope(webuser.location)
+        if scope.is_global:
+            if req.method == 'POST' and req.POST.has_key('district'):
+                req.session['district'] = int(req.POST['district'])
+            scope.set_district(req.session.get('district', -1))
+        return f(req, scope, *args, **kwargs)
+    return _inner
 
 @login_required
-def index(req):
+@define_scope
+def index(req, scope):
     ''' Display Dashboard '''
-
-    webuser = WebUser.by_user(req.user)
-    scope = webuser.scope_string()
 
     summary = {}
     if datetime.today().weekday() == 6:
@@ -44,12 +100,12 @@ def index(req):
     else:
         period = ReportPeriod.from_day(datetime.today())
     summary['period'] = period    
-    summary['total_units'] = len(webuser.health_units())
-    summary['up2date'] = len(filter(lambda hc: hc.up2date(), webuser.health_units()))
+    summary['total_units'] = len(scope.health_units())
+    summary['up2date'] = len(filter(lambda hc: hc.up2date(), scope.health_units()))
     summary['missing'] = summary['total_units'] - summary['up2date']
 
     recent = []
-    for report in EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED).order_by('-completed_on')[:10]:
+    for report in EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, clinic__in=scope.health_units()).order_by('-completed_on')[:10]:
         recent.append({
             'id':report.id,
             'date':report.completed_on.strftime("%a %H:%M"), 
@@ -58,17 +114,12 @@ def index(req):
             'clinic':report.clinic,
             'clinic_id':report.clinic.id
         })
-
-    return render_to_response(req, 'findug/index.html', {'summary': summary, 'recent':recent})
+    return render_to_response(req, 'findug/index.html', {'summary': summary, 'scope':scope, 'recent':recent})
 
 @login_required
-def map(req):
+@define_scope
+def map(req, scope):
     ''' Map view '''
-    
-    webuser = WebUser.by_user(req.user)
-
-    locations = webuser.health_units()
-    scope = webuser.scope_string()
 
     if datetime.today().weekday() == 6:
         previous_period = ReportPeriod.objects.latest()
@@ -76,7 +127,7 @@ def map(req):
         previous_period = ReportPeriod.from_day(datetime.today())
 
     all = []
-    for location in locations:
+    for location in scope.health_units():
         loc = {}
         loc['obj'] = location
         loc['name'] = unicode(location)
@@ -93,16 +144,14 @@ def map(req):
              
         all.append(loc)
 
-    return render_to_response(req, 'findug/map.html', {'locations': all})
+    return render_to_response(req, 'findug/map.html', {'scope':scope, 'locations': all})
 
 @login_required
-def health_units_view(req):
+@define_scope
+def health_units_view(req, scope):
     ''' List health units in scope with links to individual pages '''
 
-    webuser = WebUser.by_user(req.user)
-
-    locations = webuser.health_units()
-    scope = webuser.scope_string()
+    locations = scope.health_units()
 
     if req.GET.get('filter') == 'missing':
         locations = filter(lambda hc: not hc.up2date(), locations)
@@ -229,14 +278,18 @@ def health_unit_view(req, health_unit_id):
     return render_to_response(req, 'findug/health_unit.html', context_dict)
 
 @login_required
-def report_view(req):
-    webuser = WebUser.by_user(req.user)
+@define_scope
+def report_view(req, scope):
 
-    locations = webuser.health_units()
-    scope = webuser.scope_string()
+    try:
+        start_period = ReportPeriod.objects.get(pk=req.GET.get('start',ReportPeriod.objects.latest().id))
+    except (ReportPeriod.DoesNotExist, ValueError):
+        start_period = ReportPeriod.objects.latest()
+    try:
+        end_period = ReportPeriod.objects.get(pk=req.GET.get('end',start_period.id))
+    except (ReportPeriod.DoesNotExist, ValueError):
+        end_period = start_period
 
-    start_period = ReportPeriod.objects.latest()
-    end_period = None
     periods = ReportPeriod.list_from_boundries(start_period, end_period)
     #periods = ReportPeriod.objects.all()
 
@@ -282,14 +335,14 @@ def report_view(req):
 
     if grp in ['parish','subcounty','county','hsd','district','type']:
         groups = []
-        for hu in locations:
+        for hu in scope.health_units():
             groups.append(eval('hu.%s' % grp))
         groups = set(groups)
         for group in groups:
             row={}
             row['grp'] = unicode(group)
             if grp == 'type':
-                row.update(cls.aggregate_report(webuser.location, periods, group))
+                row.update(cls.aggregate_report(scope.location, periods, group))
             else:
                 row.update(cls.aggregate_report(group, periods))
             rows.append(row)
@@ -299,7 +352,7 @@ def report_view(req):
         else:                title = grp.title()
         table.base_columns.insert(0,'grp',tables.Column(verbose_name=title, sortable=True))
     else:
-        for hu in locations:
+        for hu in scope.health_units():
             row={}
             row['hu'] = unicode(hu)
             row['hu_pk'] = hu.id
@@ -312,29 +365,41 @@ def report_view(req):
     table.order_by=order_by=req.GET.get('sort')
     table.update
 
-    if len(periods) > 1 or grp != 'clinic':
-        table.aggregate = True
+    print grp
+    if len(periods) > 1 or grp in ['parish','subcounty','county','hsd','district','type']:
+        aggregate = True
+    else:
+        aggregate = False
 
     context_dict = {
-            'report'          : report,
-            'scope'           : scope, 
-            table_name        : table,
-            'dates'           : dates,
-            'report_title'    : report_title,
-            'include_template': include_template,
-            'grouping'        : grp
+            'report'            : report,
+            'scope'             : scope, 
+            table_name          : table,
+            'dates'             : dates,
+            'report_title'      : report_title,
+            'include_template'  : include_template,
+            'grouping'          : grp,
+            'start'             : start_period.id,
+            'end'               : end_period.id,
+            'aggregate'         : aggregate,
     }
     if report == 'diseases': context_dict['diseases'] = Disease.ug_diseases()
     return render_to_response(req, 'findug/report.html', context_dict)
 
 @login_required
-def reporters_view(req):
+@define_scope
+def reports_view(req, scope):
+    ''' Show available reports '''
+
+    return render_to_response(req, 'findug/reports.html', {'scope':scope, 'periods':ReportPeriod.objects.all()})
+
+
+@login_required
+@define_scope
+def reporters_view(req, scope):
     ''' Displays a list of reporters '''
 
-    webuser = WebUser.by_user(req.user)
-
-    reporters = webuser.health_workers()
-    scope = webuser.scope_string()
+    reporters = scope.health_workers()
 
     all = []
     for reporter in reporters:

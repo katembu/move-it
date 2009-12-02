@@ -232,7 +232,7 @@ class App (rapidsms.app.App):
     keyword.prefix = ["stop", "pause"]
     @keyword.blank()
     @registered
-    def stop(self, message):
+    def stop_registered(self, message):
         ''' Disables the sender in the system '''
 
         reporter    = message.persistant_connection.reporter
@@ -244,7 +244,7 @@ class App (rapidsms.app.App):
     @keyword(r'\@(slug)')
     @registered
     @admin
-    def stop_one(self, message, reporter_alias):
+    def stop_admin(self, message, reporter_alias):
         ''' Disables an arbitrary reporter in the system '''
 
         try:
