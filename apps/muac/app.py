@@ -209,7 +209,7 @@ class App (rapidsms.app.App):
         #get the last reported muac b4 this one
         last_muac = report.get_last_muac()
         if last_muac is not None:
-            psign = "%%"
+            psign = "%"
             #take care for cases when testing using httptester, % sign prevents feedback.
             if PersistantBackend.from_message(message).title == "http":
                 psign = "&#37;"
