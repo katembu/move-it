@@ -108,8 +108,19 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
+    @keyword(r'\@(\w+) (.+)')
+    @registered
+    def direct_message (self, message, target, text):
+        provider = self.find_provider(message, target)
+        try:
+            mobile = provider.connection().identity
+        except:
+            self.respond_not_registered(message, target)
+        sender = message.persistant_connection.reporter.alias
+        return message.forward(mobile, "@%s> %s" % (sender, text))
 
-    @keyword("join (\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
+    keyword.prefix = ["join"]
+    @keyword("(\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
     def join (self, message, location_code, last_name, first_name, role=None):
         """ Format: join [location code] [last name] [first name] [role - leave blank for CHEW]
             Purpose: register as a user and join the system """
@@ -195,27 +206,27 @@ class App (rapidsms.app.App):
     def respond_to_join(self, message, info):
         """respond to join """
         message.respond(
-           _("%(mobile)s registered to @%(username)s " +
-              "(%(user_last_name)s, %(user_first_name)s) at %(location)s.") % info)
-        
-    @keyword(r'confirm (\w+)')
+           _("%(mobile)s registered to @%(alias)s " +
+              "(%(last_name)s %(first_name)s) at %(location)s.") % info)
+    
+    keyword.prefix = ["confirm"]    
+    @keyword(r'(\w+)')
     def confirm_join (self, message, username):
-        """confirm that a user is part of the system """
-        mobile   = message.peer
-        
+        """confirm that a user is part of the system """              
         try:
-            user = User.objects.get(username__iexact=username)
-        except User.DoesNotExist:
-            self.respond_not_registered(username)
-        for provider in Provider.objects.filter(mobile=mobile):
-            if provider.user.id == user.id:
-                provider.active = True
-            else:
-                provider.active = False
-            provider.save()
-        info = provider.get_dictionary()
+            user = Reporter.objects.get(alias__iexact=username)
+        except object.DoesNotExist:
+            self.respond_not_registered(message, username)
+        user.registered_self = True
+        user.save()        
+        info = {"mobile":user.connection().identity,
+                "last_name": user.last_name.title(),
+                "first_name": user.first_name.title(),
+                "alias": user.alias,
+                "location": user.location
+                }
         self.respond_to_join(message, info)
-        log(provider, "confirmed_join")
+        log(user, "confirmed_join")
         return True
     confirm_join.format = "confirm [user alias]"
 
@@ -234,23 +245,11 @@ class App (rapidsms.app.App):
         except models.ObjectDoesNotExist:
             # FIXME: try looking up a group
             self.respond_not_registered(message, target)
-
-    @keyword(r'\@(\w+) (.+)')
-    @registered
-    def direct_message (self, message, target, text):
-        provider = self.find_provider(message, target)
-        try:
-            mobile = provider.connection().identity
-        except:
-            self.respond_not_registered(message, target)
-        sender = message.persistant_connection.reporter.alias
-        return message.forward(mobile, "@%s> %s" % (sender, text))
         
     # Register a new patient
     keyword.prefix = ["new"]
     @keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @registered
-
     def new_case (self, message, last, first, gender, dob,guardian="", contact="", zone=None):
         """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
        Purpose: register a new patient into the system.  Receive patient ID number back"""
@@ -312,7 +311,8 @@ class App (rapidsms.app.App):
     new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
     # [CC SENEGAL / FRENCH] Register a new patient
-    @keyword(r'nouv (.*)')
+    keyword.prefix = ["nouv"]
+    @keyword(r'(.*)')
     @registered
     def new_case_frccsn (self, message, token_string):
         """ Format: nouv @[location code] [patient last name] [patient first name] gender[m/f] [dob ddmmyy | age_in_months] [guardian last name] [guardian first name] [contact #]
@@ -513,8 +513,9 @@ class App (rapidsms.app.App):
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
-
-    @keyword(r'cancel \+?(\d+)')
+        
+    keyword.prefix = ["cancel"]
+    @keyword(r'\+?(\d+)')
     @registered
     def cancel_case (self, message, ref_id):
         """OOOOOOPSIES CANCEL """
@@ -539,7 +540,8 @@ class App (rapidsms.app.App):
         return True
     cancel_case.format = "cancel [patient id number]"
 
-    @keyword(r'inactive \+?(\d+)?(.+)')
+    keyword.prefix = ["inactive"]
+    @keyword(r'\+?(\d+)?(.+)')
     @registered
     def inactive_case (self, message, ref_id, reason=""):
         """set case status to inactive. """
@@ -553,7 +555,8 @@ class App (rapidsms.app.App):
         return True
     inactive_case.format = "inactive [patient id] [reason]"
 
-    @keyword(r'activate \+?(\d+)?(.+)')
+    keyword.prefix = ["activate"]
+    @keyword(r'\+?(\d+)?(.+)')
     @registered
     def activate_case (self, message, ref_id, reason=""):
         """set case status to active. """
@@ -577,7 +580,8 @@ class App (rapidsms.app.App):
         return True
     activate_case.format = "activate +[patient ID] [your reasons]"
     
-    @keyword(r'transfer \+?(\d+) (?:to )?\@?(\w+)')
+    keyword.prefix = ["transfer"]
+    @keyword(r'\+?(\d+) (?:to )?\@?(\w+)')
     @registered
     def transfer_case (self, message, ref_id, target):
         reporter    = message.persistant_connection.reporter
@@ -602,7 +606,8 @@ class App (rapidsms.app.App):
         return True
     transfer_case.format = "transfer [patient id] [new person in charge of the patient]"
 
-    @keyword(r's(?:how)? \+?(\d+)')
+    keyword.prefix = ["s","show"]
+    @keyword(r'\+?(\d+)')
     @registered
     def show_case (self, message, ref_id):
         """THIS IS MY DOCSTRING  """
@@ -616,7 +621,8 @@ class App (rapidsms.app.App):
         return True
     show_case.format = "show [patient id]"
     
-    @keyword(r'n(?:ote)? \+(\d+) (.+)')
+    keyword.prefix = ["n","note"]
+    @keyword(r'\+(\d+) (.+)')
     @registered
     def note_case (self, message, ref_id, note):
         reporter    = message.persistant_connection.reporter
