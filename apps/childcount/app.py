@@ -340,6 +340,12 @@ class App (rapidsms.app.App):
         # TODO (there should already be a reporter object attached to the message
         #  e.g., message.reporter)
         reporter    = message.persistant_connection.reporter
+        
+        #get language of the reporter, default to english
+        lang        = message.persistant_connection.reporter.language
+        if not lang:
+            lang = "en"
+            
         location_code=message.persistant_connection.reporter.location.code
         self.debug('location_code= '+location_code)
         self.debug(dob)
@@ -440,14 +446,15 @@ class App (rapidsms.app.App):
             "last_name": last.upper(),
             "age": case.age()
         })
-        
-        message.respond(_(
-            "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s " +
-            "(%(guardian)s) %(location)s") % info)
+        #set up the languages
+        msg = {}
+        msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s (%(guardian)s) %(location)s" % info
+        msg["fr"] = "Nouv +%(id)s: %(last_name)s, %(first_name)s %(gender)s/%(age)s (%(guardian)s) %(location)s" % info
+        message.respond(_("%s")%msg[lang])
         
         log(case, "patient_created")
         return True
-    new_case.format = "new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
+    new_case.format = "[new/nouv] [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] (contact #)"
 
     # [CC SENEGAL / FRENCH] Register a new patient
     keyword.prefix = ["nouv"]
