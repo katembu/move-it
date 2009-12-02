@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: rgaudin
 
 ''' Transform ID (number) of a recipient before it gets sent by the router '''
 
@@ -10,8 +11,7 @@ from apps.utils import *
 def import_function(func):
     ''' import a function from full python path string 
 
-        returns function.'''
-
+    returns function.'''
     if func.find('.') == -1:
         f = eval(func)
     else:
@@ -21,13 +21,13 @@ def import_function(func):
     return f
 
 class App (rapidsms.app.App):
+
     ''' Transform ID (number) of a recipient before it gets sent by the router '''
 
     def configure (self, function='nothing'):
         ''' set the function to use to transform the ID
 
         default is internal function `nothing`'''
-
         try:
             self.func = import_function(function)
         except:
