@@ -56,7 +56,7 @@ td.right {
 <table width="100%" class="diseases"> 
     <tr>
         <th rowspan="2" style="border-bottom:1px solid black;">
-        {% if diseases_table.first_column.sortable %}<a href="?r={{report}}&grp={{grouping}}&sort={{ diseases_table.first_column.name_toggled }}">{% endif %}
+        {% if diseases_table.first_column.sortable %}<a href="?start={{start}}&end={{end}}&r={{report}}&grp={{grouping}}&sort={{ diseases_table.first_column.name_toggled }}">{% endif %}
         {{diseases_table.first_column}}
         {% if diseases_table.first_column.sortable %}</a>{% endif %}
         </th>
@@ -67,7 +67,7 @@ td.right {
     {% for column in diseases_table.columns %}
         {% if not forloop.first %}
            <td class="sub {% cycle 'left' 'right' %}">
-            {% if column.sortable %}<a href="?r={{ report }}&grp={{grouping}}&sort={{ column.name_toggled }}">{% endif %}
+            {% if column.sortable %}<a href="?start={{start}}&end={{end}}&r={{ report }}&grp={{grouping}}&sort={{ column.name_toggled }}">{% endif %}
             {{column}}
             {% if column.sortable %}</a>{% endif %}
             </td>

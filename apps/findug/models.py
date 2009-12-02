@@ -134,10 +134,13 @@ class HealthUnit(Location):
 
     @classmethod
     def list_by_location(cls, location, type=None):
-        health_units = []
-        for loc in location.descendants(include_self=True):
-            health_units.append(cls.by_location(loc))
-        health_units = filter(lambda hc: hc != None, health_units)
+        if location == None:
+            health_units = HealthUnit.objects.all()
+        else:
+            health_units = []
+            for loc in location.descendants(include_self=True):
+                health_units.append(cls.by_location(loc))
+            health_units = filter(lambda hc: hc != None, health_units)
         if type != None:
             health_units = filter(lambda hc: hc.type == type, health_units)
         return health_units

@@ -16,4 +16,5 @@ urlpatterns = patterns('',
     url(r'^findug/epidemiological_report_pdf/(\d+)$', views.epidemiological_report_pdf),
     url(r'^findug/epidemiological_report/(\d+)$', views.epidemiological_report),
     url(r'^findug/report/$', views.report_view),
+    url(r'^findug/reports/$', views.reports_view),
 )

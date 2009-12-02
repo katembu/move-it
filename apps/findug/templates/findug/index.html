@@ -3,12 +3,10 @@
 
 {% block page_tabs %}
 <ul id="page-tabs">
-
 	<li class="page"><a href="/findug/">Dashboard</a></li>
 	<li class="page"><a href="/findug/health_units">Health Units</a></li>
 	<li class="page"><a href="/findug/reporters">Reporters</a></li>
     <li class="page"><a href="/findug/map">Map</a></li>
-
 </ul>
 {% endblock %}
 
@@ -27,7 +25,8 @@
 {% endblock page_stylesheets %}
 
 {% block content %}
-
+{% if scope.is_global %}{% include "findug/scope_selector_include.html" %}{% endif %}
+{% block sub_content %}
 
 <h2>Dashboard</h2>
 
@@ -51,20 +50,25 @@
 <div style="clear:both;"></div>
 <div class="box" style="width:400px;float:left;"><h3>Resources</h3>
     <div style="padding:5px;">
-        <p><a href="/static/findug/epi_form_20091027.pdf">HMIS Form 033B SMS (pdf)</a></p>
-        <p><a href="/static/findug/definitions.pdf">Clinical Definitions (pdf)</a></p>
-        <p><a href="/static/findug/instructions.pdf">Sending Instructions (pdf)</a></p>
-        <p><a href="/static/findug/additional_instructions.pdf">Additional Sending Instructions (pdf)</a></p>
+        <p><a href="/static/findug/epi_form_20091027.pdf">HMIS Form 033B SMS (pdf)</a><br/>
+        <a href="/static/findug/definitions.pdf">Clinical Definitions (pdf)</a><br/>
+        <a href="/static/findug/instructions.pdf">Sending Instructions (pdf)</a><br/>
+        <a href="/static/findug/additional_instructions.pdf">Additional Sending Instructions (pdf)</a>
+        </p>
 
     </div>
 </div>
 <div class="box" style="width:510px;float:left;"><h3>Current Period Reports</h3>
     <div style="padding:5px;">
-        <p><a href="report/?r=diseases">Diseases Report</a></p>
-        <p><a href="report/?r=cases">Malaria Cases Report</a></p>
-        <p><a href="report/?r=treat">Malaria Treatments Report</a></p>
-        <p><a href="report/?r=act">ACT Stock Report</a></p>
+        <p>
+        <a href="report/?r=diseases">Diseases Report</a><br/>
+        <a href="report/?r=cases">Malaria Cases Report</a><br/>
+        <a href="report/?r=treat">Malaria Treatments Report</a><br/>
+        <a href="report/?r=act">ACT Stock Report</a>
+        </p>
+        <a href="reports/">Create a customised report</a>
     </div>
 </div>
 
+{% endblock sub_content %}
 {% endblock content %}
