@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: rgaudin
 
 ''' Automatic sending of Zain's Me2u credit transfert
 
-    Credit a cellphone number with a fixed amount for every SMS received.'''
+Credit a cellphone number with a fixed amount for every SMS received.'''
 
 import rapidsms
 
 def import_function(func):
     ''' import a function from full python path string 
 
-        returns function.'''
-
+    returns function.'''
     if func.find('.') == -1:
         f = eval(func)
     else:
@@ -23,34 +23,32 @@ def import_function(func):
 def parse_numbers(sauth):
     ''' transform a string of comma separated cell numbers into a list
 
-        return array. '''
-
+    return array. '''
     nums = sauth.replace(" ","").split(",")
     for num in nums:
         if num == "": nums.remove(num)
     return nums
 
 class App (rapidsms.app.App):
-    ''' Sends a Zain Uganda me2u transfer to every sms received
 
-        sms_cost=5
-        cost_type=int
-        me2u_pin=1234
-        service_num=132
-        auth=*
-        allow_func=apps.findug.utils.allow_me2u
+    ''' Sends a Zain Uganda me2u transfer to every sms received.
 
-        Default PIN is 1234. Change by sending to 132:
-        Pin[space]<old password>[space]<new password>
+    sms_cost=5
+    cost_type=int
+    me2u_pin=1234
+    service_num=132
+    auth=*
+    allow_func=apps.findug.utils.allow_me2u
 
-        http://www.ug.zain.com/en/phone-services/me2u/index.html
-    '''
+    Default PIN is 1234. Change by sending to 132:
+    Pin[space]<old password>[space]<new password>
+
+    http://www.ug.zain.com/en/phone-services/me2u/index.html. '''
 
     def configure (self, sms_cost=0, cost_type='int', me2u_pin='1234', \
                    service_num='132', allow_func=None, auth=None, \
                    idswitch_func=None):
         ''' set up Zain's me2u variables from [free2u] in rapidsms.ini '''
-    
         # add custom function
         try:
             self.func = import_function(allow_func)
@@ -105,12 +103,11 @@ class App (rapidsms.app.App):
     def handle (self, message):
         ''' check authorization and send me2u
 
-            if auth contained deny string => return
-            if auth contained allow string => answer
-            if auth contained number and number is peer => reply
-            if auth_func contained function and it returned True => reply
-            else return'''
-
+        if auth contained deny string => return
+        if auth contained allow string => answer
+        if auth contained number and number is peer => reply
+        if auth_func contained function and it returned True => reply
+        else return'''
         # deny has higher priority
         if self.disallow:
             return False
