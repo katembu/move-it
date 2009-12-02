@@ -396,13 +396,12 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def measles_by_provider(cls, provider_id=None):    
+    def measles_by_provider(cls, reporter=None):    
         qs      = []
         fields  = []
         counter = 0
-        if provider_id is not None:
-            provider = Provider.objects.get(id=provider_id)
-            cases   = Case.list_e_4_measles(provider)
+        if reporter is not None:            
+            cases   = Case.list_e_4_measles(reporter)
             
             for case in cases:
                 q   = {}
