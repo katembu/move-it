@@ -42,7 +42,7 @@ class ReportBirth(models.Model):
         super(ReportBirth, self).save(*args)
     
     def get_where(self):
-        where = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        where = dict([(k, v) for (k,v) in self.LOCATION_CHOICES])
         return where.get(self.where, None)
     
     def display_name(self):
