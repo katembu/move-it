@@ -13,7 +13,7 @@ from models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
 import re, datetime
 
-find_diagnostic_re = re.compile('( -[\d\.]+)' ,re.I)
+find_diagnostic_re = re.compile('( -[\d\.]+)',re.I)
 find_lab_re =  re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
 
 
