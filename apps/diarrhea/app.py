@@ -130,7 +130,7 @@ class App (rapidsms.app.App):
         return True
     
     def get_diarrheaobservations(self, text):
-        choices  = dict( [ (o.letter, o) for o in DiarrheaObservation.objects.all() ] )
+        choices  = dict([(o.letter, o) for o in DiarrheaObservation.objects.all()])
         observed = []
         if text:
             text = re.sub(r'\W+', ' ', text).lower()
