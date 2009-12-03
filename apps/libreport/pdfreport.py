@@ -18,7 +18,8 @@ try:
     from reportlab.lib.pagesizes import A4, LETTER, landscape, portrait
     from reportlab.rl_config import defaultPageSize
     from reportlab.lib.units import inch
-    PAGE_HEIGHT=defaultPageSize[1]; PAGE_WIDTH=defaultPageSize[0]
+    PAGE_HEIGHT=defaultPageSize[1]
+    PAGE_WIDTH=defaultPageSize[0]
 except ImportError:
     pass
 
