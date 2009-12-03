@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+# maintainer: ukanga
 
 from rapidsms.webui.utils import render_to_response
 from django.db.models import ObjectDoesNotExist, Q
 from django.contrib.auth.models import User, Group
 from datetime import datetime, timedelta
 from childcount.forms.general import MessageForm
-#from pygsm.gsmmodem import GsmModem
-
 
 from childcount.forms.login import LoginForm
 from childcount.shortcuts import as_html, login_required
@@ -19,7 +18,7 @@ from mrdt.models import ReportMalaria
 from locations.models import Location
 from reporters.models import Reporter, Role
 
-from utils import day_end, day_start, month_end, next_month
+from childcount.utils import day_end, day_start, month_end, next_month
 
 from libreport.pdfreport import PDFReport
 from reportlab.lib.units import inch
@@ -46,26 +45,39 @@ Elements = []
 HeaderStyle = styles["Heading1"] # XXXX
 
 def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
+    
+    """Creates a reportlab PDF element and adds it to the global Elements list
+    
+    style - can be a HeaderStyle, a ParaStyle or a custom style, default HeaderStyle
+    klass - the reportlab Class to be called, default Paragraph
+    sep    - space separator height
+    
+    """
     s = Spacer(0.2*inch, sep*inch)
     Elements.append(s)
     para = klass(txt, style)
     Elements.append(para)
 
+#Paragraph Style
 ParaStyle = styles["Normal"]
 
 def p(txt):
+
+    """Create a text Paragraph using  ParaStyle"""
+    
     return header(txt, style=ParaStyle, sep=0.1)
 
-#pre = p # XXX
-
+#Preformatted Style
 PreStyle = styles["Code"]
 
 def pre(txt):
+    
+    """Create a text Preformatted Paragraph using  PreStyle"""
+    
     s = Spacer(0.1*inch, 0.1*inch)
     Elements.append(s)
     p = Preformatted(txt, PreStyle)
     Elements.append(p)
-
 
 app = {}
 app['name'] = "ChildCount:Health"
@@ -73,6 +85,9 @@ app['name'] = "ChildCount:Health"
 
 @login_required
 def reports(request):
+    
+    """Lists Reports that can be generated in childcount"""
+    
     template_name="childcount/reports/reports.html"
     
     clinics = Location.objects.filter(type__name="Clinic")
@@ -109,6 +124,9 @@ def reports(request):
 
 @login_required
 def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
+    
+    """A pdf report of chw perfomance within the last 30 days"""
+    
     pdfrpt = PDFReport()
     d = int(d)
     pdfrpt.enableFooter(True)
@@ -149,6 +167,9 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
 
 @login_required
 def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
+    
+    """A summary of measles report per clinic - pdf formart"""
+    
     pdfrpt = PDFReport()
     d = int(d)
     pdfrpt.enableFooter(True)
@@ -193,6 +214,9 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
+    
+    """List of Cases/Patient per CHW"""
+    
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
@@ -234,6 +258,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
 @login_required
 #Modification Assane new
 def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
+    
     """ Children Screening per age for SN CC """
     
     pdfrpt = PDFReport()
@@ -275,6 +300,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
 #Fin Ajout new
 @login_required
 def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf"):
+    
     """ Malnutrition Screening Form Originally for SN CC """
     
     pdfrpt = []
@@ -317,6 +343,15 @@ def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf")
     return pdfrpt.render()
 
 def handle_csv(request, queryset, fields, file_name):
+    
+    """Generate a csv file
+    
+    queryset  -    data
+    fields    -    the titles for the data
+    file_name -    file name
+    
+    """
+    
     output = StringIO.StringIO()
     csvio = csv.writer(output)
     header = False
@@ -336,6 +371,15 @@ def handle_csv(request, queryset, fields, file_name):
 
 @login_required
 def report_view(request, report_name, object_id=None):
+    
+    """view a specified report
+    
+    report_name - the name of the report
+    object_id - a query to be applied to the specified report
+    
+    returns csv|pdf stream of the report
+    """
+    
     part = report_name.partition('_')
     if part.__len__() == 3:
         report_name = part[0]
@@ -364,8 +408,9 @@ def report_view(request, report_name, object_id=None):
 
 @login_required
 def malnut(request, object_id=None, per_page="0", rformat="pdf"):
-    """ List @Risk Malnutrition Cases per clinic
-    """
+    
+    """List @Risk Malnutrition Cases per clinic """
+    
     pdfrpt = PDFReport()
     
     fourteen_days = timedelta(days=30)
@@ -403,8 +448,9 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
 
 @login_required
 def malaria(request, object_id=None, per_page="0", rformat="pdf"):
-    """ List Positive RDT Test Cases per clinic
-    """
+    
+    """ List Positive RDT Test Cases per clinic  """
+    
     pdfrpt = PDFReport()
     
     fourteen_days = timedelta(days=14)
@@ -439,6 +485,15 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     return pdfrpt.render()
 
 def report_monitoring_csv(request, object_id, file_name):
+    
+    """Generate a monthly monitoring report in csf format
+    
+    object_id - a date string e.g 112009 - November, 2009
+    file_name - csv filename
+    
+    return csv stream
+    """
+    
     output = StringIO.StringIO()
     csvio = csv.writer(output)
     header = False
@@ -597,6 +652,9 @@ def report_monitoring_csv(request, object_id, file_name):
     return response
 
 def measles_mini_summary_csv(request, file_name):
+    
+    """A summary of measles report per clinic in csv format"""
+    
     output = StringIO.StringIO()
     csvio = csv.writer(output)
     header = False
@@ -627,6 +685,9 @@ def measles_mini_summary_csv(request, file_name):
 
 @login_required
 def measles(request, object_id=None, per_page="0", rformat="pdf"):
+    
+    """List of Cases/Children Eligible for measles not yet vaccinated"""
+    
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
@@ -658,34 +719,5 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
                 return handle_csv(request, queryset, fields, file_name)
             
             pdfrpt.setTableData(queryset, fields, title)
-    
-    return pdfrpt.render()
-
-def trend(request, object_id=None, per_page="0", rformat="pdf"):
-    pdfrpt = PDFReport()
-    pdfrpt.setLandscape(False)
-    pdfrpt.setTitle("ChildCount Kenya: Malnutrition Trend by Case Report")
-    
-    if object_id is None:        
-        queryset, fields = ReportAllPatients.malnut_trend_by_provider()
-        if queryset:
-            pdfrpt.setTableData(queryset, fields, "")
-            if (int(per_page) == 1) is True:
-                pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
-    else:        
-        if request.POST and request.POST['provider']:
-            object_id = request.POST['provider']
-        
-        queryset, fields = ReportAllPatients.malnut_trend_by_provider(object_id)
-        if queryset:
-            c = Provider.objects.get(id=object_id)
-            
-            if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
-                file_name = c.get_name_display() + ".csv"
-                file_name = file_name.replace(" ","_").replace("'","")
-                return handle_csv(request, queryset, fields, file_name)
-            
-            pdfrpt.setTableData(queryset, fields, c.get_name_display())
     
     return pdfrpt.render()
