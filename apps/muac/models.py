@@ -130,13 +130,30 @@ class ReportMalnutrition(models.Model):
         return None
        
     @classmethod
-    def count_by_provider(cls,reporter, duration_end=None,duration_start=None):
+    def count_by_provider(cls,reporter, duration_end=None,duration_start=None, status=None):
+        
+        """Count Muac reports
+        
+        duration_start - starting date
+        duration_end   - end date
+        reporter - the reporter/provider
+        status - MODERATE_STATUS | SEVERE_STATUS | SEVERE_COMP_STATUS | HEALTHY_STATUS | None
+        
+        """
+        
         if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
-                return cls.objects.filter(reporter=reporter).count()
-            return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(reporter=reporter).count()
+                if status is None:
+                    return cls.objects.filter(reporter=reporter).count()
+                else:
+                    return cls.objects.filter(reporter=reporter, status=status).count()
+            if status is None:
+                return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start).filter(reporter=reporter).count()
+            else:
+                return cls.objects.filter(entered_at__lte=duration_end, entered_at__gte=duration_start, status=status).filter(reporter=reporter).count()
+            
         except models.ObjectDoesNotExist:
             return None
     
