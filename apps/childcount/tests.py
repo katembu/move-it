@@ -450,7 +450,7 @@ class TestAlerts(TestCase):
         report = ReportMalaria()
         report.provider = provider
         recipients = report.get_alert_recipients()
-        assert len(recipients) == 3, [ r.id for r in recipients ]
+        assert len(recipients) == 3, [r.id for r in recipients]
 
         one = Provider.objects.get(id=1)
         one.alerts = False
@@ -477,4 +477,4 @@ class TestAlerts(TestCase):
         one.save()
 
         recipients = report.get_alert_recipients()        
-        assert len(recipients) == 1, [ r.id for r in recipients ]        
+        assert len(recipients) == 1, [r.id for r in recipients]        
