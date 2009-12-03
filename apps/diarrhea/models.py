@@ -52,11 +52,11 @@ class ReportDiarrhea(models.Model):
 
     def get_dictionary(self):
         return {
-            'ors'       : "ORS: %s" % ("yes" if self.ors else "no"),
-            'days'      : "Days: %d" % self.days,
-            'observed'  : ", ".join([k.name for k in self.observed.all()]),
-            'diagnosis' : self.get_status_display(),
-            'diagnosis_msg' : self.diagnosis_msg(),
+            'ors': "ORS: %s" % ("yes" if self.ors else "no"),
+            'days': "Days: %d" % self.days,
+            'observed': ", ".join([k.name for k in self.observed.all()]),
+            'diagnosis': self.get_status_display(),
+            'diagnosis_msg': self.diagnosis_msg(),
         }
                                
     def __unicode__ (self):
