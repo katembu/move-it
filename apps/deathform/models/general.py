@@ -66,11 +66,11 @@ class ReportDeath(models.Model):
         return txt 
     
     def get_cause(self):
-        causes = dict([ (k, v) for (k,v) in self.CAUSE_CHOICES])
+        causes = dict([(k, v) for (k,v) in self.CAUSE_CHOICES])
         return causes.get(self.cause, None)
     
     def get_where(self):
-        where = dict([ (k, v) for (k,v) in self.LOCATION_CHOICES])
+        where = dict([(k, v) for (k,v) in self.LOCATION_CHOICES])
         return where.get(self.where, None)
     
     def get_dictionary(self):
