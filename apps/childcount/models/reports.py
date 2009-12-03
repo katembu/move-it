@@ -446,10 +446,10 @@ class ReportAllPatients(Report, models.Model):
                     
                 num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)                
                 if num_of_malaria_cases is not None and num_of_malaria_cases > 1:
-                     q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
-                     last_mrdt = ReportMalaria.days_since_last_mrdt(case)
-                     if last_mrdt is not "" and last_mrdt < 15:
-                         q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
+                    q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
+                    last_mrdt = ReportMalaria.days_since_last_mrdt(case)
+                    if last_mrdt is not "" and last_mrdt < 15:
+                        q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
                     
                 try:
                     dc      = ReportDiagnosis.objects.filter(case=case).latest('entered_at')
@@ -567,10 +567,10 @@ class ReportAllPatients(Report, models.Model):
                     
                 num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)                
                 if num_of_malaria_cases is not None and num_of_malaria_cases > 1:
-                     q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
-                     last_mrdt = ReportMalaria.days_since_last_mrdt(case)
-                     if last_mrdt is not "" and last_mrdt < 15:
-                         q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
+                    q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
+                    last_mrdt = ReportMalaria.days_since_last_mrdt(case)
+                    if last_mrdt is not "" and last_mrdt < 15:
+                        q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
                     
                 try:
                     dc      = ReportDiagnosis.objects.filter(case=case).latest('entered_at')
