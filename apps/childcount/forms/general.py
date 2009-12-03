@@ -11,22 +11,22 @@ from urllib import quote
 
 class MessageForm(BaseForm):
     message = forms.CharField(
-        label = _("Message text"),
-        required = True,
+        label=_("Message text"),
+        required=True,
 # oh if only this worked properly
 #        widget = forms.Textarea(attrs={"class":"span-6", "style": "height; 2em"})
     )
     
     groups = forms.MultipleChoiceField(
-        label = _("Groups"),
-        required = False,
-        widget = forms.CheckboxSelectMultiple()
+        label=_("Groups"),
+        required=False,
+        widget=forms.CheckboxSelectMultiple()
     )
 
     users = forms.MultipleChoiceField(
-        label = _("Users"),
-        required = False,        
-        widget = forms.CheckboxSelectMultiple()
+        label=_("Users"),
+        required=False,        
+        widget=forms.CheckboxSelectMultiple()
     )
     
     def clean(self):
