@@ -20,7 +20,7 @@ admin.site.register(Case, CaseAdmin)
 class MessageLogAdmin(admin.ModelAdmin):
     list_display = ("sent_by_name", "mobile", "text", "created_at", "was_handled")
     list_filter = ("was_handled","created_at")
-    search_fields = [ 'mobile','text', ]
+    search_fields = ['mobile','text']
     
 admin.site.register(MessageLog, MessageLogAdmin)
 
