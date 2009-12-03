@@ -184,3 +184,4 @@ class App (rapidsms.app.App):
         info = death.get_dictionary()
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
+    
