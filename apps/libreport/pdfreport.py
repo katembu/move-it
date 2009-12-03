@@ -116,7 +116,7 @@ class PDFReport():
     """
         data = []
         header = False
-        c = 0;
+        c = 0
         #prepare the data
         for row in queryset:
             if not header:
