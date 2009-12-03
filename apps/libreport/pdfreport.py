@@ -164,7 +164,7 @@ class PDFReport():
         c = float(len(queryset))/self.rowsperpage
             
         if int(c)< c:
-           c = int(c) + 1
+            c = int(c) + 1
         if int(c) == 0:
             c = 1       
         for i in range(int(c)):
