@@ -12,7 +12,8 @@ from childcount.models.general import Case
 from birth.models import ReportBirth
 
 import re
-import time, datetime
+import time
+import datetime
 
 def registered (func):
     def wrapper (self, message, *args):
