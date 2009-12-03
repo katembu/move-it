@@ -212,7 +212,7 @@ class Case(models.Model):
             return None
 
     def set_status(self, state):
-        states = dict([ (k, v) for (k,v) in self.STATUS_CHOICES])
+        states = dict([(k, v) for (k,v) in self.STATUS_CHOICES])
         rst =  states.get(state, None)
         if rst is None:
             return None
