@@ -148,10 +148,10 @@ class App (rapidsms.app.App):
         # field that has been omitted. swap weight and height to their
         # ASSUMED values. TODO change the order of the fields in the form
         if height is None:
-           wt = weight
-           mu = muac
-           weight = mu
-           height = wt
+            wt = weight
+            mu = muac
+            weight = mu
+            height = wt
 
         case = self.find_case(ref_id)
         try:
