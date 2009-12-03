@@ -404,7 +404,7 @@ def handle_csv(request, queryset, fields, file_name):
         if not header:
             csvio.writerow([f["name"] for f in fields])
             header = True
-        values = [ Template(h["bit"]).render(ctx) for h in fields ]
+        values = [Template(h["bit"]).render(ctx) for h in fields]
         csvio.writerow(values)
 
     response = HttpResponse(mimetype='text/csv')
