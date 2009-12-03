@@ -711,7 +711,7 @@ def measles_mini_summary_csv(request, file_name):
     row.append("%")
     rows.append(row)
     for info in summary:
-        info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 2); 
+        info["percentage"] = round(float(float(info["vaccinated_cases"])/float(info["eligible_cases"]))*100, 2) 
         
         row = []
         row.append(u"%(clinic)s"%info)
