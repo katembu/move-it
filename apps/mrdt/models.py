@@ -40,13 +40,13 @@ class ReportMalaria(models.Model):
     def results_for_malaria_bednet(self):
         bednet = "N"
         if self.bednet:
-           bednet = "Y"    
+            bednet = "Y"    
         return "%s"%(bednet)
 
     def results_for_malaria_result(self):
         result = "-"
         if self.result:
-           result = "+"    
+            result = "+"    
         return "%s"%(result)
 
     def name(self):
