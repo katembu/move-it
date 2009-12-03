@@ -52,3 +52,4 @@ class ReportBirth(models.Model):
     def display_dob(self):
         return u"%s"%self.case.dob.strftime("%d/%m/%y")
     display_dob.short_description = "Date of Birth"
+    
