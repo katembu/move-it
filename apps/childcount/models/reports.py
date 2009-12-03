@@ -216,6 +216,7 @@ class ReportCHWStatus(Report, models.Model):
                 num_sam_plus = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.SEVERE_COMP_STATUS)
                 num_healthy = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.HEALTHY_STATUS)
                 
+                clinic_cases = clinic_cases + num_cases
                 clinic_muac = clinic_muac + num_muac
                 clinic_mam = clinic_mam + num_mam
                 clinic_sam = clinic_sam + num_sam
@@ -233,7 +234,7 @@ class ReportCHWStatus(Report, models.Model):
                     muac_percentage = 0
                 else:
                     muac_percentage  = round(float(float(num_muac)/float(num_cases))*100, 0)
-                p['num_muac_reports'] = "%d %d%% (%s/%s)"%(num_muac, muac_percentage, num_muac, num_cases)
+                #p['num_muac_reports'] = "%d %d%% (%s/%s)"%(num_muac, muac_percentage, num_muac, num_cases)
                                     
                 ps.append(p)
             
@@ -241,7 +242,7 @@ class ReportCHWStatus(Report, models.Model):
             # Summary    
             p = {}
             p['counter'] = ""
-            p['provider'] = "Summary"
+            p['reporter'] = "Summary"
             p['num_cases'] = clinic_cases
             p["num_muac"] = clinic_muac
             p["num_mam"] = clinic_mam

@@ -52,6 +52,11 @@ urlpatterns = patterns('',
     (r'^malnut/(?P<object_id>\d*)$', reports.malnut),
     (r'^malnut/per_page/(?P<per_page>\d*)$', reports.malnut),
     (r'^malnut/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', reports.malnut),
+    
+    (r'^muac_summary/$', reports.muac_summary),
+    (r'^muac_summary/(?P<object_id>\d*)$', reports.muac_summary),
+    (r'^muac_summary/per_page/(?P<per_page>\d*)$', reports.muac_summary),
+    (r'^muac_summary/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', reports.muac_summary),
    
     #patients_by_age
     (r'^List_Enfant_Age/$', reports.patients_by_age),

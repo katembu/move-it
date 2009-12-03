@@ -166,6 +166,50 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     return pdfrpt.render()
 
 @login_required
+def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
+    
+    """A pdf report of chw perfomance within the last 30 days"""
+    
+    pdfrpt = PDFReport()
+    d = int(d)
+    pdfrpt.enableFooter(True)
+    thirty_days = timedelta(days=d)    
+    today = date.today()
+    
+    duration_start = today - thirty_days
+    duration_start = duration_start.replace(day=1)
+    duration_end = today
+    
+    duration_str = "CMAM Summary from %s to %s"%(duration_start.strftime("%d %B, %Y"), today.strftime("%d %B, %Y"))
+    
+    pdfrpt.setTitle("ChildCount Kenya: CHW 30 Day Performance Report, from %s to %s"%(duration_start, duration_end))
+    
+    if object_id is None:
+        clinics = Location.objects.filter(type__name="Clinic")
+        for clinic in clinics:
+            queryset, fields = ReportCHWStatus.muac_summary(duration_start, duration_end, clinic)
+            title = "%s : %s"%(clinic.name, duration_str)
+            pdfrpt.setTableData(queryset, fields, title, [0.3*inch, 1*inch,0.8*inch,0.8*inch, .8*inch,.8*inch,0.8*inch, 1*inch])
+            if (int(per_page) == 1) is True:
+                pdfrpt.setPageBreak()
+                pdfrpt.setFilename("report_per_page")
+    else:
+        if request.POST['clinic']:
+            object_id = request.POST['clinic']
+            object_id = Location.objects.get(id=object_id)
+        queryset, fields = ReportCHWStatus.muac_summary(duration_start, duration_end, object_id)
+        c = object_id
+        
+        if rformat == "csv" or (request.POST and request.POST["format"].lower() == "csv"):
+            file_name = c.name + ".csv"
+            file_name = file_name.replace(" ","_").replace("'","")
+            return handle_csv(request, queryset, fields, file_name)
+        title = "%s : %s"%(c.name, duration_str)
+        pdfrpt.setTableData(queryset, fields, title)
+    
+    return pdfrpt.render()
+
+@login_required
 def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     
     """A summary of measles report per clinic - pdf formart"""
