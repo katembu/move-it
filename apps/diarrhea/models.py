@@ -29,10 +29,10 @@ class ReportDiarrhea(models.Model):
     SEVERE_STATUS           = 3
     HEALTHY_STATUS          = 4
     STATUS_CHOICES = (
-        (MODERATE_STATUS,   _('Moderate')),
-        (DANGER_STATUS,     _('Danger')),
-        (SEVERE_STATUS,     _('Severe')),
-        (HEALTHY_STATUS,    _("Healthy")),
+        (MODERATE_STATUS, _('Moderate')),
+        (DANGER_STATUS, _('Danger')),
+        (SEVERE_STATUS, _('Severe')),
+        (HEALTHY_STATUS, _("Healthy")),
     )
 
     case        = models.ForeignKey(Case, db_index=True)
