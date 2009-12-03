@@ -76,6 +76,7 @@ class ReportCHWStatus(Report, models.Model):
     class Meta:
         verbose_name = "CHW Perfomance Report"
         app_label = "childcount"
+        
     @classmethod
     def get_providers_by_clinic(cls, duration_start, duration_end, muac_duration_start, clinic_id=None):
         
@@ -179,7 +180,89 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": 'SMS RATE', "column": None, "bit": "{{ object.sms_rate }}% ({{ object.sms_processed }}/{{ object.sms_sent }})" })
             fields.append({"name": 'LAST ACTVITY', "column": None, "bit": "{{ object.days_since_last_activity }}" })
             return ps, fields 
+    
+    @classmethod
+    def muac_summary(cls, duration_start, duration_end, clinic=None):
         
+        """Generate the Muac report data
+        
+        duration_start - starting date
+        duration_end   - end date
+        
+        """ 
+           
+        ps      = []
+        fields  = []
+        counter = 0
+        clinic_cases = 0
+        clinic_muac = 0
+        clinic_mam = 0
+        clinic_sam = 0
+        clinic_sam_plus = 0
+        clinic_healthy = 0
+        
+        if clinic is not None:
+            chwrole = Role.objects.get(code="chw")
+            reporters = Reporter.objects.filter(location=clinic, role=chwrole)
+            for reporter in reporters:
+                p = {}
+                counter = counter + 1
+                p['counter'] = "%d"%counter
+                p['reporter'] = reporter
+                num_cases = Case.count_by_provider(reporter)
+                num_muac = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start)
+                num_mam = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.MODERATE_STATUS)
+                num_sam = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.SEVERE_STATUS)
+                num_sam_plus = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.SEVERE_COMP_STATUS)
+                num_healthy = ReportMalnutrition.count_by_provider(reporter, duration_end, duration_start, ReportMalnutrition.HEALTHY_STATUS)
+                
+                clinic_muac = clinic_muac + num_muac
+                clinic_mam = clinic_mam + num_mam
+                clinic_sam = clinic_sam + num_sam
+                clinic_sam_plus = clinic_sam_plus + num_sam_plus
+                clinic_healthy = clinic_healthy + num_healthy
+                
+                p["num_cases"] = num_cases
+                p["num_muac"] = num_muac
+                p["num_mam"] = num_mam
+                p["num_sam"] = num_sam
+                p["num_sam_plus"] = num_sam_plus
+                p["num_healthy"] = num_healthy            
+                
+                if num_cases == 0:
+                    muac_percentage = 0
+                else:
+                    muac_percentage  = round(float(float(num_muac)/float(num_cases))*100, 0)
+                p['num_muac_reports'] = "%d %d%% (%s/%s)"%(num_muac, muac_percentage, num_muac, num_cases)
+                                    
+                ps.append(p)
+            
+            #ps = sorted(ps)
+            # Summary    
+            p = {}
+            p['counter'] = ""
+            p['provider'] = "Summary"
+            p['num_cases'] = clinic_cases
+            p["num_muac"] = clinic_muac
+            p["num_mam"] = clinic_mam
+            p["num_sam"] = clinic_sam
+            p["num_sam_plus"] = clinic_sam_plus
+            p["num_healthy"] = clinic_healthy
+                                
+            ps.append(p)
+            
+            # # | CHW | TOTAL CASES | TOTAL MUAC | # MAM | # SAM | # SAM+ | HEALTHY
+            fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
+            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.reporter }}" })
+            fields.append({"name": 'TOTAL CASES', "column": None, "bit": "{{ object.num_cases}}" })
+            fields.append({"name": 'TOTAL MUAC', "column": None, "bit": "{{ object.num_muac}}" })
+            fields.append({"name": '# MAM', "column": None, "bit": "{{ object.num_mam}}" })
+            fields.append({"name": '# SAM', "column": None, "bit": "{{ object.num_sam}}" })
+            fields.append({"name": '# SAM+', "column": None, "bit": "{{ object.num_sam_plus }}" })
+            fields.append({"name": '# HEALTHY', "column": None, "bit": "{{ object.num_healthy }}" })
+            
+            return ps, fields 
+        return None, None
     @classmethod
     def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic=None):
         
