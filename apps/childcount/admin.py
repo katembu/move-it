@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4
+# maintainer: ukanga
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from models.general import Case 

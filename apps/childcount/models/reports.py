@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4
+# maintainer: ukanga
+
+"""ChildCount Report models
+
+Report
+Observation
+ReportCHWStatus - summarised reports - centering mostly on reporters
+ReportAllPatients - reports centering mostly on cases/patients
+
+"""
+
 from django.db import models
 from django.db.models import ObjectDoesNotExist
 from django.contrib.auth.models import User
@@ -57,13 +70,22 @@ from mrdt.models import ReportMalaria
 from muac.models import ReportMalnutrition
         
 class ReportCHWStatus(Report, models.Model):
+    
+    """For summarised reports"""
+    
     class Meta:
         verbose_name = "CHW Perfomance Report"
         app_label = "childcount"
     @classmethod
     def get_providers_by_clinic(cls, duration_start, duration_end, muac_duration_start, clinic_id=None):
         
-    
+        """Generate the CHW Perfomance report data
+        
+        duration_start - starting date
+        duration_end   - end date
+        muac_duration_start - start date for muac reports
+        
+        """    
         ps      = []
         fields  = []
         counter = 0
@@ -159,7 +181,16 @@ class ReportCHWStatus(Report, models.Model):
             return ps, fields 
         
     @classmethod
-    def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic=None):            
+    def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic=None):
+        
+        """Generate Measles Summary data        
+        
+        duration_start - starting date
+        duration_end   - end date
+        muac_duration_start - start date for muac reports
+        
+        """
+                 
         ps      = []
         fields  = []
         counter = 0
@@ -218,7 +249,10 @@ class ReportCHWStatus(Report, models.Model):
             return ps, fields
         
     @classmethod
-    def measles_mini_summary(cls):            
+    def measles_mini_summary(cls):
+        
+        """Generate measles summary data"""            
+        
         ps      = []
         fields  = []
         tcounter = 0
@@ -277,11 +311,17 @@ class ReportCHWStatus(Report, models.Model):
         return ps       
         
 class ReportAllPatients(Report, models.Model):
+    
+    """for reports involving all cases/patients"""
+    
     class Meta:
         verbose_name = "CHW Perfomance Report"
         app_label = "childcount"
     @classmethod
-    def by_provider(cls, reporter=None):    
+    def by_provider(cls, reporter=None):
+        
+        """Generate a list of cases for the specified reporter """
+            
         qs      = []
         fields  = []
         counter = 0
@@ -348,6 +388,7 @@ class ReportAllPatients(Report, models.Model):
             #fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
             
             return qs, fields
+    
     @classmethod
     def malnut_trend_by_provider(cls, provider_id=None):    
         qs      = []
@@ -396,7 +437,12 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def measles_by_provider(cls, reporter=None):    
+    def measles_by_provider(cls, reporter=None):
+        
+        """Generate a list of cases who have not received the measles vaccine for the
+        specified reporter
+        """
+            
         qs      = []
         fields  = []
         counter = 0
@@ -471,7 +517,12 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def malaria_by_provider(cls, provider_id=None):    
+    def malaria_by_provider(cls, provider_id=None):
+        
+        """Generate a list of cases who have been tested for malaria for the
+        specified reporter
+        """    
+        
         qs      = []
         fields  = []
         counter = 0
@@ -500,10 +551,10 @@ class ReportAllPatients(Report, models.Model):
                     
                 num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)                
                 if num_of_malaria_cases is not None and num_of_malaria_cases > 1:
-                     q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
-                     last_mrdt = ReportMalaria.days_since_last_mrdt(case)
-                     if last_mrdt is not "" and last_mrdt < 15:
-                         q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
+                    q['malaria_result'] = q['malaria_result'] + "(%sX)"%num_of_malaria_cases
+                    last_mrdt = ReportMalaria.days_since_last_mrdt(case)
+                    if last_mrdt is not "" and last_mrdt < 15:
+                        q['malaria_result'] = q['malaria_result'] + " %s days ago"%last_mrdt
                                 
                 qs.append(q)
             # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
@@ -521,7 +572,16 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
     
     @classmethod
-    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):    
+    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):
+                
+        """Generate malaria at risk data        
+        
+        duration_start - starting date
+        duration_end   - end date
+        clinic - specified clinic, default None
+        
+        """
+            
         qs      = []
         fields  = []
         counter = 0
@@ -565,9 +625,15 @@ class ReportAllPatients(Report, models.Model):
     
     @classmethod
     def malnutrition_at_risk(cls, duration_start, duration_end, clinic=None):
-        """
-        Show at risk Cases for malnutrition reports
+        
+        """Show at risk Cases for malnutrition reports
+                
+        duration_start - starting date
+        duration_end   - end date      
+        clinic - specified clinic, default None
+        
         """    
+        
         qs      = []
         fields  = []
         counter = 0
@@ -611,7 +677,10 @@ class ReportAllPatients(Report, models.Model):
     
     
     @classmethod
-    def malnut_by_provider(cls):    
+    def malnut_by_provider(cls):
+        
+        """Malnutrition reports per provider/reporter"""
+            
         qs      = []
         fields  = []
         counter = 0
@@ -654,14 +723,14 @@ class ReportAllPatients(Report, models.Model):
 
     @classmethod
     def malnutrition_screening_info(cls,site=None):
-        """
-        Show information required for malnutrition screening forms. SNCC
-        """    
+        
+        """Show information required for malnutrition screening forms. SNCC"""
+            
         qs      = []
         fields  = []
 
         counter = 0
-	
+    
         if site is None:
             #cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
             cases   = Case.objects.order_by("last_name","first_name").filter(status=Case.STATUS_ACTIVE).distinct()
@@ -673,9 +742,9 @@ class ReportAllPatients(Report, models.Model):
             q['case']   = case
             q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
             if case.dob == None:
-               q['dob'] = ''
+                q['dob'] = ''
             else:
-               q['dob'] = case.dob.strftime("%d.%m.%y")
+                q['dob'] = case.dob.strftime("%d.%m.%y")
             
             if case.guardian_id == None:
                 case.guardian_id = ''
@@ -732,9 +801,9 @@ class ReportAllPatients(Report, models.Model):
     # Ajout Assane
     @classmethod
     def by_age(cls,age_mois,cases=None):    
-        """
-        Show information required for malnutrition screening forms. SNCC
-        """    
+        
+        """Show information required for malnutrition screening forms. SNCC      """
+            
         qs      = []
         fields  = []
 
@@ -742,57 +811,57 @@ class ReportAllPatients(Report, models.Model):
        
         #for case in cases:
 
-	for case in cases:
-	  if (age_mois==0):
-		q   = {}
-        	q['case']   = case
-	        q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
-        	counter = counter + 1
-	        q['counter'] = "%d"%counter
-        	try:
-	            muacc   = ReportMalnutrition.objects.filter(case=case).latest()
-                
-                #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
-        	    q['malnut_muac'] = "%smm"%(muacc.muac)
-        	    q['malnut_weight'] = "%s kg"%(muacc.weight)
-        	    q['malnut_symptoms'] = muacc.symptoms_keys()
-        	    q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
-        	except ObjectDoesNotExist:
-        	    q['malnut_muac'] = ""
-        	    q['malnut_symptoms'] = ""
-        	    q['malnut_days_since_last_update'] = ""
-
-		qs.append(q)
- 	  else:
+        for case in cases:
+            if (age_mois==0):
+                q   = {}
+                q['case']   = case
+                q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
+                counter = counter + 1
+                q['counter'] = "%d"%counter
+                try:
+                    muacc   = ReportMalnutrition.objects.filter(case=case).latest()
+                      
+                    #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
+                    q['malnut_muac'] = "%smm"%(muacc.muac)
+                    q['malnut_weight'] = "%s kg"%(muacc.weight)
+                    q['malnut_symptoms'] = muacc.symptoms_keys()
+                    q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
+                except ObjectDoesNotExist:
+                    q['malnut_muac'] = ""
+                    q['malnut_symptoms'] = ""
+                    q['malnut_days_since_last_update'] = ""
+            
+                qs.append(q)
+            else:
                 delta=datetime.now().date()
-	        if case.dob is not None:
-                  delta = datetime.now().date() - case.dob          
-             	  age=int(delta.days/30.4375)
-                if (age==age_mois):               
-
-         	  q   = {}
-        	  q['case']   = case
-	          q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
-        	  counter = counter + 1
-	          q['counter'] = "%d"%counter
-        	  try:
-	            muacc   = ReportMalnutrition.objects.filter(case=case).latest()
-                
-                #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
-        	    q['malnut_muac'] = "%smm"%(muacc.muac)
-        	    q['malnut_weight'] = "%s kg"%(muacc.weight)
-        	    q['malnut_symptoms'] = muacc.symptoms_keys()
-        	    q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
-        	  except ObjectDoesNotExist:
-        	    q['malnut_muac'] = ""
-        	    q['malnut_symptoms'] = ""
-        	    q['malnut_days_since_last_update'] = ""
-
-                  qs.append(q)
-
-
-        # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
-
+                if case.dob is not None:
+                    delta = datetime.now().date() - case.dob          
+                    age=int(delta.days/30.4375)
+                    if (age==age_mois):               
+            
+                        q   = {}
+                        q['case']   = case
+                        q['name'] =  u"%s %s"%(q['case'].last_name.upper(), q['case'].first_name)
+                        counter = counter + 1
+                        q['counter'] = "%d"%counter
+                    try:
+                        muacc   = ReportMalnutrition.objects.filter(case=case).latest()
+                      
+                        #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
+                        q['malnut_muac'] = "%smm"%(muacc.muac)
+                        q['malnut_weight'] = "%s kg"%(muacc.weight)
+                        q['malnut_symptoms'] = muacc.symptoms_keys()
+                        q['malnut_days_since_last_update'] = muacc.days_since_last_activity()
+                    except ObjectDoesNotExist:
+                        q['malnut_muac'] = ""
+                        q['malnut_symptoms'] = ""
+                        q['malnut_days_since_last_update'] = ""
+            
+                    qs.append(q)
+            
+            
+                    # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
+            
         fields.append({"name": 'No', "column": None, "bit": "{{ object.counter }}" })
         fields.append({"name": 'Nom', "column": None, "bit": "{{ object.name }}" })
         fields.append({"name": 'Sexe', "column": None, "bit": "{{ object.case.gender }}" })
@@ -802,14 +871,14 @@ class ReportAllPatients(Report, models.Model):
         fields.append({"name": 'SMS', "column": None, "bit": "PB" })          
         fields.append({"name": 'No Enfant', "column": None, "bit": "+{{ object.case.ref_id }}" })
         fields.append({"name": 'PB', "column": None, "bit": "{{ object.malnut_muac }}" })
-#        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
+        #        fields.append({"name": 'SYMPTOMS', "column": None, "bit": "{{ object.symptoms }}" })
         fields.append({"name": 'Poids', "column": None, "bit": "{{ object.malnut_weight }}" })
         fields.append({"name": 'Oedemes', "column": None, "bit": "" })
         fields.append({"name": 'Dernier Depistage', "column": None, "bit": "{{ object.case.updated_at }}" })
         fields.append({"name": 'CONSULTER', "column": None, "bit": "[  ]" })
-#        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
-
-        
+        #        fields.append({"name": 'MOBILE', "column": None, "bit": "{{ object.mobile }}" })
+            
+              
         return qs, fields
-
-#Fin Ajout new
+            
+        #Fin Ajout new

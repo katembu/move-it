@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+# maintainer: ukanga
 
 from rapidsms.webui.utils import render_to_response
 from django.db.models import ObjectDoesNotExist, Q
@@ -44,21 +45,35 @@ Elements = []
 HeaderStyle = styles["Heading1"] # XXXX
 
 def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
+    
+    """Creates a reportlab PDF element and adds it to the global Elements list
+    
+    style - can be a HeaderStyle, a ParaStyle or a custom style, default HeaderStyle
+    klass - the reportlab Class to be called, default Paragraph
+    sep    - space separator height
+    
+    """
     s = Spacer(0.2*inch, sep*inch)
     Elements.append(s)
     para = klass(txt, style)
     Elements.append(para)
 
+#Paragraph Style
 ParaStyle = styles["Normal"]
 
 def p(txt):
+
+    """Create a text Paragraph using  ParaStyle"""
+    
     return header(txt, style=ParaStyle, sep=0.1)
 
-#pre = p # XXX
-
+#Preformatted Style
 PreStyle = styles["Code"]
 
 def pre(txt):
+    
+    """Create a text Preformatted Paragraph using  PreStyle"""
+    
     s = Spacer(0.1*inch, 0.1*inch)
     Elements.append(s)
     p = Preformatted(txt, PreStyle)
@@ -69,12 +84,18 @@ app = {}
 app['name'] = "ChildCount:Health"
 
 def index(request):
+    
+    """Index page """
+    
     template_name="childcount/index.html"
     todo = "To add child count here"
     return render_to_response(request, template_name, {
             "todo": todo})
 
 def commands_pdf(request):
+    
+    """List of supported commands and their format"""
+    
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
     pdfrpt.setNumOfColumns(2)

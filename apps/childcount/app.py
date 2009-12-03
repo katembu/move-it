@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -252,8 +253,13 @@ class App (rapidsms.app.App):
     @keyword(r'(.*)')
     @registered
     def new_case (self, message, token_string):
-        """Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
-           Purpose: register a new patient into the system.  Receive patient ID number back"""
+        
+        """Register a new patient into the system
+        
+        Format: new [patient last name] [patient first name] gender[m/f] [dob ddmmyy] [guardian] [contact #] [zone - optional] 
+        Receive patient ID number back
+        
+        """
                
         # replace multiple spaces with a single space
         # (consider running the stringcleaning app,
@@ -458,7 +464,11 @@ class App (rapidsms.app.App):
 
 
     def find_case (self, ref_id):
-        """look up a patient id """
+        
+        """look up a patient id 
+        
+        returns a Case object
+        """
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
@@ -468,7 +478,14 @@ class App (rapidsms.app.App):
     @keyword(r'\+?(\d+)')
     @registered
     def cancel_case (self, message, ref_id):
-        """OOOOOOPSIES CANCEL """
+        
+        """Cancel a case
+        
+        cancels a case only if that case has no other report associated with it
+        ref_id - is the case reference number
+        
+        """
+        
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
             raise HandlerFailed(_(
@@ -494,7 +511,14 @@ class App (rapidsms.app.App):
     @keyword(r'\+?(\d+)?(.+)')
     @registered
     def inactive_case (self, message, ref_id, reason=""):
-        """set case status to inactive. """
+        
+        """set case status to inactive. 
+        
+        ref_id - is the case reference number
+        reason(optional) - explanation of why the case needs to inactive
+        
+        """
+        
         case = self.find_case(ref_id)
         case.set_status(Case.STATUS_INACTIVE)
         case.save()
@@ -509,7 +533,14 @@ class App (rapidsms.app.App):
     @keyword(r'\+?(\d+)?(.+)')
     @registered
     def activate_case (self, message, ref_id, reason=""):
-        """set case status to active. """
+        
+        """set case status to active. 
+        
+        ref_id - is the case reference number
+        reason(optional) - explanation of why the case needs to be activated
+        
+        """
+        
         case = self.find_case(ref_id)
         info = case.get_dictionary()
         
@@ -534,6 +565,13 @@ class App (rapidsms.app.App):
     @keyword(r'\+?(\d+) (?:to )?\@?(\w+)')
     @registered
     def transfer_case (self, message, ref_id, target):
+        
+        """Transfer a case from one reporter to another reporter
+        
+        ref_id - is the case reference number
+        target - the alias of the CHW/Reporter that the case is to be transfered to
+        
+        """
         reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         new_provider = self.find_provider(message, target) 
@@ -560,7 +598,12 @@ class App (rapidsms.app.App):
     @keyword(r'\+?(\d+)')
     @registered
     def show_case (self, message, ref_id):
-        """THIS IS MY DOCSTRING  """
+        
+        """Show the case full details
+        
+        ref_id - is the case reference number
+        
+        """
         case = self.find_case(ref_id)
         info = case.get_dictionary()
 
@@ -575,6 +618,14 @@ class App (rapidsms.app.App):
     @keyword(r'\+(\d+) (.+)')
     @registered
     def note_case (self, message, ref_id, note):
+        
+        """Make a note for a case
+        
+        ref_id - is the case reference number
+        note - the note about the case to be saved
+        
+        """
+        
         reporter    = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         CaseNote(case=case, created_by=reporter, text=note).save()
@@ -589,6 +640,7 @@ class App (rapidsms.app.App):
     @keyword.blank()
     @registered
     def whereami(self, message):
+        
         ''' returns location of chw '''
 
         reporter    = message.persistant_connection.reporter
@@ -607,6 +659,7 @@ class App (rapidsms.app.App):
     @keyword(r'(slug)')
     @registered
     def change_location(self, message, location_code):
+        
         ''' returns location of chw '''
 
         reporter    = message.persistant_connection.reporter
@@ -631,14 +684,20 @@ class App (rapidsms.app.App):
 
         return True
 
-#assane
- # Modify dob of patient
+    #assane
+    # Modify dob of patient
     keyword.prefix = ["age"]
     @keyword(r'\+?(\d+) ([\d\-]+)')
     @registered
     def update_age (self, message, ref_id, dob):
-        """Format: age [numero patien] [date de naissance] 
-       Purpose: update the dob of a patient into the system.  Receive patient ID number back"""
+        
+        """Update the dob of a patient into the system.
+                
+        Format: age [numero patien] [date de naissance]        
+        Receive patient ID number back
+        
+        """
+        
         self.debug('update_age ...')     
         # reporter
         reporter    = message.persistant_connection.reporter
