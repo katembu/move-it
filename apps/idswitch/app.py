@@ -8,8 +8,9 @@ import rapidsms
 
 from apps.utils import *
 
+
 def import_function(func):
-    ''' import a function from full python path string 
+    ''' import a function from full python path string
 
     returns function.'''
     if func.find('.') == -1:
@@ -20,11 +21,12 @@ def import_function(func):
         f = eval("x.%s" % s[1])
     return f
 
+
 class App (rapidsms.app.App):
 
-    ''' Transform ID (number) of a recipient before it gets sent by the router '''
+    ''' Transform recipient ID (number) before it gets sent by the router '''
 
-    def configure (self, function='nothing'):
+    def configure(self, function='nothing'):
         ''' set the function to use to transform the ID
 
         default is internal function `nothing`'''
@@ -33,7 +35,6 @@ class App (rapidsms.app.App):
         except:
             self.func = nothing
 
-    def parse (self, message):
+    def parse(self, message):
         ''' stores ref to transformation function in idswitch property '''
         message.idswitch = self.func
-
