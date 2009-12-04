@@ -38,6 +38,27 @@ def diseases_from_string(text):
 
     return diseases
 
+def send_reminder(router, *args, **kwargs):
+    health_units = HealthUnit.objects.all()
+    health_units = filter(lambda hu: hu.reporters.count() > 0, health_units)
+    current_period = ReportPeriod.current()
+    for hu in health_units:
+        if EpidemiologicalReport.objects.filter(_status=EpidemiologicalReport.STATUS_COMPLETED, clinic=hu, period=current_period).count() == 0:
+            for reporter in hu.reporters.filter(registered_self=True, role__code='hw'):
+                try:
+                    real_backend = router.get_backend(reporter.connection().backend.slug)
+                    if real_backend:
+                        connection = Connection(real_backend, reporter.connection().identity)
+                        message = Message(connection=connection)
+                        message.text = _(u"You have not completed your weekly "
+                                          "report for %(health_unit)s. Please "
+                                          "send your reports as soon as "
+                                          "possible. Thank you.") % \
+                                          {'health_unit': hu }
+                        message.send()
+                except Exception, e:
+                    print _(u"Can't send reminder to %(rec)s: %(err)s") % {'rec': reporter, 'err': e}
+
 def cb_disease_alerts(router, *args, **kwargs):
     ''' Sends Alert messages to recipients
 
@@ -60,7 +81,8 @@ def cb_disease_alerts(router, *args, **kwargs):
                     message.text= alert_msg
                     message.send()
             except Exception, e:
-                print _(u"Can't send alert to %(rec)s: %(err)s") % {'rec': reporter, 'err': e}
+                print _(u"Can't send alert to %(rec)s: %(err)s") % \
+                         {'rec': reporter, 'err': e}
                 pass
 
         # change alert status
