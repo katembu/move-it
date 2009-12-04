@@ -8,8 +8,9 @@ Credit a cellphone number with a fixed amount for every SMS received.'''
 
 import rapidsms
 
+
 def import_function(func):
-    ''' import a function from full python path string 
+    ''' import a function from full python path string
 
     returns function.'''
     if func.find('.') == -1:
@@ -20,14 +21,17 @@ def import_function(func):
         f = eval("x.%s" % s[1])
     return f
 
+
 def parse_numbers(sauth):
     ''' transform a string of comma separated cell numbers into a list
 
     return array. '''
-    nums = sauth.replace(" ","").split(",")
+    nums = sauth.replace(" ", "").split(",")
     for num in nums:
-        if num == "": nums.remove(num)
+        if num == "":
+            nums.remove(num)
     return nums
+
 
 class App (rapidsms.app.App):
 
@@ -45,7 +49,7 @@ class App (rapidsms.app.App):
 
     http://www.ug.zain.com/en/phone-services/me2u/index.html. '''
 
-    def configure (self, sms_cost=0, cost_type='int', me2u_pin='1234', \
+    def configure(self, sms_cost=0, cost_type='int', me2u_pin='1234', \
                    service_num='132', allow_func=None, auth=None, \
                    idswitch_func=None):
         ''' set up Zain's me2u variables from [free2u] in rapidsms.ini '''
@@ -69,12 +73,12 @@ class App (rapidsms.app.App):
 
         if not self.cost_type in (int, float):
             self.cost_type = int
-        
+
         # allow everybody trigger
-        self.allow = ('*','all','true','True').count(auth) > 0
+        self.allow = ('*', 'all', 'true', 'True').count(auth) > 0
 
         # deny everybody trigger
-        self.disallow = ('none','false','False').count(auth) > 0
+        self.disallow = ('none', 'false', 'False').count(auth) > 0
 
         # sms cost
         try:
@@ -87,7 +91,7 @@ class App (rapidsms.app.App):
             self.me2u_pin = me2u_pin
         except:
             pass
-        
+
         # service number
         try:
             self.service_num = service_num
@@ -100,7 +104,7 @@ class App (rapidsms.app.App):
         except:
             self.idswitch_func = None
 
-    def handle (self, message):
+    def handle(self, message):
         ''' check authorization and send me2u
 
         if auth contained deny string => return
@@ -119,12 +123,12 @@ class App (rapidsms.app.App):
 
             peer = self.idswitch_func(message.peer) if self.idswitch_func \
                                                     else message.peer
-                
+
 
             # save a record of this transfer
-            params = {'target': peer, 'amount': self.cost_type(self.sms_cost), \
+            params = {'target': peer, \
+                      'amount': self.cost_type(self.sms_cost), \
                       'password': self.me2u_pin}
             message.forward(self.service_num, \
                             "2u %(target)s %(amount)s %(password)s" % params)
             return False
-
