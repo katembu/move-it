@@ -13,12 +13,14 @@ import rapidsms
 from apps.prepaid.models import Configuration, MessageLog, Record
 from apps.simpleoperator.operators import *
 
+
 def get_sim_balance(modem, carrier):
     ''' requests balance via USSD. '''
     time.sleep(2) # required on msg receive
     operator_sentence = modem.ussd(carrier.BALANCE_USSD)
     balance = carrier.get_balance(operator_sentence)
     return balance
+
 
 def get_topup_amount(modem, carrier, voucher):
     ''' send topu-up request via voucher ID and retrieve amount. '''
@@ -27,8 +29,9 @@ def get_topup_amount(modem, carrier, voucher):
     amount = carrier.get_amount_topup(operator_sentence)
     return amount
 
+
 def import_function(func):
-    ''' import a function from full python path string 
+    ''' import a function from full python path string.
 
     returns function.'''
     s = func.rsplit(".", 1)
@@ -36,11 +39,13 @@ def import_function(func):
     f = eval("x.%s" % s[1])
     return f
 
+
 def add_record(sender, kind, value, text):
     ''' stores prepaid action in DB. '''
-    record  = Record(sender=sender, kind=kind, value=value, \
+    record = Record(sender=sender, kind=kind, value=value, \
                      text=text, date=datetime.now())
     return record.save()
+
 
 def to_seconds(period):
     ''' convert a mixed string into seconds
@@ -78,13 +83,13 @@ class App (rapidsms.app.App):
     BALANCE_ID = 'balance'
     TOPUP_ID = 'topup'
 
-    def start (self):
+    def start(self):
         ''' loads configuration from DB and initialize
 
         raise Exception if configuration is not found. '''
         self.config = Configuration.get_dictionary()
         if self.config.__len__() < 1:
-            raise Exception, "Need configuration fixture"
+            raise Exception('Need configuration fixture')
         for conf in self.config:
             try:
                 x = eval(self.config[conf])
@@ -92,22 +97,22 @@ class App (rapidsms.app.App):
                     self.config[conf] = x
             except:
                 pass
-               
+
         # import carrier class from simpleoperator
         self.carrier = eval("%s()" % self.config['carrier'])
-        
+
         # storing backend for USSD interaction
         self.backend = self._router.backends[-1]
-        
+
         # set alias for logs
         self.me = self.config['local_alias']
-        
+
         self.keywords = []
         self.keywords.append({'id': self.BALANCE_ID, \
                               'keyw': self.config['keyword_balance']})
         self.keywords.append({'id': self.TOPUP_ID, \
                               'keyw': self.config['keyword_topup']})
-        
+
         # triggers initialization
         try:
             self.balance_allow = import_function(\
@@ -125,18 +130,19 @@ class App (rapidsms.app.App):
         except:
             self.topup_allow = None
         try:
-            self.topup_followup = import_function(self.config['topup_followup'])
+            self.topup_followup = import_function(\
+                                                 self.config['topup_followup'])
         except:
             self.topup_followup = None
-        
+
         # Registering loops
-        self.router.call_at(to_seconds(self.config['balance_check_interval']), \
+        self.router.call_at(to_seconds(self.config['balance_check_interval']),\
                                        self.period_balance_check)
-        
+
         self.log = self._router.log
         pass
 
-    def parse (self, message):
+    def parse(self, message):
         ''' tag and log message if it's a prepaid one.
 
         returns bool '''
@@ -146,17 +152,17 @@ class App (rapidsms.app.App):
                 # message is prepaid
                 message.PREPAID = True
                 message.PREPAID_ACTION = keyword['id']
-                
+
                 # log incoming message
                 log = MessageLog(sender=message.peer, recipient=self.me, \
                                  text=message.text, date=datetime.now())
                 log.save()
-                
+
                 return
         # message is not prepaid
         return False
 
-    def handle (self, message):
+    def handle(self, message):
         ''' process message if flagged
 
         check balance or send topup request
@@ -164,19 +170,20 @@ class App (rapidsms.app.App):
 
         return boolean '''
         try:
-            if not message.PREPAID: return False
+            if not message.PREPAID:
+                return False
         except AttributeError:
             return False
-        
+
         self.log('info', "PREPAID handles message %s" % message.text)
-        
+
         # Check SIM card Balance
         if message.PREPAID_ACTION == self.BALANCE_ID:
-            
+
             # check authorization to call sim balance
             if self.config['balance_allow_everybody'] \
                or (self.balance_allow and self.balance_allow(message=message, \
-                                                          mobile=message.peer)):
+                                                         mobile=message.peer)):
                 # get balance from simpleoperator
                 try:
                     balance = get_sim_balance(self.backend.modem, self.carrier)
@@ -186,19 +193,20 @@ class App (rapidsms.app.App):
 
                 message.PREPAID_BALANCE = balance
                 self.log('debug', "PREPAID BALANCE: %s" % balance)
-                
+
                 # record action
                 add_record(sender=message.peer, kind='B', value=balance,\
                            text=message.text)
-                
+
                 # sends a very basic answer to emitter
                 if self.config['balance_answer_request']:
                     message.respond("%(carrier)s balance: %(bal)s" \
-                                    % {'carrier': self.carrier, 'bal': balance})
-                
+                                   % {'carrier': self.carrier, 'bal': balance})
+
                 # triggers user's function
                 if self.balance_followup:
-                    self.log('debug', "PREPAID launches user's balance trigger")
+                    self.log('debug', \
+                             "PREPAID launches user's balance trigger")
                     return self.balance_followup(message=message, \
                                                  mobile=message.peer, \
                                                  balance=balance)
@@ -208,9 +216,9 @@ class App (rapidsms.app.App):
             else:
                  # no permission, get off kid!
                 pass
-                
+
             return False
-        
+
         elif message.PREPAID_ACTION == self.TOPUP_ID:
             # check authorization to call topup
             if self.config['balance_allow_everybody'] \
@@ -222,9 +230,9 @@ class App (rapidsms.app.App):
                 except:
                     message.PREPAID_TOPUP = 0
                     return False
-                
+
                 self.log('debug', "Topup card # %s" % card_pin)
-                
+
                 try:
                     amount = get_topup_amount(self.backend.modem, \
                                               self.carrier, card_pin)
@@ -233,43 +241,43 @@ class App (rapidsms.app.App):
                 except UnparsableUSSDAnswer:
                     self.log('info', "ERROR: Unable to parse USSD answer")
                     return True
-                
+
                 self.log('debug', "PREPAID TOPUP: %s" % amount)
-                
+
                  # record action
                 add_record(sender=message.peer, kind='T', value=amount, \
                            text=message.text)
-                
+
                 # sends a very basic answer to emitter
                 if self.config['topup_answer_request']:
                     param = {'carrier': self.carrier, \
                              'am': amount.__str__().replace('-1', \
                                                             'unknown amount')}
                     message.respond("%(carrier)s topup: %(am)s" % param)
-                
+
                 # triggers user's function
                 if self.topup_followup:
                     return self.topup_followup(message=message, \
-                                               mobile=message.peer, topup=amount)
+                                             mobile=message.peer, topup=amount)
 
                 # forward (or not) the message to pipe
                 return self.config['topup_drop_successful']
             else:
                  # no permission, get off kid!
                 pass
-                
+
             return False
-        
+
         # fallback to forwarding message
         return False
-        
+
     def period_balance_check(self):
         ''' checks balance and reply to sender
 
         return int (seconds from config interval) '''
         # check balance
         balance = get_sim_balance(self.backend.modem, self.carrier)
-        
+
         # record action
         add_record(sender=self.me, kind='B', value=balance, \
                    text='period_balance_check')
@@ -282,10 +290,10 @@ class App (rapidsms.app.App):
                                        content[:160])
             msg.PREPAID = True
             self.backend._router.outgoing(msg)
-        
+
         return to_seconds(self.config['balance_check_interval'])
 
-    def outgoing (self, message):
+    def outgoing(self, message):
         ''' log prepaid message '''
         # log outgoing message
         try:
@@ -295,4 +303,3 @@ class App (rapidsms.app.App):
                 log.save()
         except AttributeError:
             pass
-
