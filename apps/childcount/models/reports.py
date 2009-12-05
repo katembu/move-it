@@ -460,53 +460,6 @@ class ReportAllPatients(Report, models.Model):
             #fields.append({"name": 'LAST UPDATE', "column": None, "bit": "{{ object.case.date_registered }}" })
             
             return qs, fields
-    
-    @classmethod
-    def malnut_trend_by_provider(cls, provider_id=None):    
-        qs      = []
-        fields  = []
-        counter = 0
-        if provider_id is not None:
-            cases   = Case.objects.order_by("last_name").filter(provider=provider_id)
-        else:
-            cases   = Case.objects.order_by("last_name")
-        if cases:
-            for case in cases:
-                q   = {}
-                q['case']   = case
-                
-                
-                try:
-                    muacc   = ReportMalnutrition.objects.filter(case=case).order_by("entered_at")
-                    trend = ""
-                    scase = False
-                    for m in muacc:
-                        mrpt = m.get_dictionary()
-                        mrpt["entered_at"] = m.entered_at.strftime("%d.%m.%y")
-                        if trend != "":
-                            trend += ", "
-                        trend += "%(diagnosis)s %(muac)s(%(entered_at)s)" % mrpt
-                        if m.status in [1,2,3]:
-                            scase = True
-                    #q['malnut'] = u"%(diag)s on %(date)s" % {'diag': muacc.diagnosis_msg(), 'date': muacc.entered_at.strftime("%Y-%m-%d")}
-                    q['trend'] = trend
-                except ObjectDoesNotExist:
-                    q['trend'] = ""
-                if scase:
-                    counter = counter + 1
-                    q['counter'] = "%d"%counter
-                    qs.append(q)
-            # caseid +|Y lastname firstname | sex | dob/age | guardian | provider  | date
-            fields.append({"name": '#', "column": None, "bit": "{{ object.counter }}" })
-            fields.append({"name": 'PID#', "column": None, "bit": "{{ object.case.ref_id }}" })
-            fields.append({"name": 'NAME', "column": None, "bit": "{{ object.case.short_name }}" })
-            fields.append({"name": 'SEX', "column": None, "bit": "{{ object.case.gender }}" })
-            fields.append({"name": 'AGE', "column": None, "bit": "{{ object.case.short_dob }} - {{ object.case.age }}" })            
-            fields.append({"name": 'CMAM Trend', "column": None, "bit": "{{ object.trend }}" })
-            fields.append({"name": 'CHW', "column": None, "bit": "{{ object.provider }} {{ object.provider.mobile }}" })
-            fields.append({"name": 'Village', "column": None, "bit": "{{ object.case.zone }}" })
-            
-            return qs, fields
 
     @classmethod
     def measles_by_provider(cls, reporter=None):        
