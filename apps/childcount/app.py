@@ -155,7 +155,6 @@ class App(rapidsms.app.App):
         return message.forward(mobile, "@%s> %s" % (sender, text))
 
     keyword.prefix = ["join"]
-
     @keyword("(\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
     def join(self, message, location_code, last_name, first_name, role=None):
         ''' register as a user and join the system
@@ -258,7 +257,6 @@ class App(rapidsms.app.App):
                         % info)
 
     keyword.prefix = ["confirm"]
-
     @keyword(r'(\w+)')
     def confirm_join(self, message, username):
         ''' check if a username is registered
@@ -304,7 +302,6 @@ class App(rapidsms.app.App):
     # Register a new patient
     keyword.prefix = ["new", "nouv"]
     #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
-
     @keyword(r'(.*)')
     @registered
     def new_case(self, message, token_string):
@@ -534,7 +531,6 @@ class App(rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     keyword.prefix = ["cancel"]
-
     @keyword(r'\+?(\d+)')
     @registered
     def cancel_case(self, message, ref_id):
@@ -567,7 +563,6 @@ class App(rapidsms.app.App):
     cancel_case.format = "cancel [patient id number]"
 
     keyword.prefix = ["inactive"]
-
     @keyword(r'\+?(\d+)?(.+)')
     @registered
     def inactive_case(self, message, ref_id, reason=""):
@@ -588,7 +583,6 @@ class App(rapidsms.app.App):
     inactive_case.format = "inactive [patient id] [reason]"
 
     keyword.prefix = ["activate"]
-
     @keyword(r'\+?(\d+)?(.+)')
     @registered
     def activate_case(self, message, ref_id, reason=""):
@@ -618,7 +612,6 @@ class App(rapidsms.app.App):
     activate_case.format = "activate +[patient ID] [your reasons]"
 
     keyword.prefix = ["transfer"]
-
     @keyword(r'\+?(\d+) (?:to )?\@?(\w+)')
     @registered
     def transfer_case(self, message, ref_id, target):
@@ -651,7 +644,6 @@ class App(rapidsms.app.App):
                            "the patient]"
 
     keyword.prefix = ["s", "show"]
-
     @keyword(r'\+?(\d+)')
     @registered
     def show_case(self, message, ref_id):
@@ -670,7 +662,6 @@ class App(rapidsms.app.App):
     show_case.format = "show [patient id]"
 
     keyword.prefix = ["n", "note"]
-
     @keyword(r'\+(\d+) (.+)')
     @registered
     def note_case(self, message, ref_id, note):
@@ -690,8 +681,7 @@ class App(rapidsms.app.App):
 
     #Whereami
     keyword.prefix = ["whereami"]
-
-    @keyword.blank
+    @keyword.blank()
     @registered
     def whereami(self, message):
         ''' replies location of sender '''
@@ -707,7 +697,6 @@ class App(rapidsms.app.App):
 
     #change location
     keyword.prefix = ["location", "loc"]
-
     @keyword(r'(slug)')
     @registered
     def change_location(self, message, location_code):
@@ -741,7 +730,6 @@ class App(rapidsms.app.App):
     #assane
     # Modify dob of patient
     keyword.prefix = ["age"]
-
     @keyword(r'\+?(\d+) ([\d\-]+)')
     @registered
     def update_age(self, message, ref_id, dob):
