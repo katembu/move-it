@@ -51,7 +51,7 @@ class TestApp (TestScript):
             loaded = True
         TestScript.setUp(self)
 
-    test_00_Join = """
+    test_00_Join = '''
         # test registration
         1234567 > join pear smith ken
         1234567 < The given password is not recognized.
@@ -73,12 +73,12 @@ class TestApp (TestScript):
         1234567 < Phone 1234567 is already registered to SMITH, Ken. Reply with 'CONFIRM smithk'.   
         1234567 > confirm smithk
         1234567 < 1234567 registered to @smithk (SMITH, Ken) at Bravo Town.
-    """
+    '''
 
-    test_00_MessageLog_1 = """
+    test_00_MessageLog_1 = '''
         # this should provoke no response at all
         7654321 > *yawn*
-    """
+    '''
 
     def test_00_MessageLog_2 (self):
         msgs = MessageLog.objects.count()
@@ -86,7 +86,7 @@ class TestApp (TestScript):
         msgs = MessageLog.objects.filter(was_handled=True).count()
         self.assertEqual(6, msgs, "handled message count is %d" % msgs)
 
-    test_01_DirectMessage = """
+    test_01_DirectMessage = '''
         # test authentication
         7654321 > @2 can you read this?
         7654321 < 7654321 is not a registered number.
@@ -108,7 +108,7 @@ class TestApp (TestScript):
         7654321 < User @kdoe is not registered.
 
         # FIXME: what happens if you message an inactive provider???
-    """
+    '''
 
     caseAges = (
         age_in_months(2008,4,11),
@@ -116,7 +116,7 @@ class TestApp (TestScript):
         age_in_months(2009,2,11),
         age_in_months(2007,6,15),)
     
-    test_01_NewCase = """
+    test_01_NewCase = '''
         # test basic case creation
         7654321 > new madison dolly f 110408
         7654321 < New +18: MADISON, Dolly F/%dm (None) Whiskey
@@ -134,7 +134,7 @@ class TestApp (TestScript):
         7654321 < New +42: MADISON, Wally M/%dm (None) Whiskey
 
         # FIXME: unparsable cases???
-    """ % caseAges
+    ''' % caseAges
 
     def test_02_CreatedCases(self):        
         user = User.objects.get(username="jdoe")
@@ -147,23 +147,23 @@ class TestApp (TestScript):
         self.assertEqual(case.guardian, "Sally", "case 34 guardian")
         self.assertEqual(case.provider, user.provider, "case 34 provider")
 
-    test_02_ListCases = """
+    test_02_ListCases = '''
         0000000 > list
         0000000 < 0000000 is not a registered number.
 
         7654321 > list
         7654321 < +18 MADISON D. F/%dm, +26 MADISON M. F/%d, +34 MADISON H. F/%dm, +42 MADISON W. M/%dm
-    """ % caseAges
+    ''' % caseAges
 
-    test_02_ListProviders = """
+    test_02_ListProviders = '''
         0000000 > list @
         0000000 < 0000000 is not a registered number.
 
         7654321 > list @
         7654321 < @1 admin, @2 staff, @3 nonstaff, @4 nonactive, @5 ksmith, @6 smithk, @7 jdoe
-    """
+    '''
     
-    test_03_CancelCases = """
+    test_03_CancelCases = '''
         0000000 > cancel +34
         0000000 < 0000000 is not a registered number.
         
@@ -173,9 +173,9 @@ class TestApp (TestScript):
         7654321 < Case +42 cancelled. 
         7654321 > cancel 42
         7654321 < Case +42 not found. 
-    """ 
+    ''' 
 
-    test_03_ReportCase = """
+    test_03_ReportCase = '''
         # authenticated
         0000000 > muac +26 7.5 e
         0000000 < 0000000 is not a registered number.
@@ -236,7 +236,7 @@ class TestApp (TestScript):
         # complication fail
         7654321 > muac +26 800 N MUST RECEIVE HELP
         7654321 < Unknown observation code: must
-    """
+    '''
 
     def test_03_ReportOverwrite (self):
         reports = Case.objects.get(ref_id=26).reportmalnutrition_set.count()
@@ -244,12 +244,12 @@ class TestApp (TestScript):
         self.assertEquals(reports, 1,
             "only have one report; all others today were overwritten")
 
-    _test_03_ShowCase = """
+    _test_03_ShowCase = '''
         7654321 > show +26
         7654321 < +26 Healthy MADISON, Molly F/4 (Sally) Whiskey
-    """
+    '''
     
-    test_04_NoteCase_1 = """
+    test_04_NoteCase_1 = '''
         # authenticated
         0000000 > n +26 how are you gentleman! all your base are belong to us
         0000000 < 0000000 is not a registered number.
@@ -261,7 +261,7 @@ class TestApp (TestScript):
         # this syntax works too
         7654321 > note +26 will check back tomorrow
         7654321 < Note added to case +26.
-    """
+    '''
 
     def test_04_NoteCase_2 (self):
         notes = Case.objects.get(ref_id=26).notes.count()
@@ -270,13 +270,13 @@ class TestApp (TestScript):
     def test_zzz_queue_is_empty (self):
         self.assertFalse(self.backend.message_waiting)
 
-    test_05_Fever = """
+    test_05_Fever = '''
         # requested change to make f be fever, not h
         7654321 > muac +26 105 d v f
         7654321 < MUAC> SAM+ Patient requires IMMEDIATE inpatient care. +26 MADISON, M, F/4 (Sally). MUAC 105 mm, Diarrhea, Fever, Vomiting
-    """
+    '''
     
-    test_06_Lists = """
+    test_06_Lists = '''
         # test of mulitiple recipients and report of a case
         7654322 > join cherry bob smith
         7654322 < 7654322 registered to @sbob (BOB, Smith) at Charliesburg.
@@ -284,7 +284,7 @@ class TestApp (TestScript):
         7654321 > muac +26 105 d v f
         7654321 <  MUAC> SAM+ Patient requires IMMEDIATE inpatient care. +26 MADISON, M, F/4 (Sally). MUAC 105 mm, Diarrhea, Fever, Vomiting
         # 7654322 < @jdoe reports +26: SAM+, MUAC 105 mm, Diarrhea, Fever, Vomiting
-    """
+    '''
 
     def test_07_mrdt_00(self):
         first = User.objects.get(username="jdoe").provider
@@ -293,7 +293,7 @@ class TestApp (TestScript):
         second.alerts = True
         second.save()
 
-    test_07_mrdt_01 = """
+    test_07_mrdt_01 = '''
         7654321 > mrdt +234 n y a
         7654321 < Case +234 not found.
         
@@ -349,7 +349,7 @@ class TestApp (TestScript):
         7654321 > mrdt +59 n n cf e
         7654321 < MRDT> Child +59, MADISON, Sam, F/2m (Samantha), None. RDT=N, Bednet=N, (Confusion, Edema). Please refer patient IMMEDIATELY for clinical evaluation
         7654322 < MRDT> Negative MRDT with Fever. +59, MADISON, Sam, F/2m None. Patient requires IMMEDIATE referral. Reported by CHW J DOE @jdoe m:7654321.
-    """ % (date_boundaries()["over 1 year"], date_boundaries()["over 3 years"], date_boundaries()["over 2 months"])
+    ''' % (date_boundaries()["over 1 year"], date_boundaries()["over 3 years"], date_boundaries()["over 2 months"])
         
 
     def test_07_mrdt_02(self):
@@ -359,7 +359,7 @@ class TestApp (TestScript):
         assert len(reports) == 1
         assert not len(reports[0].observed.all())
 
-    test_08_diagnosis = """ 
+    test_08_diagnosis = ''' 
         7654321 > D +234 Hey ho!
         7654321 < Case +234 not found.
     
@@ -380,15 +380,15 @@ class TestApp (TestScript):
 
         7654321 > D +59 Looked ill /HB+10 had -084.9 and -480 and so on /ELISA-
         7654321 < D> +59 S.MADISON C. Malaria, Viral Pneumonia Labs: HB 10, ELISA-
-    """
+    '''
 
     # lets test some nice error cases re handled
-    test_09_errors = """
+    test_09_errors = '''
         7654321 > foo!
         7654321 < Unknown or incorrectly formed command: foo!... Please call 999-9999
-    """
+    '''
     
-    test_10_zones = """
+    test_10_zones = '''
         7654321 > new madison wally m 150607 230123
         7654321 < New +67: MADISON, Wally M/%dm (None) Whiskey
 
@@ -397,9 +397,9 @@ class TestApp (TestScript):
 
         7654321 > new madison wally m 150607 z1
         7654321 < New +83: MADISON, Wally M/%dm (None) X-Ray
-    """ % (caseAges[-1], caseAges[-1], caseAges[-1])
+    ''' % (caseAges[-1], caseAges[-1], caseAges[-1])
     
-    test_11_cancel_fails = """
+    test_11_cancel_fails = '''
         7654321 > new JAMES Davey m 150607 230123
         7654321 < New +91: JAMES, Davey M/%dm (None) Whiskey
         
@@ -418,27 +418,27 @@ class TestApp (TestScript):
         
         7654321 > cancel +108
         7654321 < Cannot cancel +108: case has malaria reports.        
-    """ % (caseAges[-1], caseAges[-1])
+    ''' % (caseAges[-1], caseAges[-1])
 
-#    test_12_utf = """
+#    test_12_utf = '''
 #        7654321 > D +91 -084.9 Vaqif Səmədoğl
 #        7654321 < D> +91 D.JAMES C. Malaria
-#    """
+#    '''
 
     def test_13_diagnosis(self):
-        """ Just a setup for the next bit """
+        ''' Just a setup for the next bit '''
         d = Diagnosis.objects.get(id=4)
         d.instructions = "Some test instructions"
         d.save()
 
-    test_14_diagnosis = """
+    test_14_diagnosis = '''
         7654322 > D +91 -002
         7654322 < D> +91 D.JAMES Typhoid        
 
         7654322 > D +91 -001 
         7654322 < D> +91 D.JAMES Cholera
         7654321 < D> +91 Some test instructions
-    """
+    '''
 
 class TestAlerts(TestCase):
     fixtures = ["users.json", "alerts.json"]

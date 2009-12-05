@@ -31,7 +31,7 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
     def start (self):
-        """Configure your app in the start phase."""
+        '''Configure your app in the start phase.'''
         pass
 
     def parse (self, message):
@@ -71,11 +71,11 @@ class App (rapidsms.app.App):
             log.save()
 
     def outgoing (self, message):
-        """Handle outgoing message notifications."""
+        '''Handle outgoing message notifications.'''
         pass
 
     def stop (self):
-        """Perform global app cleanup when the application is stopped."""
+        '''Perform global app cleanup when the application is stopped.'''
         pass
 
     def find_case (self, ref_id):
@@ -125,13 +125,13 @@ class App (rapidsms.app.App):
         return True
 
     def get_mrdt_format_reminder(self):
-        """Expected format for mrdt input, sent as a reminder"""
+        '''Expected format for mrdt input, sent as a reminder'''
         return "Format:  mts +[patient_ID\] malaria[+/-] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     @keyword(r'^mts\s*\+?(\d+)\s*([a-zA-z+-])\s*(\S)\s*(.*)$')
     @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
-        """Processes incoming mrdt reports.  Expected format is as above.  Can process inputs without spaces, but symptoms must have spaces between them.  '+' and 'y' register as positive for malaria, all other characters register as negative. 'y' registers as yes for a bednet, all other characters register as no."""
+        '''Processes incoming mrdt reports.  Expected format is as above.  Can process inputs without spaces, but symptoms must have spaces between them.  '+' and 'y' register as positive for malaria, all other characters register as negative. 'y' registers as yes for a bednet, all other characters register as no.'''
         
        
         case = self.find_case(ref_id)
@@ -209,18 +209,18 @@ class App (rapidsms.app.App):
 
         message.respond(msg)
         message.respond(_(info["instructions"]))
-        """ @todo: enable alerts """
-        """
+        ''' @todo: enable alerts '''
+        '''
         recipients = report.get_alert_recipients()
         for recipient in recipients:
             message.forward(recipient.mobile, alert)
-        """    
+        '''    
 
         log(case, "mrdt_taken")       
         return True 
 
     def get_mrdt_report_format_reminder(self):
-        """Expected format for mrdt command, sent as a reminder"""
+        '''Expected format for mrdt command, sent as a reminder'''
         return "Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
@@ -309,9 +309,9 @@ class App (rapidsms.app.App):
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         if len(msg) > self.MAX_MSG_LEN:
-            """
+            '''
             FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
-            """
+            '''
             message.respond(msg[:msg.rfind(". ")+1])            
             message.respond(msg[msg.rfind(". ")+1:])
         else:

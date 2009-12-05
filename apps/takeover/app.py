@@ -47,7 +47,7 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
     def start (self):
-        """Configure your app in the start phase."""
+        '''Configure your app in the start phase.'''
         pass
 
     def parse (self, message):        
@@ -85,11 +85,11 @@ class App (rapidsms.app.App):
             log.save()
 
     def outgoing (self, message):
-        """Handle outgoing message notifications."""
+        '''Handle outgoing message notifications.'''
         pass
 
     def stop (self):
-        """Perform global app cleanup when the application is stopped."""
+        '''Perform global app cleanup when the application is stopped.'''
         pass
 
     
@@ -99,7 +99,7 @@ class App (rapidsms.app.App):
     #@registered
     #@anotherdeco
     def reporter_http_identity(self, message, username):
-        """Hello World! This is a docstring"""
+        '''Hello World! This is a docstring'''
         reporter = self.find_provider(message, username)
         # attach the reporter to the current connection
         if PersistantBackend.from_message(message).title == "http":

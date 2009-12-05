@@ -30,7 +30,7 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
     def start (self):
-        """Configure your app in the start phase."""
+        '''Configure your app in the start phase.'''
         pass
 
     def parse (self, message):        
@@ -76,11 +76,11 @@ class App (rapidsms.app.App):
             log.save()
 
     def outgoing (self, message):
-        """Handle outgoing message notifications."""
+        '''Handle outgoing message notifications.'''
         pass
 
     def stop (self):
-        """Perform global app cleanup when the application is stopped."""
+        '''Perform global app cleanup when the application is stopped.'''
         pass
     
     def find_case (self, ref_id):
@@ -90,7 +90,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     def get_death_report_format_reminder(self):
-        """Expected format for death command, sent as a reminder"""
+        '''Expected format for death command, sent as a reminder'''
         return "Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
     
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
@@ -135,7 +135,7 @@ class App (rapidsms.app.App):
         return True
     
     def get_cdeath_report_format_reminder(self):
-        """Expected format for cdeath command, sent as a reminder"""
+        '''Expected format for cdeath command, sent as a reminder'''
         return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
         
     keyword.prefix = ["cdeath", "death"]

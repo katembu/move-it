@@ -32,7 +32,7 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
     def start (self):
-        """Configure your app in the start phase."""
+        '''Configure your app in the start phase.'''
         pass
 
     def parse (self, message):        
@@ -75,15 +75,15 @@ class App (rapidsms.app.App):
             log.save()
 
     def outgoing (self, message):
-        """Handle outgoing message notifications."""
+        '''Handle outgoing message notifications.'''
         pass
 
     def stop (self):
-        """Perform global app cleanup when the application is stopped."""
+        '''Perform global app cleanup when the application is stopped.'''
         pass
     
     def get_birth_report_format_reminder(self):
-        """Expected format for birth command, sent as a reminder"""
+        '''Expected format for birth command, sent as a reminder'''
         return "Format:  birth [last name] [first name] [gender m/f] [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian] (complications)"
 
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")

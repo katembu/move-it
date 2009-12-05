@@ -30,7 +30,7 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
     def start (self):
-        """Configure your app in the start phase."""
+        '''Configure your app in the start phase.'''
         pass
 
     def parse (self, message):
@@ -72,11 +72,11 @@ class App (rapidsms.app.App):
             log.save()
 
     def outgoing (self, message):
-        """Handle outgoing message notifications."""
+        '''Handle outgoing message notifications.'''
         pass
 
     def stop (self):
-        """Perform global app cleanup when the application is stopped."""
+        '''Perform global app cleanup when the application is stopped.'''
         pass
 
     def find_case (self, ref_id):
@@ -109,7 +109,7 @@ class App (rapidsms.app.App):
             pass
         
     def get_muac_report_format_reminder(self):
-        """Expected format for muac command, sent as a reminder"""
+        '''Expected format for muac command, sent as a reminder'''
         return "Format:  muac +[patient_ID\] muac[measurement] edema[e/n] symptoms separated by spaces[CG D A F V NR UF]"        
     
     #change location    

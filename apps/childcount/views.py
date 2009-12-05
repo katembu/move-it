@@ -46,13 +46,13 @@ HeaderStyle = styles["Heading1"] # XXXX
 
 def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
     
-    """Creates a reportlab PDF element and adds it to the global Elements list
+    '''Creates a reportlab PDF element and adds it to the global Elements list
     
     style - can be a HeaderStyle, a ParaStyle or a custom style, default HeaderStyle
     klass - the reportlab Class to be called, default Paragraph
     sep    - space separator height
     
-    """
+    '''
     s = Spacer(0.2*inch, sep*inch)
     Elements.append(s)
     para = klass(txt, style)
@@ -63,7 +63,7 @@ ParaStyle = styles["Normal"]
 
 def p(txt):
 
-    """Create a text Paragraph using  ParaStyle"""
+    '''Create a text Paragraph using  ParaStyle'''
     
     return header(txt, style=ParaStyle, sep=0.1)
 
@@ -72,7 +72,7 @@ PreStyle = styles["Code"]
 
 def pre(txt):
     
-    """Create a text Preformatted Paragraph using  PreStyle"""
+    '''Create a text Preformatted Paragraph using  PreStyle'''
     
     s = Spacer(0.1*inch, 0.1*inch)
     Elements.append(s)
@@ -85,7 +85,7 @@ app['name'] = "ChildCount:Health"
 
 def index(request):
     
-    """Index page """
+    '''Index page '''
     
     template_name="childcount/index.html"
     todo = "To add child count here"
@@ -94,7 +94,7 @@ def index(request):
 
 def commands_pdf(request):
     
-    """List of supported commands and their format"""
+    '''List of supported commands and their format'''
     
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
@@ -110,7 +110,7 @@ def commands_pdf(request):
     p("MRDT +PatientID RDTResult (Y/N) BedNet (Y/N) Symtoms")
     pre("Example: MRDT +28 Y N D CV")
     
-    pre("""\
+    pre('''\
      
      Code | Symptom                 | Danger Sign
      =============================================
@@ -125,7 +125,7 @@ def commands_pdf(request):
       CV  |  Convulsions/Fits       |  RDT
       CF  |  Confusion              |  RDT
      ==============================================
-    """)
+    ''')
     
     header("Death Report")
     p("DEATH LAST FIRST GENDER AGE  DateOfDeath (DDMMYY) CauseOfDeath Location Description")
@@ -135,7 +135,7 @@ def commands_pdf(request):
     p("CDEATH +ID DateOfDeath(DDMMYY) Cause Location Description")
     pre("Example: CDEATH +782 101109 I C severe case of pneumonia")
     
-    pre("""\
+    pre('''\
     CauseOfDeath - Likely causes of death
     ===========================
     P   |   Pregnancy related
@@ -144,16 +144,16 @@ def commands_pdf(request):
     I   |   Illness
     S   |   Sudden Death
     ===========================
-    """)
+    ''')
     
-    pre("""\
+    pre('''\
     Location - where the death occured
     ===================================================
     H   |   Home
     C   |   Health Facility
     T   |   Transport - On route to Clinic/Hospital
     ===================================================
-    """)
+    ''')
     
     header("Birth Report")
     p("BIRTH Last First Gender(M/F) DOB (DDMMYY) WEIGHT Location Guardian Complications")

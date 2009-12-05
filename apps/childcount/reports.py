@@ -46,13 +46,13 @@ HeaderStyle = styles["Heading1"] # XXXX
 
 def header(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
     
-    """Creates a reportlab PDF element and adds it to the global Elements list
+    '''Creates a reportlab PDF element and adds it to the global Elements list
     
     style - can be a HeaderStyle, a ParaStyle or a custom style, default HeaderStyle
     klass - the reportlab Class to be called, default Paragraph
     sep    - space separator height
     
-    """
+    '''
     s = Spacer(0.2*inch, sep*inch)
     Elements.append(s)
     para = klass(txt, style)
@@ -63,7 +63,7 @@ ParaStyle = styles["Normal"]
 
 def p(txt):
 
-    """Create a text Paragraph using  ParaStyle"""
+    '''Create a text Paragraph using  ParaStyle'''
     
     return header(txt, style=ParaStyle, sep=0.1)
 
@@ -72,7 +72,7 @@ PreStyle = styles["Code"]
 
 def pre(txt):
     
-    """Create a text Preformatted Paragraph using  PreStyle"""
+    '''Create a text Preformatted Paragraph using  PreStyle'''
     
     s = Spacer(0.1*inch, 0.1*inch)
     Elements.append(s)
@@ -86,7 +86,7 @@ app['name'] = "ChildCount:Health"
 @login_required
 def reports(request):
     
-    """Lists Reports that can be generated in childcount"""
+    '''Lists Reports that can be generated in childcount'''
     
     template_name="childcount/reports/reports.html"
     
@@ -125,7 +125,7 @@ def reports(request):
 @login_required
 def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     
-    """A pdf report of chw perfomance within the last 30 days"""
+    '''A pdf report of chw perfomance within the last 30 days'''
     
     pdfrpt = PDFReport()
     d = int(d)
@@ -168,7 +168,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
 @login_required
 def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     
-    """A pdf report of chw perfomance within the last 30 days"""
+    '''A pdf report of chw perfomance within the last 30 days'''
     
     pdfrpt = PDFReport()
     d = int(d)
@@ -212,7 +212,7 @@ def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
 @login_required
 def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     
-    """A summary of measles report per clinic - pdf formart"""
+    '''A summary of measles report per clinic - pdf formart'''
     
     pdfrpt = PDFReport()
     d = int(d)
@@ -259,7 +259,7 @@ def measles_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"
 @login_required
 def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """List of Cases/Patient per CHW"""
+    '''List of Cases/Patient per CHW'''
     
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
@@ -303,7 +303,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
 #Modification Assane new
 def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """ Children Screening per age for SN CC """
+    ''' Children Screening per age for SN CC '''
     
     pdfrpt = PDFReport()
     
@@ -345,7 +345,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
 @login_required
 def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """ Malnutrition Screening Form Originally for SN CC """
+    ''' Malnutrition Screening Form Originally for SN CC '''
     
     pdfrpt = []
     pdfrpt = PDFReport()
@@ -388,13 +388,13 @@ def malnutrition_screening(request, object_id=None, per_page="0", rformat="pdf")
 
 def handle_csv(request, queryset, fields, file_name):
     
-    """Generate a csv file
+    '''Generate a csv file
     
     queryset  -    data
     fields    -    the titles for the data
     file_name -    file name
     
-    """
+    '''
     
     output = StringIO.StringIO()
     csvio = csv.writer(output)
@@ -416,13 +416,13 @@ def handle_csv(request, queryset, fields, file_name):
 @login_required
 def report_view(request, report_name, object_id=None):
     
-    """view a specified report
+    '''view a specified report
     
     report_name - the name of the report
     object_id - a query to be applied to the specified report
     
     returns csv|pdf stream of the report
-    """
+    '''
     
     part = report_name.partition('_')
     if part.__len__() == 3:
@@ -453,7 +453,7 @@ def report_view(request, report_name, object_id=None):
 @login_required
 def malnut(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """List @Risk Malnutrition Cases per clinic """
+    '''List @Risk Malnutrition Cases per clinic '''
     
     pdfrpt = PDFReport()
     
@@ -493,7 +493,7 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
 @login_required
 def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """ List Positive RDT Test Cases per clinic  """
+    ''' List Positive RDT Test Cases per clinic  '''
     
     pdfrpt = PDFReport()
     
@@ -530,13 +530,13 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
 
 def report_monitoring_csv(request, object_id, file_name):
     
-    """Generate a monthly monitoring report in csf format
+    '''Generate a monthly monitoring report in csf format
     
     object_id - a date string e.g 112009 - November, 2009
     file_name - csv filename
     
     return csv stream
-    """
+    '''
     
     output = StringIO.StringIO()
     csvio = csv.writer(output)
@@ -697,7 +697,7 @@ def report_monitoring_csv(request, object_id, file_name):
 
 def measles_mini_summary_csv(request, file_name):
     
-    """A summary of measles report per clinic in csv format"""
+    '''A summary of measles report per clinic in csv format'''
     
     output = StringIO.StringIO()
     csvio = csv.writer(output)
@@ -730,7 +730,7 @@ def measles_mini_summary_csv(request, file_name):
 @login_required
 def measles(request, object_id=None, per_page="0", rformat="pdf"):
     
-    """List of Cases/Children Eligible for measles not yet vaccinated"""
+    '''List of Cases/Children Eligible for measles not yet vaccinated'''
     
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)

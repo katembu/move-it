@@ -13,7 +13,7 @@ def as_html(request, template, context):
         )
     
 def login_required(fn):
-    """ We need to limit the front end to authenticated staff """
+    ''' We need to limit the front end to authenticated staff '''
     def new(*args, **kw):
         request = args[0]
         if request.user.is_authenticated:

@@ -8,14 +8,14 @@
 from django import forms
 
 def as_blue_print(self):
-    return self._html_output(u"""
+    return self._html_output(u'''
     <div>
         
         <div>%(label)s %(errors)s</div>
         <div>%(field)s</div>
         <div class="help">%(help_text)s</div>
     </div>
-    """, u'%s', '', u'%s', False)
+    ''', u'%s', '', u'%s', False)
 
 class BaseForm(forms.Form):
     def as_custom(self):

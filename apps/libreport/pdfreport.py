@@ -53,27 +53,27 @@ class PDFReport():
         self.headers.append("")
     
     def setLandscape(self, state):
-        """ enable or disable landscape display
+        ''' enable or disable landscape display
             @var state: True or False
-        """
+        '''
         self.landscape = state
         
     def setRowsPerPage(self, num):
-        """ Sets the number of rows per page for Table daya
+        ''' Sets the number of rows per page for Table daya
             @var num: int
-        """
+        '''
         self.rowsperpage = int(num)
     
     def enableFooter(self, state):
-        """
+        '''
         enable formatter for the last row of the table
         e.g for summaries have bold border lines
         @var state: True or False
-        """
+        '''
         self.hasfooter = state
         
     def setTitle(self, title):
-        """ @var title: The Report Title """
+        ''' @var title: The Report Title '''
         if title:
             self.title = title
            
@@ -82,38 +82,38 @@ class PDFReport():
             self.pageinfo = pageinfo
                
     def setFilename(self, filename):
-        """ @var filename: filename for the generated pdf document """
+        ''' @var filename: filename for the generated pdf document '''
         if filename:
             self.filename = filename
     
                
     def setFontSize(self, size):
-        """ @var size: font-size """
+        ''' @var size: font-size '''
         if size:
             self.fontSize = size
                    
     def setNumOfColumns(self, cols):
-        """ @var cols: number of columns """
+        ''' @var cols: number of columns '''
         if cols:
             self.cols = cols
             
      
     def setPageBreak(self):
-        """ force/add a page break """
+        ''' force/add a page break '''
         self.data.append(PageBreak())
     
     def setElements(self, elements):
-        """ Add elements like paragraphs to the overall data """
+        ''' Add elements like paragraphs to the overall data '''
         for i in elements:
             self.data.append(i)
         
     def setTableData(self, queryset, fields, title, colWidths=None):        
-        """
+        '''
         set table data
         @var queryset: data
         @var fields: table column headings
         @var title: Table Heading
-    """
+    '''
         data = []
         header = False
         c = 0
@@ -155,12 +155,12 @@ class PDFReport():
             self.data.append(table)
         else:
             self.data.append(Paragraph("No Report", self.styles['Normal']))        
-        """
+        '''
             The number of rows per page for two columns is about 90.
             using this information you can figure how many pages the
             table is going to overlap hence you place a header/subtitle
             in that position for it to be printed appropriately
-        """
+        '''
         c = float(len(queryset))/self.rowsperpage
             
         if int(c)< c:
@@ -245,10 +245,10 @@ class MultiColDocTemplate(BaseDocTemplate):
     title = u"Report Title Here"
     
     def __init__(self, filename, frameCount=1, **kw):
-        """
+        '''
             @FIXME: need to remove frameCount to maintain consistency with BaseDocTemplate constructor
                    and hence find a way to pass frameCount
-        """
+        '''
         apply(BaseDocTemplate.__init__,(self, filename), kw)
         
         self.addPageTemplates(self.firstPage())
@@ -291,7 +291,7 @@ class MultiColDocTemplate(BaseDocTemplate):
         return PageTemplate(frames=framesFirstPage, id="firstPage")
                      
     def addHeader(self, canvas, document):
-        """ display the heading of the page or document """
+        ''' display the heading of the page or document '''
         canvas.saveState()
         title = self.getSubTitle(document.page-1)
         fontsize = 12
@@ -315,8 +315,8 @@ class MultiColDocTemplate(BaseDocTemplate):
     def getSubTitle(self, pos):
         
         try:
-            """ since subtitles vary from page to page, I pick the relevant
-             title according to the page number """    
+            ''' since subtitles vary from page to page, I pick the relevant
+             title according to the page number '''    
             return u"%s"%self.headers[pos]
         except:
             return u""

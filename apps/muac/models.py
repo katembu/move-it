@@ -132,14 +132,14 @@ class ReportMalnutrition(models.Model):
     @classmethod
     def count_by_provider(cls,reporter, duration_end=None,duration_start=None, status=None):
         
-        """Count Muac reports
+        '''Count Muac reports
         
         duration_start - starting date
         duration_end   - end date
         reporter - the reporter/provider
         status - MODERATE_STATUS | SEVERE_STATUS | SEVERE_COMP_STATUS | HEALTHY_STATUS | None
         
-        """
+        '''
         
         if reporter is None:
             return None

@@ -2,13 +2,13 @@
 # vim: ai ts=4 sts=4 et sw=4
 # maintainer: ukanga
 
-"""ChildCount Logging models
+'''ChildCount Logging models
 
 EventLog - for events logging
 SystemErrorLog - for exceptions logging
 MessageLog - for sms message logging
 
-"""
+'''
 
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
@@ -39,7 +39,7 @@ messages = {
 }
 
 class EventLog(models.Model):
-    """ This is a much more refined log, giving you nicer messages """
+    ''' This is a much more refined log, giving you nicer messages '''
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
@@ -58,7 +58,7 @@ class EventLog(models.Model):
 
 class SystemErrorLog(models.Model):
     
-    """ This is for exception errors """
+    ''' This is for exception errors '''
     
     message = models.CharField(max_length=500)
     created_at  = models.DateTimeField(db_index=True)
@@ -85,7 +85,7 @@ def elog(source, message):
 
 def log(source, message):
     
-    """Logs events"""
+    '''Logs events'''
     
     if not messages.has_key(message):
         raise ValueError, "No message: %s exists, please add to logs.py"
@@ -99,7 +99,7 @@ def log(source, message):
 
 class MessageLog(models.Model):
     
-    """ This is the raw dirt message log, useful for some things """
+    ''' This is the raw dirt message log, useful for some things '''
     
     mobile      = models.CharField(max_length=255, db_index=True)
     sent_by     = models.ForeignKey(Reporter, null=True)
@@ -113,13 +113,13 @@ class MessageLog(models.Model):
         
     def provider_number(self):
         
-        """reporters mobile phone number"""
+        '''reporters mobile phone number'''
         
         return self.reporter.conection().identity
     
     def sent_by_name(self):
         
-        """reporter's name"""
+        '''reporter's name'''
         
         try:
             return "%s %s" %(self.sent_by.first_name, self.sent_by.last_name)
@@ -128,7 +128,7 @@ class MessageLog(models.Model):
 
     def location(self):
         
-        """Reporter's Location"""
+        '''Reporter's Location'''
                 
         return u"%s"%self.sent_by.location
 
@@ -140,7 +140,7 @@ class MessageLog(models.Model):
     @classmethod
     def count_by_provider(cls,reporter, duration_end=None,duration_start=None):
         
-        """Count of all messages received per reporter"""
+        '''Count of all messages received per reporter'''
         
         if reporter is None:
             return None
@@ -154,7 +154,7 @@ class MessageLog(models.Model):
     @classmethod
     def count_processed_by_provider(cls,reporter, duration_end=None,duration_start=None):
         
-        """Count of correctly formatted messages received per reporter"""
+        '''Count of correctly formatted messages received per reporter'''
         
         if reporter is None:
             return None
@@ -168,7 +168,7 @@ class MessageLog(models.Model):
     @classmethod
     def count_refused_by_provider(cls,reporter, duration_end=None,duration_start=None):
         
-        """Count of incorrectly formatted messages received per reporter"""
+        '''Count of incorrectly formatted messages received per reporter'''
         
         if reporter is None:
             return None
@@ -182,7 +182,7 @@ class MessageLog(models.Model):
     @classmethod
     def days_since_last_activity(cls,reporter):
         
-        """Count of days since last activity/message was received"""
+        '''Count of days since last activity/message was received'''
         
         today = date.today()
         logs = MessageLog.objects.order_by("created_at").filter(created_at__lte=today,sent_by=reporter).reverse()

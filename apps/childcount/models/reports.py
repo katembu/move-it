@@ -2,14 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4
 # maintainer: ukanga
 
-"""ChildCount Report models
+'''ChildCount Report models
 
 Report
 Observation
 ReportCHWStatus - summarised reports - centering mostly on reporters
 ReportAllPatients - reports centering mostly on cases/patients
 
-"""
+'''
 
 from django.db import models
 from django.db.models import ObjectDoesNotExist
@@ -29,8 +29,8 @@ from datetime import datetime, date, timedelta
 
 class Report:
     def get_alert_recipients(self):
-        """ Each report will send an alert, how it will choose when to send an alert
-        is up to the model, however. """
+        ''' Each report will send an alert, how it will choose when to send an alert
+        is up to the model, however. '''
         # this is the reporter, the provider or the CHW depending what you call it
         provider = self.provider
         facility = provider.clinic
@@ -71,22 +71,20 @@ from muac.models import ReportMalnutrition
         
 class ReportCHWStatus(Report, models.Model):
     
-    """For summarised reports"""
+    '''For summarised reports'''
     
     class Meta:
         verbose_name = "CHW Perfomance Report"
         app_label = "childcount"
         
     @classmethod
-    def get_providers_by_clinic(cls, duration_start, duration_end, muac_duration_start, clinic_id=None):
-        
-        """Generate the CHW Perfomance report data
+    def get_providers_by_clinic(cls, duration_start, duration_end, muac_duration_start, clinic_id=None):        
+        '''Generate the CHW Perfomance report data
         
         duration_start - starting date
         duration_end   - end date
-        muac_duration_start - start date for muac reports
-        
-        """    
+        muac_duration_start - start date for muac reports        
+        '''    
         ps      = []
         fields  = []
         counter = 0
@@ -183,14 +181,11 @@ class ReportCHWStatus(Report, models.Model):
     
     @classmethod
     def muac_summary(cls, duration_start, duration_end, clinic=None):
-        
-        """Generate the Muac report data
+        '''Generate the Muac report data
         
         duration_start - starting date
-        duration_end   - end date
-        
-        """ 
-           
+        duration_end   - end date        
+        '''            
         ps      = []
         fields  = []
         counter = 0
@@ -266,15 +261,12 @@ class ReportCHWStatus(Report, models.Model):
         return None, None
     @classmethod
     def measles_summary(cls, duration_start, duration_end, muac_duration_start, clinic=None):
-        
-        """Generate Measles Summary data        
+        '''Generate Measles Summary data        
         
         duration_start - starting date
         duration_end   - end date
-        muac_duration_start - start date for muac reports
-        
-        """
-                 
+        muac_duration_start - start date for muac reports        
+        '''                 
         ps      = []
         fields  = []
         counter = 0
@@ -334,9 +326,7 @@ class ReportCHWStatus(Report, models.Model):
         
     @classmethod
     def measles_mini_summary(cls):
-        
-        """Generate measles summary data"""            
-        
+        '''Generate measles summary data'''        
         ps      = []
         fields  = []
         tcounter = 0
@@ -396,16 +386,14 @@ class ReportCHWStatus(Report, models.Model):
         
 class ReportAllPatients(Report, models.Model):
     
-    """for reports involving all cases/patients"""
+    '''for reports involving all cases/patients'''
     
     class Meta:
         verbose_name = "CHW Perfomance Report"
         app_label = "childcount"
     @classmethod
     def by_provider(cls, reporter=None):
-        
-        """Generate a list of cases for the specified reporter """
-            
+        '''Generate a list of cases for the specified reporter '''
         qs      = []
         fields  = []
         counter = 0
@@ -521,12 +509,10 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def measles_by_provider(cls, reporter=None):
-        
-        """Generate a list of cases who have not received the measles vaccine for the
+    def measles_by_provider(cls, reporter=None):        
+        '''Generate a list of cases who have not received the measles vaccine for the
         specified reporter
-        """
-            
+        '''            
         qs      = []
         fields  = []
         counter = 0
@@ -601,12 +587,10 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def malaria_by_provider(cls, provider_id=None):
-        
-        """Generate a list of cases who have been tested for malaria for the
+    def malaria_by_provider(cls, provider_id=None):        
+        '''Generate a list of cases who have been tested for malaria for the
         specified reporter
-        """    
-        
+        '''            
         qs      = []
         fields  = []
         counter = 0
@@ -656,16 +640,13 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
     
     @classmethod
-    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):
-                
-        """Generate malaria at risk data        
+    def malaria_at_risk(cls, duration_start, duration_end, clinic=None):                
+        '''Generate malaria at risk data        
         
         duration_start - starting date
         duration_end   - end date
-        clinic - specified clinic, default None
-        
-        """
-            
+        clinic - specified clinic, default None        
+        '''            
         qs      = []
         fields  = []
         counter = 0
@@ -708,16 +689,13 @@ class ReportAllPatients(Report, models.Model):
         return qs, fields
     
     @classmethod
-    def malnutrition_at_risk(cls, duration_start, duration_end, clinic=None):
-        
-        """Show at risk Cases for malnutrition reports
+    def malnutrition_at_risk(cls, duration_start, duration_end, clinic=None):        
+        '''Show at risk Cases for malnutrition reports
                 
         duration_start - starting date
         duration_end   - end date      
-        clinic - specified clinic, default None
-        
-        """    
-        
+        clinic - specified clinic, default None        
+        '''            
         qs      = []
         fields  = []
         counter = 0
@@ -761,10 +739,8 @@ class ReportAllPatients(Report, models.Model):
     
     
     @classmethod
-    def malnut_by_provider(cls):
-        
-        """Malnutrition reports per provider/reporter"""
-            
+    def malnut_by_provider(cls):        
+        '''Malnutrition reports per provider/reporter'''            
         qs      = []
         fields  = []
         counter = 0
@@ -806,10 +782,8 @@ class ReportAllPatients(Report, models.Model):
             return qs, fields
 
     @classmethod
-    def malnutrition_screening_info(cls,site=None):
-        
-        """Show information required for malnutrition screening forms. SNCC"""
-            
+    def malnutrition_screening_info(cls,site=None):        
+        '''Show information required for malnutrition screening forms. SNCC'''            
         qs      = []
         fields  = []
 
@@ -884,10 +858,8 @@ class ReportAllPatients(Report, models.Model):
 
     # Ajout Assane
     @classmethod
-    def by_age(cls,age_mois,cases=None):    
-        
-        """Show information required for malnutrition screening forms. SNCC      """
-            
+    def by_age(cls,age_mois,cases=None):
+        '''Show information required for malnutrition screening forms. SNCC      '''            
         qs      = []
         fields  = []
 
