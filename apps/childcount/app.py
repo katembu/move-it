@@ -78,7 +78,7 @@ class App(rapidsms.app.App):
     '''
 
     MAX_MSG_LEN = 140
-    keyword = Keyworder
+    keyword = Keyworder()
     handled = False
 
     def parse(self, message):
