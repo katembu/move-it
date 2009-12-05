@@ -10,22 +10,19 @@ ReportCHWStatus - summarised reports - centering mostly on reporters
 ReportAllPatients - reports centering mostly on cases/patients
 
 '''
+from datetime import datetime, date, timedelta
 
 from django.db import models
 from django.db.models import ObjectDoesNotExist
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+
+from reporters.models import Reporter, Role
+from locations.models import Location
 
 from childcount.models.general import Case
 from childcount.models.logs import MessageLog
 from measles.models import ReportMeasles
 from diarrhea.models import ReportDiarrhea
 from diagnosis.models import ReportDiagnosis
-
-from reporters.models import Reporter, Role
-from locations.models import Location
-
-from datetime import datetime, date, timedelta
 
 class Report:
     def get_alert_recipients(self):
