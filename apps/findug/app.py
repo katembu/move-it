@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: dgelvin
 
 from datetime import date as pydate, datetime
 
-import rapidsms
-from rapidsms.parsers.keyworder import * 
 from django.utils.translation import ugettext as _
+
+import rapidsms
+from rapidsms.parsers.keyworder import *
 
 from apps.reporters.models import *
 from apps.locations.models import *
-
 from apps.findug.models import *
-from utils import *
+from apps.findug.utils import *
 
 class HandlerFailed (Exception):
     pass
@@ -22,22 +23,25 @@ class MalformedRequest (Exception):
 class AmbiguousAlias (Exception):
     pass
 
-def registered (func):
+def registered(func):
     def wrapper (self, message, *args):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"Sorry, only registered users can access this program."))
+            message.respond(_(u"Sorry, only registered users "
+                               "can access this program."))
             return True
     return wrapper
 
-def admin (func):
+def admin(func):
     def wrapper (self, message, *args):
         reporter = message.persistant_connection.reporter
-        if reporter and ReporterGroup.objects.get(title='admin') in reporter.groups.only():
+        if reporter and \
+           ReporterGroup.objects.get(title='admin') in reporter.groups.only():
             return func(self, message, *args)
         else:
-            message.respond(_(u"Sorry, only administrators of the system can perform this action."))
+            message.respond(_(u"Sorry, only administrators of "
+                               "the system can perform this action."))
             return False
     return wrapper
 
@@ -84,7 +88,8 @@ class App (rapidsms.app.App):
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
-            message.respond(_(u"Error. Your message could not be recognized by the system. Please check and try again."))
+            message.respond(_(u"Error. Your message could not be recognized "
+                               "by the system. Please check and try again."))
             return False
         try:
             handled = func(self, message, *captures)
@@ -114,7 +119,9 @@ class App (rapidsms.app.App):
         try:
             clinic  = HealthUnit.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
-            message.respond(_(u"Subscribe error. Provided health unit code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            message.respond(_(u"Subscribe error. Provided health unit "
+                               "code (%(clinic)s) is wrong.") % 
+                               {'clinic': clinic_code})
             return True
 
         try:
@@ -138,7 +145,8 @@ class App (rapidsms.app.App):
             # something went wrong - at the
             # moment, we don't care what
         except:
-            message.respond("Subscribe error. Unable to register your account.")
+            message.respond(u"Subscribe error. "
+                             "Unable to register your account.")
             return True
 
         if role_code == None or role_code.__len__() < 1:
@@ -182,7 +190,9 @@ class App (rapidsms.app.App):
         try:
             reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Join Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
+            message.respond(_(u"Join Error. The provided alias (%(alias)s) "
+                               "does not exist in the system") % 
+                               {'alias': reporter_alias})
             return True
 
         return self.join_reporter(message, reporter, clinic_code, role_code)
@@ -194,8 +204,9 @@ class App (rapidsms.app.App):
         try:
             clinic  = HealthUnit.objects.get(code=clinic_code.lower())
         except models.ObjectDoesNotExist:
-            message.forward(reporter.connection().identity, \
-                _(u"Subscribe error. Provided clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            message.forward(reporter.connection().identity, 
+                _(u"Subscribe error. Provided clinic code (%(clinic)s) "
+                   "is wrong.") % {'clinic': clinic_code})
             return True
 
         # set location
@@ -203,10 +214,11 @@ class App (rapidsms.app.App):
 
         # check role code
         try:
-            role  = Role.objects.get(code=role_code)
+            role = Role.objects.get(code=role_code)
         except models.ObjectDoesNotExist:
-            message.forward(reporter.connection().identity, \
-                _(u"Join Error. Provided Role code (%(role)s) is wrong.") % {'role': role_code})
+            message.forward(reporter.connection().identity, 
+                            _(u"Join Error. Provided Role code (%(role)s) "
+                               "is wrong.") % {'role': role_code})
             return True
 
         reporter.role   = role
@@ -219,13 +231,22 @@ class App (rapidsms.app.App):
         reporter.save()
 
         # inform target
-        message.forward(reporter.connection().identity, \
-            _("Success. You are now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
+        message.forward(reporter.connection().identity, 
+                        _(u"Success. You are now registered as %(role)s at "
+                           "%(clinic)s with alias @%(alias)s.") %
+                           {'clinic': clinic,
+                            'role': reporter.role, 
+                            'alias': reporter.alias})
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
-            message.respond( \
-            _("Success. %(reporter)s is now registered as %(role)s at %(clinic)s with alias @%(alias)s.") % {'reporter': reporter, 'clinic': clinic, 'role': reporter.role, 'alias': reporter.alias})
+            message.respond(_(u"Success. %(reporter)s is now registered as "
+                               "%(role)s at %(clinic)s with "
+                               "alias @%(alias)s.") % 
+                               {'reporter': reporter,
+                                'clinic': clinic,
+                                'role': reporter.role,
+                                'alias': reporter.alias})
         return True
 
     # STOP
@@ -250,7 +271,9 @@ class App (rapidsms.app.App):
         try:
             reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Stop Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
+            message.respond(_(u"Stop Error. The provided alias (%(alias)s) "
+                               "does not exist in the system") % 
+                               {'alias': reporter_alias})
             return True
 
         return self.stop_reporter(message, reporter)
@@ -259,7 +282,8 @@ class App (rapidsms.app.App):
         ''' mark a reporter innactive in the system '''
 
         if not reporter.registered_self:
-            message.respond(_("%(reporter)s is already inactive.") % {'reporter': reporter})
+            message.respond(_(u"%(reporter)s is already inactive.") % 
+                               {'reporter': reporter})
             return True
 
         # set account inactive
@@ -270,13 +294,14 @@ class App (rapidsms.app.App):
         reporter.save()
 
         # inform target
-        message.forward(reporter.connection().identity, \
-            _("Success. You are now out of the system. Come back by sending BACK."))
+        message.forward(reporter.connection().identity,
+                        _(u"Success. You are now out of the system. Come "
+                           "back by sending BACK."))
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
-            message.respond( \
-            _("Success. %(reporter)s is now out of the system.") % {'reporter': reporter})
+            message.respond(_(u"Success. %(reporter)s is now out of "
+                               "the system.") % {'reporter': reporter})
         return True
 
     # BACK
@@ -301,7 +326,9 @@ class App (rapidsms.app.App):
         try:
             reporter    = Reporter.objects.get(alias=reporter_alias)
         except models.ObjectDoesNotExist:
-            message.respond(_("Stop Error. The provided alias (%(alias)s) does not exist in the system") % {'alias': reporter_alias})
+            message.respond(_(u"Stop Error. The provided alias (%(alias)s) "
+                               "does not exist in the system") % 
+                               {'alias': reporter_alias})
             return True
 
         return self.back_reporter(message, reporter)
@@ -310,7 +337,8 @@ class App (rapidsms.app.App):
         ''' mark a reporter active in the system '''
 
         if reporter.registered_self:
-            message.respond(_("%(reporter)s is already active.") % {'reporter': reporter})
+            message.respond(_(u"%(reporter)s is already active.") % 
+                               {'reporter': reporter})
             return True
 
         # set account inactive
@@ -321,13 +349,17 @@ class App (rapidsms.app.App):
         reporter.save()
 
         # inform target
-        message.forward(reporter.connection().identity, \
-            _("Success. You are back in the system with alias %(alias)s.") % {'alias': reporter.alias})
+        message.forward(reporter.connection().identity, 
+                        _(u"Success. You are back in the system with alias "
+                           "%(alias)s.") % {'alias': reporter.alias})
 
         #inform admin
         if message.persistant_connection.reporter != reporter:
-            message.respond( \
-            _("Success. %(reporter)s is back as %(role)s at %(clinic)s.") % {'reporter': reporter, 'clinic': reporter.location, 'role': reporter.role})
+            message.respond(_(u"Success. %(reporter)s is back as %(role)s "
+                               "at %(clinic)s.") % 
+                               {'reporter': reporter, 
+                                'clinic': reporter.location, 
+                                'role': reporter.role})
         return True
 
     # LOOKUP
@@ -341,26 +373,34 @@ class App (rapidsms.app.App):
         try:
             clinic  = Location.objects.get(code=clinic_code)
         except models.ObjectDoesNotExist:
-            message.forward(reporter.connection().identity, \
-                _(u"Lookup Error. Provided Clinic code (%(clinic)s) is wrong.") % {'clinic': clinic_code})
+            message.forward(reporter.connection().identity, 
+                            _(u"Lookup Error. Provided Clinic code "
+                               "(%(clinic)s) is wrong.") %
+                               {'clinic': clinic_code})
             return True
 
         # get list of reporters
-        reporters   = Reporter.objects.filter(location=clinic, registered_self=True)
+        reporters   = Reporter.objects.filter(location=clinic, 
+                                              registered_self=True)
 
         if name != None and name.__len__() > 0:
             reporters   = reporters.filter(first_name__contains=name)
 
         if reporters.__len__() == 0:
-            message.respond(_("No such people at %(clinic)s.") % {'clinic': clinic})
+            message.respond(_(u"No such people at %(clinic)s.") %
+                               {'clinic': clinic})
             return True           
         
-        msg     = ""
-        msg_stub= _(u"%(reporter)s/%(alias)s is %(role)s at %(clinic)s with %(number)s")
+        msg = ""
+        msg_stub = _(u"%(reporter)s/%(alias)s is %(role)s at "
+                      "%(clinic)s with %(number)s")
 
         # construct answer
         for areporter in reporters:
-            mst     = msg_stub % {'reporter': areporter, 'alias': areporter.alias, 'role': areporter.role.code.upper(), 'clinic': areporter.location.code.upper(), 'number': areporter.connection().identity}
+            mst = msg_stub % {'reporter': areporter, 'alias': areporter.alias, 
+                              'role': areporter.role.code.upper(), 
+                              'clinic': areporter.location.code.upper(), 
+                              'number': areporter.connection().identity}
             if msg.__len__() == 0:
                 msg = mst
             else:
@@ -393,38 +433,47 @@ class App (rapidsms.app.App):
         try:
             report_week = ReportPeriod.from_index(period)
         except ErroneousDate:
-            message.respond(_(u"FAILED. Sorry, no reports are allowed on Sundays. Retry tomorrow."))
+            message.respond(_(u"FAILED. Sorry, no reports are allowed "
+                               "on Sundays. Retry tomorrow."))
             return True
 
         try:
             diseases = diseases_from_string(text)
         except InvalidInput:
-            message.respond(_(u"FAILED. Sorry, the format of your report could not be understood. Please check syntax and try again."))
+            message.respond(_(u"FAILED. Sorry, the format of your report "
+                               "could not be understood. Please check syntax "
+                               "and try again."))
             return True
         except IncoherentValue, e:
             message.respond(e.message)
             return True
 
         # create report object
-        if DiseasesReport.objects.filter(reporter=reporter, period=period).count() > 0:
+        if DiseasesReport.objects.filter(reporter=reporter, 
+                                         period=period).count() > 0:
             pass
 
-        report  = DiseasesReport.by_reporter_period(reporter=reporter, period=report_week)
+        report  = DiseasesReport.by_reporter_period(reporter=reporter, 
+                                                    period=report_week)
         report.reset()
 
         # grab all diseases and assume 0 for undeclared
         try:
             all_diseases = list(Disease.objects.all())
             for dis in diseases:        
-                obs = DiseaseObservation.by_values(disease=dis['disease'], cases=dis['cases'], deaths=dis['deaths'])
+                obs = DiseaseObservation.by_values(disease=dis['disease'], 
+                                                   cases=dis['cases'],
+                                                   deaths=dis['deaths'])
                 report.diseases.add(obs)
                 try: 
                     all_diseases.remove(dis['disease'])
                 except:
                     raise IncoherentValue
             for dis in all_diseases:
-                if dis in diseases: continue
-                obs = DiseaseObservation.by_values(disease=dis, cases=0, deaths=0)
+                if dis in diseases: 
+                    continue
+                obs = DiseaseObservation.by_values(disease=dis, 
+                                                   cases=0, deaths=0)
                 report.diseases.add(obs)
 
             # save diseases
@@ -434,22 +483,28 @@ class App (rapidsms.app.App):
             return True
 
         # Disease threshold search
-        locations       =  reporter.location.ancestors(include_self=True)
-        alerts          = []
+        locations = reporter.location.ancestors(include_self=True)
+        alerts = []
         for disease in diseases:
             print disease
             triggers = DiseaseAlertTrigger.objects.filter(disease=disease['disease'], location__in=locations)
             for trigger in triggers:
                 print trigger
-                alert   = trigger.raise_alert(period=report_week, location=reporter.location)
-                if alert: alerts.append(alert)
+                alert = trigger.raise_alert(period=report_week, 
+                                            location=reporter.location)
+                if alert:
+                    alerts.append(alert)
         
         # Add to Master Report
-        master_report   = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
+        master_report = EpidemiologicalReport.by_clinic_period(clinic=HealthUnit.by_location(reporter.location), period=report_week)
         master_report.diseases  = report
         master_report.save()      
 
-        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! %(summary)s") % {'date': report.period, 'title': report.title, 'comp': master_report.quarters, 'summary': report.summary})
+        message.respond(_(u"%(comp)s Thank you for %(date)s %(title)s! "
+                           "%(summary)s") % 
+                           {'date': report.period, 'title': report.title, 
+                            'comp': master_report.quarters, 
+                            'summary': report.summary})
 
         self.completed_report(message, master_report)
         return True
@@ -461,13 +516,16 @@ class App (rapidsms.app.App):
     keyword.prefix = ""
     @keyword(r'test(\-[0-9])? (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers) (numbers)')
     @registered
-    def malaria_cases_report(self, message, period, opd_attendance, suspected_cases, rdt_tests, rdt_positive_tests, microscopy_tests, microscopy_positive, positive_under_five, positive_over_five):
+    def malaria_cases_report(self, message, period, opd_attendance, 
+                             suspected_cases, rdt_tests, rdt_positive_tests, 
+                             microscopy_tests, microscopy_positive, 
+                             positive_under_five, positive_over_five):
 
         # reporter
-        reporter    = message.persistant_connection.reporter
+        reporter = message.persistant_connection.reporter
 
         # period
-        period      = 0 if not period else int(period[1:])
+        period = 0 if not period else int(period[1:])
         try:
             report_week = ReportPeriod.from_index(period)
         except ErroneousDate:

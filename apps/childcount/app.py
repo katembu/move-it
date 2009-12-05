@@ -100,7 +100,7 @@ class App(rapidsms.app.App):
         message.was_handled = False
 
     def cleanup(self, message):
-        ''' '''
+        ''' log message '''
         log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
                          text=message.text,
