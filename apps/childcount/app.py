@@ -18,12 +18,12 @@ from rapidsms.connection import Connection
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils.translation import ugettext as _
-from apps.reporters.models import Role, Reporter
-from apps.locations.models import Location, LocationType
+from reporters.models import Role, Reporter
+from locations.models import Location, LocationType
 
-from apps.childcount.models.logs import MessageLog, log, elog
-from apps.childcount.models.general import  User
-from apps.childcount.models.general import Case, CaseNote
+from childcount.models.logs import MessageLog, log, elog
+from childcount.models.general import  User
+from childcount.models.general import Case, CaseNote
 
 
 def authenticated(func):
