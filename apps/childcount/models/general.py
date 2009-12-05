@@ -2,12 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4
 # maintainer: ukanga
 
-"""ChildCount Models
+'''ChildCount Models
 
 Case - Patient/Child model
 CaseNote - case notes model
 
-"""
+'''
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -20,7 +20,7 @@ from locations.models import Location
 
 class Case(models.Model):    
     
-    """Holds the patient details, properties and methods related to it"""
+    '''Holds the patient details, properties and methods related to it'''
     
     class Meta:
         app_label = "childcount"
@@ -54,19 +54,15 @@ class Case(models.Model):
     updated_at  = models.DateTimeField(auto_now=True)
     status      = models.IntegerField(choices=STATUS_CHOICES, default=STATUS_ACTIVE)
 
-    def get_absolute_url(self):
-        
-        """return absolute url of a case"""
-        
+    def get_absolute_url(self):        
+        '''return absolute url of a case'''        
         return "/case/%s/" % self.id
 
     def __unicode__ (self):
         return "#%d" % self.ref_id
 
-    def _luhn (self, x):
-        
-        """Get a reference number given a number - usually the primary key.  """
-        
+    def _luhn (self, x):        
+        '''Get a reference number given a number - usually the primary key.  '''        
         parity = True
         sum = 0
         for c in reversed(str(x)):
@@ -87,10 +83,8 @@ class Case(models.Model):
             self.ref_id = self._luhn(self.id)
             super(Case, self).save(*args)
     
-    def get_dictionary(self):
-        
-        """get a dictionary of a case details"""
-        
+    def get_dictionary(self):        
+        '''get a dictionary of a case details'''        
         return {
             'ref_id': self.ref_id,
             'last_name': self.last_name.upper(),
@@ -108,51 +102,39 @@ class Case(models.Model):
         now = datetime.now().date()
         return (now.year - self.dob.year, now.month - self.dob.month)
     
-    def date_registered(self):
-        
-        """Date case was registered """
-        
+    def date_registered(self):        
+        '''Date case was registered '''        
         return self.created_at.strftime("%d.%m.%y")
     
-    def provider_mobile(self):
-        
-        """reporters mobile number"""
-        
+    def provider_mobile(self):        
+        '''reporters mobile number'''        
         return self.reporter.connection().identity
     
-    def short_name(self):
-        
-        """Case short name: should not easily identify who really the patient is"""
-         
+    def short_name(self):        
+        '''Case short name: should not easily identify who really the patient is'''         
         return "%s %s."%(self.first_name, self.last_name[0])
     
     def short_dob(self):
         return self.dob.strftime("%d.%m.%y")
     
-    def age(self):
+    def age(self):        
+        '''Get the age of the case in months
         
-        """Get the age of the case in months
-        
-        return string age
-        
-        """
-        
+        return string age        
+        '''        
         if self.dob is not None:
             delta = datetime.now().date() - self.dob            
             # FIXME: i18n
             return str(int(delta.days/30.4375))+"m"
     
-    def eligible_for_measles(self):
-        
-        """Check if case is eligible for measles vaccination
+    def eligible_for_measles(self):        
+        '''Check if case is eligible for measles vaccination
         
         case should be between 9 and 60 months old
         
         return True - if case is eligible for measles vaccination
-        return False - if case is not eligible for measles vaccination
-        
-        """
-        
+        return False - if case is not eligible for measles vaccination        
+        '''        
         if self.dob is not None:
             delta = datetime.now().date() - self.dob
             months = int(delta.days/30.4375)
@@ -162,10 +144,8 @@ class Case(models.Model):
             return False
     
     @classmethod
-    def list_e_4_measles(cls,reporter):
-        
-        """List cases that ere eligible for measles vaccination"""
-        
+    def list_e_4_measles(cls,reporter):        
+        '''List cases that ere eligible for measles vaccination'''        
         ninem = date.today() - timedelta(int(30.4375*9))
         sixtym = date.today() - timedelta(int(30.4375*60))
         
@@ -175,16 +155,14 @@ class Case(models.Model):
             return None
         
     @classmethod
-    def count_by_provider(cls, reporter, status=None):
-        
-        """Count the number of cases that a reporter is in charge of
+    def count_by_provider(cls, reporter, status=None):        
+        '''Count the number of cases that a reporter is in charge of
         
         reporter - reporter in charge of the cases
         status - STATUS_ACTIVE | STATUS_INACTIVE | STATUS_DEAD | None - is equivalent to only active cases
         
         return int - count
-        """
-        
+        '''        
         try:
             if status is None:
                 status  = Case.STATUS_ACTIVE
@@ -193,16 +171,13 @@ class Case(models.Model):
             return None
         
     @classmethod
-    def count_for_last_30_days(cls, reporter):
-        
-        """Count new cases in the last 30 days from today
+    def count_for_last_30_days(cls, reporter):        
+        '''Count new cases in the last 30 days from today
         
         reporter - specific reporter
         
-        return int - count
-        
-        """
-        
+        return int - count        
+        '''        
         thirty_days = timedelta(days=30)
         end_date = date.today()
         start_date = end_date - thirty_days
@@ -212,6 +187,10 @@ class Case(models.Model):
             return None
 
     def set_status(self, state):
+        '''change the status of a case
+        
+        state - the status to be applied - STATUS_ACTIVE, STATUS_INACTIVE, STATUS_DEAD
+        '''
         states = dict([(k, v) for (k,v) in self.STATUS_CHOICES])
         rst =  states.get(state, None)
         if rst is None:
@@ -220,10 +199,8 @@ class Case(models.Model):
         return state
     
     @classmethod
-    def update_overage_status(cls):
-        
-        """Update status of over 60 months cases to inactive."""
-        
+    def update_overage_status(cls):        
+        '''Update status of over 60 months cases to inactive.'''        
         sixtym = date.today() - timedelta(int(30.4375*60))
         
         try:
@@ -240,14 +217,14 @@ class Case(models.Model):
 
 class CaseNote(models.Model):
     
-    """ Holds notes for Cases
+    ''' Holds notes for Cases
         
         case - Case object
         created_by - reporter
         created_at - time created
-        text - stores the note text
-        
-    """
+        text - stores the note text        
+    '''
+    
     case        = models.ForeignKey(Case, related_name="notes", db_index=True)
     created_by  = models.ForeignKey(Reporter, db_index=True)
     created_at  = models.DateTimeField(auto_now_add=True, db_index=True)
