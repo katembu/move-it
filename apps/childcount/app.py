@@ -93,7 +93,7 @@ class App(rapidsms.app.App):
                          sent_by=message.persistant_connection.reporter,
                          text=message.text,
                          was_handled=message.was_handled)
-        log.save
+        log.save()
 
     def handle(self, message):
         ''' Function selector
