@@ -6,7 +6,7 @@
 
 Report
 Observation
-ReportCHWStatus - summarised reports - centering mostly on reporters
+ReportCHWStatus - summarized reports - centering mostly on reporters
 ReportAllPatients - reports centering mostly on cases/patients
 
 '''
