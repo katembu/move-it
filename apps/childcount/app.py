@@ -80,6 +80,18 @@ class App(rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
+    
+    
+    def configure(self,default_role=None,tab_link="/childcount"):
+        '''Set default reporter role
+        
+        default role is None
+        '''
+        try:
+            self.debug(default_role)
+            self.default_role = default_role
+        except:
+            pass
 
     def parse(self, message):
         ''' Parse incoming messages.
@@ -191,7 +203,7 @@ class App(rapidsms.app.App):
             message.respond("Join Error. Unable to register your account.")
 
         if role_code == None or role_code.__len__() < 1:
-            role_code = 'chw'
+            role_code = self.default_role
 
         reporter = message.persistant_connection.reporter
 
