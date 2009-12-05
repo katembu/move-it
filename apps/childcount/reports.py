@@ -2,41 +2,31 @@
 # vim: ai ts=4 sts=4 et sw=4
 # maintainer: ukanga
 
-from rapidsms.webui.utils import render_to_response
-from django.db.models import ObjectDoesNotExist, Q
-from django.contrib.auth.models import User, Group
-from datetime import datetime, timedelta
-from childcount.forms.general import MessageForm
+from datetime import date, datetime, timedelta
+import csv
+import StringIO
 
-from childcount.forms.login import LoginForm
-from childcount.shortcuts import as_html, login_required
-from childcount.models.logs import log, MessageLog, EventLog
-from childcount.models.general import Case
-from childcount.models.reports import ReportCHWStatus, ReportAllPatients
-from muac.models import ReportMalnutrition
-from mrdt.models import ReportMalaria
+from django.template import Template, Context
+from django.http import HttpResponse
+
+
+from rapidsms.webui.utils import render_to_response
+
 from locations.models import Location
 from reporters.models import Reporter, Role
 
 from childcount.utils import day_end, day_start, month_end, next_month
+from childcount.shortcuts import login_required
+from childcount.models.logs import MessageLog, EventLog
+from childcount.models.general import Case
+from childcount.models.reports import ReportCHWStatus, ReportAllPatients
+from muac.models import ReportMalnutrition
+from mrdt.models import ReportMalaria
 
 from libreport.pdfreport import PDFReport
+
 from reportlab.lib.units import inch
-
-from django.utils.translation import ugettext_lazy as _
-from django.template import Template, Context
-from django.template.loader import get_template
-from django.core.paginator import Paginator, InvalidPage
-from django.http import HttpResponse, HttpResponseRedirect
-
-from tempfile import mkstemp
-from datetime import datetime, timedelta, date
-import os
-import csv
-import StringIO
-
-
-from reportlab.platypus import *
+from reportlab.platypus import Paragraph, Spacer, Preformatted
 from reportlab.lib.styles import getSampleStyleSheet
 
 styles = getSampleStyleSheet()
