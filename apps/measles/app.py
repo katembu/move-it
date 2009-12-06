@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
+
 from django.db import models
 
 import rapidsms
@@ -12,7 +14,6 @@ from childcount.models.reports import ReportCHWStatus
 from reporters.models import Reporter, ReporterGroup
 from models import ReportMeasles
 
-import time
 
 def registered (func):
     def wrapper (self, message, *args):
