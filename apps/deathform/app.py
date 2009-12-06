@@ -46,6 +46,13 @@ class HandlerFailed (Exception):
 
 
 class App (rapidsms.app.App):
+
+    '''Deathform main App
+
+    general death reporting: death
+    registered case/child reporting: cdeath, death
+    '''
+
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
