@@ -39,6 +39,10 @@ messages = {
 }
 
 
+class MessageDoesNotExist(Exception):
+    pass
+
+
 class EventLog(models.Model):
 
     ''' This is a much more refined log, giving you nicer messages '''
@@ -89,7 +93,8 @@ def elog(source, message):
 def log(source, message):
     '''Logs events'''
     if not messages.has_key(message):
-        raise ValueError, "No message: %s exists, please add to logs.py"
+        raise MessageDoesNotExist("No message: %s exists, "\
+                                  "please add to logs.py")
     if not source.id:
         print "* Cannot log until the object has been saved, id is None, %s"\
          % message
