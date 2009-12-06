@@ -45,11 +45,20 @@ class App (rapidsms.app.App):
             # didn't find a matching function
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            input_text = message.text.lower()
-            if not (input_text.find("birth") == -1):
-                message.respond(self.get_birth_report_format_reminder())
-                self.handled = True
-                return True
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
+            birth_input = message.text.lower()
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if birth_input.find(first_word) > -1:
+                        message.respond(format)
+                        return True
+                except Exception, e:
+                    self.debug(e)
+                    self.debug(birth_input)
+                
             return False
         try:
             self.handled = func(self, message, *captures)
@@ -159,8 +168,9 @@ class App (rapidsms.app.App):
         rbirth = ReportBirth.objects.filter(case=case)
         
         if rbirth:
-            raise HandlerFailed(_(
-            "The birth of %(last_name)s, %(first_name)s (+%(PID)s) has already been reported by %(reporter)s.") % info)
+            raise HandlerFailed(_("The birth of %(last_name)s, %(first_name)s (+%(PID)s) " \
+                "has already been reported by %(reporter)s.") \
+                % info)
             
         
         abirth = ReportBirth(**info2)
@@ -174,4 +184,6 @@ class App (rapidsms.app.App):
         
         
         return True
-    
+    report_birth.format = "birth [last name] [first name] [gender m/f]" \
+            " [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian]" \
+            " (complications)"
