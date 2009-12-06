@@ -115,10 +115,6 @@ class App (rapidsms.app.App):
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
-    def get_death_report_format_reminder(self):
-        '''Expected format for death command, sent as a reminder'''
-        return "Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
-
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_death(self, message, last, first, gender, age, dod, cause, where, description=""):
@@ -163,10 +159,6 @@ class App (rapidsms.app.App):
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
     report_death.format = "death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
-    
-    def get_cdeath_report_format_reminder(self):
-        '''Expected format for cdeath command, sent as a reminder'''
-        return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
         
     keyword.prefix = ["cdeath", "death"]
 
