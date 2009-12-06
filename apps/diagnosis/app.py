@@ -2,6 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+'''Diagnosis App
+
+Diagnostics
+'''
+
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
