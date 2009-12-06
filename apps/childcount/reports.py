@@ -1,6 +1,27 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
+
+'''Report Views
+
+header - Creates a reportlab PDF element and adds it to the global Elements list
+p - Create a text Paragraph using  ParaStyle
+pre - Create a text Preformatted Paragraph using  PreStyle
+reports - Lists Report links that can be generated in childcount
+last_30_days - A pdf report of chw perfomance within the last 30 days
+muac_summary - A pdf report of chw perfomance within the last 30 days
+measles_summary - A summary of measles report per clinic - pdf formart
+patients_by_chw - List of Cases/Patient per CHW
+patients_by_age - Children Screening per age for SN CC
+malnutrition_screening - Malnutrition Screening Form Originally for SN CC
+handle_csv - Generate a csv file
+report_view - view a specified report
+malnut - List @Risk Malnutrition Cases per clinic
+malaria - List Positive RDT Test Cases per clinic
+report_monitoring_csv - Generate a monthly monitoring report in csv format
+measles_mini_summary_csv - A summary of measles report per clinic in csv format
+measles - List of Cases/Children Eligible for measles not yet vaccinated
+'''
 
 from datetime import date, datetime, timedelta
 import csv
@@ -69,7 +90,7 @@ app['name'] = "ChildCount:Health"
 
 @login_required
 def reports(request):    
-    '''Lists Reports that can be generated in childcount'''    
+    '''Lists Report links that can be generated in childcount'''    
     template_name="childcount/reports/reports.html"
     
     clinics = Location.objects.filter(type__name="Clinic")
@@ -490,7 +511,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     return pdfrpt.render()
 
 def report_monitoring_csv(request, object_id, file_name):    
-    '''Generate a monthly monitoring report in csf format
+    '''Generate a monthly monitoring report in csv format
     
     object_id - a date string e.g 112009 - November, 2009
     file_name - csv filename
@@ -654,7 +675,7 @@ def report_monitoring_csv(request, object_id, file_name):
     response.write(output.getvalue())
     return response
 
-def measles_mini_summary_csv(request, file_name):    
+def measles_mini_summary_csv(request, file_name):
     '''A summary of measles report per clinic in csv format'''    
     output = StringIO.StringIO()
     csvio = csv.writer(output)
