@@ -2,6 +2,15 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+'''Diagnosis Models
+
+Lab - Stores key/value lab codes
+LabDiagonsis - Stores diagnosed Lab results
+DiagnosisCategory - Maintains Diagnosis Categories
+Diagnosis - Stores Diagnosis codes
+ReportDiagnosis - Stores Diagnosis reports
+'''
+
 from django.db import models
 from datetime import datetime
 
