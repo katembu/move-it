@@ -7,6 +7,10 @@
 Diagnostics
 '''
 
+import re
+import datetime
+from functools import wraps
+
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
@@ -17,18 +21,24 @@ from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
-import re, datetime
-
 find_diagnostic_re = re.compile('( -[\d\.]+)',re.I)
 find_lab_re =  re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
 
 
-def registered (func):
-    def wrapper (self, message, *args):
+def registered(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if a reporter is attached to the message
+
+    return function or boolean '''
+
+    @wraps(func)
+    def wrapper(self, message, *args):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
+            message.respond(_(u"%s") \
+                     % "Sorry, only registered users can access this program.")
             return True
     return wrapper
 
