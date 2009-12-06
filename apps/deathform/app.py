@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
+
+import re
+import time, datetime
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
@@ -10,17 +14,17 @@ from childcount.models.logs import MessageLog
 from childcount.models.general import Case
 from deathform.models.general import ReportDeath
 
-import re
-import time, datetime
 
 def registered (func):
     def wrapper (self, message, *args):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
+            message.respond(_(u"%s")%"Sorry, only registered users "\
+                            "can access this program.")
             return True
     return wrapper
+
 
 class HandlerFailed (Exception):
     pass
