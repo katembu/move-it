@@ -3,11 +3,9 @@
 # maintainer: ukanga
 
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from models.general import Case
 from models.logs import MessageLog, EventLog, SystemErrorLog
 from models.reports import Observation
-from django.utils.translation import ugettext_lazy as _
 
 
 class CaseAdmin(admin.ModelAdmin):
