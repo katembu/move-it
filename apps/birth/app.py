@@ -2,6 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+'''Birth app
+
+Records Births and then registers new case
+'''
+
 import re
 import time
 import datetime
@@ -41,6 +46,12 @@ class HandlerFailed (Exception):
 
 
 class App (rapidsms.app.App):
+
+    '''Birth main app
+
+    Records Births and then registers new case: birth
+    '''
+
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
