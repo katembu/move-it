@@ -58,22 +58,25 @@ class App (rapidsms.app.App):
 
         Matchs functions with keyword using Keyworder
         Replies formatting advices on error
-        Replies on error and if no function matched '''
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
             # make sure we tell them that we got a problem
             #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
             input_text = message.text.lower()
-            if not (input_text.find("cdeath") == -1):
-                message.respond(self.get_cdeath_report_format_reminder())
-                self.handled = True
-                return True
-            if not (input_text.find("death") == -1):
-                message.respond(self.get_death_report_format_reminder())
-                self.handled = True
-                return True
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if input_text.find(first_word) > -1:
+                        message.respond(format)
+                        return True
+                except:
+                    pass
             return False
         try:
             self.handled = func(self, message, *captures)
@@ -115,11 +118,14 @@ class App (rapidsms.app.App):
     def get_death_report_format_reminder(self):
         '''Expected format for death command, sent as a reminder'''
         return "Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
-    
+
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_death(self, message, last, first, gender, age, dod, cause, where, description=""):
-        
+        '''reports a death
+
+        Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]
+        '''
         if age[len(age)-1].upper() == 'Y':
             age = int(age[:len(age)-1])*12
         else:
@@ -156,15 +162,21 @@ class App (rapidsms.app.App):
         info = death.get_dictionary()
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
+    report_death.format = "death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
     
     def get_cdeath_report_format_reminder(self):
         '''Expected format for cdeath command, sent as a reminder'''
         return "Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
         
     keyword.prefix = ["cdeath", "death"]
+
     @keyword("\+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
     def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
+        '''records a child death, the child should be already registered with childcount
+        
+        Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]
+        '''
         #Is the child registered with us?
         case = self.find_case(ref_id)
         age = case.age()
@@ -207,4 +219,4 @@ class App (rapidsms.app.App):
         info = death.get_dictionary()
         message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
         return True
-    
+    report_cdeath.format = "cdeath [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
