@@ -2,25 +2,35 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+from functools import wraps
+
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
-from django.utils.translation import ugettext_lazy as _
 
 from childcount.models.logs import MessageLog
 from childcount.models.general import Case
 from childcount.models.reports import ReportCHWStatus
 from reporters.models import Reporter, ReporterGroup
-from models import ReportMeasles
+from measles.models import ReportMeasles
 
 
 def registered (func):
-    def wrapper (self, message, *args):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if a reporter is attached to the message
+
+    return function or boolean '''
+
+    @wraps(func)
+    def wrapper(self, message, *args):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
+            message.respond(_(u"%s") \
+                     % "Sorry, only registered users can access this program.")
             return True
     return wrapper
 
