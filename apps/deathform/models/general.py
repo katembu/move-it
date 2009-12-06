@@ -2,6 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+'''Death form models
+
+ReportDeath - Record deaths
+'''
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
