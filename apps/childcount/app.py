@@ -120,7 +120,7 @@ class App(rapidsms.app.App):
 
             command_list = [method for method in dir(self) \
                             if hasattr(getattr(self, method), "format")]
-            childcount_input = message.text.lower
+            childcount_input = message.text.lower()
             for command in command_list:
                 format = getattr(self, command).format
                 try:
@@ -195,7 +195,7 @@ class App(rapidsms.app.App):
 
             # attach the reporter to the current connection
             message.persistant_connection.reporter = rep
-            message.persistant_connection.save
+            message.persistant_connection.save()
 
             # something went wrong - at the
             # moment, we don't care what
@@ -241,7 +241,7 @@ class App(rapidsms.app.App):
         reporter.registered_self = True
 
         # save modifications
-        reporter.save
+        reporter.save()
 
         # inform target
         message.forward(reporter.connection().identity, \
@@ -279,7 +279,7 @@ class App(rapidsms.app.App):
         except object.DoesNotExist:
             self.respond_not_registered(message, username)
         user.registered_self = True
-        user.save
+        user.save()
         info = {"mobile": user.connection().identity,
                 "last_name": user.last_name.title(),
                 "first_name": user.first_name.title(),
@@ -361,7 +361,7 @@ class App(rapidsms.app.App):
             gender_matches = re.match(r'[mf]', token, re.IGNORECASE)
             if gender_matches is not None:
                 self.debug('matched gender...')
-                gender = token.upper
+                gender = token.upper()
                 continue
 
             if token.isdigit():
@@ -513,7 +513,7 @@ class App(rapidsms.app.App):
             # TODO: log this message
             return True
         case = Case(**info)
-        case.save
+        case.save()
 
         info.update({
             "id": case.ref_id,
@@ -566,7 +566,7 @@ class App(rapidsms.app.App):
             raise HandlerFailed(_("Cannot cancel +%s: case has diagnosis " \
                                 "reports.") % ref_id)
 
-        case.delete
+        case.delete()
         message.respond(_("Case +%s cancelled.") % ref_id)
 
 
@@ -586,8 +586,8 @@ class App(rapidsms.app.App):
 
         case = self.find_case(ref_id)
         case.set_status(Case.STATUS_INACTIVE)
-        case.save
-        info = case.get_dictionary
+        case.save()
+        info = case.get_dictionary()
         message.respond(_("+%(ref_id)s: %(last_name)s, %(first_name)s " \
                         "%(gender)s/%(months)s (%(guardian)s) has been " \
                         "made inactive") % info)
@@ -604,11 +604,11 @@ class App(rapidsms.app.App):
         ref_id: case reference number
         reason (optional): free text explaination '''
         case = self.find_case(ref_id)
-        info = case.get_dictionary
+        info = case.get_dictionary()
 
         if case.status == Case.STATUS_INACTIVE:
             case.set_status(Case.STATUS_ACTIVE)
-            case.save
+            case.save()
             message.respond(_("+%(ref_id)s: %(last_name)s, %(first_name)s " \
                             "%(gender)s/%(months)s (%(guardian)s) "\
                             "has been activated") % info)
@@ -636,7 +636,7 @@ class App(rapidsms.app.App):
         case = self.find_case(ref_id)
         new_provider = self.find_provider(message, target)
         case.reporter = new_provider
-        case.save
+        case.save()
         info = {
             'username': new_provider.alias,
             'name': new_provider.full_name(),
@@ -684,7 +684,7 @@ class App(rapidsms.app.App):
         note: free text note '''
         reporter = message.persistant_connection.reporter
         case = self.find_case(ref_id)
-        CaseNote(case=case, created_by=reporter, text=note).save
+        CaseNote(case=case, created_by=reporter, text=note).save()
         message.respond(_("Note added to case +%s.") % ref_id)
 
         log(case, "note_added")
@@ -728,7 +728,7 @@ class App(rapidsms.app.App):
             return True
 
         reporter.location = location
-        reporter.save
+        reporter.save()
 
         info = {"reporter": reporter,
                 "location": reporter.location,
@@ -783,7 +783,7 @@ class App(rapidsms.app.App):
             first_case = iscase[0]
             #iscase = Case(**info)
             first_case.dob = info['dob']
-            first_case.save
+            first_case.save()
         else:
             message.respond(_(" The patient %(ref_id)s is not registred.") \
                             % info)
