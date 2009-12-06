@@ -3,7 +3,8 @@
 # maintainer: ukanga
 
 import re
-import time, datetime
+import time
+import datetime
 from functools import wraps
 
 import rapidsms
@@ -43,17 +44,17 @@ class App (rapidsms.app.App):
     keyword = Keyworder()
     handled = False
 
-    def start (self):
+    def start(self):
         '''Configure your app in the start phase.'''
         pass
 
-    def parse (self, message):
+    def parse(self, message):
         ''' Parse incoming messages.
 
         flag message as not handled '''
         message.was_handled = False
 
-    def handle (self, message):
+    def handle(self, message):
         ''' Function selector
 
         Matchs functions with keyword using Keyworder
@@ -64,7 +65,6 @@ class App (rapidsms.app.App):
         except TypeError:
             # didn't find a matching function
             # make sure we tell them that we got a problem
-            #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
             command_list = [method for method in dir(self) \
                             if hasattr(getattr(self, method), "format")]
             input_text = message.text.lower()
@@ -82,17 +82,18 @@ class App (rapidsms.app.App):
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
-            
+
             self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("%s")%"An error occurred. Please call 0733202270.")
+            message.respond(_("%s") % "An error occurred."\
+                            " Please call 0733202270.")
             raise
         message.was_handled = bool(self.handled)
         return self.handled
 
-    def cleanup (self, message):
+    def cleanup(self, message):
         ''' log message '''
         if bool(self.handled):
             log = MessageLog(mobile=message.peer,
@@ -101,15 +102,20 @@ class App (rapidsms.app.App):
                          was_handled=message.was_handled)
             log.save()
 
-    def outgoing (self, message):
+    def outgoing(self, message):
         '''Handle outgoing message notifications.'''
         pass
 
-    def stop (self):
+    def stop(self):
         '''Perform global app cleanup when the application is stopped.'''
         pass
-    
-    def find_case (self, ref_id):
+
+    def find_case(self, ref_id):
+        '''Find a registered case
+
+        return the Case object
+        raise HandlerFailed if case not found
+        '''
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
@@ -117,20 +123,24 @@ class App (rapidsms.app.App):
 
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
-    def report_death(self, message, last, first, gender, age, dod, cause, where, description=""):
+    def report_death(self, message, last, first, gender, age, dod, \
+                     cause, where, description=""):
         '''reports a death
 
-        Format: death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]
+        Format: death [last_name] [first_name] [gender m/f] [age[m/y]]
+        [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O]
+        [description]
         '''
-        if age[len(age)-1].upper() == 'Y':
-            age = int(age[:len(age)-1])*12
+        if age[len(age) - 1].upper() == 'Y':
+            age = int(age[:len(age) - 1]) * 12
         else:
-            age = int(age[:len(age)-1])
-        
+            age = int(age[:len(age) - 1])
+
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %s") % dod)
+            raise HandlerFailed(_("Date must be in the format ddmmyy: %s")\
+                                 % dod)
         else:
             dod = re.sub(r'\D', '', dod)
             try:
@@ -139,49 +149,59 @@ class App (rapidsms.app.App):
                 try:
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s") % dod)
-            dod = datetime.date(*dod[:3])       
+                    raise HandlerFailed(_("Couldn't understand date: %s")\
+                                         % dod)
+            dod = datetime.date(*dod[:3])
         if description is None:
             description = "No description"
         reporter = message.persistant_connection.reporter
-        death = ReportDeath(last_name=last,first_name=first,gender=gender.upper(),
-                            age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),
-                            description=description, dod=dod)
+        death = ReportDeath(last_name=last, first_name=first, \
+                    gender=gender.upper(), \
+                    age=age, reporter=reporter, where=where.upper(), \
+                    cause=cause.upper(), description=description, dod=dod)
         #Perform Location checks
         if death.get_where() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
-        #Perform Cause Check  
+            raise HandlerFailed(_("Location `%s` is not known. "\
+                        "Please try again with a known location") % where)
+        #Perform Cause Check
         if death.get_cause() is None:
-            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
-        
+            raise HandlerFailed(_("Cause `%s` is not known. "\
+                    "Please try again with a known death cause") % cause)
+
         death.save()
         info = death.get_dictionary()
-        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of "\
+                          "%(cause)s at %(where)s") % info)
         return True
-    report_death.format = "death [last_name] [first_name] [gender m/f] [age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
-        
+    report_death.format = "death [last_name] [first_name] [gender m/f] "\
+        "[age[m/y]] [date of death ddmmyy] [cause P/B/A/I/S] "\
+        "[location H/C/T/O] [description]"
+
     keyword.prefix = ["cdeath", "death"]
 
     @keyword("\+(\d+) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
-    def report_cdeath(self, message, ref_id, dod, cause, where, description=""):
-        '''records a child death, the child should be already registered with childcount
-        
-        Format: death [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]
+    def report_cdeath(self, message, ref_id, dod, cause, where, \
+                      description=""):
+        '''records a child death, the child should be already
+        registered with childcount
+
+        Format: death [patient_ID] [date of death ddmmyy]
+        [cause P/B/A/I/S] [location H/C/T/O] [description]
         '''
         #Is the child registered with us?
         case = self.find_case(ref_id)
         age = case.age()
-        if age[len(age)-1].upper() == 'Y':
-            age = int(age[:len(age)-1])*12
+        if age[len(age) - 1].upper() == 'Y':
+            age = int(age[:len(age) - 1]) * 12
         else:
-            age = int(age[:len(age)-1])
-            
-                
+            age = int(age[:len(age) - 1])
+
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %s") % dod)
+            raise HandlerFailed(_("Date must be in the format ddmmyy: %s")\
+                                 % dod)
         else:
             dod = re.sub(r'\D', '', dod)
             try:
@@ -190,25 +210,33 @@ class App (rapidsms.app.App):
                 try:
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s") % dod)
+                    raise HandlerFailed(_("Couldn't understand date: %s")\
+                                         % dod)
             dod = datetime.date(*dod[:3])
         if description is None:
-            description = "No description"        
+            description = "No description"
         reporter = message.persistant_connection.reporter
-        death = ReportDeath(last_name=case.last_name.upper(),first_name=case.first_name.upper(),gender=case.gender.upper(),
-                            age=age, reporter=reporter, where=where.upper(),cause=cause.upper(),
+        death = ReportDeath(last_name=case.last_name.upper(), \
+                            first_name=case.first_name.upper(), \
+                            gender=case.gender.upper(), \
+                            age=age, reporter=reporter, where=where.upper(), \
+                            cause=cause.upper(), \
                             description=description, dod=dod, case=case)
         #Perform Location checks
         if death.get_where() is None:
-            raise HandlerFailed(_("Location `%s` is not known. Please try again with a known location") % where)
-        #Perform Cause Check  
+            raise HandlerFailed(_("Location `%s` is not known. "\
+                        "Please try again with a known location") % where)
+        #Perform Cause Check
         if death.get_cause() is None:
-            raise HandlerFailed(_("Cause `%s` is not known. Please try again with a known death cause") % cause)
-        
+            raise HandlerFailed(_("Cause `%s` is not known. Please try again "\
+                                  "with a known death cause") % cause)
+
         death.save()
         case.set_status(Case.STATUS_DEAD)
         case.save()
         info = death.get_dictionary()
-        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s")%info)
+        message.respond(_("%(name)s [%(age)s] died on %(dod)s of %(cause)s "\
+                          "at %(where)s") % info)
         return True
-    report_cdeath.format = "cdeath [patient_ID] [date of death ddmmyy] [cause P/B/A/I/S] [location H/C/T/O] [description]"
+    report_cdeath.format = "cdeath [patient_ID] [date of death ddmmyy] "\
+        "[cause P/B/A/I/S] [location H/C/T/O] [description]"
