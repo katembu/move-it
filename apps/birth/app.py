@@ -90,10 +90,6 @@ class App (rapidsms.app.App):
     def stop (self):
         '''Perform global app cleanup when the application is stopped.'''
         pass
-    
-    def get_birth_report_format_reminder(self):
-        '''Expected format for birth command, sent as a reminder'''
-        return "Format:  birth [last name] [first name] [gender m/f] [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian] (complications)"
 
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+) ([A-Z]) (\S+)?(.+)*")
     @registered
