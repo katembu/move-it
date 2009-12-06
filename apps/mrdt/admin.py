@@ -6,7 +6,7 @@ from django.contrib import admin
 from models import ReportMalaria
 
 class ReportMalariaAdmin(admin.ModelAdmin):
-    list_display = ("case","name","zone","result", "bednet","entered_at","reporter")
+    list_display = ("case","name","location","result", "bednet","entered_at","reporter")
     verbose_name = "Malaria Report"
     verbose_name_plural = "Malaria Reports"
 

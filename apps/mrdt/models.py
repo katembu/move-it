@@ -44,8 +44,8 @@ class ReportMalaria(models.Model):
             'bednet_text': self.bednet and "Y" or "N",
             'observed': ", ".join([k.name for k in self.observed.all()]),}
 
-    def zone(self):
-        return self.case.zone.name
+    def location(self):
+        return self.case.location
         
     def results_for_malaria_bednet(self):
         bednet = "N"
