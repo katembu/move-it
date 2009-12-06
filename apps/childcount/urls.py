@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
 
 import childcount.views as views
@@ -57,12 +57,13 @@ urlpatterns = patterns('',
     (r'^malnut/(?P<object_id>\d*)$', reports.malnut),
     (r'^malnut/per_page/(?P<per_page>\d*)$', reports.malnut),
     (r'^malnut/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', reports.malnut),
-    
+
     (r'^muac_summary/$', reports.muac_summary),
     (r'^muac_summary/(?P<object_id>\d*)$', reports.muac_summary),
     (r'^muac_summary/per_page/(?P<per_page>\d*)$', reports.muac_summary),
-    (r'^muac_summary/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', reports.muac_summary),
-   
+    (r'^muac_summary/(?P<object_id>\d*)/(?P<rformat>[a-z]*)$', \
+     reports.muac_summary),
+
     #patients_by_age
     (r'^List_Enfant_Age/$', reports.patients_by_age),
     (r'^List_Enfant_Age/(?P<object_id>\d*)$', reports.patients_by_age),
@@ -74,4 +75,3 @@ urlpatterns = patterns('',
     #malnutrition_screening
     (r'^malnutrition_screening/$', reports.malnutrition_screening),
 )
-
