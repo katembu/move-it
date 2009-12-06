@@ -11,18 +11,16 @@ import time
 import datetime
 from functools import wraps
 
+from django.db import models
+from django.utils.translation import ugettext as _
+
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
-from rapidsms.message import Message
-from rapidsms.connection import Connection
-from django.db import models
-from django.contrib.auth.models import User, Group
-from django.utils.translation import ugettext as _
+
 from reporters.models import Role, Reporter
-from locations.models import Location, LocationType
+from locations.models import Location
 
 from childcount.models.logs import MessageLog, log, elog
-from childcount.models.general import  User
 from childcount.models.general import Case, CaseNote
 
 
