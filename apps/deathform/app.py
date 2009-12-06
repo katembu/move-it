@@ -2,6 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+'''Deathform app
+
+Death reporting, both for registered childcount cases and individuals
+not registered
+'''
+
 import re
 import time
 import datetime
