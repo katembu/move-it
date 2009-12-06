@@ -37,18 +37,28 @@ def registered(func):
 class HandlerFailed (Exception):
     pass
 
+
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
+
     def start (self):
         '''Configure your app in the start phase.'''
         pass
 
-    def parse (self, message):        
+    def parse (self, message):
+        ''' Parse incoming messages.
+
+        flag message as not handled '''
         message.was_handled = False
 
     def handle (self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Replies on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
@@ -80,6 +90,7 @@ class App (rapidsms.app.App):
         return self.handled
 
     def cleanup (self, message):
+        ''' log message '''
         if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
