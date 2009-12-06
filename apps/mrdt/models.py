@@ -1,5 +1,11 @@
 #!/usr/bin/env python
-# vim: ai ts=4 sts=4 et sw=4
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
+
+'''MRDT/Malaria App Models
+
+ReportMalaria - records reported malaria rdt tests
+'''
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -10,30 +16,34 @@ from childcount.models.general import Case
 from childcount.models.reports import Observation
 from reporters.models import Reporter, ReporterGroup
 
+
 class ReportMalaria(models.Model):
+
+    '''records reported malaria rdt tests'''
+
     class Meta:
         get_latest_by = 'entered_at'
         ordering = ("-entered_at",)
         app_label = "mrdt"
         verbose_name = "Malaria Report"
         verbose_name_plural = "Malaria Reports"
-    
+
     case = models.ForeignKey(Case, db_index=True)
     reporter = models.ForeignKey(Reporter, db_index=True)
     entered_at = models.DateTimeField(db_index=True)
     bednet = models.BooleanField(db_index=True)
-    result = models.BooleanField(db_index=True) 
-    observed = models.ManyToManyField(Observation, blank=True)       
+    result = models.BooleanField(db_index=True)
+    observed = models.ManyToManyField(Observation, blank=True)
 
     def get_dictionary(self):
+        '''Gets a dictionary of reported rdt details'''
         return {
             'result': self.result,
             'result_text': self.result and "Y" or "N",
             'bednet': self.bednet,
             'bednet_text': self.bednet and "Y" or "N",
-            'observed': ", ".join([k.name for k in self.observed.all()]),            
-        }
-        
+            'observed': ", ".join([k.name for k in self.observed.all()]),}
+
     def zone(self):
         return self.case.zone.name
         
