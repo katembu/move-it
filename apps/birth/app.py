@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
+import re
+import time
+import datetime
+from functools import wraps
+
 import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
@@ -11,10 +16,7 @@ from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from birth.models import ReportBirth
 
-import re
-import time
-import datetime
-from functools import wraps
+
 
 def registered(func):
     ''' decorator checking if sender is allowed to process feature.
