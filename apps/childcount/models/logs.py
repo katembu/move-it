@@ -35,8 +35,7 @@ messages = {
     "confirmed_join": _("Provider confirmed"),
     "case_cancelled": _("Case was cancelled by the provider"),
     "case_transferred": _("Case was transferred to the current provider"),
-    "note_added": _("Note added to the case by the provider")
-}
+    "note_added": _("Note added to the case by the provider")}
 
 
 class MessageDoesNotExist(Exception):
@@ -51,7 +50,7 @@ class EventLog(models.Model):
     content_type = models.ForeignKey(ContentType)
     content_object = generic.GenericForeignKey('content_type', 'object_id')
     message = models.CharField(max_length=25, choices=tuple(messages.items()))
-    created_at  = models.DateTimeField(db_index=True)
+    created_at = models.DateTimeField(db_index=True)
 
     class Meta:
         app_label = "childcount"
@@ -63,13 +62,14 @@ class EventLog(models.Model):
     def __unicode__(self):
         return u"%(date)s - %(msg)s (%(type)s)" % {'date': self.created_at, \
                             'msg': self.message, 'type': self.content_type}
+
 
 class SystemErrorLog(models.Model):
 
     ''' This is for exception errors '''
 
     message = models.CharField(max_length=500)
-    created_at  = models.DateTimeField(db_index=True)
+    created_at = models.DateTimeField(db_index=True)
 
     class Meta:
         app_label = "childcount"
@@ -82,9 +82,10 @@ class SystemErrorLog(models.Model):
         return u"%(date)s - %(msg)s (%(type)s)" % {'date': self.created_at, \
                             'msg': self.message, 'type': self.content_type}
 
+
 def elog(source, message):
     "Logs error messages"
-    ev = SystemErrorLog()    
+    ev = SystemErrorLog()
     ev.message = message
     ev.created_at = datetime.now()
     ev.save()
@@ -92,7 +93,7 @@ def elog(source, message):
 
 def log(source, message):
     '''Logs events'''
-    if not messages.has_key(message):
+    if message in messages:
         raise MessageDoesNotExist("No message: %s exists, "\
                                   "please add to logs.py")
     if not source.id:
