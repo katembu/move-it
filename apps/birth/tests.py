@@ -1,6 +1,7 @@
 from rapidsms.tests.scripted import TestScript
 from app import App
 
+
 class TestApp (TestScript):
     apps = (App,)
 

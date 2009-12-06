@@ -21,12 +21,12 @@ class ReportBirth(models.Model):
         ('O', _('Other')),
     )
 
-    case            = models.ForeignKey(Case, db_index=True, null=False)
-    weight          = models.FloatField(db_index=True, null=False)
-    where        = models.CharField(max_length=1, choices=LOCATION_CHOICES)
-    complications   = models.CharField(max_length=255, db_index=True, null=True)
-    reporter    = models.ForeignKey(Reporter, db_index=True)    
-    entered_at  = models.DateTimeField(db_index=True)
+    case = models.ForeignKey(Case, db_index=True, null=False)
+    weight = models.FloatField(db_index=True, null=False)
+    where = models.CharField(max_length=1, choices=LOCATION_CHOICES)
+    complications = models.CharField(max_length=255, db_index=True, null=True)
+    reporter = models.ForeignKey(Reporter, db_index=True)
+    entered_at = models.DateTimeField(db_index=True)
 
     class Meta:
         app_label = "birth"
@@ -35,7 +35,7 @@ class ReportBirth(models.Model):
         get_latest_by = 'entered_at'
         ordering = ("-entered_at",)
 
-    def __unicode__ (self):
+    def __unicode__(self):
         return "%s %s" % (self.case.last_name, self.case.first_name)
 
     def save(self, *args):
@@ -45,15 +45,15 @@ class ReportBirth(models.Model):
 
     def get_where(self):
         '''Return location from list of choices, default None'''
-        where = dict([(k, v) for (k,v) in self.LOCATION_CHOICES])
+        where = dict([(k, v) for (k, v) in self.LOCATION_CHOICES])
         return where.get(self.where, None)
 
     def display_name(self):
         '''Return string - name of child '''
-        return u"%s %s"%(self.case.first_name, self.case.last_name)
+        return u"%s %s" % (self.case.first_name, self.case.last_name)
     display_name.short_description = "Name"
 
     def display_dob(self):
         '''get date of birth in dd/mm/yy format'''
-        return u"%s"%self.case.dob.strftime("%d/%m/%y")
+        return u"%s" % self.case.dob.strftime("%d/%m/%y")
     display_dob.short_description = "Date of Birth"
