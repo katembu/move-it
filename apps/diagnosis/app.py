@@ -21,8 +21,8 @@ from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
-find_diagnostic_re = re.compile('( -[\d\.]+)',re.I)
-find_lab_re =  re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
+find_diagnostic_re = re.compile('( -[\d\.]+)', re.I)
+find_lab_re = re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)
 
 
 def registered(func):
@@ -42,44 +42,57 @@ def registered(func):
             return True
     return wrapper
 
+
 class HandlerFailed (Exception):
     pass
+
 
 class App (rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
-    def start (self):
+
+    def start(self):
         '''Configure your app in the start phase.'''
         pass
 
-    def parse (self, message):        
+    def parse(self, message):
+        ''' Parse incoming messages.
+
+        flag message as not handled '''
         message.was_handled = False
 
-    def handle (self, message):
+    def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
             # didn't find a matching function
             # make sure we tell them that we got a problem
-            #message.respond(_("Unknown or incorrectly formed command: %(msg)s... Please re-check your message") % {"msg":message.text[:10]})
-            
+
             return False
         try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
-            
+
             self.handled = True
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            mobile = '0733202270'
+            message.respond(_("An error occurred. Please call %s.") \
+                             % mobile)
             raise
         message.was_handled = bool(self.handled)
         return self.handled
 
-    def cleanup (self, message):
+    def cleanup(self, message):
+        ''' log message '''
         if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
@@ -87,15 +100,20 @@ class App (rapidsms.app.App):
                          was_handled=message.was_handled)
             log.save()
 
-    def outgoing (self, message):
+    def outgoing(self, message):
         '''Handle outgoing message notifications.'''
         pass
 
-    def stop (self):
+    def stop(self):
         '''Perform global app cleanup when the application is stopped.'''
         pass
 
-    def find_case (self, ref_id):
+    def find_case(self, ref_id):
+        '''Find a registered case
+
+        return the Case object
+        raise HandlerFailed if case not found
+        '''
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
@@ -104,6 +122,7 @@ class App (rapidsms.app.App):
     @keyword(r'd \+(\d+ )(.*)')
     @registered
     def diagnosis(self, message, ref_id, text):
+        '''Diagnosis of a case'''
         case = self.find_case(ref_id)
         reporter = message.persistant_connection.reporter
         diags = []
@@ -122,12 +141,14 @@ class App (rapidsms.app.App):
             code, sign, number = hit
             try:
                 # the code starts with /
-                labs.append([Lab.objects.get(code__iexact=code[1:]), sign, number])
+                labs.append([Lab.objects.get(code__iexact=code[1:]), \
+                             sign, number])
             except Lab.DoesNotExist:
                 raise HandlerFailed("Unknown lab code: %s" % code)
 
         self.delete_similar(case.reportdiagnosis_set)
-        report = ReportDiagnosis(case=case, reporter=reporter, text=message.text)
+        report = ReportDiagnosis(case=case, reporter=reporter, \
+                                 text=message.text)
         report.save()
         for diag in diags:
             report.diagnosis.add(diag)
@@ -144,15 +165,16 @@ class App (rapidsms.app.App):
         info = case.get_dictionary()
         info.update(report.get_dictionary())
         if info["labs_text"]:
-            info["labs_text"] = "%sLabs: %s" % (info["diagnosis"] and " " or "", info["labs_text"])
+            info["labs_text"] = "%sLabs: %s" % (info["diagnosis"] and " " \
+                                                or "", info["labs_text"])
 
-        message.respond(_("D> +%(ref_id)s %(first_name_short)s.%(last_name)s %(diagnosis)s%(labs_text)s") % info)
-        
+        message.respond(_("D> +%(ref_id)s %(first_name_short)s.%(last_name)s "\
+                          "%(diagnosis)s%(labs_text)s") % info)
+
         # add in the forward of instructions to the case provider
-        # if that it is not the reporter of the issue        
+        # if that it is not the reporter of the issue
 
-        
-        instructions = []       
+        instructions = []
         for diagnosis in report.diagnosis.all():
             if diagnosis.instructions:
                 instructions.append(diagnosis.instructions)
@@ -160,14 +182,16 @@ class App (rapidsms.app.App):
         if instructions:
             if reporter != case.reporter:
                 # there's a different provider
-                info = {"ref_id":ref_id, "instructions":(", ".join(instructions))}
-                message.forward(case.reporter.connection().identity, "D> +%(ref_id)s %(instructions)s" % info)
-                
-                
-        log(case, "diagnosis_taken")        
-        return True            
+                info = {"ref_id": ref_id, "instructions": \
+                        (", ".join(instructions))}
+                message.forward(case.reporter.connection().identity, \
+                                "D> +%(ref_id)s %(instructions)s" % info)
+
+        log(case, "diagnosis_taken")
+        return True
 
     def delete_similar(self, queryset):
+        '''Deletes identical records'''
         try:
             last_report = queryset.latest("entered_at")
             if (datetime.datetime.now() - last_report.entered_at).days == 0:
