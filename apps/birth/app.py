@@ -50,9 +50,17 @@ class App (rapidsms.app.App):
         pass
 
     def parse(self, message):
+        ''' Parse incoming messages.
+
+        flag message as not handled '''
         message.was_handled = False
 
     def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
@@ -89,6 +97,7 @@ class App (rapidsms.app.App):
         return self.handled
 
     def cleanup(self, message):
+        ''' log message '''
         if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
@@ -110,6 +119,13 @@ class App (rapidsms.app.App):
     @transaction.commit_on_success
     def report_birth(self, message, last, first, gender, dob, weight, where, \
                       guardian, complications=""):
+        '''Record births and register the child as a new case
+
+        format: birth [last name] [first name] [gender m/f]
+             [dob ddmmyy] [weight in kg] location[H/C/T/O] [guardian]
+             (complications)
+        response: a case reference no. for the new born
+        '''
         if len(dob) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
