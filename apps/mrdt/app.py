@@ -4,6 +4,7 @@
 
 import re
 import datetime
+from functools import wraps
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -17,13 +18,20 @@ from childcount.models.reports import Observation
 from models import ReportMalaria
 
 
+def registered(func):
+    ''' decorator checking if sender is allowed to process feature.
 
-def registered (func):
-    def wrapper (self, message, *args):
+    checks if a reporter is attached to the message
+
+    return function or boolean '''
+
+    @wraps(func)
+    def wrapper(self, message, *args):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s")%"Sorry, only registered users can access this program.")
+            message.respond(_(u"%s") \
+                     % "Sorry, only registered users can access this program.")
             return True
     return wrapper
 
