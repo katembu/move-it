@@ -2,6 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+''''Malaria RDT App
+
+Malaria RDT Reporting
+'''
+
 import re
 import datetime
 from functools import wraps
@@ -39,32 +44,55 @@ class HandlerFailed (Exception):
     pass
 
 class App (rapidsms.app.App):
+
+    ''''Malaria RDT App
+
+    Malaria RDT Reporting
+    '''
+
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
-    def start (self):
+
+    def start(self):
         '''Configure your app in the start phase.'''
         pass
 
-    def parse (self, message):
+    def parse(self, message):
+        ''' Parse incoming messages.
+
+        flag message as not handled '''
         message.was_handled = False
 
-    def handle (self, message):
+    def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies formatting advices on error
+        Return False on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
-            #If the command included 'mrdt', respond by reminding the user of the correct format for the command           
-            mrdt_input = message.text.lower()
-            if not (mrdt_input.find("mts") == -1):
-                message.respond(self.get_mrdt_format_reminder())
-                self.handled = True
-                return True
+            # didn't find a matching function
+            # make sure we tell them that we got a problem
+            command_list = [method for method in dir(self) \
+                            if hasattr(getattr(self, method), "format")]
+            input_text = message.text.lower()
+            for command in command_list:
+                format = getattr(self, command).format
+                try:
+                    first_word = (format.split(" "))[0]
+                    if input_text.find(first_word) > -1:
+                        message.respond(format)
+                        return True
+                except:
+                    pass
             return False
         try:
             self.handled = func(self, message, *captures)
         except HandlerFailed, e:
             message.respond(e.message)
-            
+
             self.handled = True
         except Exception, e:
             # TODO: log this exception
@@ -74,7 +102,8 @@ class App (rapidsms.app.App):
         message.was_handled = bool(self.handled)
         return self.handled
 
-    def cleanup (self, message):
+    def cleanup(self, message):
+        ''' log message '''
         if bool(self.handled):
             log = MessageLog(mobile=message.peer,
                          sent_by=message.persistant_connection.reporter,
@@ -82,21 +111,27 @@ class App (rapidsms.app.App):
                          was_handled=message.was_handled)
             log.save()
 
-    def outgoing (self, message):
+    def outgoing(self, message):
         '''Handle outgoing message notifications.'''
         pass
 
-    def stop (self):
+    def stop(self):
         '''Perform global app cleanup when the application is stopped.'''
         pass
 
-    def find_case (self, ref_id):
+    def find_case(self, ref_id):
+        '''Find a registered case
+
+        return the Case object
+        raise HandlerFailed if case not found
+        '''
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
         
     def get_observations(self, text):
+        '''get a list of observation'''
         choices  = dict( [ (o.letter, o) for o in Observation.objects.all() ] )
         observed = []
         if text:
@@ -233,11 +268,17 @@ class App (rapidsms.app.App):
 
     def get_mrdt_report_format_reminder(self):
         '''Expected format for mrdt command, sent as a reminder'''
-        return "Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
+        return "Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] "\
+            "symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     @keyword(r'mrdt \+(\d+) ([yn]) ([yn])?(.*)')
     @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
+        '''Record malaria rdt test results
+
+        Format:  mrdt +[patient_ID\] malaria[y/n] bednet[y/n] symptoms
+         separated by spaces[D CG A F V NR UF B CV CF]
+        '''
         case = self.find_case(ref_id)
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
@@ -247,7 +288,8 @@ class App (rapidsms.app.App):
         bednet = bednet.lower() == "y"
         alert = None
 
-        report = ReportMalaria(case=case, reporter=reporter, result=result, bednet=bednet)
+        report = ReportMalaria(case=case, reporter=reporter, result=result, \
+                               bednet=bednet)
         report.save()
         for obs in observed:
             report.observed.add(obs)
@@ -258,27 +300,32 @@ class App (rapidsms.app.App):
         info.update(report.get_dictionary())
         info.update({
             "reporter_name": reporter.full_name(),
-            "reporter_alias":reporter.alias,
+            "reporter_alias": reporter.alias,
             "reporter_identity":reporter.connection().identity,
         })
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
-            if observed: 
+            if observed:
                 info["observed"] = ", (%s)" % info["observed"]
-                msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                        "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
-                        " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
+                msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, "\
+                        "%(first_name)s, %(gender)s/%(age)s (%(guardian)s), "\
+                        "%(location)s. RDT=%(result_text)s,"\
+                        " Bednet=%(bednet_text)s%(observed)s. "\
+                        "Please refer patient IMMEDIATELY "\
                         "for clinical evaluation" % info)
                 # alerts to health team
-                alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
-                      " %(first_name)s, %(gender)s/%(age)s %(location)s. Patient "\
-                      "requires IMMEDIATE referral. Reported by CHW %(reporter_name)s "\
+                alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, "\
+                          "%(last_name)s, %(first_name)s, %(gender)s/%(age)s"\
+                          " %(location)s. Patient requires IMMEDIATE "\
+                          "referral. Reported by CHW %(reporter_name)s "\
                       "@%(reporter_alias)s m:%(reporter_identity)s." % info)
             else:
-                msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                        "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
+                msg = _("MRDT> Child +%(ref_id)s, "\
+                        "%(last_name)s, %(first_name)s, "\
+                        "%(gender)s/%(age)s (%(guardian)s), "\
+                        "%(location)s. RDT=%(result_text)s,"\
                         " Bednet=%(bednet_text)s." % info)
 
         else:
@@ -288,57 +335,70 @@ class App (rapidsms.app.App):
             tabs, yage = None, None
             # just reformatted to make it look like less ugh
             if years < 1:
-                if months < 2: tabs, yage = None, None
-                else: tabs, yage = 1, "less than 3"
-            elif years < 3: tabs, yage = 1, "less than 3"
-            elif years < 9: tabs, yage = 2, years
-            elif years < 15: tabs, yage = 3, years
-            else: tabs, yage = 4, years
+                if months < 2:
+                    tabs, yage = None, None
+                else:
+                    tabs, yage = 1, "less than 3"
+            elif years < 3:
+                tabs, yage = 1, "less than 3"
+            elif years < 9:
+                tabs, yage = 2, years
+            elif years < 15:
+                tabs, yage = 3, years
+            else:
+                tabs, yage = 4, years
 
             # messages change depending upon age and dangers
-            dangers = report.observed.filter(uid__in=("vomiting", "appetite", "breathing", "confusion", "fits"))
+            dangers = report.observed.filter(uid__in=("vomiting", "appetite", \
+                                        "breathing", "confusion", "fits"))
             # no tabs means too young
             if not tabs:
-                info["instructions"] = "Child is too young for treatment. Please refer IMMEDIATELY to clinic"
+                info["instructions"] = "Child is too young for treatment. "\
+                    "Please refer IMMEDIATELY to clinic"
             else:
                 # old enough to take tabs, but lets format msg
                 if dangers:
-                    info["danger"] = " and danger signs (" + ",".join([ u.name for u in dangers ]) + ")"                        
-                    info["instructions"] = "Refer to clinic immediately after %s "\
-                                           "tab%s of Coartem is given" % (tabs, (tabs > 1) and "s" or "")
+                    info["danger"] = " and danger signs (" + \
+                        ",".join([u.name for u in dangers]) + ")"
+                    info["instructions"] = \
+                        "Refer to clinic immediately after %s "\
+                        "tab%s of Coartem is given" % (tabs, \
+                                        (tabs > 1) and "s" or "")
                 else:
                     info["danger"] = ""
-                    info["instructions"] = "Child is %s. Please provide %s tab%s "\
-                                           "of Coartem (ACT) twice a day for 3 days" % (yage, tabs, 
-                                           (tabs > 1) and "s" or "")
+                    info["instructions"] = \
+                        "Child is %s. Please provide %s tab%s "\
+                        "of Coartem (ACT) twice a day for 3 days" % (yage, \
+                                    tabs, (tabs > 1) and "s" or "")
 
             # finally build out the messages
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(age)s has MALARIA%(danger)s. %(instructions)s" % info)
+                "%(gender)s/%(age)s has MALARIA%(danger)s. %(instructions)s"\
+                 % info)
 
-            alert = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                      "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
+            alert = \
+                _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
+                "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         if len(msg) > self.MAX_MSG_LEN:
-            '''
-            FIXME: Either make this an intelligent breakup of the message or let the backend handle that.
-            '''
-            message.respond(msg[:msg.rfind(". ")+1])            
-            message.respond(msg[msg.rfind(". ")+1:])
+            '''FIXME: Either make this an intelligent breakup of the message
+             or let the backend handle that.'''
+            message.respond(msg[:msg.rfind(". ") + 1])
+            message.respond(msg[msg.rfind(". ") + 1:])
         else:
             message.respond(msg)
-        
+
         if alert:
             recipients = report.get_alert_recipients()
             for recipient in recipients:
                 if len(alert) > self.MAX_MSG_LEN:
-                    message.forward(recipient.connection().identity, alert[:alert.rfind(". ")+1])            
-                    message.forward(recipient.connection().identity, alert[alert.rfind(". ")+1:])
+                    message.forward(recipient.connection().identity, \
+                                    alert[:alert.rfind(". ") + 1])
+                    message.forward(recipient.connection().identity, \
+                                    alert[alert.rfind(". ") + 1:])
                 else:
                     message.forward(recipient.connection().identity, alert)
-            
 
-        log(case, "mrdt_taken")        
+        log(case, "mrdt_taken")
         return True
-
