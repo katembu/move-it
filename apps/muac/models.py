@@ -14,33 +14,34 @@ from datetime import datetime, date
 
 from childcount.models.general import Case
 from childcount.models.reports import Observation
-from reporters.models import Reporter,ReporterGroup
+from reporters.models import Reporter, ReporterGroup
 
 
 class ReportMalnutrition(models.Model):
 
     '''record malnutrition measurements'''
 
-    MODERATE_STATUS         = 1
-    SEVERE_STATUS           = 2
-    SEVERE_COMP_STATUS      = 3
+    MODERATE_STATUS = 1
+    SEVERE_STATUS = 2
+    SEVERE_COMP_STATUS = 3
     HEALTHY_STATUS = 4
-    STATUS_CHOICES = (
-        (MODERATE_STATUS,       _('MAM')),
-        (SEVERE_STATUS,         _('SAM')),
-        (SEVERE_COMP_STATUS,    _('SAM+')),
-        (HEALTHY_STATUS, _("Healthy")),
-    )
 
-    case        = models.ForeignKey(Case, db_index=True)
-    reporter    = models.ForeignKey(Reporter, db_index=True)
-    entered_at  = models.DateTimeField(db_index=True)
-    muac        = models.IntegerField(_("MUAC (mm)"), null=True, blank=True)
-    height      = models.IntegerField(_("Height (cm)"), null=True, blank=True)
-    weight      = models.FloatField(_("Weight (kg)"), null=True, blank=True)
-    observed    = models.ManyToManyField(Observation, blank=True)
-    status      = models.IntegerField(choices=STATUS_CHOICES, db_index=True, blank=True, null=True)
-    
+    STATUS_CHOICES = (
+        (MODERATE_STATUS, _('MAM')),
+        (SEVERE_STATUS, _('SAM')),
+        (SEVERE_COMP_STATUS, _('SAM+')),
+        (HEALTHY_STATUS, _("Healthy")))
+
+    case = models.ForeignKey(Case, db_index=True)
+    reporter = models.ForeignKey(Reporter, db_index=True)
+    entered_at = models.DateTimeField(db_index=True)
+    muac = models.IntegerField(_("MUAC (mm)"), null=True, blank=True)
+    height = models.IntegerField(_("Height (cm)"), null=True, blank=True)
+    weight = models.FloatField(_("Weight (kg)"), null=True, blank=True)
+    observed = models.ManyToManyField(Observation, blank=True)
+    status = models.IntegerField(choices=STATUS_CHOICES, \
+                            db_index=True, blank=True, null=True)
+
     class Meta:
         app_label = "muac"
         verbose_name = "Malnutrition Report"
@@ -49,27 +50,30 @@ class ReportMalnutrition(models.Model):
         ordering = ("-entered_at",)
 
     def get_dictionary(self):
+        '''Get a dictionary of muac measurement report details'''
         return {
-            'muac'      : "%d mm" % self.muac,
-            'observed'  : ", ".join([k.name for k in self.observed.all()]),
-            'diagnosis' : self.get_status_display(),
-            'diagnosis_msg' : self.diagnosis_msg(self.reporter.language),
-        }
-                               
-                        
-    def __unicode__ (self):
+            'muac': "%d mm" % self.muac,
+            'observed': ", ".join([k.name for k in self.observed.all()]),
+            'diagnosis': self.get_status_display(),
+            'diagnosis_msg': self.diagnosis_msg(self.reporter.language)}
+
+    def __unicode__(self):
         return "#%d" % self.id
-        
+
     def symptoms(self):
+        '''get comma separated symptoms list'''
         return ", ".join([k.name for k in self.observed.all()])
-    
+
     def symptoms_keys(self):
+        '''get comma separated symptoms keys list'''
         return ", ".join([k.letter.upper() for k in self.observed.all()])
-    
+
     def days_since_last_activity(self):
+        '''Get number of days since the last muac measurement was done'''
         today = date.today()
-        
-        logs = ReportMalnutrition.objects.order_by("entered_at").filter(entered_at__lte=today, case=self.case).reverse()
+
+        logs = ReportMalnutrition.objects.order_by("entered_at").\
+            filter(entered_at__lte=today, case=self.case).reverse()
         if not logs:
             return ""
         return (today - logs[0].entered_at.date()).days
@@ -86,7 +90,7 @@ class ReportMalnutrition(models.Model):
         '''get reporter's mobile phone number'''
         return self.reporter.connection().identity
 
-    def diagnose (self):
+    def diagnose(self):
         complications = [c for c in self.observed.all() \
                          if c.uid != "edema" or c.uid != "oedema"]
         edema = "edema" in [c.uid for c in self.observed.all()]
@@ -99,7 +103,7 @@ class ReportMalnutrition(models.Model):
             else:
                 self.status = ReportMalnutrition.SEVERE_STATUS
         elif self.muac < 125:
-            self.status =  ReportMalnutrition.MODERATE_STATUS
+            self.status = ReportMalnutrition.MODERATE_STATUS
 
     def diagnosis_msg(self, lang=None):
         '''get a diagnostic message/text'''
@@ -140,7 +144,7 @@ class ReportMalnutrition(models.Model):
         if p:
             prev = p[0]
             info = prev.get_dictionary()
-            change = int(float((self.muac-prev.muac) / \
+            change = int(float((self.muac - prev.muac) / \
                                float(self.muac)) * 100)
             info.update({"reported_date": \
                          prev.entered_at.strftime("%d.%m.%y"),
