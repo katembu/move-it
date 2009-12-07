@@ -3,9 +3,11 @@
 # maintainer: ukanga
 
 from django.contrib import admin
-from models.general import Case
-from models.logs import MessageLog, EventLog, SystemErrorLog
-from models.reports import Observation
+
+from childcount.models.general import Case
+from childcount.models.logs import MessageLog, EventLog, SystemErrorLog
+from childcount.models.reports import Observation
+from childcount.models.config import Configuration
 
 
 class CaseAdmin(admin.ModelAdmin):
@@ -42,3 +44,5 @@ class SystemErrorLogAdmin(admin.ModelAdmin):
 admin.site.register(SystemErrorLog, SystemErrorLogAdmin)
 
 admin.site.register(Observation)
+
+admin.site.register(Configuration)
