@@ -80,17 +80,6 @@ class App(rapidsms.app.App):
     keyword = Keyworder()
     handled = False
 
-    def configure(self, default_role=None, tab_link="/childcount"):
-        '''Set default reporter role
-
-        default role is None
-        '''
-        try:
-            self.debug(default_role)
-            self.default_role = default_role
-        except:
-            pass
-
     def parse(self, message):
         ''' Parse incoming messages.
 
