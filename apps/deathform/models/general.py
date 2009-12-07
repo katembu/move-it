@@ -85,7 +85,7 @@ class ReportDeath(models.Model):
         return string descriptive cause of death
         '''
         causes = dict([(k, v) for (k, v) in self.CAUSE_CHOICES])
-        return causes.get(self.cause, None)
+        return u"%s" % causes.get(self.cause, None)
 
     def get_where(self):
         '''get descriptive location of death
@@ -94,7 +94,7 @@ class ReportDeath(models.Model):
         return string descriptive location of death
         '''
         where = dict([(k, v) for (k, v) in self.LOCATION_CHOICES])
-        return where.get(self.where, None)
+        return u"%s" % where.get(self.where, None)
 
     def get_dictionary(self):
         '''Dictionary of dead person information'''
