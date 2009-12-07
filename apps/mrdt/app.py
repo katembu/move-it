@@ -40,8 +40,10 @@ def registered(func):
             return True
     return wrapper
 
+
 class HandlerFailed (Exception):
     pass
+
 
 class App (rapidsms.app.App):
 
@@ -129,10 +131,10 @@ class App (rapidsms.app.App):
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
-        
+
     def get_observations(self, text):
         '''get a list of observation'''
-        choices  = dict( [ (o.letter, o) for o in Observation.objects.all() ] )
+        choices = dict([(o.letter, o) for o in Observation.objects.all()])
         observed = []
         if text:
             text = re.sub(r'\W+', ' ', text).lower()
@@ -140,11 +142,12 @@ class App (rapidsms.app.App):
                 obj = choices.get(observation, None)
                 if not obj:
                     if observation != 'n':
-                        raise HandlerFailed("Unknown observation code: %s" % observation)
+                        raise HandlerFailed("Unknown observation code: %s"\
+                                             % observation)
                 else:
                     observed.append(obj)
         return observed, choices
-    
+
     def delete_similar(self, queryset):
         try:
             last_report = queryset.latest("entered_at")
@@ -153,34 +156,46 @@ class App (rapidsms.app.App):
                 last_report.delete()
         except models.ObjectDoesNotExist:
             pass
-        
+
     @keyword(r'mtk (\d+).*')
     def give_treatmet_reminder(self, message, kg):
-        weight = int(kg)        
+        weight = int(kg)
         dosage = ""
-        if weight > 5: dosage = "one quarter"
-        if weight > 10: dosage = "one half"
-        if weight > 24: dosage = "one"
-        if weight > 50: dosage = "one and a half"
-        if weight > 70: dosage = "two"
-        
+        if weight > 5:
+            dosage = "one quarter"
+        if weight > 10:
+            dosage = "one half"
+        if weight > 24:
+            dosage = "one"
+        if weight > 50:
+            dosage = "one and a half"
+        if weight > 70:
+            dosage = "two"
+
         if weight < 5:
-            message.respond(_("Child is too light for treatment (under 5kg).  Refer to clinic."))     
-            return True     
-        reminder = _("Patient is %skg.  If positive for malaria, take %s each of Artesunate (50mg) and Amodiaquine (150mg) morning and evening for 3 days." % (weight, dosage))
+            message.respond(_("Child is too light for treatment (under 5kg)."\
+                              "  Refer to clinic."))
+            return True
+        reminder = _("Patient is %skg.  If positive for malaria, take "\
+            "%s each of Artesunate (50mg) and Amodiaquine (150mg) morning"\
+            " and evening for 3 days." % (weight, dosage))
         message.respond(reminder)
         return True
 
     def get_mrdt_format_reminder(self):
         '''Expected format for mrdt input, sent as a reminder'''
-        return "Format:  mts +[patient_ID\] malaria[+/-] bednet[y/n] symptoms separated by spaces[D CG A F V NR UF B CV CF]"
+        return "Format:  mts +[patient_ID\] malaria[+/-] bednet[y/n]"\
+                " symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     @keyword(r'^mts\s*\+?(\d+)\s*([a-zA-z+-])\s*(\S)\s*(.*)$')
     @registered
     def report_malaria(self, message, ref_id, result, bednet, observed):
-        '''Processes incoming mrdt reports.  Expected format is as above.  Can process inputs without spaces, but symptoms must have spaces between them.  '+' and 'y' register as positive for malaria, all other characters register as negative. 'y' registers as yes for a bednet, all other characters register as no.'''
-        
-       
+        '''Processes incoming mrdt reports.  Expected format is as above.
+        Can process inputs without spaces, but symptoms must have spaces
+        between them.  '+' and 'y' register as positive for malaria, all
+        other characters register as negative. 'y' registers as yes for
+         a bednet, all other characters register as no.'''
+
         case = self.find_case(ref_id)
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
@@ -189,7 +204,8 @@ class App (rapidsms.app.App):
         result = (result == "+" or result.lower() == "y")
         bednet = (bednet.lower() == "y")
 
-        report = ReportMalaria(case=case, reporter=reporter, result=result, bednet=bednet)
+        report = ReportMalaria(case=case, reporter=reporter, \
+                               result=result, bednet=bednet)
         report.save()
         for obs in observed:
             report.observed.add(obs)
@@ -200,23 +216,27 @@ class App (rapidsms.app.App):
         info.update(report.get_dictionary())
         info.update({
             "reporter_name": reporter.full_name(),
-            "reporter_alias":reporter.alias,
-            "reporter_identity":reporter.connection().identity,
-        })
+            "reporter_alias": reporter.alias,
+            "reporter_identity": reporter.connection().identity})
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
-            if observed: info["observed"] = ", (%s)" % info["observed"]
+            if observed:
+                info["observed"] = ", (%s)" % info["observed"]
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(age)s (%(guardian)s), %(location)s. RDT=%(result_text)s,"\
-                    " Bednet=%(bednet_text)s%(observed)s. Please refer patient IMMEDIATELY "\
+                    "%(gender)s/%(age)s (%(guardian)s), "\
+                    "%(location)s. RDT=%(result_text)s,"\
+                    " Bednet=%(bednet_text)s%(observed)s. "\
+                    "Please refer patient IMMEDIATELY "\
                     "for clinical evaluation" % info)
             # alerts to health team
-            alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,"\
-                      " %(first_name)s, %(gender)s/%(age)s %(location)s. Patient "\
-                      "requires IMMEDIATE referral. Reported by CHW %(reporter_name)s "\
-                      "@%(reporter_alias)s m:%(reporter_identity)s." % info)
+            alert = _("MRDT> Negative MRDT with Fever. +%(ref_id)s, "\
+                "%(last_name)s,%(first_name)s, %(gender)s/%(age)s "\
+                "%(location)s. Patient "\
+                "requires IMMEDIATE referral. Reported by CHW "\
+                "%(reporter_name)s "\
+                "@%(reporter_alias)s m:%(reporter_identity)s." % info)
 
         else:
             # this is all for if child has tested postive
@@ -225,33 +245,48 @@ class App (rapidsms.app.App):
             tabs, yage = None, None
             # just reformatted to make it look like less ugh
             if years < 1:
-                if months < 5: tabs, yage = None, None
-                else: tabs, yage = "one quarter", "under one year (5-10kg)"
-            elif years < 7: tabs, yage = "one half", "1-6 years (11-24kg)"
-            elif years < 14: tabs, yage = "one ", "7-13 years (25-50kg)"
-            elif years < 18: tabs, yage = "one and a half", "14 - 17 years (50-70kg)"
-            else: tabs, yage = "two", "18+ years (70+ kg)"
+                if months < 5:
+                    tabs, yage = None, None
+                else:
+                    tabs, yage = "one quarter", "under one year (5-10kg)"
+            elif years < 7:
+                tabs, yage = "one half", "1-6 years (11-24kg)"
+            elif years < 14:
+                tabs, yage = "one ", "7-13 years (25-50kg)"
+            elif years < 18:
+                tabs, yage = "one and a half", "14 - 17 years (50-70kg)"
+            else:
+                tabs, yage = "two", "18+ years (70+ kg)"
 
             # messages change depending upon age and dangers
-            dangers = report.observed.filter(uid__in=("vomiting", "appetite", "breathing", "confusion", "fits"))
+            dangers = report.observed.filter(uid__in=("vomiting", \
+                                "appetite", "breathing", "confusion", "fits"))
             # no tabs means too young
             if not tabs:
-                info["instructions"] = "Child is too young for treatment. Please refer IMMEDIATELY to clinic"
+                info["instructions"] = "Child is too young for treatment. "\
+                    "Please refer IMMEDIATELY to clinic"
             else:
                 # old enough to take tabs, but lets format msg
                 if dangers:
-                    info["danger"] = " and danger signs (" + ",".join([ u.name for u in dangers ]) + ")"                        
+                    info["danger"] = " and danger signs (" + \
+                        ",".join([u.name for u in dangers]) + ")"
                     info["instructions"] = "Refer to clinic after %s "\
-                                           " each of Artesunate 50mg and Amodiaquine 150mg is given" % (tabs)
+                        " each of Artesunate 50mg and Amodiaquine 150mg "\
+                        "is given" % (tabs)
                 else:
                     info["danger"] = ""
-                    info["instructions"] = "Child is %s. %s each of Artesunate 50mg and Amodiaquine 150mg morning and evening for 3 days" % (yage, tabs)
+                    info["instructions"] = "Child is %s. %s each of "\
+                        "Artesunate 50mg and Amodiaquine 150mg morning and "\
+                        "evening for 3 days" % (yage, tabs)
 
             # finally build out the messages
-            msg = _("Patient +%(ref_id)s, %(first_name)s %(last_name)s, %(gender)s/%(age)s (%(guardian)s). Bednet=%(bednet_text)s %(observed)s.  Patient has MALARIA%(danger)s." % (info))
+            msg = _("Patient +%(ref_id)s, %(first_name)s %(last_name)s, "\
+                "%(gender)s/%(age)s (%(guardian)s). Bednet=%(bednet_text)s "\
+                "%(observed)s.  Patient has MALARIA%(danger)s." % (info))
 
-            alert = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
-                      "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
+            alert = \
+                _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
+                "%(gender)s/%(months)s (%(location)s) has MALARIA%(danger)s. "\
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         message.respond(msg)
@@ -261,10 +296,10 @@ class App (rapidsms.app.App):
         recipients = report.get_alert_recipients()
         for recipient in recipients:
             message.forward(recipient.mobile, alert)
-        '''    
+        '''
 
-        log(case, "mrdt_taken")       
-        return True 
+        log(case, "mrdt_taken")
+        return True
 
     def get_mrdt_report_format_reminder(self):
         '''Expected format for mrdt command, sent as a reminder'''
@@ -301,8 +336,7 @@ class App (rapidsms.app.App):
         info.update({
             "reporter_name": reporter.full_name(),
             "reporter_alias": reporter.alias,
-            "reporter_identity":reporter.connection().identity,
-        })
+            "reporter_identity": reporter.connection().identity})
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
