@@ -300,6 +300,8 @@ class App (rapidsms.app.App):
 
         log(case, "mrdt_taken")
         return True
+    report_malaria.format = "mts +[patient_ID\] malaria[+/-] bednet[y/n]"\
+                " symptoms separated by spaces[D CG A F V NR UF B CV CF]"
 
     def get_mrdt_report_format_reminder(self):
         '''Expected format for mrdt command, sent as a reminder'''
