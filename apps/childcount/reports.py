@@ -42,6 +42,7 @@ from childcount.shortcuts import login_required
 from childcount.models.logs import MessageLog, EventLog
 from childcount.models.general import Case
 from childcount.models.reports import ReportCHWStatus, ReportAllPatients
+from childcount.models.config import Configuration as Cfg
 from muac.models import ReportMalnutrition
 from mrdt.models import ReportMalaria
 
@@ -149,7 +150,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     muac_duration_start = today - ninty_days
     duration_end = today
 
-    pdfrpt.setTitle("ChildCount Kenya: CHW 30 Day Performance Report,"\
+    pdfrpt.setTitle(Cfg.get("app_name") + ": CHW 30 Day Performance Report,"\
                     " from %s to %s" % (duration_start, duration_end))
     title = "CHW 30 Day Performance Report, from %s to %s" % (duration_start, \
                                                             duration_end)
@@ -202,7 +203,7 @@ def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     duration_str = "CMAM Summary from %s to %s" % \
         (duration_start.strftime("%d %B, %Y"), today.strftime("%d %B, %Y"))
 
-    pdfrpt.setTitle("ChildCount Kenya: CHW 30 Day Performance Report,"\
+    pdfrpt.setTitle(Cfg.get("app_name") + ": CMAM Summary"\
                     " from %s to %s" % (duration_start, duration_end))
 
     if object_id is None:
@@ -288,7 +289,8 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
-    pdfrpt.setTitle("ChildCount Kenya: Cases Reports by CHW as of %s" % today)
+    pdfrpt.setTitle(Cfg.get("app_name") + \
+                    ": Cases Reports by CHW as of %s" % today)
     pdfrpt.setNumOfColumns(2)
     if object_id is None:
         if request.POST and request.POST['zone']:
@@ -342,7 +344,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     ''' Children Screening per age for SN CC '''
     pdfrpt = PDFReport()
 
-    pdfrpt.setTitle("ChildCount Senegal: Listing Enfant par Age")
+    pdfrpt.setTitle(Cfg.get("app_name") + ": Listing Enfant par Age")
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -400,7 +402,7 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
     #duration_start = day_start(today - fourteen_days)
     #duration_end = today
 
-    pdfrpt.setTitle("ChildCount Senegal: Formulaire de Depistage")
+    pdfrpt.setTitle(Cfg.get("app_name") + ": Formulaire de Depistage")
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -516,7 +518,8 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
     duration_start = day_start(today - fourteen_days)
     duration_end = today
 
-    pdfrpt.setTitle("ChildCount Kenya: @Risk Malnutrition Cases from %s to %s"\
+    pdfrpt.setTitle(Cfg.get("app_name") + \
+                    ": @Risk Malnutrition Cases from %s to %s"\
                      % (duration_start.date(), duration_end.date()))
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(2)
@@ -568,7 +571,8 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     duration_start = day_start(today - fourteen_days)
     duration_end = today
 
-    pdfrpt.setTitle("ChildCount Kenya: Positive RDT Cases from %s to %s" % \
+    pdfrpt.setTitle(Cfg.get("app_name") + \
+                    ": Positive RDT Cases from %s to %s" % \
                     (duration_start.date(), duration_end.date()))
     pdfrpt.setRowsPerPage(66)
 
