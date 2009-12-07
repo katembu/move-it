@@ -74,8 +74,9 @@ class ReportMalnutrition(models.Model):
             return ""
         return (today - logs[0].entered_at.date()).days
 
-    def zone(self):
-        return self.case.zone.name
+    def location(self):
+        '''Get location of the case'''
+        return self.case.location
 
     def name(self):
         '''Get the name of the case'''
