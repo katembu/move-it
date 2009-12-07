@@ -33,9 +33,9 @@ class Configuration(models.Model):
 
     @classmethod
     def get(cls, key=None):
-        '''get config object of specified key'''
+        '''get config value of specified key'''
         try:
             cfg = cls.objects.get(key=key)
-            return cfg
+            return cfg.value
         except models.ObjectDoesNotExist:
             return None
