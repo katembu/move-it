@@ -26,7 +26,7 @@ class Configuration(models.Model):
 
     def __unicode__(self):
         return u"%s: %s" % (self.key, self.value)
-    
+
     def get_dictionary(self):
         return {"key": self.key, "value": self.value, \
                 "description": self.description}
