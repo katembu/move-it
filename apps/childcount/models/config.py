@@ -7,15 +7,17 @@
 '''
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class Configuration(models.Model):
 
     '''Store Key/value childcount config options'''
 
-    key = models.CharField(max_length=50, db_index=True)
-    value = models.CharField(max_length=255, db_index=True, blank=True)
-    description = models.CharField(max_length=255, db_index=True),
+    key = models.CharField(_('Key'), max_length=50, db_index=True)
+    value = models.CharField(_('Value'), max_length=255, \
+                             db_index=True, blank=True)
+    desc = models.CharField(_('Description'), max_length=255, db_index=True),
 
     class Meta:
         app_label = "childcount"
@@ -23,9 +25,9 @@ class Configuration(models.Model):
 
     @classmethod
     def get(cls, key=None):
-        '''get value of specified key'''
+        '''get config object of specified key'''
         try:
             cfg = cls.objects.get(key=key)
-            return cfg.value
+            return cfg
         except models.ObjectDoesNotExist:
             return None
