@@ -158,13 +158,19 @@ class App (rapidsms.app.App):
         return "Format:  muac +[patient_ID\] muac[measurement] edema[e/n]"\
                 " symptoms separated by spaces[CG D A F V NR UF]"
 
-    #change location
-
     keyword.prefix = ["muac", "pb"]
+
     @keyword(r'\+(\d+) ([\d\.]+)?( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
     @registered
     def report_case (self, message, ref_id, muac=None,
                      weight=None, height=None, complications=""):
+        '''Record  muac, weight, height, complications if any
+
+        Format:  muac +[patient_ID\] muac[measurement] edema[e/n]
+                 symptoms separated by spaces[CG D A F V NR UF]
+
+        reply with diagnostic message
+        '''
         # TODO use gettext instead of this dodgy dictionary
         _i = {
                 'units' : {'MUAC' : 'mm', 'weight' : 'kg', 'height' : 'cm'},
@@ -297,3 +303,5 @@ class App (rapidsms.app.App):
 
         log(case, "muac_taken")
         return True
+    report_case.format = "muac +[patient_ID\] muac[measurement] edema[e/n]"\
+                " symptoms separated by spaces[CG D A F V NR UF]"
