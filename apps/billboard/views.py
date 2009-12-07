@@ -2,6 +2,10 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+''' Billboard App Views
+
+Index, Help, Zone List, History '''
+
 import datetime
 
 from rapidsms.config import Config
@@ -16,10 +20,16 @@ from billboard.utils import *
 
 
 def month_start(date):
+    ''' date of first day in month.
+
+    return date '''
     return date.replace(day=1)
 
 
 def month_end(date):
+    ''' date of last day in month.
+
+    return date '''
     for n in (31, 30, 28):
         try:
             return date.replace(day=n)
@@ -29,32 +39,42 @@ def month_end(date):
 
 
 def day_start(date):
+    ''' begining of day from date.
+
+    return datetime '''
     t = date.time().replace(hour=0, minute=1)
     return datetime.datetime.combine(date.date(), t)
 
 
 def day_end(date):
+    ''' end of day from date.
+
+    return datetime '''
     t = date.time().replace(hour=23, minute=59)
     return datetime.datetime.combine(date.date(), t)
 
 
 def ovload_context(context):
+    ''' add global config to templates via context '''
     co = {'conf': config}
     context.update(co)
     return context
 
 
 def index(request):
+    ''' display home page '''
     return HttpResponse(loader.get_template('body.html')\
                         .render(ovload_context(Context({'me': 'reg'}))))
 
 
 def help(request):
+    ''' display help page '''
     return HttpResponse(loader.get_template('help.html')\
                         .render(ovload_context(Context({}))))
 
 
 def zone_list(request):
+    ''' builds ordered list of zones and members from templates '''
 
     tree = []
 
@@ -105,17 +125,20 @@ def zone_list(request):
 
 
 def history(request):
+    ''' display history page: list of members to select from '''
     t = loader.get_template('history.html')
     c = Context({'members': Member.objects.all()})
     return HttpResponse(t.render(ovload_context(c)))
 
 
 class DateForm(forms.Form):
+    ''' Django Form helper '''
     date_from = forms.DateTimeField(widget=AdminDateWidget)
     date_to = forms.DateTimeField(widget=AdminDateWidget, required=False)
 
 
 def history_one(request, alias):
+    ''' display all action of a member '''
     now = datetime.datetime.now().replace(hour=23, minute=59)
     date_from = month_start(now)
     date_to = month_end(now)
@@ -150,6 +173,7 @@ def history_one(request, alias):
 
 
 def database_backup(request):
+    ''' generates a backup of sqlite database '''
     conf = Config("rapidsms.ini")
     f = open(conf['database']['name'], "r")
     h = HttpResponse(f)

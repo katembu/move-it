@@ -2,12 +2,25 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+''' Billboard App Models
+
+Zone - location
+MemberType - Text log of prepaid messages
+Member - Action log of prepaid sessions
+ActionType - supported actions
+Action - logical log
+AdType - wedding, etc
+MessageLog - textual log
+BulkMessage - holder for messages sent outside of App (scheduler)
+Configuration '''
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 
 def a_join(ar):
+    ''' joins items of an array with colons '''
     s = ""
     for a in ar:
         s += u"%s, " % a
@@ -15,6 +28,9 @@ def a_join(ar):
 
 
 class Zone(models.Model):
+
+    ''' recursive geopgraphical area '''
+
     name = models.CharField(max_length=10, unique=True)
     full_name = models.CharField(max_length=50, blank=True, null=True)
     zone = models.ForeignKey('Zone', verbose_name=_("Parent Zone"), \
@@ -30,6 +46,7 @@ class Zone(models.Model):
 
     @classmethod
     def by_name(cls, name):
+        ''' get Zone by name or None '''
         try:
             return cls.objects.get(name=name)
         except models.ObjectDoesNotExist:
@@ -37,6 +54,9 @@ class Zone(models.Model):
 
 
 class MemberType(models.Model):
+
+    ''' Type of Member (charges vary) '''
+
     name = models.CharField(max_length=20)
     code = models.CharField(max_length=10)
     fee = models.FloatField()
@@ -47,6 +67,7 @@ class MemberType(models.Model):
 
     @classmethod
     def by_code(cls, code):
+        ''' get MemberType by code or None '''
         try:
             return cls.objects.get(code=code)
         except models.ObjectDoesNotExist:
@@ -54,6 +75,8 @@ class MemberType(models.Model):
 
 
 class Member(models.Model):
+
+    ''' Member and datas related '''
 
     class Meta:
         app_label = "billboard"
@@ -79,6 +102,7 @@ class Member(models.Model):
         return self.display_name()
 
     def display_name(self):
+        ''' name formatting '''
         if self.name != None:
             front = self.name
         else:
@@ -90,19 +114,24 @@ class Member(models.Model):
                % {'front': front, 'alias': self.alias}
 
     def is_board(self):
+        ''' Member is of MemberType 'board' '''
         return bool(self.membership == MemberType.objects.get(code='board'))
 
     def is_admin(self):
+        ''' Member is of MemberType 'admin' '''
         return bool(self.membership == MemberType.objects.get(code='admin'))
 
     def alias_zone(self):
+        ''' displays Member' alias and zone '''
         return u"@%(alias)s (@%(zone)s)" \
                % {'alias': self.alias, 'zone': self.zone.name}
 
     def alias_display(self):
+        ''' displays alias '''
         return u"@%(alias)s" % {'alias': self.alias}
 
     def status(self):
+        ''' string status of Member '''
         if self.active:
             return _(u"Active")
         else:
@@ -110,6 +139,7 @@ class Member(models.Model):
 
     @classmethod
     def by_mobile(cls, mobile):
+        ''' get Member by mobile number or None '''
         try:
             return cls.objects.get(mobile=mobile, active=True)
         except models.ObjectDoesNotExist:
@@ -117,10 +147,12 @@ class Member(models.Model):
 
     @classmethod
     def system(cls):
+        ''' get system user (alias=sys) '''
         return cls.objects.get(alias='sys')
 
     @classmethod
     def active_boards(cls):
+        ''' get alll active Member '''
         ba = []
         ab = cls.objects.filter(\
                              membership=MemberType.objects.get(code='board'), \
@@ -131,6 +163,9 @@ class Member(models.Model):
 
 
 class ActionType(models.Model):
+
+    ''' Type of Billboard Action '''
+
     code = models.CharField(max_length=25, primary_key=True)
     name = models.CharField(max_length=50)
 
@@ -139,6 +174,7 @@ class ActionType(models.Model):
 
     @classmethod
     def by_code(cls, code):
+        ''' get ActionType by code or None '''
         try:
             return cls.objects.get(code=code)
         except models.ObjectDoesNotExist:
@@ -146,6 +182,9 @@ class ActionType(models.Model):
 
 
 class Action(models.Model):
+
+    ''' Log of Billboard Actions '''
+
     kind = models.ForeignKey("ActionType", \
                              related_name="%(class)s_related_kind")
     source = models.ForeignKey("Member", \
@@ -164,6 +203,7 @@ class Action(models.Model):
                'kind': self.kind, 'cost': self.cost}
 
     def targets(self):
+        ''' displays wrapped list of action targets (recipients) '''
         if self.target.count() == 0:
             return "None"
         elif self.target.count() > 0:
@@ -177,6 +217,9 @@ class Action(models.Model):
 
 
 class AdType(models.Model):
+
+    ''' Type of Message advertisement '''
+
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=50)
     price = models.FloatField(default=0)
@@ -186,6 +229,7 @@ class AdType(models.Model):
 
     @classmethod
     def by_code(cls, code):
+        ''' get AdType by code or None '''
         try:
             return cls.objects.get(code=code)
         except models.ObjectDoesNotExist:
@@ -193,6 +237,7 @@ class AdType(models.Model):
 
     @classmethod
     def find_or_create(cls, code):
+        ''' get AdType by code ; create if not exist '''
         try:
             return cls.objects.get(code=code)
         except models.ObjectDoesNotExist:
@@ -202,6 +247,9 @@ class AdType(models.Model):
 
 
 class MessageLog(models.Model):
+
+    ''' Textual Log of Billboard Messages '''
+
     sender = models.CharField(max_length=16)
     sender_member = models.ForeignKey("Member", blank=True, null=True, \
                                       related_name="%(class)s_related_sender")
@@ -222,6 +270,9 @@ class MessageLog(models.Model):
 
 
 class BulkMessage(models.Model):
+
+    ''' Outgoing message storage for delayed sending '''
+
     STATUS_CHOICES = (
         ('P', 'Pending'),
         ('E', 'Error'),
@@ -243,6 +294,9 @@ class BulkMessage(models.Model):
 
 
 class Configuration(models.Model):
+
+    ''' Key, Value storage for config variables '''
+
     key = models.CharField(max_length=16, primary_key=True)
     value = models.CharField(max_length=100)
 
@@ -251,6 +305,9 @@ class Configuration(models.Model):
 
     @classmethod
     def get_dictionary(cls):
+        ''' get all configuration items at once.
+
+        return dictionary '''
         dico = {}
         for conf in cls.objects.all():
             dico[conf.key] = conf.value

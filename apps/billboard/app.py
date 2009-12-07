@@ -2,6 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+''' Billboard App
+
+Manages a network of black boards.
+
+Prepaid, Messaging, Member management and  Admin tools '''
+
 import datetime
 import re
 import unicodedata
@@ -18,6 +24,12 @@ from billboard.utils import *
 
 
 def authenticated(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if sender property is set on message
+    else respond to sender
+
+    return function or boolean '''
 
     def wrapper(self, message, *args):
         if message.sender:
@@ -36,6 +48,11 @@ def authenticated(func):
 
 
 def registered(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if a Member is using that number
+
+    return function or boolean '''
 
     def wrapper(self, message, *args):
         if Member.objects.get(mobile=message.peer):
@@ -54,6 +71,11 @@ def registered(func):
 
 
 def sysadmin(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if a sender is Member of admin Type.
+
+    return function or boolean '''
 
     def wrapper(self, message, *args):
         if message.sender and message.sender.is_admin():
@@ -64,10 +86,20 @@ def sysadmin(func):
 
 
 class HandlerFailed(Exception):
+    ''' No function pattern matchs message '''
     pass
 
 
 class App(rapidsms.app.App):
+
+    ''' Billboard App
+
+    Manages a network of black boards.
+
+    Prepaid: Balance, topup
+    Messaging: [ad keyword], bulk
+    Member management: stop, join, register, help, balance
+    Admin tools: moneyup, ping, system '''
 
     keyword = Keyworder()
 
@@ -81,8 +113,9 @@ class App(rapidsms.app.App):
         self.router.call_at(120, self.bulk_send)
 
     def period_balance_check(self):
-        ''' Periodicly checks carrier balance of the system (modem) SIM card.
-        '''
+        ''' Periodicly checks carrier balance of the system SIM balance
+
+        return int '''
         try:
             operator = eval("%s()" % config['operator'])
             operator_sentence = self.backend.modem.ussd(operator.BALANCE_USSD)
@@ -117,8 +150,7 @@ class App(rapidsms.app.App):
         return to_seconds(config['check_balance_in'])
 
     def bulk_send(self):
-        '''Sends messages from the BulkMessage objects.
-        '''
+        ''' Sends messages from BulkMessage DB. '''
         now = datetime.datetime.now()
         messages = BulkMessage.objects.filter(status='P', date__lte=now)
         for message in messages:
@@ -136,6 +168,9 @@ class App(rapidsms.app.App):
         return to_seconds(config['send_bulk_in'])
 
     def parse(self, message):
+        ''' Parse incoming messages.
+
+        flag message as not handled and log '''
         member = Member.by_mobile(message.peer)
         if member:
             message.sender = member
@@ -149,6 +184,10 @@ class App(rapidsms.app.App):
         log.save()
 
     def handle(self, message):
+        ''' Function selector
+
+        Matchs functions with keyword using Keyworder
+        Replies on error and if no function matched '''
         try:
             func, captures = self.keyword.match(self, message.text)
         except TypeError:
@@ -156,7 +195,6 @@ class App(rapidsms.app.App):
         try:
             handled = func(self, message, *captures)
         except HandlerFailed, e:
-            print e
             send_message(backend=self.backend, sender=Member.system(), \
                          recipients=message.peer, content=e, \
                          action='err_plain_notif', overdraft=True, fair=True)
@@ -180,6 +218,10 @@ class App(rapidsms.app.App):
     @keyword(r'stop')
     @authenticated
     def stop_board(self, message):
+        ''' Mark sender as inactive
+
+        Format: stop
+        replies confirmation '''
         message.sender.active = False
         message.sender.save()
 
@@ -195,6 +237,12 @@ class App(rapidsms.app.App):
     @keyword(r'stop \@(\w+)')
     @sysadmin
     def stop_board(self, message, name):
+        ''' Mark target as inactive
+
+        Format: stop @[name]
+        name: alias of Member
+
+        replies confirmation to sender and target '''
         member = Member.objects.get(alias=name)
         if not member.active: # already off
             send_message(backend=self.backend, sender=Member.system(), \
@@ -216,6 +264,7 @@ class App(rapidsms.app.App):
 
     # message sending helper
     def followup_stop(self, sender):
+        ''' sends leaving message to peers '''
         # we charge the manager if has credit but don't prevent sending if not
         if bool(config['send_exit_notif']):
             recipients = Member.active_boards()
@@ -239,6 +288,10 @@ class App(rapidsms.app.App):
     @keyword(r'join')
     @registered
     def join_board(self, message):
+        ''' Mark sender as active
+
+        Format: join
+        replies confirmation '''
         message.sender = Member.objects.get(mobile=message.peer)
         if message.sender.active:
             return True
@@ -257,6 +310,12 @@ class App(rapidsms.app.App):
     @keyword(r'join \@(\w+)')
     @sysadmin
     def join_board(self, message, name):
+        ''' Mark target as active
+
+        Format: join @[name]
+        name: alias of Member
+
+        replies confirmation '''
         member = Member.objects.get(alias=name)
         if member.active: # already on
             send_message(backend=self.backend, sender=Member.system(), \
@@ -278,6 +337,7 @@ class App(rapidsms.app.App):
 
     # message sending helper
     def followup_join(self, sender):
+        ''' sends join messages to peers '''
         if bool(config['send_join_notif']):
             recipients = Member.active_boards()
             try:
@@ -317,6 +377,13 @@ class App(rapidsms.app.App):
     @keyword(r'moneyup \@(\w+) ([0-9\.]+)')
     @sysadmin
     def moneyup_board(self, message, name, amount):
+        ''' Add credit to a Member's account
+
+        Format: moneyup @[name] [amount]
+        name: alias of Member
+        amount: amoun of credit to add
+
+        replies confirmation '''
         member = Member.objects.get(alias=name)
         member.credit += float(amount)
         member.save()
@@ -339,6 +406,17 @@ class App(rapidsms.app.App):
     @sysadmin
     def register_board(self, message, alias, mobile, zonecode, credit, \
                        rating, membership):
+        ''' register a Member in the system
+
+        Format: register [alias] [mobile] [zonecode] [credit] [rating] [mmship]
+        alias: alias for Member
+        mobile: cellphone number for Member
+        zonecode: closest Zone code
+        credit: inital credit
+        rating: multiplication factor for benefits to Member
+        mmship: membership of Member is not regular
+
+        replies confirmation '''
         if credit == None:
             credit = 0
         if rating == None:
@@ -393,6 +471,7 @@ class App(rapidsms.app.App):
         return True
 
     def register_error(self, peer, key, value):
+        ''' send error message on failed registration '''
         send_message(backend=self.backend, sender=Member.system(), \
                      recipients=peer, content=_(u"Unable to register. " \
                      "%(key)s (%(value)s) is either incorrect or in use by " \
@@ -407,15 +486,16 @@ class App(rapidsms.app.App):
     @keyword(r'topup (\d+)')
     @registered
     def topup_board(self, message, card_pin):
-        print card_pin
+        ''' Request a SIM topup on server
+
+        Format: topup [card_pin]
+        card_pin: voucher number
+
+        replies confirmation '''
         operator = eval("%s()" % config['operator'])
-        print operator
         operator_topup = operator.build_topup_ussd(card_pin)
-        print operator_topup
         operator_sentence = self.backend.modem.ussd(operator_topup)
-        print operator_sentence
         amount = operator.get_amount_topup(operator_sentence)
-        print amount
 
         message.sender.credit += float(amount)
         message.sender.save()
@@ -436,6 +516,11 @@ class App(rapidsms.app.App):
 
     @keyword(r'ping')
     def ping(self, message):
+        ''' Request a ping answer from server
+
+        Format: ping
+
+        replies confirmation '''
         log = MessageLog(sender=message.peer, sender_member=None, \
                          recipient=Member.system().mobile, \
                          recipient_member=Member.system(), text=message.text, \
@@ -448,6 +533,9 @@ class App(rapidsms.app.App):
     @keyword(r'help')
     @registered
     def help_board(self, message):
+        ''' Request list of system commands
+
+        Format: help '''
         message.sender = Member.objects.get(mobile=message.peer)
 
         if float(config['fair_price']) > message.sender.credit:
@@ -477,6 +565,13 @@ class App(rapidsms.app.App):
     @keyword(r'balance\s?\@?([a-z0-9]*)')
     @registered
     def balance_board(self, message, target):
+        ''' Request a user's balance
+
+        Format: balance @[target - optionnal]
+        target: alias of Member
+        if not target ; target set as sender
+
+        replies balance '''
         message.sender = Member.objects.get(mobile=message.peer)
         if not target == None and target != "" and message.sender.is_admin():
             target = Member.objects.get(alias=target)
@@ -506,7 +601,14 @@ class App(rapidsms.app.App):
     @keyword(r'system\s?(\w*)')
     @sysadmin
     def system(self, message, command):
+        ''' Request system actions
 
+        Actions: balance (system)
+
+        Format: system [action]
+        action: code of action
+
+        replies action's answer '''
         if command == 'balance':
             operator = eval("%s()" % config['operator'])
 
@@ -546,7 +648,14 @@ class App(rapidsms.app.App):
     @keyword(r'([a-z]+) (@[a-z\,0-9]+) (.+)')
     @authenticated
     def new_announce(self, message, keyw, zonecode, text):
-        print keyw
+        ''' Post a new ad to the system
+
+        Format: [keyw] [zonecode] [text]
+        keyw: message keyword (ad, wedding, etc)
+        zonecode: alias of zone of Member
+        text: free text of announcement
+
+        replies confirmation '''
         targets = zonecodes_from_string(zonecode.lower())
         recipients = zone_recipients(targets, message.sender)
         adt = AdType.by_code(keyw.lower())
@@ -587,7 +696,3 @@ class App(rapidsms.app.App):
                                  action='ann_nonotif_board', \
                                  overdraft=True, fair=True)
         return True
-
-    def outgoing(self, message):
-        # if info message ; down manager credit by 10F
-        pass

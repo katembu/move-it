@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+''' Helper functions for use in App and U.I '''
+
 import re
 import datetime
 import string
@@ -13,6 +15,9 @@ from billboard.models import *
 
 
 def to_seconds(period):
+    ''' convert a mixed string into seconds
+
+    return int.'''
     if period == 'hourly':
         return 3600
     elif period == 'daily':
@@ -34,32 +39,39 @@ def to_seconds(period):
 
 
 def recipients_from(sender, target_str):
+    ''' builds a list of recipients from sms string
+
+    Examples: @ghana or @bonsaaso or @ghana,bonsaaso
+
+    return array of Member '''
     targets = zonecodes_from_string(target_str.lower())
     recipients = zone_recipients(targets, sender)
     return recipients
 
 
-def modem_logger(modem, message, type):
-    if type in (1, 2):
-        print "%8s %s" % (type, message)
-    pass
-
-
 class InsufficientCredit(Exception):
+    ''' Member's credit not enough for action '''
     pass
 
 config = Configuration.get_dictionary()
 
 
 def price_fmt(price):
+    ''' format price with currency
+
+    return string '''
     return u"%(p)s%(c)s" % {'p': price, 'c': config['currency']}
 
 
 def random_alias():
+    ''' generate a random alias (10 chars)
+
+    return string '''
     return "".join(random.sample(string.letters + string.digits, 10)).lower()
 
 
 def zonecodes_from_string(zonestring):
+    ''' builds a list of zones from SMS string '''
     zones = []
     zonesc = zonestring.split(',')
     for zone in zonesc:
@@ -71,7 +83,7 @@ def zonecodes_from_string(zonestring):
 
 
 def zone_recipients(zonecode, exclude=None):
-
+    ''' builds a list of recipients from a zone code '''
     if zonecode.__class__ == str:
         zonecode = [zonecode]
 
@@ -103,6 +115,7 @@ def zone_recipients(zonecode, exclude=None):
 
 
 def recurs_zones(zone):
+    ''' loops on a zone to retrive children '''
     zonelist = []
     all_zones = Zone.objects.filter(zone=zone)
     for azone in all_zones.iterator():
@@ -113,6 +126,13 @@ def recurs_zones(zone):
 
 
 def message_cost(sender, recipients, ad=None, fair=False):
+    ''' calculate cost of a message
+
+    sender: Member sending
+    recipients: list of recipients
+    ad: AdType of message
+    fair: whether of not to use fair price
+    return float '''
     price = 0
     if not ad == None:
         cost = ad.price
@@ -130,6 +150,7 @@ def message_cost(sender, recipients, ad=None, fair=False):
 
 
 def ad_from(content):
+    ''' return AdType from message text '''
     try:
         adt = re.search('^\s?\+([a-z])', content).groups()[0]
         adt = AdType.by_code(adt)
@@ -140,6 +161,12 @@ def ad_from(content):
 
 def send_message(backend, sender, recipients, content, action=None, adt=None, \
                  overdraft=False, fair=False):
+    ''' single step message sending
+
+    - calculates cost of message
+    - takes credit out of sender account
+    - send message
+    - log message '''
     plain_recip = recipients # save this for record_action
     if recipients.__class__ == str:
         recipients = Member(alias=random_alias(), rating=1, \
@@ -188,6 +215,7 @@ def send_message(backend, sender, recipients, content, action=None, adt=None, \
 
 
 def default_tag():
+    ''' return default message tag from config '''
     if not config:
         config = Configuration.get_dictionary()
 
@@ -196,6 +224,7 @@ def default_tag():
 
 def record_action(kind, source, target, text, cost, ad=None, \
                   date=datetime.datetime.now()):
+    ''' log action in DB '''
 
     if target.__class__ == str:
         target = Member.system()
