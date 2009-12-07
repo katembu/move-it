@@ -1,4 +1,6 @@
-# coding=utf-8
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: rgaudin
 
 from django.conf.urls.defaults import *
 from django.contrib import admin
@@ -18,8 +20,8 @@ urlpatterns = patterns('',
     (r'^history\/([a-z0-9]+)$', 'apps.billboard.views.history_one'),
     (r'^help\/$', 'apps.billboard.views.help'),
     (r'^database$', 'apps.billboard.views.database_backup'),
-    (r'^style/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'apps/billboard/templates/style', 'show_indexes': True}),
-    (r'^medias/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'media', 'show_indexes': True}),
-    admin_urls
-)
-
+    (r'^style/(?P<path>.*)$', 'django.views.static.serve', \
+    {'document_root': 'apps/billboard/templates/style', 'show_indexes': True}),
+    (r'^medias/(?P<path>.*)$', 'django.views.static.serve', \
+    {'document_root': 'media', 'show_indexes': True}),
+    admin_urls)
