@@ -8,6 +8,7 @@ import re
 from datetime import datetime
 
 import rapidsms
+from django.utils.translation import ugettext_lazy as _
 
 
 def import_function(func):
@@ -92,8 +93,10 @@ class App (rapidsms.app.App):
 
             now = datetime.now()
             if identifier:
-                message.respond("pong %s on %s" % (identifier,
-                                                   now.strftime("%c")))
+                message.respond(_(u"pong %(pingID)s on %(date)s") \
+                                % {'pingID': identifier, \
+                                'date': now.strftime("%c")})
             else:
-                message.respond("pong on %s" % now.strftime("%c"))
+                message.respond(_(u"pong on %(date)s") % \
+                                {'date': now.strftime("%c")})
             return True
