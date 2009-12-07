@@ -74,4 +74,8 @@ urlpatterns = patterns('',
     (r'^childcount/commands-shortlist', views.commands_pdf),
     #malnutrition_screening
     (r'^malnutrition_screening/$', reports.malnutrition_screening),
+    #dead cases report
+    (r'^dead_cases_report', reports.dead_cases_report),
+    (r'^dead_cases_report/(?P<rformat>[a-z]*)$', \
+     reports.dead_cases_report),
 )
