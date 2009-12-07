@@ -190,7 +190,7 @@ class App(rapidsms.app.App):
                 rep.first_name = fn
                 rep.last_name = ln
 
-            rep.save
+            rep.save()
 
             # attach the reporter to the current connection
             message.persistant_connection.reporter = rep
@@ -202,7 +202,7 @@ class App(rapidsms.app.App):
             message.respond("Join Error. Unable to register your account.")
 
         if role_code == None or role_code.__len__() < 1:
-            role_code = self.default_role
+            role_code = Cfg.get("default_chw_role")
 
         reporter = message.persistant_connection.reporter
 
