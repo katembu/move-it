@@ -24,6 +24,9 @@ class Configuration(models.Model):
         app_label = "childcount"
         unique_together = ("key", "value")
 
+    def __unicode__(self):
+        return u"%s: %s" % (self.key, self.value)
+
     @classmethod
     def get(cls, key=None):
         '''get config object of specified key'''
