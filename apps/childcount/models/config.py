@@ -12,9 +12,20 @@ from django.db import models
 class Configuration(models.Model):
 
     '''Store Key/value childcount config options'''
-    description = models.CharField(max_length=255, db_index=True, unique=True),
-    key = models.CharField(max_length=255, db_index=True)
+
+    key = models.CharField(max_length=50, db_index=True)
     value = models.CharField(max_length=255, db_index=True, blank=True)
+    description = models.CharField(max_length=255, db_index=True, unique=True),
 
     class Meta:
         app_label = "childcount"
+        unique_together = ("key", "value")
+
+    @classmethod
+    def get(cls, key=None):
+        '''get value of specified key'''
+        try:
+            cfg = cls.objects.get(key=key)
+            return cfg.value
+        except models.ObjectDoesNotExist:
+            return None
