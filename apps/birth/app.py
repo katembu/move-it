@@ -20,6 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
+from childcount.models.config import Configuration as Cfg
 from birth.models import ReportBirth
 
 
@@ -100,8 +101,8 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("%s") % "An error occurred. " \
-                            "Please call 0733202270.")
+            message.respond(_("An error occurred. Please call %s") \
+                            % Cfg.get("developer_mobile"))
             return True
             raise
         message.was_handled = bool(self.handled)

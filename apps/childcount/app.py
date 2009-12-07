@@ -22,6 +22,7 @@ from locations.models import Location
 
 from childcount.models.logs import MessageLog, log, elog
 from childcount.models.general import Case, CaseNote
+from childcount.models.config import Configuration as Cfg
 
 
 def authenticated(func):
@@ -79,17 +80,6 @@ class App(rapidsms.app.App):
     keyword = Keyworder()
     handled = False
 
-    def configure(self, default_role=None, tab_link="/childcount"):
-        '''Set default reporter role
-
-        default role is None
-        '''
-        try:
-            self.debug(default_role)
-            self.default_role = default_role
-        except:
-            pass
-
     def parse(self, message):
         ''' Parse incoming messages.
 
@@ -141,8 +131,8 @@ class App(rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("%s") \
-                            % "An error occurred. Please call 0733202270.")
+            message.respond(_("An error occurred. Please call %s") \
+                            % Cfg.get("developer_mobile"))
 
             elog(message.persistant_connection.reporter, message.text)
             raise
@@ -189,7 +179,7 @@ class App(rapidsms.app.App):
                 rep.first_name = fn
                 rep.last_name = ln
 
-            rep.save
+            rep.save()
 
             # attach the reporter to the current connection
             message.persistant_connection.reporter = rep
@@ -201,7 +191,7 @@ class App(rapidsms.app.App):
             message.respond("Join Error. Unable to register your account.")
 
         if role_code == None or role_code.__len__() < 1:
-            role_code = self.default_role
+            role_code = Cfg.get("default_chw_role")
 
         reporter = message.persistant_connection.reporter
 

@@ -19,6 +19,7 @@ from rapidsms.parsers.keyworder import Keyworder
 
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
+from childcount.models.config import Configuration as Cfg
 from muac.models import ReportMalnutrition, Observation
 from reporters.models import PersistantBackend
 
@@ -99,7 +100,8 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("An error occurred. Please call %s") \
+                            % Cfg.get("developer_mobile"))
             raise
         message.was_handled = bool(self.handled)
         return self.handled
