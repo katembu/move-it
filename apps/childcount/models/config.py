@@ -15,7 +15,7 @@ class Configuration(models.Model):
 
     key = models.CharField(max_length=50, db_index=True)
     value = models.CharField(max_length=255, db_index=True, blank=True)
-    description = models.CharField(max_length=255, db_index=True, unique=True),
+    description = models.CharField(max_length=255, db_index=True),
 
     class Meta:
         app_label = "childcount"
