@@ -161,28 +161,30 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
             queryset, fields = ReportCHWStatus.\
                 get_providers_by_clinic(duration_start, duration_end, \
                                         muac_duration_start, clinic)
-            title = "%s: %s" % (clinic.name, title)
-            pdfrpt.setTableData(queryset, fields, title, \
+            stitle = "%s: %s" % (clinic.name, title)
+            pdfrpt.setTableData(queryset, fields, stitle, \
                 [0.3 * inch, 1 * inch, 0.8 * inch, 0.8 * inch, .8 * inch, \
                  .8 * inch, 0.8 * inch, 1 * inch, 1 * inch, 1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
     else:
-        if request.POST['clinic']:
+        if request.POST[
+                        
+                        'clinic']:
             object_id = request.POST['clinic']
             object_id = Location.objects.get(id=object_id)
         queryset, fields = ReportCHWStatus.\
                 get_providers_by_clinic(duration_start, duration_end, \
                                         muac_duration_start, object_id)
-        title = "%s: %s" % (object_id.name, title)
+        stitle = "%s: %s" % (object_id.name, title)
         if rformat == "csv" or (request.POST \
                                 and request.POST["format"].lower() == "csv"):
             file_name = object_id.name + ".csv"
             file_name = file_name.replace(" ", "_").replace("'", "")
             return handle_csv(request, queryset, fields, file_name)
 
-        pdfrpt.setTableData(queryset, fields, title)
+        pdfrpt.setTableData(queryset, fields, stitle)
 
     return pdfrpt.render()
 
