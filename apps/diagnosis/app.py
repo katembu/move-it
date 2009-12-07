@@ -19,6 +19,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
+from childcount.models.config import Configuration as Cfg
 from diagnosis.models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
 find_diagnostic_re = re.compile('( -[\d\.]+)', re.I)
@@ -84,9 +85,8 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            mobile = '0733202270'
-            message.respond(_("An error occurred. Please call %s.") \
-                             % mobile)
+            message.respond(_("An error occurred. Please call %s") \
+                            % Cfg.get("developer_mobile"))
             raise
         message.was_handled = bool(self.handled)
         return self.handled
