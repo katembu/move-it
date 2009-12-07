@@ -6,7 +6,7 @@ from django.contrib import admin
 from models import ReportMalnutrition
 
 class ReportMalnutritionAdmin(admin.ModelAdmin):
-    list_display = ("case", "name","zone", "muac", "entered_at","reporter")
+    list_display = ("case", "name","location", "muac", "entered_at","reporter")
     search_fields = ['case__ref_id' ]
 
 admin.site.register(ReportMalnutrition, ReportMalnutritionAdmin)
