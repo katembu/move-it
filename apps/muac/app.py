@@ -7,6 +7,9 @@
 Records MUAC measurements
 '''
 
+import re
+import datetime
+
 from django.db import models
 from django.utils.translation import ugettext as _
 
@@ -18,7 +21,6 @@ from childcount.models.general import Case
 from models import ReportMalnutrition, Observation
 from reporters.models import PersistantBackend
 
-import re, datetime
 
 def registered(func):
     ''' decorator checking if sender is allowed to process feature.
@@ -130,7 +132,7 @@ class App (rapidsms.app.App):
             raise HandlerFailed(_("Case +%s not found.") % ref_id)
 
     def get_observations(self, text):
-        choices  = dict([(o.letter, o) for o in Observation.objects.all()])
+        choices = dict([(o.letter, o) for o in Observation.objects.all()])
         observed = []
         if text:
             text = re.sub(r'\W+', ' ', text).lower()
@@ -143,7 +145,7 @@ class App (rapidsms.app.App):
                 else:
                     observed.append(obj)
         return observed, choices
-    
+
     def delete_similar(self, queryset):
         try:
             last_report = queryset.latest("entered_at")
@@ -162,7 +164,7 @@ class App (rapidsms.app.App):
 
     @keyword(r'\+(\d+) ([\d\.]+)?( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
     @registered
-    def report_case (self, message, ref_id, muac=None,
+    def report_case(self, message, ref_id, muac=None,
                      weight=None, height=None, complications=""):
         '''Record  muac, weight, height, complications if any
 
@@ -173,9 +175,10 @@ class App (rapidsms.app.App):
         '''
         # TODO use gettext instead of this dodgy dictionary
         _i = {
-                'units' : {'MUAC' : 'mm', 'weight' : 'kg', 'height' : 'cm'},
-                'en' : {'error'    : "Can't understand %s (%s): %s"},
-                'fr' : {'error'    : "Ne peux pas comprendre %s (%s): %s"}}
+                'units': {'MUAC': 'mm', 'weight': 'kg', 'height': 'cm'},
+                'en': {'error': "Can't understand %s (%s): %s"},
+                'fr': {'error': "Ne peux pas comprendre %s (%s): %s"}}
+
         def guess_language(msg):
             if msg.upper().startswith('MUAC'):
                 return 'en'
@@ -209,7 +212,7 @@ class App (rapidsms.app.App):
                 muac *= 10
             muac = int(muac)
         except ValueError:
-            raise HandlerFailed( (_i[lang] % ('MUAC', _i['units']['MUAC'], \
+            raise HandlerFailed((_i[lang] % ('MUAC', _i['units']['MUAC'], \
                                               muac)))
                 #_("Can't understand MUAC (mm): %s") % muac)
 
@@ -220,9 +223,9 @@ class App (rapidsms.app.App):
                     # weight is in g?
                     weight /= 1000.0
             except ValueError:
-                #raise HandlerFailed("Can't understand weight (kg): 
+                #raise HandlerFailed("Can't understand weight (kg):
                 #%s" % weight)
-                raise HandlerFailed( (_i[lang] % ('weight', \
+                raise HandlerFailed((_i[lang] % ('weight', \
                                     _i['units']['weight'], weight)))
 
         if height is not None:
@@ -234,7 +237,7 @@ class App (rapidsms.app.App):
             except ValueError:
                 #raise HandlerFailed("Can't understand height (cm):
                 # %s" % height)
-                raise HandlerFailed( (_i[lang] % ('height', \
+                raise HandlerFailed((_i[lang] % ('height', \
                                 _i['units']['height'], height)))
 
         observed, choices = self.get_observations(complications)
@@ -269,7 +272,7 @@ class App (rapidsms.app.App):
         last_muac = report.get_last_muac()
         if last_muac is not None:
             psign = "%"
-            #take care for cases when testing using httptester, % 
+            #take care for cases when testing using httptester, %
             #sign prevents feedback.
             if PersistantBackend.from_message(message).title == "http":
                 psign = "&#37;"
@@ -279,8 +282,8 @@ class App (rapidsms.app.App):
 
         msg = "MUAC> " + msg
         if len(msg) > self.MAX_MSG_LEN:
-                    message.respond( msg[:msg.rfind(". ")+1])
-                    message.respond(msg[msg.rfind(". ")+1:])
+                    message.respond(msg[:msg.rfind(". ") + 1])
+                    message.respond(msg[msg.rfind(". ") + 1:])
         else:
             message.respond(msg)
 
