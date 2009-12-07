@@ -19,7 +19,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
-from models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
+from diagnosis.models import ReportDiagnosis, Diagnosis, Lab, LabDiagnosis
 
 find_diagnostic_re = re.compile('( -[\d\.]+)', re.I)
 find_lab_re = re.compile('(/[A-Z]+)([\+-])(\d*:?)', re.I)

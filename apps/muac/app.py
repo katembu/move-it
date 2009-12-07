@@ -18,7 +18,7 @@ from rapidsms.parsers.keyworder import Keyworder
 
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
-from models import ReportMalnutrition, Observation
+from muac.models import ReportMalnutrition, Observation
 from reporters.models import PersistantBackend
 
 

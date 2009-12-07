@@ -20,7 +20,7 @@ from rapidsms.parsers.keyworder import Keyworder
 from childcount.models.logs import MessageLog, log
 from childcount.models.general import Case
 from childcount.models.reports import Observation
-from models import ReportMalaria
+from mrdt.models import ReportMalaria
 
 
 def registered(func):
