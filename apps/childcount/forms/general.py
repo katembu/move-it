@@ -69,3 +69,8 @@ class CaseForm(BaseModelForm):
     class Meta:
         model = Case
         exclude = ('created_at', 'updated_at')
+class Enfant(BaseModelForm):
+    class Meta:
+        model = Case
+        exclude = ('created_at', 'updated_at','ref_id','estimated_dob','guardian_id')
+
