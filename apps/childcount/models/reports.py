@@ -102,6 +102,9 @@ class ReportCHWStatus(Report, models.Model):
         clinic_cases = 0
         clinic_mrdt = 0
         clinic_muac = 0
+        clinic_new = 0
+        clinic_inactive = 0
+        clinic_dead = 0
         clinic_sent = 0
         clinic_processed = 0
         clinic_refused = 0
@@ -118,9 +121,12 @@ class ReportCHWStatus(Report, models.Model):
                 p['num_cases'] = Case.count_by_provider(provider)
                 p['num_cases_inactive'] = Case.count_by_provider(\
                                             provider, Case.STATUS_INACTIVE)
+                clinic_inactive += p['num_cases_inactive']
                 p['num_cases_dead'] = Case.count_by_provider(\
                                             provider, Case.STATUS_DEAD)
+                clinic_dead += p['num_cases_dead']
                 p['num_new_cases'] = Case.count_for_last_30_days(provider)
+                clinic_new += p['num_new_cases']
                 p_muac = ReportMalaria.count_by_provider(provider, \
                                             duration_end, duration_start)
                 p['num_malaria_reports'] = p_muac
@@ -188,6 +194,9 @@ class ReportCHWStatus(Report, models.Model):
             p['sms_sent'] = clinic_sent
             p['sms_processed'] = clinic_processed
             p['sms_refused'] = clinic_refused
+            p['num_cases_dead'] = clinic_refused
+            p['num_cases_inactive'] = clinic_inactive
+            p['num_new_cases'] = clinic_new
             if p['sms_sent'] != 0:
                 p['sms_rate'] = int(float(\
                         float(p['sms_processed']) / \
