@@ -164,24 +164,31 @@ class ReportMalnutrition(models.Model):
          | HEALTHY_STATUS | None
 
         '''
+        #get reporters cases
+        rcases = Case.objects.filter(reporter=reporter)
         if reporter is None:
             return None
         try:
             if duration_start is None or duration_end is None:
                 if status is None:
-                    return cls.objects.filter(reporter=reporter).\
+                    return cls.objects.filter(reporter=reporter, \
+                        case__in=rcases).\
                         values("case").distinct().count()
                 else:
                     return cls.objects.filter(reporter=reporter, \
-                        status=status).values("case").distinct().count()
+                        status=status, \
+                        case__in=rcases).values("case").\
+                        distinct().count()
             if status is None:
                 return cls.objects.filter(entered_at__lte=duration_end, \
-                        entered_at__gte=duration_start).\
+                        entered_at__gte=duration_start, \
+                        case__in=rcases).\
                         filter(reporter=reporter).values("case").\
                         distinct().count()
             else:
                 return cls.objects.filter(entered_at__lte=duration_end, \
-                        entered_at__gte=duration_start, status=status).\
+                        entered_at__gte=duration_start, status=status, \
+                        case__in=rcases).\
                         filter(reporter=reporter).values("case").\
                         distinct().count()
         except models.ObjectDoesNotExist:
