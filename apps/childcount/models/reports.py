@@ -144,7 +144,6 @@ class ReportCHWStatus(Report, models.Model):
                                     float(num_cases)) * 100, 0)
                 p['num_muac_reports'] = "%d %d%% (%s/%s)" % \
                     (num_muac, muac_percentage, num_muac, num_cases)
-                #p['num_muac_reports'] = num_muac
                 sms_sent = MessageLog.count_by_provider(provider, \
                                             duration_end, duration_start)
                 clinic_sent = clinic_sent + sms_sent
@@ -188,9 +187,8 @@ class ReportCHWStatus(Report, models.Model):
             else:
                 muac_percentage = round(float(\
                                 float(num_muac) / float(num_cases)) * 100, 0)
-            #p['num_muac_reports'] = "%d %% (%s/%s) " % \
-            #    (muac_percentage, num_muac, num_cases)
-            p['num_muac_reports'] = num_muac
+            p['num_muac_reports'] = "%d %% (%s/%s) " % \
+                (muac_percentage, num_muac, num_cases)
             p['sms_sent'] = clinic_sent
             p['sms_processed'] = clinic_processed
             p['sms_refused'] = clinic_refused
