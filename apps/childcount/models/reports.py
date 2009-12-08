@@ -1065,21 +1065,21 @@ class ReportAllPatients(Report, models.Model):
                                                  q['case'].first_name)
                         counter = counter + 1
                         q['counter'] = "%d" % counter
-                    try:
-                        muacc = ReportMalnutrition.objects.\
-                                filter(case=case).latest()
+                        try:
+                            muacc = ReportMalnutrition.objects.\
+                                    filter(case=case).latest()
 
-                        q['malnut_muac'] = "%smm" % (muacc.muac)
-                        q['malnut_weight'] = "%s kg" % (muacc.weight)
-                        q['malnut_symptoms'] = muacc.symptoms_keys()
-                        q['malnut_days_since_last_update'] = \
-                            muacc.days_since_last_activity()
-                    except ObjectDoesNotExist:
-                        q['malnut_muac'] = ""
-                        q['malnut_symptoms'] = ""
-                        q['malnut_days_since_last_update'] = ""
+                            q['malnut_muac'] = "%smm" % (muacc.muac)
+                            q['malnut_weight'] = "%s kg" % (muacc.weight)
+                            q['malnut_symptoms'] = muacc.symptoms_keys()
+                            q['malnut_days_since_last_update'] = \
+                                muacc.days_since_last_activity()
+                        except ObjectDoesNotExist:
+                            q['malnut_muac'] = ""
+                            q['malnut_symptoms'] = ""
+                            q['malnut_days_since_last_update'] = ""
 
-                    qs.append(q)
+                        qs.append(q)
 
                     # caseid +|Y lastname firstname | sex | dob/age |
                     #guardian | provider  | date
