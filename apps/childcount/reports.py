@@ -369,7 +369,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     ''' Children Screening per age for SN CC '''
     pdfrpt = PDFReport()
 
-    pdfrpt.setTitle(Cfg.get("app_name") + ": Listing Enfant par Age")
+    pdfrpt.setTitle("ChildCount Senegal: Listing Enfant par Age")
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -926,6 +926,13 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
             pdfrpt.setTableData(queryset, fields, title)
 
     return pdfrpt.render()
+@login_required
+def childcount(request):
+    template_name="childcount/reports/childcount.html"
+    
+    
+    return render_to_response(request, template_name)
+@login_required
 def saisie(request):
     template_name="childcount/formulaire/saisie.html"
 
