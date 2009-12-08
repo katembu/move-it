@@ -52,6 +52,8 @@ from reportlab.lib.units import inch
 from reportlab.platypus import Paragraph, Spacer, Preformatted
 from reportlab.lib.styles import getSampleStyleSheet
 
+from childcount.forms.general import Enfant
+
 styles = getSampleStyleSheet()
 Elements = []
 
@@ -903,3 +905,31 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
             pdfrpt.setTableData(queryset, fields, title)
 
     return pdfrpt.render()
+def saisie(request):
+    template_name="childcount/formulaire/saisie.html"
+
+
+    if request.method == 'POST': # If the form has been submitted...
+        form = CaseFormNew(request.POST) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            # Process the data in form.cleaned_data
+            # ...
+            prenom = form.cleaned_data['first_name']
+            
+            enfant = form.save(commit=False)
+            enfant.title = prenom
+            enfant.save()            
+            
+        last_ten   = Case.objects.order_by('-created_at')[:10] 
+        form = Enfant()      
+    #return HttpResponseRedirect('childcount/saisie') # Redirect after POST
+    else:
+        last_ten   = Case.objects.order_by('-created_at')[:10]
+        form = Enfant() # An unbound form
+
+    return render_to_response(request,template_name, {
+       'form': form,
+       'last_ten': last_ten,
+    })
+    
+
