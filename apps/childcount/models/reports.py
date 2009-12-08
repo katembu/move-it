@@ -1122,8 +1122,8 @@ class ReportAllPatients(Report, models.Model):
                 q['age'] = "%(age)s" % deathinfo
                 q['cause'] = "%(cause)s" % deathinfo
                 q['where'] = "%(where)s" % deathinfo
-                q['notes'] = "%s" % dr.description[:20]
-                q['when'] = dr.entered_at.strftime("%d,%B")
+                q['notes'] = dr.description.lower()
+                q['when'] = dr.entered_at.strftime("%d.%m.%y")
                 try:
                     muacc = ReportMalnutrition.objects.\
                         filter(case=case).latest()
@@ -1146,10 +1146,14 @@ class ReportAllPatients(Report, models.Model):
                 try:
                     mrdtc = ReportMalaria.objects.filter(case=case).latest()
                     mrdtcd = mrdtc.get_dictionary()
+                    q["days_since_last_mrdt"] = "%d days ago" % \
+                                        (rpt.entered_at.date() - \
+                                        mrdtc.entered_at.date()).days
 
+                    num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)
+                    q['num_of_malaria_cases'] = "%dx" % num_of_malaria_cases
                     q['malaria_result'] = mrdtc.results_for_malaria_result()
                     q['malaria_bednet'] = mrdtc.results_for_malaria_bednet()
-                    q['mrdt_date'] = mrdtc.entered_at.strftime("%d.%m.%y")
                 except ObjectDoesNotExist:
                     q['malaria_result'] = ""
                     q['malaria_bednet'] = ""
@@ -1185,8 +1189,8 @@ class ReportAllPatients(Report, models.Model):
             fields.append({"name": 'AGE', "column": None, \
                            "bit": "{{ object.age }}"})
             fields.append({"name": 'MRDT', "column": None, \
-                           "bit": "{{ object.malaria_result }}"\
-                           "{{ object.mrdt_date}}"})
+                           "bit": "{{ object.num_of_malaria_cases }}"\
+                           "{{ object.days_since_last_mrdt}}"})
             fields.append({"name": 'BEDNET', "column": None, \
                            "bit": "{{ object.malaria_bednet }}"})
             fields.append({"name": 'CMAM', "column": None, "bit": \
@@ -1201,7 +1205,7 @@ class ReportAllPatients(Report, models.Model):
                            "bit": "{{ object.case.reporter}}"})
             fields.append({"name": 'Location', "column": None, \
                            "bit": "{{ object.case.location}}"})
-            fields.append({"name": 'DateOfDeath', "column": None, \
+            fields.append({"name": 'Date Of Death', "column": None, \
                            "bit": "{{ object.when}}"})
 
             return qs, fields
