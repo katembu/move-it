@@ -12,7 +12,8 @@ from django.http import HttpResponse
 try:
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.platypus import BaseDocTemplate, PageTemplate, \
-        Paragraph, PageBreak, Frame, FrameBreak, NextPageTemplate
+        Paragraph, PageBreak, Frame, FrameBreak, NextPageTemplate, Spacer, \
+        Preformatted
     from reportlab.platypus import Table as PDFTable
     from reportlab.platypus import TableStyle
     from reportlab.lib.enums import TA_LEFT, TA_CENTER
@@ -25,6 +26,45 @@ try:
 except ImportError:
     pass
 
+styles = getSampleStyleSheet()
+HeaderStyle = styles["Heading1"] # XXXX
+
+
+def pheader(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
+    '''Creates a reportlab PDF element and adds it to the global Elements list
+
+    style - can be a HeaderStyle, a ParaStyle or a custom style,
+     default HeaderStyle
+    klass - the reportlab Class to be called, default Paragraph
+    sep    - space separator height
+    '''
+    elements = []
+    s = Spacer(0.2 * inch, sep * inch)
+    elements.append(s)
+    para = klass(txt, style)
+    elements.append(para)
+    return elements
+
+#Paragraph Style
+ParaStyle = styles["Normal"]
+
+
+def p(txt):
+    '''Create a text Paragraph using  ParaStyle'''
+    return pheader(txt, style=ParaStyle, sep=0.0)
+
+#Preformatted Style
+PreStyle = styles["Code"]
+
+
+def pre(txt):
+    '''Create a text Preformatted Paragraph using  PreStyle'''
+    elements = []
+    s = Spacer(0.1 * inch, 0.1 * inch)
+    elements.append(s)
+    p = Preformatted(txt, PreStyle)
+    elements.append(p)
+    return elements
 
 class PDFReport():
 
@@ -122,13 +162,17 @@ class PDFReport():
         data = []
         header = False
         c = 0
+        pStyle = copy.copy(self.styles["Normal"])
+        pStyle.fontName = "Times-Roman"
+        pStyle.fontSize = 7
         #prepare the data
         for row in queryset:
             if not header:
                 data.append([f["name"] for f in fields])
                 header = True
             ctx = Context({"object": row})
-            values = [Template(h["bit"]).render(ctx) for h in fields]
+            values = [pheader(Template(h["bit"]).render(ctx), pStyle, sep=0) for h in fields]
+
             data.append(values)
 
         if len(data):
