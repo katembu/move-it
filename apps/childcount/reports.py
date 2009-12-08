@@ -171,9 +171,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
     else:
-        if request.POST[
-                        
-                        'clinic']:
+        if request.POST['clinic']:
             object_id = request.POST['clinic']
             object_id = Location.objects.get(id=object_id)
         queryset, fields = ReportCHWStatus.\
@@ -338,6 +336,29 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
                 pdfrpt.setFilename("report_per_page")
+
+    return pdfrpt.render()
+
+
+@login_required
+def dead_cases_report(request, rformat="pdf"):
+    '''List of Cases/Patient per CHW'''
+    today = datetime.now().strftime("%d %B,%Y")
+    pdfrpt = PDFReport()
+    pdfrpt.setLandscape(True)
+    title = Cfg.get("app_name") + \
+                    ": Dead Cases report as of %s" % today
+    pdfrpt.setTitle(title)
+    pdfrpt.setNumOfColumns(1)
+    queryset, fields = \
+        ReportAllPatients.death_report_by_provider()
+    if queryset:
+        pdfrpt.setTableData(queryset, fields, title, \
+                    [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
+                     0.5 * inch, 0.8 * inch, 0.5 * inch, 1 * inch, \
+                     0.6 * inch, 1.4 * inch, 1.5 * inch, 1 * inch, \
+                     1.3 * inch, 1.2 * inch])
+    pdfrpt.setFilename("deathreport_")
 
     return pdfrpt.render()
 

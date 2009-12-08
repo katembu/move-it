@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
+from deathform.models.general import ReportDeath
 
 '''ChildCount Report models
 
@@ -1101,3 +1102,106 @@ class ReportAllPatients(Report, models.Model):
         return qs, fields
 
         #Fin Ajout new
+    @classmethod
+    def death_report_by_provider(cls, reporter=None):
+        '''Generate a list of cases for the specified reporter '''
+        qs = []
+        fields = []
+        counter = 0
+        if reporter is None:
+            cases = ReportDeath.objects.exclude(case=None).\
+                order_by("entered_at", "case__location", "reporter__last_name")
+            for rpt in cases:
+                case = rpt.case
+                q = {}
+                q['case'] = case
+                counter = counter + 1
+                q['counter'] = "%d" % counter
+                dr = ReportDeath.objects.filter(case=case).latest()
+                deathinfo = dr.get_dictionary()
+                q['age'] = "%(age)s" % deathinfo
+                q['cause'] = "%(cause)s" % deathinfo
+                q['where'] = "%(where)s" % deathinfo
+                q['notes'] = "%s" % dr.description[:20]
+                q['when'] = dr.entered_at.strftime("%d,%B")
+                try:
+                    muacc = ReportMalnutrition.objects.\
+                        filter(case=case).latest()
+                    q['malnut_muac'] = "%s (%smm)" % \
+                        (muacc.get_status_display(), muacc.muac)
+                    q['malnut_symptoms'] = muacc.symptoms_keys()
+
+                except ObjectDoesNotExist:
+                    q['malnut_muac'] = ""
+                    q['malnut_symptoms'] = ""
+                    q['malnut_days_since_last_update'] = ""
+                try:
+                    orsc = ReportDiarrhea.objects.filter(case=case).latest()
+                    q['diarrhea'] = u"%(diag)s on %(date)s" % {'diag': \
+                                orsc.diagnosis_msg(), \
+                                'date': orsc.entered_at.strftime("%Y-%m-%d")}
+                except ObjectDoesNotExist:
+                    q['diarrhea'] = None
+
+                try:
+                    mrdtc = ReportMalaria.objects.filter(case=case).latest()
+                    mrdtcd = mrdtc.get_dictionary()
+
+                    q['malaria_result'] = mrdtc.results_for_malaria_result()
+                    q['malaria_bednet'] = mrdtc.results_for_malaria_bednet()
+                    q['mrdt_date'] = mrdtc.entered_at.strftime("%d.%m.%y")
+                except ObjectDoesNotExist:
+                    q['malaria_result'] = ""
+                    q['malaria_bednet'] = ""
+
+                num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)
+                if num_of_malaria_cases is not None\
+                 and num_of_malaria_cases > 1:
+                    q['malaria_result'] = q['malaria_result']\
+                         + "(%s)" % num_of_malaria_cases
+
+                try:
+                    dc = ReportDiagnosis.objects.filter(case=case).\
+                                latest('entered_at')
+                    dcd = dc.get_dictionary()
+                    q['diagnosis'] = u"diag:%(diag)s labs:%(lab)s on %(date)s"\
+                     % {'diag': dcd['diagnosis'], 'lab': dcd['labs_text'], \
+                        'date': dc.entered_at.strftime("%Y-%m-%d")}
+                except ObjectDoesNotExist:
+                    q['diagnosis'] = None
+
+                qs.append(q)
+            # caseid +|Y lastname firstname | sex | dob/age |
+            # guardian | provider  | date
+            fields.append({"name": '#', "column": None, \
+                           "bit": "{{ object.counter }}"})
+            fields.append({"name": 'PID#', "column": None, \
+                           "bit": "{{ object.case.ref_id }}"})
+            fields.append({"name": 'NAME', "column": None, \
+                        "bit": "{{ object.case.last_name }} "\
+                        "{{ object.case.first_name }}"})
+            fields.append({"name": 'SEX', "column": None, \
+                           "bit": "{{ object.case.gender }}"})
+            fields.append({"name": 'AGE', "column": None, \
+                           "bit": "{{ object.age }}"})
+            fields.append({"name": 'MRDT', "column": None, \
+                           "bit": "{{ object.malaria_result }}"\
+                           "{{ object.mrdt_date}}"})
+            fields.append({"name": 'BEDNET', "column": None, \
+                           "bit": "{{ object.malaria_bednet }}"})
+            fields.append({"name": 'CMAM', "column": None, "bit": \
+                "{{ object.malnut_muac }} "})
+            fields.append({"name": 'CAUSE', "column": None, "bit": \
+                "{{ object.cause }} "})
+            fields.append({"name": '@', "column": None, "bit": \
+                "{{ object.where }} "})
+            fields.append({"name": 'Notes', "column": None, "bit": \
+                "{{ object.notes }} "})
+            fields.append({"name": 'Reporter', "column": None, \
+                           "bit": "{{ object.case.reporter}}"})
+            fields.append({"name": 'Location', "column": None, \
+                           "bit": "{{ object.case.location}}"})
+            fields.append({"name": 'DateOfDeath', "column": None, \
+                           "bit": "{{ object.when}}"})
+
+            return qs, fields
