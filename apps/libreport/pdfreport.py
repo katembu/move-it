@@ -66,6 +66,7 @@ def pre(txt):
     elements.append(p)
     return elements
 
+
 class PDFReport():
 
     '''PDFReport
@@ -171,7 +172,8 @@ class PDFReport():
                 data.append([f["name"] for f in fields])
                 header = True
             ctx = Context({"object": row})
-            values = [pheader(Template(h["bit"]).render(ctx), pStyle, sep=0) for h in fields]
+            values = [pheader(Template(h["bit"]).render(ctx), pStyle, sep=0)\
+                       for h in fields]
 
             data.append(values)
 
