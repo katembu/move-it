@@ -27,7 +27,7 @@ class ReportDeath(models.Model):
     LOCATION_CHOICES = (
         ('H', _('Home')),
         ('C', _('Health Facility')),
-        ('T', _('Transport - On route to Clinic')),
+        ('T', _('On route to Clinic')),
         ('O', _('Other')))
 
     CAUSE_CHOICES = (

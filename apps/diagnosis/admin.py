@@ -4,7 +4,7 @@
 
 from django.contrib import admin
 
-from models import Diagnosis, DiagnosisCategory, ReportDiagnosis
+from diagnosis.models import Diagnosis, DiagnosisCategory, ReportDiagnosis
 
 admin.site.register(Diagnosis)
 admin.site.register(DiagnosisCategory)
