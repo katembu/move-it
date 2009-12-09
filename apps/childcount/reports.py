@@ -142,8 +142,9 @@ def reports(request):
 def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     '''A pdf report of chw perfomance within the last 30 days'''
     pdfrpt = PDFReport()
-    d = int(d)
     pdfrpt.enableFooter(True)
+
+    d = int(d)
     thirty_days = timedelta(days=d)
     ninty_days = timedelta(days=90)
     today = date.today()
@@ -291,6 +292,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
+    pdfrpt.setPrintOnBothSides(True)
     pdfrpt.setTitle(Cfg.get("app_name") + \
                     ": Cases Reports by CHW as of %s" % today)
     pdfrpt.setNumOfColumns(2)

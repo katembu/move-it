@@ -94,9 +94,17 @@ class PDFReport():
     PAGESIZE = A4
     fontSize = 8
     rowsperpage = 90
+    print_on_both_sides = False
 
     def __init__(self):
         self.headers.append("")
+
+    def setPrintOnBothSides(self, state):
+        ''' enable or disable landscape display
+
+            @var state: True or False
+        '''
+        self.print_on_both_sides = state
 
     def setLandscape(self, state):
         ''' enable or disable landscape display
@@ -218,7 +226,16 @@ class PDFReport():
             c = int(c) + 1
         if int(c) == 0:
             c = 1
+        if self.print_on_both_sides is True:
+            if int(c) == 1 or (int(c) % 2) == 1:
+                #take care of headings, do not displace them
+                c = int(c) + 1
+                self.data.append(PageBreak())
+
         for i in range(int(c)):
+            if self.print_on_both_sides is True and i == (int(c)-1):
+                #empty title to allow blank page
+                title = ""
             self.headers.append(title)
 
     def render(self):
