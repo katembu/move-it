@@ -23,6 +23,8 @@ from locations.models import Location
 from childcount.models.logs import MessageLog, log, elog
 from childcount.models.general import Case, CaseNote
 from childcount.models.config import Configuration as Cfg
+from childcount.models.reports import ReportCHWStatus
+from childcount.utils import day_start
 
 
 def authenticated(func):
@@ -615,6 +617,45 @@ class App(rapidsms.app.App):
                             "was reported as dead") % info)
         return True
     activate_case.format = "activate +[patient ID] [your reasons]"
+
+    keyword.prefix = ["activity"]
+
+    @keyword(r'?(\w+)')
+    @keyword.blank()
+    @registered
+    def activity_summary(self, message, period=None):
+        '''Get a reporters activity summary'''
+        reporter = message.persistant_connection.reporter
+        duration_end = datetime.datetime.now()
+        if period is None or period == "all":
+            ml = MessageLog.objects.filter(sent_by=reporter).order_by("created_at")
+            if ml:
+                duration_start = ml[0].created_at
+        elif period == "month":
+            last_30_days = datetime.timedelta(30)
+            duration_start = duration_end - last_30_days
+        elif period == "week":
+            last_seven_days = datetime.timedelta(7)
+            duration_start = duration_end - last_seven_days
+        elif period == "day":
+            duration_start = day_start(datetime.datetime.today())
+        else:
+            duration_start = None
+            msg = "No Summary"
+        
+        if duration_start is not None:
+            summary = ReportCHWStatus.reporter_summary(duration_start, \
+                                                duration_end, reporter)
+
+            msg = _("%(reporter)s: %(num_cases)s children, "\
+                "#new %(num_new_cases)s, #dead %(num_dead)s, "\
+                "#inactive %(num_cases_inactive)s" \
+                ", #mrdt %(num_malaria_reports)s, #muac %(num_muac)s. ")\
+                 % summary
+
+        message.respond(_("%s") % msg)
+        return True
+    activity_summary.format = "activity [day|week|month|all]"
 
     keyword.prefix = ["transfer"]
 
