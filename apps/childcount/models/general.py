@@ -171,7 +171,7 @@ class Case(models.Model):
         try:
             if status is None:
                 status = Case.STATUS_ACTIVE
-            if start_date is None or end_date is None:
+            if start_date is not None or end_date is not None:
                 return cls.objects.filter(reporter=reporter, status=status, \
                     created_at__lte=end_date, \
                     created_at__gte=start_date).count()
