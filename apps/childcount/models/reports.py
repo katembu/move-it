@@ -244,7 +244,8 @@ class ReportCHWStatus(Report, models.Model):
             p['reporter'] = reporter
             p['num_cases'] = Case.count_by_provider(reporter)
             p['num_cases_inactive'] = Case.count_by_provider(\
-                                        reporter, Case.STATUS_INACTIVE)
+                                        reporter, Case.STATUS_INACTIVE, \
+                                        duration_start, duration_end)
 
             p['num_cases_dead'] = Case.count_by_provider(\
                                         reporter, Case.STATUS_DEAD)
