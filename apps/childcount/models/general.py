@@ -158,7 +158,8 @@ class Case(models.Model):
             return None
 
     @classmethod
-    def count_by_provider(cls, reporter, status=None):
+    def count_by_provider(cls, reporter, status=None, \
+                          start_date=None, end_date=None):
         '''Count the number of cases that a reporter is in charge of
 
         reporter - reporter in charge of the cases
@@ -170,6 +171,10 @@ class Case(models.Model):
         try:
             if status is None:
                 status = Case.STATUS_ACTIVE
+            if start_date is None or end_date is None:
+                return cls.objects.filter(reporter=reporter, status=status, \
+                    created_at__lte=end_date, \
+                    created_at__gte=start_date).count()
             return cls.objects.filter(reporter=reporter, status=status).count()
         except models.ObjectDoesNotExist:
             return None
