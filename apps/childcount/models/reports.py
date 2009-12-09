@@ -231,6 +231,88 @@ class ReportCHWStatus(Report, models.Model):
             return ps, fields
 
     @classmethod
+    def reporter_summary(cls, duration_start, duration_end, \
+                                muac_duration_start, reporter=None):
+        '''Generate the CHW Perfomance report data
+
+        duration_start - starting date
+        duration_end   - end date
+        muac_duration_start - start date for muac reports
+        '''
+        ps = []
+        fields = []
+        counter = 0
+        clinic_cases = 0
+        clinic_mrdt = 0
+        clinic_muac = 0
+        clinic_new = 0
+        clinic_inactive = 0
+        clinic_dead = 0
+        clinic_sent = 0
+        clinic_processed = 0
+        clinic_refused = 0
+
+        if reporter is not None:
+            p = {}
+            counter = counter + 1
+            p['counter'] = "%d" % counter
+            p['reporter'] = reporter
+            p['num_cases'] = Case.count_by_provider(reporter)
+            p['num_cases_inactive'] = Case.count_by_provider(\
+                                        reporter, Case.STATUS_INACTIVE)
+            clinic_inactive += p['num_cases_inactive']
+            p['num_cases_dead'] = Case.count_by_provider(\
+                                        reporter, Case.STATUS_DEAD)
+            clinic_dead += p['num_cases_dead']
+            p['num_new_cases'] = Case.count_for_last_30_days(reporter)
+            clinic_new += p['num_new_cases']
+            p_muac = ReportMalaria.count_by_provider(reporter, \
+                                        duration_end, duration_start)
+            p['num_malaria_reports'] = p_muac
+            clinic_mrdt = clinic_mrdt + p_muac
+            num_cases = p['num_cases']
+            clinic_cases = clinic_cases + num_cases
+            num_muac = ReportMalnutrition.count_by_provider(reporter, \
+                                duration_end, muac_duration_start)
+            clinic_muac = clinic_muac + num_muac
+            if num_cases == 0:
+                muac_percentage = 0
+            else:
+                muac_percentage = \
+                    round(float(float(num_muac) / \
+                                float(num_cases)) * 100, 0)
+            p['num_muac_reports'] = "%d %d%% (%s/%s)" % \
+                (num_muac, muac_percentage, num_muac, num_cases)
+            sms_sent = MessageLog.count_by_provider(reporter, \
+                                        duration_end, duration_start)
+            clinic_sent = clinic_sent + sms_sent
+            p['sms_sent'] = sms_sent
+            sms_processed = MessageLog.count_processed_by_provider(\
+                                reporter, duration_end, duration_start)
+            clinic_processed = clinic_processed + sms_processed
+            p['sms_processed'] = sms_processed
+            sms_refused = MessageLog.count_refused_by_provider(reporter, \
+                                            duration_end, duration_start)
+            clinic_refused = clinic_refused + sms_refused
+            p['sms_refused'] = sms_refused
+            if p['sms_sent'] != 0:
+                p['sms_rate'] = int(float(float(\
+                            p['sms_processed']) / \
+                            float(p['sms_sent']) * 100))
+            else:
+                p['sms_rate'] = 0
+            #p['sms_rate'] = "%s%%"%p['sms_rate']
+            last_activity = MessageLog.days_since_last_activity(reporter)
+            if last_activity == "" or \
+                ((duration_end - duration_start).days < last_activity):
+                p['days_since_last_activity'] = "No Activity"
+            else:
+                p['days_since_last_activity'] = "%s days ago"\
+                     % last_activity
+            return p
+
+
+    @classmethod
     def muac_summary(cls, duration_start, duration_end, clinic=None):
         '''Generate the Muac report data
 
