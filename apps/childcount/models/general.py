@@ -175,16 +175,17 @@ class Case(models.Model):
             return None
 
     @classmethod
-    def count_for_last_30_days(cls, reporter):
+    def count_for_last_30_days(cls, reporter, start_date=None, end_date=None):
         '''Count new cases in the last 30 days from today
 
         reporter - specific reporter
 
         return int - count
         '''
-        thirty_days = timedelta(days=30)
-        end_date = date.today()
-        start_date = end_date - thirty_days
+        if start_date is None or end_date is None:
+            thirty_days = timedelta(days=30)
+            end_date = date.today()
+            start_date = end_date - thirty_days
         try:
             return cls.objects.filter(reporter=reporter, \
                 created_at__lte=end_date, \
