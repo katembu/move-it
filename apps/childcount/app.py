@@ -510,7 +510,7 @@ class App(rapidsms.app.App):
         info.update({
             "id": case.ref_id,
             "last_name": last.upper(),
-            "age": case.age})
+            "age": case.age()})
         #set up the languages
         msg = {}
         msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s " \

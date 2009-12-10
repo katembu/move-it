@@ -93,8 +93,8 @@ class Case(models.Model):
             'first_name': self.first_name,
             'first_name_short': self.first_name.upper()[0],
             'gender': self.gender.upper()[0],
-            'age': self.age(),
-            'months': self.age(),
+            'age': "%s" % self.age(),
+            'months': "%s" % self.age(),
             'guardian': self.guardian,
             'location': self.location,
             'status': self.status}
