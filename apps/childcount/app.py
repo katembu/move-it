@@ -81,6 +81,7 @@ class App(rapidsms.app.App):
     handled = False
 
     def parse(self, message):
+
         ''' Parse incoming messages.
 
         flag message as not handled '''
@@ -506,18 +507,21 @@ class App(rapidsms.app.App):
             return True
         case = Case(**info)
         case.save()
-
+        
+        
         info.update({
             "id": case.ref_id,
             "last_name": last.upper(),
             "age": case.age()})
         #set up the languages
         msg = {}
+        
         msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         msg["fr"] = "Nouv +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         message.respond(_("%s") % msg[lang])
+
 
         log(case, "patient_created")
         return True
