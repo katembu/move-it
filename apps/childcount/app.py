@@ -335,7 +335,9 @@ class App(rapidsms.app.App):
             # any tokens more than one non-digit character are probably parts
             # of the patient's name, so add to patient_name and
             # remove from tokens list
-            if len(token) > 1 and not token.isdigit():
+            test_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
+            
+            if len(token) > 1 and not token.isdigit() and test_age is None:
                 patient_name = patient_name \
                                + (tokens.pop(tokens.index(token))) + " "
                 self.debug('PATIENT NAME:')
@@ -508,7 +510,7 @@ class App(rapidsms.app.App):
         info.update({
             "id": case.ref_id,
             "last_name": last.upper(),
-            "age": case.age})
+            "age": case.age()})
         #set up the languages
         msg = {}
         msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s " \
