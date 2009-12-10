@@ -92,7 +92,7 @@ def elog(source, message):
 
 def log(source, message):
     '''Logs events'''
-    if message in messages:
+    if message not in messages:
         raise MessageDoesNotExist("No message: %s exists, "\
                                   "please add to logs.py")
     if not source.id:
