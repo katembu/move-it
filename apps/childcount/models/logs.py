@@ -92,9 +92,12 @@ def elog(source, message):
 
 def log(source, message):
     '''Logs events'''
-    if message in messages:
+    '''if message in messages:
         raise MessageDoesNotExist("No message: %s exists, "\
                                   "please add to logs.py")
+    '''
+    if not messages.has_key(message):
+        raise ValueError, "No message: %s exists, please add to logs.py"
     if not source.id:
         print "* Cannot log until the object has been saved, id is None, %s"\
          % message
