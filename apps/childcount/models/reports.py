@@ -192,7 +192,7 @@ class ReportCHWStatus(Report, models.Model):
             p['sms_sent'] = clinic_sent
             p['sms_processed'] = clinic_processed
             p['sms_refused'] = clinic_refused
-            p['num_cases_dead'] = clinic_refused
+            p['num_cases_dead'] = clinic_dead
             p['num_cases_inactive'] = clinic_inactive
             p['num_new_cases'] = clinic_new
             if p['sms_sent'] != 0:
@@ -229,6 +229,80 @@ class ReportCHWStatus(Report, models.Model):
             fields.append({"name": 'LAST ACTVITY', "column": None, "bit": \
                            "{{ object.days_since_last_activity }}"})
             return ps, fields
+
+    @classmethod
+    def reporter_summary(cls, duration_start, duration_end, \
+                                reporter=None):
+        '''Generate a dictionary of summary per reporter for the given period
+
+        duration_start - starting date
+        duration_end   - end date
+        '''
+
+        if reporter is not None:
+            p = {}
+            p['reporter'] = reporter
+            p['num_cases'] = Case.count_by_provider(reporter)
+            p['num_cases_inactive'] = Case.count_by_provider(\
+                                        reporter, Case.STATUS_INACTIVE, \
+                                        duration_start, duration_end)
+
+            p['num_cases_dead'] = Case.count_by_provider(\
+                                        reporter, Case.STATUS_DEAD)
+
+            p['num_new_cases'] = Case.count_for_last_30_days(reporter, \
+                                        duration_start, duration_end)
+
+            p['num_dead'] = ReportDeath.objects.filter(reporter=reporter, \
+                                entered_at__lte=duration_end, \
+                                entered_at__gte=duration_start).count()
+            p_muac = ReportMalaria.count_by_provider(reporter, \
+                                        duration_end, duration_start)
+            p['num_malaria_reports'] = p_muac
+
+            num_cases = p['num_cases']
+
+            num_muac = ReportMalnutrition.count_by_provider(reporter, \
+                                duration_end, duration_start)
+
+            if num_cases == 0:
+                muac_percentage = 0
+            else:
+                muac_percentage = \
+                    round(float(float(num_muac) / \
+                                float(num_cases)) * 100, 0)
+            p['num_muac_reports'] = "%d %d%% (%s/%s)" % \
+                (num_muac, muac_percentage, num_muac, num_cases)
+            p['num_muac'] = num_muac
+            p['muac_percentage'] = muac_percentage
+            sms_sent = MessageLog.count_by_provider(reporter, \
+                                        duration_end, duration_start)
+
+            p['sms_sent'] = sms_sent
+            sms_processed = MessageLog.count_processed_by_provider(\
+                                reporter, duration_end, duration_start)
+
+            p['sms_processed'] = sms_processed
+            sms_refused = MessageLog.count_refused_by_provider(reporter, \
+                                            duration_end, duration_start)
+
+            p['sms_refused'] = sms_refused
+            if p['sms_sent'] != 0:
+                p['sms_rate'] = int(float(float(\
+                            p['sms_processed']) / \
+                            float(p['sms_sent']) * 100))
+            else:
+                p['sms_rate'] = 0
+            #p['sms_rate'] = "%s%%"%p['sms_rate']
+            last_activity = MessageLog.days_since_last_activity(reporter)
+            if last_activity == "" or \
+                ((duration_end - duration_start).days < last_activity):
+                p['days_since_last_activity'] = "No Activity"
+            else:
+                p['days_since_last_activity'] = "%s days ago"\
+                     % last_activity
+            return p
+
 
     @classmethod
     def muac_summary(cls, duration_start, duration_end, clinic=None):
