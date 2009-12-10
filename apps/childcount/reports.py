@@ -296,6 +296,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setTitle(Cfg.get("app_name") + \
                     ": Cases Reports by CHW as of %s" % today)
     pdfrpt.setNumOfColumns(2)
+    pdfrpt.setRowsPerPage(88)
     if object_id is None:
         if request.POST and request.POST['zone']:
             providers = Case.objects.filter(location=request.POST['zone']).\
@@ -312,8 +313,8 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                                        reporter.first_name, today)
                 pdfrpt.setTableData(queryset, fields, c, \
                             [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
-                             0.3 * inch, 0.4 * inch, 0.5 * inch, 1 * inch, \
-                             1 * inch])
+                             0.3 * inch, 0.8 * inch, 0.5 * inch, 1 * inch, \
+                             0.8 * inch])
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
                     pdfrpt.setFilename("report_per_page")
