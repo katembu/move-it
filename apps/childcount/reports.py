@@ -960,4 +960,9 @@ def saisie(request):
        'last_ten': last_ten,
     })
     
-
+@login_required
+def listeEnfant(request):
+    template_name="childcount/formulaire/ListeEnfant.html"
+    
+    
+    return render_to_response(request, template_name)
