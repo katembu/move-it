@@ -633,17 +633,17 @@ class App(rapidsms.app.App):
         '''Get a reporters activity summary'''
         reporter = message.persistant_connection.reporter
         duration_end = datetime.datetime.now()
-        if period is None or period == "all":
+        if period is None or period.lower() == "all":
             ml = MessageLog.objects.filter(sent_by=reporter).order_by("created_at")
             if ml:
                 duration_start = ml[0].created_at
-        elif period == "month":
+        elif period.lower() == "month":
             last_30_days = datetime.timedelta(30)
             duration_start = duration_end - last_30_days
-        elif period == "week":
+        elif period.lower() == "week":
             last_seven_days = datetime.timedelta(7)
             duration_start = duration_end - last_seven_days
-        elif period == "day":
+        elif period.lower() == "day":
             duration_start = day_start(datetime.datetime.today())
         else:
             duration_start = None
