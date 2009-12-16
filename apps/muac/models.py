@@ -165,7 +165,8 @@ class ReportMalnutrition(models.Model):
 
         '''
         #get reporters cases
-        rcases = Case.objects.filter(reporter=reporter)
+        rcases = Case.objects.filter(reporter=reporter, \
+                                     status=Case.STATUS_ACTIVE)
         if reporter is None:
             return None
         try:
