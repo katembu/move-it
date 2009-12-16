@@ -941,7 +941,7 @@ def saisie(request):
 
 
     if request.method == 'POST': # If the form has been submitted...
-        form = CaseFormNew(request.POST) # A form bound to the POST data
+        form = Enfant(request.POST) # A form bound to the POST data
         if form.is_valid(): # All validation rules pass
             # Process the data in form.cleaned_data
             # ...
@@ -965,7 +965,56 @@ def saisie(request):
     
 @login_required
 def listeEnfant(request):
+    template_name="childcount/formulaire/Affiche_Enfant.html"
+    xaleyi = Case.objects.all()
+    form = Enfant()
+    return render_to_response(request, template_name,{
+       'xaleyi': xaleyi,
+       'form': form,})
+
+@login_required
+def afficheEnfant(request,xaley_id=None):
     template_name="childcount/formulaire/ListeEnfant.html"
-    
-    
-    return render_to_response(request, template_name)
+
+    xaleyi = Case.objects.all()
+    xaleybi = Case.objects.get(id=xaley_id)
+    locations = Location.objects.all()  
+    reporters = Reporter.objects.all()
+    return render_to_response(request, template_name,{
+       'xaleybi': xaleybi,
+       'xaleyi': xaleyi,
+       'all_reporters': reporters,
+       'all_locations': locations,})
+@login_required
+def modifyEnfant(request):
+    template_name="childcount/formulaire/ListeEnfant.html"
+    case_id = request.POST['case_id']
+    enfant = Case.objects.get(id=case_id)
+    enfant.first_name=request.POST['first_name']
+    enfant.last_name=request.POST['last_name']
+    enfant.gender=request.POST['gender']
+    enfant.dob=request.POST['dob']
+    enfant.guardian=request.POST['guardian']
+    enfant.mobile=request.POST['mobile']
+    enfant.guardian=request.POST['guardian']
+
+    report = Reporter.objects.get(id=request.POST['reporters'])
+    loc = Location.objects.get(id=request.POST['locations'])
+
+    enfant.reporter=report
+    enfant.location=loc
+   
+    #enfant.reporter.id=request.POST['reporters']
+    #enfant.location.id=request.POST['locations']
+
+    enfant.save()
+    xaleyi = Case.objects.all()
+    locations = Location.objects.all()  
+    reporters = Reporter.objects.all()
+    return render_to_response(request, template_name,{
+       'xaleybi': enfant,
+       'xaleyi': xaleyi,
+       'all_reporters': reporters,
+       'all_locations': locations,})
+
+
