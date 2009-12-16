@@ -15,8 +15,15 @@
 			<label>Last Name</label>
 			<input type="text" name="last_name" value="{{ xaleybi.last_name }}" />
 			
+			
 			<label>Gender</label>
-			<input type="text" name="gender" value="{{ xaleybi.gender }}"	/>
+				<select name="gender">
+					{% for code, val in sexe %}
+					<option value="{{ code }}"{% ifequal code xaleybi.gender %} 			selected="selected"{% endifequal %}>{{ val }}
+					</option>
+					{% endfor %}
+				</select>
+
 			<label>Dob</label>
 			<input type="text" name="dob" value="{{ xaleybi.dob }}"	/>	
 			<label>Guardian</label>
@@ -40,6 +47,16 @@
 					</option>
 					{% endfor %}
 				</select>
+
+			<label>Status</label>
+				<select name="status">
+					{% for codes, vals in status %}
+					<option value="{{ codes }}"{% ifequal codes xaleybi.status %} 		selected="selected"{% endifequal %}>{{ vals }}
+					</option>
+					{% endfor %}
+				</select>
+
+
 	<input type="hidden"  name="case_id" value="{{ xaleybi.id }}"/>
 	
 	<label>  </label>
