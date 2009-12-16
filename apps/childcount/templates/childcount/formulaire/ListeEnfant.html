@@ -1,24 +1,51 @@
-{% extends base_template %}
-{% block title %}{{ app.name }}Liste des enfants {% endblock %}
-{% block page_tabs %}
-<ul id="page-tabs">
-	<li class="page"><a href="/childcount/rapports">Rapports</a></li>
-	<li class="page"><a href="/childcount/saisie">Saisie Enfant</a></li>
-	<li class="page"><a href="/childcount/listeEnfant">Liste Enfants</a></li>
-</ul>
-{% endblock %}
+{% extends "childcount/formulaire/Affiche_Enfant.html" %}
+{% block title %}Edit Children{% endblock %}
 
-{% block content %}
+{% block right %}
 
-<FRAMESET COLS="50%,
-50%">
+<div class="module">
+	<h2>Edit {{ xaleybi.first_name }} {{ xaleybi.last_name }}</h2>
+	
+	<form method="post" id="fm-rep-add" action="/childcount/modify_child">
+		
+			<label >First Name</label>
+			<input type="text" class="required" name="first_name" value="{{ xaleybi.first_name }}"/>
+			
+		
+			<label>Last Name</label>
+			<input type="text" name="last_name" value="{{ xaleybi.last_name }}" />
+			
+			<label>Gender</label>
+			<input type="text" name="gender" value="{{ xaleybi.gender }}"	/>
+			<label>Dob</label>
+			<input type="text" name="dob" value="{{ xaleybi.dob }}"	/>	
+			<label>Guardian</label>
+			<input type="text" name="guardian" value="{{ xaleybi.guardian }}"	/>
+			<label>Mobile</label>
+			<input type="text" name="mobile" value="{{ xaleybi.mobile }}"	/>
 
-<FRAME SRC="" NAME="listeEnfant">
+				
+			<label>Reporter</label>
+				<select name="reporters">
+					{% for reporter in all_reporters %}
+					<option value="{{ reporter.id }}"{% ifequal reporter xaleybi.reporter %} 		selected="selected"{% endifequal %}>{{ reporter.first_name }} {{ reporter.last_name }}
+					</option>
+					{% endfor %}
+				</select>
 
-<FRAME SRC="" NAME="formulaire">
+			<label>Location</label>
+				<select name="locations">
+					{% for location in all_locations %}
+					<option value="{{ location.id }}"{% ifequal location xaleybi.location %} 		selected="selected"{% endifequal %}>{{ location.name }}
+					</option>
+					{% endfor %}
+				</select>
+	<input type="hidden"  name="case_id" value="{{ xaleybi.id }}"/>
+	
+	<label>  </label>
 
-</FRAMESET> 
-
-
+	<br/><input type="submit" value="Submit" />		
+	</form>
+</div>
 
 {% endblock %}
