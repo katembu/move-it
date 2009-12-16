@@ -976,6 +976,9 @@ def listeEnfant(request):
 def afficheEnfant(request,xaley_id=None):
     template_name="childcount/formulaire/ListeEnfant.html"
 
+    SEXE = [("M",'Male'),('F', 'Female')]       
+    STATUS = [(-1,'Dead'),(0, 'Relocated'),(1, 'Alive')] 
+
     xaleyi = Case.objects.all()
     xaleybi = Case.objects.get(id=xaley_id)
     locations = Location.objects.all()  
@@ -984,10 +987,16 @@ def afficheEnfant(request,xaley_id=None):
        'xaleybi': xaleybi,
        'xaleyi': xaleyi,
        'all_reporters': reporters,
-       'all_locations': locations,})
+       'all_locations': locations,
+       'sexe':SEXE,
+       'status':STATUS,})
 @login_required
 def modifyEnfant(request):
     template_name="childcount/formulaire/ListeEnfant.html"
+    
+    SEXE = [('M','Male'),('F', 'Female')]       
+    STATUS = [('-1','Dead'),('0', 'Relocated'),('1', 'Alive')] 
+
     case_id = request.POST['case_id']
     enfant = Case.objects.get(id=case_id)
     enfant.first_name=request.POST['first_name']
@@ -997,7 +1006,7 @@ def modifyEnfant(request):
     enfant.guardian=request.POST['guardian']
     enfant.mobile=request.POST['mobile']
     enfant.guardian=request.POST['guardian']
-
+    enfant.status=request.POST['status']
     report = Reporter.objects.get(id=request.POST['reporters'])
     loc = Location.objects.get(id=request.POST['locations'])
 
@@ -1015,6 +1024,8 @@ def modifyEnfant(request):
        'xaleybi': enfant,
        'xaleyi': xaleyi,
        'all_reporters': reporters,
-       'all_locations': locations,})
+       'all_locations': locations,
+       'sexe':SEXE,
+       'status':STATUS,})
 
 
