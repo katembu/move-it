@@ -17,6 +17,26 @@
 
 {% block left %}
 <div class="module">
+
+ 	<form method="post" id="fm-rep-add" action="/childcount/listeEnfant">
+			Location : <select name="location">
+					
+					<option value="-1">All Locations</option>
+					{% for location in all_locations %}
+					<option value="{{ location.id }}"{% ifequal location lalocation %} 		selected="selected"{% endifequal %}>{{ location.name }}
+					</option>
+					{% endfor %}
+				</select> <br/> <br/>
+
+			Reporter : <select name="reporter">
+					<option value="-1">All Reporters</option>
+					{% for reporter in all_reporters %}
+					<option value="{{ reporter.id }}"{% ifequal reporter lereporter %} 		selected="selected"{% endifequal %}>{{ reporter.first_name }} {{ reporter.last_name }}
+					</option>
+					{% endfor %}
+				</select>     <input type="submit" value="Filter" /><br/><br/>		
+	</form>
+
 	<h2>List Children</h2>
 	<table>
 		<thead>
@@ -25,7 +45,8 @@
 				<th scope="col">Last Name</th>
 				<th scope="col">Sexe</th>
 				<th scope="col">Dob</th>
-				
+				<th scope="col">Location</th>
+	
 			</tr>
 		</thead>
 		<tbody>{% if xaleyi %}{% for xaley in xaleyi %}
@@ -35,6 +56,9 @@
 				<td>{{ xaley.last_name }}</td>
 				<td>{{ xaley.gender }}</td>
 				<td>{{ xaley.dob }}</td>
+				<td>{{ xaley.location.name }}</td>
+
+
 			</tr>{% endfor %}{% else %}
 			<tr class="no-data">
 				<td colspan="3">
