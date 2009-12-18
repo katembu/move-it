@@ -966,21 +966,54 @@ def saisie(request):
 @login_required
 def listeEnfant(request):
     template_name="childcount/formulaire/Affiche_Enfant.html"
-    xaleyi = Case.objects.all()
-    form = Enfant()
+    if not request.POST:    
+        lalocation=None
+        lereporter=None        
+        xaleyi = Case.objects.all()
+        locations = Location.objects.all()  
+        reporters = Reporter.objects.all()
+    else:
+        locations = Location.objects.all()  
+        reporters = Reporter.objects.all()
+        if (request.POST['location']=="-1" and request.POST['reporter']=="-1"):
+                    lalocation=None
+                    lereporter=None
+                    xaleyi = Case.objects.all()
+        elif request.POST['location']<>"-1" and request.POST['reporter']=="-1":
+                    lalocation=Location.objects.get(id=request.POST['location'])
+                    lereporter=None
+                    xaleyi = Case.objects.filter(location=lalocation)
+        elif request.POST['location']=="-1" and request.POST['reporter']<>"-1":
+                    lereporter=Reporter.objects.get(id=request.POST['reporter']) 
+                    lalocation=None
+                    xaleyi = Case.objects.filter(reporter=lereporter)
+        else:
+            lalocation=Location.objects.get(id=request.POST['location'])
+            lereporter=Reporter.objects.get(id=request.POST['reporter'])                    
+            xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
     return render_to_response(request, template_name,{
        'xaleyi': xaleyi,
-       'form': form,})
+       'all_reporters': reporters,
+       'all_locations': locations,
+       'lereporter': lereporter,
+       'lalocation': lalocation,})
 
 @login_required
 def afficheEnfant(request,xaley_id=None):
     template_name="childcount/formulaire/ListeEnfant.html"
 
+
+
     SEXE = [("M",'Male'),('F', 'Female')]       
     STATUS = [(-1,'Dead'),(0, 'Relocated'),(1, 'Alive')] 
 
-    xaleyi = Case.objects.all()
     xaleybi = Case.objects.get(id=xaley_id)
+
+    lalocation=xaleybi.location
+    lereporter=xaleybi.reporter
+
+    xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
+
     locations = Location.objects.all()  
     reporters = Reporter.objects.all()
     return render_to_response(request, template_name,{
@@ -989,7 +1022,9 @@ def afficheEnfant(request,xaley_id=None):
        'all_reporters': reporters,
        'all_locations': locations,
        'sexe':SEXE,
-       'status':STATUS,})
+       'status':STATUS,
+       'lereporter': lereporter,
+       'lalocation': lalocation,})
 @login_required
 def modifyEnfant(request):
     template_name="childcount/formulaire/ListeEnfant.html"
@@ -1007,17 +1042,17 @@ def modifyEnfant(request):
     enfant.mobile=request.POST['mobile']
     enfant.guardian=request.POST['guardian']
     enfant.status=request.POST['status']
-    report = Reporter.objects.get(id=request.POST['reporters'])
-    loc = Location.objects.get(id=request.POST['locations'])
+    lereporter = Reporter.objects.get(id=request.POST['reporters'])
+    lalocation = Location.objects.get(id=request.POST['locations'])
 
-    enfant.reporter=report
-    enfant.location=loc
+    enfant.reporter=lereporter
+    enfant.location=lalocation
    
     #enfant.reporter.id=request.POST['reporters']
     #enfant.location.id=request.POST['locations']
 
     enfant.save()
-    xaleyi = Case.objects.all()
+    xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
     locations = Location.objects.all()  
     reporters = Reporter.objects.all()
     return render_to_response(request, template_name,{
@@ -1026,6 +1061,8 @@ def modifyEnfant(request):
        'all_reporters': reporters,
        'all_locations': locations,
        'sexe':SEXE,
-       'status':STATUS,})
+       'status':STATUS,
+       'lereporter': lereporter,
+       'lalocation': lalocation,})
 
 
