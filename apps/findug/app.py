@@ -126,10 +126,10 @@ class App (rapidsms.app.App):
 
         try:
             # parse the name, and create a reporter
-            alias, fn, ln = Reporter.parse_name(name)
+            alias, fn, ln = Reporter.parse_name(name.replace('.',' ').strip())
 
             if not message.persistant_connection.reporter:
-                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+                rep = Reporter(alias=alias[:20], first_name=fn, last_name=ln)
             else:
                 rep = message.persistant_connection.reporter
                 rep.alias       = alias
