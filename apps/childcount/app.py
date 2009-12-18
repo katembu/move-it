@@ -83,6 +83,7 @@ class App(rapidsms.app.App):
     handled = False
 
     def parse(self, message):
+
         ''' Parse incoming messages.
 
         flag message as not handled '''
@@ -337,7 +338,9 @@ class App(rapidsms.app.App):
             # any tokens more than one non-digit character are probably parts
             # of the patient's name, so add to patient_name and
             # remove from tokens list
-            if len(token) > 1 and not token.isdigit():
+            test_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
+            
+            if len(token) > 1 and not token.isdigit() and test_age is None:
                 patient_name = patient_name \
                                + (tokens.pop(tokens.index(token))) + " "
                 self.debug('PATIENT NAME:')
@@ -506,18 +509,21 @@ class App(rapidsms.app.App):
             return True
         case = Case(**info)
         case.save()
-
+        
+        
         info.update({
             "id": case.ref_id,
             "last_name": last.upper(),
-            "age": case.age})
+            "age": case.age()})
         #set up the languages
         msg = {}
+        
         msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         msg["fr"] = "Nouv +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         message.respond(_("%s") % msg[lang])
+
 
         log(case, "patient_created")
         return True
@@ -627,17 +633,17 @@ class App(rapidsms.app.App):
         '''Get a reporters activity summary'''
         reporter = message.persistant_connection.reporter
         duration_end = datetime.datetime.now()
-        if period is None or period == "all":
+        if period is None or period.lower() == "all":
             ml = MessageLog.objects.filter(sent_by=reporter).order_by("created_at")
             if ml:
                 duration_start = ml[0].created_at
-        elif period == "month":
+        elif period.lower() == "month":
             last_30_days = datetime.timedelta(30)
             duration_start = duration_end - last_30_days
-        elif period == "week":
+        elif period.lower() == "week":
             last_seven_days = datetime.timedelta(7)
             duration_start = duration_end - last_seven_days
-        elif period == "day":
+        elif period.lower() == "day":
             duration_start = day_start(datetime.datetime.today())
         else:
             duration_start = None
@@ -782,7 +788,8 @@ class App(rapidsms.app.App):
     # Modify dob of patient
     keyword.prefix = ["age"]
 
-    @keyword(r'\+?(\d+) ([\d\-]+)')
+    #@keyword(r'\+?(\d+) ([\d\-]+)')
+    @keyword(r'\+?(\d+) (\d{1,6}[a-z\-]*)')
     @registered
     def update_age(self, message, ref_id, dob):
         ''' Update patient date of birth
@@ -797,19 +804,83 @@ class App(rapidsms.app.App):
         reporter = message.persistant_connection.reporter
 
 
+
+        # attempt to match date of birth or age in months
+        # if token is more than six digits, save as guardian's contact
+        # this should match up between one and six digits, followed by an
+        # optional word (e.g., 020301, 22m, 22mo)
+        date_or_age = re.match(r'(\d{1,6}[a-z\-]*)', dob, re.IGNORECASE)
+        if date_or_age is not None:
+            self.debug('matched date or age...')
+            # only save if its less than six digits
+            # so we dont accidently put the guardian's contact number,
+            # which might sometimes match this
+            if len(dob) <= 6:
+                dob = dob
+                
+
+        # remove all non-digit characters from dob string
         dob = re.sub(r'\D', '', dob)
-        try:
-            dob = time.strptime(dob, "%d%m%y")
-        except ValueError:
+        estimated_dob = False # set this now to avoid error if we dont match
+        self.debug(dob)
+
+        # if there are three or more digits, we are
+        # probably dealing with a date
+        if len(dob) >= 3:
             try:
-                dob = time.strptime(dob, "%d%m%Y")
+                # TODO this 2 step conversion is too complex, simplify!
+                dob = time.strptime(dob, "%d%m%y")
+                dob = datetime.date(*dob[:3])
             except ValueError:
-                raise HandlerFailed(_("Couldn't understand date: %s") % dob)
-        dob = datetime.date(*dob[:3])
+                try:
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(dob, "%d%m%Y")
+                    dob = datetime.date(*dob[:3])
+                except ValueError:
+                    raise HandlerFailed(_("Couldn't understand date: %s") \
+                                        % dob)
+            self.debug(dob)
+
+        # if there are fewer than three digits, we are
+        # probably dealing with an age (in months),
+        # so attempt to estimate a dob
+        else:
+            # TODO move to a utils file? (almost same code in import_cases.py)
+            try:
+                if dob.isdigit():
+                    years = int(dob) / 12
+                    months = int(dob) % 12
+                    est_year = abs(datetime.date.today().year - int(years))
+                    est_month = abs(datetime.date.today().month - int(months))
+                    if est_month == 0:
+                        est_month = 1
+                    estimate = ("%s-%s-%s" % (est_year, est_month, 15))
+                    # TODO this 2 step conversion is too complex, simplify!
+                    dob = time.strptime(estimate, "%Y-%m-%d")
+                    dob = datetime.date(*dob[:3])
+                    self.debug(dob)
+                    estimated_dob = True
+            except Exception, e:
+                self.debug(e)
+
+
+
+
+
+
+        ##dob = re.sub(r'\D', '', dob)
+        ##try:
+        ##    dob = time.strptime(dob, "%d%m%y")
+        ##except ValueError:
+        ##    try:
+        ##        dob = time.strptime(dob, "%d%m%Y")
+        ##    except ValueError:
+        ##        raise HandlerFailed(_("Couldn't understand date: %s") % dob)
+        ##dob = datetime.date(*dob[:3])
         delta = datetime.datetime.now().date() - dob
         years = delta.days / 365.25
         if years < 0:
-            raise HandlerFailed(_("The age couldn't be greater than now, " \
+            raise HandlerFailed(_("The age couldn't be greater than the date now, " \
                                 "please retape the date!!! "))
 
         # todo: move this to a more generic get_description
@@ -831,7 +902,7 @@ class App(rapidsms.app.App):
             return True
         info.update({
             "id": first_case.ref_id,
-            "dob": first_case.age})
+            "dob": first_case.age()})
 
         message.respond(_("l'age du patient +%(id)s a ete modifie, il est " \
                         "maintenant age de %(dob)s") % info)

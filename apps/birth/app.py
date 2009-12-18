@@ -89,8 +89,7 @@ class App (rapidsms.app.App):
                         message.respond(format)
                         return True
                 except Exception, e:
-                    self.debug(e)
-                    self.debug(birth_input)
+                    pass
             return False
         try:
             self.handled = func(self, message, *captures)

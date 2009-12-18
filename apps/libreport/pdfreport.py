@@ -174,6 +174,9 @@ class PDFReport():
         pStyle = copy.copy(self.styles["Normal"])
         pStyle.fontName = "Times-Roman"
         pStyle.fontSize = 7
+        pStyle.spaceBefore = 0
+        pStyle.spaceAfter = 0
+        pStyle.leading = pStyle.fontSize + 2.8 
         #prepare the data
         for row in queryset:
             if not header:
@@ -222,21 +225,26 @@ class PDFReport():
         '''
         c = float(len(queryset)) / self.rowsperpage
 
+        needsSecondPage = True
         if int(c) < c:
             c = int(c) + 1
+            needsSecondPage = False
         if int(c) == 0:
             c = 1
         if self.print_on_both_sides is True:
             if int(c) == 1 or (int(c) % 2) == 1:
                 #take care of headings, do not displace them
                 c = int(c) + 1
+                needsSecondPage = True
                 self.data.append(PageBreak())
 
         for i in range(int(c)):
-            if self.print_on_both_sides is True and i == (int(c)-1):
+            if self.print_on_both_sides is True and needsSecondPage is True \
+                and i == (int(c) - 1):
                 #empty title to allow blank page
                 title = ""
             self.headers.append(title)
+        #exit((needsSecondPage, c, self.headers, title, i))
 
     def render(self):
         elements = []
@@ -255,12 +263,15 @@ class PDFReport():
         #now create the title page
         elements.append(Paragraph(self.title, self.styles['Title']))
 
+        if self.print_on_both_sides is True:
+            elements.append(PageBreak())
+            self.headers.insert(1,"")
         #done with the title info, move to the next frame
         #and queue up the later page template
         elements.append(FrameBreak())
         elements.append(NextPageTemplate("laterPages"))
         elements.append(PageBreak())
-
+        #exit(self.headers)
         for data in self.data:
             elements.append(data)
 
