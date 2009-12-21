@@ -126,6 +126,8 @@ class App (rapidsms.app.App):
 
     @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+)" \
              " ([A-Z]) (\S+)?(.+)*")
+    @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+)kg" \
+             " ([A-Z]) (\S+)?(.+)*")
     @registered
     @transaction.commit_on_success
     def report_birth(self, message, last, first, gender, dob, weight, where, \
