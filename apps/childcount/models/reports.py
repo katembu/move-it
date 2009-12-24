@@ -446,8 +446,9 @@ class ReportCHWStatus(Report, models.Model):
                 p['not_vaccinated_cases'] = p['eligible_cases']\
                                              - p['vaccinated_cases']
                 vaccinated_cases += p['vaccinated_cases']
-                p['sms_sent'] = \
-                    int(round(float(float(p['vaccinated_cases']) / \
+                if p['eligible_cases'] != 0:
+                    p['sms_sent'] = \
+                        int(round(float(float(p['vaccinated_cases']) / \
                                     float(p['eligible_cases'])) * 100, 0))
 
                 ps.append(p)
