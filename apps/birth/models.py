@@ -16,10 +16,10 @@ class ReportBirth(models.Model):
     '''Record Births'''
 
     LOCATION_CHOICES = (
-        ('H', _('Home')),
-        ('C', _('Health Facility')),
-        ('T', _('Transport - On route to Clinic')),
-        ('O', _('Other')),
+        ('H', _("Home")),
+        ('C', _("Health Facility")),
+        ('T', _("On route to Clinic")),
+        ('O', _("Other")),
     )
 
     case = models.ForeignKey(Case, db_index=True, null=False)
@@ -30,14 +30,15 @@ class ReportBirth(models.Model):
     entered_at = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "birth"
+        app_label = 'birth'
         verbose_name = "Birth Report"
         verbose_name_plural = "Birth Reports"
         get_latest_by = 'entered_at'
-        ordering = ("-entered_at",)
+        ordering = ('-entered_at',)
 
     def __unicode__(self):
-        return "%s %s" % (self.case.last_name, self.case.first_name)
+        return u"%(lname)s %(fname)s" % {'lname': self.case.last_name,\
+                                     'fname': self.case.first_name}
 
     def save(self, *args):
         if not self.id:
@@ -51,10 +52,11 @@ class ReportBirth(models.Model):
 
     def display_name(self):
         '''Return string - name of child '''
-        return u"%s %s" % (self.case.first_name, self.case.last_name)
+        return u"%(lname)s %(fname)s" % {'lname': self.case.last_name,\
+                                     'fname': self.case.first_name}
     display_name.short_description = "Name"
 
     def display_dob(self):
         '''get date of birth in dd/mm/yy format'''
-        return u"%s" % self.case.dob.strftime("%d/%m/%y")
+        return u"%(dob)s" % {'dob': self.case.dob.strftime("%d/%m/%y")}
     display_dob.short_description = "Date of Birth"
