@@ -23,16 +23,16 @@ class Case(models.Model):
     '''Holds the patient details, properties and methods related to it'''
 
     class Meta:
-        app_label = "childcount"
+        app_label = 'childcount'
 
     STATUS_ACTIVE = 1
     STATUS_INACTIVE = 0
     STATUS_DEAD = -1
 
     STATUS_CHOICES = (
-        (STATUS_ACTIVE, "Alive"),
-        (STATUS_INACTIVE, "Relocated"),
-        (STATUS_DEAD, "Dead"))
+        (STATUS_ACTIVE, 'Alive'),
+        (STATUS_INACTIVE, 'Relocated'),
+        (STATUS_DEAD, 'Dead'))
 
     GENDER_CHOICES = (
         ('M', _('Male')),
@@ -93,8 +93,8 @@ class Case(models.Model):
             'first_name': self.first_name,
             'first_name_short': self.first_name.upper()[0],
             'gender': self.gender.upper()[0],
-            'age': "%s" % self.age(),
-            'months': "%s" % self.age(),
+            'age': '%s' % self.age(),
+            'months': '%s' % self.age(),
             'guardian': self.guardian,
             'location': self.location,
             'status': self.status}
@@ -105,7 +105,7 @@ class Case(models.Model):
 
     def date_registered(self):
         '''Date case was registered '''
-        return self.created_at.strftime("%d.%m.%y")
+        return self.created_at.strftime('%d.%m.%y')
 
     def provider_mobile(self):
         '''reporters mobile number'''
@@ -239,7 +239,7 @@ class CaseNote(models.Model):
         text - stores the note text
     '''
 
-    case = models.ForeignKey(Case, related_name="notes", db_index=True)
+    case = models.ForeignKey(Case, related_name='notes', db_index=True)
     created_by = models.ForeignKey(Reporter, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     text = models.TextField()
@@ -250,4 +250,4 @@ class CaseNote(models.Model):
         super(CaseNote, self).save(*args)
 
     class Meta:
-        app_label = "childcount"
+        app_label = 'childcount'

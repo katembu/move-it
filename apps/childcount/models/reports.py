@@ -69,8 +69,8 @@ class Observation(models.Model):
     letter = models.CharField(max_length=2, unique=True)
 
     class Meta:
-        app_label = "childcount"
-        ordering = ("name",)
+        app_label = 'childcount'
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
@@ -85,7 +85,7 @@ class ReportCHWStatus(Report, models.Model):
 
     class Meta:
         verbose_name = "CHW Perfomance Report"
-        app_label = "childcount"
+        app_label = 'childcount'
 
     @classmethod
     def get_providers_by_clinic(cls, duration_start, duration_end, \
@@ -110,7 +110,7 @@ class ReportCHWStatus(Report, models.Model):
         clinic_refused = 0
 
         if clinic_id is not None:
-            chwrole = Role.objects.get(code="chw")
+            chwrole = Role.objects.get(code='chw')
             providers = Reporter.objects.filter(location=clinic_id, \
                                                 role=chwrole)
             for provider in providers:

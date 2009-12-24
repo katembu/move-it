@@ -21,15 +21,15 @@ class Configuration(models.Model):
                                    db_index=True)
 
     class Meta:
-        app_label = "childcount"
-        unique_together = ("key", "value")
+        app_label = 'childcount'
+        unique_together = ('key', 'value')
 
     def __unicode__(self):
         return u"%s: %s" % (self.key, self.value)
 
     def get_dictionary(self):
-        return {"key": self.key, "value": self.value, \
-                "description": self.description}
+        return {'key': self.key, 'value': self.value, \
+                'description': self.description}
 
     @classmethod
     def get(cls, key=None):

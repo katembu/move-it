@@ -23,18 +23,18 @@ from reporters.models import Reporter
 # on a strict one to one basis, lets just define them here,
 # pushing the full text or setting up another model would work too
 messages = {
-    "provider_registered": _("Provider registered, awaiting confirmation"),
-    "patient_created": _("Patient created"),
-    "muac_taken": _("MUAC taken for the patient"),
-    "diarrhea_taken": _("DIARRHEA taken for the patient"),
-    "diarrhea_fu_taken": _("DIARRHEA follow-up received for the patient"),
-    "mrdt_taken": _("MRDT taken for the patient"),
-    "diagnosis_taken": _("Diagnosis taken for the patient"),
-    "user_logged_in": _("User logged into the user interface"),
-    "confirmed_join": _("Provider confirmed"),
-    "case_cancelled": _("Case was cancelled by the provider"),
-    "case_transferred": _("Case was transferred to the current provider"),
-    "note_added": _("Note added to the case by the provider")}
+    'provider_registered': _("Provider registered, awaiting confirmation"),
+    'patient_created': _("Patient created"),
+    'muac_taken': _("MUAC taken for the patient"),
+    'diarrhea_taken': _("DIARRHEA taken for the patient"),
+    'diarrhea_fu_taken': _("DIARRHEA follow-up received for the patient"),
+    'mrdt_taken': _("MRDT taken for the patient"),
+    'diagnosis_taken': _("Diagnosis taken for the patient"),
+    'user_logged_in': _("User logged into the user interface"),
+    'confirmed_join': _("Provider confirmed"),
+    'case_cancelled': _("Case was cancelled by the provider"),
+    'case_transferred': _("Case was transferred to the current provider"),
+    'note_added': _("Note added to the case by the provider")}
 
 
 class MessageDoesNotExist(Exception):
@@ -52,8 +52,8 @@ class EventLog(models.Model):
     created_at = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "childcount"
-        ordering = ("-created_at",)
+        app_label = 'childcount'
+        ordering = ('-created_at',)
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url()
@@ -71,8 +71,8 @@ class SystemErrorLog(models.Model):
     created_at = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "childcount"
-        ordering = ("-created_at",)
+        app_label = 'childcount'
+        ordering = ('-created_at',)
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url()
@@ -116,8 +116,8 @@ class MessageLog(models.Model):
     created_at = models.DateTimeField(db_index=True)
 
     class Meta:
-        app_label = "childcount"
-        ordering = ("-created_at",)
+        app_label = 'childcount'
+        ordering = ('-created_at',)
 
     def provider_number(self):
         '''reporters mobile phone number'''
@@ -188,8 +188,8 @@ class MessageLog(models.Model):
     def days_since_last_activity(cls, reporter):
         '''Count of days since last activity/message was received'''
         today = date.today()
-        logs = MessageLog.objects.order_by("created_at").\
+        logs = MessageLog.objects.order_by('created_at').\
             filter(created_at__lte=today, sent_by=reporter).reverse()
         if not logs:
-            return ""
+            return ''
         return (today - logs[0].created_at.date()).days

@@ -154,9 +154,12 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     duration_end = today
 
     pdfrpt.setTitle(Cfg.get("app_name") + ": CHW 30 Day Performance Report,"\
-                    " from %s to %s" % (duration_start, duration_end))
-    title = "CHW 30 Day Performance Report, from %s to %s" % (duration_start, \
-                                                            duration_end)
+                    " from %(start_date)s " \
+            "to %(end_date)s" % ({'start_date': duration_start, \
+                                  'end_date': duration_end}))
+    title = "CHW 30 Day Performance Report, from %(start_date)s " \
+            "to %(end_date)s" % ({'start_date': duration_start, \
+                                  'end_date': duration_end})
 
     if object_id is None:
         clinics = Location.objects.filter(type__name="Clinic")
