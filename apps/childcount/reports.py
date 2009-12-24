@@ -30,7 +30,7 @@ import StringIO
 
 from django.template import Template, Context
 from django.http import HttpResponse
-
+from django.utils.translation import ugettext as _
 
 from rapidsms.webui.utils import render_to_response
 
@@ -153,12 +153,12 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     muac_duration_start = today - ninty_days
     duration_end = today
 
-    pdfrpt.setTitle(Cfg.get("app_name") + ": CHW 30 Day Performance Report,"\
+    pdfrpt.setTitle(_(Cfg.get("app_name") + ": CHW 30 Day Performance Report,"\
                     " from %(start_date)s " \
             "to %(end_date)s" % ({'start_date': duration_start, \
-                                  'end_date': duration_end}))
-    title = "CHW 30 Day Performance Report, from %(start_date)s " \
-            "to %(end_date)s" % ({'start_date': duration_start, \
+                                  'end_date': duration_end})))
+    title = _("CHW 30 Day Performance Report, from %(start_date)s " \
+            "to %(end_date)s" % {'start_date': duration_start, \
                                   'end_date': duration_end})
 
     if object_id is None:
@@ -206,11 +206,13 @@ def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
     duration_start = duration_start.replace(day=1)
     duration_end = today
 
-    duration_str = "CMAM Summary from %s to %s" % \
-        (duration_start.strftime("%d %B, %Y"), today.strftime("%d %B, %Y"))
+    duration_str = _("CMAM Summary from %(start_date)s to %(end_date)s" % \
+        {'start_date': duration_start.strftime("%d %B, %Y"), \
+         'end_date': today.strftime("%d %B, %Y")})
 
-    pdfrpt.setTitle(Cfg.get("app_name") + ": CMAM Summary"\
-                    " from %s to %s" % (duration_start, duration_end))
+    pdfrpt.setTitle(_(Cfg.get("app_name") + ": CMAM Summary"\
+                    " from %(start_date)s to %(end_date)s" % \
+                    {'start_date': duration_start, 'end_date': duration_end}))
 
     if object_id is None:
         clinics = Location.objects.filter(type__name="Clinic")
@@ -259,7 +261,7 @@ def measles_summary(request, object_id=None, per_page="0", \
     muac_duration_start = today - ninty_days
     duration_end = today
 
-    pdfrpt.setTitle("Measles Campaign Summary")
+    pdfrpt.setTitle(_("Measles Campaign Summary"))
     if object_id is None:
         clinics = Location.objects.filter(type__name="Clinic")
         for clinic in clinics:
@@ -296,8 +298,8 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
     pdfrpt.setPrintOnBothSides(True)
-    pdfrpt.setTitle(Cfg.get("app_name") + \
-                    ": Cases Reports by CHW as of %s" % today)
+    pdfrpt.setTitle(_(Cfg.get("app_name") + \
+                    ": Cases Reports by CHW as of %(date)s" % {'data':today}))
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setRowsPerPage(88)
     if object_id is None:
@@ -312,8 +314,11 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         for reporter in providers:
             queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
-                c = "%s: %s %s: %s" % (reporter.location, reporter.last_name, \
-                                       reporter.first_name, today)
+                cinfo = {'loc': reporter.location, 
+                         'lname': reporter.last_name,
+                         'fname': reporter.first_name,
+                         'date': today}
+                c = _("%loc()s: %(lname)s %(fname)s: %(date)s" % cinfo)
                 pdfrpt.setTableData(queryset, fields, c, \
                             [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
                              0.3 * inch, 0.8 * inch, 0.5 * inch, 1 * inch, \
@@ -327,8 +332,11 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         reporter = Reporter.objects.get(id=object_id)
         queryset, fields = ReportAllPatients.by_provider(reporter)
         if queryset:
-            c = "%s: %s %s : %s" % (reporter.location, reporter.last_name, \
-                                    reporter.first_name, today)
+            cinfo = {'loc': reporter.location, 
+                     'lname': reporter.last_name,
+                     'fname': reporter.first_name,
+                     'date': today}
+            c = _("%loc()s: %(lname)s %(fname)s: %(date)s" % cinfo)
             if rformat == "csv" or (request.POST \
                                 and request.POST["format"].lower() == "csv"):
                 file_name = reporter.last_name + ".csv"
@@ -352,8 +360,8 @@ def dead_cases_report(request, rformat="pdf"):
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
-    title = Cfg.get("app_name") + \
-                    ": Dead Cases report as of %s" % today
+    title =  _("%(app_name)s: Dead Cases report as of %(date)s" % \
+               {'app_name': Cfg.get("app_name"), 'date': today})
     pdfrpt.setTitle(title)
     pdfrpt.setNumOfColumns(1)
     queryset, fields = \
@@ -375,7 +383,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     ''' Children Screening per age for SN CC '''
     pdfrpt = PDFReport()
 
-    pdfrpt.setTitle("ChildCount Senegal: Listing Enfant par Age")
+    pdfrpt.setTitle(_("ChildCount Senegal: Listing Enfant par Age"))
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -384,7 +392,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
         age_mois = 0
         cases = Case.objects.order_by("location").distinct()
         queryset, fields = ReportAllPatients.by_age(age_mois, cases)
-        subtitle = "Registre des Enfants pour: " #%(site.name)
+        subtitle = _("Registre des Enfants pour: ") #%(site.name)
         pdfrpt.setTableData(queryset, fields, subtitle, \
                         [0.2 * inch, 1.5 * inch, 0.3 * inch, 0.7 * inch, \
                          0.3 * inch, 1.5 * inch, 0.5 * inch, 0.7 * inch, \
@@ -403,7 +411,8 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
 
             queryset, fields = ReportAllPatients.by_age(age_mois, cases)
 
-            subtitle = "Registre des Enfants de : %s mois" % (str_age)
+            subtitle = _("Registre des Enfants de : %(age)s mois" % \
+                         {'age': str_age})
         # no nom sex dob age mere sms numero pb poids oedems
         #depistage consulter
             pdfrpt.setTableData(queryset, fields, subtitle, \
@@ -433,7 +442,8 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
     #duration_start = day_start(today - fourteen_days)
     #duration_end = today
 
-    pdfrpt.setTitle(Cfg.get("app_name") + ": Formulaire de Depistage")
+    pdfrpt.setTitle("%(app_name)s: Formulaire de Depistage" % \
+                    {'app_name': Cfg.get("app_name")})
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -443,7 +453,8 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
         for site in sites:
             queryset, fields = \
                 ReportAllPatients.malnutrition_screening_info(site)
-            subtitle = "%s: Registre des Enfants pour: " % (site.name)
+            subtitle = _("%(site_name)s: Registre des Enfants pour: " % \
+                         {'site_name': site.name})
             pdfrpt.setTableData(queryset, fields, subtitle, \
                         [0.2 * inch, 0.4 * inch, 1 * inch, 0.3 * inch, \
                          .3 * inch, .8 * inch, .5 * inch, .2 * inch, \
@@ -458,7 +469,8 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
             queryset, fields = \
                 ReportAllPatients.malnutrition_screening_info(site)
 
-            subtitle = "Registre des Enfants pour: %s" % (site.name)
+            subtitle = _("Registre des Enfants pour: %(site_name)s" % \
+                         {'site_name': site.name})
         # no nom sex dob age mere sms numero pb poids oedems
         # ddepistage consulter
             pdfrpt.setTableData(queryset, fields, subtitle, \
@@ -549,9 +561,10 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
     duration_start = day_start(today - fourteen_days)
     duration_end = today
 
-    pdfrpt.setTitle(Cfg.get("app_name") + \
-                    ": @Risk Malnutrition Cases from %s to %s"\
-                     % (duration_start.date(), duration_end.date()))
+    pdfrpt.setTitle(_("%(app_name)s: @Risk Malnutrition Cases from"\
+                     " %(start_date)s to %(end_date)s"\
+                     % {'start_date': duration_start.date(),
+                        'end_date': duration_end.date()}))
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setLandscape(True)
@@ -563,8 +576,10 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
                 ReportAllPatients.malnutrition_at_risk(duration_start, \
                                                        duration_end, clinic)
             c = clinic
-            subtitle = "%s: @Risk Malnutrition Cases from %s to %s" % \
-                (c.name, duration_start.date(), duration_end.date())
+            subtitle = _("%(clinic)s: @Risk Malnutrition Cases from "\
+                "%(start_date)s to %(end_date)s" % \
+                {'clinic': c.name, 'start_date': duration_start.date(), \
+                 'end_date': duration_end.date()})
             pdfrpt.setTableData(queryset, fields, subtitle, \
                         [0.2 * inch, 0.4 * inch, 1 * inch, 0.3 * inch, \
                          .3 * inch, .8 * inch, .5 * inch, .2 * inch, \
@@ -580,8 +595,11 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
             ReportAllPatients.malnutrition_at_risk(duration_start, \
                                                    duration_end, object_id)
 
-        subtitle = "%s: @Risk Malnutrition Cases from %s to %s" % \
-            (object_id.name, duration_start.date(), duration_end.date())
+        subtitle = _("%(clinic)s: @Risk Malnutrition Cases from "\
+                "%(start_date)s to %(end_date)s" % \
+                {'clinic': object_id.name, \
+                 'start_date': duration_start.date(), \
+                 'end_date': duration_end.date()})
         pdfrpt.setTableData(queryset, fields, subtitle, \
                         [0.2 * inch, 0.4 * inch, 1 * inch, 0.3 * inch, \
                          .3 * inch, .8 * inch, .5 * inch, .2 * inch, \
@@ -602,9 +620,10 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     duration_start = day_start(today - fourteen_days)
     duration_end = today
 
-    pdfrpt.setTitle(Cfg.get("app_name") + \
-                    ": Positive RDT Cases from %s to %s" % \
-                    (duration_start.date(), duration_end.date()))
+    pdfrpt.setTitle(_("%(app_name)s: Positive RDT Cases from "\
+                      "%(start_date)s to %(end_date)s" % \
+                    {'start_date': duration_start.date(), \
+                     'end_date': duration_end.date()}))
     pdfrpt.setRowsPerPage(66)
 
     if object_id is None and not request.POST:
@@ -614,8 +633,11 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
                 ReportAllPatients.malaria_at_risk(duration_start, \
                                                   duration_end, clinic)
             c = clinic
-            subtitle = "%s: Positive RDT Cases from %s to %s" % \
-                (c.name, duration_start.date(), duration_end.date())
+            subtitle = _("%(clinic)s: Positive RDT Cases from "\
+                "%(start_date)s to %(end_date)s" % {'clinic': c.name, \
+                'start_date': duration_start.date(), \
+                'end_date': duration_end.date()})
+
             pdfrpt.setTableData(queryset, fields, subtitle, \
                         [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
                          .4 * inch, .4 * inch, 0.5 * inch, .8 * inch, \
@@ -631,8 +653,11 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
             ReportAllPatients.malaria_at_risk(duration_start, \
                                               duration_end, object_id)
 
-        subtitle = "%s: Positive RDT Cases from %s to %s" % \
-            (object_id.name, duration_start.date(), duration_end.date())
+        
+        subtitle = _("%(clinic)s: Positive RDT Cases from "\
+            "%(start_date)s to %(end_date)s" % {'clinic': object_id.name, \
+            'start_date': duration_start.date(), \
+            'end_date': duration_end.date()})
         pdfrpt.setTableData(queryset, fields, subtitle, \
                     [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
                      .4 * inch, .4 * inch, 0.5 * inch, .8 * inch, \
@@ -867,9 +892,9 @@ def measles_mini_summary_csv(request, file_name):
     summary = ReportCHWStatus.measles_mini_summary()
     rows = []
     row = []
-    row.append("Facility")
-    row.append("No. Vaccinated")
-    row.append("No. Eligible")
+    row.append(_("Facility"))
+    row.append(_("No. Vaccinated"))
+    row.append(_("No. Eligible"))
     row.append("%")
     rows.append(row)
     for info in summary:
@@ -897,7 +922,7 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(False)
     #pdfrpt.setTitle("RapidResponse MVP Kenya: Cases Reports by CHW")
-    pdfrpt.setTitle("Measles Campaign")
+    pdfrpt.setTitle(_("Measles Campaign"))
     if object_id is None:
         if request.POST and request.POST['zone']:
             reporters = Case.objects.filter(location=request.POST['zone']).\
@@ -1067,5 +1092,3 @@ def modifyEnfant(request):
        'status':STATUS,
        'lereporter': lereporter,
        'lalocation': lalocation,})
-
-
