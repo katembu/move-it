@@ -690,9 +690,9 @@ class App(rapidsms.app.App):
                         "(%(name)s - %(location)s).") % info)
 
         message.forward(new_provider.connection().identity,
-                        _("Case +%s transferred to you from @%s (%s - %s).") %
-                        (case.ref_id, reporter.alias, reporter.full_name(), \
-                        reporter.location))
+                        _("Case +%(ref_id)s transferred to you from "\
+                          "@%(username)s (%(name)s - %(location)s).") % \
+                        info)
 
         log(case, 'case_transferred')
         return True
