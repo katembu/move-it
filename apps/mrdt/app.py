@@ -281,9 +281,10 @@ class App (rapidsms.app.App):
                         "is given" % (tabs))
                 else:
                     info['danger'] = ''
-                    info['instructions'] = _("Child is %s. %s each of "\
+                    info['instructions'] = \
+                        _("Child is %(age)s. %(tabs)s each of "\
                         "Artesunate 50mg and Amodiaquine 150mg morning and "\
-                        "evening for 3 days") % (yage, tabs)
+                        "evening for 3 days") % {'age': yage, 'tabs': tabs}
 
             # finally build out the messages
             msg = _("Patient +%(ref_id)s, %(first_name)s %(last_name)s, "\
@@ -403,15 +404,17 @@ class App (rapidsms.app.App):
                     info['danger'] = _(" and danger signs (") + \
                         ','.join([u.name for u in dangers]) + ')'
                     info['instructions'] = \
-                        _("Refer to clinic immediately after %s "\
-                        "tab%s of Coartem is given") % (tabs, \
-                                        (tabs > 1) and 's' or '')
+                        _("Refer to clinic immediately after %(tabs)s "\
+                        "tab%(plural)s of Coartem is given") % {'tabs': tabs, \
+                                        'plural': (tabs > 1) and 's' or ''}
                 else:
                     info['danger'] = ''
                     info['instructions'] = \
-                        _("Child is %s. Please provide %s tab%s "\
-                        "of Coartem (ACT) twice a day for 3 days") % (yage, \
-                                    tabs, (tabs > 1) and 's' or '')
+                        _("Child is %(age)s. Please provide %(tabs)s"\
+                          " tab%(plural)s of Coartem (ACT) twice a day"\
+                          " for 3 days") % {'age': yage, \
+                                    'tabs': tabs, \
+                                    'plural': (tabs > 1) and 's' or ''}
 
             # finally build out the messages
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
