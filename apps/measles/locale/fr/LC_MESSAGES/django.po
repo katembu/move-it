@@ -1,0 +1,54 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-12-26 15:45+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:39
+#, python-format
+msgid "Sorry, only registered users can access this program.%(msg)s"
+msgstr ""
+
+#: app.py:105
+#, python-format
+msgid "An error occurred. Please call %(mobile)s"
+msgstr ""
+
+#: app.py:138
+#, python-format
+msgid "Case +%(ref_id)s not found."
+msgstr ""
+
+#: app.py:156
+#, python-format
+msgid "%(result)s received measles shot."
+msgstr ""
+
+#: app.py:157 app.py:163 app.py:217
+#, python-format
+msgid "%s"
+msgstr ""
+
+#: app.py:162
+msgid "%(nresult) not found!!"
+msgstr ""
+
+#: app.py:189
+msgid "Measles Summary by clinic:"
+msgstr ""
+
+#: app.py:225
+msgid "The group %(group) has not been created."
+msgstr ""

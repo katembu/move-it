@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-12-26 15:51+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:39
+#, python-format
+msgid "Sorry, only registered users can access this program.%(msg)s"
+msgstr ""
+
+#: app.py:104
+#, python-format
+msgid "An error occurred. Please call %(mobile)s"
+msgstr ""
+
+#: app.py:137
+#, python-format
+msgid "Case +%(ref_id)s not found."
+msgstr ""
+
+#: app.py:170 app.py:257
+msgid "one quarter"
+msgstr ""
+
+#: app.py:172 app.py:259
+msgid "one half"
+msgstr ""
+
+#: app.py:176 app.py:263
+msgid "one and a half"
+msgstr ""
+
+#: app.py:178 app.py:265
+msgid "two"
+msgstr ""
+
+#: app.py:181
+msgid "Child is too light for treatment (under 5kg).  Refer to clinic."
+msgstr ""
+
+#: app.py:184
+#, python-format
+msgid ""
+"Patient is %(weight)skg.  If positive for malaria, take %(dosage)s each of "
+"Artesunate (50mg) and Amodiaquine (150mg) morning and evening for 3 days."
+msgstr ""
+
+#: app.py:233 app.py:355
+#, python-format
+msgid ""
+"MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, %(gender)s/%(age)s (%"
+"(guardian)s), %(location)s. RDT=%(result_text)s, Bednet=%(bednet_text)s%"
+"(observed)s. Please refer patient IMMEDIATELY for clinical evaluation"
+msgstr ""
+
+#: app.py:240
+#, python-format
+msgid ""
+"MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s,%(first_name)s, %"
+"(gender)s/%(age)s %(location)s. Patient requires IMMEDIATE referral. "
+"Reported by CHW %(reporter_name)s @%(reporter_alias)s m:%(reporter_identity)"
+"s."
+msgstr ""
+
+#: app.py:257
+msgid "under one year (5-10kg)"
+msgstr ""
+
+#: app.py:259
+msgid "1-6 years (11-24kg)"
+msgstr ""
+
+#: app.py:261
+msgid "one "
+msgstr ""
+
+#: app.py:261
+msgid "7-13 years (25-50kg)"
+msgstr ""
+
+#: app.py:263
+msgid "14 - 17 years (50-70kg)"
+msgstr ""
+
+#: app.py:265
+msgid "18+ years (70+ kg)"
+msgstr ""
+
+#: app.py:272 app.py:399
+msgid "Child is too young for treatment. Please refer IMMEDIATELY to clinic"
+msgstr ""
+
+#: app.py:277 app.py:404
+msgid " and danger signs ("
+msgstr ""
+
+#: app.py:279
+#, python-format
+msgid ""
+"Refer to clinic after %s  each of Artesunate 50mg and Amodiaquine 150mg is "
+"given"
+msgstr ""
+
+#: app.py:285
+#, python-format
+msgid ""
+"Child is %(age)s. %(tabs)s each of Artesunate 50mg and Amodiaquine 150mg "
+"morning and evening for 3 days"
+msgstr ""
+
+#: app.py:290
+#, python-format
+msgid ""
+"Patient +%(ref_id)s, %(first_name)s %(last_name)s, %(gender)s/%(age)s (%"
+"(guardian)s). Bednet=%(bednet_text)s %(observed)s.  Patient has MALARIA%"
+"(danger)s."
+msgstr ""
+
+#: app.py:295 app.py:425
+#, python-format
+msgid ""
+"MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, %(gender)s/%(months)"
+"s (%(location)s) has MALARIA%(danger)s. CHW: @%(reporter_alias)s %"
+"(reporter_identity)s"
+msgstr ""
+
+#: app.py:300
+msgid "instructions"
+msgstr ""
+
+#: app.py:362
+#, python-format
+msgid ""
+"MRDT> Negative MRDT with Fever. +%(ref_id)s, %(last_name)s, %(first_name)s, %"
+"(gender)s/%(age)s %(location)s. Patient requires IMMEDIATE referral. "
+"Reported by CHW %(reporter_name)s @%(reporter_alias)s m:%(reporter_identity)"
+"s."
+msgstr ""
+
+#: app.py:368
+#, python-format
+msgid ""
+"MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, %(gender)s/%(age)s (%"
+"(guardian)s), %(location)s. RDT=%(result_text)s, Bednet=%(bednet_text)s."
+msgstr ""
+
+#: app.py:384 app.py:386
+msgid "less than 3"
+msgstr ""
+
+#: app.py:407
+#, python-format
+msgid ""
+"Refer to clinic immediately after %(tabs)s tab%(plural)s of Coartem is given"
+msgstr ""
+
+#: app.py:413
+#, python-format
+msgid ""
+"Child is %(age)s. Please provide %(tabs)s tab%(plural)s of Coartem (ACT) "
+"twice a day for 3 days"
+msgstr ""
+
+#: app.py:420
+#, python-format
+msgid ""
+"MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, %(gender)s/%(age)s "
+"has MALARIA%(danger)s. %(instructions)s"
+msgstr ""

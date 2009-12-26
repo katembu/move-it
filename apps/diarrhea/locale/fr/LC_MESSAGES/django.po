@@ -1,0 +1,59 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-12-26 15:44+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:37
+#, python-format
+msgid "%s"
+msgstr ""
+
+#: app.py:86
+#, python-format
+msgid "An error occurred. Please call %(mobile)s"
+msgstr ""
+
+#: app.py:117
+#, python-format
+msgid "Case +%s not found."
+msgstr ""
+
+#: app.py:148 app.py:227
+#, python-format
+msgid ""
+"%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)"
+"s/%(months)s (%(guardian)s). %(days)s, %(ors)s"
+msgstr ""
+
+#: models.py:48
+msgid "Moderate"
+msgstr ""
+
+#: models.py:49
+msgid "Danger"
+msgstr ""
+
+#: models.py:50
+msgid "Severe"
+msgstr ""
+
+#: models.py:51
+msgid "Healthy"
+msgstr ""
+
+#: models.py:58
+msgid "Number of days"
+msgstr ""

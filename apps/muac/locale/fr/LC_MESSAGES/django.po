@@ -1,0 +1,93 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-12-26 15:51+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:39
+#, python-format
+msgid "Sorry, only registered users can access this program.%(msg)s"
+msgstr ""
+
+#: app.py:104
+#, python-format
+msgid "An error occurred. Please call %(mobile)s"
+msgstr ""
+
+#: app.py:137
+#, python-format
+msgid "Case +%(ref_id)s not found."
+msgstr ""
+
+#: app.py:266
+#, python-format
+msgid ""
+"%(diagnosis_msg)s. +%(ref_id)s %(last_name)s, %(first_name_short)s, %(gender)"
+"s/%(months)s (%(guardian)s). MUAC %(muac)s"
+msgstr ""
+
+#: app.py:286
+#, python-format
+msgid ". Last MUAC (%(reported_date)s): %(muac)s (%(percentage)s%(psign)s)"
+msgstr ""
+
+#: app.py:299
+#, python-format
+msgid "@%(username)s reports %(msg)s [%(mobile)s]"
+msgstr ""
+
+#: models.py:30
+msgid "MAM"
+msgstr ""
+
+#: models.py:31
+msgid "SAM"
+msgstr ""
+
+#: models.py:32
+msgid "SAM+"
+msgstr ""
+
+#: models.py:33
+msgid "Healthy"
+msgstr ""
+
+#: models.py:38
+msgid "MUAC (mm)"
+msgstr ""
+
+#: models.py:39
+msgid "Height (cm)"
+msgstr ""
+
+#: models.py:40
+msgid "Weight (kg)"
+msgstr ""
+
+#: models.py:115
+msgid "MAM Child requires supplemental feeding."
+msgstr ""
+
+#: models.py:118
+msgid "SAM Patient requires OTP care"
+msgstr ""
+
+#: models.py:122
+msgid "SAM+ Patient requires IMMEDIATE inpatient care"
+msgstr ""
+
+#: models.py:125
+msgid "Child is not malnourished"
+msgstr ""
