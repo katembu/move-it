@@ -299,7 +299,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setLandscape(True)
     pdfrpt.setPrintOnBothSides(True)
     pdfrpt.setTitle(_(Cfg.get("app_name") + \
-                    ": Cases Reports by CHW as of %(date)s" % {'data':today}))
+                ": Cases Reports by CHW as of %(date)s" % {'data': today}))
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setRowsPerPage(88)
     if object_id is None:
@@ -314,7 +314,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         for reporter in providers:
             queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
-                cinfo = {'loc': reporter.location, 
+                cinfo = {'loc': reporter.location,
                          'lname': reporter.last_name,
                          'fname': reporter.first_name,
                          'date': today}
@@ -332,7 +332,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         reporter = Reporter.objects.get(id=object_id)
         queryset, fields = ReportAllPatients.by_provider(reporter)
         if queryset:
-            cinfo = {'loc': reporter.location, 
+            cinfo = {'loc': reporter.location,
                      'lname': reporter.last_name,
                      'fname': reporter.first_name,
                      'date': today}
@@ -360,7 +360,7 @@ def dead_cases_report(request, rformat="pdf"):
     today = datetime.now().strftime("%d %B,%Y")
     pdfrpt = PDFReport()
     pdfrpt.setLandscape(True)
-    title =  _("%(app_name)s: Dead Cases report as of %(date)s" % \
+    title = _("%(app_name)s: Dead Cases report as of %(date)s" % \
                {'app_name': Cfg.get("app_name"), 'date': today})
     pdfrpt.setTitle(title)
     pdfrpt.setNumOfColumns(1)
@@ -653,7 +653,6 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
             ReportAllPatients.malaria_at_risk(duration_start, \
                                               duration_end, object_id)
 
-        
         subtitle = _("%(clinic)s: Positive RDT Cases from "\
             "%(start_date)s to %(end_date)s" % {'clinic': object_id.name, \
             'start_date': duration_start.date(), \
@@ -957,15 +956,18 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
             pdfrpt.setTableData(queryset, fields, title)
 
     return pdfrpt.render()
+
+
 @login_required
 def childcount(request):
-    template_name="childcount/reports/childcount.html"
-    
-    
+    template_name = "childcount/reports/childcount.html"
+
     return render_to_response(request, template_name)
+
+
 @login_required
 def saisie(request):
-    template_name="childcount/formulaire/saisie.html"
+    template_name = "childcount/formulaire/saisie.html"
 
 
     if request.method == 'POST': # If the form has been submitted...
@@ -974,121 +976,129 @@ def saisie(request):
             # Process the data in form.cleaned_data
             # ...
             prenom = form.cleaned_data['first_name']
-            
+
             enfant = form.save(commit=False)
             enfant.title = prenom
-            enfant.save()            
-            
-        last_ten   = Case.objects.order_by('-created_at')[:10] 
-        form = Enfant()      
+            enfant.save()
+
+        last_ten = Case.objects.order_by('-created_at')[:10]
+        form = Enfant()
     #return HttpResponseRedirect('childcount/saisie') # Redirect after POST
     else:
-        last_ten   = Case.objects.order_by('-created_at')[:10]
+        last_ten = Case.objects.order_by('-created_at')[:10]
         form = Enfant() # An unbound form
 
-    return render_to_response(request,template_name, {
+    return render_to_response(request, template_name, {
        'form': form,
        'last_ten': last_ten,
     })
-    
+
+
 @login_required
 def listeEnfant(request):
-    template_name="childcount/formulaire/Affiche_Enfant.html"
-    if not request.POST:    
-        lalocation=None
-        lereporter=None        
+    template_name = "childcount/formulaire/Affiche_Enfant.html"
+    if not request.POST:
+        lalocation = None
+        lereporter = None
         xaleyi = Case.objects.all()
-        locations = Location.objects.all()  
+        locations = Location.objects.all()
         reporters = Reporter.objects.all()
     else:
-        locations = Location.objects.all()  
+        locations = Location.objects.all()
         reporters = Reporter.objects.all()
-        if (request.POST['location']=="-1" and request.POST['reporter']=="-1"):
-                    lalocation=None
-                    lereporter=None
+        if (request.POST['location'] == "-1" \
+            and request.POST['reporter'] == "-1"):
+                    lalocation = None
+                    lereporter = None
                     xaleyi = Case.objects.all()
-        elif request.POST['location']<>"-1" and request.POST['reporter']=="-1":
-                    lalocation=Location.objects.get(id=request.POST['location'])
-                    lereporter=None
+        elif request.POST['location'] <> "-1" \
+            and request.POST['reporter'] == "-1":
+                    lalocation = Location.objects\
+                        .get(id=request.POST['location'])
+                    lereporter = None
                     xaleyi = Case.objects.filter(location=lalocation)
-        elif request.POST['location']=="-1" and request.POST['reporter']<>"-1":
-                    lereporter=Reporter.objects.get(id=request.POST['reporter']) 
-                    lalocation=None
+        elif request.POST['location'] == "-1" \
+            and request.POST['reporter'] <> "-1":
+                    lereporter = Reporter.objects\
+                        .get(id=request.POST['reporter'])
+                    lalocation = None
                     xaleyi = Case.objects.filter(reporter=lereporter)
         else:
-            lalocation=Location.objects.get(id=request.POST['location'])
-            lereporter=Reporter.objects.get(id=request.POST['reporter'])                    
-            xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
-    return render_to_response(request, template_name,{
+            lalocation = Location.objects.get(id=request.POST['location'])
+            lereporter = Reporter.objects.get(id=request.POST['reporter'])
+            xaleyi = Case.objects.\
+                filter(location=lalocation, reporter=lereporter)
+    return render_to_response(request, template_name, {
        'xaleyi': xaleyi,
        'all_reporters': reporters,
        'all_locations': locations,
        'lereporter': lereporter,
-       'lalocation': lalocation,})
+       'lalocation': lalocation})
+
 
 @login_required
-def afficheEnfant(request,xaley_id=None):
-    template_name="childcount/formulaire/ListeEnfant.html"
+def afficheEnfant(request, xaley_id=None):
+    template_name = "childcount/formulaire/ListeEnfant.html"
 
-
-
-    SEXE = [("M",'Male'),('F', 'Female')]       
-    STATUS = [(-1,'Dead'),(0, 'Relocated'),(1, 'Alive')] 
+    SEXE = [("M", 'Male'), ('F', 'Female')]
+    STATUS = [(-1, 'Dead'), (0, 'Relocated'), (1, 'Alive')]
 
     xaleybi = Case.objects.get(id=xaley_id)
 
-    lalocation=xaleybi.location
-    lereporter=xaleybi.reporter
+    lalocation = xaleybi.location
+    lereporter = xaleybi.reporter
 
-    xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
+    xaleyi = Case.objects.filter(location=lalocation, reporter=lereporter)
 
-    locations = Location.objects.all()  
+    locations = Location.objects.all()
     reporters = Reporter.objects.all()
-    return render_to_response(request, template_name,{
+    return render_to_response(request, template_name, {
        'xaleybi': xaleybi,
        'xaleyi': xaleyi,
        'all_reporters': reporters,
        'all_locations': locations,
-       'sexe':SEXE,
-       'status':STATUS,
+       'sexe': SEXE,
+       'status': STATUS,
        'lereporter': lereporter,
-       'lalocation': lalocation,})
+       'lalocation': lalocation})
+
+
 @login_required
 def modifyEnfant(request):
-    template_name="childcount/formulaire/ListeEnfant.html"
-    
-    SEXE = [('M','Male'),('F', 'Female')]       
-    STATUS = [('-1','Dead'),('0', 'Relocated'),('1', 'Alive')] 
+    template_name = "childcount/formulaire/ListeEnfant.html"
+
+    SEXE = [('M', 'Male'), ('F', 'Female')]
+    STATUS = [('-1', 'Dead'), ('0', 'Relocated'), ('1', 'Alive')]
 
     case_id = request.POST['case_id']
     enfant = Case.objects.get(id=case_id)
-    enfant.first_name=request.POST['first_name']
-    enfant.last_name=request.POST['last_name']
-    enfant.gender=request.POST['gender']
-    enfant.dob=request.POST['dob']
-    enfant.guardian=request.POST['guardian']
-    enfant.mobile=request.POST['mobile']
-    enfant.guardian=request.POST['guardian']
-    enfant.status=request.POST['status']
+    enfant.first_name = request.POST['first_name']
+    enfant.last_name = request.POST['last_name']
+    enfant.gender = request.POST['gender']
+    enfant.dob = request.POST['dob']
+    enfant.guardian = request.POST['guardian']
+    enfant.mobile = request.POST['mobile']
+    enfant.guardian = request.POST['guardian']
+    enfant.status = request.POST['status']
     lereporter = Reporter.objects.get(id=request.POST['reporters'])
     lalocation = Location.objects.get(id=request.POST['locations'])
 
-    enfant.reporter=lereporter
-    enfant.location=lalocation
-   
+    enfant.reporter = lereporter
+    enfant.location = lalocation
+
     #enfant.reporter.id=request.POST['reporters']
     #enfant.location.id=request.POST['locations']
 
     enfant.save()
-    xaleyi = Case.objects.filter(location=lalocation,reporter=lereporter)
-    locations = Location.objects.all()  
+    xaleyi = Case.objects.filter(location=lalocation, reporter=lereporter)
+    locations = Location.objects.all()
     reporters = Reporter.objects.all()
-    return render_to_response(request, template_name,{
+    return render_to_response(request, template_name, {
        'xaleybi': enfant,
        'xaleyi': xaleyi,
        'all_reporters': reporters,
        'all_locations': locations,
-       'sexe':SEXE,
-       'status':STATUS,
+       'sexe': SEXE,
+       'status': STATUS,
        'lereporter': lereporter,
-       'lalocation': lalocation,})
+       'lalocation': lalocation})

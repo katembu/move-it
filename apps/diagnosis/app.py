@@ -39,7 +39,7 @@ def registered(func):
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only registered users can access this"\
-                              " program.%(msg)s") % {'msg':""})
+                              " program.%(msg)s") % {'msg': ""})
 
             return True
     return wrapper
@@ -87,7 +87,7 @@ class App (rapidsms.app.App):
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call %(mobile)s") \
-                            % {'mobile':Cfg.get('developer_mobile')})
+                            % {'mobile': Cfg.get('developer_mobile')})
 
             raise
         message.was_handled = bool(self.handled)

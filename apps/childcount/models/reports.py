@@ -303,7 +303,6 @@ class ReportCHWStatus(Report, models.Model):
                      % last_activity
             return p
 
-
     @classmethod
     def muac_summary(cls, duration_start, duration_end, clinic=None):
         '''Generate the Muac report data
@@ -1232,7 +1231,8 @@ class ReportAllPatients(Report, models.Model):
                                         (rpt.entered_at.date() - \
                                         mrdtc.entered_at.date()).days
 
-                    num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)
+                    num_of_malaria_cases = \
+                        ReportMalaria.num_reports_by_case(case)
                     q['num_of_malaria_cases'] = "%dx" % num_of_malaria_cases
                     q['malaria_result'] = mrdtc.results_for_malaria_result()
                     q['malaria_bednet'] = mrdtc.results_for_malaria_bednet()

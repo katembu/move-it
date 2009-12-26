@@ -37,7 +37,7 @@ def registered(func):
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only registered users can access this"\
-                              " program.%(msg)s") % {'msg':""})
+                              " program.%(msg)s") % {'msg': ""})
 
             return True
     return wrapper
@@ -103,7 +103,7 @@ class App (rapidsms.app.App):
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call %(mobile)s") \
-                            % {'mobile':Cfg.get('developer_mobile')})
+                            % {'mobile': Cfg.get('developer_mobile')})
 
             raise
         message.was_handled = bool(self.handled)
@@ -136,7 +136,7 @@ class App (rapidsms.app.App):
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
             raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
-                                {'ref_id':ref_id})
+                                {'ref_id': ref_id})
 
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
@@ -156,8 +156,8 @@ class App (rapidsms.app.App):
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %(dod)s")\
-                                 % {'dod': dod})
+            raise HandlerFailed(_("Date must be in the format ddmmyy:"\
+                                  " %(dod)s") % {'dod': dod})
         else:
             dod = re.sub(r'\D', '', dod)
             try:
@@ -219,8 +219,8 @@ class App (rapidsms.app.App):
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %(dod)s")\
-                                 % {'dod': dod})
+            raise HandlerFailed(_("Date must be in the format ddmmyy:"\
+                                  " %(dod)s") % {'dod': dod})
         else:
             dod = re.sub(r'\D', '', dod)
             try:

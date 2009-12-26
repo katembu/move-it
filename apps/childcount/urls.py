@@ -26,7 +26,8 @@ urlpatterns = patterns('',
     url(r'^childcount/saisie?$', reports.saisie),
     url(r'^childcount/listeEnfant?$', reports.listeEnfant),
     url(r'^childcount/modify_child?$', reports.modifyEnfant),
-    url(r'^childcount/affiche_enfants/(?P<xaley_id>\d*)$', reports.afficheEnfant),
+    url(r'^childcount/affiche_enfants/(?P<xaley_id>\d*)$', \
+        reports.afficheEnfant),
        (r'^report/(?P<report_name>[a-z\-\_]+)/(?P<object_id>\d*)$', \
        reports.report_view),
     #last_30_days

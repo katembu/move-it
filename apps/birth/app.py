@@ -37,7 +37,7 @@ def registered(func):
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only registered users can access this"\
-                              " program.%(msg)s") % {'msg':""})
+                              " program.%(msg)s") % {'msg': ""})
             return True
     return wrapper
 
@@ -101,7 +101,7 @@ class App (rapidsms.app.App):
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call %(mobile)s") \
-                            % {'mobile':Cfg.get('developer_mobile')})
+                            % {'mobile': Cfg.get('developer_mobile')})
             return True
             raise
         message.was_handled = bool(self.handled)
@@ -143,7 +143,7 @@ class App (rapidsms.app.App):
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
             raise HandlerFailed(_("Date format is ddmmyy: %(dob)s")\
-                                 % {'dob':dob})
+                                 % {'dob': dob})
         else:
             dob = re.sub(r'\D', '', dob)
             try:
@@ -153,7 +153,7 @@ class App (rapidsms.app.App):
                     dob = time.strptime(dob, "%d%m%Y")
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
-                                         % {'dob':dob})
+                                         % {'dob': dob})
             dob = datetime.date(*dob[:3])
         reporter = message.persistant_connection.reporter
         location = None

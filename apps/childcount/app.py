@@ -40,7 +40,7 @@ def authenticated(func):
             return func(self, message, *args)
         else:
             message.respond(_("%(number)s is not a registered number.")
-                            % {'number':message.peer})
+                            % {'number': message.peer})
             return True
     return wrapper
 
@@ -63,7 +63,8 @@ def registered(func):
             return func(self, message, *args)
         else:
             message.respond(_(u"%(msg)s") \
-                     % {'msg':"Sorry, only registered users can access this program."})
+                     % {'msg': \
+                    "Sorry, only registered users can access this program."})
             return True
     return wrapper
 
@@ -135,7 +136,7 @@ class App(rapidsms.app.App):
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
             message.respond(_("An error occurred. Please call %(mobile)s") \
-                            % {'mobile':Cfg.get('developer_mobile')})
+                            % {'mobile': Cfg.get('developer_mobile')})
 
             elog(message.persistant_connection.reporter, message.text)
             raise
@@ -155,7 +156,7 @@ class App(rapidsms.app.App):
             self.respond_not_registered(message, target)
         sender = message.persistant_connection.reporter.alias
         return message.forward(mobile, "@%(alias)s> %(msg)s"\
-                                % {'alias':sender, 'msg':text})
+                                % {'alias': sender, 'msg': text})
 
     keyword.prefix = ['join']
 
@@ -287,7 +288,7 @@ class App(rapidsms.app.App):
     def respond_not_registered(self, message, target):
         '''  raises HandlerFailed '''
         raise HandlerFailed(_("User @%(target)s is not registered.") % \
-                            {'target':target})
+                            {'target': target})
 
     def find_provider(self, message, target):
         ''' Looks for a reporter id or alias in string
@@ -342,7 +343,7 @@ class App(rapidsms.app.App):
             # of the patient's name, so add to patient_name and
             # remove from tokens list
             test_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
-            
+
             if len(token) > 1 and not token.isdigit() and test_age is None:
                 patient_name = patient_name \
                                + (tokens.pop(tokens.index(token))) + " "
@@ -435,7 +436,7 @@ class App(rapidsms.app.App):
                     dob = datetime.date(*dob[:3])
                 except ValueError:
                     raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
-                                        % {'dob':dob})
+                                        % {'dob': dob})
             self.debug(dob)
 
         # if there are fewer than three digits, we are
@@ -512,15 +513,14 @@ class App(rapidsms.app.App):
             return True
         case = Case(**info)
         case.save()
-        
-        
+
         info.update({
             'id': case.ref_id,
             'last_name': last.upper(),
             'age': case.age()})
         #set up the languages
         msg = {}
-        
+
         msg['en'] = "New +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         msg['fr'] = "Nouv +%(id)s: %(last_name)s, %(first_name)s " \
@@ -541,7 +541,8 @@ class App(rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%(ref_id)s not found.") % {'ref_id':ref_id})
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
     keyword.prefix = ['cancel']
 
@@ -557,19 +558,19 @@ class App(rapidsms.app.App):
 
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
-            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: case has malnutrition " \
-                                "reports.") % {'ref_id':ref_id})
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                    "case has malnutrition reports.") % {'ref_id': ref_id})
 
         if case.reportmalaria_set.count():
-            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: case has malaria " \
-                                "reports.") % {'ref_id':ref_id})
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                        "case has malaria reports.") % {'ref_id': ref_id})
 
         if case.reportdiagnosis_set.count():
-            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: case has diagnosis " \
-                                "reports.") % {'ref_id':ref_id})
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                    "case has diagnosis reports.") % {'ref_id': ref_id})
 
         case.delete()
-        message.respond(_("Case +%(ref_id)s cancelled.") % {'ref_id':ref_id})
+        message.respond(_("Case +%(ref_id)s cancelled.") % {'ref_id': ref_id})
 
 
         log(message.persistant_connection.reporter, 'case_cancelled')
@@ -637,7 +638,8 @@ class App(rapidsms.app.App):
         reporter = message.persistant_connection.reporter
         duration_end = datetime.datetime.now()
         if period is None or period.lower() == "all":
-            ml = MessageLog.objects.filter(sent_by=reporter).order_by('created_at')
+            ml = MessageLog.objects.filter(sent_by=reporter)\
+                    .order_by('created_at')
             if ml:
                 duration_start = ml[0].created_at
         elif period.lower() == "month":
@@ -651,7 +653,7 @@ class App(rapidsms.app.App):
         else:
             duration_start = None
             msg = "No Summary"
-        
+
         if duration_start is not None:
             summary = ReportCHWStatus.reporter_summary(duration_start, \
                                                 duration_end, reporter)
@@ -731,7 +733,8 @@ class App(rapidsms.app.App):
         reporter = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         CaseNote(case=case, created_by=reporter, text=note).save()
-        message.respond(_("Note added to case +%(ref_id)s.") % {'ref_id':ref_id})
+        message.respond(_("Note added to case +%(ref_id)s.") % \
+                        {'ref_id': ref_id})
 
         log(case, 'note_added')
         return True
@@ -820,7 +823,6 @@ class App(rapidsms.app.App):
             # which might sometimes match this
             if len(dob) <= 6:
                 dob = dob
-                
 
         # remove all non-digit characters from dob string
         dob = re.sub(r'\D', '', dob)
@@ -840,8 +842,8 @@ class App(rapidsms.app.App):
                     dob = time.strptime(dob, "%d%m%Y")
                     dob = datetime.date(*dob[:3])
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %(dob)s") \
-                                        % {'dob':dob})
+                    raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
+                                     % {'dob': dob})
             self.debug(dob)
 
         # if there are fewer than three digits, we are
@@ -883,8 +885,8 @@ class App(rapidsms.app.App):
         delta = datetime.datetime.now().date() - dob
         years = delta.days / 365.25
         if years < 0:
-            raise HandlerFailed(_("The age couldn't be greater than the date now, " \
-                                "please retape the date!!! "))
+            raise HandlerFailed(_("The age couldn't be greater than "\
+                    "the date now, please retape the date!!! "))
 
         # todo: move this to a more generic get_description
         info = {
