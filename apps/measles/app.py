@@ -216,10 +216,13 @@ class App (rapidsms.app.App):
                         mobile = subscriber.connection().identity
                         message.forward(mobile, _("%s") % text)
                 except:
-                    '''
-                    FIXME: The group might have not been created,
+                    '''Alert Developer
+
+                    The group might have not been created,
                     need to alert the developer/in charge here
                     '''
-                    pass
+                    message.forward(Cfg.get('developer_mobile'), \
+                            _("The group %(group) has not been created."\
+                               % {'group': "measles_summary"}))
         return True
     measles_summary.format = "msummary"
