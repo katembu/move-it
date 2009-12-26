@@ -118,8 +118,9 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call %s") \
-                            % Cfg.get("developer_mobile"))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile':Cfg.get('developer_mobile')})
+
             raise
         message.was_handled = bool(self.handled)
         return self.handled
