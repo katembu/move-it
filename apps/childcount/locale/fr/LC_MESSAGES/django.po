@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-24 15:24+0300\n"
+"POT-Creation-Date: 2009-12-24 20:24+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -213,6 +213,105 @@ msgstr ""
 #, python-format
 msgid ""
 "l'age du patient +%(id)s a ete modifie, il est maintenant age de %(dob)s"
+msgstr ""
+
+#: reports.py:156
+#, python-format
+msgid ": CHW 30 Day Performance Report, from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:160
+#, python-format
+msgid "CHW 30 Day Performance Report, from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:209
+#, python-format
+msgid "CMAM Summary from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:213
+#, python-format
+msgid ": CMAM Summary from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:264
+msgid "Measles Campaign Summary"
+msgstr ""
+
+#: reports.py:302
+#, python-format
+msgid ": Cases Reports by CHW as of %(date)s"
+msgstr ""
+
+#: reports.py:321 reports.py:339
+msgid "%loc()s: %(lname)s %(fname)s: %(date)s"
+msgstr ""
+
+#: reports.py:363
+#, python-format
+msgid "%(app_name)s: Dead Cases report as of %(date)s"
+msgstr ""
+
+#: reports.py:386
+msgid "ChildCount Senegal: Listing Enfant par Age"
+msgstr ""
+
+#: reports.py:395
+msgid "Registre des Enfants pour: "
+msgstr ""
+
+#: reports.py:414
+#, python-format
+msgid "Registre des Enfants de : %(age)s mois"
+msgstr ""
+
+#: reports.py:456
+#, python-format
+msgid "%(site_name)s: Registre des Enfants pour: "
+msgstr ""
+
+#: reports.py:472
+#, python-format
+msgid "Registre des Enfants pour: %(site_name)s"
+msgstr ""
+
+#: reports.py:564
+#, python-format
+msgid ""
+"%(app_name)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:579 reports.py:598
+#, python-format
+msgid ""
+"%(clinic)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:623
+#, python-format
+msgid "%(app_name)s: Positive RDT Cases from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:636 reports.py:657
+#, python-format
+msgid "%(clinic)s: Positive RDT Cases from %(start_date)s to %(end_date)s"
+msgstr ""
+
+#: reports.py:895
+msgid "Facility"
+msgstr ""
+
+#: reports.py:896
+msgid "No. Vaccinated"
+msgstr ""
+
+#: reports.py:897
+msgid "No. Eligible"
+msgstr ""
+
+#: reports.py:925
+msgid "Measles Campaign"
 msgstr ""
 
 #: forms/general.py:15
