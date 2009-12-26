@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.models.general import Case
 from childcount.models.logs import MessageLog, log
+from childcount.models.config import Configuration as Cfg
 from diarrhea.models import ReportDiarrhea, DiarrheaObservation
 
 find_diagnostic_re = re.compile('( -[\d\.]+)', re.I)
@@ -82,7 +83,8 @@ class App(rapidsms.app.App):
 
             self.handled = True
         except Exception, e:
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile': Cfg.get('developer_mobile')})
             raise
         message.was_handled = bool(self.handled)
         return self.handled
