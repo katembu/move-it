@@ -134,7 +134,8 @@ class App (rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
     def get_observations(self, text):
         '''get a list of observation'''
@@ -146,15 +147,15 @@ class App (rapidsms.app.App):
                 obj = choices.get(observation, None)
                 if not obj:
                     if observation != 'n':
-                        raise HandlerFailed("Unknown observation code: %s"\
-                                             % observation)
+                        raise HandlerFailed("Unknown observation code: %(ob)s"\
+                                             % {'ob': observation})
                 else:
                     observed.append(obj)
         return observed, choices
 
     def delete_similar(self, queryset):
         try:
-            last_report = queryset.latest("entered_at")
+            last_report = queryset.latest('entered_at')
             if (datetime.datetime.now() - last_report.entered_at).days == 0:
                 # last report was today. so delete it before filing another.
                 last_report.delete()
@@ -166,23 +167,24 @@ class App (rapidsms.app.App):
         weight = int(kg)
         dosage = ""
         if weight > 5:
-            dosage = "one quarter"
+            dosage = _("one quarter")
         if weight > 10:
-            dosage = "one half"
+            dosage = _("one half")
         if weight > 24:
             dosage = "one"
         if weight > 50:
-            dosage = "one and a half"
+            dosage = _("one and a half")
         if weight > 70:
-            dosage = "two"
+            dosage = _("two")
 
         if weight < 5:
             message.respond(_("Child is too light for treatment (under 5kg)."\
                               "  Refer to clinic."))
             return True
-        reminder = _("Patient is %skg.  If positive for malaria, take "\
-            "%s each of Artesunate (50mg) and Amodiaquine (150mg) morning"\
-            " and evening for 3 days." % (weight, dosage))
+        reminder = _("Patient is %(weight)skg.  If positive for malaria, take"\
+            " %(dosage)s each of Artesunate (50mg) and Amodiaquine (150mg)"\
+            " morning and evening for 3 days." % \
+            {'weight': weight, 'dosage': dosage})
         message.respond(reminder)
         return True
 
@@ -205,8 +207,8 @@ class App (rapidsms.app.App):
         self.delete_similar(case.reportmalaria_set)
         reporter = message.persistant_connection.reporter
 
-        result = (result == "+" or result.lower() == "y")
-        bednet = (bednet.lower() == "y")
+        result = (result == '+' or result.lower() == 'y')
+        bednet = (bednet.lower() == 'y')
 
         report = ReportMalaria(case=case, reporter=reporter, \
                                result=result, bednet=bednet)
@@ -219,15 +221,15 @@ class App (rapidsms.app.App):
         info = case.get_dictionary()
         info.update(report.get_dictionary())
         info.update({
-            "reporter_name": reporter.full_name(),
-            "reporter_alias": reporter.alias,
-            "reporter_identity": reporter.connection().identity})
+            'reporter_name': reporter.full_name(),
+            'reporter_alias': reporter.alias,
+            'reporter_identity': reporter.connection().identity})
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
             if observed:
-                info["observed"] = ", (%s)" % info["observed"]
+                info['observed'] = ', (%s)' % info['observed']
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
                     "%(gender)s/%(age)s (%(guardian)s), "\
                     "%(location)s. RDT=%(result_text)s,"\
@@ -252,36 +254,36 @@ class App (rapidsms.app.App):
                 if months < 5:
                     tabs, yage = None, None
                 else:
-                    tabs, yage = "one quarter", "under one year (5-10kg)"
+                    tabs, yage = _("one quarter"), _("under one year (5-10kg)")
             elif years < 7:
-                tabs, yage = "one half", "1-6 years (11-24kg)"
+                tabs, yage = _("one half"), _("1-6 years (11-24kg)")
             elif years < 14:
-                tabs, yage = "one ", "7-13 years (25-50kg)"
+                tabs, yage = _("one "), _("7-13 years (25-50kg)")
             elif years < 18:
-                tabs, yage = "one and a half", "14 - 17 years (50-70kg)"
+                tabs, yage = _("one and a half"), _("14 - 17 years (50-70kg)")
             else:
-                tabs, yage = "two", "18+ years (70+ kg)"
+                tabs, yage = _("two"), _("18+ years (70+ kg)")
 
             # messages change depending upon age and dangers
-            dangers = report.observed.filter(uid__in=("vomiting", \
-                                "appetite", "breathing", "confusion", "fits"))
+            dangers = report.observed.filter(uid__in=('vomiting', \
+                                'appetite', 'breathing', 'confusion', 'fits'))
             # no tabs means too young
             if not tabs:
-                info["instructions"] = "Child is too young for treatment. "\
-                    "Please refer IMMEDIATELY to clinic"
+                info['instructions'] = _("Child is too young for treatment. "\
+                    "Please refer IMMEDIATELY to clinic")
             else:
                 # old enough to take tabs, but lets format msg
                 if dangers:
-                    info["danger"] = " and danger signs (" + \
-                        ",".join([u.name for u in dangers]) + ")"
-                    info["instructions"] = "Refer to clinic after %s "\
+                    info['danger'] = _(" and danger signs (") + \
+                        ','.join([u.name for u in dangers]) + ')'
+                    info['instructions'] = _("Refer to clinic after %s "\
                         " each of Artesunate 50mg and Amodiaquine 150mg "\
-                        "is given" % (tabs)
+                        "is given" % (tabs))
                 else:
-                    info["danger"] = ""
-                    info["instructions"] = "Child is %s. %s each of "\
+                    info['danger'] = ''
+                    info['instructions'] = _("Child is %s. %s each of "\
                         "Artesunate 50mg and Amodiaquine 150mg morning and "\
-                        "evening for 3 days" % (yage, tabs)
+                        "evening for 3 days") % (yage, tabs)
 
             # finally build out the messages
             msg = _("Patient +%(ref_id)s, %(first_name)s %(last_name)s, "\
@@ -294,7 +296,7 @@ class App (rapidsms.app.App):
                       "CHW: @%(reporter_alias)s %(reporter_identity)s" % info)
 
         message.respond(msg)
-        message.respond(_(info["instructions"]))
+        message.respond(_(info['instructions']))
         ''' @todo: enable alerts '''
         '''
         recipients = report.get_alert_recipients()
@@ -302,7 +304,7 @@ class App (rapidsms.app.App):
             message.forward(recipient.mobile, alert)
         '''
 
-        log(case, "mrdt_taken")
+        log(case, 'mrdt_taken')
         return True
     report_malaria.format = "mts +[patient_ID\] malaria[+/-] bednet[y/n]"\
                 " symptoms separated by spaces[D CG A F V NR UF B CV CF]"
@@ -324,9 +326,9 @@ class App (rapidsms.app.App):
         observed, choices = self.get_observations(observed)
         self.delete_similar(case.reportmalaria_set)
         reporter = message.persistant_connection.reporter
-        self.log("debug", bednet)
-        result = result.lower() == "y"
-        bednet = bednet.lower() == "y"
+        self.log('debug', bednet)
+        result = result.lower() == 'y'
+        bednet = bednet.lower() == 'y'
         alert = None
 
         report = ReportMalaria(case=case, reporter=reporter, result=result, \
@@ -340,15 +342,15 @@ class App (rapidsms.app.App):
         info = case.get_dictionary()
         info.update(report.get_dictionary())
         info.update({
-            "reporter_name": reporter.full_name(),
-            "reporter_alias": reporter.alias,
-            "reporter_identity": reporter.connection().identity})
+            'reporter_name': reporter.full_name(),
+            'reporter_alias': reporter.alias,
+            'reporter_identity': reporter.connection().identity})
 
         # this could all really do with cleaning up
         # note that there is always an alert that goes out
         if not result:
             if observed:
-                info["observed"] = ", (%s)" % info["observed"]
+                info['observed'] = ', (%s)' % info['observed']
                 msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, "\
                         "%(first_name)s, %(gender)s/%(age)s (%(guardian)s), "\
                         "%(location)s. RDT=%(result_text)s,"\
@@ -378,9 +380,9 @@ class App (rapidsms.app.App):
                 if months < 2:
                     tabs, yage = None, None
                 else:
-                    tabs, yage = 1, "less than 3"
+                    tabs, yage = 1, _("less than 3")
             elif years < 3:
-                tabs, yage = 1, "less than 3"
+                tabs, yage = 1, _("less than 3")
             elif years < 9:
                 tabs, yage = 2, years
             elif years < 15:
@@ -389,27 +391,27 @@ class App (rapidsms.app.App):
                 tabs, yage = 4, years
 
             # messages change depending upon age and dangers
-            dangers = report.observed.filter(uid__in=("vomiting", "appetite", \
-                                        "breathing", "confusion", "fits"))
+            dangers = report.observed.filter(uid__in=('vomiting', 'appetite', \
+                                        'breathing', 'confusion', 'fits'))
             # no tabs means too young
             if not tabs:
-                info["instructions"] = "Child is too young for treatment. "\
-                    "Please refer IMMEDIATELY to clinic"
+                info['instructions'] = _("Child is too young for treatment. "\
+                    "Please refer IMMEDIATELY to clinic")
             else:
                 # old enough to take tabs, but lets format msg
                 if dangers:
-                    info["danger"] = " and danger signs (" + \
-                        ",".join([u.name for u in dangers]) + ")"
-                    info["instructions"] = \
-                        "Refer to clinic immediately after %s "\
-                        "tab%s of Coartem is given" % (tabs, \
-                                        (tabs > 1) and "s" or "")
+                    info['danger'] = _(" and danger signs (") + \
+                        ','.join([u.name for u in dangers]) + ')'
+                    info['instructions'] = \
+                        _("Refer to clinic immediately after %s "\
+                        "tab%s of Coartem is given") % (tabs, \
+                                        (tabs > 1) and 's' or '')
                 else:
-                    info["danger"] = ""
-                    info["instructions"] = \
-                        "Child is %s. Please provide %s tab%s "\
-                        "of Coartem (ACT) twice a day for 3 days" % (yage, \
-                                    tabs, (tabs > 1) and "s" or "")
+                    info['danger'] = ''
+                    info['instructions'] = \
+                        _("Child is %s. Please provide %s tab%s "\
+                        "of Coartem (ACT) twice a day for 3 days") % (yage, \
+                                    tabs, (tabs > 1) and 's' or '')
 
             # finally build out the messages
             msg = _("MRDT> Child +%(ref_id)s, %(last_name)s, %(first_name)s, "\
@@ -424,8 +426,8 @@ class App (rapidsms.app.App):
         if len(msg) > self.MAX_MSG_LEN:
             '''FIXME: Either make this an intelligent breakup of the message
              or let the backend handle that.'''
-            message.respond(msg[:msg.rfind(". ") + 1])
-            message.respond(msg[msg.rfind(". ") + 1:])
+            message.respond(msg[:msg.rfind('. ') + 1])
+            message.respond(msg[msg.rfind('. ') + 1:])
         else:
             message.respond(msg)
 
@@ -434,11 +436,11 @@ class App (rapidsms.app.App):
             for recipient in recipients:
                 if len(alert) > self.MAX_MSG_LEN:
                     message.forward(recipient.connection().identity, \
-                                    alert[:alert.rfind(". ") + 1])
+                                    alert[:alert.rfind('. ') + 1])
                     message.forward(recipient.connection().identity, \
-                                    alert[alert.rfind(". ") + 1:])
+                                    alert[alert.rfind('. ') + 1:])
                 else:
                     message.forward(recipient.connection().identity, alert)
 
-        log(case, "mrdt_taken")
+        log(case, 'mrdt_taken')
         return True

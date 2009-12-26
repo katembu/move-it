@@ -8,8 +8,8 @@ from models import ReportMalnutrition
 
 
 class ReportMalnutritionAdmin(admin.ModelAdmin):
-    list_display = ("case", "name", "location", "muac", "entered_at", \
-                    "reporter")
+    list_display = ('case', 'name', 'location', 'muac', 'entered_at', \
+                    'reporter')
     search_fields = ['case__ref_id', 'reporter__first_name', \
                      'reporter__last_name']
 

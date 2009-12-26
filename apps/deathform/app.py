@@ -135,7 +135,8 @@ class App (rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id':ref_id})
 
     @keyword("death (\S+) (\S+) ([MF]) (\d+[YM]) (\d+) ([A-Z]) ([A-Z])?(.+)*")
     @registered
@@ -155,8 +156,8 @@ class App (rapidsms.app.App):
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %s")\
-                                 % dod)
+            raise HandlerFailed(_("Date must be in the format ddmmyy: %(dod)s")\
+                                 % {'dod': dod})
         else:
             dod = re.sub(r'\D', '', dod)
             try:
@@ -165,8 +166,8 @@ class App (rapidsms.app.App):
                 try:
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s")\
-                                         % dod)
+                    raise HandlerFailed(_("Couldn't understand date: %(dod)s")\
+                                         % {'dod': dod})
             dod = datetime.date(*dod[:3])
         if description is None:
             description = "No description"
@@ -177,12 +178,14 @@ class App (rapidsms.app.App):
                     cause=cause.upper(), description=description, dod=dod)
         #Perform Location checks
         if death.get_where() is None:
-            raise HandlerFailed(_("Location `%s` is not known. "\
-                        "Please try again with a known location") % where)
+            raise HandlerFailed(_("Location `%(loc)s` is not known. "\
+                        "Please try again with a known location") % \
+                        {'loc': where})
         #Perform Cause Check
         if death.get_cause() is None:
-            raise HandlerFailed(_("Cause `%s` is not known. "\
-                    "Please try again with a known death cause") % cause)
+            raise HandlerFailed(_("Cause `%(cause)s` is not known. "\
+                    "Please try again with a known death cause") % \
+                    {'cause': cause})
 
         death.save()
         info = death.get_dictionary()
@@ -216,8 +219,8 @@ class App (rapidsms.app.App):
         if len(dod) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %s")\
-                                 % dod)
+            raise HandlerFailed(_("Date must be in the format ddmmyy: %(dod)s")\
+                                 % {'dod': dod})
         else:
             dod = re.sub(r'\D', '', dod)
             try:
@@ -226,8 +229,8 @@ class App (rapidsms.app.App):
                 try:
                     dod = time.strptime(dod, "%d%m%Y")
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s")\
-                                         % dod)
+                    raise HandlerFailed(_("Couldn't understand date: %(dod)s")\
+                                         % {'dod': dod})
             dod = datetime.date(*dod[:3])
         if description is None:
             description = "No description"
@@ -240,12 +243,14 @@ class App (rapidsms.app.App):
                             description=description, dod=dod, case=case)
         #Perform Location checks
         if death.get_where() is None:
-            raise HandlerFailed(_("Location `%s` is not known. "\
-                        "Please try again with a known location") % where)
+            raise HandlerFailed(_("Location `%(loc)s` is not known. "\
+                        "Please try again with a known location") % \
+                        {'loc': where})
         #Perform Cause Check
         if death.get_cause() is None:
-            raise HandlerFailed(_("Cause `%s` is not known. Please try again "\
-                                  "with a known death cause") % cause)
+            raise HandlerFailed(_("Cause `%(cause)s` is not known. "\
+                        "Please try again with a known death cause") % \
+                        {'cause': cause})
 
         death.save()
         case.set_status(Case.STATUS_DEAD)

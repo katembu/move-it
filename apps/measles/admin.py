@@ -8,8 +8,8 @@ from models import ReportMeasles
 
 
 class ReportMeaslesAdmin(admin.ModelAdmin):
-    list_display = ("case", "reporter", "taken", "entered_at", "location")
-    list_filter = ("taken",)
+    list_display = ('case', 'reporter', 'taken', 'entered_at', 'location')
+    list_filter = ('taken',)
     search_fields = ['location__name', ]
 
 admin.site.register(ReportMeasles, ReportMeaslesAdmin)

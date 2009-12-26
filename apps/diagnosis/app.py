@@ -119,7 +119,8 @@ class App (rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
     @keyword(r'd \+(\d+ )(.*)')
     @registered
@@ -136,7 +137,8 @@ class App (rapidsms.app.App):
             try:
                 diags.append(Diagnosis.objects.get(code__iexact=code))
             except Diagnosis.DoesNotExist:
-                raise HandlerFailed("Unknown diagnosis code: %s" % code)
+                raise HandlerFailed("Unknown diagnosis code: %(code)s" % \
+                                    {'code': code})
 
         hits = find_lab_re.findall(text)
         for hit in hits:
@@ -146,7 +148,8 @@ class App (rapidsms.app.App):
                 labs.append([Lab.objects.get(code__iexact=code[1:]), \
                              sign, number])
             except Lab.DoesNotExist:
-                raise HandlerFailed("Unknown lab code: %s" % code)
+                raise HandlerFailed("Unknown lab code: %(code)s" % \
+                                    {'code': code})
 
         self.delete_similar(case.reportdiagnosis_set)
         report = ReportDiagnosis(case=case, reporter=reporter, \
@@ -166,9 +169,9 @@ class App (rapidsms.app.App):
 
         info = case.get_dictionary()
         info.update(report.get_dictionary())
-        if info["labs_text"]:
-            info["labs_text"] = "%sLabs: %s" % (info["diagnosis"] and " " \
-                                                or "", info["labs_text"])
+        if info['labs_text']:
+            info['labs_text'] = "%sLabs: %s" % (info['diagnosis'] and " " \
+                                                or "", info['labs_text'])
 
         message.respond(_("D> +%(ref_id)s %(first_name_short)s.%(last_name)s "\
                           "%(diagnosis)s%(labs_text)s") % info)
@@ -184,18 +187,18 @@ class App (rapidsms.app.App):
         if instructions:
             if reporter != case.reporter:
                 # there's a different provider
-                info = {"ref_id": ref_id, "instructions": \
+                info = {'ref_id': ref_id, 'instructions': \
                         (", ".join(instructions))}
                 message.forward(case.reporter.connection().identity, \
                                 "D> +%(ref_id)s %(instructions)s" % info)
 
-        log(case, "diagnosis_taken")
+        log(case, 'diagnosis_taken')
         return True
 
     def delete_similar(self, queryset):
         '''Deletes identical records'''
         try:
-            last_report = queryset.latest("entered_at")
+            last_report = queryset.latest('entered_at')
             if (datetime.datetime.now() - last_report.entered_at).days == 0:
                 # last report was today. so delete it before filing another.
                 last_report.delete()

@@ -43,11 +43,11 @@ class ReportMalnutrition(models.Model):
                             db_index=True, blank=True, null=True)
 
     class Meta:
-        app_label = "muac"
+        app_label = 'muac'
         verbose_name = "Malnutrition Report"
         verbose_name_plural = "Malnutrition Reports"
         get_latest_by = 'entered_at'
-        ordering = ("-entered_at",)
+        ordering = ('-entered_at',)
 
     def get_dictionary(self):
         '''Get a dictionary of muac measurement report details'''
@@ -72,7 +72,7 @@ class ReportMalnutrition(models.Model):
         '''Get number of days since the last muac measurement was done'''
         today = date.today()
 
-        logs = ReportMalnutrition.objects.order_by("entered_at").\
+        logs = ReportMalnutrition.objects.order_by('entered_at').\
             filter(entered_at__lte=today, case=self.case).reverse()
         if not logs:
             return ""
@@ -92,10 +92,10 @@ class ReportMalnutrition(models.Model):
 
     def diagnose(self):
         complications = [c for c in self.observed.all() \
-                         if c.uid != "edema" or c.uid != "oedema"]
-        edema = "edema" in [c.uid for c in self.observed.all()]
+                         if c.uid != 'edema' or c.uid != 'oedema']
+        edema = 'edema' in [c.uid for c in self.observed.all()]
         if not edema:
-            edema = "oedema" in [c.uid for c in self.observed.all()]
+            edema = 'oedema' in [c.uid for c in self.observed.all()]
         self.status = ReportMalnutrition.HEALTHY_STATUS
         if edema or self.muac < 110:
             if complications:
@@ -112,17 +112,17 @@ class ReportMalnutrition(models.Model):
         msg = {}
         if self.status == ReportMalnutrition.MODERATE_STATUS:
             msg['fr'] = "MAM Enfant a besoin de nourriture supplementaire."
-            msg['en'] = "MAM Child requires supplemental feeding."
+            msg['en'] = _("MAM Child requires supplemental feeding.")
         elif self.status == ReportMalnutrition.SEVERE_STATUS:
             msg['fr'] = "SAM Patient a besoin d aller au poste de sante"
-            msg['en'] = "SAM Patient requires OTP care"
+            msg['en'] = _("SAM Patient requires OTP care")
         elif self.status == ReportMalnutrition.SEVERE_COMP_STATUS:
             msg['fr'] = "SAM+ Patient a besoin d aller immediatement au "\
                         "poste de sante"
-            msg['en'] = "SAM+ Patient requires IMMEDIATE inpatient care"
+            msg['en'] = _("SAM+ Patient requires IMMEDIATE inpatient care")
         else:
             msg['fr'] = "Enfant nest pas malnutri"
-            msg['en'] = "Child is not malnourished"
+            msg['en'] = _("Child is not malnourished")
 
         if not lang in msg:
             lang = 'en'
@@ -146,9 +146,9 @@ class ReportMalnutrition(models.Model):
             info = prev.get_dictionary()
             change = int(float((self.muac - prev.muac) / \
                                float(self.muac)) * 100)
-            info.update({"reported_date": \
-                         prev.entered_at.strftime("%d.%m.%y"),
-                         "percentage": change})
+            info.update({'reported_date': \
+                         prev.entered_at.strftime('%d.%m.%y'),
+                         'percentage': change})
             return info
         return None
 
@@ -174,23 +174,23 @@ class ReportMalnutrition(models.Model):
                 if status is None:
                     return cls.objects.filter(reporter=reporter, \
                         case__in=rcases).\
-                        values("case").distinct().count()
+                        values('case').distinct().count()
                 else:
                     return cls.objects.filter(reporter=reporter, \
                         status=status, \
-                        case__in=rcases).values("case").\
+                        case__in=rcases).values('case').\
                         distinct().count()
             if status is None:
                 return cls.objects.filter(entered_at__lte=duration_end, \
                         entered_at__gte=duration_start, \
                         case__in=rcases).\
-                        filter(reporter=reporter).values("case").\
+                        filter(reporter=reporter).values('case').\
                         distinct().count()
             else:
                 return cls.objects.filter(entered_at__lte=duration_end, \
                         entered_at__gte=duration_start, status=status, \
                         case__in=rcases).\
-                        filter(reporter=reporter).values("case").\
+                        filter(reporter=reporter).values('case').\
                         distinct().count()
         except models.ObjectDoesNotExist:
             return None

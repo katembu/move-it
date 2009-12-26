@@ -135,7 +135,8 @@ class App (rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
     @keyword(r'measles ?(.*)')
     @registered
@@ -146,19 +147,19 @@ class App (rapidsms.app.App):
         '''
         reporter = message.persistant_connection.reporter
         cases, notcases = self.str_to_cases(text)
-        result = ""
+        result = ''
         for case in cases:
             result = result + "+%s " % case.ref_id
             report = ReportMeasles(case=case, reporter=reporter, taken=True)
             report.save()
-        if result != "":
-            msg = result + " received measles shot."
+        if result != '':
+            msg = _("%(result)s received measles shot." % {'result': result})
             message.respond(_("%s") % msg)
         if notcases:
-            nresult = ""
+            nresult = ''
             for nc in notcases:
                 nresult = nresult + "%s " % nc
-            msg = nresult + " not found!!"
+            msg = _("%(nresult) not found!!" % {'nresult': nresult})
             message.respond(_("%s") % msg)
         return True
     measles.format = "measles [+PID] [+PID] [+PID]"
@@ -169,8 +170,8 @@ class App (rapidsms.app.App):
         @text a string containing space separeted +PID, e.g +78 +98 ..or 78 98
         @return: Case Object list, and a list of numbers that were not cases
         '''
-        text = text.replace("+", "")
-        cs = text.split(" ")
+        text = text.replace('+', '')
+        cs = text.split(' ')
         cases = []
         notcases = []
         for c in cs:
@@ -185,18 +186,18 @@ class App (rapidsms.app.App):
         '''Send measles summary to health facilitators
         and those who are to receive alerts
         '''
-        header = u"Measles Summary by facility:"
+        header = _(u"Measles Summary by clinic:")
         result = []
 
         summary = ReportCHWStatus.measles_mini_summary()
         tmp = header
         for info in summary:
-            if info["eligible_cases"] != 0:
-                info["percentage"] = \
-                    round(float(float(info["vaccinated_cases"]) / \
-                                float(info["eligible_cases"])) * 100, 0)
+            if info['eligible_cases'] != 0:
+                info['percentage'] = \
+                    round(float(float(info['vaccinated_cases']) / \
+                                float(info['eligible_cases'])) * 100, 0)
             else:
-                info["percentage"] = 0
+                info['percentage'] = 0
             item = u" %(clinic)s: %(vaccinated_cases)s/%(eligible_cases)s "\
                     "%(percentage)s%%," % info
             if len(tmp) + len(item) + 2 >= self.MAX_MSG_LEN:

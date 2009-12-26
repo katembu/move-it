@@ -23,10 +23,10 @@ class ReportMalaria(models.Model):
 
     class Meta:
         get_latest_by = 'entered_at'
-        ordering = ("-entered_at",)
-        app_label = "mrdt"
-        verbose_name = "Malaria Report"
-        verbose_name_plural = "Malaria Reports"
+        ordering = ('-entered_at',)
+        app_label = 'mrdt'
+        verbose_name = 'Malaria Report'
+        verbose_name_plural = 'Malaria Reports'
 
     case = models.ForeignKey(Case, db_index=True)
     reporter = models.ForeignKey(Reporter, db_index=True)
@@ -39,10 +39,10 @@ class ReportMalaria(models.Model):
         '''Gets a dictionary of reported rdt details'''
         return {
             'result': self.result,
-            'result_text': self.result and "Y" or "N",
+            'result_text': self.result and 'Y' or 'N',
             'bednet': self.bednet,
-            'bednet_text': self.bednet and "Y" or "N",
-            'observed': ", ".join([k.name for k in self.observed.all()])}
+            'bednet_text': self.bednet and 'Y' or 'N',
+            'observed': ', '.join([k.name for k in self.observed.all()])}
 
     def location(self):
         '''get location of the child'''
@@ -54,10 +54,10 @@ class ReportMalaria(models.Model):
         Return string Y if there is a bednet
         Return string N if there is no bednet
         '''
-        bednet = "N"
+        bednet = 'N'
         if self.bednet:
-            bednet = "Y"
-        return "%s" % (bednet)
+            bednet = 'Y'
+        return '%s' % (bednet)
 
     def results_for_malaria_result(self):
         '''Get Malaria results
@@ -65,18 +65,18 @@ class ReportMalaria(models.Model):
         Return string '+' if the test was positive
         Return string '-' if the test was negative
         '''
-        result = "-"
+        result = '-'
         if self.result:
-            result = "+"
-        return "%s" % (result)
+            result = '+'
+        return '%s' % (result)
 
     def name(self):
         '''Get name of child/case tested'''
-        return "%s %s" % (self.case.first_name, self.case.last_name)
+        return '%s %s' % (self.case.first_name, self.case.last_name)
 
     def symptoms(self):
         '''Get Comma separeted list of observations'''
-        return ", ".join([k.name for k in self.observed.all()])
+        return ', '.join([k.name for k in self.observed.all()])
 
     def provider_number(self):
         '''Get Reporters mobile phone number'''
@@ -121,7 +121,7 @@ class ReportMalaria(models.Model):
 
         logs = cls.objects.filter(entered_at__lte=today, case=case).reverse()
         if not logs:
-            return ""
+            return ''
         return (today - logs[0].entered_at.date()).days
 
     def get_alert_recipients(self):

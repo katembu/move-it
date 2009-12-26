@@ -156,16 +156,16 @@ class App (rapidsms.app.App):
         if PersistantBackend.from_message(message).title == "http":
             mobile = reporter.connection().identity
             if mobile == message.persistant_connection.identity:
-                message.respond("You already have a http identity!")
+                message.respond(_("You already have a http identity!"))
             elif mobile[0] == "+" \
                 and mobile[1:] == message.persistant_connection.identity:
                 message.persistant_connection.reporter = reporter
                 message.persistant_connection.save()
-                message.respond("You now have a http identity!")
+                message.respond(_("You now have a http identity!"))
             else:
-                message.respond("Illegal Operation!")
+                message.respond(_("Illegal Operation!"))
         else:
-            message.respond("Operation not allowed under this mode!")
+            message.respond(_("Operation not allowed under this mode!"))
         return True
     reporter_http_identity.format = "takeover [(@)username]"
 
