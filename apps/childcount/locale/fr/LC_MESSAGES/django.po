@@ -1,7 +1,7 @@
-# SOME DESCRIPTIVE TITLE.
+# CHILDCOUNT MAIN APP
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# UKANG'A DICKSON <ukanga@gmail.com>, 2009.
 #
 #, fuzzy
 msgid ""
@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-12-24 20:24+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Ukang'a Dickson <ukanga@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,27 +19,27 @@ msgstr ""
 #: app.py:42
 #, python-format
 msgid "%(number)s is not a registered number."
-msgstr ""
+msgstr "%(number)s n'est pas enregistré"
 
 #: app.py:65
 #, python-format
 msgid "%(msg)s"
-msgstr ""
+msgstr "%(msg)s"
 
 #: app.py:124
 #, python-format
 msgid "Sorry Unknown command: '%(msg)s...' Please try again"
-msgstr ""
+msgstr "Désolé commande inconnue: '%(msg)s...'  Essayez encore,s'il vous plaît"
 
 #: app.py:137
 #, python-format
 msgid "An error occurred. Please call %(mobile)s"
-msgstr ""
+msgstr "Une erreur s'est présentée. Veuillez appeler %(mobile)s"
 
 #: app.py:208
 #, python-format
 msgid "Join Error. Provided location code (%(loc)s) is wrong."
-msgstr ""
+msgstr "Erreur Jointe. Le code de lieu saisi (%(loc)s)  est incorrect"
 
 #: app.py:226
 #, python-format
@@ -50,92 +50,97 @@ msgstr ""
 #, python-format
 msgid ""
 "Success. You are now registered as %(role)s at %(loc)s with alias @%(alias)s."
-msgstr ""
+msgstr "Reussite. Vous vous êtes inscrit(e) comme %(loc)s à %(loc)x avec pseudonyme @%(alias)s."
 
 #: app.py:247
 #, python-format
 msgid ""
 "Success. %(reporter)s is now registered as %(role)s at %(loc)s with alias @%"
 "(alias)s."
-msgstr ""
+msgstr "Reussite. %(reporter)s s'est inscrit(e) comme %(role)s à %(loc)s avec pseudonyme @%(alias)s."
 
 #: app.py:260
 #, python-format
 msgid ""
 "%(mobile)s registered to @%(alias)s (%(last_name)s %(first_name)s) at %"
 "(location)s."
-msgstr ""
+msgstr "%(mobile)s inscrit(e)(s) à @%(alias)s (%(last_name)s %(first_name)s) à %"
+"(location)s."
 
 #: app.py:289
 #, python-format
 msgid "User @%(target)s is not registered."
-msgstr ""
+msgstr "Utilisateur @%(target)s n'est pas inscrit(e)."
 
 #: app.py:437 app.py:843
 #, python-format
 msgid "Couldn't understand date: %(dob)s"
-msgstr ""
+msgstr "La date n'est pas saisissable: %(dob)s"
 
 #: app.py:475
 msgid ""
 "Can't figure out where you are today. Please use message: Location "
 "locationcode to set your location."
-msgstr ""
+msgstr "On sais pas où vous êtes aujourd'hui. Servez-vous de ce message:région"
+"code de lieu pour faire connaître l'endroit où vous êtes"
 
 #: app.py:483
 msgid "Can't find your location based on the code your sent. Please resend."
-msgstr ""
+msgstr "On ne peut pas trouver l'endroit avec le code saisi. Veuillez le renvoyer."
 
 #: app.py:508
 #, python-format
 msgid ""
 "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %"
 "(reporter)s."
-msgstr ""
+msgstr "%(last_name)s, %(first_name)s (+%(PID)s)  est déjà enregistré par %"
+"(reporter)s."
 
 #: app.py:528 app.py:665
 #, python-format
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: app.py:544
 #, python-format
 msgid "Case +%(ref_id)s not found."
-msgstr ""
+msgstr "Le cas +%(ref_id)s n'est pas trouvé."
 
 #: app.py:560
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has malnutrition reports."
-msgstr ""
+msgstr "On ne peut pas annuler +%(ref_id)s: Le Cas contient les  reportages de malnutrition"
 
 #: app.py:564
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has malaria reports."
-msgstr ""
+msgstr "On ne peut pas annuler +%(ref_id)s: Le Cas contient les  reportages de paludisme"
 
 #: app.py:568
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has diagnosis reports."
-msgstr ""
+msgstr "On ne peut pas annuler +%(ref_id)s: Le Cas contient les  reportages diagnostics"
 
 #: app.py:572
 #, python-format
 msgid "Case +%(ref_id)s cancelled."
-msgstr ""
+msgstr "Le Cas +%(ref_id)s est annulé."
 
 #: app.py:594
 #, python-format
 msgid ""
 "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
 "s) has been made inactive"
-msgstr ""
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
+"s) sont rendus inactifs"
 
 #: app.py:616
 #, python-format
 msgid ""
 "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
 "s) has been activated"
-msgstr ""
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
+"s) sont rendus actifs"
 
 #: app.py:620
 #, python-format
@@ -143,6 +148,8 @@ msgid ""
 "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
 "s) is active"
 msgstr ""
+"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
+"s) sont activés"
 
 #: app.py:624
 #, python-format
@@ -150,6 +157,8 @@ msgid ""
 "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
 "s) was reported as dead"
 msgstr ""
+"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
+"s) était annoncé(e) mort(e)"
 
 #: app.py:659
 #, python-format
@@ -158,262 +167,267 @@ msgid ""
 "(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)"
 "s, #muac %(num_muac)s. "
 msgstr ""
+"%(reporter)s: %(num_cases)s children, #new %(num_new_cases)s, #dead %"
+"(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)"
+"s, #muac %(num_muac)s. "
 
 #: app.py:689
 #, python-format
 msgid ""
 "Case +%(ref_id)s transferred to @%(username)s (%(name)s - %(location)s)."
-msgstr ""
+msgstr "Cas +%(ref_id)s est transféré à @%(username)s (%(name)s - %(location)s)."
 
 #: app.py:693
 #, python-format
 msgid ""
 "Case +%(ref_id)s transferred to you from @%(username)s (%(name)s - %"
 "(location)s)."
-msgstr ""
+msgstr "Cas +%(ref_id)s est transféré à vous de @%(username)s (%(name)s - %"
+"(location)s)."
 
 #: app.py:714
 #, python-format
 msgid ""
 "+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %"
 "(guardian)s - %(location)s"
-msgstr ""
+msgstr "+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %"
+"(guardian)s - %(location)s"
 
 #: app.py:734
 #, python-format
 msgid "Note added to case +%(ref_id)s."
-msgstr ""
+msgstr "Note ajoutée dans la  boîte +%(ref_id)s."
 
 #: app.py:753
 #, python-format
 msgid "You are in %(location)s (%(loc_code)s)"
-msgstr ""
+msgstr "Vous êtes  à  %(location)s (%(loc_code)s)"
 
 #: app.py:774
 #, python-format
 msgid "Location Error. Provided location code (%(loc)s) is wrong."
-msgstr ""
+msgstr "Erreur de la région. Le code de lieu saisi (%(loc)s) est incorrect"
 
 #: app.py:785
 #, python-format
 msgid "Your location is now %(location)s (%(loc_code)s)"
-msgstr ""
+msgstr "Maintenant votre région est %(location)s (%(loc_code)s)"
 
 #: app.py:886
 msgid ""
 "The age couldn't be greater than the date now, please retape the date!!! "
-msgstr ""
+msgstr "L'âge ne devrait pas être plus grande que la date,veuillez résaisir la date!!!"
 
 #: app.py:902
 #, python-format
 msgid " The patient %(ref_id)s is not registred."
-msgstr ""
+msgstr "Le/La  patient(e) %(ref_id)s n'est pas inscrit(e)."
 
 #: app.py:910
 #, python-format
 msgid ""
 "l'age du patient +%(id)s a ete modifie, il est maintenant age de %(dob)s"
-msgstr ""
+msgstr "l'age du patient +%(id)s a ete modifie, il est maintenant age de %(dob)s"
 
 #: reports.py:156
 #, python-format
 msgid ": CHW 30 Day Performance Report, from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr ": CHW Le Rapport du Résultat de 30 Jours, depuis %(start_date)s jusqu'au  %(end_date)s"
 
 #: reports.py:160
 #, python-format
 msgid "CHW 30 Day Performance Report, from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "CHW Le Rapport du Résultat de 30 Jours, depuis %(start_date)s jusqu'au  %(end_date)s"
 
 #: reports.py:209
 #, python-format
 msgid "CMAM Summary from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "CMAM Résumé dès le %(start_date)s jusqu'au  %(end_date)s"
 
 #: reports.py:213
 #, python-format
 msgid ": CMAM Summary from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr ": CMAM Résumé dès le %(start_date)s jusqu'au  %(end_date)s"
 
 #: reports.py:264
 msgid "Measles Campaign Summary"
-msgstr ""
+msgstr "Le Résumé de la campagne de Rugéole"
 
 #: reports.py:302
 #, python-format
 msgid ": Cases Reports by CHW as of %(date)s"
-msgstr ""
+msgstr ": Reportages de cas par CHW dès le %(date)s"
 
 #: reports.py:321 reports.py:339
 msgid "%loc()s: %(lname)s %(fname)s: %(date)s"
-msgstr ""
+msgstr "%loc()s: %(lname)s %(fname)s: %(date)s"
 
 #: reports.py:363
 #, python-format
 msgid "%(app_name)s: Dead Cases report as of %(date)s"
-msgstr ""
+msgstr "%(app_name)s: Le Reportage de Cas des Morts dès le %(date)s"
 
 #: reports.py:386
 msgid "ChildCount Senegal: Listing Enfant par Age"
-msgstr ""
+msgstr "ChildCount Senegal: Listing Enfant par Age"
 
 #: reports.py:395
 msgid "Registre des Enfants pour: "
-msgstr ""
+msgstr "Registre des Enfants pour: "
 
 #: reports.py:414
 #, python-format
 msgid "Registre des Enfants de : %(age)s mois"
-msgstr ""
+msgstr "Registre des Enfants de : %(age)s mois"
 
 #: reports.py:456
 #, python-format
 msgid "%(site_name)s: Registre des Enfants pour: "
-msgstr ""
+msgstr "%(site_name)s: Registre des Enfants pour: "
 
 #: reports.py:472
 #, python-format
 msgid "Registre des Enfants pour: %(site_name)s"
-msgstr ""
+msgstr "Registre des Enfants pour: %(site_name)s"
 
 #: reports.py:564
 #, python-format
 msgid ""
 "%(app_name)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "%(app_name)s: @Risque des Cas de Malnutrition dès le %(start_date)s jusqu'au %(end_date)s"
 
 #: reports.py:579 reports.py:598
 #, python-format
 msgid ""
 "%(clinic)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "%(clinic)s: @Risque des Cas de Malnutrition dès le %(start_date)s jusqu'au %(end_date)s"
 
 #: reports.py:623
 #, python-format
 msgid "%(app_name)s: Positive RDT Cases from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "%(app_name)s: Cas Positifs de RDT dès le %(start_date)s jusqu'au %(end_date)s"
 
 #: reports.py:636 reports.py:657
 #, python-format
 msgid "%(clinic)s: Positive RDT Cases from %(start_date)s to %(end_date)s"
-msgstr ""
+msgstr "%(clinic)s: Cas Positifs de RDT dès le %(start_date)s jusqu'au %(end_date)s"
 
 #: reports.py:895
 msgid "Facility"
-msgstr ""
+msgstr "Facility"
 
 #: reports.py:896
 msgid "No. Vaccinated"
-msgstr ""
+msgstr "Pas Vacciné(e)"
 
 #: reports.py:897
 msgid "No. Eligible"
-msgstr ""
+msgstr "Inéligible"
 
 #: reports.py:925
 msgid "Measles Campaign"
-msgstr ""
+msgstr "La Campagne de Rugéole"
 
 #: forms/general.py:15
 msgid "Message text"
-msgstr ""
+msgstr "Text message"
 
 #: forms/general.py:23
 msgid "Groups"
-msgstr ""
+msgstr "Les Groupes"
 
 #: forms/general.py:28
 msgid "Users"
-msgstr ""
+msgstr "Utilisateurs"
 
 #: forms/general.py:41
 msgid "You can only specify ASCII characters in the message."
-msgstr ""
+msgstr "Vous ne pouvez que spécifier les caractères ASCII dans le message."
 
 #: forms/general.py:45
 msgid "You must specify either one or more groups or users."
-msgstr ""
+msgstr "Vous ne devez spécifier qu'un ou plusieurs groupes ou utilisateurs."
 
 #: forms/login.py:8
 msgid "Username"
-msgstr ""
+msgstr "Pseudonyme"
 
 #: forms/login.py:12
 msgid "Password"
-msgstr ""
+msgstr "Mot de pass"
 
 #: models/config.py:17
 msgid "Key"
-msgstr ""
+msgstr "Clé"
 
 #: models/config.py:18
 msgid "Value"
-msgstr ""
+msgstr "Valeur"
 
 #: models/config.py:20
 msgid "Description"
-msgstr ""
+msgstr "Description"
 
 #: models/general.py:38
 msgid "Male"
-msgstr ""
+msgstr "Mâle"
 
 #: models/general.py:39
 msgid "Female"
-msgstr ""
+msgstr "Femâle"
 
 #: models/general.py:41
 msgid "Case ID #"
-msgstr ""
+msgstr "Cas ID #"
 
 #: models/general.py:46
 msgid "Date of Birth"
-msgstr ""
+msgstr "Date de Naissance"
 
 #: models/logs.py:26
 msgid "Provider registered, awaiting confirmation"
-msgstr ""
+msgstr "Le fournisseur reconnu,en attendant la confirmation"
 
 #: models/logs.py:27
 msgid "Patient created"
-msgstr ""
+msgstr "Le(la) patient(e) créé(e)"
 
 #: models/logs.py:28
 msgid "MUAC taken for the patient"
-msgstr ""
+msgstr "MUAC prise pour le(la) patient(e)"
 
 #: models/logs.py:29
 msgid "DIARRHEA taken for the patient"
-msgstr ""
+msgstr "La DIARRHEE prise pour le(la) patient(e)"
 
 #: models/logs.py:30
 msgid "DIARRHEA follow-up received for the patient"
-msgstr ""
+msgstr "La suite DIARRHEE reçue pour le(la) patient(e)"
 
 #: models/logs.py:31
 msgid "MRDT taken for the patient"
-msgstr ""
+msgstr "MRDT prise pour le(la) patient(e)"
 
 #: models/logs.py:32
 msgid "Diagnosis taken for the patient"
-msgstr ""
+msgstr "Diagnostic prise pour le(la) patient(e)"
 
 #: models/logs.py:33
 msgid "User logged into the user interface"
-msgstr ""
+msgstr "L'utilisateur est entré dans l'interface des utilisateurs"
 
 #: models/logs.py:34
 msgid "Provider confirmed"
-msgstr ""
+msgstr "Le fournisseur est confirmé"
 
 #: models/logs.py:35
 msgid "Case was cancelled by the provider"
-msgstr ""
+msgstr "Le cas était annulé par le fournisseur"
 
 #: models/logs.py:36
 msgid "Case was transferred to the current provider"
-msgstr ""
+msgstr "Le cas a été transféré au fournisseur actuel"
 
 #: models/logs.py:37
 msgid "Note added to the case by the provider"
-msgstr ""
+msgstr "La note est ajoutée dans la boîte par le fournisseur"
