@@ -9,6 +9,8 @@ from datetime import datetime
 
 import rapidsms
 from django.utils.translation import ugettext_lazy as _
+from babel.dates import format_datetime
+from bonjour.utils import *
 
 
 def import_function(func):
@@ -45,6 +47,10 @@ class App (rapidsms.app.App):
     def configure(self, auth_func=None, auth=None):
         ''' set up authentication mechanism
         configured from [ping] in rapidsms.ini '''
+
+        # store locale
+        self.locale = Bonjour.locale()
+
         # add custom function
         try:
             self.func = import_function(auth_func)
@@ -93,10 +99,12 @@ class App (rapidsms.app.App):
 
             now = datetime.now()
             if identifier:
-                message.respond(_(u"pong %(pingID)s on %(date)s") \
-                                % {'pingID': identifier, \
-                                'date': now.strftime("%c")})
+                message.respond(_(u"%(pingID)s on %(date)s") % \
+                                {'pingID': identifier, \
+                                'date': format_datetime(now, \
+                                locale=self.locale)})
             else:
                 message.respond(_(u"pong on %(date)s") % \
-                                {'date': now.strftime("%c")})
+                                {'date': format_datetime(now, \
+                                locale=self.locale)})
             return True
