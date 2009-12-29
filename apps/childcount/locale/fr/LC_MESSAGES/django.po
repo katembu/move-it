@@ -51,7 +51,7 @@ msgstr "Erreur. Code Role incorrect (%(role)s)."
 msgid ""
 "Success. You are now registered as %(role)s at %(loc)s with alias @%(alias)s."
 msgstr ""
-"Merci. Vous êtes enregistré comme %(loc)s à %(loc)x avec  l'identifiant @%"
+"Merci. Vous êtes enregistré comme %(role)s à %(loc)s avec  l'identifiant @%"
 "(alias)s."
 
 #: app.py:248
@@ -339,7 +339,7 @@ msgstr "%(clinic)s: Cas de RDT positifs du %(start_date)s au %(end_date)s"
 
 #: reports.py:894
 msgid "Facility"
-msgstr "Facility"
+msgstr "Établissement"
 
 #: reports.py:895
 msgid "No. Vaccinated"
