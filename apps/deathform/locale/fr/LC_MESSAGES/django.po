@@ -1,16 +1,16 @@
-# SOME DESCRIPTIVE TITLE.
+# Death Form App
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Ukang'a Dickson <ukanga@gmail.com>, 2009.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-12-26 15:44+0300\n"
+"POT-Creation-Date: 2009-12-30 11:01+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Sylvia Musula <smusula@yahoo.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -20,87 +20,92 @@ msgstr ""
 #, python-format
 msgid "Sorry, only registered users can access this program.%(msg)s"
 msgstr ""
+"Désolé,seulement les membres inscrits peuvent accéder le programme %(msg)s"
 
 #: app.py:105
 #, python-format
 msgid "An error occurred. Please call %(mobile)s"
-msgstr ""
+msgstr "Une erreur s'est présentée. Veuillez appeler %(mobile)s"
 
 #: app.py:138
 #, python-format
 msgid "Case +%(ref_id)s not found."
-msgstr ""
+msgstr "Le cas +%(ref_id)s n'est pas trouvé "
 
 #: app.py:159 app.py:222
 #, python-format
 msgid "Date must be in the format ddmmyy: %(dod)s"
-msgstr ""
+msgstr " Le format de date doit être jjmmann:%(dod)s"
 
 #: app.py:169 app.py:232
 #, python-format
 msgid "Couldn't understand date: %(dod)s"
-msgstr ""
+msgstr "La date n'est pas saisissable: %(dod)s"
 
 #: app.py:181 app.py:246
 #, python-format
 msgid "Location `%(loc)s` is not known. Please try again with a known location"
 msgstr ""
+"Région inconnue %(loc)s. Veuillez essayer encore avec une région connue "
 
 #: app.py:186 app.py:251
 #, python-format
 msgid ""
 "Cause `%(cause)s` is not known. Please try again with a known death cause"
 msgstr ""
+"La cause est inconnue `%(cause)s Veuillez essayer  avec la cause de mort "
+"connue. "
 
 #: app.py:192 app.py:259
 #, python-format
 msgid "%(name)s [%(age)s] died on %(dod)s of %(cause)s at %(where)s"
-msgstr ""
+msgstr "%(name)s [%(age)s il est mort %(dod)s of %(cause)s à %(where)"
 
 #: models/general.py:24
 msgid "Male"
-msgstr ""
+msgstr "Mâle"
 
 #: models/general.py:25
 msgid "Female"
-msgstr ""
+msgstr "Femâle"
 
 #: models/general.py:28
 msgid "Home"
-msgstr ""
+msgstr "Maison"
 
 #: models/general.py:29
 msgid "Health Facility"
-msgstr ""
+msgstr "Létablissement de santé"
 
 #: models/general.py:30
 msgid "On route to Clinic"
-msgstr ""
+msgstr "En voie à la clinique"
 
 #: models/general.py:31
 msgid "Other"
-msgstr ""
+msgstr "L'autre"
 
 #: models/general.py:34
 msgid "Pregnancy Related"
-msgstr ""
+msgstr "Liée à la grossesse"
 
 #: models/general.py:35
 msgid "Child Birth"
-msgstr ""
+msgstr "La naissance d'enfant"
 
 #: models/general.py:36
 msgid "Accident"
-msgstr ""
+msgstr "L'accident"
 
 #: models/general.py:37
+#, fuzzy
 msgid "Illness"
-msgstr ""
+msgstr "La maladie"
 
 #: models/general.py:38
 msgid "Sudden Death"
-msgstr ""
+msgstr "Mort subite"
 
 #: models/general.py:44
 msgid "Date of Death"
-msgstr ""
+msgstr "Date de mort"

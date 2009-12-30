@@ -34,8 +34,8 @@ def registered(func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s") % "Sorry, only registered users can " \
-                            "access this program.")
+            message.respond(_(u"Sorry, only registered users can " \
+                            "access this program.%(msg)s") % {'msg':''})
             return True
     return wrapper
 

@@ -214,7 +214,7 @@ class App (rapidsms.app.App):
                         and ReporterGroup.objects.get(title='measles_summary')\
                              in subscriber.groups.only():
                         mobile = subscriber.connection().identity
-                        message.forward(mobile, _("%s") % text)
+                        message.forward(mobile, _("%(msg)s") % {'msg': text})
                 except:
                     '''Alert Developer
 
@@ -222,7 +222,7 @@ class App (rapidsms.app.App):
                     need to alert the developer/in charge here
                     '''
                     message.forward(Cfg.get('developer_mobile'), \
-                            _("The group %(group) has not been created."\
+                            _("The group %(group)s has not been created."\
                                % {'group': "measles_summary"}))
         return True
     measles_summary.format = "msummary"
