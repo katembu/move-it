@@ -51,14 +51,14 @@ class ReportDeath(models.Model):
     case = models.ForeignKey(Case, db_index=True, null=True)
 
     class Meta:
-        app_label = "deathform"
-        verbose_name = "Death Report"
-        verbose_name_plural = "Death Reports"
+        app_label = 'deathform'
+        verbose_name = 'Death Report'
+        verbose_name_plural = 'Death Reports'
         get_latest_by = 'entered_at'
-        ordering = ("-entered_at",)
+        ordering = ('-entered_at',)
 
     def __unicode__(self):
-        return "%s %s" % (self.last_name, self.first_name)
+        return '%s %s' % (self.last_name, self.first_name)
 
     def save(self, *args):
         '''set entered_at time and then save'''
@@ -71,11 +71,11 @@ class ReportDeath(models.Model):
 
          in years if age is more than a year
          or months if age is less than a year'''
-        txt = ""
+        txt = ''
         if self.age >= 12 and (self.age % 12) == 0:
-            txt = "%d years" % (int(self.age / 12))
+            txt = '%d years' % (int(self.age / 12))
         else:
-            txt = "%d months" % (self.age)
+            txt = '%d months' % (self.age)
         return txt
 
     def get_cause(self):
@@ -85,7 +85,7 @@ class ReportDeath(models.Model):
         return string descriptive cause of death
         '''
         causes = dict([(k, v) for (k, v) in self.CAUSE_CHOICES])
-        return u"%s" % causes.get(self.cause, None)
+        return u'%s' % causes.get(self.cause, None)
 
     def get_where(self):
         '''get descriptive location of death
@@ -94,12 +94,12 @@ class ReportDeath(models.Model):
         return string descriptive location of death
         '''
         where = dict([(k, v) for (k, v) in self.LOCATION_CHOICES])
-        return u"%s" % where.get(self.where, None)
+        return u'%s' % where.get(self.where, None)
 
     def get_dictionary(self):
         '''Dictionary of dead person information'''
-        return {'name': "%s %s" % (self.last_name, self.first_name),
+        return {'name': '%s %s' % (self.last_name, self.first_name),
                 'age': self.age_as_text(),
                 'cause': self.get_cause(),
                 'where': self.get_where(),
-                'dod': self.dod.strftime("%d/%m/%y")}
+                'dod': self.dod.strftime('%d/%m/%y')}

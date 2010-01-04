@@ -176,7 +176,7 @@ class PDFReport():
         pStyle.fontSize = 7
         pStyle.spaceBefore = 0
         pStyle.spaceAfter = 0
-        pStyle.leading = pStyle.fontSize + 2.8 
+        pStyle.leading = pStyle.fontSize + 2.8
         #prepare the data
         for row in queryset:
             if not header:
@@ -265,7 +265,7 @@ class PDFReport():
 
         if self.print_on_both_sides is True:
             elements.append(PageBreak())
-            self.headers.insert(1,"")
+            self.headers.insert(1, "")
         #done with the title info, move to the next frame
         #and queue up the later page template
         elements.append(FrameBreak())

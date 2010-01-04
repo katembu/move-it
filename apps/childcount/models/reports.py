@@ -69,8 +69,8 @@ class Observation(models.Model):
     letter = models.CharField(max_length=2, unique=True)
 
     class Meta:
-        app_label = "childcount"
-        ordering = ("name",)
+        app_label = 'childcount'
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
@@ -85,7 +85,7 @@ class ReportCHWStatus(Report, models.Model):
 
     class Meta:
         verbose_name = "CHW Perfomance Report"
-        app_label = "childcount"
+        app_label = 'childcount'
 
     @classmethod
     def get_providers_by_clinic(cls, duration_start, duration_end, \
@@ -110,7 +110,7 @@ class ReportCHWStatus(Report, models.Model):
         clinic_refused = 0
 
         if clinic_id is not None:
-            chwrole = Role.objects.get(code="chw")
+            chwrole = Role.objects.get(code='chw')
             providers = Reporter.objects.filter(location=clinic_id, \
                                                 role=chwrole)
             for provider in providers:
@@ -303,7 +303,6 @@ class ReportCHWStatus(Report, models.Model):
                      % last_activity
             return p
 
-
     @classmethod
     def muac_summary(cls, duration_start, duration_end, clinic=None):
         '''Generate the Muac report data
@@ -446,8 +445,9 @@ class ReportCHWStatus(Report, models.Model):
                 p['not_vaccinated_cases'] = p['eligible_cases']\
                                              - p['vaccinated_cases']
                 vaccinated_cases += p['vaccinated_cases']
-                p['sms_sent'] = \
-                    int(round(float(float(p['vaccinated_cases']) / \
+                if p['eligible_cases'] != 0:
+                    p['sms_sent'] = \
+                        int(round(float(float(p['vaccinated_cases']) / \
                                     float(p['eligible_cases'])) * 100, 0))
 
                 ps.append(p)
@@ -1231,7 +1231,8 @@ class ReportAllPatients(Report, models.Model):
                                         (rpt.entered_at.date() - \
                                         mrdtc.entered_at.date()).days
 
-                    num_of_malaria_cases = ReportMalaria.num_reports_by_case(case)
+                    num_of_malaria_cases = \
+                        ReportMalaria.num_reports_by_case(case)
                     q['num_of_malaria_cases'] = "%dx" % num_of_malaria_cases
                     q['malaria_result'] = mrdtc.results_for_malaria_result()
                     q['malaria_bednet'] = mrdtc.results_for_malaria_bednet()

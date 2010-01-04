@@ -16,6 +16,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.models.general import Case
 from childcount.models.logs import MessageLog, log
+from childcount.models.config import Configuration as Cfg
 from diarrhea.models import ReportDiarrhea, DiarrheaObservation
 
 find_diagnostic_re = re.compile('( -[\d\.]+)', re.I)
@@ -33,8 +34,8 @@ def registered(func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s") % "Sorry, only registered users can " \
-                            "access this program.")
+            message.respond(_(u"Sorry, only registered users can " \
+                            "access this program.%(msg)s") % {'msg':''})
             return True
     return wrapper
 
@@ -54,8 +55,8 @@ class App(rapidsms.app.App):
     MAX_MSG_LEN = 140
     keyword = Keyworder()
     handled = False
-    
-    def start (self):
+
+    def start(self):
         '''Configure your app in the start phase.'''
         pass
 
@@ -82,7 +83,8 @@ class App(rapidsms.app.App):
 
             self.handled = True
         except Exception, e:
-            message.respond(_("An error occurred. Please call 0733202270."))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile': Cfg.get('developer_mobile')})
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -96,11 +98,11 @@ class App(rapidsms.app.App):
                          was_handled=message.was_handled)
             log.save()
 
-    def outgoing (self, message):
+    def outgoing(self, message):
         '''Handle outgoing message notifications.'''
         pass
 
-    def stop (self):
+    def stop(self):
         '''Perform global app cleanup when the application is stopped.'''
         pass
 
@@ -150,12 +152,13 @@ class App(rapidsms.app.App):
                 msg += ", " + info["observed"]
 
             message.respond("DIARRHEA> " + msg)
-        
+
         '''
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.DANGER_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":reporter.alias, "msg":msg}
+            alert = _("@%(username)s reports %(msg)s") % \
+                {"username":reporter.alias, "msg":msg}
             recipients = [reporter]
             for query in (Provider.objects.filter(alerts=True),
                           Provider.objects.filter(clinic=provider.clinic)):
@@ -163,7 +166,7 @@ class App(rapidsms.app.App):
                     if recipient in recipients: continue
                     recipients.append(recipient)
                     message.forward(recipient.mobile, alert)
-        '''      
+        '''
         log(case, "diarrhea_fu_taken")
         return True
 
@@ -233,7 +236,8 @@ class App(rapidsms.app.App):
         if report.status in (report.MODERATE_STATUS,
                            report.SEVERE_STATUS,
                            report.DANGER_STATUS):
-            alert = _("@%(username)s reports %(msg)s") % {"username":provider.user.username, "msg":msg}
+            alert = _("@%(username)s reports %(msg)s") % \
+                {"username":provider.user.username, "msg":msg}
             recipients = [provider]
             for query in (Provider.objects.filter(alerts=True),
                           Provider.objects.filter(clinic=provider.clinic)):

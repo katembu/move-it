@@ -39,8 +39,8 @@ def authenticated(func):
         if message.sender:
             return func(self, message, *args)
         else:
-            message.respond(_("%s is not a registered number.")
-                            % message.peer)
+            message.respond(_("%(number)s is not a registered number.")
+                            % {'number': message.peer})
             return True
     return wrapper
 
@@ -62,8 +62,9 @@ def registered(func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s") \
-                     % "Sorry, only registered users can access this program.")
+            message.respond(_(u"%(msg)s") \
+                     % {'msg': \
+                    "Sorry, only registered users can access this program."})
             return True
     return wrapper
 
@@ -109,7 +110,7 @@ class App(rapidsms.app.App):
             #message.respond(dir(self))
 
             command_list = [method for method in dir(self) \
-                            if hasattr(getattr(self, method), "format")]
+                            if hasattr(getattr(self, method), 'format')]
             childcount_input = message.text.lower()
             for command in command_list:
                 format = getattr(self, command).format
@@ -122,7 +123,7 @@ class App(rapidsms.app.App):
                     pass
 
             message.respond(_("Sorry Unknown command: '%(msg)s...' " \
-                              "Please try again") % {"msg": message.text[:20]})
+                              "Please try again") % {'msg': message.text[:20]})
 
             return False
         try:
@@ -134,8 +135,8 @@ class App(rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call %s") \
-                            % Cfg.get("developer_mobile"))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile': Cfg.get('developer_mobile')})
 
             elog(message.persistant_connection.reporter, message.text)
             raise
@@ -154,11 +155,12 @@ class App(rapidsms.app.App):
         except:
             self.respond_not_registered(message, target)
         sender = message.persistant_connection.reporter.alias
-        return message.forward(mobile, "@%s> %s" % (sender, text))
+        return message.forward(mobile, "@%(alias)s> %(msg)s"\
+                                % {'alias': sender, 'msg': text})
 
-    keyword.prefix = ["join"]
+    keyword.prefix = ['join']
 
-    @keyword("(\S+) (\S+) (\S+)(?: ([a-z]\w+))?")
+    @keyword('(\S+) (\S+) (\S+)(?: ([a-z]\w+))?')
     def join(self, message, location_code, last_name, first_name, role=None):
         ''' register as a user and join the system
 
@@ -170,7 +172,8 @@ class App(rapidsms.app.App):
         # do not skip roles for now
         role_code = role
         try:
-            name = "%s %s" % (first_name, last_name)
+            name = "%(fname)s %(lname)s" % {'fname': first_name, \
+                                            'lname': last_name}
             # parse the name, and create a reporter
             alias, fn, ln = Reporter.parse_name(name)
 
@@ -194,7 +197,7 @@ class App(rapidsms.app.App):
             message.respond("Join Error. Unable to register your account.")
 
         if role_code == None or role_code.__len__() < 1:
-            role_code = Cfg.get("default_chw_role")
+            role_code = Cfg.get('default_chw_role')
 
         reporter = message.persistant_connection.reporter
 
@@ -259,7 +262,7 @@ class App(rapidsms.app.App):
                         "(%(last_name)s %(first_name)s) at %(location)s.") \
                         % info)
 
-    keyword.prefix = ["confirm"]
+    keyword.prefix = ['confirm']
 
     @keyword(r'(\w+)')
     def confirm_join(self, message, username):
@@ -272,19 +275,20 @@ class App(rapidsms.app.App):
             self.respond_not_registered(message, username)
         user.registered_self = True
         user.save()
-        info = {"mobile": user.connection().identity,
-                "last_name": user.last_name.title(),
-                "first_name": user.first_name.title(),
-                "alias": user.alias,
-                "location": user.location}
+        info = {'mobile': user.connection().identity,
+                'last_name': user.last_name.title(),
+                'first_name': user.first_name.title(),
+                'alias': user.alias,
+                'location': user.location}
         self.respond_to_join(message, info)
-        log(user, "confirmed_join")
+        log(user, 'confirmed_join')
         return True
     confirm_join.format = "confirm [user alias]"
 
     def respond_not_registered(self, message, target):
         '''  raises HandlerFailed '''
-        raise HandlerFailed(_("User @%s is not registered.") % target)
+        raise HandlerFailed(_("User @%(target)s is not registered.") % \
+                            {'target': target})
 
     def find_provider(self, message, target):
         ''' Looks for a reporter id or alias in string
@@ -304,7 +308,7 @@ class App(rapidsms.app.App):
             self.respond_not_registered(message, target)
 
     # Register a new patient
-    keyword.prefix = ["new", "nouv"]
+    keyword.prefix = ['new', 'nouv']
 
     #@keyword(r'(\S+) (\S+) ([MF]) ([\d\-]+)( \D+)?( \d+)?( z\d+)?')
     @keyword(r'(.*)')
@@ -319,7 +323,7 @@ class App(rapidsms.app.App):
         # replace multiple spaces with a single space
         # (consider running the stringcleaning app,
         # which removes commas, cleans numbers, etc)
-        whitespace = re.compile("(\s+)")
+        whitespace = re.compile('(\s+)')
         clean_token_string = re.sub(whitespace, " ", token_string)
 
         # split clean_token_string by spaces
@@ -339,7 +343,7 @@ class App(rapidsms.app.App):
             # of the patient's name, so add to patient_name and
             # remove from tokens list
             test_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
-            
+
             if len(token) > 1 and not token.isdigit() and test_age is None:
                 patient_name = patient_name \
                                + (tokens.pop(tokens.index(token))) + " "
@@ -347,9 +351,9 @@ class App(rapidsms.app.App):
                 self.debug(patient_name)
 
         for token in tokens:
-            self.debug("TOKENS:")
+            self.debug('TOKENS:')
             self.debug(tokens)
-            self.debug("TOKEN:")
+            self.debug('TOKEN:')
             self.debug(token)
 
             # attempt to match gender
@@ -407,7 +411,7 @@ class App(rapidsms.app.App):
         #get language of the reporter, default to english
         lang = message.persistant_connection.reporter.language
         if not lang:
-            lang = "en"
+            lang = 'en'
 
         location_code = message.persistant_connection.reporter.location.code
         self.debug('location_code= ' + location_code)
@@ -431,8 +435,8 @@ class App(rapidsms.app.App):
                     dob = time.strptime(dob, "%d%m%Y")
                     dob = datetime.date(*dob[:3])
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s") \
-                                        % dob)
+                    raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
+                                        % {'dob': dob})
             self.debug(dob)
 
         # if there are fewer than three digits, we are
@@ -483,15 +487,15 @@ class App(rapidsms.app.App):
 
         # store case info in object
         info = {
-            "first_name": first.title(),
-            "last_name": last.title(),
-            "gender": gender.upper()[0],
-            "dob": dob,
-            "estimated_dob": estimated_dob,
-            "guardian": guardian.title(),
-            "mobile": contact,
-            "reporter": reporter,
-            "location": location}
+            'first_name': first.title(),
+            'last_name': last.title(),
+            'gender': gender.upper()[0],
+            'dob': dob,
+            'estimated_dob': estimated_dob,
+            'guardian': guardian.title(),
+            'mobile': contact,
+            'reporter': reporter,
+            'location': location}
 
         ## check to see if the case already exists
         iscase = Case.objects.filter(first_name=info['first_name'], \
@@ -499,7 +503,7 @@ class App(rapidsms.app.App):
                                      reporter=info['reporter'], \
                                      dob=info['dob'])
         if iscase:
-            info["PID"] = iscase[0].ref_id
+            info['PID'] = iscase[0].ref_id
             self.info(iscase[0].id)
             self.info(info)
             message.respond(_("%(last_name)s, %(first_name)s (+%(PID)s) " \
@@ -509,23 +513,22 @@ class App(rapidsms.app.App):
             return True
         case = Case(**info)
         case.save()
-        
-        
+
         info.update({
-            "id": case.ref_id,
-            "last_name": last.upper(),
-            "age": case.age()})
+            'id': case.ref_id,
+            'last_name': last.upper(),
+            'age': case.age()})
         #set up the languages
         msg = {}
-        
-        msg["en"] = "New +%(id)s: %(last_name)s, %(first_name)s " \
+
+        msg['en'] = "New +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
-        msg["fr"] = "Nouv +%(id)s: %(last_name)s, %(first_name)s " \
+        msg['fr'] = "Nouv +%(id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s" % info
         message.respond(_("%s") % msg[lang])
 
 
-        log(case, "patient_created")
+        log(case, 'patient_created')
         return True
     new_case.format = "[new/nouv] [patient last name] [patient first name] " \
                       "gender[m/f] [dob ddmmyy] [guardian] (contact #)"
@@ -538,9 +541,10 @@ class App(rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
-    keyword.prefix = ["cancel"]
+    keyword.prefix = ['cancel']
 
     @keyword(r'\+?(\d+)')
     @registered
@@ -554,26 +558,26 @@ class App(rapidsms.app.App):
 
         case = self.find_case(ref_id)
         if case.reportmalnutrition_set.count():
-            raise HandlerFailed(_("Cannot cancel +%s: case has malnutrition " \
-                                "reports.") % ref_id)
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                    "case has malnutrition reports.") % {'ref_id': ref_id})
 
         if case.reportmalaria_set.count():
-            raise HandlerFailed(_("Cannot cancel +%s: case has malaria " \
-                                "reports.") % ref_id)
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                        "case has malaria reports.") % {'ref_id': ref_id})
 
         if case.reportdiagnosis_set.count():
-            raise HandlerFailed(_("Cannot cancel +%s: case has diagnosis " \
-                                "reports.") % ref_id)
+            raise HandlerFailed(_("Cannot cancel +%(ref_id)s: "\
+                    "case has diagnosis reports.") % {'ref_id': ref_id})
 
         case.delete()
-        message.respond(_("Case +%s cancelled.") % ref_id)
+        message.respond(_("Case +%(ref_id)s cancelled.") % {'ref_id': ref_id})
 
 
-        log(message.persistant_connection.reporter, "case_cancelled")
+        log(message.persistant_connection.reporter, 'case_cancelled')
         return True
     cancel_case.format = "cancel [patient id number]"
 
-    keyword.prefix = ["inactive"]
+    keyword.prefix = ['inactive']
 
     @keyword(r'\+?(\d+)?(.+)')
     @registered
@@ -594,7 +598,7 @@ class App(rapidsms.app.App):
         return True
     inactive_case.format = "inactive [patient id] [reason]"
 
-    keyword.prefix = ["activate"]
+    keyword.prefix = ['activate']
 
     @keyword(r'\+?(\d+)?(.+)')
     @registered
@@ -624,7 +628,7 @@ class App(rapidsms.app.App):
         return True
     activate_case.format = "activate +[patient ID] [your reasons]"
 
-    keyword.prefix = ["activity"]
+    keyword.prefix = ['activity']
 
     @keyword(r'?(\w+)')
     @keyword.blank()
@@ -634,7 +638,8 @@ class App(rapidsms.app.App):
         reporter = message.persistant_connection.reporter
         duration_end = datetime.datetime.now()
         if period is None or period.lower() == "all":
-            ml = MessageLog.objects.filter(sent_by=reporter).order_by("created_at")
+            ml = MessageLog.objects.filter(sent_by=reporter)\
+                    .order_by('created_at')
             if ml:
                 duration_start = ml[0].created_at
         elif period.lower() == "month":
@@ -648,7 +653,7 @@ class App(rapidsms.app.App):
         else:
             duration_start = None
             msg = "No Summary"
-        
+
         if duration_start is not None:
             summary = ReportCHWStatus.reporter_summary(duration_start, \
                                                 duration_end, reporter)
@@ -663,7 +668,7 @@ class App(rapidsms.app.App):
         return True
     activity_summary.format = "activity [day|week|month|all]"
 
-    keyword.prefix = ["transfer"]
+    keyword.prefix = ['transfer']
 
     @keyword(r'\+?(\d+) (?:to )?\@?(\w+)')
     @registered
@@ -682,21 +687,21 @@ class App(rapidsms.app.App):
             'username': new_provider.alias,
             'name': new_provider.full_name(),
             'location': new_provider.location}
-        info["ref_id"] = case.ref_id
+        info['ref_id'] = case.ref_id
         message.respond(_("Case +%(ref_id)s transferred to @%(username)s " \
                         "(%(name)s - %(location)s).") % info)
 
         message.forward(new_provider.connection().identity,
-                        _("Case +%s transferred to you from @%s (%s - %s).") %
-                        (case.ref_id, reporter.alias, reporter.full_name(), \
-                        reporter.location))
+                        _("Case +%(ref_id)s transferred to you from "\
+                          "@%(username)s (%(name)s - %(location)s).") % \
+                        info)
 
-        log(case, "case_transferred")
+        log(case, 'case_transferred')
         return True
     transfer_case.format = "transfer [patient id] [new person in charge of " \
                            "the patient]"
 
-    keyword.prefix = ["s", "show"]
+    keyword.prefix = ['s', 'show']
 
     @keyword(r'\+?(\d+)')
     @registered
@@ -706,7 +711,7 @@ class App(rapidsms.app.App):
         Format: show [ref_id]
         ref_id: case reference number '''
         case = self.find_case(ref_id)
-        info = case.get_dictionary
+        info = case.get_dictionary()
 
         message.respond(_("+%(ref_id)s %(status)s %(last_name)s, " \
                         "%(first_name)s %(gender)s/%(age)s %(guardian)s - " \
@@ -715,7 +720,7 @@ class App(rapidsms.app.App):
         return True
     show_case.format = "show [patient id]"
 
-    keyword.prefix = ["n", "note"]
+    keyword.prefix = ['n', 'note']
 
     @keyword(r'\+(\d+) (.+)')
     @registered
@@ -728,14 +733,15 @@ class App(rapidsms.app.App):
         reporter = message.persistant_connection.reporter
         case = self.find_case(ref_id)
         CaseNote(case=case, created_by=reporter, text=note).save()
-        message.respond(_("Note added to case +%s.") % ref_id)
+        message.respond(_("Note added to case +%(ref_id)s.") % \
+                        {'ref_id': ref_id})
 
-        log(case, "note_added")
+        log(case, 'note_added')
         return True
     note_case.format = "note [patient id] [your note]"
 
     #Whereami
-    keyword.prefix = ["whereami"]
+    keyword.prefix = ['whereami']
 
     @keyword.blank()
     @registered
@@ -743,16 +749,16 @@ class App(rapidsms.app.App):
         ''' replies location of sender '''
         reporter = message.persistant_connection.reporter
 
-        info = {"reporter": reporter,
-                "location": reporter.location,
-                "loc_code": reporter.location.code}
+        info = {'reporter': reporter,
+                'location': reporter.location,
+                'loc_code': reporter.location.code}
 
         message.respond(_("You are in %(location)s (%(loc_code)s)") % info)
 
         return True
 
     #change location
-    keyword.prefix = ["location", "loc"]
+    keyword.prefix = ['location', 'loc']
 
     @keyword(r'(slug)')
     @registered
@@ -775,9 +781,9 @@ class App(rapidsms.app.App):
         reporter.location = location
         reporter.save()
 
-        info = {"reporter": reporter,
-                "location": reporter.location,
-                "loc_code": reporter.location.code}
+        info = {'reporter': reporter,
+                'location': reporter.location,
+                'loc_code': reporter.location.code}
 
         message.respond(_("Your location is now %(location)s (%(loc_code)s)") \
                         % info)
@@ -786,7 +792,7 @@ class App(rapidsms.app.App):
 
     #assane
     # Modify dob of patient
-    keyword.prefix = ["age"]
+    keyword.prefix = ['age']
 
     #@keyword(r'\+?(\d+) ([\d\-]+)')
     @keyword(r'\+?(\d+) (\d{1,6}[a-z\-]*)')
@@ -817,7 +823,6 @@ class App(rapidsms.app.App):
             # which might sometimes match this
             if len(dob) <= 6:
                 dob = dob
-                
 
         # remove all non-digit characters from dob string
         dob = re.sub(r'\D', '', dob)
@@ -837,8 +842,8 @@ class App(rapidsms.app.App):
                     dob = time.strptime(dob, "%d%m%Y")
                     dob = datetime.date(*dob[:3])
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s") \
-                                        % dob)
+                    raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
+                                     % {'dob': dob})
             self.debug(dob)
 
         # if there are fewer than three digits, we are
@@ -880,13 +885,13 @@ class App(rapidsms.app.App):
         delta = datetime.datetime.now().date() - dob
         years = delta.days / 365.25
         if years < 0:
-            raise HandlerFailed(_("The age couldn't be greater than the date now, " \
-                                "please retape the date!!! "))
+            raise HandlerFailed(_("The age couldn't be greater than "\
+                    "the date now, please retape the date!!! "))
 
         # todo: move this to a more generic get_description
         info = {
-            "ref_id": ref_id,
-            "dob": dob}
+            'ref_id': ref_id,
+            'dob': dob}
 
         ## check to see if the case already exists
         iscase = Case.objects.filter(ref_id=info['ref_id'])
@@ -901,8 +906,8 @@ class App(rapidsms.app.App):
             # TODO: log this message
             return True
         info.update({
-            "id": first_case.ref_id,
-            "dob": first_case.age()})
+            'id': first_case.ref_id,
+            'dob': first_case.age()})
 
         message.respond(_("l'age du patient +%(id)s a ete modifie, il est " \
                         "maintenant age de %(dob)s") % info)

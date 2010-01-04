@@ -5,6 +5,7 @@
 ''' Bonjour i18n helpers '''
 
 from django.conf import settings
+from babel import Locale
 
 
 def set_language_to(code):
@@ -21,3 +22,19 @@ def set_language_to_default(router):
 def set_language_to_original(router):
     ''' sets language with original one (from django guess) '''
     return set_language(router.get_app('bonjour').DJANGO_LANG)
+
+class Bonjour(object):
+    ''' Holds the bonjour-defined locale '''
+
+    @classmethod
+    def lang(cls):
+        ''' returns bonjour lang string '''
+        return str(settings.LANGUAGE_CODE)
+
+    @classmethod
+    def locale(cls):
+        ''' returns babel's locale built from bonjour lang '''
+        locale = Locale(str(settings.LANGUAGE_CODE))
+        return locale
+        
+

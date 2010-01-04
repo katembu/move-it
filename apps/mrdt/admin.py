@@ -8,9 +8,9 @@ from models import ReportMalaria
 
 
 class ReportMalariaAdmin(admin.ModelAdmin):
-    list_display = ("case", "name", "location", "result", \
-                    "bednet", "entered_at", "reporter")
-    verbose_name = "Malaria Report"
-    verbose_name_plural = "Malaria Reports"
+    list_display = ('case', 'name', 'location', 'result', \
+                    'bednet', 'entered_at', 'reporter')
+    verbose_name = 'Malaria Report'
+    verbose_name_plural = 'Malaria Reports'
 
 admin.site.register(ReportMalaria, ReportMalariaAdmin)

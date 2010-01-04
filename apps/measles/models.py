@@ -21,8 +21,8 @@ class ReportMeasles(models.Model):
 
     class Meta:
         get_latest_by = 'entered_at'
-        ordering = ("-entered_at",)
-        app_label = "measles"
+        ordering = ('-entered_at',)
+        app_label = 'measles'
         verbose_name = "Measles Report"
         verbose_name_plural = "Measles Reports"
 
@@ -60,7 +60,7 @@ class ReportMeasles(models.Model):
     def get_vaccinated(cls, reporter):
         '''Gets a list of vaccinated cases'''
         try:
-            rpt = cls.objects.values("case").distinct().\
+            rpt = cls.objects.values('case').distinct().\
                 filter(reporter=reporter)
             return rpt
         except models.ObjectDoesNotExist:
@@ -73,12 +73,12 @@ class ReportMeasles(models.Model):
         counts the number of vaccinated children per clinic
         '''
         try:
-            rpts = cls.objects.order_by("case__location")
+            rpts = cls.objects.order_by('case__location')
             zones = []
             zcount = 0
-            l = ""
+            l = ''
             for z in rpts:
-                if l == "":
+                if l == '':
                     zcount = 0
                     l = z.case.location
                 if l != z.case.location:

@@ -29,8 +29,8 @@ class Lab(models.Model):
         return self.name
 
     class Meta:
-        app_label = "diagnosis"
-        ordering = ("code",)
+        app_label = 'diagnosis'
+        ordering = ('code',)
 
 
 class LabDiagnosis(models.Model):
@@ -38,7 +38,7 @@ class LabDiagnosis(models.Model):
     '''Stores diagnosed Lab results'''
 
     lab = models.ForeignKey(Lab)
-    diagnosis = models.ForeignKey("ReportDiagnosis")
+    diagnosis = models.ForeignKey('ReportDiagnosis')
     amount = models.IntegerField(blank=True, null=True)
     result = models.BooleanField(blank=True)
 
@@ -46,7 +46,7 @@ class LabDiagnosis(models.Model):
         return "%s, %s - %s" % (self.lab, self.diagnosis, self.amount)
 
     class Meta:
-        app_label = "diagnosis"
+        app_label = 'diagnosis'
 
 
 class DiagnosisCategory(models.Model):
@@ -59,8 +59,8 @@ class DiagnosisCategory(models.Model):
         return self.name
 
     class Meta:
-        app_label = "diagnosis"
-        ordering = ("name",)
+        app_label = 'diagnosis'
+        ordering = ('name',)
 
 
 class Diagnosis(models.Model):
@@ -77,8 +77,8 @@ class Diagnosis(models.Model):
         return self.mvp_code
 
     class Meta:
-        app_label = "diagnosis"
-        ordering = ("code",)
+        app_label = 'diagnosis'
+        ordering = ('code',)
         verbose_name = "Diagnosis Code"
         verbose_name_plural = "Diagnosis Codes"
 
@@ -99,7 +99,7 @@ class ReportDiagnosis(models.Model):
 
     class Meta:
         verbose_name = "Diagnosis Report"
-        app_label = "diagnosis"
+        app_label = 'diagnosis'
 
     def save(self, *args):
         '''Set entered_at field with current time and then save record'''
@@ -112,11 +112,11 @@ class ReportDiagnosis(models.Model):
         extra = []
         for ld in LabDiagnosis.objects.filter(diagnosis=self):
             if ld.amount:
-                extra.append("%s %s" % (ld.lab.code, ld.amount))
+                extra.append('%s %s' % (ld.lab.code, ld.amount))
             else:
-                extra.append("%s%s" % (ld.lab.code, ld.result and "+" or "-"))
+                extra.append('%s%s' % (ld.lab.code, ld.result and '+' or '-'))
 
         return {
-            "diagnosis": ", ".join([str(d) for d in self.diagnosis.all()]),
-            "labs": ", ".join([str(d) for d in self.lab.all()]),
-            "labs_text": ", ".join(extra)}
+            'diagnosis': ', '.join([str(d) for d in self.diagnosis.all()]),
+            'labs': ', '.join([str(d) for d in self.lab.all()]),
+            'labs_text': ', '.join(extra)}

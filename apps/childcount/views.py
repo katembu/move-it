@@ -113,7 +113,7 @@ def commands_pdf(request):
     ''')
 
     pre('''\
-    Location - where the death occured
+    Location - where the death occurred
     ===================================================
     H   |   Home
     C   |   Health Facility

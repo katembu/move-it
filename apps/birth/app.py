@@ -36,8 +36,8 @@ def registered(func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s") \
-                % "Sorry, only registered users can access this program.")
+            message.respond(_(u"Sorry, only registered users can access this"\
+                              " program.%(msg)s") % {'msg': ""})
             return True
     return wrapper
 
@@ -79,12 +79,12 @@ class App (rapidsms.app.App):
             # didn't find a matching function
             # make sure we tell them that we got a problem
             command_list = [method for method in dir(self) \
-                            if hasattr(getattr(self, method), "format")]
+                            if hasattr(getattr(self, method), 'format')]
             birth_input = message.text.lower()
             for command in command_list:
                 format = getattr(self, command).format
                 try:
-                    first_word = (format.split(" "))[0]
+                    first_word = (format.split(' '))[0]
                     if birth_input.find(first_word) > -1:
                         message.respond(format)
                         return True
@@ -100,8 +100,8 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call %s") \
-                            % Cfg.get("developer_mobile"))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile': Cfg.get('developer_mobile')})
             return True
             raise
         message.was_handled = bool(self.handled)
@@ -124,12 +124,14 @@ class App (rapidsms.app.App):
         '''Perform global app cleanup when the application is stopped.'''
         pass
 
-    @keyword("birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+)" \
-             " ([A-Z]) (\S+)?(.+)*")
+    @keyword('birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+)' \
+             ' ([A-Z]) (\S+)?(.+)*')
+    @keyword('birth (\S+) (\S+) ([MF]) (\d+) ([0-9]*\.[0-9]+|[0-9]+)kg' \
+             ' ([A-Z]) (\S+)?(.+)*')
     @registered
     @transaction.commit_on_success
     def report_birth(self, message, last, first, gender, dob, weight, where, \
-                      guardian, complications=""):
+                      guardian, complications=''):
         '''Record births and register the child as a new case
 
         format: birth [last name] [first name] [gender m/f]
@@ -140,8 +142,8 @@ class App (rapidsms.app.App):
         if len(dob) != 6:
             # There have been cases where a date like 30903 have been sent and
             # when saved it gives some date that is way off
-            raise HandlerFailed(_("Date must be in the format ddmmyy: %s")\
-                                 % dob)
+            raise HandlerFailed(_("Date format is ddmmyy: %(dob)s")\
+                                 % {'dob': dob})
         else:
             dob = re.sub(r'\D', '', dob)
             try:
@@ -150,8 +152,8 @@ class App (rapidsms.app.App):
                 try:
                     dob = time.strptime(dob, "%d%m%Y")
                 except ValueError:
-                    raise HandlerFailed(_("Couldn't understand date: %s")\
-                                         % dob)
+                    raise HandlerFailed(_("Couldn't understand date: %(dob)s")\
+                                         % {'dob': dob})
             dob = datetime.date(*dob[:3])
         reporter = message.persistant_connection.reporter
         location = None
@@ -160,46 +162,47 @@ class App (rapidsms.app.App):
                 location = reporter.location
 
         info = {
-            "first_name": first.title(),
-            "last_name": last.title(),
-            "gender": gender.upper(),
-            "dob": dob,
-            "guardian": guardian.title(),
-            "mobile": "",
-            "reporter": reporter,
-            "location": location}
+            'first_name': first.title(),
+            'last_name': last.title(),
+            'gender': gender.upper(),
+            'dob': dob,
+            'guardian': guardian.title(),
+            'mobile': '',
+            'reporter': reporter,
+            'location': location}
 
         abirth = ReportBirth(where=where.upper())
         #Perform Location checks
         if abirth.get_where() is None:
-            raise HandlerFailed(_("Location `%s` is not known. " \
-                "Please try again with a known location") % where)
+            raise HandlerFailed(_("Location `%(location)s` is not known. " \
+                "Please try again with a known location")\
+                 % {'location': where})
 
         iscase = Case.objects.filter(first_name=info['first_name'], \
                         last_name=info['last_name'], \
                         reporter=info['reporter'], dob=info['dob'])
         if iscase:
-            info["PID"] = iscase[0].ref_id
+            info['PID'] = iscase[0].ref_id
 
             # TODO: log this message
             case = iscase[0]
         else:
             case = Case(**info)
             case.save()
-            log(case, "patient_created")
+            log(case, 'patient_created')
 
         info.update({
-            "id": case.ref_id,
-            "last_name": last.upper(),
-            "age": case.age(),
-            "dob": dob.strftime("%d/%m/%y")})
+            'id': case.ref_id,
+            'last_name': last.upper(),
+            'age': case.age(),
+            'dob': dob.strftime("%d/%m/%y")})
 
         info2 = {
-            "case": case,
-            "weight": weight,
-            "where": where,
-            "reporter": reporter,
-            "complications": complications}
+            'case': case,
+            'weight': weight,
+            'where': where,
+            'reporter': reporter,
+            'complications': complications}
 
         #check if birth has already been reported
         rbirth = ReportBirth.objects.filter(case=case)
@@ -213,7 +216,7 @@ class App (rapidsms.app.App):
         abirth = ReportBirth(**info2)
         abirth.save()
 
-        info.update({"where": abirth.get_where()})
+        info.update({'where': abirth.get_where()})
 
         message.respond(_(
             "Birth +%(id)s: %(last_name)s,"\

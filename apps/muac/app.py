@@ -36,8 +36,9 @@ def registered(func):
         if message.persistant_connection.reporter:
             return func(self, message, *args)
         else:
-            message.respond(_(u"%s") \
-                     % "Sorry, only registered users can access this program.")
+            message.respond(_(u"Sorry, only registered users can access this"\
+                              " program.%(msg)s") % {'msg': ""})
+
             return True
     return wrapper
 
@@ -100,8 +101,9 @@ class App (rapidsms.app.App):
         except Exception, e:
             # TODO: log this exception
             # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call %s") \
-                            % Cfg.get("developer_mobile"))
+            message.respond(_("An error occurred. Please call %(mobile)s") \
+                            % {'mobile': Cfg.get('developer_mobile')})
+
             raise
         message.was_handled = bool(self.handled)
         return self.handled
@@ -132,7 +134,8 @@ class App (rapidsms.app.App):
         try:
             return Case.objects.get(ref_id=int(ref_id))
         except Case.DoesNotExist:
-            raise HandlerFailed(_("Case +%s not found.") % ref_id)
+            raise HandlerFailed(_("Case +%(ref_id)s not found.") % \
+                                {'ref_id': ref_id})
 
     def get_observations(self, text):
         choices = dict([(o.letter, o) for o in Observation.objects.all()])
@@ -143,15 +146,15 @@ class App (rapidsms.app.App):
                 obj = choices.get(observation, None)
                 if not obj:
                     if observation != 'n':
-                        raise HandlerFailed("Unknown observation code: %s"\
-                                             % observation)
+                        raise HandlerFailed("Unknown observation code: %(ob)s"\
+                                             % {'ob': observation})
                 else:
                     observed.append(obj)
         return observed, choices
 
     def delete_similar(self, queryset):
         try:
-            last_report = queryset.latest("entered_at")
+            last_report = queryset.latest('entered_at')
             if (datetime.datetime.now() - last_report.entered_at).days == 0:
                 # last report was today. so delete it before filing another.
                 last_report.delete()
@@ -163,12 +166,12 @@ class App (rapidsms.app.App):
         return "Format:  muac +[patient_ID\] muac[measurement] edema[e/n]"\
                 " symptoms separated by spaces[CG D A F V NR UF]"
 
-    keyword.prefix = ["muac", "pb"]
+    keyword.prefix = ['muac', 'pb']
 
     @keyword(r'\+(\d+) ([\d\.]+)?( [\d\.]+)?( [\d\.]+)?( (?:[a-z]\s*)+)?')
     @registered
     def report_case(self, message, ref_id, muac=None,
-                     weight=None, height=None, complications=""):
+                     weight=None, height=None, complications=''):
         '''Record  muac, weight, height, complications if any
 
         Format:  muac +[patient_ID\] muac[measurement] edema[e/n]
@@ -269,7 +272,7 @@ class App (rapidsms.app.App):
         if height:
             msg += ", %.1d cm" % height
         if observed:
-            msg += ", " + info["observed"]
+            msg += ', ' + info['observed']
 
         #get the last reported muac b4 this one
         last_muac = report.get_last_muac()
@@ -279,14 +282,14 @@ class App (rapidsms.app.App):
             #sign prevents feedback.
             if PersistantBackend.from_message(message).title == "http":
                 psign = "&#37;"
-            last_muac.update({"psign": psign})
+            last_muac.update({'psign': psign})
             msg += _(". Last MUAC (%(reported_date)s): %(muac)s "\
                      "(%(percentage)s%(psign)s)") % last_muac
 
         msg = "MUAC> " + msg
         if len(msg) > self.MAX_MSG_LEN:
-                    message.respond(msg[:msg.rfind(". ") + 1])
-                    message.respond(msg[msg.rfind(". ") + 1:])
+                    message.respond(msg[:msg.rfind('. ') + 1])
+                    message.respond(msg[msg.rfind('. ') + 1:])
         else:
             message.respond(msg)
 
@@ -294,20 +297,20 @@ class App (rapidsms.app.App):
                            report.SEVERE_STATUS,
                            report.SEVERE_COMP_STATUS):
             alert = _("@%(username)s reports %(msg)s [%(mobile)s]")\
-                 % {"username": report.reporter.alias, "msg": msg, \
-                    "mobile": reporter.connection().identity}
+                 % {'username': report.reporter.alias, 'msg': msg, \
+                    'mobile': reporter.connection().identity}
 
             recipients = report.get_alert_recipients()
             for recipient in recipients:
                 if len(alert) > self.MAX_MSG_LEN:
                     message.forward(recipient.connection().identity, \
-                                    alert[:alert.rfind(". ") + 1])
+                                    alert[:alert.rfind('. ') + 1])
                     message.forward(recipient.connection().identity, \
-                                    alert[alert.rfind(". ") + 1:])
+                                    alert[alert.rfind('. ') + 1:])
                 else:
                     message.forward(recipient.connection().identity, alert)
 
-        log(case, "muac_taken")
+        log(case, 'muac_taken')
         return True
     report_case.format = "muac +[patient_ID\] muac[measurement] edema[e/n]"\
                 " symptoms separated by spaces[CG D A F V NR UF]"
