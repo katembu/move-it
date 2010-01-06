@@ -207,8 +207,6 @@ def health_units_view(req, scope):
 def health_unit_view(req, health_unit_id):
     ''' Displays a summary of location activities and history '''
 
-    RECENT_REPORTS=5
-
     health_unit    = HealthUnit.objects.get(id=health_unit_id)
     reporters = Reporter.objects.filter(location=health_unit.location_ptr)
     all = []
@@ -227,53 +225,49 @@ def health_unit_view(req, health_unit_id):
     webuser = WebUser.by_user(req.user)
     locations = webuser.health_units()
 
-    periods = ReportPeriod.objects.all().order_by('-end_date')[:RECENT_REPORTS]
-    rows = []
+    periods = ReportPeriod.objects.all().order_by('-end_date')
+
+    reports = [{'cls':DiseasesReport, 'name':'diseases'},
+               {'cls':MalariaCasesReport, 'name':'cases'},
+               {'cls':MalariaTreatmentsReport, 'name':'treat'},
+               {'cls':ACTConsumptionReport, 'name':'act'}
+              ]
+
+    js_per_column = "{ \"asSorting\": [ \"desc\", \"asc\" ], \"bSearchable\": false },"
+
+    for report in reports:
+        
+        report['columns'], report['sub_columns'] = report['cls'].table_columns()
+
+        report['js'] = ""
+        if report['sub_columns']:
+            for i in range(0,len(report['sub_columns'])):
+                report['js'] += js_per_column
+        else:
+            for i in range(0,len(report['columns'])):
+                report['js'] += js_per_column
+        report['js'] = report['js'][:-1]
+
+        report['columns'].insert(0,{'name':'Sortable Date'})
+        report['columns'].insert(1,{'name':'Reporting Period Starting'})
+    
+        report['rows'] = []
     for period in periods:
-        row={}
-        row['date'] = period.start_date
-        row.update(DiseasesReport.aggregate_report(health_unit, [period]))
-        rows.append(row)
-    diseases_table              = DiseasesReportTable(rows)
-    diseases_table.base_columns.insert(0,'date', tables.Column(verbose_name=u"Date Period", sortable=False))
-
-    rows = []    
-    for period in periods:
-        row={}
-        row['date'] = period.start_date
-        row.update(MalariaCasesReport.aggregate_report(health_unit, [period]))
-        rows.append(row)
-    cases_table              = CasesReportTable(rows)
-    cases_table.base_columns.insert(0,'date', tables.Column(verbose_name=u"Date Period", sortable=False))
-
-    rows = []    
-    for period in periods:
-        row={}
-        row['date'] = period.start_date
-        row.update(MalariaTreatmentsReport.aggregate_report(health_unit, [period]))
-        rows.append(row)
-
-    treatments_table            = TreatmentsReportTable(rows)
-    treatments_table.base_columns.insert(0,'date', tables.Column(verbose_name=u"Date Period", sortable=False))
-
-    rows = []    
-    for period in periods:
-        row={}
-        row['date'] = period.start_date
-        row.update(ACTConsumptionReport.aggregate_report(health_unit, [period]))
-        rows.append(row)
-
-    act_table            = ACTReportTable(rows)
-    act_table.base_columns.insert(0,'date', tables.Column(verbose_name=u"Date Period", sortable=False))
+        for report in reports:
+            row={}
+            row['cells'] = []
+            row['cells'].append({'value': period.start_date.strftime("%Y%j")})
+            row['cells'].append({'value': period.start_date, 'date':True})
+            results = report['cls'].aggregate_report(health_unit, [period])
+            row['complete'] = results.pop('complete')
+            for value in results.values():
+                row['cells'].append({'value':value, 'num':True})
+            report['rows'].append(row)
 
     context_dict = {
         'health_unit':      health_unit,
         'reporters_table':  reporters_table,
-        'diseases_table':   diseases_table,
-        'diseases':         Disease.ug_diseases(),
-        'cases_table':      cases_table,
-        'treatments_table': treatments_table,
-        'act_table':        act_table,
+        'reports': reports,
     }
     return render_to_response(req, 'findug/health_unit.html', context_dict)
 
@@ -286,53 +280,36 @@ def report_view(req, scope):
     except (ReportPeriod.DoesNotExist, ValueError):
         start_period = ReportPeriod.objects.latest()
     try:
-        end_period = ReportPeriod.objects.get(pk=req.GET.get('end',start_period.id))
+        end_period = ReportPeriod.objects.get(pk=req.GET.get('end',
+                                                             start_period.id))
     except (ReportPeriod.DoesNotExist, ValueError):
         end_period = start_period
 
     periods = ReportPeriod.list_from_boundries(start_period, end_period)
-    #periods = ReportPeriod.objects.all()
 
     if len(periods) == 1:
         dates = {'start':periods[0].start_date, 'end':periods[0].end_date}
     elif len(periods) > 1:
-        dates = {'start':periods.reverse()[0].start_date, 'end':periods[0].end_date}
+        dates = {'start':periods.reverse()[0].start_date,
+                 'end':periods[0].end_date}
 
     grp = req.GET.get('grp')
 
     if req.GET.get('r') == 'diseases':
-        report              = 'diseases'
-        cls                 = DiseasesReport
-        table_class         = DiseasesReportTable
-        table_name          = 'diseases_table'
-        report_title        = _(u'Diseases')
-        include_template    = 'findug/diseases_report_include.html'
+        cls = DiseasesReport
     elif req.GET.get('r') == 'cases':
-        report              = 'cases'
-        cls                 = MalariaCasesReport
-        table_class         = CasesReportTable
-        table_name          = 'cases_table'
-        report_title        = _(u'Malaria Cases')
-        include_template    = 'findug/cases_report_include.html'
+        cls = MalariaCasesReport
     elif req.GET.get('r') == 'treat':
-        report              = 'treat'
-        cls                 = MalariaTreatmentsReport
-        table_name          = 'treatments_table'
-        table_class         = TreatmentsReportTable
-        report_title        = _(u'Malaria Treatments')
-        include_template    = 'findug/treatments_report_include.html'
+        cls = MalariaTreatmentsReport
     elif req.GET.get('r') == 'act':
-        report              = 'act'
-        cls                 = ACTConsumptionReport
-        table_name          = 'act_table'
-        table_class         = ACTReportTable
-        report_title        = _(u'ACT Consumption')
-        include_template    = 'findug/act_report_include.html'
+        cls = ACTConsumptionReport
     else:
         raise Http404
 
+    report_title = cls.TITLE
     rows=[]
 
+    columns, sub_columns = cls.table_columns()
     if grp in ['parish','subcounty','county','hsd','district','type']:
         groups = []
         for hu in scope.health_units():
@@ -340,50 +317,51 @@ def report_view(req, scope):
         groups = set(groups)
         for group in groups:
             row={}
-            row['grp'] = unicode(group)
+            row['cells'] = []
+            row['cells'].append({'value':unicode(group)})
             if grp == 'type':
-                row.update(cls.aggregate_report(scope.location, periods, group))
+                results = (cls.aggregate_report(scope.location, periods, group))
             else:
-                row.update(cls.aggregate_report(group, periods))
+                results = (cls.aggregate_report(group, periods))
+            row['complete'] = results.pop('complete')
+            for value in results.values():
+                row['cells'].append({'value':value, 'num':True})
             rows.append(row)
-        table = table_class(rows)
         if    grp == 'type': title = 'Health Unit Type'
         elif  grp == 'hsd':  title = 'Health Sub District'
         else:                title = grp.title()
-        table.base_columns.insert(0,'grp',tables.Column(verbose_name=title, sortable=True))
+        columns.insert(0,{'name':title})
     else:
         for hu in scope.health_units():
             row={}
-            row['hu'] = unicode(hu)
-            row['hu_pk'] = hu.id
-            row.update(cls.aggregate_report(hu, periods))
+            row['cells'] = []
+            row['cells'].append({'value':unicode(hu), 'link':'/findug/health_unit/%d' % hu.id})
+            results = cls.aggregate_report(hu, periods)
+            row['complete'] = results.pop('complete')
+            for value in results.values():
+                row['cells'].append({'value':value, 'num':True})
             rows.append(row)
-        table = table_class(rows)
-        table.base_columns.insert(0,'hu',tables.Column(verbose_name=u"Health Unit"))
-        table.base_columns.insert(1,'hu_pk', tables.Column(visible=False, sortable=False))
+        columns.insert(0,{'name':'Health Unit'})
 
-    table.order_by=order_by=req.GET.get('sort')
-    table.update
+    aocolumns_js = "{ \"sType\": \"html\" },"
+    for col in columns[1:] + (sub_columns if sub_columns != None else []):
+        if not col.has_key('colspan'): aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], \"bSearchable\": false },"
+    aocolumns_js = aocolumns_js[:-1]
 
-    print grp
     if len(periods) > 1 or grp in ['parish','subcounty','county','hsd','district','type']:
         aggregate = True
     else:
         aggregate = False
-
     context_dict = {
-            'report'            : report,
-            'scope'             : scope, 
-            table_name          : table,
-            'dates'             : dates,
-            'report_title'      : report_title,
-            'include_template'  : include_template,
-            'grouping'          : grp,
-            'start'             : start_period.id,
-            'end'               : end_period.id,
-            'aggregate'         : aggregate,
+            'scope': scope,
+            'columns': columns,
+            'sub_columns': sub_columns,
+            'rows': rows,
+            'dates': dates,
+            'report_title': report_title,
+            'aggregate': aggregate,
+            'aocolumns_js': aocolumns_js
     }
-    if report == 'diseases': context_dict['diseases'] = Disease.ug_diseases()
     return render_to_response(req, 'findug/report.html', context_dict)
 
 @login_required

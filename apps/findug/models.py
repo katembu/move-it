@@ -10,6 +10,7 @@ from django.contrib import admin
 from django.db import models
 from django.contrib.auth.models import User, UserManager
 from django.utils.translation import ugettext as _
+from django.utils.datastructures import SortedDict
 from django.db.models.signals import pre_save, post_save, m2m_changed
 
 from apps.reporters.models import *
@@ -312,10 +313,23 @@ class DiseasesReport(models.Model,FindReport):
         return self.diseases.clear()
 
     @classmethod
+    def table_columns(cls):
+        columns = []
+        for disease in Disease.ug_diseases():
+            columns.append({'name':disease.name, 'colspan':2})
+
+        sub_columns = []
+        for i in range(0,len(columns)):
+            sub_columns.append({'name':'C'})
+            sub_columns.append({'name':'D'})
+
+        return columns, sub_columns
+
+    @classmethod
     def aggregate_report(cls, location, periods, type=None):
         health_units = HealthUnit.list_by_location(location, type)
-
-        results = {'complete'  : True,}
+        results = SortedDict()
+        results['complete'] = True
 
         for disease in Disease.ug_disease_codes():
             results['%s_cases' % disease.lower()] = None
@@ -421,10 +435,26 @@ class MalariaCasesReport(models.Model,FindReport):
             return report
 
     @classmethod
+    def table_columns(cls):
+        columns = []
+        columns.append({'name':cls._meta.get_field('_opd_attendance').verbose_name})
+        columns.append({'name':cls._meta.get_field('_suspected_cases').verbose_name})
+        columns.append({'name':cls._meta.get_field('_rdt_tests').verbose_name})
+        columns.append({'name':cls._meta.get_field('_rdt_positive_tests').verbose_name})
+        columns.append({'name':cls._meta.get_field('_microscopy_tests').verbose_name})
+        columns.append({'name':cls._meta.get_field('_microscopy_positive').verbose_name})
+        columns.append({'name':cls._meta.get_field('_positive_under_five').verbose_name})
+        columns.append({'name':cls._meta.get_field('_positive_over_five').verbose_name})
+        
+        sub_columns = None
+        return columns, sub_columns
+
+    @classmethod
     def aggregate_report(cls, location, periods, type=None):
         health_units = HealthUnit.list_by_location(location, type)
 
-        results = {'complete'  : True,}
+        results = SortedDict()
+        results['complete'] = True
         for key in ['opd','suspected','rdt_test','rdt_positive','mic_test','mic_positive','pos_u5','pos_o5']:
             results[key] = None
 
@@ -604,10 +634,23 @@ class MalariaTreatmentsReport(models.Model,FindReport):
             return report
 
     @classmethod
+    def table_columns(cls):
+        columns = []
+        columns.append({'name':cls._meta.get_field('_rdt_negative').verbose_name})
+        columns.append({'name':cls._meta.get_field('_rdt_positive').verbose_name})
+        columns.append({'name':cls._meta.get_field('_four_months_to_three').verbose_name})
+        columns.append({'name':cls._meta.get_field('_three_to_seven').verbose_name})
+        columns.append({'name':cls._meta.get_field('_seven_to_twelve').verbose_name})
+        columns.append({'name':cls._meta.get_field('_twelve_and_above').verbose_name})
+        
+        sub_columns = None
+        return columns, sub_columns
+
+    @classmethod
     def aggregate_report(cls, location, periods, type=None):
         health_units = HealthUnit.list_by_location(location, type)
-
-        results = {'complete'  : True,}
+        results = SortedDict()
+        results['complete']=True
         for key in ['rdt_negative','rdt_positive','four_to_three','three_to_seven','seven_to_twelve','twelve_and_above']:
             results[key] = None
 
@@ -627,7 +670,6 @@ class MalariaTreatmentsReport(models.Model,FindReport):
                 results['three_to_seven']   += report.three_to_seven
                 results['seven_to_twelve']  += report.seven_to_twelve
                 results['twelve_and_above'] += report.twelve_and_above
-
         return results               
 
     def update(self, rdt_negative, rdt_positive, four_months_to_three, three_to_seven, seven_to_twelve, twelve_and_above):
@@ -746,13 +788,29 @@ class ACTConsumptionReport(models.Model,FindReport):
             return report
 
     @classmethod
+    def table_columns(cls):
+        columns = []
+        columns.append({'name':'Yellow ACT', 'colspan':2})
+        columns.append({'name':'Blue ACT', 'colspan':2})
+        columns.append({'name':'Brown ACT', 'colspan':2})
+        columns.append({'name':'Green ACT', 'colspan':2})
+        columns.append({'name':'Other ACT', 'colspan':2})
+        sub_columns = []
+        for i in range(0,5):
+            sub_columns.append({'name':'Dispensed'})
+            sub_columns.append({'name':'Balance'})
+
+        return columns, sub_columns
+
+    @classmethod
     def aggregate_report(cls, location, periods, type=None):
         health_units = HealthUnit.list_by_location(location, type)
 
         periods = list(periods)
         periods.sort(key = lambda period: period.start_date)
 
-        results = {'complete'  : True,}
+        results = SortedDict()
+        results['complete'] = True
         keys = ['yellow_dispensed',
                 'yellow_balance',
                 'blue_dispensed',
