@@ -299,7 +299,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setLandscape(True)
     pdfrpt.setPrintOnBothSides(True)
     pdfrpt.setTitle(_(Cfg.get("app_name") + \
-                ": Cases Reports by CHW as of %(date)s" % {'data': today}))
+                ": Cases Reports by CHW as of %(date)s" % {'date': today}))
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setRowsPerPage(88)
     if object_id is None:
@@ -318,7 +318,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                          'lname': reporter.last_name,
                          'fname': reporter.first_name,
                          'date': today}
-                c = _("%loc()s: %(lname)s %(fname)s: %(date)s" % cinfo)
+                c = _("%(loc)s: %(lname)s %(fname)s: %(date)s" % cinfo)
                 pdfrpt.setTableData(queryset, fields, c, \
                             [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
                              0.3 * inch, 0.8 * inch, 0.5 * inch, 1 * inch, \
