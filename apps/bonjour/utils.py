@@ -23,6 +23,7 @@ def set_language_to_original(router):
     ''' sets language with original one (from django guess) '''
     return set_language(router.get_app('bonjour').DJANGO_LANG)
 
+
 class Bonjour(object):
     ''' Holds the bonjour-defined locale '''
 
@@ -36,5 +37,3 @@ class Bonjour(object):
         ''' returns babel's locale built from bonjour lang '''
         locale = Locale(str(settings.LANGUAGE_CODE))
         return locale
-        
-

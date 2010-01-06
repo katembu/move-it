@@ -35,7 +35,7 @@ def registered(func):
             return func(self, message, *args)
         else:
             message.respond(_(u"Sorry, only registered users can " \
-                            "access this program.%(msg)s") % {'msg':''})
+                            "access this program.%(msg)s") % {'msg': ''})
             return True
     return wrapper
 
