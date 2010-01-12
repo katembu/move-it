@@ -15,6 +15,8 @@ from time import localtime
 from django.utils.translation import ugettext as _
 from django.test import client
 
+from matplotlib import use as mpl_use
+mpl_use('PDF')
 import matplotlib.pyplot as pyplot
 import matplotlib.dates as mpl_dates
 from matplotlib.font_manager import FontProperties
