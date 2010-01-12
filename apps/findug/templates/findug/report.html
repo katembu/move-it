@@ -8,6 +8,21 @@
     <script type="text/javascript" charset="utf-8">
         var oTable;
         var giRedraw = false;
+
+        var TableToolsInit = {
+	        "oFeatures": {
+		        "bCsv": false,
+		        "bXls": false,
+		        "bCopy": false,
+		        "bPrint": true
+	        },
+	        "bIncHiddenColumns": false,
+	        "sPrintMessage": "",
+	        "sTitle": "",
+	        "iButtonHeight": 30,
+	        "iButtonWidth": 30,
+	        "_iNextId": 1 /* Internal useage - but needs to be global */
+        };    
         $(document).ready(function() {
             /* Add a click handler to the rows - this could be used as a callback */
             $("#report tbody").click(function(event) {
@@ -16,7 +31,7 @@
                 });
                 $(event.target.parentNode).addClass('row_selected');
             });
-            
+
             /* Init the table */
             oTable = $('#report').dataTable( {
                 "sDom": 'T<"clear">lfrtip',
@@ -95,5 +110,7 @@
     </tbody>
 
 </table>
+<div style="clear:both;"></div>
+<a href="?{{get_vars}}&excel=1"><strong>Download this report as a spreadsheet</strong></a>
 {% endblock %}
 
