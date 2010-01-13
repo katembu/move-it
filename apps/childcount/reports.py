@@ -567,7 +567,8 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setTitle(_("%(app_name)s: @Risk Malnutrition Cases from"\
                      " %(start_date)s to %(end_date)s"\
                      % {'start_date': duration_start.date(),
-                        'end_date': duration_end.date()}))
+                        'end_date': duration_end.date(),
+                        'app_name': Cfg.get("app_name")}))
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setLandscape(True)
@@ -626,7 +627,8 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setTitle(_("%(app_name)s: Positive RDT Cases from "\
                       "%(start_date)s to %(end_date)s" % \
                     {'start_date': duration_start.date(), \
-                     'end_date': duration_end.date()}))
+                     'end_date': duration_end.date(),
+                     'app_name': Cfg.get("app_name")}))
     pdfrpt.setRowsPerPage(66)
 
     if object_id is None and not request.POST:
