@@ -173,7 +173,7 @@ def last_30_days(request, object_id=None, per_page="0", rformat="pdf", d="30"):
                  .8 * inch, 0.8 * inch, 1 * inch, 1 * inch, 1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("/tmp/report_per_page")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
@@ -225,7 +225,7 @@ def muac_summary(request, object_id=None, per_page="0", rformat="pdf", d="30"):
                          .8 * inch, .8 * inch, 0.8 * inch, 1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("/tmp/report_per_page")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
@@ -271,7 +271,7 @@ def measles_summary(request, object_id=None, per_page="0", \
             pdfrpt.setTableData(queryset, fields, clinic)
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("/tmp/report_per_page")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
@@ -300,6 +300,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
     pdfrpt.setPrintOnBothSides(True)
     pdfrpt.setTitle(_(Cfg.get("app_name") + \
                 ": Cases Reports by CHW as of %(date)s" % {'date': today}))
+    
     pdfrpt.setNumOfColumns(2)
     pdfrpt.setRowsPerPage(88)
     if object_id is None:
@@ -310,7 +311,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
         else:
             providers = Case.objects.order_by("location").\
                             values('reporter', 'location').distinct()
-            providers = Reporter.objects.order_by("location").all()
+            #providers = Reporter.objects.order_by("location").all()
         for reporter in providers:
             queryset, fields = ReportAllPatients.by_provider(reporter)
             if queryset:
@@ -325,7 +326,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                              0.8 * inch])
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
-                    pdfrpt.setFilename("report_per_page")
+                    pdfrpt.setFilename("/tmp/report_per_page")
     else:
         if request.POST and request.POST['provider']:
             object_id = request.POST['provider']
@@ -336,7 +337,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                      'lname': reporter.last_name,
                      'fname': reporter.first_name,
                      'date': today}
-            c = _("%loc()s: %(lname)s %(fname)s: %(date)s" % cinfo)
+            c = _("%(loc)s: %(lname)s %(fname)s: %(date)s" % cinfo)
             if rformat == "csv" or (request.POST \
                                 and request.POST["format"].lower() == "csv"):
                 file_name = reporter.last_name + ".csv"
@@ -349,7 +350,7 @@ def patients_by_chw(request, object_id=None, per_page="0", rformat="pdf"):
                              1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("report_per_page")
+                pdfrpt.setFilename("/tmp/report_per_page")
 
     return pdfrpt.render()
 
@@ -372,7 +373,7 @@ def dead_cases_report(request, rformat="pdf"):
                      0.5 * inch, 0.8 * inch, 0.5 * inch, 1 * inch, \
                      0.6 * inch, 1.4 * inch, 1.5 * inch, 1 * inch, \
                      1.3 * inch, 1.2 * inch])
-    pdfrpt.setFilename("deathreport_")
+    pdfrpt.setFilename("/tmp/deathreport_")
 
     return pdfrpt.render()
 
@@ -383,7 +384,9 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
     ''' Children Screening per age for SN CC '''
     pdfrpt = PDFReport()
 
-    pdfrpt.setTitle(_("ChildCount Senegal: Listing Enfant par Age"))
+    #pdfrpt.setTitle(_("ChildCount Senegal: Listing Enfant par Age"))
+    pdfrpt.setTitle(_(Cfg.get("app_name") + \
+                ": Listing Enfant par Age" ))
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -400,7 +403,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
                          1 * inch])
         if (int(per_page) == 1) is True:
             pdfrpt.setPageBreak()
-            pdfrpt.setFilename("Listing_Enfant")
+            pdfrpt.setFilename("/tmp/Listing_Enfant")
 
     else:
         cases = Case.objects.order_by("location").distinct()
@@ -420,7 +423,7 @@ def patients_by_age(request, object_id=None, per_page="0", rformat="pdf"):
                          0.3 * inch, 1.5 * inch, 0.5 * inch, 0.7 * inch, \
                          0.5 * inch, 0.5 * inch, 0.5 * inch, 1.5 * inch, \
                          1 * inch])
-            filename = "Listing_Enfant_" + \
+            filename = "/tmp/Listing_Enfant_" + \
                 datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
 
             pdfrpt.setFilename(filename)
@@ -443,7 +446,7 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
     #duration_end = today
 
     pdfrpt.setTitle("%(app_name)s: Formulaire de Depistage" % \
-                    {'app_name': Cfg.get("app_name")})
+                   {'app_name': Cfg.get("app_name")})
     #pdfrpt.setRowsPerPage(66)
     pdfrpt.setNumOfColumns(1)
     pdfrpt.setLandscape(True)
@@ -461,7 +464,7 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
                          0.5 * inch, 0.8 * inch, 1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("malnutrition_at_risk")
+                pdfrpt.setFilename("/tmp/malnutrition_at_risk")
     else:
         if request.POST['zone']:
             site_id = request.POST['zone']
@@ -478,7 +481,7 @@ def malnutrition_screening(request, object_id=None, per_page="0", \
                              0.3 * inch, 1.5 * inch, 1.0 * inch, 0.5 * inch, \
                              0.7 * inch, 0.5 * inch, 0.7 * inch, 0.7 * inch, \
                              1.0 * inch, 0.5 * inch])
-            filename = "formulaire_de_depistage" + \
+            filename = "/tmp/formulaire_de_depistage" + \
                     datetime.today().strftime("%Y_%m_%d_%H_%M_%S")
 
             pdfrpt.setFilename(filename)
@@ -586,7 +589,7 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
                          0.5 * inch, 0.8 * inch, 1 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("malnutrition_at_risk")
+                pdfrpt.setFilename("/tmp/malnutrition_at_risk")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
@@ -604,7 +607,7 @@ def malnut(request, object_id=None, per_page="0", rformat="pdf"):
                         [0.2 * inch, 0.4 * inch, 1 * inch, 0.3 * inch, \
                          .3 * inch, .8 * inch, .5 * inch, .2 * inch, \
                          0.5 * inch, 0.8 * inch, 1 * inch])
-        pdfrpt.setFilename("malnutrition_at_risk")
+        pdfrpt.setFilename("/tmp/malnutrition_at_risk")
 
     return pdfrpt.render()
 
@@ -644,7 +647,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
                          .4 * inch, 1 * inch, 1 * inch, 1.4 * inch])
             if (int(per_page) == 1) is True:
                 pdfrpt.setPageBreak()
-                pdfrpt.setFilename("malaria_cases")
+                pdfrpt.setFilename("/tmp/malaria_cases")
     else:
         if request.POST['clinic']:
             object_id = request.POST['clinic']
@@ -661,7 +664,7 @@ def malaria(request, object_id=None, per_page="0", rformat="pdf"):
                     [0.3 * inch, 0.4 * inch, 1 * inch, 0.4 * inch, \
                      .4 * inch, .4 * inch, 0.5 * inch, .8 * inch, \
                      .4 * inch, 1 * inch, 1 * inch, 1.4 * inch])
-        pdfrpt.setFilename("malaria_cases")
+        pdfrpt.setFilename("/tmp/malaria_cases")
 
     return pdfrpt.render()
 
@@ -938,7 +941,7 @@ def measles(request, object_id=None, per_page="0", rformat="pdf"):
                 pdfrpt.setTableData(queryset, fields, title)
                 if (int(per_page) == 1) is True:
                     pdfrpt.setPageBreak()
-                    pdfrpt.setFilename("report_per_page")
+                    pdfrpt.setFilename("/tmp/report_per_page")
     else:
         if request.POST and request.POST['provider']:
             object_id = request.POST['provider']
