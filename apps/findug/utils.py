@@ -723,7 +723,7 @@ def create_pdf_table(health_unit, period):
     return pdf_buffer
 
 
-def create_district_zips():
+def create_district_zips(*args, **kwargs):
 
     """
     Creates a zip for each district containing a single PDF document with
@@ -766,7 +766,6 @@ def create_district_zips():
         district_plot_buffer = district_plot.get_plot()
 
         for hu in HealthUnit.list_by_location(district):
-            print hu
             opd = []
             malaria = []
             for period in periods:
