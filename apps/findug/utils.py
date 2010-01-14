@@ -9,7 +9,6 @@ from datetime import date, datetime, timedelta
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 from tempfile import NamedTemporaryFile
-from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 from time import localtime
 
 from django.utils.translation import ugettext as _
@@ -723,7 +722,7 @@ def create_pdf_table(health_unit, period):
     return pdf_buffer
 
 
-def create_district_zips(*args, **kwargs):
+def create_district_pdfs(*args, **kwargs):
 
     """
     Creates a zip for each district containing a single PDF document with
@@ -807,16 +806,10 @@ def create_district_zips(*args, **kwargs):
         district_plot_buffer.close()
 
         file_list = " ".join([pdf.name for pdf in pdfs])
-        command = '/usr/bin/pdftk %s output -' % file_list
-        proc = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-        output, cmderr = proc.communicate()
+        command = '/usr/bin/pdftk %s output \'%s/%s.pdf\'' % \
+                  (file_list, STATIC_REPORTS_PATH, district.name)
+        proc = Popen(command, shell=True)
         proc.wait()
 
         for pdf in pdfs:
             pdf.close()
-
-        archive = ZipFile('%s/%s.zip' % (STATIC_REPORTS_PATH, district.name),
-                          'w', ZIP_DEFLATED)
-        archive.writestr(ZipInfo('%s.pdf' % district.name, localtime()),
-                         output)
-        archive.close()
