@@ -56,21 +56,13 @@ msgstr ""
 
 #: app.py:248
 #, python-format
-msgid ""
-"Success. %(reporter)s is now registered as %(role)s at %(loc)s with alias @%"
-"(alias)s."
-msgstr ""
-"%(reporter)s s'est enregistré comme %(role)s à %(loc)s avec l'identifiant @%"
-"(alias)s."
+msgid "Success. %(reporter)s is now registered as %(role)s at %(loc)s with alias @%(alias)s."
+msgstr "%(reporter)s s'est enregistré comme %(role)s à %(loc)s avec l'identifiant @%(alias)s."
 
 #: app.py:261
 #, python-format
-msgid ""
-"%(mobile)s registered to @%(alias)s (%(last_name)s %(first_name)s) at %"
-"(location)s."
-msgstr ""
-"%(mobile)s s'est enregistré comme @%(alias)s (%(last_name)s %(first_name)s) "
-"à %(location)s."
+msgid "%(mobile)s registered to @%(alias)s (%(last_name)s %(first_name)s) at %(location)s."
+msgstr "%(mobile)s s'est enregistré comme @%(alias)s (%(last_name)s %(first_name)s) à %(location)s."
 
 #: app.py:290
 #, python-format
@@ -83,12 +75,8 @@ msgid "Couldn't understand date: %(dob)s"
 msgstr "La date n'est pas correcte : %(dob)s"
 
 #: app.py:476
-msgid ""
-"Can't figure out where you are today. Please use message: Location "
-"locationcode to set your location."
-msgstr ""
-"Impossible de déterminer votre localisation aujourd'hui. Envoyez: Location "
-"code_lieu pour enregistrer votre position."
+msgid "Can't figure out where you are today. Please use message: Location locationcode to set your location."
+msgstr "Impossible de déterminer votre localisation aujourd'hui. Envoyez: Location code_lieu pour enregistrer votre position."
 
 #: app.py:484
 msgid "Can't find your location based on the code your sent. Please resend."
@@ -96,12 +84,8 @@ msgstr "Code lieu incorrect. Corrigez et réessayez."
 
 #: app.py:509
 #, python-format
-msgid ""
-"%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %"
-"(reporter)s."
-msgstr ""
-"%(first_name)s %(last_name)s (+%(PID)s) a déjà été enregistré par %(reporter)"
-"s."
+msgid "%(last_name)s, %(first_name)s (+%(PID)s) has already been registered by %(reporter)s."
+msgstr "%(first_name)s %(last_name)s (+%(PID)s) a déjà été enregistré par %(reporter)s."
 
 #: app.py:528 app.py:667
 #, python-format
@@ -116,23 +100,17 @@ msgstr "Impossible de trouver le cas +%(ref_id)s."
 #: app.py:561
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has malnutrition reports."
-msgstr ""
-"Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats sur la "
-"malnutrition"
+msgstr "Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats sur la malnutrition"
 
 #: app.py:565
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has malaria reports."
-msgstr ""
-"Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats sur le "
-"paludisme"
+msgstr "Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats sur le paludisme"
 
 #: app.py:569
 #, python-format
 msgid "Cannot cancel +%(ref_id)s: case has diagnosis reports."
-msgstr ""
-"Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats de "
-"diagnostics."
+msgstr "Impossible d'annuler le cas +%(ref_id)s: Il contient des résultats de diagnostics."
 
 #: app.py:573
 #, python-format
@@ -141,75 +119,43 @@ msgstr "Le Cas +%(ref_id)s a été annulé."
 
 #: app.py:595
 #, python-format
-msgid ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) has been made inactive"
-msgstr ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) a été désactivé"
+msgid "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) has been made inactive"
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) a été désactivé"
 
 #: app.py:617
 #, python-format
-msgid ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) has been activated"
-msgstr ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) a été activé"
+msgid "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) has been activated"
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) a été activé"
 
 #: app.py:621
 #, python-format
-msgid ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) is active"
-msgstr ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) sont activés"
+msgid "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) is active"
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) sont activés"
 
 #: app.py:625
 #, python-format
-msgid ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) was reported as dead"
-msgstr ""
-"+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)"
-"s) est décédé"
+msgid "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) was reported as dead"
+msgstr "+%(ref_id)s: %(last_name)s, %(first_name)s %(gender)s/%(months)s (%(guardian)s) est décédé"
 
 #: app.py:661
 #, python-format
-msgid ""
-"%(reporter)s: %(num_cases)s children, #new %(num_new_cases)s, #dead %"
-"(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)"
-"s, #muac %(num_muac)s. "
-msgstr ""
-"%(reporter)s: %(num_cases)s enfants, #new %(num_new_cases)s, #dead %"
-"(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)"
-"s, #muac %(num_muac)s. "
+msgid "%(reporter)s: %(num_cases)s children, #new %(num_new_cases)s, #dead %(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)s, #muac %(num_muac)s. "
+msgstr "%(reporter)s: %(num_cases)s enfants, #new %(num_new_cases)s, #dead %(num_dead)s, #inactive %(num_cases_inactive)s, #mrdt %(num_malaria_reports)s, #muac %(num_muac)s. "
 
 #: app.py:691
 #, python-format
-msgid ""
-"Case +%(ref_id)s transferred to @%(username)s (%(name)s - %(location)s)."
-msgstr ""
-"Le cas +%(ref_id)s est transféré à @%(username)s (%(name)s - %(location)s)."
+msgid "Case +%(ref_id)s transferred to @%(username)s (%(name)s - %(location)s)."
+msgstr "Le cas +%(ref_id)s est transféré à @%(username)s (%(name)s - %(location)s)."
 
 #: app.py:695
 #, python-format
-msgid ""
-"Case +%(ref_id)s transferred to you from @%(username)s (%(name)s - %"
-"(location)s)."
-msgstr ""
-"Le cas +%(ref_id)s vous est transféré par @%(username)s (%(name)s - %"
-"(location)s)."
+msgid "Case +%(ref_id)s transferred to you from @%(username)s (%(name)s - %(location)s)."
+msgstr "Le cas +%(ref_id)s vous est transféré par @%(username)s (%(name)s - %(location)s)."
 
 #: app.py:716
 #, python-format
-msgid ""
-"+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %"
-"(guardian)s - %(location)s"
-msgstr ""
-"+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %"
-"(guardian)s - %(location)s"
+msgid "+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %(guardian)s - %(location)s"
+msgstr "+%(ref_id)s %(status)s %(last_name)s, %(first_name)s %(gender)s/%(age)s %(guardian)s - %(location)s"
 
 #: app.py:736
 #, python-format
@@ -231,24 +177,19 @@ msgstr "Erreur. Le code lieu saisi (%(loc)s) est incorrect"
 msgid "Your location is now %(location)s (%(loc_code)s)"
 msgstr "Vous êtes désormais localisé à %(location)s (%(loc_code)s)"
 
-#: app.py:888
-msgid ""
-"The age couldn't be greater than the date now, please retape the date!!! "
-msgstr ""
-"L'âge ne peut être plus grand que la date du jour. Veuillez corriger la date "
-"et réessayer."
+#: app.py:881
+msgid "The age couldn't be greater than the date now, please retape the date!!! "
+msgstr "L'âge ne peut être plus grand que la date du jour. Veuillez corriger la date et réessayer."
 
-#: app.py:904
+#: app.py:897
 #, python-format
 msgid " The patient %(ref_id)s is not registred."
 msgstr "Le patient %(ref_id)s n'est pas enregistré."
 
-#: app.py:912
+#: app.py:906
 #, python-format
-msgid ""
-"l'age du patient +%(id)s a ete modifie, il est maintenant age de %(dob)s"
-msgstr ""
-"L'âge du patient +%(id)s a été modifié ; il est maintenant age de %(dob)s"
+msgid "l'age du patient +%(id)s a ete modifie, il est maintenant age de %(dob)s"
+msgstr "L'âge du patient +%(id)s a été modifié ; il est maintenant age de %(dob)s"
 
 #: reports.py:156
 #, python-format
@@ -314,18 +255,13 @@ msgstr "Registre des Enfants pour: %(site_name)s"
 
 #: reports.py:564
 #, python-format
-msgid ""
-"%(app_name)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
-msgstr ""
-"%(app_name)s: Cas avec risque de malnutrition du %(start_date)s au %"
-"(end_date)s"
+msgid "%(app_name)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
+msgstr "%(app_name)s: Cas avec risque de malnutrition du %(start_date)s au %(end_date)s"
 
 #: reports.py:579 reports.py:598
 #, python-format
-msgid ""
-"%(clinic)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
-msgstr ""
-"%(clinic)s: Cas avec risque de malnutrition du %(start_date)s au %(end_date)s"
+msgid "%(clinic)s: @Risk Malnutrition Cases from %(start_date)s to %(end_date)s"
+msgstr "%(clinic)s: Cas avec risque de malnutrition du %(start_date)s au %(end_date)s"
 
 #: reports.py:623
 #, python-format

@@ -1114,7 +1114,10 @@ class ReportAllPatients(Report, models.Model):
                             latest()
 
                     q['malnut_muac'] = "%smm" % (muacc.muac)
-                    q['malnut_weight'] = "%s kg" % (muacc.weight)
+                    if muacc.weight  is not  None:
+                        q['malnut_weight'] = "%s kg" % (muacc.weight)
+                    else:
+                        q['malnut_weight']=""
                     q['malnut_symptoms'] = muacc.symptoms_keys()
                     q['malnut_days_since_last_update'] = \
                         muacc.days_since_last_activity()
@@ -1142,7 +1145,11 @@ class ReportAllPatients(Report, models.Model):
                                     filter(case=case).latest()
 
                             q['malnut_muac'] = "%smm" % (muacc.muac)
-                            q['malnut_weight'] = "%s kg" % (muacc.weight)
+                            if muacc.weight  is not  None:
+                                q['malnut_weight'] = "%s kg" % (muacc.weight)
+                            else:
+                                q['malnut_weight']=""
+                            #q['malnut_weight'] = "%s kg" % (muacc.weight)
                             q['malnut_symptoms'] = muacc.symptoms_keys()
                             q['malnut_days_since_last_update'] = \
                                 muacc.days_since_last_activity()
@@ -1163,7 +1170,7 @@ class ReportAllPatients(Report, models.Model):
         fields.append({"name": 'Sexe', "column": None, \
                        "bit": "{{ object.case.gender }}"})
         fields.append({"name": 'DN', "column": None, \
-                       "bit": "{{ object.case.dob }}"})
+                       "bit": "{{ object.case.short_dob }}"})
         fields.append({"name": 'Age', "column": None, \
                        "bit": "{{ object.case.age }}"})
         fields.append({"name": 'Nom de Mere', "column": None, \
