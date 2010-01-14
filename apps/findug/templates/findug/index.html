@@ -70,10 +70,10 @@
         <p>
         {% if not scope.location %}
             {% for district in scope.districts %}
-                <a href="/static/findug/reports/{{district}}.zip">{{district}} individual health unit reports</a><br/>
+                <a href="/static/findug/reports/{{district}}.pdf">{{district}} individual health unit reports</a><br/>
             {% endfor %}
         {% else %}
-            <a href="/static/findug/reports/{{scope}}.zip">{{scope}} individual health unit reports</a><br/>
+            <a href="/static/findug/reports/{{scope}}.pdf">{{scope}} individual health unit reports</a><br/>
         {% endif %}
         </p>
     </div>
