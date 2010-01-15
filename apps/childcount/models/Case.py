@@ -48,7 +48,7 @@ class Case(models.Model):
             self.created_at = datetime.now()
         else:
             self.updated_at = datetime.now()
-        super(CaseNote, self).save(*args)
+        super(Case, self).save(*args)
 
 
 class CaseNote(models.Model):
