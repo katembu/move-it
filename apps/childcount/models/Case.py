@@ -41,7 +41,7 @@ class Case(models.Model):
                                       default=STATUS_OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    expiration_date = models.DateTimeField()
+    expiration_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args):
         if not self.id:
