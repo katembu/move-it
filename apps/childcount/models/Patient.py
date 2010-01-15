@@ -36,7 +36,8 @@ class Patient(models.Model):
         ('M', _('Male')),
         ('F', _('Female')))
 
-    patient_id = models.CharField(_('Patient ID #'), null=True, db_index=True, max_lenght=10)
+    patient_id = models.CharField(_('Patient ID #'), null=True, \
+                                  db_index=True, max_lenght=10)
     first_name = models.CharField(max_length=255, db_index=True)
     last_name = models.CharField(max_length=255, db_index=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, \
@@ -58,7 +59,7 @@ class Patient(models.Model):
 
     def save(self, *args):
         """Save Patient Record
-        
+
         - update the created_at and updated_at date fields
         - save a unique PID
         """
