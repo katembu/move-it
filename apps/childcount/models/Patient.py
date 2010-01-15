@@ -28,9 +28,9 @@ class Patient(models.Model):
     STATUS_DEAD = -1
 
     STATUS_CHOICES = (
-        (STATUS_ACTIVE, 'Alive'),
-        (STATUS_INACTIVE, 'Relocated'),
-        (STATUS_DEAD, 'Dead'))
+        (STATUS_ACTIVE, _('Alive')),
+        (STATUS_INACTIVE, _('Relocated')),
+        (STATUS_DEAD, _('Dead')))
 
     GENDER_CHOICES = (
         ('M', _('Male')),
