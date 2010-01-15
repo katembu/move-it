@@ -44,7 +44,6 @@ class Patient(models.Model):
                               null=True, blank=True)
     dob = models.DateField(_('Date of Birth'), null=True, blank=True)
     estimated_dob = models.NullBooleanField(null=True, blank=True)
-    mobile = models.CharField(max_length=16, null=True, blank=True)
     reporter = models.ForeignKey(Reporter, db_index=True)
     location = models.ForeignKey(Location, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
