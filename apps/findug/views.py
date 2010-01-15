@@ -3,33 +3,24 @@
 # maintainer: dgelvin
 
 from datetime import datetime, timedelta
-
-from rapidsms.webui.utils import render_to_response
-from django.contrib.auth.decorators import login_required
-from django.utils.translation import ugettext as _
-
-from models import *
-from apps.findug.utils import *
-from apps.locations.models import *
-
-from apps.libreport.pdfreport import PDFReport
-from apps.libreport.csvreport import CSVReport
-
-# Imports for epidemiological_report_pdf
-from django.http import HttpResponse, Http404
-from reportlab.pdfgen import canvas
 from subprocess import Popen, PIPE
 from cStringIO import StringIO
-from reportlab.lib.units import cm
 
-# import the settings so we can access DATE_FORMAT
+from django.contrib.auth.decorators import login_required
+from django.utils.translation import ugettext as _
+from django.http import HttpResponse, Http404
 from django.conf import settings
-
-from tables import *
 import django_tables as tables
 from django.core.paginator import Paginator
-
 from django.db.models import Sum, Count
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+
+from rapidsms.webui.utils import render_to_response
+from findug.models import *
+from findug.utils import *
+from locations.models import *
+from findug.tables import *
 
 
 class Scope:
