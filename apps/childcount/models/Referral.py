@@ -13,7 +13,7 @@ from datetime import datetime
 
 from reporters.models import Reporter
 
-from childcount.models import Case
+from childcount.models.Case import Case
 
 
 class Refferral(models.Model):

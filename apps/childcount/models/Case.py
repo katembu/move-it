@@ -13,7 +13,7 @@ from datetime import datetime
 
 from reporters.models import Reporter
 
-from childcount.models import Patient
+from childcount.models.Patient import Patient
 
 
 class Case(models.Model):
