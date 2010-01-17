@@ -1,5 +1,26 @@
 import rapidsms
 
+from functools import wraps
+
+
+def registered(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if a reporter is attached to the message
+
+    return function or boolean '''
+
+    @wraps(func)
+    def wrapper(self, message, *args):
+        if message.persistant_connection.reporter:
+            return func(self, message, *args)
+        else:
+            message.respond(_(u"Sorry, only registered users can access this"\
+                              " program.%(msg)s") % {'msg': ""})
+
+            return True
+    return wrapper
+
 
 class App(rapidsms.app.App):
 
