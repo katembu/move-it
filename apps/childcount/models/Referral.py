@@ -16,7 +16,7 @@ from reporters.models import Reporter
 from childcount.models.Case import Case
 
 
-class Refferral(models.Model):
+class Referral(models.Model):
 
     '''Holds Refferral details
 

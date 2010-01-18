@@ -1,5 +1,5 @@
 import rapidsms
-from rapidsms.parsers.keyworder import Keyworder 
+from rapidsms.parsers.keyworder import Keyworder
 
 from functools import wraps
 
@@ -46,7 +46,7 @@ class App (rapidsms.app.App):
         pass
 
     def handle(self, message):
-        
+
         ''' Function selector
 
         Matchs functions with keyword using Keyworder
