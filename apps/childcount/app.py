@@ -3,7 +3,7 @@ from rapidsms.parsers.keyworder import Keyworder
 
 from functools import wraps
 
-from childcount.models.config import Configuration as Cfg
+from childcount.models.Config import Configuration as Cfg
 
 
 class HandlerFailed (Exception):
