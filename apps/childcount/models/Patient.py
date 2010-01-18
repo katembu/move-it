@@ -37,7 +37,7 @@ class Patient(models.Model):
         ('F', _('Female')))
 
     patient_id = models.CharField(_('Patient ID #'), null=True, \
-                                  db_index=True, max_lenght=10)
+                                  db_index=True, max_length=10)
     first_name = models.CharField(max_length=255, db_index=True)
     last_name = models.CharField(max_length=255, db_index=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, \
