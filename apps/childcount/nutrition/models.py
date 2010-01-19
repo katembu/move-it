@@ -12,8 +12,8 @@ from django.utils.translation import ugettext as _
 
 from datetime import datetime
 
-from childcount.models.Case import Case
-from childcount.models.Observation import Observation
+from childcount.core.models.Case import Case
+from childcount.core.models.Observation import Observation
 from reporters.models import Reporter
 
 
