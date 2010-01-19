@@ -4,7 +4,7 @@
 
 '''ChildCount Models
 
-Case - Case/Encounter model
+Patient - Patient model
 '''
 
 from django.db import models
@@ -13,12 +13,12 @@ from datetime import datetime
 
 from reporters.models import Reporter
 
-from childcount.models.Patient import Patient
+from childcount.core.Case import Case
 
 
-class Case(models.Model):
+class Referral(models.Model):
 
-    '''Holds Encounter details
+    '''Holds Refferral details
 
     patient - the patient
     reporter - the reporter
@@ -35,41 +35,19 @@ class Case(models.Model):
         (STATUS_OPEN, _("Open")),
         (STATUS_CLOSED, _("Closed")))
 
-    patient = models.ForeignKey(Patient, db_index=True)
-    reporter = models.ForeignKey(Reporter, db_index=True)
+    referral_id = models.IntegerField(db_index=True)
+    case = models.ForeignKey(Case, db_index=True)
+    closed_by = models.ForeignKey(Reporter, db_index=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     expiration_date = models.DateTimeField(null=True, blank=True)
+    closed_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args):
         if not self.id:
             self.created_at = datetime.now()
         else:
             self.updated_at = datetime.now()
-        super(Case, self).save(*args)
-
-
-class CaseNote(models.Model):
-
-    ''' Holds notes for Cases
-
-        case - Case object
-        reporter - reporter
-        created_at - time created
-        text - stores the note text
-    '''
-
-    case = models.ForeignKey(Case, related_name='notes', db_index=True)
-    reporter = models.ForeignKey(Reporter, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    text = models.TextField()
-
-    def save(self, *args):
-        if not self.id:
-            self.created_at = datetime.now()
-        super(CaseNote, self).save(*args)
-
-    class Meta:
-        app_label = 'childcount'
+        super(Refferral, self).save(*args)
