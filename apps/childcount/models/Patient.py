@@ -59,8 +59,8 @@ class Patient(models.Model):
     def save(self, *args):
         """Save Patient Record
 
-        - update the created_at and updated_at date fields
-        - save a unique PID
+        update the created_at and updated_at date fields
+        save a unique PID
         """
         if not self.id:
             self.created_at = self.updated_at = datetime.now()
