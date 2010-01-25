@@ -2,13 +2,14 @@ import rapidsms
 from rapidsms.parsers.keyworder import Keyworder
 
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from functools import wraps
 
 from childcount.core.models.Config import Configuration as Cfg
 
 from reporters.models import Reporter, Role
-from location.models import Location
+from locations.models import Location
 
 class HandlerFailed (Exception):
     pass
