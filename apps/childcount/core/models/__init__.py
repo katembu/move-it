@@ -3,7 +3,7 @@
 # maintainer: ukanga
 
 import Case
-import Config
-import Observation
 import Patient
+import Observation
 import Referral
+import Config

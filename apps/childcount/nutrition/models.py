@@ -44,7 +44,7 @@ class ReportMalnutrition(models.Model):
                             db_index=True, blank=True, null=True)
 
     class Meta:
-        app_label = 'nutrition'
+        app_label = 'childcount'
         verbose_name = "Malnutrition Report"
         verbose_name_plural = "Malnutrition Reports"
         get_latest_by = 'entered_at'

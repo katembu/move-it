@@ -23,7 +23,7 @@ class ReportMalaria(models.Model):
     class Meta:
         get_latest_by = 'entered_at'
         ordering = ('-entered_at',)
-        app_label = 'mrdt'
+        app_label = 'childcount'
         verbose_name = 'Malaria Report'
         verbose_name_plural = 'Malaria Reports'
 
