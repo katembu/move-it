@@ -31,10 +31,16 @@ class MuacReport(PatientReport):
         (SEVERE_COMP_STATUS, _('SAM+')),
         (HEALTHY_STATUS, _("Healthy")))
 
+    DANGERSIGN_CHOICES = (
+         ('S', _('Signs or Yes')),
+         ('N', _('No')),
+         ('U', _('Unknown')))
+
     muac = models.IntegerField(_("MUAC (mm)"), null=True, blank=True)
     height = models.IntegerField(_("Height (cm)"), null=True, blank=True)
     weight = models.FloatField(_("Weight (kg)"), null=True, blank=True)
-    danger_signs = models.ManyToManyField(DangerSigns, blank=True)
+    danger_signs = models.CharField(max_length=1, choices=DANGERSIGN_CHOICES)
+    observations = models.ManyToManyField(DangerSigns, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                             db_index=True, blank=True, null=True)
 
