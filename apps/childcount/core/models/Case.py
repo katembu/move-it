@@ -52,13 +52,6 @@ class Case(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args):
-        if not self.id:
-            self.created_at = datetime.now()
-        else:
-            self.updated_at = datetime.now()
-        super(Case, self).save(*args)
-
 
 class CaseNote(models.Model):
 
@@ -74,11 +67,6 @@ class CaseNote(models.Model):
     reporter = models.ForeignKey(Reporter, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     text = models.TextField()
-
-    def save(self, *args):
-        if not self.id:
-            self.created_at = datetime.now()
-        super(CaseNote, self).save(*args)
 
     class Meta:
         app_label = 'childcount'
