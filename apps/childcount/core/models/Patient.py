@@ -60,24 +60,3 @@ class Patient(models.Model):
                                     null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
-
-    def generate_patient_id(self, id=None):
-        """Generate the patient id string - five characters?"""
-        #just a stub
-        return id
-
-    def save(self, *args):
-        """Save Patient Record
-
-        update the created_at and updated_at date fields
-        save a unique PID
-        """
-        if not self.id:
-            self.created_on = self.updated_on = datetime.now()
-        else:
-            self.updated_on = datetime.now()
-        super(Patient, self).save(*args)
-        if not self.health_id:
-            #can we ensure th key generated is unique
-            self.health_id = self.generate_patient_id(self.id)
-            super(Patient, self).save(*args)
