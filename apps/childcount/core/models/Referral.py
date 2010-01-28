@@ -7,14 +7,16 @@
 Patient - Patient model
 '''
 
+from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from datetime import datetime
 
 from reporters.models import Reporter
 
-from childcount.core.models.Case import Case
-
+#from childcount.core.models.Case import Case
+from childcount.core.models.Patient import Patient
+from childcount.core.models.Reports import CCReport
 
 class Referral(models.Model):
 
@@ -35,19 +37,22 @@ class Referral(models.Model):
         (STATUS_OPEN, _("Open")),
         (STATUS_CLOSED, _("Closed")))
 
-    referral_id = models.IntegerField(db_index=True)
-    case = models.ForeignKey(Case, db_index=True)
+    referral_id = models.CharField(max_length=30, db_index=True)
+    patient = models.ForeignKey(Patient, db_index=True)
+    #case = models.ForeignKey(Case, db_index=True)
     closed_by = models.ForeignKey(Reporter, db_index=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    expiration_date = models.DateTimeField(null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    expires_on = models.DateTimeField(null=True, blank=True)
     closed_date = models.DateTimeField(null=True, blank=True)
+    description = models.TextField()
+    reports = models.ManyToManyField(CCReport)
 
     def save(self, *args):
         if not self.id:
-            self.created_at = datetime.now()
+            self.created_on = self.updated_on = datetime.now()
         else:
-            self.updated_at = datetime.now()
-        super(Refferral, self).save(*args)
+            self.updated_on = datetime.now()
+        super(Referral, self).save(*args)
