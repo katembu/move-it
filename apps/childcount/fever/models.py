@@ -11,7 +11,7 @@ from django.db import models
 
 from datetime import datetime
 
-from childcount.core.models.Case import Case
+#from childcount.core.models.Case import Case
 from childcount.core.models.DangerSigns import DangerSigns
 from childcount.core.models.Reports import PatientReport
 
