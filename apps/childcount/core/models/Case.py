@@ -43,7 +43,7 @@ class Case(models.Model):
         (TYPE_FEVER, _("FEVER")))
 
     patient = models.ForeignKey(Patient, db_index=True)
-    reporter = models.ForeignKey(Reporter, db_index=True)
+    #reporter = models.ForeignKey(Reporter, db_index=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
     expires_on = models.DateTimeField(null=True, blank=True)
