@@ -15,6 +15,8 @@ from datetime import datetime
 from reporters.models import Reporter
 from locations.models import Location
 
+from childcount.core.models.CHW import CHW
+
 
 class Patient(models.Model):
 
@@ -36,18 +38,25 @@ class Patient(models.Model):
         ('M', _('Male')),
         ('F', _('Female')))
 
-    patient_id = models.CharField(_('Patient ID #'), null=True, \
+    health_id = models.CharField(_('Patient ID #'), null=True, \
                                   db_index=True, max_length=10)
     first_name = models.CharField(max_length=255, db_index=True)
+    middle_name =  models.CharField(max_length=255, db_index=True, \
+                                    null=True, blank=True)
     last_name = models.CharField(max_length=255, db_index=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, \
                               null=True, blank=True)
     dob = models.DateField(_('Date of Birth'), null=True, blank=True)
     estimated_dob = models.NullBooleanField(null=True, blank=True)
-    reporter = models.ForeignKey(Reporter, db_index=True)
-    location = models.ForeignKey(Location, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    guardian = models.ForeignKey(Reporter, db_index=True)
+    household = models.ForeignKey(Reporter, db_index=True)
+    chw = models.ForeignKey(CHW, db_index=True)
+    zone = models.ForeignKey(Location, db_index=True)
+    clinic = models.ForeignKey(Location, db_index=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_on = models.DateTimeField(auto_now=True)
+    mobile =  models.CharField(max_length=255, db_index=True, \
+                                    null=True, blank=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
 
