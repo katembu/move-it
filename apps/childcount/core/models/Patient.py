@@ -39,7 +39,8 @@ class Patient(models.Model):
         ('F', _('Female')))
 
     health_id = models.CharField(_('Patient ID #'), null=True, \
-                                  db_index=True, max_length=10)
+                                  db_index=True, max_length=10,
+                                  unique=True)
     first_name = models.CharField(max_length=255, db_index=True)
     middle_name =  models.CharField(max_length=255, db_index=True, \
                                     null=True, blank=True)
