@@ -35,13 +35,22 @@ class Case(models.Model):
         (STATUS_OPEN, _("Open")),
         (STATUS_CLOSED, _("Closed")))
 
+    TYPE_MUAC = 0
+    TYPE_FEVER = 1
+
+    TYPE_CHOICES = (
+        (TYPE_MUAC, _("Malnutrition")),
+        (TYPE_FEVER, _("FEVER")))
+
     patient = models.ForeignKey(Patient, db_index=True)
     reporter = models.ForeignKey(Reporter, db_index=True)
     status = models.IntegerField(choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
+    expires_on = models.DateTimeField(null=True, blank=True)
+    type = models.IntegerField(choices=TYPE_CHOICES, \
+                                      default=TYPE_MUAC)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    expiration_date = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args):
         if not self.id:
