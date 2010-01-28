@@ -49,10 +49,3 @@ class Referral(models.Model):
     closed_date = models.DateTimeField(null=True, blank=True)
     description = models.TextField()
     reports = models.ManyToManyField(CCReport)
-
-    def save(self, *args):
-        if not self.id:
-            self.created_on = self.updated_on = datetime.now()
-        else:
-            self.updated_on = datetime.now()
-        super(Referral, self).save(*args)
