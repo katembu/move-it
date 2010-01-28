@@ -29,6 +29,12 @@ class FeverReport(PatientReport):
         verbose_name = 'Fever Report'
         verbose_name_plural = 'Fever Reports'
 
+    DANGERSIGN_CHOICES = (
+         ('S', _('Signs or Yes')),
+         ('N', _('No')),
+         ('U', _('Unknown')))
+
     bednet = models.BooleanField(db_index=True)
     result = models.BooleanField(db_index=True)
-    danger_signs = models.ManyToManyField(DangerSigns, blank=True)
+    danger_signs = models.CharField(max_length=1, choices=DANGERSIGN_CHOICES)
+    observations = models.ManyToManyField(DangerSigns, blank=True)
