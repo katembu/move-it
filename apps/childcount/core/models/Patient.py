@@ -63,7 +63,7 @@ class Patient(models.Model):
     def generate_patient_id(self, id=None):
         """Generate the patient id string - five characters?"""
         #just a stub
-        return "AB12C"
+        return id
 
     def save(self, *args):
         """Save Patient Record
@@ -72,11 +72,11 @@ class Patient(models.Model):
         save a unique PID
         """
         if not self.id:
-            self.created_at = self.updated_at = datetime.now()
+            self.created_on = self.updated_on = datetime.now()
         else:
-            self.updated_at = datetime.now()
+            self.updated_on = datetime.now()
         super(Patient, self).save(*args)
-        if not self.ref_id:
+        if not self.health_id:
             #can we ensure th key generated is unique
-            self.ref_id = self.generate_patient_id(self.id)
+            self.health_id = self.generate_patient_id(self.id)
             super(Patient, self).save(*args)
