@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<form id="52" name="CHERA Under 5 Form" version="0.9" xmlns:openmrs="http://localhost:8080/openmrs/moduleServlet/formentry/forms/schema/51-31" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <header>
+    <enterer/>
+    <date_entered/>
+    <session/>
+    <uid/>
+  </header>
+  <patient>
+    <patient.birthdate openmrs_table="patient" openmrs_attribute="birthdate" />
+    <patient.birthdate_estimated openmrs_table="patient" openmrs_attribute="birthdate_estimated"/>
+    <patient.family_name openmrs_table="patient_name" openmrs_attribute="family_name"/>
+    <patient.given_name openmrs_table="patient_name" openmrs_attribute="given_name"/>
+    <patient.middle_name openmrs_table="patient_name" openmrs_attribute="middle_name"/>
+    <patient.patient_id openmrs_table="patient" openmrs_attribute="patient_id"/>
+    <patient.medical_record_number openmrs_table="patient_identifier" openmrs_attribute="identifier">{{ patient___medical_record_number }}</patient.medical_record_number>
+    <patient.sex openmrs_table="patient" openmrs_attribute="gender"/>
+    <patient.location_id openmrs_table="location" openmrs_attribute="location_id"/>
+  </patient>
+  <encounter>
+    <encounter.encounter_datetime openmrs_table="encounter" openmrs_attribute="encounter_datetime">{{ encounter___encounter_datetime }}</encounter.encounter_datetime>
+    <encounter.location_id openmrs_table="encounter" openmrs_attribute="location_id">{{ encounter___location_id }}</encounter.location_id>
+    <encounter.provider_id openmrs_table="encounter" openmrs_attribute="provider_id">{{ encounter___provider_id }}</encounter.provider_id>
+  </encounter>
+  <obs openmrs_concept="1238^MEDICAL RECORD OBSERVATIONS^99DCT" openmrs_datatype="ZZ">
+    <calculated_age openmrs_concept="154384^calculated age^99DCT" openmrs_datatype="NM">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+    </calculated_age>
+    <number_of_days_since_birth openmrs_concept="1879^NUMBER OF DAYS SINCE BIRTH^99DCT" openmrs_datatype="NM">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+    </number_of_days_since_birth>
+    <bacille_camile-guerin_vaccination openmrs_concept="886^BACILLE CAMILE-GUERIN VACCINATION^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ bacille_camile_guerin_vaccination }}</value>
+    </bacille_camile-guerin_vaccination>
+    <danger_signs_present openmrs_concept="1880^DANGER SIGN(S) PRESENT^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ danger_signs_present }}</value>
+    </danger_signs_present>
+    <breastfed_exclusively openmrs_concept="5526^BREASTFED EXCLUSIVELY^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ breastfed_exclusively }}</value>
+    </breastfed_exclusively>
+    <danger_signs_present_1 openmrs_concept="1880^DANGER SIGN(S) PRESENT^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ danger_signs_present_1 }}</value>
+    </danger_signs_present_1>
+    <fever openmrs_concept="140238^FEVER^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ fever }}</value>
+    </fever>
+    <diarrhea openmrs_concept="142412^DIARRHEA^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ diarrhea }}</value>
+    </diarrhea>
+    <danger_signs_present_2 openmrs_concept="1880^DANGER SIGN(S) PRESENT^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ danger_signs_present_2 }}</value>
+    </danger_signs_present_2>
+    <mid-upper_arm_circumference openmrs_concept="1343^MID-UPPER ARM CIRCUMFERENCE^99DCT" openmrs_datatype="NM">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ mid_upper_arm_circumference }}</value>
+    </mid-upper_arm_circumference>
+    <oedema openmrs_concept="460^OEDEMA^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ oedema }}</value>
+    </oedema>{% for concept in current_medication_order_1 %}
+    <current_medication_order_1 openmrs_concept="1442^CURRENT MEDICATION ORDER^99DCT" openmrs_datatype="ZZ">
+      <medication_orders_1 openmrs_concept="1282^MEDICATION ORDERS^99DCT" openmrs_datatype="CWE" multiple="0">
+        <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ concept }}</value>
+      </medication_orders_1>
+    </current_medication_order_1>{% endfor %}
+    <tests_ordered openmrs_concept="1271^TESTS ORDERED^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ tests_ordered }}</value>
+    </tests_ordered>
+    <rapid_test_for_malaria openmrs_concept="1643^RAPID TEST FOR MALARIA^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ rapid_test_for_malaria }}</value>
+    </rapid_test_for_malaria>
+    <dyspnea openmrs_concept="122496^DYSPNEA^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ dyspnea }}</value>
+    </dyspnea>
+    <referral_priority openmrs_concept="1885^REFERRAL PRIORITY^99DCT" openmrs_datatype="CWE" multiple="0">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ referral_priority }}</value>
+    </referral_priority>{% for concept in current_medication_order %}
+    <current_medication_order openmrs_concept="1442^CURRENT MEDICATION ORDER^99DCT" openmrs_datatype="ZZ">
+      <medication_orders openmrs_concept="1282^MEDICATION ORDERS^99DCT" openmrs_datatype="CWE" multiple="0">
+        <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+        <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" new="true()">{{ concept }}</value>
+      </medication_orders>
+    </current_medication_order>{% endfor %}
+  </obs>
+  <other/>
+</form>
+
