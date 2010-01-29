@@ -23,10 +23,25 @@ class CCReport(models.Model):
     The highest level superclass to be inhereted by all other report classes
     '''
 
-    created_by = models.ForeignKey(Reporter, db_index=True)
-    created_on = models.DateTimeField(db_index=True, auto_now_add=True,)
-    modified_by = models.ForeignKey(Reporter, db_index=True)
-    modified_on = models.DateTimeField(db_index=True, auto_now=True,)
+    created_by = models.ForeignKey(Reporter, verbose_name=_(u"Created by"), \
+                                   related_name='created_report',
+                                   help_text=_(u"Reporter that created the " \
+                                                "report"))
+
+    created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True, \
+                                      help_text=_(u"When the report was " \
+                                                   "created"))
+
+    modified_by = models.ForeignKey(Reporter, verbose_name=_(u"Modified by"), \
+                                    related_name='modified_report',
+                                    null=True, blank=True, \
+                                    help_text=_(u"Reporter that last " \
+                                                 "modified the report"))
+
+    modified_on = models.DateTimeField(_(u"Modified on"), auto_now=True, \
+                                       null=True, blank=True, \
+                                       help_text=_(u"When the report was " \
+                                                    "last modified"))
 
     class Meta:
         app_label = 'childcount'
