@@ -13,7 +13,8 @@ from datetime import datetime
 
 #from childcount.core.models.Case import Case
 from childcount.core.models.DangerSigns import DangerSigns
-from childcount.core.models.Reports import PatientReport
+from childcount.core.models.Reports import PatientReport, CCReport
+from childcount.core.models.fields import RDTField, GenderField
 
 from reporters.models import Reporter
 
@@ -38,3 +39,15 @@ class FeverReport(PatientReport):
     result = models.BooleanField(db_index=True)
     danger_signs = models.CharField(max_length=1, choices=DANGERSIGN_CHOICES)
     observations = models.ManyToManyField(DangerSigns, blank=True)
+
+
+class NonPatientRDTReport(CCReport, RDTField):
+    class Meta:
+        verbose_name = _(u"Non-patient RDT Report")
+        verbose_name_plural = _(u"Non-patient RDT Reports")
+
+    gender = models.CharField(_(u"Gender"), max_length=1, \
+                              choices=GenderField.GENDER_CHOICES)
+
+    age = models.PositiveSmallIntegerField(_(u"Age"), help_text=_(u"Age in " \
+                                                                   "years"))
