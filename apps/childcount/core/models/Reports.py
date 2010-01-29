@@ -54,4 +54,4 @@ class CCReport(models.Model):
 class PatientReport(CCReport):
     '''Patient reports'''
 
-    patient = models.ForeignKey(Patient, db_index=True)
+    patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"))
