@@ -37,10 +37,6 @@ class Patient(GenderField):
         (STATUS_INACTIVE, _('Relocated')),
         (STATUS_DEAD, _('Dead')))
 
-    GENDER_CHOICES = (
-        ('M', _('Male')),
-        ('F', _('Female')))
-
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
                                 null=True, db_index=True, unique=True, \
                                 help_text=_(u"Unique six character Health ID"))
