@@ -65,3 +65,7 @@ class DeathReport(PatientReport):
     death_date = models.DateField(_(u"Date of death"), \
                                   help_text=_(u"The date of the death " \
                                                "accurate to within the month"))
+
+
+class PatientRegistrationReport(PatientReport):
+    pass
