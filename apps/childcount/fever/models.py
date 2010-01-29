@@ -8,8 +8,7 @@ ReportMalaria - records reported malaria rdt tests
 '''
 
 from django.db import models
-
-from datetime import datetime
+from django.utils.translation import ugettext_lazy as _
 
 #from childcount.core.models.Case import Case
 from childcount.core.models.DangerSigns import DangerSigns
