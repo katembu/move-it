@@ -55,3 +55,13 @@ class PatientReport(CCReport):
     '''Patient reports'''
 
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"))
+
+
+class DeathReport(PatientReport):
+    class Meta:
+        verbose_name = _(u"Death Report")
+        verbose_name_plural = _(u"Death Reports")
+
+    death_date = models.DateField(_(u"Date of death"), \
+                                  help_text=_(u"The date of the death " \
+                                               "accurate to within the month"))
