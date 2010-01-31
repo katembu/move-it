@@ -45,8 +45,6 @@ class Patient(GenderField):
                                    blank=True, null=True)
     last_name = models.CharField(_(u"Last name"), max_length=32, \
                                  help_text=_(u"Family name or surname"))
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, \
-                              null=True, blank=True)
     dob = models.DateField(_('Date of Birth'), null=True, blank=True)
     estimated_dob = models.BooleanField(_(u"Estimated DOB"), \
                                         help_text=_(u"True or false: the " \
