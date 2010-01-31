@@ -80,3 +80,9 @@ class Patient(GenderField):
                               blank=True, null=True)
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
+
+    def age_in_days_months(self):
+        '''return the age of the patient in days and in months'''
+        days = (datetime.now() - self.dob).days
+        months = int(days / 30.4375)
+        return days, months
