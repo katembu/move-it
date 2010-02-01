@@ -55,3 +55,21 @@ class NewbornReport(PatientReport, DangerSignsField):
                                                help_text=_(u"Number of " \
                                                             "clinic visits " \
                                                             "since birth"))
+
+
+class InfantReport(PatientReport, DangerSignsField):
+    class Meta:
+        verbose_name = _(u"Infant Report")
+        verbose_name_plural = _(u"Infant Reports")
+
+    BREAST_YES = 'Y'
+    BREAST_NO = 'N'
+    BREAST_CHOICES = (
+        (BREAST_YES, _(u"Yes")),
+        (BREAST_NO, _(u"No")))
+
+    breast_only = models.CharField(_(u"Breast feeding Only"), max_length=1, \
+                           choices=BREAST_CHOICES, \
+                                               help_text=_(u"Does the mother" \
+                                                            " breat feed " \
+                                                            "only?"))
