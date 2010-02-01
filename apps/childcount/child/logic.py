@@ -12,7 +12,7 @@ from childcount.core.models.Referral import Referral
 from childcount.child.models import NewbornReport, InfantReport
 from childcount.core.models.Case import Case
   
-def new_born_section(created_by, health_id, danger_signs, visits):
+def new_born_section(created_by, health_id, danger_signs, clinic_vists):
     '''1.1) Newborn Section (0-30 days) (REQUIRED)'''
 
     patient = Patient.objects.get(health_id=health_id)
@@ -36,9 +36,9 @@ def new_born_section(created_by, health_id, danger_signs, visits):
                          '(#%(refid)s)') % {'refid': rf.referral_id}
         else:
             response = _('Clinic visit %(visits)s registered for newborn.') % \
-                        {'visits': visits}
+                        {'visits': clinic_vists}
         nr = NewbornReport(created_by=created_by, patient=patient, \
-                           danger_signs=danger_signs)
+                           danger_signs=danger_signs, clinic_vists=clinic_vists)
         nr.save()
 
     return response
