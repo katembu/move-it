@@ -73,3 +73,35 @@ class InfantReport(PatientReport, DangerSignsField):
                                                help_text=_(u"Does the mother" \
                                                             " breat feed " \
                                                             "only?"))
+
+
+class ChildReport(PatientReport):
+    class Meta:
+        verbose_name = _(u"Child Report")
+        verbose_name_plural = _(u"Child Reports")
+
+    FEVER_YES = 'F'
+    FEVER_NO = 'N'
+    FEVER_UNKOWN = 'U'
+    FEVER_CHOICES = (
+        (FEVER_YES, _(u"Yes")),
+        (FEVER_NO, _(u"No")),
+        (FEVER_UNKOWN, _(u"Unknown")))
+
+    DIARRHEA_YES = 'Y'
+    DIARRHEA_NO = 'N'
+    DIARRHEA_UNKOWN = 'U'
+    DIARRHEA_CHOICES = (
+        (DIARRHEA_YES, _(u"Yes")),
+        (DIARRHEA_NO, _(u"No")),
+        (DIARRHEA_UNKOWN, _(u"Unknown")))
+    
+    fever = models.CharField(_(u"Fever"), max_length=1, \
+                                       choices=FEVER_CHOICES, \
+                                       help_text=_(u"Does the child have "\
+                                                   "fever? "))
+
+    diarrhea = models.CharField(_(u"Diarrhea"), max_length=1, \
+                                       choices=DIARRHEA_CHOICES, \
+                                       help_text=_(u"Does the child have "\
+                                                   "diarrhea? "))
