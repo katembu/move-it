@@ -79,6 +79,18 @@ class Patient(GenderField):
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
 
+    def get_dictionary(self):
+        days, months = self.age_in_days_months()
+        return {'full_name': '%s %s' % (self.first_name, self.last_name),
+                'age': '%sm' % months,
+                'days': days,
+                'clinic': self.clinic,
+                'mobile': self.mobile,
+                'status': self.STATUS_CHOICES.index(self.status),
+                'chw': self.chw,
+                'gender': self.gender,
+                'guardian': self.guardian}
+
     def age_in_days_months(self):
         '''return the age of the patient in days and in months'''
         days = (datetime.now() - self.dob).days
