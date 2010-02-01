@@ -9,7 +9,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from childcount.core.models.Patient import Patient
 from childcount.core.models.Referral import Referral
-from childcount.core.models.Reports import NewbornReport
+from childcount.child.models import NewbornReport, InfantReport
+from childcount.core.models.Case import Case
   
 def new_born_section(created_by, health_id, danger_signs, visits):
     '''1.1) Newborn Section (0-30 days) (REQUIRED)'''
@@ -41,4 +42,41 @@ def new_born_section(created_by, health_id, danger_signs, visits):
         nr.save()
 
     return response
-    
+  
+
+def infant_section(created_by, health_id, danger_signs, breast_only):
+    '''1.2) Infant Section (1-5 months) (REQUIRED)'''
+
+    patient = Patient.objects.get(health_id=health_id)
+    days, months = patient.age_in_days_months()
+    response = ''
+
+    if months > 6 and months < 60:
+        response = _('Child is %(months)d months old. Please fill out CHILD ' \
+                     '(+C) form') % {'months': months, 'days': days}
+    elif months > 59:
+        response = _('Child is older then 59 months.')
+    else:
+        if danger_signs.upper() == 'Y':
+            #create a referral
+            rf = Referral(patient=patient)
+            rf.save()
+
+            case = Case(patient=patient)
+            case.save()
+
+            info = {}
+            info.update(patient.get_dictionary())
+            info.update({'refid': rf.referral_id})
+            response = _('SICK CHILD> %(full_name)s  is in immediate risk. ' \
+                         'Please refer IMMEDIATELY to clinic (#%(refid)s)') % \
+                         info
+        if breast_only.upper() == 'N':
+            response += _('Please confirm child is not malnourished or '\
+                          'having diarrhea and counsel mother on exclusive '\
+                          'breast feeding practices')
+        ir = InfantReport(created_by=created_by, patient=patient, \
+                           danger_signs=danger_signs, breast_only=breast_only)
+        ir.save()
+
+    return response
