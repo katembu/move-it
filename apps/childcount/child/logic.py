@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from childcount.core.models.Patient import Patient
 from childcount.core.models.Referral import Referral
-from childcount.child.models import NewbornReport, InfantReport
+from childcount.child.models import NewbornReport, InfantReport, ChildReport
 from childcount.core.models.Case import Case
   
 def new_born_section(created_by, health_id, danger_signs, clinic_vists):
@@ -78,5 +78,34 @@ def infant_section(created_by, health_id, danger_signs, breast_only):
         ir = InfantReport(created_by=created_by, patient=patient, \
                            danger_signs=danger_signs, breast_only=breast_only)
         ir.save()
+
+    return response
+
+
+def child_section(created_by, health_id, fever, diarrhea, fever_form=False, diarrhea_form=False):
+    '''1.3) Child Section (6-59 Months) (REQUIRED)'''
+
+    patient = Patient.objects.get(health_id=health_id)
+    days, months = patient.age_in_days_months()
+    response = ''
+
+    if days > 30 and months < 6:
+        response = _('Child is an Infant. Please fill out INFANT ' \
+                     '(+I) form')
+    elif days <= 30:
+        response = _('Child is %(days)d days old. Please fill out NEWBORN ' \
+                     '(+N) form') % {'days': days}
+    elif months > 59:
+        response = _('Child is older then 59 months.')
+    else:
+        if fever.upper() == 'F' and not fever_form:
+            response = _('Please check child for malaria and shortness of '\
+                         'breath using the fever (F+) Form.')
+        if diarrhea.upper() == 'D' and not diarrhea_form:
+            response += _('Please treat child for diarrhea with ORS and Zinc'\
+                          ' and record with ORS (+S) form')
+        cr = ChildReport(created_by=created_by, patient=patient, \
+                           fever=fever, diarrhea=diarrhea)
+        cr.save()
 
     return response
