@@ -53,3 +53,8 @@ class MUACReport(PatientReport):
             self.status = self.STATUS_SEVERE
         elif self.muac < 125:
             self.status = self.STATUS_MODERATE
+
+    def save(self, *args):
+        if self.status is None:
+            self.diagnose()
+        super(MUACReport, self).save(*args)
