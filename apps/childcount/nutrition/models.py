@@ -31,5 +31,15 @@ class MUACReport(PatientReport):
         (STATUS_SEVERE, _(u"SAM")),
         (STATUS_SEVERE_COMP, _(u"SAM+")),
         (STATUS_HEALTHY, _(u"Healthy")))
+        
+    OEDEMA_YES = 'Y'
+    OEDEMA_NO = 'N'
+    OEDEMA_UNKOWN = 'U'
+    OEDEMA_CHOICES = (
+        (OEDEMA_YES, _(u"Yes")),
+        (OEDEMA_NO, _(u"No")),
+        (OEDEMA_UNKOWN, _(u"Unknown")))
 
     muac = models.SmallIntegerField(_(u"MUAC (mm)"))
+    oedema = models.CharField(_(u"Oedema"), max_length=1, \
+                              choices=OEDEMA_CHOICES)
