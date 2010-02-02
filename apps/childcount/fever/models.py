@@ -12,8 +12,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from reporters.models import Reporter
 
-#from childcount.core.models.Case import Case
-from childcount.core.models.DangerSigns import DangerSigns
 from childcount.core.models.Reports import PatientReport, CCReport
 from childcount.core.models.SharedFields import RDTField, GenderField
 
@@ -27,14 +25,11 @@ class FeverReport(PatientReport, RDTField):
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
 
-class NonPatientRDTReport(CCReport, RDTField):
+class NonPatientRDTReport(CCReport, RDTField, GenderField):
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Non-patient RDT Report")
         verbose_name_plural = _(u"Non-patient RDT Reports")
-
-    gender = models.CharField(_(u"Gender"), max_length=1, \
-                              choices=GenderField.GENDER_CHOICES)
 
     age = models.PositiveSmallIntegerField(_(u"Age"), help_text=_(u"Age in " \
                                                                    "years"))

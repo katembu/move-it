@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 class DangerSigns(models.Model):
 
     '''DangerSigns store'''
-    
+
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Danger Sign")

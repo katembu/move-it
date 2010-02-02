@@ -5,3 +5,4 @@
 import childcount.core
 import childcount.nutrition
 import childcount.fever
+import childcount.child

@@ -19,7 +19,7 @@ from childcount.core.models.Locations import Clinic
 
 class CHW(Reporter):
     '''CHW - Community Health Worker model'''
-    
+
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Community Health Worker")

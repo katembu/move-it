@@ -10,43 +10,26 @@ ReportMalnutrition - record malnutrition measurements
 from django.db import models
 from django.utils.translation import ugettext as _
 
-#from childcount.core.models.Case import Case
-from childcount.core.models.DangerSigns import DangerSigns
 from childcount.core.models.Reports import PatientReport
-from reporters.models import Reporter
 
-
-class MuacReport(PatientReport):
+class MUACReport(PatientReport):
 
     '''record malnutrition measurements'''
-
-    MODERATE_STATUS = 1
-    SEVERE_STATUS = 2
-    SEVERE_COMP_STATUS = 3
-    HEALTHY_STATUS = 4
-
-    STATUS_CHOICES = (
-        (MODERATE_STATUS, _('MAM')),
-        (SEVERE_STATUS, _('SAM')),
-        (SEVERE_COMP_STATUS, _('SAM+')),
-        (HEALTHY_STATUS, _("Healthy")))
-
-    DANGERSIGN_CHOICES = (
-         ('S', _('Signs or Yes')),
-         ('N', _('No')),
-         ('U', _('Unknown')))
-
-    muac = models.IntegerField(_("MUAC (mm)"), null=True, blank=True)
-    height = models.IntegerField(_("Height (cm)"), null=True, blank=True)
-    weight = models.FloatField(_("Weight (kg)"), null=True, blank=True)
-    danger_signs = models.CharField(max_length=1, choices=DANGERSIGN_CHOICES)
-    observations = models.ManyToManyField(DangerSigns, blank=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, \
-                            db_index=True, blank=True, null=True)
-
+    
     class Meta:
         app_label = 'childcount'
-        verbose_name = "Malnutrition Report"
-        verbose_name_plural = "Malnutrition Reports"
-        get_latest_by = 'entered_at'
-        ordering = ('-entered_at',)
+        verbose_name = _(u"MUAC Report")
+        verbose_name_plural = _(u"MUAC Reports")
+
+    STATUS_MODERATE = 1
+    STATUS_SEVERE = 2
+    STATUS_SEVERE_COMP = 3
+    STATUS_HEALTHY = 4
+
+    STATUS_CHOICES = (
+        (STATUS_MODERATE, _(u"MAM")),
+        (STATUS_SEVERE, _(u"SAM")),
+        (STATUS_SEVERE_COMP, _(u"SAM+")),
+        (STATUS_HEALTHY, _(u"Healthy")))
+
+    muac = models.SmallIntegerField(_(u"MUAC (mm)"))
