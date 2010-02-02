@@ -4,8 +4,12 @@
 
 '''Nutrition Logic'''
 
+from datetime import datetime, timedelta
+
 from django.utils.translation import ugettext_lazy as _
+
 from childcount.core.models.Patient import Patient
+from childcount.core.models.Case import Case
 from childcount.core.models.Referral import Referral
 from childcount.nutrition.models import MUACReport
 
@@ -47,6 +51,11 @@ def muac_section(created_by, health_id, muac, oedema):
                              'zone': patient.zone})
                 rf = Referral(patient=patient)
                 info.update({'refid': rf.referral_id})
+
+                expires_on = datetime.now() + timedelta(15)
+                case = Case(patient=patient, expires_on=expires_on)
+                case.save()
+
                 response = _('SAM> Last, First (AGE) LOCATION has acute '\
                          'malnutrition. Please refer child to clinic '\
                          'IMMEDIATELY. (%(refid)s')
