@@ -45,3 +45,11 @@ class MUACReport(PatientReport):
                               choices=OEDEMA_CHOICES)
     status = models.IntegerField(choices=STATUS_CHOICES, db_index=True, \
                                  blank=True, null=True)
+
+    def diagnose(self):
+        '''Diagnosis of the patient'''
+        self.status = self.STATUS_HEALTHY
+        if self.oedema == 'Y' or self.muac < 110:
+            self.status = self.STATUS_SEVERE
+        elif self.muac < 125:
+            self.status = self.STATUS_MODERATE
