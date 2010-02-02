@@ -15,9 +15,8 @@ from datetime import datetime
 from reporters.models import Reporter
 from locations.models import Location
 
-from childcount.core.models.fields import GenderField
-from childcount.core.models.locations import Clinic, Zone
-
+from childcount.core.models.SharedFields import GenderField
+from childcount.core.models.Locations import Clinic
 from childcount.core.models.CHW import CHW
 
 
@@ -27,15 +26,17 @@ class Patient(GenderField):
 
     class Meta:
         app_label = 'childcount'
+        verbose_name = _(u"Patient")
+        verbose_name_plural = _(u"Patients")
 
     STATUS_ACTIVE = 1
     STATUS_INACTIVE = 0
     STATUS_DEAD = -1
 
     STATUS_CHOICES = (
-        (STATUS_ACTIVE, _('Alive')),
-        (STATUS_INACTIVE, _('Relocated')),
-        (STATUS_DEAD, _('Dead')))
+        (STATUS_ACTIVE, _(u"Alive")),
+        (STATUS_INACTIVE, _(u"Relocated")),
+        (STATUS_DEAD, _(u"Dead")))
 
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
                                 null=True, db_index=True, unique=True, \
@@ -45,7 +46,7 @@ class Patient(GenderField):
                                    blank=True, null=True)
     last_name = models.CharField(_(u"Last name"), max_length=32, \
                                  help_text=_(u"Family name or surname"))
-    dob = models.DateField(_('Date of Birth'), null=True, blank=True)
+    dob = models.DateField(_(u"Date of Birth"), null=True, blank=True)
     estimated_dob = models.BooleanField(_(u"Estimated DOB"), \
                                         help_text=_(u"True or false: the " \
                                                      "date of birth is only " \
@@ -55,14 +56,14 @@ class Patient(GenderField):
                                  related_name='child')
     household = models.ForeignKey('self', \
                                   verbose_name=_(u"Household's primary " \
-                                                 "caregiver"), \
+                                                  "caregiver"), \
                                   help_text=_(u"The primary caregiver in " \
-                                              "this person's household " \
-                                              "(self if primary caregiver)"), \
+                                               "this person's household " \
+                                               "(self if primary caregiver)"),\
                                   related_name='household_member')
     chw = models.ForeignKey(CHW, db_index=True,
                             verbose_name=_(u"Community health worker"))
-    zone = models.ForeignKey(Zone, blank=True, null=True,
+    location = models.ForeignKey(Location, blank=True, null=True, related_name='resident',
                              verbose_name=_(u"Location"), \
                              help_text=_(u"The location this person lives " \
                                           "within"))

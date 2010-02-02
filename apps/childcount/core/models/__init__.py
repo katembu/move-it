@@ -4,7 +4,6 @@
 
 import Case
 import Patient
-import Observation
 import Referral
 import Config
 import Reports

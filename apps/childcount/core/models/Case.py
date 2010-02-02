@@ -27,46 +27,34 @@ class Case(models.Model):
 
     class Meta:
         app_label = 'childcount'
+        verbose_name = _(u"Case")
+        verbose_name_plural = _(u"Cases")
 
     STATUS_OPEN = 0
     STATUS_CLOSED = 1
 
     STATUS_CHOICES = (
-        (STATUS_OPEN, _("Open")),
-        (STATUS_CLOSED, _("Closed")))
+        (STATUS_OPEN, _(u"Open")),
+        (STATUS_CLOSED, _(u"Closed")))
 
-    TYPE_MUAC = 0
-    TYPE_FEVER = 1
+    TYPE_PREGNANCY = 0
+    TYPE_MALNUTRITION = 1
+    TYPE_MALARIA = 2
+    TYPE_DIARRHEA = 3
 
     TYPE_CHOICES = (
-        (TYPE_MUAC, _("Malnutrition")),
-        (TYPE_FEVER, _("FEVER")))
+        (TYPE_PREGNANCY, _(u"Pregnancy")),
+        (TYPE_MALNUTRITION, _(u"Malnutrition")),
+        (TYPE_MALARIA, _(u"Malaria")),
+        (TYPE_DIARRHEA, _(u"Diarrhea")))
 
-    patient = models.ForeignKey(Patient, db_index=True)
-    #reporter = models.ForeignKey(Reporter, db_index=True)
-    status = models.IntegerField(choices=STATUS_CHOICES, \
+    patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \
+                                db_index=True)
+
+    status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
-    expires_on = models.DateTimeField(null=True, blank=True)
-    type = models.IntegerField(choices=TYPE_CHOICES, \
-                                      default=TYPE_MUAC)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-
-class CaseNote(models.Model):
-
-    ''' Holds notes for Cases
-
-        case - Case object
-        reporter - reporter
-        created_at - time created
-        text - stores the note text
-    '''
-
-    case = models.ForeignKey(Case, related_name='notes', db_index=True)
-    reporter = models.ForeignKey(Reporter, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    text = models.TextField()
-
-    class Meta:
-        app_label = 'childcount'
+    expires_on = models.DateTimeField(_(u"Expires on"), null=True, blank=True)
+    type = models.IntegerField(_(u"Type of case"), choices=TYPE_CHOICES, \
+                                      default=TYPE_CHOICES)
+    created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True)
+    updated_on = models.DateTimeField(_(u"Updated on"), auto_now=True)

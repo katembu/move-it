@@ -34,8 +34,8 @@ class Referral(models.Model):
     STATUS_CLOSED = 1
 
     STATUS_CHOICES = (
-        (STATUS_OPEN, _("Open")),
-        (STATUS_CLOSED, _("Closed")))
+        (STATUS_OPEN, _(u"Open")),
+        (STATUS_CLOSED, _(u"Closed")))
 
     referral_id = models.CharField(max_length=30, db_index=True)
     patient = models.ForeignKey(Patient, db_index=True)
