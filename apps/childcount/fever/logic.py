@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-'''Fever Logic'''
+'''Nutrition Logic'''
 
 from datetime import datetime, timedelta
 
@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from childcount.core.models.Patient import Patient
 from childcount.core.models.Case import Case
+from childcount.fever.models import FeverReport
+from childcount.core.models.SharedFields import RDTField
 
 def fever_section(created_by, health_id, rdt):
     '''Fever Section (6-59 months)'''
@@ -77,5 +79,9 @@ def fever_section(created_by, health_id, rdt):
             expires_on = datetime.now() + timedelta(7)
             case = Case(patient=patient, expires_on=expires_on)
             case.save()
-
+        if rdt in RDTField.RDT_CHOICES:
+            fr = FeverReport(created_by=created_by, rdt_result=rdt)
+            fr.save()
+        else:
+            response = _('Unknown choice')
     return response
