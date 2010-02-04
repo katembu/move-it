@@ -108,3 +108,13 @@ class DeathReport(PatientReport):
 
 class PatientRegistrationReport(PatientReport):
     pass
+
+
+class HouseHoldVisitReport(PatientReport):
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Household Visit Report")
+        verbose_name_plural = _(u"Household Visit Reports")
+
+    available = models.BooleanField(_('HH Member Available'), \
+                                help_text=_('Any Houshold member available'))
