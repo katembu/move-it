@@ -15,6 +15,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from reporters.models import Reporter
 from childcount.core.models.Patient import Patient
+from childcount.core.models.SharedFields import DangerSignsField
+
 
 class CCReport(models.Model):
     '''
@@ -118,3 +120,17 @@ class HouseHoldVisitReport(PatientReport):
 
     available = models.BooleanField(_('HH Member Available'), \
                                 help_text=_('Any Houshold member available'))
+
+
+class PregnancyReport(PatientReport, DangerSignsField):
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Pregnancy Report")
+        verbose_name_plural = _(u"Pregnancy Reports")
+
+    pregnancy_month = models.PositiveSmallIntegerField(_('Pregnancy Month'), \
+                                    help_text=_('The month of the pregnancy'))
+    clinic_visits = models.PositiveSmallIntegerField(_('Clinic Visits'), \
+                                    help_text=_('Number of clinic visits'))
+    fever = models.BooleanField(_('Fever?'), \
+                                help_text=_('Fever in the last three days?'))
