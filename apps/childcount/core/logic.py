@@ -13,7 +13,7 @@ from childcount.core.models.Reports import HouseHoldVisitReport
 
 
 def housholdvisit_section(created_by, health_id, available):
-    '''Fever Section (6-59 months)'''
+    '''2.1) HH Visit - All Households'''
     patient = Patient.objects.get(health_id=health_id)
 
     if available.upper() == 'Y':
