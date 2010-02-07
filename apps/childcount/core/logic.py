@@ -223,7 +223,7 @@ def newregistration_section(created_by, health_id, token_string):
     else:
         patient = Patient(**info)
         patient.save()
-        response = _("New +%(id)s: %(last_name)s, %(first_name)s " \
+        response = _("New +%(health_id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
     return response
 
