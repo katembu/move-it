@@ -53,9 +53,9 @@ class BirthReport(PatientReport):
                            help_text=_(u"Has the baby received the BCG " \
                                         "vaccination?"))
                                         
-    small = models.CharField(_(u"Small baby"), max_length=1, \
-                             choices=SMALL_CHOICES, \
-                             help_text=_(u"Is the baby small?"))
+    weight = models.FloatField(_(u"Birth Weight"), null=True, blank=True, \
+                             help_text=_(u"What was the weight of the baby '\
+                             'at birth?"))
 
 
 class NewbornReport(PatientReport):
