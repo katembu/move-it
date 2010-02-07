@@ -134,3 +134,12 @@ class PregnancyReport(PatientReport, DangerSignsField):
                                     help_text=_('Number of clinic visits'))
     fever = models.BooleanField(_('Fever?'), \
                                 help_text=_('Fever in the last three days?'))
+
+
+class DeathReport(PatientReport):
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Death Report")
+        verbose_name_plural = _(u"Death Reports")
+
+    dod = models.DateField(_(u"Date of Death"), null=True, blank=True)
