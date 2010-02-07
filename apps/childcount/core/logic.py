@@ -429,3 +429,9 @@ def death_section(created_by, health_id, dod):
             pass
     dr = DeathReport(created_by=created_by, patient=patient, dod=dod)
     dr.save()
+
+    info = patient.get_dictionary()
+    response = _("Death of %(health_id)s: %(full_name)s " \
+                    "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
+    #TODO - send alert to facilitators
+    return response
