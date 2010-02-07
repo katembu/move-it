@@ -281,16 +281,14 @@ def birth_section(created_by, health_id, token_string):
     tokens.pop(tokens.index(care_giver))
     
     #last three tokens
-    small = tokens.pop()
+    weight = tokens.pop()
+    weight = re.sub(r'([a-z|A-Z])', '', weight)
     bcg = tokens.pop()
     clinic_delivery = tokens.pop()
     
     if bcg not in BirthReport.BCG_CHOICES:
         raise HandlerFailed(_('BCG choice `%(bcg)s` is UNKNOWN') % \
                             {'bcg': bcg})
-    if small not in BirthReport.SMALL_CHOICES:
-        raise HandlerFailed(_('Small baby choice `%(small)s` is UNKNOWN') % \
-                            {'small': small})
     if clinic_delivery not in BirthReport.CLINIC_DELIVERY_CHOICES:
         raise HandlerFailed(_('Delivered in health facility choice '\
                               '`%(clinic_delivery)s` is UNKNOWN') % \
@@ -380,7 +378,7 @@ def birth_section(created_by, health_id, token_string):
         patient.save()
         
         br = BirthReport(patient=patient, clinic_delivery=clinic_delivery, \
-                         bcg=bcg, small=small, created_by=created_by)
+                         bcg=bcg, weight=weight, created_by=created_by)
         br.save()
         response = _("Birth %(health_id)s: %(last_name)s, %(first_name)s " \
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
