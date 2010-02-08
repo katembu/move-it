@@ -16,5 +16,3 @@ from Case import Case
 
 import shared_fields
 import reports
-
-
