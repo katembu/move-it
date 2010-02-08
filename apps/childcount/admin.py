@@ -4,15 +4,12 @@
 
 from django.contrib import admin
 
-from childcount.core.models.Config import Configuration
-from childcount.core.models.Case import Case, CaseNote
-from childcount.core.models.Observation import Observation
-from childcount.core.models.Patient import Patient
-from childcount.core.models.Referral import Referral
+from childcount.models import Configuration
+from childcount.models import Case
+from childcount.models import Patient
+from childcount.models import Referral
 
 admin.site.register(Configuration)
 admin.site.register(Case)
-admin.site.register(CaseNote)
-admin.site.register(Observation)
 admin.site.register(Patient)
 admin.site.register(Referral)
