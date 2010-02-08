@@ -10,6 +10,7 @@ from Referral import Referral
 from DangerSign import DangerSign
 from Configuration import Configuration
 from Commodity import Commodity
+from Case import Case
 
 import shared_fields
 import reports
