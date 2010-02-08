@@ -197,7 +197,7 @@ class PregnancyReport(PatientReport):
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "during pregnancy"))
-    fever = models.CharField(_(u"Fever"), choices=FEVER_CHOICES,
+    fever = models.CharField(_(u"Fever"), max_length=1, choices=FEVER_CHOICES,
                                 help_text=_(u"Fever in the past three days?"))
 
 
