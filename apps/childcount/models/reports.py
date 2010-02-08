@@ -28,10 +28,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from reporters.models import Reporter
 
+from childcount.models import DangerSign
 from childcount.models import Patient
-from childcount.models import Commodity
-from childcount.models.shared_fields import RDTField
-from childcount.models.shared_fields import GenderField
+#from childcount.models import Commodity
+
+from childcount.models.shared_fields import RDTField, GenderField
 from childcount.models.shared_fields import DangerSignsField
 
 
@@ -146,9 +147,8 @@ class ReferralReport(PatientReport):
         verbose_name = _(u"Referral Report")
         verbose_name_plural = _(u"Referral Reports")
 
-    danger_signs = models.ManyToManyField(_(u"Date of death"), \
-                                  help_text=_(u"The date of the death " \
-                                               "accurate to within the month"))
+    danger_signs = models.ManyToManyField(DangerSign, \
+                                          verbose_name=_(u"Danger signs"))
 
 
 class PatientRegistrationReport(PatientReport):
@@ -187,7 +187,7 @@ class PregnancyReport(PatientReport):
     FEVER_UNKOWN = 'U'
 
     FEVER_CHOICES = (
-        (FEVER_Yes, _(u"Yes")),
+        (FEVER_YES, _(u"Yes")),
         (FEVER_NO, _(u"No")),
         (FEVER_UNKOWN, _(u"Unknown")))
 
@@ -376,6 +376,3 @@ class MUACReport(PatientReport):
         if self.status is None:
             self.diagnose()
         super(MUACReport, self).save(*args)
-
-
-P

@@ -11,6 +11,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from childcount.models import Patient
+from childcount.models.reports import PatientReport
 
 
 class Case(models.Model):
@@ -54,7 +55,7 @@ class Case(models.Model):
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
 
-    reports = models.ManyToMany(PatientReport, verbose_name=_(u"Reports"))
+    reports = models.ManyToManyField(PatientReport, verbose_name=_(u"Reports"))
 
     created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True)
 

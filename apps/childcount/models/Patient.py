@@ -40,7 +40,7 @@ class Patient(GenderField):
 
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
                                 null=True, db_index=True, unique=True, \
-                                help_text=_(u"Unique six character Health ID"))
+                                help_text=_(u"Unique Health ID"))
     first_name = models.CharField(_(u"First name"), max_length=80)
     last_name = models.CharField(_(u"Last name"), max_length=32, \
                                  help_text=_(u"Family name or surname"))
