@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: dgelvin
 
 '''ChildCount Models
 
@@ -9,11 +9,8 @@ Case - Case/Encounter model
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from datetime import datetime
 
-from reporters.models import Reporter
-
-from childcount.core.models.Patient import Patient
+from childcount.models import Patient
 
 
 class Case(models.Model):
@@ -51,10 +48,16 @@ class Case(models.Model):
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \
                                 db_index=True)
 
+    type = models.SmallIntegerField(_(u"Type of case"), choices=TYPE_CHOICES, \
+                               default=TYPE_CHOICES)
+
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)
-    expires_on = models.DateTimeField(_(u"Expires on"), null=True, blank=True)
-    type = models.IntegerField(_(u"Type of case"), choices=TYPE_CHOICES, \
-                                      default=TYPE_CHOICES)
+
+    reports = models.ManyToMany(PatientReport, verbose_name=_(u"Reports"))
+
     created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True)
+
     updated_on = models.DateTimeField(_(u"Updated on"), auto_now=True)
+
+    expires_on = models.DateTimeField(_(u"Expires on"), null=True, blank=True)

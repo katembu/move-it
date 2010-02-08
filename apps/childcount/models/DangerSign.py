@@ -4,21 +4,21 @@
 
 '''ChildCount Models
 
-DangerSigns - DangerSigns store
+DangerSign - DangerSign store
 '''
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
-class DangerSigns(models.Model):
+class DangerSign(models.Model):
 
-    '''DangerSigns store'''
+    '''DangerSign store'''
 
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Danger Sign")
         verbose_name_plural = _(u"Danger Signs")
 
-    code = models.CharField(max_length=10, unique=True)
-    description = models.CharField(max_length=255)
+    code = models.CharField(_(u"Code"), max_length=10, unique=True)
+    description = models.CharField(_(u"Description"), max_length=255)

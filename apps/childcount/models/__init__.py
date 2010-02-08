@@ -1,8 +1,15 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: dgelvin
 
-import childcount.core
-import childcount.nutrition
-import childcount.fever
-import childcount.child
+
+from Clinic import Clinic
+from CHW import CHW
+from Patient import Patient
+from Referral import Referral
+from DangerSign import DangerSign
+from Configuration import Configuration
+from Commodity import Commodity
+
+import shared_fields
+import reports

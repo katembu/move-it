@@ -15,9 +15,9 @@ from datetime import datetime
 from reporters.models import Reporter
 from locations.models import Location
 
-from childcount.core.models.SharedFields import GenderField
-from childcount.core.models.Locations import Clinic
-from childcount.core.models.CHW import CHW
+from childcount.models.shared_fields import GenderField
+from childcount.models import Clinic
+from childcount.models import CHW
 
 
 class Patient(GenderField):
@@ -41,9 +41,7 @@ class Patient(GenderField):
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
                                 null=True, db_index=True, unique=True, \
                                 help_text=_(u"Unique six character Health ID"))
-    first_name = models.CharField(_(u"First name"), max_length=32)
-    middle_name =  models.CharField(_(u"Middle name"), max_length=32, \
-                                   blank=True, null=True)
+    first_name = models.CharField(_(u"First name"), max_length=80)
     last_name = models.CharField(_(u"Last name"), max_length=32, \
                                  help_text=_(u"Family name or surname"))
     dob = models.DateField(_(u"Date of Birth"), null=True, blank=True)
@@ -63,10 +61,11 @@ class Patient(GenderField):
                                   related_name='household_member')
     chw = models.ForeignKey(CHW, db_index=True,
                             verbose_name=_(u"Community health worker"))
-    location = models.ForeignKey(Location, blank=True, null=True, related_name='resident',
-                             verbose_name=_(u"Location"), \
-                             help_text=_(u"The location this person lives " \
-                                          "within"))
+    location = models.ForeignKey(Location, blank=True, null=True, \
+                                 related_name='resident', \
+                                 verbose_name=_(u"Location"), \
+                                 help_text=_(u"The location this person " \
+                                              "lives within"))
     clinic = models.ForeignKey(Clinic, blank=True, null=True, \
                                verbose_name=_(u"Health facility"), \
                                help_text=_(u"The primary health facility " \

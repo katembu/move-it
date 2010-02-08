@@ -1,14 +1,28 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: dgelvin
 
-'''Should contain abstract classes of reusable fields'''
+'''
+Should contain abstract classes of reusable fields.  These models do not
+have a table in the database. They are shared because they are used by
+multiple report models. A report model simply needs to extend one of the
+classes below, and that field will then be included in that model.
+
+Fields:
+    GenderField
+    RDTField
+    DangerSignsField
+
+'''
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 
 class GenderField(models.Model):
+
+    '''A single field to represent gender in models'''
+
     class Meta:
         app_label = 'childcount'
         abstract = True
@@ -21,15 +35,13 @@ class GenderField(models.Model):
         (GENDER_FEMALE, _(u"Female")))
 
     gender = models.CharField(_(u"Gender"), max_length=1, \
-                              choices=GENDER_CHOICES)    
+                              choices=GENDER_CHOICES)
 
 
 class RDTField(models.Model):
-    '''
-    This is an abstract class that includes an RDT field.  It does not
-    have a table in the database, and is only used by extending it by other
-    model classes. Any class that extends it will have an rdt_result field.
-    '''
+
+    '''A single field to represent an RDT test result'''
+
     class Meta:
         app_label = 'childcount'
         abstract = True
@@ -50,6 +62,12 @@ class RDTField(models.Model):
 
 
 class DangerSignsField(models.Model):
+
+    '''
+    A single field to indicate whether danger signs are present.
+    Note: This is not where the danger signs themselves are stored, this is
+    simply a single character indicating whether there ARE danger signs.
+    '''
 
     class Meta:
         app_label = 'childcount'
