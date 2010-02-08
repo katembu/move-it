@@ -22,3 +22,4 @@ class DangerSignTranslation(models.Model):
     language = CharField(_(u"Language"), choices=LANGUAGE_CHOICES)
     code = models.CharField(_(u"Code"), max_length=10, unique=True)
     dangersign = ForeignKey(DangerSign, verbose_name=_(u"Danger sign"))
+    description = models.CharField(_(u"Description"), max_length=255)
