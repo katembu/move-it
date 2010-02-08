@@ -12,6 +12,7 @@ from childcount.models import Patient, Case
 from childcount.models.reports import FeverReport
 from childcount.models.shared_fields import RDTField
 
+
 def fever_section(created_by, health_id, rdt):
     '''Fever Section (6-59 months)'''
     patient = Patient.objects.get(health_id=health_id)
@@ -19,7 +20,7 @@ def fever_section(created_by, health_id, rdt):
     response = ''
 
     if days <= 30:
-        response =  _("Child is too young for treatment. "\
+        response = _("Child is too young for treatment. "\
                     "Please refer IMMEDIATELY to clinic")
     elif months > 59:
         response = _('Child is older then 59 months. For any concerns about '\
@@ -29,7 +30,7 @@ def fever_section(created_by, health_id, rdt):
                      'Positive reinforcement')
     else:
         if rdt.upper() in ('Y', 'P'):
-            years = months/12
+            years = months / 12
             tabs, yage = None, None
             # just reformatted to make it look like less ugh
             if years < 1:
@@ -45,14 +46,13 @@ def fever_section(created_by, health_id, rdt):
                 tabs, yage = 3, years
             else:
                 tabs, yage = 4, years
-    
+
             # no tabs means too young
             if not tabs:
                 response = _("Child is too young for treatment. "\
                     "Please refer IMMEDIATELY to clinic")
             else:
-                response  = \
-                        _("Child is %(age)s. Please provide %(tabs)s"\
+                response = _("Child is %(age)s. Please provide %(tabs)s"\
                           " tab%(plural)s of Coartem (ACT) twice a day"\
                           " for 3 days") % {'age': yage, \
                                     'tabs': tabs, \
