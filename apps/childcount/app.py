@@ -6,10 +6,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from functools import wraps
 
-from childcount.core.models.Config import Configuration as Cfg
+from childcount.models import Configuration as Cfg
 
 from reporters.models import Reporter, Role
 from locations.models import Location
+
 
 class HandlerFailed (Exception):
     pass
@@ -111,7 +112,7 @@ class App (rapidsms.app.App):
         ''' register as a user and join the system
 
         Format: join [location code] [last name] [first name]
-        [role - leave blank for CHEW] 
+        [role - leave blank for CHEW]
 
         location - it should be for the village they operate in'''
 

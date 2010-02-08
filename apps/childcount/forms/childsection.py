@@ -39,7 +39,8 @@ def new_born_section(created_by, patient, danger_signs, clinic_vists):
     return response
 
 
-def child_section(created_by, patient, fever, diarrhea, fever_form=False, diarrhea_form=False):
+def child_section(created_by, patient, fever, diarrhea, fever_form=False, \
+                  diarrhea_form=False):
     '''1.3) Child Section (6-59 Months) (REQUIRED)'''
 
     days, months = patient.age_in_days_months()

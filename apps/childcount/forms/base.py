@@ -42,7 +42,7 @@ def housholdvisit_section(created_by, health_id, available):
 def pregnancy_section(created_by, patient, clinic_visits, month, fever):
     '''3.2 Pregnancy Section'''
     response = ''
-    if month in range(1, 9) and clinic_visits in range(0,9):
+    if month in range(1, 9) and clinic_visits in range(0, 9):
         pcases = Case.objects.filter(patient=patient, \
                                      type=Case.TYPE_PREGNANCY, \
                                      status=Case.STATUS_OPEN)
@@ -77,7 +77,7 @@ def pregnancy_section(created_by, patient, clinic_visits, month, fever):
                         pregnancy_month=month, clinic_visits=clinic_visits, \
                         fever=fever)
         pr.save()
-        
+
         response += _('%(clinic_visits)s clinic visits, month %(month)s') % \
             {'clinic_visits': clinic_visits, 'month': month}
     else:
@@ -127,7 +127,7 @@ def newregistration_section(created_by, health_id, token_string):
             if len(token) <= 6:
                 dob = token
                 continue
-    
+
     tokens.pop(tokens.index(dob))
     tokens.pop(tokens.index(gender))
     gender = gender.upper()
@@ -183,7 +183,7 @@ def newregistration_section(created_by, health_id, token_string):
                 estimated_dob = True
         except Exception, e:
             pass
-    
+
     first, sep, last = patient_name.rstrip().rpartition(' ')
     first, sep, middle = first.rstrip().rpartition(' ')
     if first == '':
@@ -269,7 +269,7 @@ def birth_section(created_by, health_id, token_string):
             if len(token) <= 6:
                 dob = token
                 continue
-    
+
     tokens.pop(tokens.index(dob))
     tokens.pop(tokens.index(gender))
     gender = gender.upper()
@@ -279,13 +279,13 @@ def birth_section(created_by, health_id, token_string):
             care_giver = token
             continue
     tokens.pop(tokens.index(care_giver))
-    
+
     #last three tokens
     weight = tokens.pop()
     weight = re.sub(r'([a-z|A-Z])', '', weight)
     bcg = tokens.pop()
     clinic_delivery = tokens.pop()
-    
+
     if bcg not in BirthReport.BCG_CHOICES:
         raise HandlerFailed(_('BCG choice `%(bcg)s` is UNKNOWN') % \
                             {'bcg': bcg})
@@ -336,7 +336,7 @@ def birth_section(created_by, health_id, token_string):
                 estimated_dob = True
         except Exception, e:
             pass
-    
+
     first, sep, last = patient_name.rstrip().rpartition(' ')
     first, sep, middle = first.rstrip().rpartition(' ')
     if first == '':
@@ -376,7 +376,7 @@ def birth_section(created_by, health_id, token_string):
     else:
         patient = Patient(**info)
         patient.save()
-        
+
         br = BirthReport(patient=patient, clinic_delivery=clinic_delivery, \
                          bcg=bcg, weight=weight, created_by=created_by)
         br.save()
