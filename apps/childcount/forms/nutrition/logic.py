@@ -8,10 +8,11 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext_lazy as _
 
-from childcount.core.models.Patient import Patient
-from childcount.core.models.Case import Case
-from childcount.core.models.Referral import Referral
-from childcount.nutrition.models import MUACReport
+from childcount.models import Patient
+from childcount.models import Case
+from childcount.models import Referral
+from childcount.models.reports import MUACReport
+
 
 def muac_section(created_by, health_id, muac, oedema):
     '''1.4) Nutrition (MUAC) Section (6-59 months)'''
@@ -20,7 +21,7 @@ def muac_section(created_by, health_id, muac, oedema):
     response = ''
 
     if days <= 30:
-        response =  _('Child is too young for MUAC')
+        response = _('Child is too young for MUAC')
     elif months > 59:
         response = _('Child is older then 59 months. For any concerns about '\
                      'child in the future please go to the clinic. (Please '\
@@ -60,10 +61,10 @@ def muac_section(created_by, health_id, muac, oedema):
                          'malnutrition. Please refer child to clinic '\
                          'IMMEDIATELY. (%(refid)s')
                 #setup alert
-                # SAM> Last, First (AGE), LOCATION has SAM. CHW NAME - 
+                # SAM> Last, First (AGE), LOCATION has SAM. CHW NAME -
                 #CHWMOBILE. (REFID)
             else:
                 response = _('MUAC %(muac)s(mm), Oedema=%(oedema)s.') % \
-                    {'muac': mr.muac, 'oedema': mr.oedema} 
+                    {'muac': mr.muac, 'oedema': mr.oedema}
 
     return response
