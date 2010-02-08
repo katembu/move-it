@@ -2,16 +2,15 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-'''Nutrition Logic'''
+'''Fever Logic'''
 
 from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext_lazy as _
 
-from childcount.core.models.Patient import Patient
-from childcount.core.models.Case import Case
-from childcount.fever.models import FeverReport
-from childcount.core.models.SharedFields import RDTField
+from childcount.models import Patient, Case
+from childcount.models.reports import FeverReport
+from childcount.models.shared_fields import RDTField
 
 def fever_section(created_by, health_id, rdt):
     '''Fever Section (6-59 months)'''
