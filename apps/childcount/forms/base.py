@@ -11,12 +11,12 @@ from datetime import datetime, timedelta, date
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from childcount.core.models.Patient import Patient
-from childcount.core.models.Reports import HouseHoldVisitReport
-from childcount.core.models.Reports import PregnancyReport
-from childcount.core.models.Reports import DeathReport
-from childcount.core.models.Case import Case
-from childcount.child.models import BirthReport
+from childcount.models import Patient
+from childcount.models.reports import HouseHoldVisitReport
+from childcount.models.reports import PregnancyReport
+from childcount.models.reports import DeathReport
+from childcount.models import Case
+from childcount.models.reports import BirthReport
 
 
 class HandlerFailed(Exception):
@@ -39,9 +39,8 @@ def housholdvisit_section(created_by, health_id, available):
                     patient.get_dictionary()
 
 
-def pregnancy_section(created_by, health_id, clinic_visits, month, fever):
+def pregnancy_section(created_by, patient, clinic_visits, month, fever):
     '''3.2 Pregnancy Section'''
-    patient = Patient.objects.get(health_id=health_id)
     response = ''
     if month in range(1, 9) and clinic_visits in range(0,9):
         pcases = Case.objects.filter(patient=patient, \
