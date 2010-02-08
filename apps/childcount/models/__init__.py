@@ -8,6 +8,7 @@ from CHW import CHW
 from Patient import Patient
 from Referral import Referral
 from DangerSign import DangerSign
+from DangerSignTranslation import DangerSignTranslation
 from Configuration import Configuration
 from Commodity import Commodity
 from Case import Case
