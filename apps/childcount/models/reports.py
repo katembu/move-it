@@ -13,6 +13,7 @@ PatientRegistrationReport
 HouseHoldVisitReport
 FeverReport
 PregnancyReport
+PostPartumReport
 BirthReport
 NewbornReport
 ChildReport
@@ -161,19 +162,42 @@ class FeverReport(PatientReport, RDTField):
         verbose_name_plural = _(u"Fever Reports")
 
 
-class PregnancyReport(PatientReport, DangerSignsField):
+class PregnancyReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Pregnancy Report")
         verbose_name_plural = _(u"Pregnancy Reports")
 
-    pregnancy_month = models.PositiveSmallIntegerField(_('Pregnancy Month'), \
-                                    help_text=_('The month of the pregnancy'))
-    clinic_visits = models.PositiveSmallIntegerField(_('Clinic Visits'), \
-                                    help_text=_('Number of clinic visits'))
-    fever = models.BooleanField(_('Fever?'), \
-                                help_text=_('Fever in the last three days?'))
+    FEVER_YES = 'Y'
+    FEVER_NO = 'N'
+    FEVER_UNKOWN = 'U'
+
+    FEVER_CHOICES = (
+        (FEVER_Yes, _(u"Yes")),
+        (FEVER_NO, _(u"No")),
+        (FEVER_UNKOWN, _(u"Unknown")))
+
+    pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
+                                    help_text=_(u"How many months into the " \
+                                                 "pregnancy?"))
+    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+                                    help_text=_(u"Number of clinic visits " \
+                                                 "during pregnancy"))
+    fever = models.CharField(_(u"Fever"), choices=FEVER_CHOICES,
+                                help_text=_(u"Fever in the past three days?"))
+
+
+class PostpartumReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Postpartum Report")
+        verbose_name_plural = _(u"Postpartum Reports")
+
+    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+                                    help_text=_(u"Number of clinic visits " \
+                                                 "since delivery"))
 
 
 class BirthReport(PatientReport):
@@ -339,3 +363,6 @@ class MUACReport(PatientReport):
         if self.status is None:
             self.diagnose()
         super(MUACReport, self).save(*args)
+
+
+P
