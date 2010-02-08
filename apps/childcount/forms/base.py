@@ -384,6 +384,10 @@ def birth_section(created_by, health_id, token_string):
                     "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
     return response
 
+def mobile section(patient, mobile):
+    '''+MOBI'''
+    patient.mobile = mobile
+    patient.save()
 
 def death_section(created_by, health_id, dod):
     patient = Patient.objects.get(health_id=health_id)
