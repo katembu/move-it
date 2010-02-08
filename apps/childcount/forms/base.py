@@ -15,13 +15,28 @@ from childcount.models import Patient
 from childcount.models.reports import HouseHoldVisitReport
 from childcount.models.reports import PregnancyReport
 from childcount.models.reports import DeathReport
-from childcount.models import Case
-from childcount.models.reports import BirthReport
+from childcount.models import Case, Referral
+from childcount.models.reports import BirthReport, HealthReport
 
 
 class HandlerFailed(Exception):
     ''' No function pattern matchs message '''
     pass
+
+
+def healtstatus_section(created_by, patient, visited_clinic, danger_signs):
+    '''Health Status'''
+    response = ''
+    if visited_clinic in HealthReport.VISITED_CLINIC_CHOICES \
+        and danger_signs in HealthReport.DANGER_SIGNS_CHOICES:
+        if danger_signs == HealthReport.DANGER_SIGNS_PRESENT:
+            rf = Referral(created_by=created_by, patient=patient)
+            rf.save()
+            response = _('Danger signs present')
+        hr = HealthReport(created_by=created_by, patient=patient, \
+                     visited_clinic=visited_clinic, danger_signs=danger_signs)
+        hr.save()
+    return response
 
 
 def housholdvisit_section(created_by, health_id, available):
