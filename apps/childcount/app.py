@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from functools import wraps
 
-from childcount.core.models.Config import Configuration as Cfg
+from childcount.models import Configuration as Cfg
 
 from reporters.models import Reporter, Role
 from locations.models import Location
