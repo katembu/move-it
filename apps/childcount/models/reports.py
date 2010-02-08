@@ -139,6 +139,18 @@ class DeathReport(PatientReport):
                                                "accurate to within the month"))
 
 
+class ReferralReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Referral Report")
+        verbose_name_plural = _(u"Referral Reports")
+
+    danger_signs = models.ManyToManyField(_(u"Date of death"), \
+                                  help_text=_(u"The date of the death " \
+                                               "accurate to within the month"))
+
+
 class PatientRegistrationReport(PatientReport):
     pass
 
@@ -150,8 +162,9 @@ class HouseHoldVisitReport(PatientReport):
         verbose_name = _(u"Household Visit Report")
         verbose_name_plural = _(u"Household Visit Reports")
 
-    available = models.BooleanField(_('HH Member Available'), \
-                                help_text=_('Any Houshold member available'))
+    available = models.BooleanField(_(u"HH Member Available"), \
+                                help_text=_(u"Was a houshold member " \
+                                             "available?"))
 
 
 class FeverReport(PatientReport, RDTField):
