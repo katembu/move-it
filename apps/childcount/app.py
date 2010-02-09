@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from functools import wraps
 
 from childcount.models import Configuration as Cfg
+from childcount.models import CHW
 
 from reporters.models import Reporter, Role
 from locations.models import Location
@@ -105,7 +106,7 @@ class App (rapidsms.app.App):
         """Perform global app cleanup when the application is stopped."""
         pass
 
-    keyword.prefix = ['join']
+    keyword.prefix = ['join', 'chw']
 
     @keyword('(\S+) (\S+) (\S+)(?: ([a-z]\w+))?')
     def join(self, message, location_code, last_name, first_name, role=None):
@@ -124,10 +125,10 @@ class App (rapidsms.app.App):
             name = "%(fname)s %(lname)s" % {'fname': first_name, \
                                             'lname': last_name}
             # parse the name, and create a reporter
-            alias, fn, ln = Reporter.parse_name(name)
+            alias, fn, ln = CHW.parse_name(name)
 
             if not message.persistant_connection.reporter:
-                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+                rep = CHW(alias=alias, first_name=fn, last_name=ln)
             else:
                 rep = message.persistant_connection.reporter
                 rep.alias = alias
@@ -201,3 +202,4 @@ class App (rapidsms.app.App):
         return True
     join.format = "join [location code] [last name] [first name] " \
                   "[role - leave blank for CHEW]"
+
