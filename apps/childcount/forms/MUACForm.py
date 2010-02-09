@@ -14,7 +14,7 @@ class MUACForm(CCForm):
     report_object = None
     error = None
 
-    def process(self,patient,reporter,string):
+    def process(self,patient,reporter,params):
         print "Processing"
 
         if True or reporter.lang == 'en': 
