@@ -203,3 +203,16 @@ class App (rapidsms.app.App):
     join.format = "join [location code] [last name] [first name] " \
                   "[role - leave blank for CHEW]"
 
+    keyword.prefix = ['whoami']
+
+    @keyword.blank()
+    @registered
+    def whoami(self, message):
+        reporter = message.persistent_connection.reporter
+        message.respond(_('%(full_name)s (@%(alias)s, %(location)s, '\
+                '%(role)s)') % {'full_name': reporter.display_name(), \
+                                'alias': reporter.alias, \
+                                'role': reporter.role, \
+                                'location': reporter.location})
+        return True
+
