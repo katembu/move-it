@@ -7,10 +7,10 @@
 Patient - Patient model
 '''
 
+from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-
-from datetime import datetime
 
 from reporters.models import Reporter
 from locations.models import Location
@@ -96,3 +96,26 @@ class Patient(GenderField):
         days = (datetime.now() - self.dob).days
         months = int(days / 30.4375)
         return days, months
+       
+    @classmethod 
+    def is_valid_health_id(cls,health_id):
+        MIN_LENGTH = 4
+        MAX_LENGTH = 4
+        BASE_CHARACTERS = '0123456789acdefghjklmnprtuvwxy'
+
+        try:
+            health_id = unicode(health_id)
+            health_id = health_id.lower()
+        except:
+            return False
+            
+        if len(health_id) < MIN_LENGTH or len(health_id) > MAX_LENGTH:
+            return False
+        
+        for char in health_id:
+            if char not in BASE_CHARACTERS:
+                return False
+
+        # TODO checkbit
+
+        return True
