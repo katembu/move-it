@@ -11,10 +11,8 @@ class MUACForm(CCForm):
     KEYWORDS = {
         'en': ['muac'],
     }
-    report_object = None
-    error = None
 
-    def process(self,patient,reporter,params):
+    def process(self, message, patient, params):
         print "Processing"
 
         if True or reporter.lang == 'en': 

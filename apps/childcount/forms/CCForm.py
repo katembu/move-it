@@ -3,18 +3,16 @@
 # maintainer: dgelvin
 
 class CCForm(object):
-    KEYWORDS = {}
-    ACTIVE = True
-    error = None
-    report_object = None
+    #KEYWORDS = {}
+    MULTIPLE_PATIENTS = True
     
-    def pre_process(self,health_id,params):
+    def pre_process(self, message, health_id, params):
         pass
         
-    def process(self,patient,reporter,params):
+    def process(self, message, patient, params):
         pass
 
-    def post_process(self,reports_list):
+    def post_process(self, reports_list):
         pass
 
 

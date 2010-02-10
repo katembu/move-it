@@ -3,14 +3,13 @@
 # maintainer: dgelvin
 
 class RegistrationCommand(object):
+    ENGLISH_CHW_JOIN = 'chw'   
     KEYWORDS = {
-        'en': ['chw'],
-    }
-    ACTIVE = True
-    REGISTERED_REPORTERS_ONLY = False
-    error = None
+        '*': [ENGLISH_CHW_JOIN],
 
-    def process(self,reporter,params):
+    }
+
+    def process(self, message, params):
     
         print 'yea'
     
