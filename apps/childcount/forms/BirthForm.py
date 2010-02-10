@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
+
 import re
 import time
-from datetime import date 
+from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -111,7 +112,7 @@ class BirthForm(CCForm):
         # probably dealing with an age (in months),
         # so attempt to estimate a dob
         else:
-            # TODO move to a utils file? (almost same code in import_cases.py)
+            # TODO move to a utils file?
             try:
                 if dob.isdigit():
                     if years_months.upper() == 'Y':
@@ -126,7 +127,7 @@ class BirthForm(CCForm):
                     # TODO this 2 step conversion is too complex, simplify!
                     dob = time.strptime(estimate, "%Y-%m-%d")
                     dob = date(*dob[:3])
-    
+
                     estimated_dob = True
             except Exception, e:
                 pass
@@ -153,7 +154,8 @@ class BirthForm(CCForm):
             household = guardian
         info = {}
         info.update({'first_name': first, 'last_name': last, \
-                     'middle_name': middle, 'chw': created_by, 'gender': gender, \
+                     'middle_name': middle, 'chw': created_by, \
+                     'gender': gender, \
                      'dob': dob, 'estimated_dob': estimated_dob, \
                      'health_id': health_id, 'guardian': guardian, \
                      'household': household})
@@ -171,9 +173,10 @@ class BirthForm(CCForm):
             patient = Patient(**info)
             patient.save()
 
-            br = BirthReport(patient=patient, clinic_delivery=clinic_delivery, \
+            br = BirthReport(patient=patient, \
+                             clinic_delivery=clinic_delivery, \
                              bcg=bcg, weight=weight, created_by=created_by)
             br.save()
-            response = _("Birth %(health_id)s: %(last_name)s, %(first_name)s " \
-                        "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
+            response = _("Birth %(health_id)s: %(last_name)s, %(first_name)s "\
+                    "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
         return response
