@@ -6,7 +6,6 @@ class RegistrationCommand(object):
     ENGLISH_CHW_JOIN = 'chw'   
     KEYWORDS = {
         '*': [ENGLISH_CHW_JOIN],
-
     }
 
     def process(self, message, params):
@@ -34,7 +33,8 @@ class RegistrationCommand(object):
             alias, fn, ln = Reporter.parse_name(name)
 
             if not message.persistant_connection.reporter:
-                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+                chw = CHW(alias=alias, first_name=fn, last_name=ln)
+                rep = chw.reporter_ptr
             else:
                 rep = message.persistant_connection.reporter
                 rep.alias = alias

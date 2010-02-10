@@ -9,7 +9,7 @@ from childcount.models.reports import MUACReport
 
 class MUACForm(CCForm):
     KEYWORDS = {
-        'en': ['muac'],
+        '*': ['muac'],
     }
 
     def process(self, message, patient, params):
