@@ -33,10 +33,3 @@ class CHW(Reporter):
     clinic = models.ForeignKey(Clinic, verbose_name=_(u"Clinic"), \
                                related_name='stationed_chw',
                                help_text=_(u"The clinic this CHW reports to"))
-
-    @classmethod
-    def by_reporter(cls,reporter):
-        try:
-            return cls.objects.get(reporter_ptr=reporter)
-        except cls.DoesNotExist:
-            return None
