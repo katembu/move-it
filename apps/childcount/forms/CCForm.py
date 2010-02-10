@@ -12,7 +12,7 @@ class CCForm(object):
     def process(self, message, patient, params):
         pass
 
-    def post_process(self, reports_list):
+    def post_process(self, message, forms_list):
         pass
 
 
