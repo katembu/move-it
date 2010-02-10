@@ -18,7 +18,7 @@ class FeverForm(CCForm):
     KEYWORDS = {
         'en': ['f'],
     }
-    
+
     def process(self, patient):
         '''Fever Section (6-59 months)'''
         if len(self.params) < 2:
@@ -32,11 +32,11 @@ class FeverForm(CCForm):
             response = _("Child is too young for treatment. "\
                         "Please refer IMMEDIATELY to clinic")
         elif months > 59:
-            response = _('Child is older then 59 months. For any concerns about '\
-                         'child in the future please go to the clinic. (Please '\
-                         'advise mother to still closely monitor child and refer '\
-                         'them to the clinic any time there is a concern). '\
-                         'Positive reinforcement')
+            response = _('Child is older then 59 months. For any concerns '\
+                         'about child in the future please go to the clinic. '\
+                         '(Please advise mother to still closely monitor '\
+                         'child and refer them to the clinic any time there '\
+                         'is a concern). Positive reinforcement')
         else:
             if rdt.upper() == RDTField.RDT_POSITIVE:
                 years = months / 12

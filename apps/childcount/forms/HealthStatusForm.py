@@ -25,6 +25,6 @@ class HealthStatusForm(CCForm):
                 rf.save()
                 response = _('Danger signs present')
             hr = HealthReport(created_by=created_by, patient=patient, \
-                         visited_clinic=visited_clinic, danger_signs=danger_signs)
+                    visited_clinic=visited_clinic, danger_signs=danger_signs)
             hr.save()
         return response
