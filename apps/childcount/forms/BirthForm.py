@@ -7,7 +7,7 @@ import time
 from datetime import date
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue

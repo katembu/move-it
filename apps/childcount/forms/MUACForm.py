@@ -4,6 +4,8 @@
 
 from datetime import datetime, timedelta
 
+from django.utils.translation import ugettext as _
+
 from CCForm import CCForm
 from childcount.models.reports import MUACReport
 from childcount.models import CHW, Referral, Case

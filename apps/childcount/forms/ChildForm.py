@@ -5,7 +5,7 @@
 '''Child logic
 '''
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm, FeverForm
 from childcount.models.reports import NewbornReport, ChildReport
