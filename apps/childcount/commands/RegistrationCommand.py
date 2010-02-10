@@ -2,14 +2,17 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
-class RegistrationCommand(object):
+from childcount.commands import CCCommand
+
+class RegistrationCommand(CCCommand):
     ENGLISH_CHW_JOIN = 'chw'   
     KEYWORDS = {
         '*': [ENGLISH_CHW_JOIN],
-
     }
 
-    def process(self, message, params):
+    def process(self):
+        if 
+
     
         print 'yea'
     
@@ -34,7 +37,8 @@ class RegistrationCommand(object):
             alias, fn, ln = Reporter.parse_name(name)
 
             if not message.persistant_connection.reporter:
-                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
+                chw = CHW(alias=alias, first_name=fn, last_name=ln)
+                rep = chw.reporter_ptr
             else:
                 rep = message.persistant_connection.reporter
                 rep.alias = alias

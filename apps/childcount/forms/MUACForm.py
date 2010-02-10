@@ -11,7 +11,7 @@ from childcount.models import CHW, Referral, Case
 
 class MUACForm(CCForm):
     KEYWORDS = {
-        'en': ['muac'],
+        '*': ['muac'],
     }
 
     def process(self, message, patient, params):

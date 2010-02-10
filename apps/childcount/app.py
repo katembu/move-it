@@ -13,35 +13,43 @@ from reporters.models import Reporter, Role
 from locations.models import Location
 
 from childcount.models import Configuration as Cfg
+from childcount.models import Patient
 from childcount.forms import *
 from childcount.commands import *
 
 
 class HandlerFailed (Exception):
     pass
+    
 
 
 class App (rapidsms.app.App):
     """Main ChildCount App
     """
     DEFAULT_LANGUAGE = 'en'
+    
     COMMANDS = [RegistrationCommand]
     FORMS = [MUACForm]
+    MATCH_ALL_LANG_CHAR = '*'
+    
     command_keywords = {}
     form_keywords = {}
+    
 
     def start(self):
         def create_mapping(cls_list):
+            
             keywords = {}
-            active_cls_list = filter(lambda cls: cls.ACTIVE, cls_list)
-            for cls in active_cls_list:
+            keywords[self.MATCH_ALL_LANG_CHAR] = {}
+            for cls in cls_list:
                 for lang in cls.KEYWORDS.keys():
-                    lang = lang.lower()
+                    lang = lang.lower().strip()
                     if not lang in keywords:
                         keywords[lang] = {}
                     for keyword in cls.KEYWORDS[lang]:
-                        keyword = keyword.lower()
-                        if keyword in keywords[lang]:
+                        keyword = keyword.lower().strip()
+                        if keyword in keywords[lang] or \
+                           keyword in keywords[self.MATCH_ALL_LANG_CHAR]:
                             raise Exception(u"Keyword clash in language " \
                                              "'%(language)s' on keyword " \
                                              "'%(keyword)s' in %(class)s" % \
@@ -54,15 +62,19 @@ class App (rapidsms.app.App):
         self.command_keywords = create_mapping(self.COMMANDS)
         self.form_keywords = create_mapping(self.FORMS)
 
-
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
         pass
 
     def handle(self, message):
-        lang = self.DEFAULT_LANGUAGE
-        handled = False
         FORM_PREFIX = '\+'
+        handled = False
+    
+        reporter = message.persistant_connection.reporter
+        if reporter:
+            reporter_language = reporter.language
+        else:
+            reporter_language = self.DEFAULT_LANGUAGE
 
         # make lower case, strip, and remove duplicate spaces
         input_text = re.sub(r'\s{2,}', ' ', message.text.strip().lower())
@@ -88,36 +100,44 @@ class App (rapidsms.app.App):
             forms = []
             for group in form_groups_regex.findall(forms_text):
                 params = re.split(r'\s+', group)
-                forms.append({'keyword':params[0], 'params':params})
+                forms.append(params)
 
-            for id in health_ids:
-                for form in forms:
-                    if lang in self.form_keywords and \
-                       form['keyword'] in self.form_keywords[lang]:
-                        handled = True
-                        form_class = self.form_keywords[lang][form['keyword']]
-                        form_object = form_class()
-                        form_object.process( \
-                            message.persistant_connection.reporter, \
-                            message.persistant_connection.reporter, params)
+            for health_id in health_ids:
+                for params in forms:
+                    keyword = params[0]
+                    if keyword in self.form_keywords[self.MATCH_ALL_LANG_CHAR]:
+                        lang = self.MATCH_ALL_LANG_CHAR
                     else:
-                        #TODO
+                        lang = reporter_language
+                    if lang in self.form_keywords and \
+                       keyword in self.form_keywords[lang]:
+                        handled = True
+                        form_class = self.form_keywords[lang][keyword]
+                        form_object = form_class(message, params)
+                        form_object.pre_process(health_id)
+                        #TODO handle pre_process failure
+                        #TODO handle patient doesn't exist
+                        patient = Patient.objects.get(health_id=health_id)
+                        form_object.process(patient)
+                    else:
+                        #TODO handle bad form
                         print "Unkown form"
-             
+                return True
+
         ### Commands
         params = re.split(r'\s+', message.text)
         command = params[0]
+        if command in self.command_keywords[self.MATCH_ALL_LANG_CHAR]:
+            lang = self.MATCH_ALL_LANG_CHAR
+        else:
+            lang = reporter_language
         if lang in self.command_keywords and \
            command in self.command_keywords[lang]:
             handled = True
             command_class = self.command_keywords[lang][command]
-            if not message.persistant_connection.reporter and \
-               command_class.REGISTERED_REPORTERS_ONLY:
-                message.respond(_(u"Sorry, only registered users "
-                                   "can access this command."))
-            else:
-                command_object = command_class()
-                command_object.process(message.persistant_connection.reporter, params)
+            print command_class
+            command_object = command_class(message, params)
+            command_object.process()
 
         return handled
 
