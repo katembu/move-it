@@ -21,9 +21,12 @@ class FeverForm(CCForm):
     
     def process(self, message, patient, params):
         '''Fever Section (6-59 months)'''
-       
+        if len(params) < 2:
+            return False
+        rdt = params[1]
         days, months = patient.age_in_days_months()
         response = ''
+        created_by = message.persistent_connection.reporter
 
         if days <= 30:
             response = _("Child is too young for treatment. "\
@@ -35,7 +38,7 @@ class FeverForm(CCForm):
                          'them to the clinic any time there is a concern). '\
                          'Positive reinforcement')
         else:
-            if rdt.upper() in ('Y', 'P'):
+            if rdt.upper() == RDTField.RDT_POSITIVE:
                 years = months / 12
                 tabs, yage = None, None
                 # just reformatted to make it look like less ugh
