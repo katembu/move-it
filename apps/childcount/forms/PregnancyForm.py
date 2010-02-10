@@ -29,7 +29,7 @@ class PregnancyForm(CCForm):
             pcases = Case.objects.filter(patient=patient, \
                                          type=Case.TYPE_PREGNANCY, \
                                          status=Case.STATUS_OPEN)
-    
+
             if pcases.count() == 0:
                 #create a new pregnancy case
                 now = datetime.now()
@@ -40,30 +40,32 @@ class PregnancyForm(CCForm):
                 case.save()
             else:
                 case = pcases.pop()
-    
+
             if fever.upper() == 'Y':
                 if month <= 3:
-                    response = _('Please refer woman immediately to clinic for '\
-                        'treatment. Do not test with RDT or provide home-based '\
-                        'treatment.')
+                    response = _('Please refer woman immediately to clinic '\
+                                 'for treatment. Do not test with RDT or '\
+                                 'provide home-based treatment.')
                 fever = True
             else:
                 fever = False
-    
+
             if month == 2 and clinic_visits < 1 \
                 or month == 5 and clinic_visits < 2 \
                 or month == 7 and clinic_visits < 3 \
                 or month == 8 and clinic_visits < 8:
                 response += _('Remind the woman she is due for a clinic visit')
-    
+
             pr = PregnancyReport(created_by=created_by, patient=patient, \
-                            pregnancy_month=month, clinic_visits=clinic_visits, \
-                            fever=fever)
+                                 pregnancy_month=month, \
+                                 clinic_visits=clinic_visits, \
+                                 fever=fever)
             pr.save()
-    
-            response += _('%(clinic_visits)s clinic visits, month %(month)s') % \
+
+            response += _('%(clinic_visits)s clinic visits, '\
+                          'month %(month)s') % \
                 {'clinic_visits': clinic_visits, 'month': month}
         else:
             response = _('Invalid data, month(1-9), visits(0-9)')
-    
+
         return response
