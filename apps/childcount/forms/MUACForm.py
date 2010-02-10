@@ -14,13 +14,13 @@ class MUACForm(CCForm):
         '*': ['muac'],
     }
 
-    def process(self, message, patient, params):
+    def process(self, patient):
         print "Processing"
-        if len(params) < 3:
+        if len(self.params) < 3:
             return False
-        created_by = CHW.by_reporter(message.persistent_connection.reporter)
-        muac = int(params[1])
-        oedema = params[2]
+        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
+        muac = int(self.params[1])
+        oedema = self.params[2]
         days, months = patient.age_in_days_months()
         response = ''
 
