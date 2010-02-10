@@ -4,7 +4,6 @@
 
 import re
 
-
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
@@ -16,11 +15,7 @@ from childcount.models import Configuration as Cfg
 from childcount.models import Patient
 from childcount.forms import *
 from childcount.commands import *
-
-
-class HandlerFailed (Exception):
-    pass
-    
+from childcount.exceptions import *
 
 
 class App (rapidsms.app.App):
@@ -135,7 +130,6 @@ class App (rapidsms.app.App):
            command in self.command_keywords[lang]:
             handled = True
             command_class = self.command_keywords[lang][command]
-            print command_class
             command_object = command_class(message, params)
             command_object.process()
 
