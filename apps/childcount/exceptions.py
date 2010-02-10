@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: dgelvin
+
+from django.utils.translation import ugettext as _
+
+class ParseError(Exception):    
+    def __init__(self, message=_(u"FAILED. unable to understand")):
+        self.message = message
+        
+class BadValue(Exception):
+    def __init__(self, message=_(u"FAILED. Bad value")):
+        self.message = message
