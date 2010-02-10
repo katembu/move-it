@@ -1,8 +1,8 @@
 from django.utils.translation import ugettext as _
-
 from childcount.forms import CCForm
 from childcount.models import CHW, Referral
 from childcount.models.reports import HealthReport
+
 
 
 class HealthStatusForm(CCForm):
@@ -23,8 +23,11 @@ class HealthStatusForm(CCForm):
             if danger_signs == HealthReport.DANGER_SIGNS_PRESENT:
                 rf = Referral(created_by=created_by, patient=patient)
                 rf.save()
-                response = _('Danger signs present')
+                response = _('Danger signs present.')
+            if visited_clinic == HealthReport.VISITED_CLINIC_YES:
+                response += _(' Visited clinic')
             hr = HealthReport(created_by=created_by, patient=patient, \
                     visited_clinic=visited_clinic, danger_signs=danger_signs)
             hr.save()
+ 
         return response

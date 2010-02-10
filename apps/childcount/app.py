@@ -24,7 +24,7 @@ class App (rapidsms.app.App):
     DEFAULT_LANGUAGE = 'en'
     
     COMMANDS = [RegistrationCommand, WhoCommand]
-    FORMS = [MUACForm]
+    FORMS = [MUACForm, HealthStatusForm]
     MATCH_ALL_LANG_CHAR = '*'
     
     command_keywords = {}
