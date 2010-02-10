@@ -12,20 +12,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from childcount.forms import CCForm
 from childcount.models import  Patient
-from childcount.app import BadValue
+from childcount.exceptions import BadValue
 
 
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
-        'en': ['p'],
+        'en': ['new'],
     }
 
-    def process(self, patient):
+    def pre_process(self, health_id):
         if len(self.params) < 4:
             return False
-        clinic_visits = int(self.params[1])
-        month = int(self.params[2])
-        fever = self.params[3]
         response = ''
         created_by = self.message.persistent_connection.reporter.chw
 
@@ -73,7 +70,7 @@ class PatientRegistrationForm(CCForm):
         if len(tokens) == 1:
             care_giver = tokens.pop()
             if token.upper() == 'P':
-                care_giver = patient.health_id
+                care_giver = health_id
         else:
             care_giver = tokens.pop()
             household_id = tokens.pop()
@@ -146,7 +143,7 @@ class PatientRegistrationForm(CCForm):
                      'middle_name': middle, 'chw': created_by, \
                      'gender': gender, \
                      'dob': dob, 'estimated_dob': estimated_dob, \
-                     'health_id': patient.health_id, 'guardian': guardian, \
+                     'health_id': health_id, 'guardian': guardian, \
                      'household': household})
 
         patient_check = Patient.objects.filter(first_name=info['first_name'], \
