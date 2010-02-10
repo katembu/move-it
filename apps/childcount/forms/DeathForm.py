@@ -13,7 +13,7 @@ from childcount.exceptions import BadValue
 from childcount.models.reports import DeathReport
 
 
-class MobileForm(CCForm):
+class DeathForm(CCForm):
     KEYWORDS = {
         'en': ['mobi'],
     }
