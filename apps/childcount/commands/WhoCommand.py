@@ -14,10 +14,10 @@ from childcount.commands import CCCommand
 from childcount.models import CHW
 
 
-class WhoAmICommand(CCCommand):
+class WhoCommand(CCCommand):
 
     KEYWORDS = {
-        'en': ['iam'],
+        'en': ['who'],
     }
 
     def process(self):
