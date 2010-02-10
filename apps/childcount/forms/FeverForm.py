@@ -6,7 +6,7 @@
 
 from datetime import datetime, timedelta
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from childcount.forms.CCForm import CCForm
 from childcount.models import Case, CHW
