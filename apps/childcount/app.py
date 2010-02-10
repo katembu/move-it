@@ -13,6 +13,7 @@ from reporters.models import Reporter, Role
 from locations.models import Location
 
 from childcount.models import Configuration as Cfg
+from childcount.models import Patient
 from childcount.forms import *
 from childcount.commands import *
 
@@ -66,9 +67,14 @@ class App (rapidsms.app.App):
         pass
 
     def handle(self, message):
-        lang = self.DEFAULT_LANGUAGE
-        handled = False
         FORM_PREFIX = '\+'
+        handled = False
+    
+        reporter = message.persistant_connection.reporter
+        if reporter:
+            reporter_language = reporter.language
+        else:
+            reporter_language = self.DEFAULT_LANGUAGE
 
         # make lower case, strip, and remove duplicate spaces
         input_text = re.sub(r'\s{2,}', ' ', message.text.strip().lower())
@@ -96,21 +102,23 @@ class App (rapidsms.app.App):
                 params = re.split(r'\s+', group)
                 forms.append(params)
 
-            for id in health_ids:
+            for health_id in health_ids:
                 for params in forms:
                     keyword = params[0]
                     if keyword in self.form_keywords[self.MATCH_ALL_LANG_CHAR]:
                         lang = self.MATCH_ALL_LANG_CHAR
+                    else:
+                        lang = reporter_language
                     if lang in self.form_keywords and \
                        keyword in self.form_keywords[lang]:
                         handled = True
                         form_class = self.form_keywords[lang][keyword]
-                        form_object = form_class()
-                        form_object.pre_process(message, health_id, params)
+                        form_object = form_class(message, params)
+                        form_object.pre_process(health_id)
                         #TODO handle pre_process failure
                         #TODO handle patient doesn't exist
                         patient = Patient.objects.get(health_id=health_id)
-                        form_object.process(message, patient, params)
+                        form_object.process(patient)
                     else:
                         #TODO handle bad form
                         print "Unkown form"
@@ -121,12 +129,15 @@ class App (rapidsms.app.App):
         command = params[0]
         if command in self.command_keywords[self.MATCH_ALL_LANG_CHAR]:
             lang = self.MATCH_ALL_LANG_CHAR
+        else:
+            lang = reporter_language
         if lang in self.command_keywords and \
            command in self.command_keywords[lang]:
             handled = True
             command_class = self.command_keywords[lang][command]
-            command_object = command_class()
-            command_object.process(message, params)
+            print command_class
+            command_object = command_class(message, params)
+            command_object.process()
 
         return handled
 

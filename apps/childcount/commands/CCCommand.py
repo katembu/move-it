@@ -5,8 +5,13 @@
 
 class CCCommand(object):
     KEYWORDS = {}
+    message = None
+    params = None
+    def __init__(self, message, params):
+        self.message = message
+        self.params = params
     
-    def process(self,message,params):
+    def process(self):
         pass
         
 

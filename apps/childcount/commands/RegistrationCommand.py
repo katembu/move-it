@@ -2,13 +2,17 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
-class RegistrationCommand(object):
+from childcount.commands import CCCommand
+
+class RegistrationCommand(CCCommand):
     ENGLISH_CHW_JOIN = 'chw'   
     KEYWORDS = {
         '*': [ENGLISH_CHW_JOIN],
     }
 
-    def process(self, message, params):
+    def process(self):
+        if 
+
     
         print 'yea'
     
