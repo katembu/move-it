@@ -23,7 +23,7 @@ class App (rapidsms.app.App):
     """
     DEFAULT_LANGUAGE = 'en'
     
-    COMMANDS = [RegistrationCommand]
+    COMMANDS = [RegistrationCommand, WhoAmICommand]
     FORMS = [MUACForm]
     MATCH_ALL_LANG_CHAR = '*'
     
