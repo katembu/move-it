@@ -4,7 +4,7 @@
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from reporters.models import Role
@@ -17,12 +17,17 @@ from childcount.models import CHW
 
 
 class RegistrationCommand(CCCommand):
+    ENGLISH = 'en'
     ENGLISH_CHW_JOIN = 'chw'
+    
     KEYWORDS = {
         '*': [ENGLISH_CHW_JOIN],
     }
 
     def process(self):
+        if self.params[0] == self.ENGLISH_CHW_JOIN:
+            reporter_language = self.ENGLISH
+
         CHW_ROLE_CODE = 'chw'
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough information. Expected: " \
@@ -38,7 +43,7 @@ class RegistrationCommand(CCCommand):
 
         if len(self.params) == 3:
             raise ParseError(_(u"You must give more than one name"))
-
+            
         last_name = self.params[2].title()
         first_name = ' '.join(self.params[3:]).title()
 
@@ -65,6 +70,7 @@ class RegistrationCommand(CCCommand):
 
         chw.first_name = first_name
         chw.last_name = last_name
+        chw.language = reporter_language
 
         try:
             chw_role = Role.objects.get(code=CHW_ROLE_CODE)
@@ -87,7 +93,7 @@ class RegistrationCommand(CCCommand):
         self.message.persistant_connection.save()
 
         # inform target
-        self.message.forward(reporter.connection().identity, \
+        self.message.respond(
             _(u"Success. You are now registered at %(location)s with " \
                "alias @%(alias)s.") \
                % {'location': location, 'alias': chw.alias})

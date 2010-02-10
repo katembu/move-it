@@ -4,7 +4,7 @@
 
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.db import models
 
 import rapidsms
@@ -131,7 +131,11 @@ class App (rapidsms.app.App):
             handled = True
             command_class = self.command_keywords[lang][command]
             command_object = command_class(message, params)
-            command_object.process()
+            try:
+                command_object.process()
+            except (ParseError, BadValue), e:
+                message.respond(e.message)
+
 
         return handled
 
