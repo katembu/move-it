@@ -24,7 +24,7 @@ class NewbornForm(CCForm):
         breast_only = self.params[1]
         days, months = patient.age_in_days_months()
         response = ''
-        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
+        created_by = self.message.persistent_connection.reporter.chw
 
         if months >= 6 and months < 60:
             response = _('Child is %(months)d months old. Please fill out CHILD ' \
@@ -50,7 +50,7 @@ class CHildForm(CCForm):
         fever = self.params[1]
         diarrhea = self.params[2]
         days, months = patient.age_in_days_months()
-        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
+        created_by = self.message.persistent_connection.reporter.chw
         response = ''
     
         if months < 6:

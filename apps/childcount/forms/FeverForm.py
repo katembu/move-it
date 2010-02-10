@@ -26,7 +26,7 @@ class FeverForm(CCForm):
         rdt = self.params[1]
         days, months = patient.age_in_days_months()
         response = ''
-        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
+        created_by = self.message.persistent_connection.reporter.chw
 
         if days <= 30:
             response = _("Child is too young for treatment. "\

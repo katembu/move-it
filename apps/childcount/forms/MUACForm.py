@@ -18,7 +18,7 @@ class MUACForm(CCForm):
         print "Processing"
         if len(self.params) < 3:
             return False
-        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
+        created_by = self.message.persistent_connection.reporter.chw
         muac = int(self.params[1])
         oedema = self.params[2]
         days, months = patient.age_in_days_months()
