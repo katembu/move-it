@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext_lazy as _
 
 from childcount.forms.CCForm import CCForm
-from childcount.models import Case
+from childcount.models import Case, CHW
 from childcount.models.reports import FeverReport
 from childcount.models.shared_fields import RDTField
 
@@ -19,14 +19,14 @@ class FeverForm(CCForm):
         'en': ['f'],
     }
     
-    def process(self, message, patient, params):
+    def process(self, patient):
         '''Fever Section (6-59 months)'''
-        if len(params) < 2:
+        if len(self.params) < 2:
             return False
-        rdt = params[1]
+        rdt = self.params[1]
         days, months = patient.age_in_days_months()
         response = ''
-        created_by = message.persistent_connection.reporter
+        created_by = CHW.by_reporter(self.message.persistent_connection.reporter)
 
         if days <= 30:
             response = _("Child is too young for treatment. "\
