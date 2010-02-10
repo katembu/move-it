@@ -24,34 +24,9 @@ class HandlerFailed(Exception):
     pass
 
 
-def healtstatus_section(created_by, patient, visited_clinic, danger_signs):
-    '''Health Status'''
-    response = ''
-    if visited_clinic in HealthReport.VISITED_CLINIC_CHOICES \
-        and danger_signs in HealthReport.DANGER_SIGNS_CHOICES:
-        if danger_signs == HealthReport.DANGER_SIGNS_PRESENT:
-            rf = Referral(created_by=created_by, patient=patient)
-            rf.save()
-            response = _('Danger signs present')
-        hr = HealthReport(created_by=created_by, patient=patient, \
-                     visited_clinic=visited_clinic, danger_signs=danger_signs)
-        hr.save()
-    return response
 
 
-def housholdvisit_section(created_by, health_id, available):
-    '''2.1) HH Visit - All Households'''
-    patient = Patient.objects.get(health_id=health_id)
 
-    if available.upper() == 'Y':
-        available = True
-    else:
-        available = False
-    hhvr = HouseHoldVisitReport(created_by=created_by, patient=patient, \
-                                available=available)
-    hhvr.save()
-    return _('Visist registered to %(full_name)s. Thank you.') % \
-                    patient.get_dictionary()
 
 
 def pregnancy_section(created_by, patient, clinic_visits, month, fever):
