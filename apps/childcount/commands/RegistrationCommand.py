@@ -57,15 +57,15 @@ class RegistrationCommand(CCCommand):
                 chw = CHW(reporter_ptr=reporter)
                 chw.save_base(raw=True)
 
-        name = "%(fname)s %(lname)s" % {'fname': first_name, \
-                                        'lname': last_name}
-        # parse the name, and create a reporter
-        alias, fn, ln = Reporter.parse_name(name)
 
-        print alias
-        print chw.alias
-        
-        if not re.match(r'%s\d$' % chw.alias, alias):
+        orig_alias = CHW.generate_alias(first_name, last_name)[:20]
+        alias = orig_alias.lower()
+
+        if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):            
+            n = 1
+            while CHW.objects.filter(alias__iexact=alias).count():
+                alias = "%s%d" % (orig_alias.lower(), n)
+                n += 1
             chw.alias = alias
 
         chw.first_name = first_name
