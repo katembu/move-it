@@ -8,3 +8,4 @@ from childcount.forms.FeverForm import FeverForm
 from childcount.forms.ChildForm import CHildForm, NewbornForm
 from childcount.forms.HealthStatusForm import HealthStatusForm
 from childcount.forms.HouseHoldVisitForm import HouseHoldVisitForm
+from childcount.forms.PregnancyForm import PregnancyForm
