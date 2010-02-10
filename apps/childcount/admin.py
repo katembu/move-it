@@ -5,6 +5,7 @@
 from django.contrib import admin
 
 from childcount.models import *
+from childcount.models.reports import *
 
 admin.site.register(Configuration)
 admin.site.register(Case)
