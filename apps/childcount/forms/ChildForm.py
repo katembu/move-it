@@ -41,7 +41,7 @@ class NewbornForm(CCForm):
 
 class CHildForm(CCForm):
     KEYWORDS = {
-        'en': ['n'],
+        'en': ['c'],
     }
     fever = None
     def process(self, patient):
