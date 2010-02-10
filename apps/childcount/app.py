@@ -29,7 +29,6 @@ class App (rapidsms.app.App):
     
     command_keywords = {}
     form_keywords = {}
-    
 
     def start(self):
         def create_mapping(cls_list):
@@ -66,7 +65,7 @@ class App (rapidsms.app.App):
         handled = False
     
         reporter = message.persistant_connection.reporter
-        if reporter:
+        if reporter and reporter.language:
             reporter_language = reporter.language
         else:
             reporter_language = self.DEFAULT_LANGUAGE
@@ -135,7 +134,6 @@ class App (rapidsms.app.App):
                 command_object.process()
             except (ParseError, BadValue), e:
                 message.respond(e.message)
-
 
         return handled
 

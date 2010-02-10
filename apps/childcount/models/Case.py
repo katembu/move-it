@@ -8,7 +8,7 @@ Case - Case/Encounter model
 '''
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from childcount.models import Patient
 from childcount.models.reports import PatientReport
