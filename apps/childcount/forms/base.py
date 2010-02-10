@@ -27,19 +27,6 @@ class HandlerFailed(Exception):
 
 
 
-def housholdvisit_section(created_by, health_id, available):
-    '''2.1) HH Visit - All Households'''
-    patient = Patient.objects.get(health_id=health_id)
-
-    if available.upper() == 'Y':
-        available = True
-    else:
-        available = False
-    hhvr = HouseHoldVisitReport(created_by=created_by, patient=patient, \
-                                available=available)
-    hhvr.save()
-    return _('Visist registered to %(full_name)s. Thank you.') % \
-                    patient.get_dictionary()
 
 
 def pregnancy_section(created_by, patient, clinic_visits, month, fever):
