@@ -25,7 +25,7 @@ class App (rapidsms.app.App):
     """Main ChildCount App
     """
     DEFAULT_LANGUAGE = 'en'
-    COMMANDS = [CHWRegistrationCommand]
+    COMMANDS = [RegistrationCommand]
     FORMS = [MUACForm]
     command_keywords = {}
     form_keywords = {}

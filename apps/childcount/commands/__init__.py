@@ -3,4 +3,4 @@
 # maintainer: dgelvin
 
 from CCCommand import CCCommand
-from CHWRegistrationCommand import CHWRegistrationCommand
+from RegistrationCommand import RegistrationCommand
