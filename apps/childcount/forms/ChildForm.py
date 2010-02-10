@@ -8,7 +8,6 @@
 from django.utils.translation import ugettext_lazy as _
 
 from childcount.forms import CCForm, FeverForm
-from childcount.models import CHW
 from childcount.models.reports import NewbornReport, ChildReport
 
 
