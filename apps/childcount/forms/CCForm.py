@@ -11,10 +11,10 @@ class CCForm(object):
     def __init__(self, message, params):
         self.message = message
         self.params = params
-    
+
     def pre_process(self, health_id):
         pass
-        
+
     def process(self, patient):
         pass
 
