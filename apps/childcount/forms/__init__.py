@@ -13,5 +13,6 @@ from childcount.forms.PatientRegistrationForm import PatientRegistrationForm
 from childcount.forms.MobileForm import MobileForm
 from childcount.forms.DeathForm import DeathForm
 from childcount.forms.BirthForm import BirthForm
+from childcount.forms.PostpartumForm import PostpartumForm
 
 import utils
