@@ -27,7 +27,7 @@ class PatientRegistrationForm(CCForm):
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
     def pre_process(self, health_id):
-        if len(self.params) < 4:
+        if len(self.params) < 6:
             raise ParseError(_(u"Not enough patient information given. " \
                                 "Check and try again"))
         response = ''
