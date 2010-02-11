@@ -5,6 +5,7 @@
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
+from childcount.exceptions import BadValue
 
 
 class MobileForm(CCForm):
@@ -15,7 +16,10 @@ class MobileForm(CCForm):
     def process(self, patient):
         if len(self.params) < 2:
             return False
-        response = _('Mobile Ok')
-        patient.mobile = self.params[1]
+        mobile = ''.join(self.params[1:])
+        if not mobile.isdigit():
+            raise BadValue(_('Expected numbers'))
+        patient.mobile = mobile
         patient.save()
+        response = _('mobile: %(mobile)s') % {'mobile': mobile} 
         return response
