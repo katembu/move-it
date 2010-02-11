@@ -37,13 +37,13 @@ class Case(models.Model):
 
     TYPE_PREGNANCY = 0
     TYPE_MALNUTRITION = 1
-    TYPE_MALARIA = 2
+    TYPE_FEVER = 2
     TYPE_DIARRHEA = 3
 
     TYPE_CHOICES = (
         (TYPE_PREGNANCY, _(u"Pregnancy")),
         (TYPE_MALNUTRITION, _(u"Malnutrition")),
-        (TYPE_MALARIA, _(u"Malaria")),
+        (TYPE_FEVER, _(u"Fever")),
         (TYPE_DIARRHEA, _(u"Diarrhea")))
 
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \
