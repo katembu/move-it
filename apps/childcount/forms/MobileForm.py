@@ -14,11 +14,9 @@ class MobileForm(CCForm):
     }
 
     def process(self, patient):
-        if len(self.params) < 2:
-            return False
         mobile = ''.join(self.params[1:])
-        if not mobile.isdigit():
-            raise BadValue(_('Expected numbers'))
+        if if len(self.params) < 2 or not mobile.isdigit():
+            raise BadValue(_('Expected phone number'))
         patient.mobile = mobile
         patient.save()
         response = _('mobile: %(mobile)s') % {'mobile': mobile} 
