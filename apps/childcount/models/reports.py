@@ -149,11 +149,11 @@ class ReferralReport(PatientReport):
 
     URGENCY_AMBULANCE = 'A'
     URGENCY_BASIC = 'B'
-    URGENCY_CONVINIENT = 'C'
+    URGENCY_CONVENIENT = 'C'
     URGENCY_CHOICES = (
                        (URGENCY_AMBULANCE, _('Ambulance Referral')),
                        (URGENCY_BASIC, _('Basic Referral')),
-                       (URGENCY_CONVINIENT, _('Convinient Referral')))
+                       (URGENCY_CONVENIENT, _('Convenient Referral')))
 
     danger_signs = models.ManyToManyField(DangerSign, \
                                           verbose_name=_(u"Danger signs"))
