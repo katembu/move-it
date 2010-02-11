@@ -26,7 +26,7 @@ class App (rapidsms.app.App):
     DEFAULT_LANGUAGE = 'en'
     
     COMMANDS = [RegistrationCommand, WhoCommand]
-    FORMS = [MUACForm, HealthStatusForm]
+    FORMS = [PatientRegistrationForm, MUACForm, HealthStatusForm]
     MATCH_ALL_LANG_CHAR = '*'
     
     command_keywords = {}
@@ -124,7 +124,14 @@ class App (rapidsms.app.App):
                        keyword in self.form_keywords[lang]:
                         form_class = self.form_keywords[lang][keyword]
                         form_object = form_class(message, params)
-                        form_object.pre_process(health_id)
+                        
+                        try:
+                            response = form_object.pre_process(health_id)
+                        except(ParseError, BadValue), e:
+                            form_bucket[keyword] = e.message
+                        else:
+                            patient_bucket[health_id].append(response)
+
                         try:
                             patient = Patient.objects.get(health_id=health_id)
                         except Patient.DoesNotExist:
@@ -137,11 +144,12 @@ class App (rapidsms.app.App):
                             except Inapplicable, e:
                                 patient_bucket[health_id].append(e.message)
                             else:
-                                patient_bucket[health_id].append( \
-                                    '%(prefix)s%(keyword)s[%(msg)s]' % \
-                                    {'prefix':FORM_PREFIX, \
-                                     'keyword':keyword.upper(), \
-                                     'msg':response})
+                                if response:
+                                    patient_bucket[health_id].append( \
+                                        '%(prefix)s%(keyword)s[%(msg)s]' % \
+                                        {'prefix':FORM_PREFIX, \
+                                         'keyword':keyword.upper(), \
+                                         'msg':response})
                     else:
                         invalid_forms.append(keyword)
 
