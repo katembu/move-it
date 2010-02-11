@@ -10,7 +10,7 @@ from childcount.exceptions import BadValue
 
 class MobileForm(CCForm):
     KEYWORDS = {
-        'en': ['mobi'],
+        'en': ['mob'],
     }
 
     def process(self, patient):
