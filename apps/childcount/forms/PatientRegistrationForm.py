@@ -12,20 +12,24 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models import Patient
-from childcount.exceptions import BadValue
-from childcount.exceptions import ParseError
+from childcount.exceptions import BadValue, ParseError
 
+from childcount.forms.utils import MultipleChoiceField
 
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new'],
     }
     MULTIPLE_PATIENTS = False
-
+    
+    gender_field = MultipleChoiceField()
+    gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
+    gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
     def pre_process(self, health_id):
         if len(self.params) < 4:
-            return False
+            raise ParseError(_(u"Not enough patient information given. " \
+                                "Check and try again"))
         response = ''
         chw = self.message.persistant_connection.reporter.chw
 
@@ -33,6 +37,7 @@ class PatientRegistrationForm(CCForm):
         #take out the keyword
         tokens.pop(tokens.index(self.params[0]))
 
+        print tokens
         # create empty strings we can add to
         patient_name = ""
         for token in tokens[:4]:
@@ -48,9 +53,10 @@ class PatientRegistrationForm(CCForm):
                                
         patient_name = patient_name.title()
         
+        #TODO Gender needs to be language non-specific
         for token in tokens:
             # attempt to match gender
-            gender_matches = re.match(r'[mf]', token, re.IGNORECASE)
+            gender_matches = re.match(r'^[m|f]$', token, re.IGNORECASE)
             if gender_matches is not None:
                 gender = token
                 continue
@@ -140,11 +146,13 @@ class PatientRegistrationForm(CCForm):
         if guardian is not None and household is None:
             household = guardian
         info = {}
+
         info.update({'first_name': first, 'last_name': last, 'chw': chw, \
-                     'gender': gender, \
+                     'gender': gender, 'location':chw.location, \
                      'dob': dob, 'estimated_dob': estimated_dob, \
                      'health_id': health_id, 'guardian': guardian, \
                      'household': household})
+        print info
 
         patient_check = Patient.objects.filter(first_name=info['first_name'], \
                                          last_name=info['last_name'], \
@@ -158,6 +166,7 @@ class PatientRegistrationForm(CCForm):
         else:
             patient = Patient(**info)
             patient.save()
+            info['age'] = patient.humanised_age()
             response = _("New +%(health_id)s: %(last_name)s, %(first_name)s " \
                         "%(gender)s/%(age)s (%(guardian)s) %(location)s") \
                         % info
