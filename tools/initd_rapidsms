@@ -1,20 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 
-#
-# IMPORTANT: To use, do the folling:
-#
-# 1. Change 'NAME' variable to the name of your project. E.g. "bednets_for_nigeria"
-# 2. Place this file in the TOP-LEVEL of your project, right where 'rapidsms' is
-# 3. Link it into /etc/init.d e.g. > ln -s /usr/local/my_project/rapidsms-init.sh /etc/init.d/
-# 4. Add it to the runlevels, on Ubuntu/Debian there is a nice tool to do this for you:
-#    > sudo update-rc.d rapidsms-init.sh defaults
-#
-# NOTE: If you want to run multiple instances of RapidSMS, just put this init file in each project dir,
-#       set a different NAME for each project, link it into /etc/init.d with _different_ names,
-#       and add _each_ script to the runlevels.
-#
-
-### BEGIN INIT INFO
 # Provides:          rapidsms daemon instance
 # Required-Start:    $all
 # Required-Stop:     $all
@@ -31,6 +16,7 @@ WHERE_AM_I=`dirname $ME`
 
 ############### EDIT ME ##################
 NAME="childcount"
+# override any of the following in /etc/default/$NAME
 DAEMON=$WHERE_AM_I/../rapidsms
 DAEMON_OPTS=""
 RUN_AS=root
@@ -39,19 +25,15 @@ ROUTER_PID_FILE=/var/run/${NAME}_router.pid
 #WEBSERVER_PID_FILE=/var/run/${NAME}_webs.pid
 WEBSERVER_PORT=8000
 WEBSERVER_IP=127.0.0.1
-
-# By default both router and webserver are started
-# You may turn off one or the other by setting the appropraite
-# value to 0 for off or 1 for on.
-# 
-# Most common use case would be to turn off the webserver
-# because you are running Django in another container like Apache
-# Nginx, or CherryPy
-#
 START_ROUTER=1
-START_WEBSERVER=0
-
+START_WEBSERVER=1
 ############### END EDIT ME ##################
+
+# try to source $NAME for orders
+if [ -f /etc/default/$NAME ] ; then
+    source /etc/default/$NAME
+fi
+
 test -x $DAEMON || exit 0
 
 do_start() {
