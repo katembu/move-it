@@ -35,8 +35,8 @@ class HealthStatusForm(CCForm):
         
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
-                                ('/'.join(visits_field.valid_choices()), \
-                                 '/'.join(signs_field.valid_choices())))
+                                ('/'.join(self.visits_field.valid_choices()), \
+                                 '/'.join(self.signs_field.valid_choices())))
 
         
         if not self.visits_field.is_valid_choice(self.params[1]):

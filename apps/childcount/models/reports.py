@@ -147,8 +147,17 @@ class ReferralReport(PatientReport):
         verbose_name = _(u"Referral Report")
         verbose_name_plural = _(u"Referral Reports")
 
+    URGENCY_AMBULANCE = 'A'
+    URGENCY_BASIC = 'B'
+    URGENCY_CONVENIENT = 'C'
+    URGENCY_CHOICES = (
+                       (URGENCY_AMBULANCE, _('Ambulance Referral')),
+                       (URGENCY_BASIC, _('Basic Referral')),
+                       (URGENCY_CONVENIENT, _('Convenient Referral')))
+
     danger_signs = models.ManyToManyField(DangerSign, \
                                           verbose_name=_(u"Danger signs"))
+    urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
 
 
 class PatientRegistrationReport(PatientReport):
