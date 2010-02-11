@@ -217,7 +217,7 @@ class App (rapidsms.app.App):
             return True
 
         ### Commands
-        params = re.split(r'\s+', message.text)
+        params = re.split(r'\s+', input_text)
         command = params[0]
         if command in self.command_keywords[self.MATCH_ALL_LANG_CHAR]:
             lang = self.MATCH_ALL_LANG_CHAR
