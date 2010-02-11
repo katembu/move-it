@@ -11,3 +11,7 @@ class ParseError(Exception):
 class BadValue(Exception):
     def __init__(self, message=_(u"FAILED. Bad value")):
         self.message = message
+        
+class Inapplicable(Exception):
+    def __init__(self, message=_(u"FAILED. Not applicable")):
+        self.message = message

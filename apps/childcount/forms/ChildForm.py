@@ -21,7 +21,7 @@ class NewbornForm(CCForm):
             return False
         clinic_vists = self.params[2]
         breast_only = self.params[1]
-        days, months = patient.age_in_days_months()
+        days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
         created_by = self.message.persistent_connection.reporter.chw
 

@@ -7,7 +7,7 @@
 Patient - Patient model
 '''
 
-from datetime import datetime
+from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -91,11 +91,27 @@ class Patient(GenderField):
                 'gender': self.gender,
                 'guardian': self.guardian}
 
-    def age_in_days_months(self):
+    def age_in_days_weeks_months(self):
         '''return the age of the patient in days and in months'''
-        days = (datetime.now() - self.dob).days
+        days = (date.today() - self.dob).days
+        weeks = days / 7
         months = int(days / 30.4375)
-        return days, months
+        return days, weeks, months
+
+
+    def humanised_age(self):
+        '''return a string containing a human readable age'''
+        days, weeks, months = self.age_in_days_weeks_months()
+        if days < 21:
+            return _(u"%(days)sD") % {'days': days}
+        elif weeks < 12:
+            return _(u"%(weeks)sW") % {'weeks': weeks}
+        elif months < 60:
+            return _(u"%(months)sM") % {'months': months}
+        else:
+            years = months / 12
+            return _(u"%(years)sY") % {'years': years}
+
 
     @classmethod
     def is_valid_health_id(cls, health_id):

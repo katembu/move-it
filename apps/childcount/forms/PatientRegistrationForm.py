@@ -11,20 +11,23 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import  Patient
+from childcount.models import Patient
 from childcount.exceptions import BadValue
+from childcount.exceptions import ParseError
 
 
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new'],
     }
+    MULTIPLE_PATIENTS = False
+
 
     def pre_process(self, health_id):
         if len(self.params) < 4:
             return False
         response = ''
-        created_by = self.message.persistent_connection.reporter.chw
+        chw = self.message.persistant_connection.reporter.chw
 
         tokens = self.params
         #take out the keyword
@@ -42,7 +45,9 @@ class PatientRegistrationForm(CCForm):
             if len(token) > 1 and not token.isdigit() and test_age is None:
                 patient_name = patient_name \
                                + (tokens.pop(tokens.index(token))) + " "
-
+                               
+        patient_name = patient_name.title()
+        
         for token in tokens:
             # attempt to match gender
             gender_matches = re.match(r'[mf]', token, re.IGNORECASE)
@@ -119,10 +124,6 @@ class PatientRegistrationForm(CCForm):
                 pass
 
         first, sep, last = patient_name.rstrip().rpartition(' ')
-        first, sep, middle = first.rstrip().rpartition(' ')
-        if first == '':
-            first = middle
-            middle = ''
 
         try:
             guardian = Patient.objects.get(health_id=care_giver)
@@ -139,8 +140,7 @@ class PatientRegistrationForm(CCForm):
         if guardian is not None and household is None:
             household = guardian
         info = {}
-        info.update({'first_name': first, 'last_name': last, \
-                     'middle_name': middle, 'chw': created_by, \
+        info.update({'first_name': first, 'last_name': last, 'chw': chw, \
                      'gender': gender, \
                      'dob': dob, 'estimated_dob': estimated_dob, \
                      'health_id': health_id, 'guardian': guardian, \

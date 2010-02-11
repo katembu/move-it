@@ -23,4 +23,5 @@ admin.site.register(FeverReport)
 admin.site.register(PatientRegistrationReport)
 admin.site.register(BirthReport)
 admin.site.register(NewbornReport)
+admin.site.register(MUACReport)
 
