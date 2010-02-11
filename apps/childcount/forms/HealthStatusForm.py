@@ -30,12 +30,15 @@ class HealthStatusForm(CCForm):
     
     def process(self, patient):
         keyword = self.params[0]
+        self.visits_field.set_language(self.message.reporter.language)
+        self.visits_field.set_language(self.message.reporter.language)
+        
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
                                 ('/'.join(visits_field.valid_choices()), \
                                  '/'.join(signs_field.valid_choices())))
 
-        self.visits_field.set_language(self.message.reporter.language)
+        
         if not self.visits_field.is_valid_choice(self.params[1]):
             raise ParseError(_(u"Clinic visits must be %(choices)s") % \
                               {'choices': self.visits_field.choices_string()})
