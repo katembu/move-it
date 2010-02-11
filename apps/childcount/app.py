@@ -17,7 +17,7 @@ from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
 
-class NotRegestered(Exception):
+class NotRegistered(Exception):
     pass
 
 class App (rapidsms.app.App):
