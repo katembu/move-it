@@ -9,36 +9,52 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms.CCForm import CCForm
-from childcount.models import Case, CHW
+from childcount.models import Case
 from childcount.models.reports import FeverReport
 from childcount.models.shared_fields import RDTField
+from childcount.forms.utils import MultipleChoiceField
+from childcount.exceptions import ParseError, Inapplicable
 
 
 class FeverForm(CCForm):
     KEYWORDS = {
         'en': ['f'],
     }
+    rdt_field = MultipleChoiceField()
+    rdt_field.add_choice('en', RDTField.RDT_POSITIVE, 'P')
+    rdt_field.add_choice('en', RDTField.RDT_NEGATIVE, 'N')
+    rdt_field.add_choice('en', RDTField.RDT_UNAVAILABLE, 'X')
+    rdt_field.add_choice('en', RDTField.RDT_UNKOWN, 'U')
 
     def process(self, patient):
         '''Fever Section (6-59 months)'''
+        self.rdt_field.set_language(self.message.reporter.language)
         if len(self.params) < 2:
-            return False
-        rdt = self.params[1]
+            raise ParseError(_(u"Not enough info, expected (%s)") % \
+                                ('/'.join(self.rdt_field.valid_choices())))
+
+        if not self.rdt_field.is_valid_choice(self.params[1]):
+            raise ParseError(_(u"RDT Result must be %(choices)s") % \
+                              {'choices': self.rdt_field.choices_string()})
+
         days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
-        created_by = self.message.persistent_connection.reporter.chw
+        created_by = self.message.persistant_connection.reporter.chw
 
         if days <= 30:
-            response = _("Child is too young for treatment. "\
-                        "Please refer IMMEDIATELY to clinic")
+            raise Inapplicable(_("Child is too young for treatment. "\
+                        "Please refer IMMEDIATELY to clinic"))
+
         elif months > 59:
-            response = _('Child is older then 59 months. For any concerns '\
-                         'about child in the future please go to the clinic. '\
-                         '(Please advise mother to still closely monitor '\
+            raise Inapplicable(_('Child is older then 59 months. For any '\
+                                 'concerns about child in the future please'\
+                                 ' go to the clinic. (Please advise mother to'\
+                                 ' still closely monitor '\
                          'child and refer them to the clinic any time there '\
-                         'is a concern). Positive reinforcement')
+                         'is a concern). Positive reinforcement'))
         else:
-            if rdt.upper() == RDTField.RDT_POSITIVE:
+            rdt = self.rdt_field.get_db_value(self.params[1])
+            if rdt == RDTField.RDT_POSITIVE:
                 years = months / 12
                 tabs, yage = None, None
                 # just reformatted to make it look like less ugh
@@ -55,41 +71,35 @@ class FeverForm(CCForm):
                     tabs, yage = 3, years
                 else:
                     tabs, yage = 4, years
-
+                instructions = ''
                 # no tabs means too young
                 if not tabs:
-                    response = _("Child is too young for treatment. "\
-                        "Please refer IMMEDIATELY to clinic")
+                    raise Inapplicable(_("Child is too young for treatment. "\
+                        "Please refer IMMEDIATELY to clinic"))
                 else:
-                    response = _("Child is %(age)s. Please provide %(tabs)s"\
-                              " tab%(plural)s of Coartem (ACT) twice a day"\
+                    instructions = _("Child is %(age)s. Please provide "\
+                                     "%(tabs)s tab%(plural)s of Coartem "\
+                                     "(ACT) twice a day"\
                               " for 3 days") % {'age': yage, \
                                         'tabs': tabs, \
                                         'plural': (tabs > 1) and 's' or ''}
 
-                info = {}
-                info.update({'last_name': patient.last_name,
-                             'first_name': patient.first_name,
-                             'age': patient.age(),
-                             'gender': patient.gender,
-                             'zone': patient.zone})
-                info.update({'instructions': response})
-                # finally build out the messages
-                response = _("MRDT> Child %(last_name)s, %(first_name)s, "\
-                    "%(gender)s/%(age)s has MALARIA. %(instructions)s"\
-                     % info)
+                response = instructions
 
-                alert = \
+                '''alert = \
                     _("MRDT> Child %(last_name)s, %(first_name)s, "\
                     "%(gender)s/%(age)s (%(zone)s) has MALARIA%(danger)s. "\
-                          "CHW: ..." % info)
+                          "CHW: ..." % info)'''
 
                 expires_on = datetime.now() + timedelta(7)
-                case = Case(patient=patient, expires_on=expires_on)
+                case = Case(patient=patient, expires_on=expires_on, \
+                            type=Case.TYPE_FEVER)
                 case.save()
-            if rdt in RDTField.RDT_CHOICES:
-                fr = FeverReport(created_by=created_by, rdt_result=rdt)
-                fr.save()
             else:
-                response = _('Unknown choice')
+                response = _('No fever')
+
+            fr = FeverReport(created_by=created_by, rdt_result=rdt, \
+                             patient=patient)
+            fr.save()
+
         return response
