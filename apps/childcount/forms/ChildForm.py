@@ -72,12 +72,12 @@ class ChildForm(CCForm):
     }
     fever = None
     fever_field = MultipleChoiceField()
-    fever_field.add_choice('en', ChildReport.FEVER_YES, 'Y')
+    fever_field.add_choice('en', ChildReport.FEVER_YES, 'F')
     fever_field.add_choice('en', ChildReport.FEVER_NO, 'N')
     fever_field.add_choice('en', ChildReport.FEVER_UNKOWN, 'U')
 
     diarrhea_field = MultipleChoiceField()
-    diarrhea_field.add_choice('en', ChildReport.DIARRHEA_YES, 'Y')
+    diarrhea_field.add_choice('en', ChildReport.DIARRHEA_YES, 'D')
     diarrhea_field.add_choice('en', ChildReport.DIARRHEA_NO, 'N')
     diarrhea_field.add_choice('en', ChildReport.DIARRHEA_UNKOWN, 'U')
 
