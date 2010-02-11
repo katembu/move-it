@@ -29,6 +29,7 @@ class HealthStatusForm(CCForm):
     signs_field.add_choice('en', HealthReport.DANGER_SIGNS_UNAVAILABLE, 'W')
     
     def process(self, patient):
+        keyword = self.params[0]
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
                                 ('/'.join(self.visits_field.valid_choices()), \

@@ -137,7 +137,11 @@ class App (rapidsms.app.App):
                             except Inapplicable, e:
                                 patient_bucket[health_id].append(e.message)
                             else:
-                                patient_bucket[health_id].append(response)
+                                patient_bucket[health_id].append( \
+                                    '%(prefix)s%(keyword)s[%(msg)s]' % \
+                                    {'prefix':FORM_PREFIX, \
+                                     'keyword':keyword.upper(), \
+                                     'msg':response})
                     else:
                         invalid_forms.append(keyword)
 
@@ -153,10 +157,12 @@ class App (rapidsms.app.App):
                     if not msgs:
                         continue
                     message.respond('%(id)s: %(msgs)s' % \
-                                   {'id':patient, 'msgs':' '.join(msgs)})
+                                   {'id':patient.upper(), \
+                                    'msgs':' '.join(msgs)})
 
 
-            invalid_forms = list(set(invalid_forms))
+            invalid_forms = ['%s%s' % (FORM_PREFIX, form.upper()) for form \
+                                                         in set(invalid_forms)]
             if len(invalid_forms) == 1:
                 invalid_form_string = _(u"%(form)s is not a valid form. " \
                                          "Please correct and send " \
@@ -175,8 +181,8 @@ class App (rapidsms.app.App):
                                           'num':len(invalid_forms)}
 
             #remove duplicates
-            invalid_ids = list(set(invalid_ids))
-            
+            invalid_ids = [ id.upper() for id in set(invalid_ids)]
+
             if len(invalid_ids) == 1:
                 invalid_id_string = _(u"%(id)s is not a valid health ID. "\
                                         "Please correct and send forms " \

@@ -25,6 +25,7 @@ class MUACForm(CCForm):
 
     def process(self, patient):
         response = ""
+        keyword = self.params[0]
         
         days, weeks, months = patient.age_in_days_weeks_months()
 
@@ -86,7 +87,7 @@ class MUACForm(CCForm):
             # SAM> Last, First (AGE), LOCATION has SAM. CHW NAME -
             #CHWMOBILE. (REFID)
         '''
-        response = _('MUAC:%(muac)s, Oedema:%(oedema)s') % \
+        response = _('%(muac)s, Oedema:%(oedema)s') % \
                    {'muac': mr.muac, 'oedema': oedema_user}
 
         return response
