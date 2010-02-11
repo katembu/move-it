@@ -24,11 +24,12 @@ class NewbornForm(CCForm):
     breast_field.add_choice('en', NewbornReport.BREAST_UNKOWN, 'U')
 
     def process(self, patient):
+        self.breast_field.set_language(self.message.reporter.language)
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected (no. of clinic "\
                                "visits) (%s)") % \
                                 ('/'.join(self.breast_field.valid_choices())))
-        
+
         days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
         created_by = self.message.persistant_connection.reporter.chw
@@ -39,7 +40,7 @@ class NewbornForm(CCForm):
         elif months > 59:
             raise Inapplicable(_('Child is older then 59 months.'))
         else:
-            clinic_vists = ''+self.params[2]
+            clinic_vists = '' + self.params[2]
             if not clinic_vists.isdigit():
                 raise ParseError(_('Expected Number of clinic visits'))
             clinic_vists = int(clinic_vists)
@@ -70,34 +71,70 @@ class CHildForm(CCForm):
         'en': ['c'],
     }
     fever = None
+    fever_field = MultipleChoiceField()
+    fever_field.add_choice('en', ChildReport.FEVER_YES, 'Y')
+    fever_field.add_choice('en', ChildReport.FEVER_NO, 'N')
+    fever_field.add_choice('en', ChildReport.FEVER_UNKOWN, 'U')
+
+    diarrhea_field = MultipleChoiceField()
+    diarrhea_field.add_choice('en', ChildReport.DIARRHEA_YES, 'Y')
+    diarrhea_field.add_choice('en', ChildReport.DIARRHEA_NO, 'N')
+    diarrhea_field.add_choice('en', ChildReport.DIARRHEA_UNKOWN, 'U')
 
     def process(self, patient):
+        self.fever_field.set_language(self.message.reporter.language)
+        self.diarrhea_field.set_language(self.message.reporter.language)
         if len(self.params) < 3:
-            return False
-        fever = self.params[1]
-        diarrhea = self.params[2]
-        days, months = patient.age_in_days_months()
-        created_by = self.message.persistent_connection.reporter.chw
+            raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
+                             (('/'.join(self.fever_field.valid_choices())),
+                              ('/'.join(self.diarrhea_field.valid_choices()))))
+
+        days, weeks, months = patient.age_in_days_weeks_months()
+        created_by = self.message.persistant_connection.reporter.chw
         response = ''
 
         if months < 6:
-            response = _('Child is an Infant. Please fill out Newborn ' \
-                         '(+N) form')
+            raise Inapplicable(_('Child is an Infant. Please fill out Newborn'\
+                         ' form'))
         elif months > 59:
-            response = _('Child is older then 59 months.')
+            raise Inapplicable(_('Child is older then 59 months.'))
         else:
-            if fever.upper() == ChildReport.FEVER_YES:
-                self.fever = ChildReport.FEVER_YES
+            if not self.fever_field.is_valid_choice(self.params[1]):
+                raise ParseError(_(u"Fever choices must be %(choices)s") % \
+                              {'choices': self.fever_field.choices_string()})
+            if not self.diarrhea_field.is_valid_choice(self.params[2]):
+                raise ParseError(_(u"Diarrhea choices must be %(choices)s") % \
+                            {'choices': self.diarrhea_field.choices_string()})
+
+            self.fever = self.fever_field.get_db_value(self.params[1])
+            if self.fever == ChildReport.FEVER_YES:
+                response = _('Has fever')
+            elif self.fever == ChildReport.FEVER_NO:
+                response = _('No fever')
+            else:
+                response = _('Fever status unknown')
+
+            response += ', '
+            diarrhea = self.diarrhea_field.get_db_value(self.params[2])
+            if diarrhea == ChildReport.DIARRHEA_YES:
+                response += _('has diarrhea')
+            elif diarrhea == ChildReport.DIARRHEA_NO:
+                response += _('has no diarrhea')
+            else:
+                response += _('diarrhea status unknown')
+
             '''if diarrhea.upper() == 'D' and not diarrhea_form:
                 response += _('Please treat child for diarrhea with ORS '\
                 'and Zinc and record with ORS (+S) form')'''
             cr = ChildReport(created_by=created_by, patient=patient, \
-                               fever=fever, diarrhea=diarrhea)
+                               fever=self.fever, diarrhea=diarrhea)
             cr.save()
 
-        return True
+        return response
 
     def post_process(self, message, forms_list):
+        response = ''
         if self.fever == ChildReport.FEVER_YES and FeverForm not in forms_list:
             response = _('Please check child for malaria and shortness of '\
                              'breath using the fever (F+) Form.')
+        return response
