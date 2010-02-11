@@ -18,10 +18,10 @@ class MUACForm(CCForm):
         'en': ['muac'],
     }
     oedema_field = MultipleChoiceField()
-    oedema_field.add_choice('en', MUACReport.OEDEMA_YES, ['Y','O'])
+    oedema_field.add_choice('en', MUACReport.OEDEMA_YES, 'Y')
     oedema_field.add_choice('en', MUACReport.OEDEMA_NO, 'N')
     oedema_field.add_choice('en', MUACReport.OEDEMA_UNKOWN, 'U')
-    
+
 
     def process(self, patient):
         response = ""
