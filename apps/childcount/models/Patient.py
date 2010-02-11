@@ -28,6 +28,7 @@ class Patient(GenderField):
         app_label = 'childcount'
         verbose_name = _(u"Patient")
         verbose_name_plural = _(u"Patients")
+        ordering = ('health_id', )
 
     STATUS_ACTIVE = 1
     STATUS_INACTIVE = 0
@@ -78,6 +79,9 @@ class Patient(GenderField):
                               blank=True, null=True)
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
+
+    def __unicode__(self):
+        return u"%s %s" % (self.last_name, self.first_name)
 
     def get_dictionary(self):
         days, months = self.age_in_days_months()

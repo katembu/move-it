@@ -19,6 +19,10 @@ class DangerSign(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"Danger Sign")
         verbose_name_plural = _(u"Danger Signs")
+        ordering = ('code',)
 
     code = models.CharField(_(u"Code"), max_length=10, unique=True)
     description = models.CharField(_(u"Description"), max_length=255)
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.code, self.description)
