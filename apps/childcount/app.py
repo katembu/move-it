@@ -130,7 +130,8 @@ class App (rapidsms.app.App):
                         except(ParseError, BadValue), e:
                             form_bucket[keyword] = e.message
                         else:
-                            patient_bucket[health_id].append(response)
+                            if response:
+                                patient_bucket[health_id].append(response)
 
                         try:
                             patient = Patient.objects.get(health_id=health_id)
