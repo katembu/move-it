@@ -7,10 +7,10 @@
 Patient - Patient model
 '''
 
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from datetime import date
 
-from datetime import datetime
+from django.db import models
+from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
@@ -91,8 +91,47 @@ class Patient(GenderField):
                 'gender': self.gender,
                 'guardian': self.guardian}
 
-    def age_in_days_months(self):
+    def age_in_days_weeks_months(self):
         '''return the age of the patient in days and in months'''
-        days = (datetime.now() - self.dob).days
+        days = (date.today() - self.dob).days
+        weeks = days / 7
         months = int(days / 30.4375)
-        return days, months
+        return days, weeks, months
+
+
+    def humanised_age(self):
+        '''return a string containing a human readable age'''
+        days, weeks, months = self.age_in_days_weeks_months()
+        if days < 21:
+            return _(u"%(days)sD") % {'days': days}
+        elif weeks < 12:
+            return _(u"%(weeks)sW") % {'weeks': weeks}
+        elif months < 60:
+            return _(u"%(months)sM") % {'months': months}
+        else:
+            years = months / 12
+            return _(u"%(years)sY") % {'years': years}
+
+
+    @classmethod
+    def is_valid_health_id(cls, health_id):
+        MIN_LENGTH = 4
+        MAX_LENGTH = 4
+        BASE_CHARACTERS = '0123456789acdefghjklmnprtuvwxy'
+
+        try:
+            health_id = unicode(health_id)
+            health_id = health_id.lower()
+        except:
+            return False
+
+        if len(health_id) < MIN_LENGTH or len(health_id) > MAX_LENGTH:
+            return False
+
+        for char in health_id:
+            if char not in BASE_CHARACTERS:
+                return False
+
+        # TODO checkbit
+
+        return True

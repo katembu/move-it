@@ -7,6 +7,8 @@
 CHW - Community Health Worker model
 '''
 
+import re
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -25,11 +27,25 @@ class CHW(Reporter):
         verbose_name = _(u"Community Health Worker")
         verbose_name_plural = _(u"Community Health Workers")
 
+    '''
     zones = models.ManyToManyField(Location, verbose_name=_(u"Locations"), \
                                    related_name='responsible_chw',
                                    help_text=_(u"The locations this CHW " \
                                                 "covers"))
+    '''
 
     clinic = models.ForeignKey(Clinic, verbose_name=_(u"Clinic"), \
-                               related_name='stationed_chw',
+                               blank=True, null=True,
+                               related_name='stationed_chw', \
                                help_text=_(u"The clinic this CHW reports to"))
+    @classmethod                       
+    def generate_alias(cls, first_name, last_name):
+        # Remove non alpha-numeric characters
+        last_name = re.sub('\W','',last_name.lower())
+
+        alias = ""
+        for name in first_name.split():
+            name = re.sub('\W','',name.lower())        
+            alias += name[0]
+        alias += last_name
+        return alias

@@ -8,7 +8,7 @@ Case - Case/Encounter model
 '''
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from childcount.models import Patient
 from childcount.models.reports import PatientReport
@@ -27,6 +27,8 @@ class Case(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"Case")
         verbose_name_plural = _(u"Cases")
+        get_latest_by = 'created_on'
+        ordering = ('-created_on',)
 
     STATUS_OPEN = 0
     STATUS_CLOSED = 1
@@ -37,13 +39,13 @@ class Case(models.Model):
 
     TYPE_PREGNANCY = 0
     TYPE_MALNUTRITION = 1
-    TYPE_MALARIA = 2
+    TYPE_FEVER = 2
     TYPE_DIARRHEA = 3
 
     TYPE_CHOICES = (
         (TYPE_PREGNANCY, _(u"Pregnancy")),
         (TYPE_MALNUTRITION, _(u"Malnutrition")),
-        (TYPE_MALARIA, _(u"Malaria")),
+        (TYPE_FEVER, _(u"Fever")),
         (TYPE_DIARRHEA, _(u"Diarrhea")))
 
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \

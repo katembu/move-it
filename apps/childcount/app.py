@@ -1,96 +1,240 @@
-import rapidsms
-from rapidsms.parsers.keyworder import Keyworder
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: dgelvin
 
+import re
+
+from django.utils.translation import ugettext as _
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 
-from functools import wraps
-
-from childcount.models import Configuration as Cfg
-
+import rapidsms
 from reporters.models import Reporter, Role
 from locations.models import Location
 
+from childcount.models import Configuration as Cfg
+from childcount.models import Patient
+from childcount.forms import *
+from childcount.commands import *
+from childcount.exceptions import *
 
-class HandlerFailed (Exception):
+class NotRegistered(Exception):
     pass
-
-
-def registered(func):
-    ''' decorator checking if sender is allowed to process feature.
-
-    checks if a reporter is attached to the message
-
-    return function or boolean '''
-
-    @wraps(func)
-    def wrapper(self, message, *args):
-        if message.persistant_connection.reporter:
-            return func(self, message, *args)
-        else:
-            message.respond(_(u"Sorry, only registered users can access this"\
-                              " program.%(msg)s") % {'msg': ""})
-
-            return True
-    return wrapper
-
 
 class App (rapidsms.app.App):
     """Main ChildCount App
     """
-
-    MAX_MSG_LEN = 140
-    keyword = Keyworder()
-    handled = False
+    DEFAULT_LANGUAGE = 'en'
+    
+    COMMANDS = [RegistrationCommand, WhoCommand]
+    FORMS = [PatientRegistrationForm, MUACForm, HealthStatusForm, FeverForm, MobileForm, NewbornForm, ChildForm, HouseHoldVisitForm, PregnancyForm, PostpartumForm]
+    MATCH_ALL_LANG_CHAR = '*'
+    
+    command_keywords = {}
+    form_keywords = {}
 
     def start(self):
-        """Configure your app in the start phase."""
-        pass
+        def create_mapping(cls_list):
+            
+            keywords = {}
+            keywords[self.MATCH_ALL_LANG_CHAR] = {}
+            for cls in cls_list:
+                for lang in cls.KEYWORDS.keys():
+                    lang = lang.lower().strip()
+                    if not lang in keywords:
+                        keywords[lang] = {}
+                    for keyword in cls.KEYWORDS[lang]:
+                        keyword = keyword.lower().strip()
+                        if keyword in keywords[lang] or \
+                           keyword in keywords[self.MATCH_ALL_LANG_CHAR]:
+                            raise Exception(u"Keyword clash in language " \
+                                             "'%(language)s' on keyword " \
+                                             "'%(keyword)s' in %(class)s" % \
+                                             {'language': lang, \
+                                              'keyword': keyword, \
+                                              'class':cls})
+                        else:
+                            keywords[lang][keyword] = cls
+            return keywords
+        self.command_keywords = create_mapping(self.COMMANDS)
+        self.form_keywords = create_mapping(self.FORMS)
 
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
         pass
 
     def handle(self, message):
+        FORM_PREFIX = '\+'
+        handled = False
+    
+        reporter = message.persistant_connection.reporter
+        if reporter and reporter.language:
+            reporter_language = reporter.language
+        else:
+            reporter_language = self.DEFAULT_LANGUAGE
 
-        ''' Function selector
+        # make lower case, strip, and remove duplicate spaces
+        input_text = re.sub(r'\s{2,}', ' ', message.text.strip().lower())
 
-        Matchs functions with keyword using Keyworder
-        Replies formatting advices on error
-        Return False on error and if no function matched '''
-        try:
-            func, captures = self.keyword.match(self, message.text)
-        except TypeError:
-            # didn't find a matching function
-            # make sure we tell them that we got a problem
-            command_list = [method for method in dir(self) \
-                            if hasattr(getattr(self, method), "format")]
-            input_text = message.text.lower()
-            for command in command_list:
-                format = getattr(self, command).format
-                try:
-                    first_word = (format.split(" "))[0]
-                    if input_text.find(first_word) > -1:
-                        message.respond(format)
-                        return True
-                except:
-                    pass
-            return False
-        try:
-            self.handled = func(self, message, *captures)
-        except HandlerFailed, e:
-            message.respond(e.message)
+        ### Forms
+        split_regex = re.compile( \
+            r'^\s*((?P<health_ids>.*?)\s*)??(?P<forms>%(form_prefix)s.*$)' % \
+             {'form_prefix': FORM_PREFIX})
+        forms_match = split_regex.match(input_text)
 
-            self.handled = True
-        except Exception, e:
-            # TODO: log this exception
-            # FIXME: also, put the contact number in the config
-            message.respond(_("An error occurred. Please call %(mobile)s") \
-                            % {'mobile': Cfg.get('developer_mobile')})
+        if forms_match:
+            handled = True
+            
+            #TODO make this form specific
+            if not message.persistant_connection.reporter:
+                message.respond(_(u"You must register before you can send " \
+                                   "any reports."))
+                raise NotRegistered
+            
+            health_ids_text = forms_match.groupdict()['health_ids']
+            forms_text = forms_match.groupdict()['forms']
+            if health_ids_text:
+                health_ids = re.findall(r'\w+', health_ids_text)
+            else:
+                health_ids = []
 
-            raise
-        message.was_handled = bool(self.handled)
-        return self.handled
+            form_groups_regex = re.compile( \
+                r'%(form_prefix)s\s?(\w+.*?)(?=\s*%(form_prefix)s|$)' % \
+                 {'form_prefix': FORM_PREFIX})
+
+            forms = []
+            for group in form_groups_regex.findall(forms_text):
+                params = re.split(r'\s+', group)
+                forms.append(params)
+
+            invalid_ids = []
+            invalid_forms = []
+            
+            patient_bucket = {}
+            form_bucket = {}
+            for health_id in health_ids:
+                if health_id not in patient_bucket:
+                    patient_bucket[health_id] = []
+                for params in forms:
+                    keyword = params[0]
+                    if keyword in self.form_keywords[self.MATCH_ALL_LANG_CHAR]:
+                        lang = self.MATCH_ALL_LANG_CHAR
+                    else:
+                        lang = reporter_language
+                    if lang in self.form_keywords and \
+                       keyword in self.form_keywords[lang]:
+                        form_class = self.form_keywords[lang][keyword]
+                        form_object = form_class(message, params)
+                        
+                        try:
+                            response = form_object.pre_process(health_id)
+                        except(ParseError, BadValue), e:
+                            form_bucket[keyword] = e.message
+                        else:
+                            if response:
+                                patient_bucket[health_id].append(response)
+
+                        try:
+                            patient = Patient.objects.get(health_id=health_id)
+                        except Patient.DoesNotExist:
+                            invalid_ids.append(health_id)
+                        else:
+                            try:
+                                response = form_object.process(patient)
+                            except (ParseError, BadValue), e:
+                                form_bucket[keyword] = e.message
+                            except Inapplicable, e:
+                                patient_bucket[health_id].append(e.message)
+                            else:
+                                if response:
+                                    patient_bucket[health_id].append( \
+                                        '%(prefix)s%(keyword)s[%(msg)s]' % \
+                                        {'prefix':FORM_PREFIX, \
+                                         'keyword':keyword.upper(), \
+                                         'msg':response})
+                    else:
+                        invalid_forms.append(keyword)
+
+            if len(form_bucket) > 0:
+                msg = ""
+                for keyword, error in form_bucket.iteritems():
+                    msg += _(u" Form +%(keyword)s failed: %(error)s") % \
+                            {'keyword':keyword.upper(), 'error':error}
+                message.respond(msg)
+
+            if len(patient_bucket) > 0:
+                for patient, msgs in patient_bucket.iteritems():
+                    if not msgs:
+                        continue
+                    message.respond('%(id)s: %(msgs)s' % \
+                                   {'id':patient.upper(), \
+                                    'msgs':' '.join(msgs)})
+
+
+            invalid_forms = ['%s%s' % (FORM_PREFIX, form.upper()) for form \
+                                                         in set(invalid_forms)]
+            if len(invalid_forms) == 1:
+                invalid_form_string = _(u"%(form)s is not a valid form. " \
+                                         "Please correct and send " \
+                                         "that form again.") % \
+                                         {'form': invalid_forms[0]}
+            elif len(invalid_forms) > 1:
+                if len(invalid_forms) == 2:
+                    form_string = _(u" and ").join(invalid_forms)
+                else:
+                    form_string = _(u"%s, and %s") % \
+                        (', '.join(invalid_forms[:-1]), invalid_forms[-1])
+                invalid_form_string = _(u"%(forms)s are not valid " \
+                                         "forms. Please correct and " \
+                                         "send those %(num)d forms again.") % \
+                                         {'forms': form_string, \
+                                          'num':len(invalid_forms)}
+
+            #remove duplicates
+            invalid_ids = [ id.upper() for id in set(invalid_ids)]
+
+            if len(invalid_ids) == 1:
+                invalid_id_string = _(u"%(id)s is not a valid health ID. "\
+                                        "Please correct and send forms " \
+                                        "for that patient again.") % \
+                                         {'id': invalid_ids[0]}
+            elif len(invalid_ids) > 1:
+                if len(invalid_ids) == 2:
+                    id_string = _(u" and ").join(invalid_ids)
+                else:
+                    id_string = _(u"%s, and %s") % \
+                        (', '.join(invalid_ids[:-1]), invalid_ids[-1])
+                invalid_id_string = _(u"%(ids)s are not valid health " \
+                                         "IDs. Please correct and " \
+                                         "send forms for those %(num)d " \
+                                         "patients again.") % \
+                                         {'ids': id_string, \
+                                          'num':len(invalid_ids)}
+            if invalid_forms:
+                message.respond(invalid_form_string)
+                                         
+            if invalid_ids:
+                message.respond(invalid_id_string)
+            
+            return True
+
+        ### Commands
+        params = re.split(r'\s+', input_text)
+        command = params[0]
+        if command in self.command_keywords[self.MATCH_ALL_LANG_CHAR]:
+            lang = self.MATCH_ALL_LANG_CHAR
+        else:
+            lang = reporter_language
+        if lang in self.command_keywords and \
+           command in self.command_keywords[lang]:
+            handled = True
+            command_class = self.command_keywords[lang][command]
+            command_object = command_class(message, params)
+            try:
+                command_object.process()
+            except (ParseError, BadValue), e:
+                message.respond(e.message)
+
+        return handled
 
     def cleanup(self, message):
         """Perform any clean up after all handlers have run in the
@@ -104,100 +248,3 @@ class App (rapidsms.app.App):
     def stop(self):
         """Perform global app cleanup when the application is stopped."""
         pass
-
-    keyword.prefix = ['join']
-
-    @keyword('(\S+) (\S+) (\S+)(?: ([a-z]\w+))?')
-    def join(self, message, location_code, last_name, first_name, role=None):
-        ''' register as a user and join the system
-
-        Format: join [location code] [last name] [first name]
-        [role - leave blank for CHEW]
-
-        location - it should be for the village they operate in'''
-
-        #default alias for everyone until further notice
-        username = None
-        # do not skip roles for now
-        role_code = role
-        try:
-            name = "%(fname)s %(lname)s" % {'fname': first_name, \
-                                            'lname': last_name}
-            # parse the name, and create a reporter
-            alias, fn, ln = Reporter.parse_name(name)
-
-            if not message.persistant_connection.reporter:
-                rep = Reporter(alias=alias, first_name=fn, last_name=ln)
-            else:
-                rep = message.persistant_connection.reporter
-                rep.alias = alias
-                rep.first_name = fn
-                rep.last_name = ln
-
-            rep.save()
-
-            # attach the reporter to the current connection
-            message.persistant_connection.reporter = rep
-            message.persistant_connection.save()
-
-            # something went wrong - at the
-            # moment, we don't care what
-        except:
-            message.respond(_("Join Error. Unable to register your account."))
-
-        if role_code == None or role_code.__len__() < 1:
-            role_code = Cfg.get('default_chw_role')
-
-        reporter = message.persistant_connection.reporter
-
-        # check location code
-        try:
-            location = Location.objects.get(code=location_code)
-        except models.ObjectDoesNotExist:
-            message.forward(reporter.connection().identity, \
-                _(u"Join Error. Provided location code (%(loc)s) is wrong.") \
-                  % {'loc': location_code})
-            return True
-
-        # check that location is a clinic (not sure about that)
-        #if not clinic.type in LocationType.objects.filter(name='Clinic'):
-        #    message.forward(reporter.connection().identity, \
-        #        _(u"Join Error. You must provide a Clinic code."))
-        #    return True
-
-        # set location
-        reporter.location = location
-
-        # check role code
-        try:
-            role = Role.objects.get(code=role_code)
-        except models.ObjectDoesNotExist:
-            message.forward(reporter.connection().identity, \
-                _(u"Join Error. Provided Role code (%(role)s) is wrong.") \
-                  % {'role': role_code})
-            return True
-
-        reporter.role = role
-
-        # set account active
-        # /!\ we use registered_self as active
-        reporter.registered_self = True
-
-        # save modifications
-        reporter.save()
-
-        # inform target
-        message.forward(reporter.connection().identity, \
-            _("Success. You are now registered as %(role)s at %(loc)s with " \
-              "alias @%(alias)s.") \
-           % {'loc': location, 'role': reporter.role, 'alias': reporter.alias})
-
-        #inform admin
-        if message.persistant_connection.reporter != reporter:
-            message.respond(_("Success. %(reporter)s is now registered as " \
-                            "%(role)s at %(loc)s with alias @%(alias)s.") \
-                            % {'reporter': reporter, 'loc': location, \
-                            'role': reporter.role, 'alias': reporter.alias})
-        return True
-    join.format = "join [location code] [last name] [first name] " \
-                  "[role - leave blank for CHEW]"
