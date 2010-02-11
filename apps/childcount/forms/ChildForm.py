@@ -9,6 +9,8 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm, FeverForm
 from childcount.models.reports import NewbornReport, ChildReport
+from childcount.exceptions import Inapplicable, ParseError
+from childcount.forms.utils import MultipleChoiceField
 
 
 class NewbornForm(CCForm):
@@ -16,26 +18,51 @@ class NewbornForm(CCForm):
         'en': ['n'],
     }
 
+    breast_field = MultipleChoiceField()
+    breast_field.add_choice('en', NewbornReport.BREAST_YES, 'Y')
+    breast_field.add_choice('en', NewbornReport.BREAST_NO, 'N')
+    breast_field.add_choice('en', NewbornReport.BREAST_UNKOWN, 'U')
+
     def process(self, patient):
         if len(self.params) < 3:
-            return False
-        clinic_vists = self.params[2]
-        breast_only = self.params[1]
+            raise ParseError(_(u"Not enough info, expected (no. of clinic "\
+                               "visits) (%s)") % \
+                                ('/'.join(self.breast_field.valid_choices())))
+        
         days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
-        created_by = self.message.persistent_connection.reporter.chw
+        created_by = self.message.persistant_connection.reporter.chw
 
         if months >= 6 and months < 60:
-            response = _('Child is %(months)d months old. Please fill out '\
-                         'CHILD (+C) form') % {'months': months}
+            raise Inapplicable(_('Child is %(months)d months old. Please fill'\
+                                 ' out CHILD (+C) form') % {'months': months})
         elif months > 59:
-            response = _('Child is older then 59 months.')
+            raise Inapplicable(_('Child is older then 59 months.'))
         else:
+            clinic_vists = ''+self.params[2]
+            if not clinic_vists.isdigit():
+                raise ParseError(_('Expected Number of clinic visits'))
+            clinic_vists = int(clinic_vists)
+            response = _('%(visits)s clinic visits') % {'visits': clinic_vists}
+            if not self.breast_field.is_valid_choice(self.params[1]):
+                raise ParseError(_('Breast feeding options are %(choices)s') \
+                                 % {'choices': \
+                                    self.breast_field.choices_string()})
+            breast_only = self.breast_field.get_db_value(self.params[1])
+
             nr = NewbornReport(created_by=created_by, patient=patient, \
                             clinic_vists=clinic_vists, breast_only=breast_only)
             nr.save()
 
-        return True
+            response += ', '
+
+            if breast_only == NewbornReport.BREAST_YES:
+                response += _('is breast feeding only')
+            elif breast_only == NewbornReport.BREAST_NO:
+                response += _('is not breast feeding only')
+            elif breast_only == NewbornReport.BREAST_UNKOWN:
+                response += _('breast feeding only status unkown')
+        return response
 
 
 class CHildForm(CCForm):
