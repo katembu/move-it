@@ -66,7 +66,7 @@ class NewbornForm(CCForm):
         return response
 
 
-class CHildForm(CCForm):
+class ChildForm(CCForm):
     KEYWORDS = {
         'en': ['c'],
     }
