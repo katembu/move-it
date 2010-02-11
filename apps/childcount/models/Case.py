@@ -27,6 +27,8 @@ class Case(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"Case")
         verbose_name_plural = _(u"Cases")
+        get_latest_by = 'created_on'
+        ordering = ('-created_on',)
 
     STATUS_OPEN = 0
     STATUS_CLOSED = 1
