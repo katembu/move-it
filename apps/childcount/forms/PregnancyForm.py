@@ -57,7 +57,7 @@ class PregnancyForm(CCForm):
                  expires_on=expires_on)
             case.save()
         else:
-            case = pcases.pop()
+            case = pcases.latest()
         #TODO give this feedback
         if fever == PregnancyReport.FEVER_YES and month <= 3:
             response = _('Please refer woman immediately to clinic '\
