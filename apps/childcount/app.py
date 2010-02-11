@@ -17,6 +17,8 @@ from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
 
+class NotRegestered(Exception):
+    pass
 
 class App (rapidsms.app.App):
     """Main ChildCount App
@@ -80,6 +82,14 @@ class App (rapidsms.app.App):
         forms_match = split_regex.match(input_text)
 
         if forms_match:
+            handled = True
+            
+            #TODO make this form specific
+            if not message.persistant_connection.reporter:
+                message.respond(_(u"You must register before you can send " \
+                                   "any reports."))
+                raise NotRegistered
+            
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
             if health_ids_text:
@@ -96,7 +106,14 @@ class App (rapidsms.app.App):
                 params = re.split(r'\s+', group)
                 forms.append(params)
 
+            invalid_ids = []
+            invalid_forms = []
+            
+            patient_bucket = {}
+            form_bucket = {}
             for health_id in health_ids:
+                if health_id not in patient_bucket:
+                    patient_bucket[health_id] = []
                 for params in forms:
                     keyword = params[0]
                     if keyword in self.form_keywords[self.MATCH_ALL_LANG_CHAR]:
@@ -105,18 +122,85 @@ class App (rapidsms.app.App):
                         lang = reporter_language
                     if lang in self.form_keywords and \
                        keyword in self.form_keywords[lang]:
-                        handled = True
                         form_class = self.form_keywords[lang][keyword]
                         form_object = form_class(message, params)
                         form_object.pre_process(health_id)
-                        #TODO handle pre_process failure
-                        #TODO handle patient doesn't exist
-                        patient = Patient.objects.get(health_id=health_id)
-                        form_object.process(patient)
+                        try:
+                            patient = Patient.objects.get(health_id=health_id)
+                        except Patient.DoesNotExist:
+                            invalid_ids.append(health_id)
+                        else:
+                            try:
+                                response = form_object.process(patient)
+                            except (ParseError, BadValue), e:
+                                form_bucket[keyword] = e.message
+                            except Inapplicable, e:
+                                patient_bucket[health_id].append(e.message)
+                            else:
+                                patient_bucket[health_id].append(response)
                     else:
-                        #TODO handle bad form
-                        print "Unkown form"
-                return True
+                        invalid_forms.append(keyword)
+
+            if len(form_bucket) > 0:
+                msg = ""
+                for keyword, error in form_bucket.iteritems():
+                    msg += _(u" Form +%(keyword)s failed: %(error)s") % \
+                            {'keyword':keyword.upper(), 'error':error}
+                message.respond(msg)
+
+            if len(patient_bucket) > 0:
+                for patient, msgs in patient_bucket.iteritems():
+                    if not msgs:
+                        continue
+                    message.respond('%(id)s: %(msgs)s' % \
+                                   {'id':patient, 'msgs':' '.join(msgs)})
+
+
+            invalid_forms = list(set(invalid_forms))
+            if len(invalid_forms) == 1:
+                invalid_form_string = _(u"%(form)s is not a valid form. " \
+                                         "Please correct and send " \
+                                         "that form again.") % \
+                                         {'form': invalid_forms[0]}
+            elif len(invalid_forms) > 1:
+                if len(invalid_forms) == 2:
+                    form_string = _(u" and ").join(invalid_forms)
+                else:
+                    form_string = _(u"%s, and %s") % \
+                        (', '.join(invalid_forms[:-1]), invalid_forms[-1])
+                invalid_form_string = _(u"%(forms)s are not valid " \
+                                         "forms. Please correct and " \
+                                         "send those %(num)d forms again.") % \
+                                         {'forms': form_string, \
+                                          'num':len(invalid_forms)}
+
+            #remove duplicates
+            invalid_ids = list(set(invalid_ids))
+            
+            if len(invalid_ids) == 1:
+                invalid_id_string = _(u"%(id)s is not a valid health ID. "\
+                                        "Please correct and send forms " \
+                                        "for that patient again.") % \
+                                         {'id': invalid_ids[0]}
+            elif len(invalid_ids) > 1:
+                if len(invalid_ids) == 2:
+                    id_string = _(u" and ").join(invalid_ids)
+                else:
+                    id_string = _(u"%s, and %s") % \
+                        (', '.join(invalid_ids[:-1]), invalid_ids[-1])
+                invalid_id_string = _(u"%(ids)s are not valid health " \
+                                         "IDs. Please correct and " \
+                                         "send forms for those %(num)d " \
+                                         "patients again.") % \
+                                         {'ids': id_string, \
+                                          'num':len(invalid_ids)}
+            if invalid_forms:
+                message.respond(invalid_form_string)
+                                         
+            if invalid_ids:
+                message.respond(invalid_id_string)
+            
+            return True
 
         ### Commands
         params = re.split(r'\s+', message.text)

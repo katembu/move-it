@@ -11,8 +11,7 @@ from reporters.models import Role
 from locations.models import Location
 
 from childcount.commands import CCCommand
-from childcount.exceptions import ParseError
-from childcount.exceptions import BadValue
+from childcount.exceptions import ParseError, BadValue
 from childcount.models import CHW
 
 

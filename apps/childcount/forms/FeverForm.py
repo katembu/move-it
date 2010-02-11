@@ -24,7 +24,7 @@ class FeverForm(CCForm):
         if len(self.params) < 2:
             return False
         rdt = self.params[1]
-        days, months = patient.age_in_days_months()
+        days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
         created_by = self.message.persistent_connection.reporter.chw
 
