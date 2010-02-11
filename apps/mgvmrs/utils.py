@@ -10,7 +10,7 @@ from mgvmrs.forms.OpenMRSFormInterface import *
 
 # Not sure we absolutely want to depend on CC
 try:
-    from childcount.core.models.Config import Configuration
+    from childcount.models import Configuration
     openmrs_config = {
         'path_xform_post': Configuration.get('openmrs_path_xform_post'),
         'password': Configuration.get('openmrs_password'),
@@ -19,6 +19,7 @@ try:
         'server': Configuration.get('openmrs_server'),
     }
 except:
+    raise
     openmrs_config = {
         'path_xform_post': "/openmrs/module/xforms/xformDataUpload" \
                                    ".form?uname=%(username)s&pw=%(password)s",
