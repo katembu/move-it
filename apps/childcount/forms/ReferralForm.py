@@ -52,7 +52,7 @@ class ReferralForm(CCForm):
                 observed.append(obj)
                 text += obj.description
         for danger_sign in observed:
-            rp.danger_signs.add(obj)
+            rp.danger_signs.add(danger_sign)
         rp.save()
         if len(text) > 1:
             response += ', observed(' + text + ')'
