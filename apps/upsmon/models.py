@@ -39,10 +39,12 @@ class Event(models.Model):
         ''' Human readable sentence describing the event '''
         percent = (self.battery_current_capacity * 100) \
                    / self.battery_full_capacity
-        return _(u"UPS %(device)s is now %(state)s. %(percent)s%% left. " \
-                 "Battery: %(battery)s. Charge: %(cur)s/%(full)s.%(req)s") % \
+        return _(u"UPS %(device)s is now %(state)s (%(date)s). " \
+                 "%(percent)s%% left. Battery: %(battery)s. " \
+                 "Charge: %(cur)s/%(full)s. %(req)s") % \
                {'device': self.device,
                 'state': self.verbose_state,
+                'date': self.date.strftime("%x %X"),
                 'percent': percent.__str__(),
                 'battery': _(u"yes") if self.battery_present else _(u"no"),
                 'cur': self.battery_current_capacity,
