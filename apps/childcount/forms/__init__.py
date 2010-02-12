@@ -15,5 +15,6 @@ from childcount.forms.DeathForm import DeathForm
 from childcount.forms.BirthForm import BirthForm
 from childcount.forms.PostpartumForm import PostpartumForm
 from childcount.forms.ReferralForm import ReferralForm
+from childcount.forms.DispensationForm import DispensationForm
 
 import utils
