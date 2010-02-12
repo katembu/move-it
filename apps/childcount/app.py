@@ -25,12 +25,29 @@ class App (rapidsms.app.App):
     """
     DEFAULT_LANGUAGE = 'en'
     
-    COMMANDS = [RegistrationCommand, WhoCommand]
-    FORMS = [PatientRegistrationForm, MUACForm, HealthStatusForm, FeverForm, MobileForm, NewbornForm, ChildForm, HouseHoldVisitForm, PregnancyForm, PostpartumForm, ReferralForm, DeathForm, DispensationForm]
+    COMMANDS = []
+    FORMS = []
     MATCH_ALL_LANG_CHAR = '*'
     
     command_keywords = {}
     form_keywords = {}
+
+    def configure(self, title='ChildCount', tab_link='/childcount', \
+                  forms=None, commands=None):
+        if forms is not None:
+            forms = forms.replace(' ', '').split(',')
+            for form in forms:
+                try:
+                    self.FORMS.append(eval(form))
+                except:
+                    self.debug(_(u'%s form not found') % form)
+        if commands is not None:
+            commands = commands.replace(' ', '').split(',')
+            for command in commands:
+                try:
+                    self.COMMANDS.append(eval(command))
+                except:
+                    self.debug(_(u'%s command not found') % command)
 
     def start(self):
         def create_mapping(cls_list):
