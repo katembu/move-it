@@ -38,14 +38,3 @@ class CHW(Reporter):
                                blank=True, null=True,
                                related_name='stationed_chw', \
                                help_text=_(u"The clinic this CHW reports to"))
-    @classmethod                       
-    def generate_alias(cls, first_name, last_name):
-        # Remove non alpha-numeric characters
-        last_name = re.sub('\W','',last_name.lower())
-
-        alias = ""
-        for name in first_name.split():
-            name = re.sub('\W','',name.lower())        
-            alias += name[0]
-        alias += last_name
-        return alias

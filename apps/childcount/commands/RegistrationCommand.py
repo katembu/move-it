@@ -13,6 +13,7 @@ from locations.models import Location
 from childcount.commands import CCCommand
 from childcount.exceptions import ParseError, BadValue
 from childcount.models import CHW
+from childcount.utils import clean_names
 
 
 class RegistrationCommand(CCCommand):
@@ -41,10 +42,10 @@ class RegistrationCommand(CCCommand):
                               {'location': location_code})
 
         if len(self.params) == 3:
-            raise ParseError(_(u"You must give more than one name"))
+            raise ParseError(_(u"You must provide more than one name"))
             
-        last_name = self.params[2].title()
-        first_name = ' '.join(self.params[3:]).title()
+        flat_name = self.params[2:]
+        surname, firstnames, alias = clean_names(flat_name, surname_first=True)
 
         reporter = self.message.persistant_connection.reporter
         if not reporter:
@@ -56,8 +57,7 @@ class RegistrationCommand(CCCommand):
                 chw = CHW(reporter_ptr=reporter)
                 chw.save_base(raw=True)
 
-
-        orig_alias = CHW.generate_alias(first_name, last_name)[:20]
+        orig_alias = alias[:20]
         alias = orig_alias.lower()
 
         if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):            
@@ -67,8 +67,8 @@ class RegistrationCommand(CCCommand):
                 n += 1
             chw.alias = alias
 
-        chw.first_name = first_name
-        chw.last_name = last_name
+        chw.first_name = firstnames
+        chw.last_name = surname
         chw.language = reporter_language
 
         try:
@@ -90,6 +90,7 @@ class RegistrationCommand(CCCommand):
         # attach the reporter to the current connection
         self.message.persistant_connection.reporter = chw.reporter_ptr
         self.message.persistant_connection.save()
+
 
         # inform target
         self.message.respond(
