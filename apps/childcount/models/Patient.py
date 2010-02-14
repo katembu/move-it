@@ -98,20 +98,29 @@ class Patient(GenderField):
         months = int(days / 30.4375)
         return days, weeks, months
 
+    def years(self):
+        days, weeks, months = self.age_in_days_weeks_months()
+        return months / 12
 
     def humanised_age(self):
         '''return a string containing a human readable age'''
         days, weeks, months = self.age_in_days_weeks_months()
         if days < 21:
-            return _(u"%(days)sD") % {'days': days}
+            return _(u"%(days)sd") % {'days': days}
         elif weeks < 12:
-            return _(u"%(weeks)sW") % {'weeks': weeks}
+            return _(u"%(weeks)sw") % {'weeks': weeks}
         elif months < 60:
-            return _(u"%(months)sM") % {'months': months}
+            return _(u"%(months)sm") % {'months': months}
         else:
             years = months / 12
-            return _(u"%(years)sY") % {'years': years}
+            return _(u"%(years)sy") % {'years': years}
 
+    def full_name(self):
+        return ' '.join([self.first_name, self.last_name])
+
+    def __unicode__(self):
+        return u'%s %s %s/%s' % (self.health_id.upper(), self.full_name(), \
+                                 self.gender, self.humanised_age())
 
     @classmethod
     def is_valid_health_id(cls, health_id):
