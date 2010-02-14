@@ -1,8 +1,14 @@
+<<<<<<< HEAD:apps/childcount/utils.py
 #!/usr/bin/env python
 
 import re
 from datetime import date, timedelta
 import itertools
+
+from functools import wraps
+from django.utils.translation import gettext as _
+
+from childcount.exceptions import NotRegistered
 
 
 class InvalidAge(Exception):
@@ -416,3 +422,20 @@ def clean_names(flat_name, surname_first=True):
             surname, firstnames = firstnames, surname
 
     return surname, firstnames, alias
+
+def authenticated(func):
+    ''' decorator checking if sender is allowed to process feature.
+
+    checks if sender property is set on message
+
+    return function or boolean '''
+
+    @wraps(func)
+    def wrapper(self, *args):
+        if self.message.persistant_connection.reporter:
+            return func(self, *args)
+        else:
+            raise NotRegistered(_("%(number)s is not a registered number.")
+                            % {'number': self.message.peer})
+            return False
+    return wrapper

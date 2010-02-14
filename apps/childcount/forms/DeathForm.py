@@ -9,20 +9,20 @@ from datetime import date
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.exceptions import BadValue
+from childcount.exceptions import BadValue, ParseError
 from childcount.models.reports import DeathReport
 
 
 class DeathForm(CCForm):
     KEYWORDS = {
-        'en': ['mobi'],
+        'en': ['dda'],
     }
 
     def process(self, patient):
         if len(self.params) < 2:
-            return False
-        response = ''
-        created_by = self.message.persistent_connection.reporter.chw
+            raise ParseError(_(u"Not enough info, expected date of death"))
+
+        created_by = self.message.persistant_connection.reporter.chw
         dod = self.params[1]
 
         dod_str = dod
@@ -63,11 +63,11 @@ class DeathForm(CCForm):
 
             except Exception:
                 pass
-        dr = DeathReport(created_by=created_by, patient=patient, dod=dod)
+        print dod
+        dr = DeathReport(created_by=created_by, patient=patient, \
+                         death_date=dod)
         dr.save()
 
-        info = patient.get_dictionary()
-        response = _("Death of %(health_id)s: %(full_name)s " \
-                        "%(gender)s/%(age)s (%(guardian)s) %(location)s") % info
-    #TODO - send alert to facilitators
+        response = _("died on %(dod)s") % {'dod': dod}
+        #TODO - send alert to facilitators
         return response

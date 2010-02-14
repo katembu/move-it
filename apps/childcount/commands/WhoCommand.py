@@ -12,6 +12,7 @@ from locations.models import Location
 
 from childcount.commands import CCCommand
 from childcount.models import CHW
+from childcount.utils import authenticated
 
 
 class WhoCommand(CCCommand):
@@ -20,6 +21,7 @@ class WhoCommand(CCCommand):
         'en': ['who'],
     }
 
+    @authenticated
     def process(self):
         chw = self.message.persistant_connection.reporter.chw
 

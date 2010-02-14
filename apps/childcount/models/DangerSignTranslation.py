@@ -26,3 +26,6 @@ class DangerSignTranslation(models.Model):
     code = models.CharField(_(u"Code"), max_length=10, unique=True)
     dangersign = models.ForeignKey(DangerSign, verbose_name=_(u"Danger sign"))
     description = models.CharField(_(u"Description"), max_length=255)
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.code, self.description)

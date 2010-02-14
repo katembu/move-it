@@ -42,3 +42,6 @@ class Referral(models.Model):
     expires_on = models.DateTimeField(_(u"Expires on"), null=True, blank=True)
     description = models.TextField(_(u"Description"))
     reports = models.ManyToManyField(PatientReport, verbose_name=_(u"Reports"))
+
+    def __unicode__(self):
+        return u"%s: %s" % (self.status, self.patient)

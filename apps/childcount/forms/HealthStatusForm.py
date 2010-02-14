@@ -31,7 +31,7 @@ class HealthStatusForm(CCForm):
     def process(self, patient):
         keyword = self.params[0]
         self.visits_field.set_language(self.message.reporter.language)
-        self.visits_field.set_language(self.message.reporter.language)
+        self.signs_field.set_language(self.message.reporter.language)
         
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
