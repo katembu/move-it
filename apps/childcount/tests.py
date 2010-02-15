@@ -1,9 +1,21 @@
 from rapidsms.tests.scripted import TestScript
+
+import reporters.app as reporter_app
+
 from app import App
+from childcount.forms import ChildForm
+from childcount.commands import WhoCommand
 
 
 class TestApp (TestScript):
-    apps = (App,)
+    apps = (reporter_app.App, App,)
+    App.FORMS = [ChildForm]
+    App.COMMANDS = [WhoCommand]
+
+    testWho = """
+        123 > who
+        123 < 123 is not a registered number.
+    """
 
     # define your test scripts here.
     # e.g.:
