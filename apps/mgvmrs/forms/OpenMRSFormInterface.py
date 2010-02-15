@@ -157,7 +157,7 @@ class OpenMRSFormInterface(object):
             try:
                 tmp = ff_value.__iter__()
             except AttributeError:
-                ff_value = [ff_value,]
+                ff_value = [ff_value, ]
 
             ff_value_clean = []
             for val in ff_value:
