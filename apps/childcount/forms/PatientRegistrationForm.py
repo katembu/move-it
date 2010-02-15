@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: dgelvin
 
 import re
-import time
+
 
 from datetime import date
 
@@ -11,163 +11,160 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
+from childcount.utils import clean_names, DOBProcessor
 from childcount.models import Patient
 from childcount.exceptions import BadValue, ParseError
 
 from childcount.forms.utils import MultipleChoiceField
 
+
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new'],
     }
-    MULTIPLE_PATIENTS = False
-    
+    MIN_HH_AGE = 10
+
     gender_field = MultipleChoiceField()
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
+    SELF_HH = {}
+    SELF_HH['en'] = 'P'
+
+    SURNAME_FIRST = False
+
     def pre_process(self, health_id):
-        if len(self.params) < 6:
-            raise ParseError(_(u"Not enough patient information given. " \
-                                "Check and try again"))
-        response = ''
+
         chw = self.message.persistant_connection.reporter.chw
-
-        tokens = self.params
-        #take out the keyword
-        tokens.pop(tokens.index(self.params[0]))
-
-        print tokens
-        # create empty strings we can add to
-        patient_name = ""
-        for token in tokens[:4]:
-
-            # any tokens more than one non-digit character are probably parts
-            # of the patient's name, so add to patient_name and
-            # remove from tokens list
-            test_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
-
-            if len(token) > 1 and not token.isdigit() and test_age is None:
-                patient_name = patient_name \
-                               + (tokens.pop(tokens.index(token))) + " "
-                               
-        patient_name = patient_name.title()
-        
-        #TODO Gender needs to be language non-specific
-        for token in tokens:
-            # attempt to match gender
-            gender_matches = re.match(r'^[m|f]$', token, re.IGNORECASE)
-            if gender_matches is not None:
-                gender = token
-                continue
-
-            # attempt to match date of birth or age in months
-            # if token is more than six digits, save as guardian's contact
-            # this should match up between one and six digits, followed by an
-            # optional word (e.g., 020301, 22m, 22mo)
-            date_or_age = re.match(r'(\d{1,6}[a-z]*)', token, re.IGNORECASE)
-            if date_or_age is not None:
-                # only save if its less than six digits
-                # which might sometimes match this
-                if len(token) <= 6:
-                    dob = token
-                    continue
-
-        tokens.pop(tokens.index(dob))
-        tokens.pop(tokens.index(gender))
-        gender = gender.upper()
-
-        household_id = None
-        if len(tokens) == 1:
-            care_giver = tokens.pop()
-            if token.upper() == 'P':
-                care_giver = health_id
-        else:
-            care_giver = tokens.pop()
-            household_id = tokens.pop()
-
-        estimated_dob = False
-        dob_str = dob
-        dob = re.sub(r'\D', '', dob)
-        years_months = dob_str.replace(dob, '')
-        # if there are three or more digits, we are
-        # probably dealing with a date
-        if len(dob) >= 3:
-            try:
-                # TODO this 2 step conversion is too complex, simplify!
-                dob = time.strptime(dob, "%d%m%y")
-                dob = date(*dob[:3])
-            except ValueError:
-                try:
-                    # TODO this 2 step conversion is too complex, simplify!
-                    dob = time.strptime(dob, "%d%m%Y")
-                    dob = date(*dob[:3])
-                except ValueError:
-                    raise BadValue(_("Couldn't understand date: %(dob)s")\
-                                        % {'dob': dob})
-        # if there are fewer than three digits, we are
-        # probably dealing with an age (in months),
-        # so attempt to estimate a dob
-        else:
-            # TODO move to a utils file? (almost same code in import_cases.py)
-            try:
-                if dob.isdigit():
-                    if years_months.upper() == 'Y':
-                        dob = int(dob) * 12
-                    years = int(dob) / 12
-                    months = int(dob) % 12
-                    est_year = abs(date.today().year - int(years))
-                    est_month = abs(date.today().month - int(months))
-                    if est_month == 0:
-                        est_month = 1
-                    estimate = ("%s-%s-%s" % (est_year, est_month, 15))
-                    # TODO this 2 step conversion is too complex, simplify!
-                    dob = time.strptime(estimate, "%Y-%m-%d")
-                    dob = date(*dob[:3])
-
-                    estimated_dob = True
-            except Exception, e:
-                pass
-
-        first, sep, last = patient_name.rstrip().rpartition(' ')
-
         try:
-            guardian = Patient.objects.get(health_id=care_giver)
-        except models.ObjectDoesNotExist:
-            guardian = None
-
-        household = None
-        if household_id is not None:
-            try:
-                household = Patient.objects.get(health_id=household_id)
-            except models.ObjectDoesNotExist:
-                pass
-
-        if guardian is not None and household is None:
-            household = guardian
-        info = {}
-
-        info.update({'first_name': first, 'last_name': last, 'chw': chw, \
-                     'gender': gender, 'location':chw.location, \
-                     'dob': dob, 'estimated_dob': estimated_dob, \
-                     'health_id': health_id, 'guardian': guardian, \
-                     'household': household})
-        print info
-
-        patient_check = Patient.objects.filter(first_name=info['first_name'], \
-                                         last_name=info['last_name'], \
-                                         chw=info['chw'], \
-                                         dob=info['dob'])
-        if patient_check:
-            patient = patient_check[0]
-            response = _("%(last_name)s, %(first_name)s (+%(health_id)s) " \
-                                "has already been registered by %(chw)s.") \
-                                % info
+            p = Patient.objects.get(health_id=health_id)
+            print p
+        except Patient.DoesNotExist:
+            pass
         else:
-            patient = Patient(**info)
+            raise BadValue(_(u"That health ID has already been registered to "\
+                              "%(patient)s by %(chw)s") % \
+                             {'patient': p, 'chw': p.chw})
+
+        patient = Patient()
+        patient.health_id = health_id
+        patient.chw = chw
+        patient.location = chw.location
+        tokens = self.params[1:]
+
+        lang = self.message.reporter.language
+
+        expected = _(u"given_names surname gender age or date_of_birth " \
+                      "and head_of_household")
+
+        if len(tokens) < 4:
+            raise ParseError(_(u"Not enough info. You must send: " \
+                                "%(expected)") % {'expected': expected})
+
+        self.gender_field.set_language(lang)
+
+        gender_indexes = []
+        i = 0
+        for token in tokens:
+            if token in self.gender_field.valid_choices():
+                gender_indexes.append(i)
+            i += 1
+
+        if len(gender_indexes) == 0:
+            raise ParseError(_(u"You must indicate gender after the name " \
+                                "with a %(choices)s") % \
+                              {'choices': self.gender_field.choices_string()})
+
+
+        if tokens[-1] == self.SELF_HH[lang].lower():
+            print 'xxxxxxxxxxx'
+            patient.household = patient
+        else:
+            try:
+                patient.household = Patient.objects.get(health_id=tokens[-1])
+            except Patient.DoesNotExist:
+                if DOBProcessor.is_valid_dob_or_age(lang, \
+                                                    ' '.join(tokens[-1])):
+                    raise ParseError(_(u"You must indicate the head of " \
+                                        "household after the age. If this " \
+                                        "is the head of household " \
+                                        "write %(char)s after age.") % \
+                                        {'char': self.SELF_HH[lang]})
+                else:
+                    raise BadValue(_(u"Could not find head of household " \
+                                      "with health ID %(id)s. You must " \
+                                      "register the head of household " \
+                                      "first") % \
+                                      {'id': tokens[-1]})
+
+            age = patient.household.years()
+            if age < self.MIN_HH_AGE:
+                raise BadValue(_(u"The head of household you specified is " \
+                                  "too young to be a head of household " \
+                                  "(%(hh)s)") % {'hh': patient.household})
+
+        # remove head of household
+        tokens.pop()
+        for i in gender_indexes:
+            dob, variance = DOBProcessor.from_age_or_dob(lang, \
+                                                     ' '.join(tokens[i + 1:]))
+            if dob:
+                patient.dob = dob
+                days, weeks, months = patient.age_in_days_weeks_months()
+                if days < 60 and variance > 1:
+                    raise BadValue(_(u"Please provide an exact birth date " \
+                                      "for children under 2 months"))
+                elif months < 24 and variance > 30:
+                    raise BadValue(_(u"Please provide an exact birth date " \
+                                      "or the age in months for children " \
+                                      "under two years"))
+
+        if not dob:
+            raise ParseError(_(u"Could not understand your message. " \
+                                "%(expected)s") % {'expected': expected})
+
+        if patient.household == patient and patient.years() < self.MIN_HH_AGE:
+            raise BadValue(_(u"This patient is too young to be a head of " \
+                              "household. Please indicate their head of" \
+                              "household"))
+
+        patient.estimated_dob = variance > 1
+
+        # remove the age tokens
+        tokens = tokens[:i + 1]
+
+        patient.gender = self.gender_field.get_db_value(tokens.pop())
+
+        patient.last_name, patient.first_name, alias = \
+                             clean_names(' '.join(tokens), \
+                             surname_first=self.SURNAME_FIRST)
+
+
+        patient_check = Patient.objects.filter(first_name=patient.first_name, \
+                                               last_name=patient.last_name, \
+                                               dob=patient.dob)
+        if len(patient_check) > 0:
+            old_p = patient_check[0]
+            if old_p.chw == chw:
+                patient_chw = _(u"you")
+            else:
+                patient_chw = patient_check[0].chw
+            raise BadValue(_(u"%(name)s %(sex)s/%(age)s was already " \
+                              "registered by %(chw)s. Their health id is " \
+                              "%(id)s") % \
+                              {'name': old_p.full_name(), \
+                               'sex': old_p.gender, \
+                               'age': old_p.humanised_age(), \
+                               'chw': patient_chw, \
+                               'id': old_p.health_id.upper()})
+        patient.save()
+
+        # For some reason django doesn't do this properly until the patient
+        # record is saved.
+        if patient.household == patient:
+            patient.household = patient
             patient.save()
-            info['age'] = patient.humanised_age()
-            response = _("New +%(health_id)s: %(last_name)s, %(first_name)s " \
-                        "%(gender)s/%(age)s (%(guardian)s) %(location)s") \
-                        % info
+
+        response = _("You successfuly registered %(patient)s") % \
+                    {'patient': patient}
         return response
