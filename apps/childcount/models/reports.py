@@ -161,7 +161,10 @@ class ReferralReport(PatientReport):
 
 
 class PatientRegistrationReport(PatientReport):
-    pass
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Patient Registration Report")
+        verbose_name_plural = _(u"Patient Registration Reports")
 
 
 class HouseHoldVisitReport(PatientReport):
