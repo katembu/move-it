@@ -259,6 +259,18 @@ class PostpartumReport(PatientReport):
                                                  "since delivery"))
 
 
+class NeonatalReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Neonatal Report")
+        verbose_name_plural = _(u"Neonatal Reports")
+
+    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+                                    help_text=_(u"Number of clinic visits " \
+                                                 "since delivery"))
+
+
 class BirthReport(PatientReport):
 
     class Meta:
