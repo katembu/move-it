@@ -2,7 +2,6 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models.reports import ReferralReport
-from childcount.models import DangerSign
 from childcount.exceptions import ParseError
 from childcount.forms.utils import MultipleChoiceField
 
@@ -40,21 +39,5 @@ class ReferralForm(CCForm):
         rp = ReferralReport(created_by=created_by, urgency=urgency, \
                             patient=patient)
         rp.save()
-
-        danger_signs = dict([(danger_sign.code, danger_sign) \
-                             for danger_sign in DangerSign.objects.all() ])
-        observed = []
-        print self.params
-        text = ''
-        for d in self.params[2:]:
-            obj = danger_signs.get(d.upper(), None)
-            if obj is not None:
-                observed.append(obj)
-                text += obj.description
-        for danger_sign in observed:
-            rp.danger_signs.add(danger_sign)
-        rp.save()
-        if len(text) > 1:
-            response += ', observed(' + text + ')'
 
         return response
