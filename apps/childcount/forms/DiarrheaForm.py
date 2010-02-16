@@ -31,6 +31,7 @@ class DiarrheaForm(CCForm):
 
     def process(self, patient):
         #self.home_field.set_language(self.message.reporter.language)
+        self.treatment_field.set_language(self.message.reporter.language)
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info, expected %s (%s)") % \
                                 (self.PREFIX, \
@@ -54,6 +55,11 @@ class DiarrheaForm(CCForm):
                             patient=patient, treatment=treatment)
         #                     patient=patient, home_treatment=home_treatment)
         fr.save()
+        
+        if treatment == DiarrheaReport.TREATMENT_ORS:
+            response += _("Treated with ORS")
+        elif treatment == DiarrheaReport.TREATMENT_ZINC:
+            response += _("Treated with Zinc")
         '''
         if home_treatment == DiarrheaReport.HOME_YES:
             response += _("Eligible for home treatment")
