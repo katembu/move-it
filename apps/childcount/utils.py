@@ -424,6 +424,7 @@ def clean_names(flat_name, surname_first=True):
 
     return surname, firstnames, alias
 
+
 def authenticated(func):
     ''' decorator checking if sender is allowed to process feature.
 
@@ -439,4 +440,27 @@ def authenticated(func):
             raise NotRegistered(_("%(number)s is not a registered number.")
                             % {'number': self.message.peer})
             return False
+    return wrapper
+
+
+def respond_exceptions(func):
+
+    '''
+    A decorator that catches exceptions and sends the text of the exception
+    to the sender by responding to the message object.  It can be used
+    on the rapidsms.app.App methods that are passed (self, message)
+    '''
+
+    @wraps(func)
+    def wrapper(self, *args):
+        if len(args) == 0 or \
+           not isinstance(args[0], rapidsms.message.Message):
+            return func(self, *args)
+
+        message = args[0]
+        try:
+            return func(self, *args)
+        except Exception, e:
+            message.respond(_(u"An error has occured (%(e)s).") % {'e': e})
+            raise
     return wrapper
