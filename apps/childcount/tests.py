@@ -54,7 +54,13 @@ class TestApp (TestScript):
             123 > d47q +a 2 +r c
             123 < D47Q is not a valid health ID. Please correct and send forms for that patient again.
             123 > d47q +new jane mini f 110984 p +mob 0727944684
-            123 < D47Q: You successfuly registered D46Q Jane Mini F/25y +MOB[0727944684]
+            123 < D47Q: You successfuly registered D47Q Jane Mini F/25y \+MOB[0727944684]
+            #123 > d47q +new jane mini f 110984 p +mob 0727944684
+            #123 < Form +NEW failed: Jane Mini F/25y was already registered by you. Their health id is D47Q
+            #123 < D47Q is not a valid health ID. Please correct and send forms for that patient again.
+            123 > D4A1 +New odhiambo moses 200509 magret awino
+            123 < Form +NEW failed: You must indicate gender after the name with a M or F
+            123 < D4A1 is not a valid health ID. Please correct and send forms for that patient again.
         """
         self.runScript(testForms)
 

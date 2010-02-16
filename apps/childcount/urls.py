@@ -19,5 +19,8 @@ except AttributeError:
 
 urlpatterns = patterns('',
     admin_urls,
+    url(r'^static/childcount/(?P<path>.*)$', 'django.views.static.serve',
+        {'document_root': 'apps/childcount/static', 'show_indexes': True}),
     url(r'^childcount/?$', views.index),
+    url(r'^childcount/patients/?$', views.patient)
 )

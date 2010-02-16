@@ -16,31 +16,22 @@ class PregnancyForm(CCForm):
     KEYWORDS = {
         'en': ['p'],
     }
-    
-    fever_field = MultipleChoiceField()
-    fever_field.add_choice('en', PregnancyReport.FEVER_YES, 'Y')
-    fever_field.add_choice('en', PregnancyReport.FEVER_NO, 'N')
-    fever_field.add_choice('en', PregnancyReport.FEVER_UNKOWN, 'U')
 
     def process(self, patient):
-        self.fever_field.set_language(self.message.reporter.language)
-        if len(self.params) < 4:
-            raise ParseError(_(u"Not enough info, expected (no. of anc "\
-                               "visits[0-9]) (month of pregnancy[1-9]) "\
-                               "(fever: (%s))") % \
+        if len(self.params) < 3:
+            raise ParseError(_(u"Not enough info, expected (month of "\
+                               "pregnancy[1-9]) (no. of anc visits)") % \
                                 ('/'.join(self.fever_field.valid_choices())))
 
         clinic_visits = '' + self.params[1]
         if not clinic_visits.isdigit():
-            raise ParseError(_('No. of ANC visits, expects a number '\
-                               'between 0-9'))
+            raise ParseError(_('No. of ANC visits, expects a number.'))
         clinic_visits = int(clinic_visits)
         month = '' + self.params[2]
         if not month.isdigit():
             raise ParseError(_('Month of pregnancy, expects a number '\
                                'between 1-9'))
         month = int(month)
-        fever = self.fever_field.get_db_value(self.params[3])
         created_by = self.message.persistant_connection.reporter.chw
         response = ''
 
@@ -59,11 +50,6 @@ class PregnancyForm(CCForm):
         else:
             case = pcases.latest()
         #TODO give this feedback
-        if fever == PregnancyReport.FEVER_YES and month <= 3:
-            response = _('Please refer woman immediately to clinic '\
-                        'for treatment. Do not test with RDT or '\
-                        'provide home-based treatment.')
-        #TODO give this feedback
         if month == 2 and clinic_visits < 1 \
             or month == 5 and clinic_visits < 2 \
             or month == 7 and clinic_visits < 3 \
@@ -72,8 +58,7 @@ class PregnancyForm(CCForm):
 
         pr = PregnancyReport(created_by=created_by, patient=patient, \
                              pregnancy_month=month, \
-                             clinic_visits=clinic_visits, \
-                             fever=fever)
+                             clinic_visits=clinic_visits)
         pr.save()
 
         response = _('%(clinic_visits)s clinic visits, month %(month)s') \

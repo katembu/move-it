@@ -186,6 +186,20 @@ class FeverReport(PatientReport, RDTField):
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
 
+    HOME_YES = 'Y'
+    HOME_NO = 'N'
+    HOME_UNKNOWN = 'U'
+    HOME_CHOICES = (
+                    (HOME_YES, _(u"Yes")),
+                    (HOME_NO, _(u"Yes")),
+                    (HOME_UNKNOWN, _(u"Yes"))
+                    )
+
+    home_treatment = models.CharField(_(u"Home treated?"), \
+                                      max_length=1, \
+                                      help_text=_(u"Is Patient eligible for "\
+                                                  "home treatment"))
+
 
 class PregnancyReport(PatientReport):
 
@@ -194,23 +208,12 @@ class PregnancyReport(PatientReport):
         verbose_name = _(u"Pregnancy Report")
         verbose_name_plural = _(u"Pregnancy Reports")
 
-    FEVER_YES = 'Y'
-    FEVER_NO = 'N'
-    FEVER_UNKOWN = 'U'
-
-    FEVER_CHOICES = (
-        (FEVER_YES, _(u"Yes")),
-        (FEVER_NO, _(u"No")),
-        (FEVER_UNKOWN, _(u"Unknown")))
-
     pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
                                     help_text=_(u"How many months into the " \
                                                  "pregnancy?"))
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "during pregnancy"))
-    fever = models.CharField(_(u"Fever"), max_length=1, choices=FEVER_CHOICES,
-                                help_text=_(u"Fever in the past three days?"))
 
 
 class PostpartumReport(PatientReport):
