@@ -18,5 +18,6 @@ from childcount.forms.ReferralForm import ReferralForm
 from childcount.forms.DispensationForm import DispensationForm
 from childcount.forms.DiarrheaForm import DiarrheaForm
 from childcount.forms.ChildForm import NeonatalForm
+from childcount.forms.DangerSignForm import DangerSignForm
 
-import utils
+from childcount.forms import  utils
