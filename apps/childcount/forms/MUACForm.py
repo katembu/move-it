@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
-
-from datetime import datetime, timedelta
+import re
 
 from django.utils.translation import ugettext as _
 
 from CCForm import CCForm
 from childcount.models.reports import MUACReport
-from childcount.models import CHW, Referral, Case
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
 
 
 class MUACForm(CCForm):
     KEYWORDS = {
-        'en': ['muac'],
+        'en': ['m', 'muac'],
     }
+
+    WEIGHT = 'kg'
+
     oedema_field = MultipleChoiceField()
     oedema_field.add_choice('en', MUACReport.OEDEMA_YES, 'Y')
     oedema_field.add_choice('en', MUACReport.OEDEMA_NO, 'N')
@@ -59,12 +60,28 @@ class MUACForm(CCForm):
 
         oedema_db = self.oedema_field.get_db_value(self.params[2])
         oedema_user = self.oedema_field.propper_answer(self.params[2])
-        
+
         created_by = self.message.persistant_connection.reporter.chw
 
         mr = MUACReport(created_by=created_by, oedema=oedema_db, \
                                 muac=muac, patient=patient)
         mr.save()
+
+        response = _('%(muac)s, Oedema:%(oedema)s') % \
+                   {'muac': mr.muac, 'oedema': oedema_user}
+        if len(self.params) > 3:
+            try:
+                weight = float(re.match(r'([0-9]*\.[0-9]+|[0-9]+)(' + \
+                                        self.WEIGHT + ')?', self.params[3], \
+                                        re.IGNORECASE).groups()[0])
+
+                mr.weight = weight
+                mr.save()
+                response += _(", %(weight)s%(prefix)s") % {'weight': weight, \
+                                                        'prefix': self.WEIGHT}
+            except:
+                response += _('Unknown value for weight %s') % self.params[3]
+
         #TODO Referral / Case
         '''
         if mr.status == MUACReport.STATUS_SEVERE:
@@ -87,8 +104,6 @@ class MUACForm(CCForm):
             # SAM> Last, First (AGE), LOCATION has SAM. CHW NAME -
             #CHWMOBILE. (REFID)
         '''
-        response = _('%(muac)s, Oedema:%(oedema)s') % \
-                   {'muac': mr.muac, 'oedema': oedema_user}
 
         return response
         
