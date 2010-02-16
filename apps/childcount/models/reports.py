@@ -194,23 +194,12 @@ class PregnancyReport(PatientReport):
         verbose_name = _(u"Pregnancy Report")
         verbose_name_plural = _(u"Pregnancy Reports")
 
-    FEVER_YES = 'Y'
-    FEVER_NO = 'N'
-    FEVER_UNKOWN = 'U'
-
-    FEVER_CHOICES = (
-        (FEVER_YES, _(u"Yes")),
-        (FEVER_NO, _(u"No")),
-        (FEVER_UNKOWN, _(u"Unknown")))
-
     pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
                                     help_text=_(u"How many months into the " \
                                                  "pregnancy?"))
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "during pregnancy"))
-    fever = models.CharField(_(u"Fever"), max_length=1, choices=FEVER_CHOICES,
-                                help_text=_(u"Fever in the past three days?"))
 
 
 class PostpartumReport(PatientReport):
