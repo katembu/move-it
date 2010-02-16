@@ -30,8 +30,8 @@ class FeverForm(CCForm):
         '''Fever Section (6-59 months)'''
         self.rdt_field.set_language(self.message.reporter.language)
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected (%s)") % \
-                                ('/'.join(self.rdt_field.valid_choices())))
+            raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
+                    (self.PREFIX, '/'.join(self.rdt_field.valid_choices())))
 
         if not self.rdt_field.is_valid_choice(self.params[1]):
             raise ParseError(_(u"RDT Result must be %(choices)s") % \
