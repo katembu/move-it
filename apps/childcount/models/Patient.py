@@ -153,11 +153,11 @@ class Patient(GenderField):
     def table_columns(cls):
         columns = []
         columns.append(
+            {'name': cls._meta.get_field('health_id').verbose_name})
+        columns.append(
             {'name': cls._meta.get_field('first_name').verbose_name})
-
         columns.append(
             {'name': cls._meta.get_field('last_name').verbose_name})
-
         columns.append(
             {'name': cls._meta.get_field('chw').verbose_name})
 

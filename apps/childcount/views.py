@@ -26,6 +26,7 @@ def patient(request):
         i += 1
         row = {}
         row["cells"] = []
+        row["cells"].append({"value": report.health_id.upper()})
         row["cells"].append({"value": report.first_name})
         row["cells"].append({"value": report.last_name})
         row["cells"].append({"value": report.chw})
