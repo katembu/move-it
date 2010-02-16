@@ -203,6 +203,7 @@ class DiarrheaReport(PatientReport):
         verbose_name = _(u"Diarrhea Report")
         verbose_name_plural = _(u"Diarrhea Reports")
 
+    '''
     HOME_YES = 'Y'
     HOME_NO = 'N'
     HOME_UNKNOWN = 'U'
@@ -214,8 +215,21 @@ class DiarrheaReport(PatientReport):
 
     home_treatment = models.CharField(_(u"Home treated?"), \
                                       max_length=1, \
+                                      choices=HOME_CHOICES,
                                       help_text=_(u"Is Patient eligible for "\
                                                   "home treatment"))
+    '''
+    TREATMENT_ORS = 'R'
+    TREATMENT_ZINC = 'Z'
+    TREATMENT_CHOICES = (
+                    (TREATMENT_ORS, _(u"ORS")),
+                    (TREATMENT_ZINC, _(u"ZINC")),
+                    )
+
+    treatment = models.CharField(_("Treatment"), max_length=1, \
+                                 choices=TREATMENT_CHOICES, \
+                                 help_text=_("what treatment was given?(ORS "\
+                                             "or Zinc)"))
 
 
 class PregnancyReport(PatientReport):
