@@ -177,6 +177,15 @@ class HouseHoldVisitReport(PatientReport):
     available = models.BooleanField(_(u"HH Member Available"), \
                                 help_text=_(u"Was a houshold member " \
                                              "available?"))
+    pregnant = models.SmallIntegerField(_("Number of pregnant women"), \
+                                        help_text=_("what was the number of "\
+                                                    "pregnant women?"), \
+                                        blank=True, null=True)
+    underfive = models.SmallIntegerField(_("Number of Under Five children"), \
+                                        help_text=_("what was the number of "\
+                                                    "Under Five children?"), \
+                                        blank=True, null=True)
+    danger_signs = models.ManyToManyField(DangerSign)
 
 
 class FeverReport(PatientReport, RDTField):
@@ -185,6 +194,28 @@ class FeverReport(PatientReport, RDTField):
         app_label = 'childcount'
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
+
+    HOME_YES = 'Y'
+    HOME_NO = 'N'
+    HOME_UNKNOWN = 'U'
+    HOME_CHOICES = (
+                    (HOME_YES, _(u"Yes")),
+                    (HOME_NO, _(u"Yes")),
+                    (HOME_UNKNOWN, _(u"Yes"))
+                    )
+
+    home_treatment = models.CharField(_(u"Home treated?"), \
+                                      max_length=1, \
+                                      help_text=_(u"Is Patient eligible for "\
+                                                  "home treatment"))
+
+
+class DiarrheaReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Diarrhea Report")
+        verbose_name_plural = _(u"Diarrhea Reports")
 
     HOME_YES = 'Y'
     HOME_NO = 'N'
