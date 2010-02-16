@@ -195,20 +195,6 @@ class FeverReport(PatientReport, RDTField):
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
 
-    HOME_YES = 'Y'
-    HOME_NO = 'N'
-    HOME_UNKNOWN = 'U'
-    HOME_CHOICES = (
-                    (HOME_YES, _(u"Yes")),
-                    (HOME_NO, _(u"Yes")),
-                    (HOME_UNKNOWN, _(u"Yes"))
-                    )
-
-    home_treatment = models.CharField(_(u"Home treated?"), \
-                                      max_length=1, \
-                                      help_text=_(u"Is Patient eligible for "\
-                                                  "home treatment"))
-
 
 class DiarrheaReport(PatientReport):
 
