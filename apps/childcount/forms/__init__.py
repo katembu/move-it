@@ -17,5 +17,6 @@ from childcount.forms.PostpartumForm import PostpartumForm
 from childcount.forms.ReferralForm import ReferralForm
 from childcount.forms.DispensationForm import DispensationForm
 from childcount.forms.DiarrheaForm import DiarrheaForm
+from childcount.forms.ChildForm import NeonatalForm
 
 import utils
