@@ -160,6 +160,17 @@ class ReferralReport(PatientReport):
     urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
 
 
+class DangerSignReport(PatientReport):
+    
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"DangerSign Report")
+        verbose_name_plural = _(u"DangerSign Reports")
+
+    danger_signs = models.ManyToManyField(DangerSign, \
+                                          verbose_name=_(u"Danger signs"))
+
+
 class PatientRegistrationReport(PatientReport):
     class Meta:
         app_label = 'childcount'
