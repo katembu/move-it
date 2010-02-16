@@ -419,8 +419,10 @@ class MUACReport(PatientReport):
     muac = models.SmallIntegerField(_(u"MUAC (mm)"))
     oedema = models.CharField(_(u"Oedema"), max_length=1, \
                               choices=OEDEMA_CHOICES)
-    status = models.IntegerField(choices=STATUS_CHOICES, db_index=True, \
+    status = models.IntegerField(_("Status"),\
+                                 choices=STATUS_CHOICES, db_index=True, \
                                  blank=True, null=True)
+    weight = models.FloatField(_("Weight"), blank=True, null=True)
 
     def diagnose(self):
         '''Diagnosis of the patient'''
