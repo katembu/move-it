@@ -3,8 +3,6 @@
 # maintainer: dgelvin
 
 import re
-
-
 from datetime import date
 
 from django.db import models
@@ -14,7 +12,6 @@ from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
 from childcount.models import Patient
 from childcount.exceptions import BadValue, ParseError
-
 from childcount.forms.utils import MultipleChoiceField
 
 
@@ -23,6 +20,7 @@ class PatientRegistrationForm(CCForm):
         'en': ['new'],
     }
     MIN_HH_AGE = 10
+    MIN_GUARDIAN_AGE = 10
 
     gender_field = MultipleChoiceField()
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
@@ -37,8 +35,7 @@ class PatientRegistrationForm(CCForm):
 
         chw = self.message.persistant_connection.reporter.chw
         try:
-            p = Patient.objects.get(health_id=health_id)
-            print p
+            p = Patient.objects.get(health_id__iexact=health_id)
         except Patient.DoesNotExist:
             pass
         else:
@@ -59,7 +56,7 @@ class PatientRegistrationForm(CCForm):
 
         if len(tokens) < 4:
             raise ParseError(_(u"Not enough info. You must send: " \
-                                "%(expected)") % {'expected': expected})
+                                "%(expected)s") % {'expected': expected})
 
         self.gender_field.set_language(lang)
 
@@ -75,39 +72,17 @@ class PatientRegistrationForm(CCForm):
                                 "with a %(choices)s") % \
                               {'choices': self.gender_field.choices_string()})
 
-
-        if tokens[-1] == self.SELF_HH[lang].lower():
-            print 'xxxxxxxxxxx'
-            patient.household = patient
-        else:
-            try:
-                patient.household = Patient.objects.get(health_id=tokens[-1])
-            except Patient.DoesNotExist:
-                if DOBProcessor.is_valid_dob_or_age(lang, \
-                                                    ' '.join(tokens[-1])):
-                    raise ParseError(_(u"You must indicate the head of " \
-                                        "household after the age. If this " \
-                                        "is the head of household " \
-                                        "write %(char)s after age.") % \
-                                        {'char': self.SELF_HH[lang]})
-                else:
-                    raise BadValue(_(u"Could not find head of household " \
-                                      "with health ID %(id)s. You must " \
-                                      "register the head of household " \
-                                      "first") % \
-                                      {'id': tokens[-1]})
-
-            age = patient.household.years()
-            if age < self.MIN_HH_AGE:
-                raise BadValue(_(u"The head of household you specified is " \
-                                  "too young to be a head of household " \
-                                  "(%(hh)s)") % {'hh': patient.household})
-
-        # remove head of household
-        tokens.pop()
+        dob = None
         for i in gender_indexes:
-            dob, variance = DOBProcessor.from_age_or_dob(lang, \
-                                                     ' '.join(tokens[i + 1:]))
+            # the gender field is at the end of the tokens.  We don't know
+            # what to do about this.
+            if i == len(tokens) - 1:
+                raise ParseError(_(u"Could not understand your message. " \
+                                    "Expected %(expected)s") % \
+                                    {'expected': expected})
+
+            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1])
+
             if dob:
                 patient.dob = dob
                 days, weeks, months = patient.age_in_days_weeks_months()
@@ -120,29 +95,102 @@ class PatientRegistrationForm(CCForm):
                                       "under two years"))
 
         if not dob:
-            raise ParseError(_(u"Could not understand your message. " \
-                                "%(expected)s") % {'expected': expected})
-
-        if patient.household == patient and patient.years() < self.MIN_HH_AGE:
-            raise BadValue(_(u"This patient is too young to be a head of " \
-                              "household. Please indicate their head of" \
-                              "household"))
+            raise ParseError(_(u"Could not understand age or " \
+                                    "date_of_birth of %(string)s") % \
+                                    {'string': tokens[i + 1]})
 
         patient.estimated_dob = variance > 1
 
-        # remove the age tokens
-        tokens = tokens[:i + 1]
-
-        patient.gender = self.gender_field.get_db_value(tokens.pop())
+        # if the gender field is the first or second
+        if i == 0 or i == 1:
+            raise ParseError(_(u"You must provide more than one name for " \
+                                "the patient."))
 
         patient.last_name, patient.first_name, alias = \
-                             clean_names(' '.join(tokens), \
+                             clean_names(' '.join(tokens[:i]), \
                              surname_first=self.SURNAME_FIRST)
 
+        # remove the name tokens
+        tokens = tokens[i:]
 
-        patient_check = Patient.objects.filter(first_name=patient.first_name, \
-                                               last_name=patient.last_name, \
-                                               dob=patient.dob)
+        # remove the gender token
+        patient.gender = self.gender_field.get_db_value(tokens.pop(0))
+
+        # remove the age token
+        tokens.pop(0)
+
+        if len(tokens) == 0:
+            raise ParseError(_(u"You must indicate the head of " \
+                                "household after the age. If this " \
+                                "is the head of household " \
+                                "write %(char)s after the dob/age.") % \
+                                {'char': self.SELF_HH[lang]})
+
+        household = tokens.pop(0)
+        self_hoh = False
+        if household == self.SELF_HH[lang].lower():
+            if patient.years() < self.MIN_HH_AGE:
+                raise BadValue(_(u"This patient is too young to be a head of "\
+                                  "household. Please indicate their head of" \
+                                  "household"))
+            patient.household = patient
+            self_hoh = True
+
+        # Patient is not a head of household
+        else:
+            try:
+                patient.household = Patient.objects.get( \
+                                                health_id__iexact=household)
+            except Patient.DoesNotExist:
+                raise BadValue(_(u"Could not find head of household " \
+                                  "with health ID %(id)s. You must " \
+                                  "register the head of household " \
+                                  "first") % \
+                                  {'id': household})
+
+            age = patient.household.years()
+            if age < self.MIN_HH_AGE:
+                raise BadValue(_(u"The head of household you specified is " \
+                                  "too young to be a head of household " \
+                                  "(%(hh)s)") % {'hh': patient.household})
+
+            # if the household head they listed is not a head of household
+            if patient.household.household != patient.household:
+                raise BadValue(_(u"The head of household you specified " \
+                                  "(%(hh)s) is not a head of household. " \
+                                  "Their head of household is (%(hhhh)s). " \
+                                  "If they are the head, set their head of " \
+                                  "household to %(char)s") % \
+                                  {'hh': patient.household, \
+                                   'hhhh': patient.household.household, \
+                                   'char': self.SELF_HH[lang]})
+
+        if patient.years() < 5:
+            if len(tokens) == 0:
+                raise BadValue(_(u"This child is less than 5 years. You " \
+                                  "must indicate their parent or " \
+                                  "guardian's health ID after their " \
+                                  "head of household ID"))
+            guardian = tokens.pop(0)
+
+            try:
+                patient.guardian = Patient.objects.get( \
+                                                health_id__iexact=guardian)
+            except Patient.DoesNotExist:
+                raise BadValue(_(u"Could not find mother / guardian " \
+                                  "with health ID %(id)s. You must " \
+                                  "register the mother first.") % \
+                                  {'id': household})
+            if patient.guardian < self.MIN_GUARDIAN_AGE:
+                raise BadValue(_(u"The mother / guardian you specified is " \
+                                  "too young to be a mother." \
+                                  "(%(hh)s)") % {'hh': patient.household})
+
+        patient_check = Patient.objects.filter( \
+                                first_name__iexact=patient.first_name, \
+                                last_name__iexact=patient.last_name, \
+                                dob=patient.dob)
+
         if len(patient_check) > 0:
             old_p = patient_check[0]
             if old_p.chw == chw:
@@ -158,12 +206,10 @@ class PatientRegistrationForm(CCForm):
                                'chw': patient_chw, \
                                'id': old_p.health_id.upper()})
         patient.save()
-
-        # For some reason django doesn't do this properly until the patient
-        # record is saved.
-        if patient.household == patient:
+        if self_hoh:
             patient.household = patient
             patient.save()
+        print patient.household
 
         response = _("You successfuly registered %(patient)s") % \
                     {'patient': patient}
