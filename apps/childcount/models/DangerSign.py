@@ -23,6 +23,7 @@ class DangerSign(models.Model):
 
     code = models.CharField(_(u"Code"), max_length=10, unique=True)
     description = models.CharField(_(u"Description"), max_length=255)
+    type = models.CharField(_(u"Type"), max_length=20)
 
     def __unicode__(self):
         return u"%s: %s" % (self.code, self.description)
