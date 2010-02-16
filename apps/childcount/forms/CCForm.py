@@ -8,6 +8,7 @@ class CCForm(object):
     MULTIPLE_PATIENTS = True
     message = None
     params = None
+    PREFIX = '+'
 
     def __init__(self, message, params):
         self.message = message
