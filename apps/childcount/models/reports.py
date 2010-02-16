@@ -177,6 +177,15 @@ class HouseHoldVisitReport(PatientReport):
     available = models.BooleanField(_(u"HH Member Available"), \
                                 help_text=_(u"Was a houshold member " \
                                              "available?"))
+    pregnant = models.SmallIntegerField(_("Number of pregnant women"), \
+                                        help_text=_("what was the number of "\
+                                                    "pregnant women?"), \
+                                        blank=True, null=True)
+    underfive = models.SmallIntegerField(_("Number of Under Five children"), \
+                                        help_text=_("what was the number of "\
+                                                    "Under Five children?"), \
+                                        blank=True, null=True)
+    danger_signs = models.ManyToManyField(DangerSign)
 
 
 class FeverReport(PatientReport, RDTField):
