@@ -155,8 +155,6 @@ class ReferralReport(PatientReport):
                        (URGENCY_BASIC, _('Basic Referral')),
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
-    danger_signs = models.ManyToManyField(DangerSign, \
-                                          verbose_name=_(u"Danger signs"))
     urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
 
 
