@@ -201,6 +201,28 @@ class FeverReport(PatientReport, RDTField):
                                                   "home treatment"))
 
 
+class DiarrheaReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Diarrhea Report")
+        verbose_name_plural = _(u"Diarrhea Reports")
+
+    HOME_YES = 'Y'
+    HOME_NO = 'N'
+    HOME_UNKNOWN = 'U'
+    HOME_CHOICES = (
+                    (HOME_YES, _(u"Yes")),
+                    (HOME_NO, _(u"Yes")),
+                    (HOME_UNKNOWN, _(u"Yes"))
+                    )
+
+    home_treatment = models.CharField(_(u"Home treated?"), \
+                                      max_length=1, \
+                                      help_text=_(u"Is Patient eligible for "\
+                                                  "home treatment"))
+
+
 class PregnancyReport(PatientReport):
 
     class Meta:
