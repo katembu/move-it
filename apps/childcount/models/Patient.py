@@ -53,7 +53,7 @@ class Patient(GenderField):
     guardian = models.ForeignKey('self', blank=True, null=True, \
                                  verbose_name=_(u"Mother or guardian"), \
                                  related_name='child')
-    household = models.ForeignKey('self', blank=True, null=True \
+    household = models.ForeignKey('self', blank=True, null=True, \
                                   verbose_name=_(u"Household's primary " \
                                                   "caregiver"), \
                                   help_text=_(u"The primary caregiver in " \
