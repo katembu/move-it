@@ -155,9 +155,18 @@ class ReferralReport(PatientReport):
                        (URGENCY_BASIC, _('Basic Referral')),
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
+    urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
+
+
+class DangerSignReport(PatientReport):
+    
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"DangerSign Report")
+        verbose_name_plural = _(u"DangerSign Reports")
+
     danger_signs = models.ManyToManyField(DangerSign, \
                                           verbose_name=_(u"Danger signs"))
-    urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
 
 
 class PatientRegistrationReport(PatientReport):
@@ -177,6 +186,15 @@ class HouseHoldVisitReport(PatientReport):
     available = models.BooleanField(_(u"HH Member Available"), \
                                 help_text=_(u"Was a houshold member " \
                                              "available?"))
+    pregnant = models.SmallIntegerField(_("Number of pregnant women"), \
+                                        help_text=_("what was the number of "\
+                                                    "pregnant women?"), \
+                                        blank=True, null=True)
+    underfive = models.SmallIntegerField(_("Number of Under Five children"), \
+                                        help_text=_("what was the number of "\
+                                                    "Under Five children?"), \
+                                        blank=True, null=True)
+    danger_signs = models.ManyToManyField(DangerSign)
 
 
 class FeverReport(PatientReport, RDTField):
@@ -186,6 +204,15 @@ class FeverReport(PatientReport, RDTField):
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
 
+
+class DiarrheaReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Diarrhea Report")
+        verbose_name_plural = _(u"Diarrhea Reports")
+
+    '''
     HOME_YES = 'Y'
     HOME_NO = 'N'
     HOME_UNKNOWN = 'U'
@@ -197,8 +224,21 @@ class FeverReport(PatientReport, RDTField):
 
     home_treatment = models.CharField(_(u"Home treated?"), \
                                       max_length=1, \
+                                      choices=HOME_CHOICES,
                                       help_text=_(u"Is Patient eligible for "\
                                                   "home treatment"))
+    '''
+    TREATMENT_ORS = 'R'
+    TREATMENT_ZINC = 'Z'
+    TREATMENT_CHOICES = (
+                    (TREATMENT_ORS, _(u"ORS")),
+                    (TREATMENT_ZINC, _(u"ZINC")),
+                    )
+
+    treatment = models.CharField(_("Treatment"), max_length=1, \
+                                 choices=TREATMENT_CHOICES, \
+                                 help_text=_("what treatment was given?(ORS "\
+                                             "or Zinc)"))
 
 
 class PregnancyReport(PatientReport):
@@ -222,6 +262,18 @@ class PostpartumReport(PatientReport):
         app_label = 'childcount'
         verbose_name = _(u"Postpartum Report")
         verbose_name_plural = _(u"Postpartum Reports")
+
+    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+                                    help_text=_(u"Number of clinic visits " \
+                                                 "since delivery"))
+
+
+class NeonatalReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Neonatal Report")
+        verbose_name_plural = _(u"Neonatal Reports")
 
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
@@ -376,8 +428,10 @@ class MUACReport(PatientReport):
     muac = models.SmallIntegerField(_(u"MUAC (mm)"))
     oedema = models.CharField(_(u"Oedema"), max_length=1, \
                               choices=OEDEMA_CHOICES)
-    status = models.IntegerField(choices=STATUS_CHOICES, db_index=True, \
+    status = models.IntegerField(_("Status"),\
+                                 choices=STATUS_CHOICES, db_index=True, \
                                  blank=True, null=True)
+    weight = models.FloatField(_("Weight"), blank=True, null=True)
 
     def diagnose(self):
         '''Diagnosis of the patient'''

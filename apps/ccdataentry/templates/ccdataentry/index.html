@@ -1,0 +1,140 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>index</title>
+	<meta name="author" content="Alex Dorey">
+	
+	<script type="text/javascript" src="{{ static_path }}javascripts/prototype.js"></script>
+	<script type="text/javascript" src="{{ static_path }}javascripts/scriptaculous.js"></script>
+	<script type="text/javascript">
+	<!--
+	var clog = function(){}
+	var cerr = function(){}
+
+	if(typeof(console)!=='undefined') {clog = console.log; cerr = console.error;
+		$(document).observe('dom:loaded', function(){$('warning').hide()})
+	}
+
+	var availableActions = $w('');
+	var availableForms = $A();
+	
+	var RsmsConnection= {
+		jsonRoot: '{{ static_path }}json_resp/',
+		url: 'json_resp/single_sms_entry_response_1.json'
+	};
+	var RsmsGlobals = {
+		nameDivider: '_',
+		jsonRoot: '/ccdataentry/json/',
+		lang: 'en',
+		formSelector: 'form_select',
+		tableWrap: 'table_wrap',
+		logoBox: 'form_logo',
+		_minFormSheetId: 100,
+		newSheetId: function(){return "form-"+RsmsGlobals._minFormSheetId++ }
+	}
+
+	-->
+	</script>
+	<script type="text/javascript" src="{{ static_path }}javascripts/handlers.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="{{ static_path }}stylesheets/pretty-rsms-tables.css" />
+	<script type="text/javascript">
+<!--
+	var JsonFetchSettings = {
+		method: 'get',
+		asynchronous: false,
+		requestHeaders: {Accept: 'application/json'},
+		onSuccess: function(transport) {
+			Try.these(function(){
+				$H(transport.responseJSON).each(function(jsArr){eval('new '+(transport.request.options.processKlassName)+'(jsArr)');});
+			}.bind(this),function(){ transport.errorText = T(
+				'errors.noProcess',
+				"There was an error processing the file at the url: #{url}",
+				{url: transport.request.url}
+			)}.bind(this))
+		},
+		onComplete: function(transport){
+			if(transport.errorText) {
+				cerr(transport.errorText);
+			} else { /*-- we cool --*/ }
+		}
+	}
+	$(document).observe('dom:loaded', function(){
+		$('loadingbox').update('Loading is complete!');
+		(function(){
+			$('loadingbox').fade({duration: 0.2})
+		}).delay(1)
+		TVHandler.openWith(RsmsForms.o5consult.newSheet());
+	});
+-->
+	</script>
+	<style>
+	#warning {
+		color: #f00;
+		color: #000;
+		background-color: #fff;
+		border: 2px solid red;
+		position: fixed;
+		height: 200px;
+		width: 500px;
+		top: 100px;
+		left: 50%;
+		margin: 0 0 0 -250px;
+		padding: 12px;
+	}
+	</style>
+
+</head>
+<body>
+	<div id="wwrap">
+		<div id="content">
+		</div>
+	<div class="widew">
+		<div class="iwidew">
+			<div id="thead">
+				<div id="form_logo">
+					<a href="#"><span>Link</span></a>
+				</div>
+				<h2 class="title">Under 5 Form</h2>
+				<table id="rt_info">
+					<tr>
+						<th>Logged in:</th>
+					</tr>
+					<tr>
+						<td>Alex D</td>
+					</tr>
+				</table>
+				<div id="rt_select">
+					<select disabled="true" id="form_select">
+						<option>Forms</option>
+					</select>
+				</div>
+			</div>
+			<div id="loadingbox">
+				<span class="loadingimage"></span> RsmsEntry is loading necessary files...
+			</div>
+			<script type="text/javascript" src="{{ static_path }}javascripts/rsms.js"></script>
+			<script>
+			<!--
+			$('loadingbox').update('RapidSMS Entry is loading template files...');
+			new Ajax.Request(RsmsGlobals.jsonRoot + 'form_columns.json', $H(JsonFetchSettings).merge({
+				processKlassName: 'TColumn'
+			}).toObject())
+			new Ajax.Request(RsmsGlobals.jsonRoot + 'form_definitions.json', $H(JsonFetchSettings).merge({
+				processKlassName: 'RsmsForm'
+			}).toObject())
+			$('loadingbox').update('RapidSMS Entry is processing template files...');
+			
+			-->
+			</script>
+		</div>
+		<div class="iw">
+			<div class="tw" id="table_wrap"></div>
+		</div>
+	</div>
+	</div>
+</body>
+</html>

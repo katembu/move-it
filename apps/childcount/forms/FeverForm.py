@@ -26,28 +26,16 @@ class FeverForm(CCForm):
     rdt_field.add_choice('en', RDTField.RDT_UNAVAILABLE, 'X')
     rdt_field.add_choice('en', RDTField.RDT_UNKOWN, 'U')
 
-    home_field = MultipleChoiceField()
-    home_field.add_choice('en', FeverReport.HOME_YES, 'Y')
-    home_field.add_choice('en', FeverReport.HOME_NO, 'N')
-    home_field.add_choice('en', FeverReport.HOME_UNKNOWN, 'U')
-
     def process(self, patient):
         '''Fever Section (6-59 months)'''
         self.rdt_field.set_language(self.message.reporter.language)
-        self.home_field.set_language(self.message.reporter.language)
-        if len(self.params) < 3:
+        if len(self.params) < 2:
             raise ParseError(_(u"Not enough info, expected (%s) (%s)") % \
-                                ('/'.join(self.rdt_field.valid_choices()), \
-                                 '/'.join(self.home_field.valid_choices())))
+                    (self.PREFIX, '/'.join(self.rdt_field.valid_choices())))
 
         if not self.rdt_field.is_valid_choice(self.params[1]):
             raise ParseError(_(u"RDT Result must be %(choices)s") % \
                               {'choices': self.rdt_field.choices_string()})
-
-        if not self.home_field.is_valid_choice(self.params[1]):
-            raise ParseError(_(u"Eligible for home treatment must be "\
-                               "%(choices)s") % \
-                              {'choices': self.home_field.choices_string()})
 
         days, weeks, months = patient.age_in_days_weeks_months()
         response = ''
@@ -65,8 +53,7 @@ class FeverForm(CCForm):
                          'child and refer them to the clinic any time there '\
                          'is a concern). Positive reinforcement'))
         else:
-            rdt = self.rdt_field.get_db_value(self.params[2])
-            home_treatment = self.home_field.get_db_value(self.params[1])
+            rdt = self.rdt_field.get_db_value(self.params[1])
             if rdt == RDTField.RDT_POSITIVE:
                 years = months / 12
                 tabs, yage = None, None
@@ -112,7 +99,8 @@ class FeverForm(CCForm):
                 response = _('No fever')
 
             fr = FeverReport(created_by=created_by, rdt_result=rdt, \
-                             patient=patient, home_treatment=home_treatment)
+                             patient=patient)
             fr.save()
 
         return response
+    

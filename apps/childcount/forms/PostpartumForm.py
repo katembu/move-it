@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.models import  Case
 from childcount.models.reports import PostpartumReport
-from childcount.exceptions import ParseError
+from childcount.exceptions import ParseError,Inapplicable
 
 
 class PostpartumForm(CCForm):
@@ -25,6 +25,13 @@ class PostpartumForm(CCForm):
         if not clinic_visits.isdigit():
             raise ParseError(_('Expected number of clinic visits since '\
                                'delivery'))
+        
+        days, weeks, months = patient.age_in_days_weeks_months()
+
+        #the mother should at least be 10 years
+        if months/12 < 10:
+            raise Inapplicable(_(u"The child is too young for this report"))
+
         clinic_visits = int(clinic_visits)
         created_by = self.message.persistant_connection.reporter.chw
 
