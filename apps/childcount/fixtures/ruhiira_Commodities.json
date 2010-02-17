@@ -1,0 +1,50 @@
+[
+    {
+        "pk": 1, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "ACT", 
+            "description": "Coartem"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "PARA", 
+            "description": "Paracetemol"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "BCG", 
+            "description": "BCG Vaccine"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "POLIO1", 
+            "description": "POLIO Vaccine(OPV1)"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "R", 
+            "description": "ORS"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "childcount.commodity", 
+        "fields": {
+            "code": "Z", 
+            "description": "Zinc"
+        }
+    }
+]

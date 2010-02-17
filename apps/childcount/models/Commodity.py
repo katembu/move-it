@@ -24,3 +24,7 @@ class Commodity(models.Model):
 
     code = models.CharField(_(u"Code"), max_length=10, unique=True)
     description = models.CharField(_(u"Description"), max_length=255)
+
+    def __unicode__(self):
+        return u'%(code)s - %(desc)s' % \
+                {'code': self.code, 'desc': self.description}
