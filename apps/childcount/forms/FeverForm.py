@@ -21,7 +21,7 @@ class FeverForm(CCForm):
         'en': ['f'],
     }
     rdt_field = MultipleChoiceField()
-    rdt_field.add_choice('en', RDTField.RDT_POSITIVE, 'P')
+    rdt_field.add_choice('en', RDTField.RDT_POSITIVE, 'Y')
     rdt_field.add_choice('en', RDTField.RDT_NEGATIVE, 'N')
     rdt_field.add_choice('en', RDTField.RDT_UNAVAILABLE, 'X')
     rdt_field.add_choice('en', RDTField.RDT_UNKOWN, 'U')
