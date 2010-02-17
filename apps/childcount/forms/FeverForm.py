@@ -44,14 +44,6 @@ class FeverForm(CCForm):
         if days <= 30:
             raise Inapplicable(_("Child is too young for treatment. "\
                         "Please refer IMMEDIATELY to clinic"))
-
-        elif months > 59:
-            raise Inapplicable(_('Child is older then 59 months. For any '\
-                                 'concerns about child in the future please'\
-                                 ' go to the clinic. (Please advise mother to'\
-                                 ' still closely monitor '\
-                         'child and refer them to the clinic any time there '\
-                         'is a concern). Positive reinforcement'))
         else:
             rdt = self.rdt_field.get_db_value(self.params[1])
             if rdt == RDTField.RDT_POSITIVE:
