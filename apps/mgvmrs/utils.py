@@ -19,7 +19,7 @@ try:
         'server': Configuration.get('openmrs_server'),
     }
 except:
-    raise
+    #raise
     openmrs_config = {
         'path_xform_post': "/openmrs/module/xforms/xformDataUpload" \
                                    ".form?uname=%(username)s&pw=%(password)s",

@@ -50,6 +50,7 @@ class OpenMRSFormInterface(object):
     T_TS = 'TS'
     T_BIT = 'BIT'
     T_SN = 'SN'
+    T_BOOL = bool
 
     fields = {}
     values = {}
@@ -127,11 +128,14 @@ class OpenMRSFormInterface(object):
             return None
 
         # retrive field definition
-        ff_type, ff_values, ff_default = self.fields[field]
+        ff_type, ff_values = self.fields[field]
 
         # Numeric Values
         if ff_type == self.T_NM:
-            ff_value = value.strip()
+            try:
+                ff_value = value.strip()
+            except AttributeError:
+                ff_value = value
             try:
                 tmp = float(ff_value)
             except ValueError:
@@ -197,6 +201,14 @@ class OpenMRSFormInterface(object):
         # SN: Structured Numeric
         if ff_type == self.T_SN:
             pass
+
+        # BOOL: python boolean
+        if ff_type == self.T_BOOL:
+            try:
+                ff_value = bool(value)
+            except ValueError:
+                raise UnexpectedValueError(_(u"Expecting Boolean value"))
+            self.values[field] = ff_value
 
     def retrieve(self, field):
         ''' get the value of one field '''

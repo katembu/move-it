@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<form id="56" name="CHERA Under 5 Form" version="1.1" xmlns:openmrs="http://localhost:8080/openmrs/moduleServlet/formentry/forms/schema/51-32" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<form id="57" name="ChildCount+ Over 5 Form" version="1.1" xmlns:openmrs="http://localhost:8080/openmrs-dev/moduleServlet/formentry/forms/schema/56-34" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <header>
     <enterer/>
     <date_entered/>
@@ -22,11 +22,6 @@
     <encounter.provider_id openmrs_table="encounter" openmrs_attribute="provider_id">{{ encounter___provider_id }}</encounter.provider_id>
   </encounter>
   <obs openmrs_concept="1238^MEDICAL RECORD OBSERVATIONS^99DCT" openmrs_datatype="ZZ">
-    <calculated_age openmrs_concept="154384^calculated age^99DCT" openmrs_datatype="NM">
-      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ calculated_age }}</value>
-    </calculated_age>
     <visit_to_health_facility_since_last_home_visit openmrs_concept="1889^Visit to health facility since last home visit^99DCT" openmrs_datatype="CWE" multiple="0">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
@@ -37,36 +32,26 @@
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ danger_signs_present }}</value>
     </danger_signs_present>
-    <breastfed_exclusively openmrs_concept="5526^BREASTFED EXCLUSIVELY^99DCT" openmrs_datatype="CWE" multiple="0">
+    <month_of_current_gestation openmrs_concept="5992^MONTH OF CURRENT GESTATION^99DCT" openmrs_datatype="NM">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ breastfed_exclusively }}</value>
-    </breastfed_exclusively>
-    <number_of_health_facility_visits_since_birth openmrs_concept="1886^Number of health facility visits since birth^99DCT" openmrs_datatype="NM">
-      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ number_of_health_facility_visits_since_birth }}</value>
-    </number_of_health_facility_visits_since_birth>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ month_of_current_gestation }}</value>
+    </month_of_current_gestation>
     <fever openmrs_concept="140238^FEVER^99DCT" openmrs_datatype="CWE" multiple="0">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ fever }}</value>
     </fever>
-    <diarrhea openmrs_concept="142412^DIARRHEA^99DCT" openmrs_datatype="CWE" multiple="0">
+    <antenatal_visit_number openmrs_concept="1425^ANTENATAL VISIT NUMBER^99DCT" openmrs_datatype="NM">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ diarrhea }}</value>
-    </diarrhea>
-    <mid-upper_arm_circumference openmrs_concept="1343^MID-UPPER ARM CIRCUMFERENCE^99DCT" openmrs_datatype="NM">
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ antenatal_visit_number }}</value>
+    </antenatal_visit_number>
+    <number_of_health_facility_visits_since_birth openmrs_concept="1886^Number of health facility visits since birth^99DCT" openmrs_datatype="NM">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ mid_upper_arm_circumference }}</value>
-    </mid-upper_arm_circumference>
-    <oedema openmrs_concept="460^OEDEMA^99DCT" openmrs_datatype="CWE" multiple="0">
-      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
-      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ oedema }}</value>
-    </oedema>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ number_of_health_facility_visits_since_birth }}</value>
+    </number_of_health_facility_visits_since_birth>
     <tests_ordered openmrs_concept="1271^TESTS ORDERED^99DCT" openmrs_datatype="CWE" multiple="0">
       <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
       <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>

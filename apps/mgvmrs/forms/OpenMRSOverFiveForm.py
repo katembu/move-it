@@ -5,14 +5,14 @@
 from mgvmrs.forms.OpenMRSFormInterface import *
 
 
-class OpenMRSUnderFiveForm(OpenMRSFormInterface):
+class OpenMRSOverFiveForm(OpenMRSFormInterface):
 
-    ''' Children Under 5 Encounter Form
+    ''' Patient Over 5 Encounter Form
 
-    Matchs OpenMRS Form #56
+    Matchs OpenMRS Form #57
     Last Updated: Feb 17 2010 - rgaudin '''
 
-    template_name = 'OpenMRSUnderFiveForm.xml'
+    template_name = 'OpenMRSOverFiveForm.xml'
 
     # concepts
     YES = '1065^YES^99DCT'
@@ -55,28 +55,23 @@ class OpenMRSUnderFiveForm(OpenMRSFormInterface):
     REASON_VD = 'vaginal_discharge'
     REASON_VP = 'acute_vaginitis'
     REASON_WL = 'weight_loss'
-    REASON_Z = 'other_non_coded'
+    REASON_Z = 'other_non-coded'
 
     # answers group
     A_YESNO = (YES, NO, UNKNOWN)
     A_POSIT = (POSITIVE, NEGATIVE, INDETERMINATE)
 
-
     # Allowed answers
     # (TYPE, LIST OF VALUES)
     fields = {
-        'calculated_age': (OpenMRSFormInterface.T_NM, None),
         'visit_to_health_facility_since_last_home_visit': \
-                                  (OpenMRSFormInterface.T_CWE, A_YESNO),
+                                         (OpenMRSFormInterface.T_CWE, A_YESNO),
         'danger_signs_present': (OpenMRSFormInterface.T_CWE, A_YESNO),
-        'breastfed_exclusively': (OpenMRSFormInterface.T_CWE, A_YESNO),
-        'number_of_health_facility_visits_since_birth': \
-                                      (OpenMRSFormInterface.T_NM, None),
+        'month_of_current_gestation': (OpenMRSFormInterface.T_NM, None),
         'fever': (OpenMRSFormInterface.T_CWE, A_YESNO),
-        'diarrhea': (OpenMRSFormInterface.T_CWE, A_YESNO),
-        'mid_upper_arm_circumference': \
-                                      (OpenMRSFormInterface.T_NM, None),
-        'oedema': (OpenMRSFormInterface.T_CWE, A_YESNO),
+        'antenatal_visit_number': (OpenMRSFormInterface.T_NM, None),
+        'number_of_health_facility_visits_since_birth': \
+                                             (OpenMRSFormInterface.T_NM, None),
         'tests_ordered': (OpenMRSFormInterface.T_CWE, \
                           (TEST_ORDER_MALARIA, TEST_ORDER_NONE)),
         'rapid_test_for_malaria': (OpenMRSFormInterface.T_CWE, A_POSIT),
@@ -129,8 +124,9 @@ class OpenMRSUnderFiveForm(OpenMRSFormInterface):
                                            (OpenMRSFormInterface.T_BOOL, None),
         'reasons_for_referral__weight_loss': \
                                            (OpenMRSFormInterface.T_BOOL, None),
-        'reasons_for_referral__other_non_coded': \
+        'reasons_for_referral__other_non-coded': \
                                            (OpenMRSFormInterface.T_BOOL, None),
     }
+    
 
     values = {}

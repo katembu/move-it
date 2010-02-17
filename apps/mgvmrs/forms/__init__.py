@@ -3,3 +3,5 @@
 # maintainer: rgaudin
 
 from mgvmrs.forms.OpenMRSFormInterface import *
+from mgvmrs.forms.OpenMRSUnderFiveForm import *
+from mgvmrs.forms.OpenMRSOverFiveForm import *
