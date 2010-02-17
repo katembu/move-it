@@ -44,7 +44,7 @@ class RegistrationCommand(CCCommand):
         if len(self.params) == 3:
             raise ParseError(_(u"You must provide more than one name"))
             
-        flat_name = self.params[2:]
+        flat_name = ' '.join(self.params[2:])
         surname, firstnames, alias = clean_names(flat_name, surname_first=True)
 
         reporter = self.message.persistant_connection.reporter
