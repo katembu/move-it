@@ -14,6 +14,7 @@ class ReferralForm(CCForm):
 
     urgency_field = MultipleChoiceField()
     urgency_field.add_choice('en', ReferralReport.URGENCY_AMBULANCE, 'A')
+    urgency_field.add_choice('en', ReferralReport.URGENCY_EMERGENCY, 'E')
     urgency_field.add_choice('en', ReferralReport.URGENCY_BASIC, 'B')
     urgency_field.add_choice('en', ReferralReport.URGENCY_CONVENIENT, 'C')
 
@@ -27,11 +28,13 @@ class ReferralForm(CCForm):
         if not self.urgency_field.is_valid_choice(self.params[1]):
             raise ParseError(_(u"Referral in clinic options are %(choices)s") \
                              % \
-                            {'choices': self.available_field.choices_string()})
+                            {'choices': self.urgency_field.choices_string()})
         urgency = self.urgency_field.get_db_value(self.params[1])
 
         if urgency == ReferralReport.URGENCY_AMBULANCE:
             response = _('Ambulance Referral')
+        if urgency == ReferralReport.URGENCY_EMERGENCY:
+            response = _('Emergency Referral')
         if urgency == ReferralReport.URGENCY_BASIC:
             response = _('Basic Referral(24hrs)')
         if urgency == ReferralReport.URGENCY_CONVENIENT:

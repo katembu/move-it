@@ -148,10 +148,12 @@ class ReferralReport(PatientReport):
         verbose_name_plural = _(u"Referral Reports")
 
     URGENCY_AMBULANCE = 'A'
+    URGENCY_EMERGENCY = 'E'
     URGENCY_BASIC = 'B'
     URGENCY_CONVENIENT = 'C'
     URGENCY_CHOICES = (
                        (URGENCY_AMBULANCE, _('Ambulance Referral')),
+                       (URGENCY_EMERGENCY, _('Emergency Referral')),
                        (URGENCY_BASIC, _('Basic Referral')),
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
