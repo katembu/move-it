@@ -23,11 +23,11 @@ class PregnancyForm(CCForm):
                                "pregnancy[1-9]) (no. of anc visits)") % \
                                 ('/'.join(self.fever_field.valid_choices())))
 
-        clinic_visits = '' + self.params[1]
+        clinic_visits = unicode(self.params[2])
         if not clinic_visits.isdigit():
             raise ParseError(_('No. of ANC visits, expects a number.'))
         clinic_visits = int(clinic_visits)
-        month = '' + self.params[2]
+        month = unicode(self.params[1])
         if not month.isdigit():
             raise ParseError(_('Month of pregnancy, expects a number '\
                                'between 1-9'))
