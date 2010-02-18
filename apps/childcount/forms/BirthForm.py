@@ -36,7 +36,7 @@ class BirthForm(CCForm):
                                 "within an hour of birth) " \
                                 "weight(kg)(optional)"))
 
-        chw = self.message.persistent_connection.reporter.chw
+        chw = self.message.persistant_connection.reporter.chw
         cd_field.set_language(chw.language)
         breastfed_field.set_language(chw.language)
         clinic_delivery = self.params[1]
