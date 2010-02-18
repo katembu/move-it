@@ -21,7 +21,7 @@ class OpenMRSOverFiveForm(OpenMRSFormInterface):
 
     TEST_ORDER_MALARIA = '1643^RAPID TEST FOR MALARIA^99DCT'
     TEST_ORDER_NONE = '1107^NONE^99DCT'
-    
+
     POSITIVE = '703^POSITIVE^99DCT'
     NEGATIVE = '664^NEGATIVE^99DCT'
     INDETERMINATE = '1138^INDETERMINATE^99DCT'
@@ -127,6 +127,6 @@ class OpenMRSOverFiveForm(OpenMRSFormInterface):
         'reasons_for_referral__other_non-coded': \
                                            (OpenMRSFormInterface.T_BOOL, None),
     }
-    
+
 
     values = {}
