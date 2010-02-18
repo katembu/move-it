@@ -21,17 +21,18 @@ class PatientRegistrationForm(CCForm):
     }
     MIN_HH_AGE = 10
     MIN_GUARDIAN_AGE = 10
+    MULTIPLE_PATIENTS = False
 
     gender_field = MultipleChoiceField()
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
-    SELF_HH = {}
-    SELF_HH['en'] = 'P'
+    SELF_HH = {'en': 'P'}
 
     SURNAME_FIRST = False
 
-    def pre_process(self, health_id):
+    def pre_process(self):
+        health_id = self.health_id
 
         chw = self.message.persistant_connection.reporter.chw
         try:
@@ -87,10 +88,10 @@ class PatientRegistrationForm(CCForm):
                 patient.dob = dob
                 days, weeks, months = patient.age_in_days_weeks_months()
                 if days < 60 and variance > 1:
-                    raise BadValue(_(u"Please provide an exact birth date " \
+                    raise BadValue(_(u"You must provide an exact birth date " \
                                       "for children under 2 months"))
                 elif months < 24 and variance > 30:
-                    raise BadValue(_(u"Please provide an exact birth date " \
+                    raise BadValue(_(u"You must provide an exact birth date " \
                                       "or the age in months for children " \
                                       "under two years"))
 
@@ -131,7 +132,7 @@ class PatientRegistrationForm(CCForm):
         if household == self.SELF_HH[lang].lower():
             if patient.years() < self.MIN_HH_AGE:
                 raise BadValue(_(u"This patient is too young to be a head of "\
-                                  "household. Please indicate their head of" \
+                                  "household. You must provide their head of" \
                                   "household"))
             patient.household = patient
             self_hoh = True
@@ -209,8 +210,6 @@ class PatientRegistrationForm(CCForm):
         if self_hoh:
             patient.household = patient
             patient.save()
-        print patient.household
 
-        response = _("You successfuly registered %(patient)s") % \
+        self.response = _("You successfuly registered %(patient)s") % \
                     {'patient': patient}
-        return response
