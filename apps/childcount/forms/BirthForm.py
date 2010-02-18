@@ -6,7 +6,7 @@ import re
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.exceptions import ParseError, BadValue
+from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.models.reports import BirthReport
 from childcount.forms.utils import MultipleChoiceField
 
@@ -30,13 +30,31 @@ class BirthForm(CCForm):
         breastfed_field.add_choice('en', BirthReport.BREASTFED_NO, 'N')
         breastfed_field.add_choice('en', BirthReport.BREASTFED_UNKOWN, 'U')
 
+        chw = self.message.persistant_connection.reporter.chw
+
+        days, weeks, months = patient.age_in_days_weeks_months()
+        humanised = patient.humanised_age()
+        if days > 28:
+            raise Inapplicable(_(u"Patient is %(age)s old. You cannot " \
+                                  "submit birth reports for patients over " \
+                                  "28 days old") % {'age': humanised})
+
+        try:
+            br = BirthReport.objects.filter(patient=patient)
+        except BirthReport.DoesNotExist:
+            pass
+        else:
+            raise Inapplicable(_(u"A birth report for %(p)s was already " \
+                                  "submited by %(chw)s") % \
+                                  {'p': patient, 'chw': chw})
+
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough information, expected: " \
                                 "(delivered in health facility) (breasfed " \
                                 "within an hour of birth) " \
                                 "weight(kg)(optional)"))
 
-        chw = self.message.persistant_connection.reporter.chw
+
         cd_field.set_language(chw.language)
         breastfed_field.set_language(chw.language)
         clinic_delivery = self.params[1]
