@@ -437,3 +437,9 @@ class MUACReport(PatientReport):
         if self.status is None:
             self.diagnose()
         super(MUACReport, self).save(*args)
+
+    @property
+    def verbose_state(self):
+        for k, v in self.STATUS_CHOICES:
+            if self.status == k:
+                return v
