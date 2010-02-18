@@ -17,9 +17,9 @@
             "bIncHiddenColumns": false,
             "sPrintMessage": "",
             "sTitle": "",
-            "iButtonHeight": 30,
-            "iButtonWidth": 30,
-            "_iNextId": 1 /* Internal useage - but needs to be global */
+            "iButtonHeight": 20,
+            "iButtonWidth": 20,
+            "_iNextId": 1 /* Internal usage - but needs to be global */
         };    
         $(document).ready(function() {
             /* Add a click handler to the rows - this could be used as a callback */
@@ -28,6 +28,10 @@
                     $(this.nTr).removeClass('row_selected');
                 });
                 $(event.target.parentNode).addClass('row_selected');
+            });
+            
+            $('#report tr td').click(function(event){
+                console.log(event.target.parentNode)
             });
 
             /* Init the table */
@@ -53,6 +57,7 @@
             }
             return aReturn;
         }
+
     </script>
 {% endblock javascripts %}
 
@@ -62,19 +67,35 @@
 <link type="text/css" rel="stylesheet" href="/static/childcount/datatables/extras/TableTools/media/css/TableTools.css" />
 <style typ=text/css>
     table.display tr.odd.inc{
-        background-color: #ffffff;
+        background-color: #FFDDDD;
     }
      table.display tr.even.inc{
-        background-color: #fff3ed;
+        background-color: #FFEEEE;
     }
     table.display tr.odd.inc td.sorting_1{
-        background-color: #FFF0C7;
+        background-color: #FFC4C4;
     }
     table.display tr.even.inc td.sorting_1{
-        background-color: #ffc58c;
+        background-color: #FFD5D5;
     }
     tr.row_selected{
-        background-color: #B53E39;
+        background-color: #D5FFD5;
+    }
+#ch-bd {
+border:1px solid brown;
+}
+#ch-l {
+float:left;
+width:80%;
+}
+#ch-r {
+width:18%;
+float:right;
+position:relative;
+border:1px solid brown;
+}
+    #content img{
+        border: 0 solid white;
     }
 </style>
 {% endblock page_stylesheets %}

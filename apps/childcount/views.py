@@ -43,7 +43,8 @@ def patient(request):
     for col in columns[1:] + (sub_columns if sub_columns != None else []):
         if not 'colspan' in col:
             aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": false },"
+                            "\"bSearchable\": true },"
+    print columns[1:]
     aocolumns_js = aocolumns_js[:-1]
 
     aggregate = False
