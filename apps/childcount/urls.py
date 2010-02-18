@@ -6,6 +6,7 @@ from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
 
 import childcount.views as views
+import childcount.reports as reports
 
 admin.autodiscover()
 
@@ -22,5 +23,6 @@ urlpatterns = patterns('',
     url(r'^static/childcount/(?P<path>.*)$', 'django.views.static.serve',
         {'document_root': 'apps/childcount/static', 'show_indexes': True}),
     url(r'^childcount/?$', views.index),
-    url(r'^childcount/patients/?$', views.patient)
+    url(r'^childcount/patients/?$', views.patient),
+    url(r'^childcount/patients/pdf/?$', reports.all_patient_list_pdf)
 )
