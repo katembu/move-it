@@ -146,8 +146,7 @@ class App (rapidsms.app.App):
                 except (ParseError, BadValue, Inapplicable), e:
                     pretty_form = '%s%s' % (self.FORM_PREFIX, \
                                             keyword.upper())
-                    print 'pretty_form'
-                    print pretty_form
+
                     message.respond(_(u"Error while processing %(frm)s: " \
                                        "%(e)s - Please correct and send all " \
                                        "information again.") % \

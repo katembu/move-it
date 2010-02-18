@@ -36,21 +36,21 @@ class BirthForm(CCForm):
                                 "within an hour of birth) " \
                                 "weight(kg)(optional)"))
 
-        chw = self.message.persistent_connection.reporter.chw
+        chw = self.message.persistant_connection.reporter.chw
         cd_field.set_language(chw.language)
         breastfed_field.set_language(chw.language)
         clinic_delivery = self.params[1]
         if not cd_field.is_valid_choice(clinic_delivery):
             raise BadValue(_(u"|Delivered in health facility?| must be " \
                               "%(choices)s") % \
-                              {'choices': cd_field.get_choices_string()})
-        cd_db = clinic_delivery_field.get_db_value(clinic_delivery)
+                              {'choices': cd_field.choices_string()})
+        cd_db = cd_field.get_db_value(clinic_delivery)
 
         breastfed = self.params[2]
         if not breastfed_field.is_valid_choice(breastfed):
             raise BadValue(_(u"|Breastfed within an hour of birth?| must be " \
                               "%(choices)s") % \
-                            {'choices': breastfed_field.get_choices_string()})
+                            {'choices': breastfed_field.choices_string()})
         breastfed_db = breastfed_field.get_db_value(breastfed)
 
         weight = None
@@ -90,7 +90,8 @@ class BirthForm(CCForm):
             self.response += _(", %(weight)skg birth weight") % \
                               {'weight': weight}
 
-        form = BirthForm(created_by=chw, clinic_delivery=cd_db, \
-                         breastfed=breastfed_db, weight=weight)
+        form = BirthReport(created_by=chw, patient=patient, \
+                           clinic_delivery=cd_db, \
+                           breastfed=breastfed_db, weight=weight)
 
         form.save()
