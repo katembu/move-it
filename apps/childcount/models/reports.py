@@ -46,6 +46,7 @@ class CCReport(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"ChildCount Report")
         verbose_name_plural = _(u"ChildCount Reports")
+        get_latest_by = ('modified_by',)
 
     created_by = models.ForeignKey(Reporter, verbose_name=_(u"Created by"), \
                                    related_name='created_report',
