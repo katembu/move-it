@@ -165,7 +165,7 @@ class App (rapidsms.app.App):
                     obj.process(patient)
                 except (ParseError, BadValue, Inapplicable), e:
                     failed_forms.append({'keyword': keyword, \
-                                         'error': e.message})
+                                         'error': e})
                 else:
                     successful_forms.append({'keyword': keyword, \
                                              'response': obj.response, \
@@ -182,14 +182,17 @@ class App (rapidsms.app.App):
                     successful_string += ' [%s]' % form['response']
 
             failed_string = ''
+            send_again = False
             for form in failed_forms:
                 failed_string += ' %(pre)s%(keyword)s failed: %(error)s' % \
                                  {'pre': self.FORM_PREFIX, \
                                   'keyword': form['keyword'].upper(), \
-                                  'error': form['error']}
-            if len(failed_forms) == 1:
+                                  'error': form['error'].message}
+                if not isinstance(form['error'], Inapplicable):
+                    send_again = True
+            if send_again and len(failed_forms) == 1:
                 failed_string += _(" You must send that form again. ")
-            elif len(failed_forms) > 1:
+            elif send_again and len(failed_forms) > 1:
                 failed_string += _(" You must send those forms again. ")
 
             if not (successful_forms and failed_forms):
