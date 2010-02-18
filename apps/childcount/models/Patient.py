@@ -54,8 +54,7 @@ class Patient(GenderField):
                                  verbose_name=_(u"Mother or guardian"), \
                                  related_name='child')
     household = models.ForeignKey('self', blank=True, null=True, \
-                                  verbose_name=_(u"Household's primary " \
-                                                  "caregiver"), \
+                                  verbose_name=_(u"Head of House"), \
                                   help_text=_(u"The primary caregiver in " \
                                                "this person's household " \
                                                "(self if primary caregiver)"),\
@@ -153,13 +152,20 @@ class Patient(GenderField):
     def table_columns(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('health_id').verbose_name})
+            {'name': cls._meta.get_field('household').verbose_name, \
+            'bit': '{{object.household.health_id}}'})
         columns.append(
-            {'name': cls._meta.get_field('first_name').verbose_name})
+            {'name': cls._meta.get_field('health_id').verbose_name, \
+            'bit': '{{object.health_id}}'})
         columns.append(
-            {'name': cls._meta.get_field('last_name').verbose_name})
+            {'name': cls._meta.get_field('first_name').verbose_name, \
+            'bit': '{{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('chw').verbose_name})
+            {'name': cls._meta.get_field('last_name').verbose_name, \
+            'bit': '{{object.last_name}}'})
+        columns.append(
+            {'name': cls._meta.get_field('chw').verbose_name, \
+            'bit': '{{object.chw}}'})
 
         sub_columns = None
         return columns, sub_columns
