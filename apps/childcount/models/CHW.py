@@ -38,3 +38,23 @@ class CHW(Reporter):
                                blank=True, null=True,
                                related_name='stationed_chw', \
                                help_text=_(u"The clinic this CHW reports to"))
+
+    @classmethod
+    def table_columns(cls):
+        columns = []
+        columns.append(
+            {'name': cls._meta.get_field('alias').verbose_name})
+        columns.append(
+            {'name': cls._meta.get_field('first_name').verbose_name})
+        columns.append(
+            {'name': cls._meta.get_field('last_name').verbose_name})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name})
+        columns.append(
+            {'name': cls._meta.get_field('role').verbose_name})
+        columns.append(
+            {'name': "Number of Patients"})
+     
+        
+        sub_columns = None
+        return columns, sub_columns
