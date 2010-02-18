@@ -158,11 +158,14 @@ class Patient(GenderField):
             {'name': cls._meta.get_field('health_id').verbose_name, \
             'bit': '{{object.health_id}}'})
         columns.append(
-            {'name': cls._meta.get_field('first_name').verbose_name, \
-            'bit': '{{object.first_name}}'})
+            {'name': _("Name"), \
+            'bit': '{{object.last_name}} {{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('last_name').verbose_name, \
-            'bit': '{{object.last_name}}'})
+            {'name': cls._meta.get_field('gender').verbose_name, \
+            'bit': '{{object.gender}}'})
+        columns.append(
+            {'name': _('age'), \
+            'bit': '{{object.humanised_age}}'})
         columns.append(
             {'name': cls._meta.get_field('chw').verbose_name, \
             'bit': '{{object.chw}}'})

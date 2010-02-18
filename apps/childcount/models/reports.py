@@ -46,6 +46,7 @@ class CCReport(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"ChildCount Report")
         verbose_name_plural = _(u"ChildCount Reports")
+        get_latest_by = ('modified_by',)
 
     created_by = models.ForeignKey(Reporter, verbose_name=_(u"Created by"), \
                                    related_name='created_report',
@@ -437,3 +438,9 @@ class MUACReport(PatientReport):
         if self.status is None:
             self.diagnose()
         super(MUACReport, self).save(*args)
+
+    @property
+    def verbose_state(self):
+        for k, v in self.STATUS_CHOICES:
+            if self.status == k:
+                return v
