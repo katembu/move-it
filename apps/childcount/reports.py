@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 
 from childcount.models import Patient
+from childcount.models.ccreports import ThePatient
 
 from libreport.pdfreport import PDFReport
 
@@ -15,10 +16,10 @@ def all_patient_list_pdf(request):
     report_title = Patient._meta.verbose_name
     rows = []
 
-    reports = Patient.objects.all().order_by('chw', 'household')
+    reports = ThePatient.objects.all().order_by('chw', 'household')
     
-    cols, sub_cols = Patient.table_columns()
-    
+    cols, sub_cols = ThePatient.patients_summary_list()
+
     i = 0
     for report in reports:
         '''if i == 0:
