@@ -5,23 +5,12 @@
 import re
 from datetime import date, timedelta
 import itertools
-
 from functools import wraps
+
+import rapidsms
+
 from django.utils.translation import gettext as _
-
-from childcount.exceptions import NotRegistered
-
-
-class InvalidAge(Exception):
-    pass
-
-
-class InvalidDOB(Exception):
-    pass
-
-
-class Ambiguous(Exception):
-    pass
+from childcount.exceptions import *
 
 
 class DOBProcessor:
@@ -70,7 +59,7 @@ class DOBProcessor:
             pass
         else:
             if cls.is_valid_dob(lang, age_or_dob):
-                raise Ambiguous
+                raise AmbiguousAge
             return dob, variance
 
         try:
@@ -464,3 +453,75 @@ def respond_exceptions(func):
             message.respond(_(u"An error has occured (%(e)s).") % {'e': e})
             raise
     return wrapper
+
+
+class KeywordMapper(object):
+    MATCH_ALL_LANG_CHAR = '*'
+    KEYWORDS_VAR = 'KEYWORDS'
+
+    def __init__(self):
+        self.keywords = {}
+        self.keywords[self.MATCH_ALL_LANG_CHAR] = {}
+
+    def add_class(self, cls):
+        try:
+            cls_keywords = eval('cls.%s' % self.KEYWORDS_VAR)
+        except AttributeError:
+            raise Exception(_(u"You tried to load %(cls)s but it does not " \
+                               "have %(k)s defined.") % \
+                               {'cls': cls, 'k': self.KEYWORDS_VAR})
+
+        if not isinstance(cls_keywords, dict):
+            raise Exception(_(u"%(k)s must be a dictionary in %(cls)s") % \
+                             {'cls': cls, 'k': self.KEYWORDS_VAR})
+
+        for lang in cls_keywords.keys():
+            if not lang in self.keywords:
+                self.keywords[lang.lower()] = {}
+
+            if not isinstance(cls_keywords[lang], list):
+                cls_keywords[lang] = [cls_keywords[lang]]
+
+            for keyword in cls_keywords[lang]:
+                keyword = keyword.lower().strip()
+
+                if keyword in self.get_keywords(lang.lower()) or \
+                    (lang == self.MATCH_ALL_LANG_CHAR and \
+                     lang.lower() in self.get_all_keywords()):
+
+                    raise Exception(u"Keyword clash in language " \
+                                     "'%(language)s' on keyword " \
+                                     "'%(keyword)s' in %(class)s" % \
+                                     {'language': lang, \
+                                      'keyword': keyword, \
+                                      'class': cls})
+
+                self.keywords[lang.lower()][keyword] = cls
+
+    def add_classes(self, classes):
+        for cls in classes:
+            self.add_class(cls)
+
+    def get_keywords(self, lang):
+        if lang not in self.keywords:
+            return []
+        return self.keywords[lang.lower()].keys() + \
+               self.keywords[self.MATCH_ALL_LANG_CHAR].keys()
+
+    def get_all_keywords(self):
+        keywords = []
+        for lang in self.keywords.keys():
+            keywords.extend(self.keywords[lang].keys())
+        return keywords
+
+    def get_class(self, lang, keyword):
+        if lang not in self.keywords:
+            return None
+        if keyword in self.keywords[lang.lower()]:
+            return self.keywords[lang.lower()][keyword]
+        if keyword in self.keywords[self.MATCH_ALL_LANG_CHAR]:
+            return self.keywords[self.MATCH_ALL_LANG_CHAR][keyword]
+        return None
+
+    def is_keyword(self, lang, keyword):
+        return self.get_class(lang, keyword) != None

@@ -6,15 +6,15 @@
 class CCForm(object):
     #KEYWORDS = {}
     MULTIPLE_PATIENTS = True
-    message = None
-    params = None
     PREFIX = '+'
 
-    def __init__(self, message, params):
+    def __init__(self, message, params, health_id):
         self.message = message
         self.params = params
+        self.health_id = health_id
+        self.response = ''
 
-    def pre_process(self, health_id):
+    def pre_process(self):
         pass
 
     def process(self, patient):

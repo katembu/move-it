@@ -254,8 +254,8 @@ class PregnancyReport(PatientReport):
                                     help_text=_(u"How many months into the " \
                                                  "pregnancy?"))
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
-                                    help_text=_(u"Number of clinic visits " \
-                                                 "during pregnancy"))
+                                    help_text=_(u"Number of antenatal clinic "\
+                                                 "visits during pregnancy"))
 
 
 class PostpartumReport(PatientReport):
@@ -281,13 +281,20 @@ class NeonatalReport(PatientReport):
                                     help_text=_(u"Number of clinic visits " \
                                                  "since delivery"))
 
-
 class BirthReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Birth Report")
         verbose_name_plural = _(u"Birth Reports")
+
+    BREASTFED_YES = 'Y'
+    BREASTFED_NO = 'N'
+    BREASTFED_UNKOWN = 'U'
+    BREASTFED_CHOICES = (
+        (BREASTFED_YES, _(u"Yes")),
+        (BREASTFED_NO, _(u"No")),
+        (BREASTFED_UNKOWN, _(u"Unknown")))
 
     CLINIC_DELIVERY_YES = 'Y'
     CLINIC_DELIVERY_NO = 'N'
@@ -297,35 +304,18 @@ class BirthReport(PatientReport):
         (CLINIC_DELIVERY_NO, _(u"No")),
         (CLINIC_DELIVERY_UNKOWN, _(u"Unknown")))
 
-    BCG_YES = 'Y'
-    BCG_NO = 'N'
-    BCG_UNKOWN = 'U'
-    BCG_CHOICES = (
-        (BCG_YES, _(u"Yes")),
-        (BCG_NO, _(u"No")),
-        (BCG_UNKOWN, _(u"Unknown")))
-
-    SMALL_YES = 'Y'
-    SMALL_NO = 'N'
-    SMALL_UNKOWN = 'U'
-    SMALL_CHOICES = (
-        (SMALL_YES, _(u"Yes")),
-        (SMALL_NO, _(u"No")),
-        (SMALL_UNKOWN, _(u"Unknown")))
-
     clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
                                        choices=CLINIC_DELIVERY_CHOICES, \
                                        help_text=_(u"Was the baby born in " \
                                                     "a health facility?"))
 
-    bcg = models.CharField(_(u"BCG immunisation"), max_length=1, \
-                           choices=CLINIC_DELIVERY_CHOICES, \
-                           help_text=_(u"Has the baby received the BCG " \
-                                        "vaccination?"))
+    breastfed = models.CharField(_(u"Breastfed at birth"), max_length=1, \
+                                 choices=BREASTFED_CHOICES, \
+                                 help_text=_(u"Was the baby breastfed " \
+                                              "within one hour of birth?"))
 
-    weight = models.FloatField(_(u"Birth Weight"), null=True, blank=True, \
-                             help_text=_(u"What was the weight of the baby '\
-                             'at birth?"))
+    weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
+                               help_text=_(u"Birth weight in kg"))
 
 
 class NewbornReport(PatientReport):

@@ -66,11 +66,9 @@ class HouseHoldVisitForm(CCForm):
             for danger_sign in observed:
                 hhvr.danger_signs.add(danger_sign)
             hhvr.save()
-            response = _("HH Member Available, %(pregnant)s pregnant, "\
+            self.response = _("HH Member Available, %(pregnant)s pregnant, "\
                          "%(underfive)s underfive, "\
                          "Activities(%(activities)s).") % \
                          {'pregnant': hhvr.pregnant, \
                                               'underfive': hhvr.underfive, \
                                               'activities': ','.join(text)}
-
-        return response

@@ -4,6 +4,16 @@
 
 from django.utils.translation import ugettext as _
 
+class InvalidAge(Exception):
+    pass
+
+
+class InvalidDOB(Exception):
+    pass
+
+
+class AmbiguousAge(Exception):
+    pass
 
 class ParseError(Exception):    
     def __init__(self, message=_(u"FAILED. unable to understand")):

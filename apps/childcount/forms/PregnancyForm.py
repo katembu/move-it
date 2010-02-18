@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: dgelvin
 
 from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
@@ -19,22 +19,24 @@ class PregnancyForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info, expected (month of "\
-                               "pregnancy[1-9]) (no. of anc visits)") % \
-                                ('/'.join(self.fever_field.valid_choices())))
+            raise ParseError(_(u"Not enough info, expected: " \
+                                "month_of_pregnancy number_of_anc_visits"))
 
-        clinic_visits = unicode(self.params[2])
-        if not clinic_visits.isdigit():
-            raise ParseError(_('No. of ANC visits, expects a number.'))
-        clinic_visits = int(clinic_visits)
-        month = unicode(self.params[1])
-        if not month.isdigit():
-            raise ParseError(_('Month of pregnancy, expects a number '\
-                               'between 1-9'))
+        month = self.params[1]
+        if not month.isdigit() or int(month) not in range(1, 10):
+            raise ParseError(_("Month of pregnancy must be a number between "\
+                               "1 and 9"))
         month = int(month)
-        created_by = self.message.persistant_connection.reporter.chw
-        response = ''
 
+        clinic_visits = self.params[2]
+        if not clinic_visits.isdigit():
+            raise ParseError(_('Number of ANC visits must be a number'))
+        clinic_visits = int(clinic_visits)
+
+        created_by = self.message.persistant_connection.reporter.chw
+
+        #TODO Cases
+        '''
         pcases = Case.objects.filter(patient=patient, \
                                      type=Case.TYPE_PREGNANCY, \
                                      status=Case.STATUS_OPEN)
@@ -55,12 +57,13 @@ class PregnancyForm(CCForm):
             or month == 7 and clinic_visits < 3 \
             or month == 8 and clinic_visits < 8:
             response += _('Remind the woman she is due for a clinic visit')
+        '''
 
         pr = PregnancyReport(created_by=created_by, patient=patient, \
                              pregnancy_month=month, \
                              clinic_visits=clinic_visits)
         pr.save()
 
-        response = _('%(clinic_visits)s clinic visits, month %(month)s') \
-                    % {'clinic_visits': clinic_visits, 'month': month}
-        return response
+        self.response = _(u"%(month)d months pregnant with %(visits)d ANC " \
+                           "visits") % {'month': month, \
+                                        'visits': clinic_visits}
