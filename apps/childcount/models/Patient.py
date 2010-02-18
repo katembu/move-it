@@ -105,7 +105,6 @@ class Patient(GenderField):
         days, weeks, months = self.age_in_days_weeks_months()
         return months / 12
 
-
     def humanised_age(self):
         '''return a string containing a human readable age'''
         days, weeks, months = self.age_in_days_weeks_months()
