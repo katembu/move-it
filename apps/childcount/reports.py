@@ -20,12 +20,7 @@ def all_patient_list_pdf(request):
     
     cols, sub_cols = ThePatient.patients_summary_list()
 
-    i = 0
     for report in reports:
-        '''if i == 0:
-            rows.append([col['name'] for col in cols])
-        i += 1
-        rows.append([Template(col['bit']).render(Context({'object': report})) for col in cols])'''
         rows.append([data for data in cols])
         pass
 
