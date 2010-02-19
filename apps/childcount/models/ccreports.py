@@ -4,7 +4,10 @@
 
 from django.utils.translation import gettext_lazy as _
 
+from datetime import date, timedelta
+
 from childcount.models import Patient
+from childcount.models import CHW
 from childcount.models.reports import MUACReport
 
 
@@ -45,5 +48,45 @@ class ThePatient(Patient):
             {'name': cls._meta.get_field('chw').verbose_name, \
             'bit': '{{object.chw}}'})
 
+        sub_columns = None
+        return columns, sub_columns
+
+
+class TheCHWReport(CHW):
+    class Meta:
+        proxy = True
+
+    @property
+    def num_of_patients(self):
+        num = Patient.objects.filter(chw=self).count()
+        return num
+
+    @property
+    def num_of_underfive(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        num = Patient.objects.filter(chw=self, dob__lte=sixtym).count()
+        return num
+
+    @classmethod
+    def summary(cls):
+        columns = []
+        columns.append(
+            {'name': cls._meta.get_field('alias').verbose_name, \
+             'bit': '@{{ object.alias }}'})
+        columns.append(
+            {'name': _("Name"), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name, \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': "Number of Patients", \
+             'bit': '{{ object.num_of_patients }}'})
+        columns.append(
+            {'name': "Number of Patients Under 5", \
+             'bit': '{{ object.num_of_underfive }}'})
+     
+     
+        
         sub_columns = None
         return columns, sub_columns
