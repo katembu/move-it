@@ -29,8 +29,7 @@ class App (rapidsms.app.App):
     commands = []
     forms = []
 
-    command_mapper = KeywordMapper()
-    form_mapper = KeywordMapper()
+
 
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
@@ -49,12 +48,12 @@ class App (rapidsms.app.App):
                 except:
                     self.debug(_(u'%s command not found') % command)
 
-    def start(self):
-        for cls in self.forms:
-            self.form_mapper.add_class(cls)
 
-        for cls in self.commands:
-            self.command_mapper.add_class(cls)
+    def start(self):
+        self.command_mapper = KeywordMapper()
+        self.form_mapper = KeywordMapper()
+        self.form_mapper.add_classes(self.forms)
+        self.command_mapper.add_classes(self.commands)
 
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
