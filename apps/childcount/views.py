@@ -27,6 +27,10 @@ def chw(request):
     for report in reports:
         patients = Patient.objects.filter(chw=report)
         num_patients = patients.count()
+        num_under_5 = 0
+        for person in patients:
+            if person.age_in_days_weeks_months()[2] < 60:
+                num_under_5 +=1        
         i += 1
         row = {}
         row["cells"] = []
@@ -36,6 +40,7 @@ def chw(request):
         row["cells"].append({"value": report.location})
         row["cells"].append({"value": report.role})
         row["cells"].append({"value": num_patients})
+        row["cells"].append({"value": num_under_5})
         
         
         if i == 100:
