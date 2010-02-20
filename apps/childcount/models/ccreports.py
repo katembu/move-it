@@ -17,7 +17,6 @@ class ThePatient(Patient):
     class Meta:
         proxy = True
 
-
     def latest_muac(self):
         muac = MUACReport.objects.filter(patient=self).latest()
         if not None:
@@ -54,6 +53,7 @@ class ThePatient(Patient):
 
 
 class TheCHWReport(CHW):
+
     class Meta:
         proxy = True
 
@@ -96,8 +96,6 @@ class TheCHWReport(CHW):
         columns.append(
             {'name': "Number of Visits", \
              'bit': '{{ object.num_of_visits }}'})
-     
-     
-        
+
         sub_columns = None
         return columns, sub_columns
