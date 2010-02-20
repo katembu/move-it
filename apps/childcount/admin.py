@@ -18,6 +18,7 @@ admin.site.register(StillbirthMiscarriageReport)
 admin.site.register(FollowUpReport)
 admin.site.register(PregnancyReport)
 admin.site.register(NeonatalReport)
+admin.site.register(UnderOneReport)
 
 admin.site.register(Case)
 admin.site.register(Referral)
@@ -29,8 +30,6 @@ admin.site.register(HealthReport)
 
 admin.site.register(FeverReport)
 
-
-admin.site.register(NewbornReport)
 admin.site.register(MUACReport)
 admin.site.register(ReferralReport)
 

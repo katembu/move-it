@@ -330,12 +330,12 @@ class BirthReport(PatientReport):
                                help_text=_(u"Birth weight in kg"))
 
 
-class NewbornReport(PatientReport):
+class UnderOneReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
-        verbose_name = _(u"Newborn Report")
-        verbose_name_plural = _(u"Newborn Reports")
+        verbose_name = _(u"Under One Report")
+        verbose_name_plural = _(u"Under One Reports")
 
     BREAST_YES = 'Y'
     BREAST_NO = 'N'
@@ -345,18 +345,27 @@ class NewbornReport(PatientReport):
         (BREAST_NO, _(u"No")),
         (BREAST_UNKOWN, _(u"Unkown")))
 
-    clinic_vists = models.PositiveSmallIntegerField(_(u"Clinic visits"), \
-                                               help_text=_(u"Number of " \
-                                                            "clinic visits " \
-                                                            "since birth"))
+    IMMUNIZED_YES = 'Y'
+    IMMUNIZED_NO = 'N'
+    IMMUNIZED_UNKOWN = 'U'
+    IMMUNIZED_CHOICES = (
+        (IMMUNIZED_YES, _(u"Yes")),
+        (IMMUNIZED_NO, _(u"No")),
+        (IMMUNIZED_UNKOWN, _(u"Unkown")))
+
 
     breast_only = models.CharField(_(u"Breast feeding Only"), max_length=1, \
                                    choices=BREAST_CHOICES, \
                                    help_text=_(u"Does the mother breast " \
                                                 "feed only?"))
 
+    immunized = models.CharField(_(u"Immunized"), max_length=1, \
+                                   choices=IMMUNIZED_CHOICES, \
+                                   help_text=_(u"Is the child up-to-date on" \
+                                                "immunizations?"))
 
-class ChildReport(PatientReport):
+
+class Report(PatientReport):
 
     class Meta:
         app_label = 'childcount'

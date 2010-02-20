@@ -86,7 +86,7 @@ class App (rapidsms.app.App):
             if not message.persistant_connection.reporter:
                 message.respond(_(u"You must register before you can send " \
                                    "any reports."))
-                raise NotRegistered
+                return handled
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
@@ -190,9 +190,9 @@ class App (rapidsms.app.App):
                 if 'e' in form and not isinstance(form['e'], Inapplicable):
                     send_again = True
             if send_again and len(failed_forms) == 1:
-                failed_string += _(" You must send that form again. ")
+                failed_string += _(" You must send that form again.")
             elif send_again and len(failed_forms) > 1:
-                failed_string += _(" You must send those forms again. ")
+                failed_string += _(" You must send those forms again.")
 
             if not (successful_forms and failed_forms):
                 message.respond(successful_string + failed_string)
@@ -208,7 +208,7 @@ class App (rapidsms.app.App):
                 else:
                     cnt_successful = _(u"%d forms successful") % \
                                                         len(successful_forms)
-                response = u"%(f)s, %(s)s." + failed_string + successful_string
+                response = u"%s, %s" % (failed_string, successful_string)
                 message.respond(response)
             return handled
 
