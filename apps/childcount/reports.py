@@ -55,49 +55,61 @@ def all_patient_list_per_chw_pdf(request):
     return rpt.render()
 
 
-def chw(request):
+def chw(request, rformat='html'):
     '''Community Health Worker page '''
     report_title = TheCHWReport._meta.verbose_name
     rows = []
 
     reports = TheCHWReport.objects.filter(role__code='chw')
     columns, sub_columns = TheCHWReport.summary()
-    i = 0
-    for report in reports:
-        patients = ThePatient.objects.filter(chw=report)
-        i += 1
-        row = {}
-        row["cells"] = [{'value': \
-                         Template(col['bit']).render(Context({'object': \
-                                            report}))} for col in columns]
-        if i == 100:
-            row['complete'] = True
-            rows.append(row)
-            break
-        rows.append(row)
+    if rformat.lower() == 'pdf':
+        rpt = PDFReport()
+        rpt.setTitle(report_title)
+        rpt.setFilename(report_title + '.pdf')
 
-    aocolumns_js = "{ \"sType\": \"html\" },"
-    for col in columns[1:] + (sub_columns if sub_columns != None else []):
-        if not 'colspan' in col:
-            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": true },"
-    aocolumns_js = aocolumns_js[:-1]
+        for report in reports:
+            rows.append([data for data in columns])
 
-    aggregate = False
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title,
-                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+        rpt.setTableData(reports, columns, report_title)
+        rpt.setPageBreak()
 
-    if request.method == 'GET' and 'excel' in request.GET:
-        '''response = HttpResponse(mimetype="application/vnd.ms-excel")
-        filename = "%s %s.xls" % \
-                   (report_title, datetime.now().strftime("%d%m%Y"))
-        response['Content-Disposition'] = "attachment; " \
-                                          "filename=\"%s\"" % filename
-        from findug.utils import create_excel
-        response.write(create_excel(context_dict))
-        return response'''
-        return render_to_response(request, 'childcount/chw.html', context_dict)
+        return rpt.render()
     else:
-        return render_to_response(request, 'childcount/chw.html', context_dict)
+        i = 0
+        for report in reports:
+            i += 1
+            row = {}
+            row["cells"] = [{'value': \
+                             Template(col['bit']).render(Context({'object': \
+                                                report}))} for col in columns]
+            if i == 100:
+                row['complete'] = True
+                rows.append(row)
+                break
+            rows.append(row)
+    
+        aocolumns_js = "{ \"sType\": \"html\" },"
+        for col in columns[1:] + (sub_columns if sub_columns != None else []):
+            if not 'colspan' in col:
+                aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
+                                "\"bSearchable\": true },"
+        aocolumns_js = aocolumns_js[:-1]
+    
+        aggregate = False
+        context_dict = {'get_vars': request.META['QUERY_STRING'],
+                        'columns': columns, 'sub_columns': sub_columns,
+                        'rows': rows, 'report_title': report_title,
+                        'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+    
+        if request.method == 'GET' and 'excel' in request.GET:
+            '''response = HttpResponse(mimetype="application/vnd.ms-excel")
+            filename = "%s %s.xls" % \
+                       (report_title, datetime.now().strftime("%d%m%Y"))
+            response['Content-Disposition'] = "attachment; " \
+                                              "filename=\"%s\"" % filename
+            from findug.utils import create_excel
+            response.write(create_excel(context_dict))
+            return response'''
+            return render_to_response(request, 'childcount/chw.html', context_dict)
+        else:
+            return render_to_response(request, 'childcount/chw.html', context_dict)
