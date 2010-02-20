@@ -9,6 +9,7 @@ from childcount.forms.MobileForm import MobileForm
 from childcount.forms.DeathForm import DeathForm
 from childcount.forms.StillbirthMiscarriageForm import \
                                                     StillbirthMiscarriageForm
+from childcount.forms.FollowUpForm import FollowUpForm
 
 from childcount.forms.MUACForm import MUACForm
 from childcount.forms.FeverForm import FeverForm

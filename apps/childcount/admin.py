@@ -12,6 +12,7 @@ admin.site.register(Patient)
 admin.site.register(BirthReport)
 admin.site.register(DeathReport)
 admin.site.register(StillbirthMiscarriageReport)
+admin.site.register(FollowUpReport)
 
 admin.site.register(Case)
 admin.site.register(Referral)

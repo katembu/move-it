@@ -120,6 +120,43 @@ class StillbirthMiscarriageReport(PatientReport):
 
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
 
+class FollowUpReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Follow-up Report")
+        verbose_name_plural = _(u"Follow-up Reports")
+
+    IMPROVEMENT_YES = 'Y'
+    IMPROVEMENT_NO = 'N'
+    IMPROVEMENT_UNKOWN = 'U'
+    IMPROVEMENT_UNAVAILABLE = 'L'
+    IMPROVEMENT_CHOICES = (
+                       (IMPROVEMENT_YES, _('Yes')),
+                       (IMPROVEMENT_NO, _('No')),
+                       (IMPROVEMENT_UNKOWN, _('Unkown')),
+                       (IMPROVEMENT_UNAVAILABLE, _('Patient unavailable')))
+
+    VISITED_YES = 'Y'
+    VISITED_NO = 'N'
+    VISITED_UNKOWN = 'U'
+    VISITED_INPATIENT = 'P'
+    VISITED_CHOICES = (
+                       (VISITED_YES, _('Yes')),
+                       (VISITED_NO, _('No')),
+                       (VISITED_UNKOWN, _('Unkown')),
+                       (VISITED_INPATIENT, _('Patient currently inpatient')))
+
+    improvement = models.CharField(_(u"Improvement"), max_length=1, \
+                                   choices=IMPROVEMENT_CHOICES, \
+                              help_text=_(u"Has the patient's condition " \
+                                           "improved since last CHW visit?"))
+
+    visited_clinic = models.CharField(_(u"Visited clinic"), max_length=1, \
+                                   choices=VISITED_CHOICES, \
+                              help_text=_(u"Did the patient visit a health "\
+                                           "facility since last CHW visit?"))
+
 
 class ReferralReport(PatientReport):
 
@@ -138,7 +175,8 @@ class ReferralReport(PatientReport):
                        (URGENCY_BASIC, _('Basic Referral')),
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
-    urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
+    urgency = models.CharField(_(u"Urgency"), max_length=1, \
+                               choices=URGENCY_CHOICES)
 
 
 class DangerSignReport(PatientReport):
