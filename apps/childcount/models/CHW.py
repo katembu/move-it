@@ -45,8 +45,9 @@ class CHW(Reporter):
         columns.append(
             {'name': cls._meta.get_field('role').verbose_name})
         columns.append(
-            {'name': "Number of Patients"})
-     
-        
+            {'name': _("Number of Patients")})
+        columns.append(
+            {'name': _("Number of Patients Under 5")})
+
         sub_columns = None
         return columns, sub_columns

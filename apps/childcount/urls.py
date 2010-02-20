@@ -25,6 +25,8 @@ urlpatterns = patterns('',
     url(r'^childcount/?$', views.index),
     url(r'^childcount/patients/?$', views.patient),
     url(r'^childcount/patients/pdf/?$', reports.all_patient_list_pdf),
-    url(r'^childcount/chw/?$', views.chw)
+    url(r'^childcount/patients_per_chw/pdf/?$', reports.all_patient_list_per_chw_pdf),
+    url(r'^childcount/chw/?$', views.chw),
+    url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw)
 
 )

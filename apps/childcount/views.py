@@ -9,13 +9,13 @@ from childcount.models import Patient, CHW
 from django.template import Template, Context
 
 
-
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
     title = "ChildCount-2.0"
     return render_to_response(request, template_name, {
             "title": title})
+
 
 def chw(request):
     '''Community Health Worker page '''
@@ -27,6 +27,10 @@ def chw(request):
     for report in reports:
         patients = Patient.objects.filter(chw=report)
         num_patients = patients.count()
+        num_under_5 = 0
+        for person in patients:
+            if person.age_in_days_weeks_months()[2] < 60:
+                num_under_5 += 1
         i += 1
         row = {}
         row["cells"] = []
@@ -36,8 +40,8 @@ def chw(request):
         row["cells"].append({"value": report.location})
         row["cells"].append({"value": report.role})
         row["cells"].append({"value": num_patients})
-        
-        
+        row["cells"].append({"value": num_under_5})
+
         if i == 100:
             row['complete'] = True
             rows.append(row)
@@ -75,6 +79,7 @@ def chw(request):
     else:
         return render_to_response(request, 'childcount/chw.html', context_dict)
 
+
 def patient(request):
     '''Patients page '''
     report_title = Patient._meta.verbose_name
@@ -87,14 +92,14 @@ def patient(request):
         i += 1
         row = {}
         row["cells"] = []
-        row["cells"] = [{'value': Template(col['bit']).render(Context({'object': report}))} for col in columns]
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
         if i == 100:
             row['complete'] = True
             rows.append(row)
             break
         rows.append(row)
-
-
 
     aocolumns_js = "{ \"sType\": \"html\" },"
     for col in columns[1:] + (sub_columns if sub_columns != None else []):
@@ -122,6 +127,8 @@ def patient(request):
         from findug.utils import create_excel
         response.write(create_excel(context_dict))
         return response'''
-        return render_to_response(request, 'childcount/patient.html', context_dict)
+        return render_to_response(\
+                request, 'childcount/patient.html', context_dict)
     else:
-        return render_to_response(request, 'childcount/patient.html', context_dict)
+        return render_to_response(\
+                request, 'childcount/patient.html', context_dict)
