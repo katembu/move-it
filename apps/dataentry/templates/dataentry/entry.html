@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<title>Data Entry</title>
+	<link rel="stylesheet" type="text/css" href="/static/dataentry/stylesheets/dataentry.css" />
+    <script type="text/javascript" src="/static/webapp/javascripts/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="/static/webapp/javascripts/global/jquery.validate-1.5.2.min.js"></script>
+    <script type="text/javascript" src="/static/webapp/javascripts/global/rs-validate.js"></script>
+    <script type="text/javascript" src="/static/webapp/javascripts/global/rs-module-help.js"></script>
+
+    <script type="text/javascript" src="/static/dataentry/scripts/jquery.scrollTo-min.js"></script>
+    <script type="text/javascript" src="/static/dataentry/scripts/shortcut.js"></script>
+    <script type="text/javascript" src="/static/dataentry/scripts/httpclient.js"></script>
+    <script type="text/javascript" src="/static/dataentry/scripts/cc_form.js"></script>
+    <script type="text/javascript">
+
+	var clog = function(){}
+	var cerr = function(){}
+
+    if(typeof(console)!=='undefined') {clog = console.log; cerr = console.error; }
+
+    var form_fields = [
+        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
+        {'id': 'pregnancy', 'type': 's', 'name': 'P', 'title': 'Pregnancy Section'},
+        {'id': 'month', 'type': 'f', 'name': 'MP', 'title': 'Month of pregnancy (1-9)'},
+        {'id': 'visit', 'type': 'f', 'name': 'Vis', 'title': 'Number of ANC Visits (0-9)'},
+        {'id': 'delivery', 'type': 's', 'name': 'A', 'title': 'After Delivery Section (6 weeks)'},
+        {'id': 'visits', 'type': 'f', 'name': 'Vis', 'title': 'Number of Clinic/Hospital Visits since Delivery (0-9)'},
+        {'id': 'breastfeed', 'type': 'f', 'name': 'BF', 'title': 'Breast-feeding only (Y-N-U)'},
+        {'id': 'newborn', 'type': 's', 'name': 'B', 'title': 'Newborn Section (0-5 months)'},
+        {'id': 'visit', 'type': 'f', 'name': 'Vis', 'title': 'Number of clinic/hospital visits since birth (0-20)'},
+        {'id': 'muac', 'type': 's', 'name': 'M', 'title': 'MUAC Section (6-59 months)'},
+        {'id': 'weight', 'type': 'f', 'name': 'Kg', 'title': 'Weight (KG) (Optional)'},
+        {'id': 'fever', 'type': 's', 'name': 'F', 'title': 'Fever Section'},
+        {'id': 'rdt', 'type': 'f', 'name': 'RDT', 'title': 'RDT Result (P-N-U-X)'},
+        {'id': 'risk', 'type': 'f', 'name': 'R.S', 'title': 'Risk Symptoms (V, D, C, N, U)'},
+        {'id': 'diarrhea', 'type': 's', 'name': 'D', 'title': 'Diarrhea Section'},
+        {'id': 'risk', 'type': 'f', 'name': 'R.S', 'title': 'Risk Symptoms (F, V, C, B, N, U)'},
+        {'id': 'medecine', 'type': 's', 'name': 'G', 'title': 'Medecine / Immunization Given'},
+        {'id': 'given', 'type': 'f', 'name': 'Med', 'title': 'Medecine Comodities Given (ACT, PARA, R, Z, BCG, etc)'},
+        {'id': 'referral', 'type': 's', 'name': 'R', 'title': 'Referral to Clinic Section'},
+        {'id': 'clinic', 'type': 'f', 'name': 'Ref', 'title': 'Referral to Clinic (A-B-C)'},
+        {'id': 'danger', 'type': 'f', 'name': 'D.S', 'title': 'Danger Signs (Optionnal)'},
+        {'id': 'fup', 'type': 'f', 'name': 'FuD', 'title': 'Follow Up Date'},
+        {'id': 'follow_up', 'type': 's', 'name': 'U', 'title': 'Follow Uo Care Section'},
+        {'id': 'res', 'type': 'f', 'name': 'Res', 'title': 'Patient Response (B, W, S)'},
+    ]
+
+    var forma = new ChildCountForm('child');
+
+    var s = new ChildCountFormSection('root', 'root', 'root');
+    for (var fid in form_fields)
+    {
+        var ff = form_fields[fid];
+        if (ff['type'] == 's')
+        {
+            forma.addSection(s);
+            var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
+        }
+        if (ff['type'] == 'f')
+        {
+            var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
+            s.addField(f);
+        }
+    }
+    forma.addSection(s);
+
+    var formb = new ChildCountForm('cmd');
+    var s = new ChildCountFormSection('root', 'root', 'root');
+    var f = new ChildCountFormField('message', 'message', 'Full message');
+    s.addField(f);
+    formb.addSection(s);
+
+    dataentry_forms = [];
+    dataentry_forms.push(forma);
+    dataentry_forms.push(formb);
+    dataentry_form = null;
+
+    dataentry_archives = {};
+
+    function reset_tables(ccform_txt, feedback_txt)
+    {
+        if (ccform_txt == null)
+            ccform_txt = '<thead id="ccform_head" class="' + dataentry_form.id + '"></thead><tbody id="ccform_body" class="' + dataentry_form.id + '"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>    <tr></tr><tr></tr></tbody>';
+
+        if (feedback_txt == null)
+            feedback_txt = '<thead class="' + dataentry_form.id + '"><tr><td>Status</td><td>Message</td></tr></thead><tbody class="' + dataentry_form.id + '" id="log"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr></tbody>';
+
+        var doc = document.getElementById('ccform')
+        doc.innerHTML = ccform_txt;
+
+        var doc = document.getElementById('feedback')
+        doc.innerHTML = feedback_txt;
+    }
+
+    function save_form(form)
+    {
+        if (form == null)
+            return false;
+
+        var arch_id = dataentry_form.name;
+
+        // save window
+        dataentry_archives[arch_id] = {'history': '', 'feedback': '', 'current': 0}
+        var doc = document.getElementById('ccform')
+        dataentry_archives[arch_id].history = doc.innerHTML;
+
+        var doc = document.getElementById('feedback')
+        dataentry_archives[arch_id].feedback = doc.innerHTML;
+
+        dataentry_archives[arch_id].current = current;
+
+        return true;
+    }
+
+    function load_form(form)
+    {
+        if (dataentry_archives[form.name] == null)
+            return false;
+
+        var arch = dataentry_archives[form.name];
+        var ccform_txt = arch.history;
+        var feedback_txt = arch.feedback;
+
+        reset_tables(ccform_txt, feedback_txt);
+
+        current = arch.current;
+        return true;
+    }
+
+    function switch_forms(index)
+    {
+        save_form(dataentry_form);
+
+        // switch data
+        dataentry_form = dataentry_forms[index];
+        dataentry_form.index = index;
+
+        // restore backup or generate
+        if (!load_form(dataentry_form))
+        {
+
+            // change window
+            reset_tables();
+            // gen header row
+            gen_table(0);
+
+            // init counter and gen current row
+            current = 1;
+            gen_table(current);
+        }
+
+        // focus on entry, let's go
+        focus_entry();
+    }
+
+    function gen_forms_link()
+    {
+        var doc = document.getElementById('form_buttons');
+        for (var i in dataentry_forms)
+        {
+            var myform = dataentry_forms[i];
+            clog(myform);
+            var txt = '';
+            for (var z in dataentry_forms[i].name) { txt += dataentry_forms[i].name[z] + '<br />'; }
+            var snippet = '<li onclick="switch_forms(' + i + ');">' + txt + '</li>';
+            clog(snippet);
+            clog(myform.displayName());
+            doc.innerHTML += snippet;           
+        }
+    }
+
+
+    function focus_entry()
+    {
+        $('#message').focus();
+    }
+
+    function duplicate_sms(id)
+    {
+        // copy text from history (SMSes) to input field
+        $('#message').val(SMSes[id].message);
+    }
+
+    function form_focus(event)
+    {
+        clog("event: " +event.keyCode)
+        target = String.fromCharCode(event.keyCode).toLowerCase();
+        clog("target: " + target);
+        switch_forms(parseInt(target) - 1); 
+    }
+
+    
+    function loadUI() {
+
+        // add UI shortcuts
+        shortcut.add("Ctrl+Enter", focus_entry);
+
+        // add links and shortcuts
+        for (var i in dataentry_forms)
+        {
+            shortcut.add("Ctrl+" + (parseInt(i) + 1), form_focus);
+        }
+        gen_forms_link();
+
+        // launch first form
+        current = 1;
+        switch_forms(0);
+
+    }
+    </script>
+</head>
+
+<body onload="loadUI();">
+
+<h2>Available forms</h2>
+<ul id="form_buttons">
+</ul>
+
+<h2>SMS Log</h2>
+<div class="tester">
+    <table id="ccform" class="rsmsList">
+    </table>
+</div>
+
+
+<div id="form_wrapper">
+<form id="form" name="form">
+<label for="phone">Phone Number:</label>
+<input type="hidden" id="phone" name="phone" value="123456" />
+<label for="message">Message:</label>
+<input type="text" id="message" name="message" onkeydown="" onkeyup="parse_message();" />
+<input type="submit" id="submit" name="submit" value="Send" />
+</form>
+
+<h2>Response Log</h2>
+<table id="feedback" class="rsmsList response">
+</table>
+</div>
