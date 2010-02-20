@@ -272,9 +272,15 @@ class PregnancyReport(PatientReport):
     pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
                                     help_text=_(u"How many months into the " \
                                                  "pregnancy?"))
-    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+    anc_visits = models.PositiveSmallIntegerField(_(u"ANC Visits"), \
                                     help_text=_(u"Number of antenatal clinic "\
                                                  "visits during pregnancy"))
+    weeks_since_anc = models.PositiveSmallIntegerField(\
+                                        _(u"Weeks since last ANC visit"), \
+                                        null=True, blank=True,
+                            help_text=_(u"How many weeks since the patient's "\
+                                         "last ANC visit (0 for less " \
+                                         "than 7 days)"))
 
 
 class PostpartumReport(PatientReport):

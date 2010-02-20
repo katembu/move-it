@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import  Case
+from childcount.models import Patient
 from childcount.models.reports import PregnancyReport
-from childcount.exceptions import ParseError
+from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
 
 
@@ -17,23 +17,50 @@ class PregnancyForm(CCForm):
         'en': ['p'],
     }
 
+    MIN_PREG_AGE = 9
+
     def process(self, patient):
+
+
+        if patient.gender != Patient.GENDER_FEMALE:
+            raise Inapplicable(_(u"Only female patients can be pregnant"))
+
+        if patient.years() < self.MIN_PREG_AGE:
+            raise Inapplicable(_(u"Patient is too young to be pregnant " \
+                                "(%(age)s)") % \
+                                {'age': patient.humanised_age()})
+
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected: " \
-                                "month_of_pregnancy number_of_anc_visits"))
+                                "| month of pregnancy | number of ANC " \
+                                "visits | weeks since last ANC visit |"))
 
         month = self.params[1]
         if not month.isdigit() or int(month) not in range(1, 10):
-            raise ParseError(_("Month of pregnancy must be a number between "\
+            raise BadValue(_("Month of pregnancy must be a number between "\
                                "1 and 9"))
         month = int(month)
 
-        clinic_visits = self.params[2]
-        if not clinic_visits.isdigit():
+        anc_visits = self.params[2]
+        if not anc_visits.isdigit():
             raise ParseError(_('Number of ANC visits must be a number'))
-        clinic_visits = int(clinic_visits)
+        anc_visits = int(anc_visits)
 
-        created_by = self.message.persistant_connection.reporter.chw
+        if anc_visits != 0 and len(self.params) < 3:
+            raise ParseError(_(u"You must include the weeks since the last " \
+                                "ANC visit after the total number of ANC "
+                                "visits"))
+
+        if anc_visits != 0:
+            weeks = self.params[3]
+            if not weeks.isdigit():
+                raise ParseError(_(u"Weeks since last ANC visit must be a " \
+                                    "number"))
+            weeks = int(weeks)
+        else:
+            weeks = None
+
+        chw = self.message.persistant_connection.reporter.chw
 
         #TODO Cases
         '''
@@ -59,11 +86,22 @@ class PregnancyForm(CCForm):
             response += _('Remind the woman she is due for a clinic visit')
         '''
 
-        pr = PregnancyReport(created_by=created_by, patient=patient, \
+        pr = PregnancyReport(created_by=chw, patient=patient, \
                              pregnancy_month=month, \
-                             clinic_visits=clinic_visits)
+                             anc_visits=anc_visits, \
+                             weeks_since_anc=weeks)
         pr.save()
+
+        if weeks == 0:
+            last_str = _(u" less than one week ago")
+        elif weeks == 1:
+            last_str = _(u" one week ago")
+        elif weeks > 1:
+            last_str = _(u" %(weeks)d weeks ago") % {'weeks': weeks}
+
 
         self.response = _(u"%(month)d months pregnant with %(visits)d ANC " \
                            "visits") % {'month': month, \
-                                        'visits': clinic_visits}
+                                        'visits': anc_visits}
+        if weeks is not None:
+            self.response += _(u", last ANC visit %s") % last_str
