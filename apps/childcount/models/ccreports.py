@@ -9,6 +9,7 @@ from datetime import date, timedelta
 from childcount.models import Patient
 from childcount.models import CHW
 from childcount.models.reports import MUACReport
+from childcount.models.reports import HouseHoldVisitReport
 
 
 class ThePatient(Patient):
@@ -67,6 +68,13 @@ class TheCHWReport(CHW):
         num = Patient.objects.filter(chw=self, dob__lte=sixtym).count()
         return num
 
+    @property
+    def num_of_visits(self):
+        '''The number of visits in the last 7 days'''
+        seven = date.today() - timedelta(7)
+        num = HouseHoldVisitReport.objects.filter(created_by=self).count()
+        return num
+
     @classmethod
     def summary(cls):
         columns = []
@@ -85,6 +93,9 @@ class TheCHWReport(CHW):
         columns.append(
             {'name': "Number of Patients Under 5", \
              'bit': '{{ object.num_of_underfive }}'})
+        columns.append(
+            {'name': "Number of Visits", \
+             'bit': '{{ object.num_of_visits }}'})
      
      
         
