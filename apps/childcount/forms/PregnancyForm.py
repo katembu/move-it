@@ -9,7 +9,6 @@ from childcount.forms import CCForm
 from childcount.models import Patient
 from childcount.models.reports import PregnancyReport
 from childcount.exceptions import ParseError, BadValue, Inapplicable
-from childcount.forms.utils import MultipleChoiceField
 
 
 class PregnancyForm(CCForm):
