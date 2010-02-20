@@ -3,9 +3,11 @@
 # maintainer: dgelvin
 
 
-from Clinic import Clinic
-from CHW import CHW
+
 from Patient import Patient
+from CHW import CHW
+from Clinic import Clinic
+
 
 from DangerSign import DangerSign
 from DangerSignTranslation import DangerSignTranslation
@@ -16,3 +18,4 @@ from Case import Case
 
 import shared_fields
 import reports
+

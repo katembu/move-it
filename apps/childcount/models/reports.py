@@ -4,22 +4,6 @@
 
 '''ChildCount Models
 
-CCReport (superclass)
-NonPatientRDTReport
-PatientReport (superclass)
-HealthReport
-DeathReport
-PatientRegistrationReport
-HouseHoldVisitReport
-FeverReport
-PregnancyReport
-PostPartumReport
-BirthReport
-NewbornReport
-ChildReport
-DispensationReport
-MUACReport
-
 
 '''
 
@@ -32,7 +16,7 @@ from childcount.models import DangerSign
 from childcount.models import Patient
 #from childcount.models import Commodity
 
-from childcount.models.shared_fields import RDTField, GenderField
+from childcount.models.shared_fields import RDTField
 from childcount.models.shared_fields import DangerSignsField
 
 
@@ -67,18 +51,6 @@ class CCReport(models.Model):
                                        null=True, blank=True, \
                                        help_text=_(u"When the report was " \
                                                     "last modified"))
-
-
-class NonPatientRDTReport(CCReport, RDTField, GenderField):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Non-patient RDT Report")
-        verbose_name_plural = _(u"Non-patient RDT Reports")
-
-    age = models.PositiveSmallIntegerField(_(u"Age"), help_text=_(u"Age in " \
-                                                                   "years"))
-
 
 class PatientReport(CCReport):
 
@@ -136,9 +108,17 @@ class DeathReport(PatientReport):
         verbose_name = _(u"Death Report")
         verbose_name_plural = _(u"Death Reports")
 
-    death_date = models.DateField(_(u"Date of death"), \
-                                  help_text=_(u"The date of the death " \
-                                               "accurate to within the month"))
+    death_date = models.DateField(_(u"Date of death"))
+
+
+class StillbirthMiscarriageReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Stillbirth / Miscarriage Report")
+        verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
+
+    incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
 
 
 class ReferralReport(PatientReport):
@@ -289,14 +269,6 @@ class BirthReport(PatientReport):
         verbose_name = _(u"Birth Report")
         verbose_name_plural = _(u"Birth Reports")
 
-    BREASTFED_YES = 'Y'
-    BREASTFED_NO = 'N'
-    BREASTFED_UNKOWN = 'U'
-    BREASTFED_CHOICES = (
-        (BREASTFED_YES, _(u"Yes")),
-        (BREASTFED_NO, _(u"No")),
-        (BREASTFED_UNKOWN, _(u"Unknown")))
-
     CLINIC_DELIVERY_YES = 'Y'
     CLINIC_DELIVERY_NO = 'N'
     CLINIC_DELIVERY_UNKOWN = 'U'
@@ -309,11 +281,6 @@ class BirthReport(PatientReport):
                                        choices=CLINIC_DELIVERY_CHOICES, \
                                        help_text=_(u"Was the baby born in " \
                                                     "a health facility?"))
-
-    breastfed = models.CharField(_(u"Breastfed at birth"), max_length=1, \
-                                 choices=BREASTFED_CHOICES, \
-                                 help_text=_(u"Was the baby breastfed " \
-                                              "within one hour of birth?"))
 
     weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
                                help_text=_(u"Birth weight in kg"))

@@ -8,20 +8,23 @@ from childcount.models import *
 from childcount.models.reports import *
 
 admin.site.register(Configuration)
-admin.site.register(Case)
 admin.site.register(Patient)
+admin.site.register(BirthReport)
+admin.site.register(DeathReport)
+admin.site.register(StillbirthMiscarriageReport)
+
+admin.site.register(Case)
 admin.site.register(Referral)
 admin.site.register(CHW)
 admin.site.register(Clinic)
 admin.site.register(Commodity)
 admin.site.register(DangerSign)
 admin.site.register(DangerSignTranslation)
-admin.site.register(NonPatientRDTReport)
 admin.site.register(HealthReport)
-admin.site.register(DeathReport)
+
 admin.site.register(FeverReport)
 admin.site.register(PatientRegistrationReport)
-admin.site.register(BirthReport)
+
 admin.site.register(NewbornReport)
 admin.site.register(MUACReport)
 admin.site.register(ReferralReport)

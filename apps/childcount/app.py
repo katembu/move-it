@@ -149,7 +149,7 @@ class App (rapidsms.app.App):
                     message.respond(_(u"Error while processing %(frm)s: " \
                                        "%(e)s - Please correct and send all " \
                                        "information again.") % \
-                                       {'frm': pretty_form, 'e': e})
+                                       {'frm': pretty_form, 'e': e.message})
                     return handled
 
                 try:
@@ -187,7 +187,7 @@ class App (rapidsms.app.App):
                                  {'pre': self.FORM_PREFIX, \
                                   'keyword': form['keyword'].upper(), \
                                   'error': form['error']}
-                if 'e' in form and isinstance(form['e'], Inapplicable):
+                if 'e' in form and not isinstance(form['e'], Inapplicable):
                     send_again = True
             if send_again and len(failed_forms) == 1:
                 failed_string += _(" You must send that form again. ")

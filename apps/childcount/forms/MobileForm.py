@@ -12,7 +12,7 @@ from childcount.exceptions import BadValue
 
 class MobileForm(CCForm):
     KEYWORDS = {
-        'en': ['mob'],
+        'en': ['mob', 'mobile'],
     }
 
     def process(self, patient):
@@ -20,7 +20,10 @@ class MobileForm(CCForm):
         mobile = re.sub('\D', '', mobile)
         if len(self.params) < 2 or not mobile.isdigit():
             raise BadValue(_('Expected phone number'))
+
+        if len(mobile) > 16:
+            raise BadValue(_('Phone number cannot be longer than 16 digits'))
         patient.mobile = mobile
         patient.save()
-        response = _('%(mobile)s') % {'mobile': mobile} 
-        return response
+        self.response = _(u"Mobile phone number: %(mobile)s") % \
+                          {'mobile': mobile}

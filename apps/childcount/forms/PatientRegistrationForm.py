@@ -11,6 +11,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
 from childcount.models import Patient
+from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
 
@@ -27,7 +28,7 @@ class PatientRegistrationForm(CCForm):
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
-    SELF_HH = {'en': 'P'}
+    PREVIOUS_ID = {'en': 'P'}
 
     SURNAME_FIRST = False
 
@@ -52,12 +53,21 @@ class PatientRegistrationForm(CCForm):
 
         lang = self.message.reporter.language
 
-        expected = _(u"given_names surname gender age or date_of_birth " \
-                      "and head_of_household")
+        expected = _(u"location | patient names | gender | age or " \
+                      "DOB | head_of_household")
 
-        if len(tokens) < 4:
+        if len(tokens) < 5:
             raise ParseError(_(u"Not enough info. You must send: " \
                                 "%(expected)s") % {'expected': expected})
+
+        location_code = tokens.pop(0)
+        try:
+            location = Location.objects.get(code__iexact=location_code)
+        except Location.DoesNotExist:
+            raise BadValue(_(u"%(loc)s is not a valid location code. You " \
+                              "must indicate the patient's location code " \
+                              "before their name.") % \
+                              {'loc': location_code})
 
         self.gender_field.set_language(lang)
 
@@ -103,9 +113,9 @@ class PatientRegistrationForm(CCForm):
         patient.estimated_dob = variance > 1
 
         # if the gender field is the first or second
-        if i == 0 or i == 1:
-            raise ParseError(_(u"You must provide more than one name for " \
-                                "the patient."))
+        if i == 0:
+            raise ParseError(_(u"You must provide a patient name before " \
+                                "their sex"))
 
         patient.last_name, patient.first_name, alias = \
                              clean_names(' '.join(tokens[:i]), \
@@ -125,11 +135,11 @@ class PatientRegistrationForm(CCForm):
                                 "household after the age. If this " \
                                 "is the head of household " \
                                 "write %(char)s after the dob/age.") % \
-                                {'char': self.SELF_HH[lang]})
+                                {'char': self.PREVIOUS_ID[lang]})
 
         household = tokens.pop(0)
         self_hoh = False
-        if household == self.SELF_HH[lang].lower():
+        if household == self.PREVIOUS_ID[lang].lower():
             if patient.years() < self.MIN_HH_AGE:
                 raise BadValue(_(u"This patient is too young to be a head of "\
                                   "household. You must provide their head of" \
@@ -164,28 +174,33 @@ class PatientRegistrationForm(CCForm):
                                   "household to %(char)s") % \
                                   {'hh': patient.household, \
                                    'hhhh': patient.household.household, \
-                                   'char': self.SELF_HH[lang]})
+                                   'char': self.PREVIOUS_ID[lang]})
 
         if patient.years() < 5:
             if len(tokens) == 0:
                 raise BadValue(_(u"This child is less than 5 years. You " \
-                                  "must indicate their parent or " \
-                                  "guardian's health ID after their " \
-                                  "head of household ID"))
-            guardian = tokens.pop(0)
+                                  "must indicate their mother's health ID " \
+                                  "after the head of household ID. If the " \
+                                  "mother is the head of household, set " \
+                                  "their mother to %(char)s") % \
+                                  {'char': self.PREVIOUS_ID[lang]})
+            mother = tokens.pop(0)
 
-            try:
-                patient.guardian = Patient.objects.get( \
-                                                health_id__iexact=guardian)
-            except Patient.DoesNotExist:
-                raise BadValue(_(u"Could not find mother / guardian " \
-                                  "with health ID %(id)s. You must " \
-                                  "register the mother first.") % \
-                                  {'id': household})
-            if patient.guardian < self.MIN_GUARDIAN_AGE:
-                raise BadValue(_(u"The mother / guardian you specified is " \
-                                  "too young to be a mother." \
-                                  "(%(hh)s)") % {'hh': patient.household})
+            if mother == self.PREVIOUS_ID[lang].lower():
+                patient.mother = patient.household
+            else:
+                try:
+                    patient.mother = Patient.objects.get( \
+                                                    health_id__iexact=mother)
+                except Patient.DoesNotExist:
+                    raise BadValue(_(u"Could not find mother / guardian " \
+                                      "with health ID %(id)s. You must " \
+                                      "register the mother first.") % \
+                                      {'id': household})
+                if patient.mother < self.MIN_GUARDIAN_AGE:
+                    raise BadValue(_(u"The mother / guardian you specified " \
+                                      "is too young to be a mother." \
+                                      "(%(hh)s)") % {'hh': patient.household})
 
         patient_check = Patient.objects.filter( \
                                 first_name__iexact=patient.first_name, \

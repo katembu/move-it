@@ -19,7 +19,7 @@ from childcount.utils import clean_names
 class RegistrationCommand(CCCommand):
     ENGLISH = 'en'
     ENGLISH_CHW_JOIN = 'chw'
-    
+
     KEYWORDS = {
         '*': [ENGLISH_CHW_JOIN],
     }
@@ -41,9 +41,6 @@ class RegistrationCommand(CCCommand):
             raise BadValue(_(u"Location %(location)s does not exist") % \
                               {'location': location_code})
 
-        if len(self.params) == 3:
-            raise ParseError(_(u"You must provide more than one name"))
-            
         flat_name = ' '.join(self.params[2:])
         surname, firstnames, alias = clean_names(flat_name, surname_first=True)
 

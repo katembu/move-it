@@ -19,24 +19,6 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 
-class GenderField(models.Model):
-
-    '''A single field to represent gender in models'''
-
-    class Meta:
-        app_label = 'childcount'
-        abstract = True
-
-    GENDER_MALE = 'M'
-    GENDER_FEMALE = 'F'
-
-    GENDER_CHOICES = (
-        (GENDER_MALE, _(u"Male")),
-        (GENDER_FEMALE, _(u"Female")))
-
-    gender = models.CharField(_(u"Gender"), max_length=1, \
-                              choices=GENDER_CHOICES)
-
 
 class RDTField(models.Model):
 
