@@ -39,7 +39,7 @@ def all_patient_list_per_chw_pdf(request):
 
     cols, sub_cols = ThePatient.patients_summary_list()
 
-    chws = CHW.objects.all()
+    chws = TheCHWReport.objects.all()
     for chw in chws:
         rows = []
         reports = ThePatient.objects.filter(chw=chw).order_by('household')
