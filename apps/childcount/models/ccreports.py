@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from datetime import date, timedelta
 
@@ -15,6 +15,7 @@ from childcount.models.reports import HouseHoldVisitReport
 class ThePatient(Patient):
 
     class Meta:
+        verbose_name = _("Patient List Report")
         proxy = True
 
     def latest_muac(self):
@@ -30,8 +31,8 @@ class ThePatient(Patient):
             {'name': cls._meta.get_field('household').verbose_name, \
             'bit': '{{object.household.health_id.upper}}'})
         columns.append(
-            {'name': cls._meta.get_field('health_id.upper').verbose_name, \
-            'bit': '{{object.health_id}}'})
+            {'name': cls._meta.get_field('health_id').verbose_name, \
+            'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _("Name"), \
             'bit': '{{object.last_name}} {{object.first_name}}'})
@@ -55,6 +56,7 @@ class ThePatient(Patient):
 class TheCHWReport(CHW):
 
     class Meta:
+        verbose_name = _("Community Health Worker Report")
         proxy = True
 
     @property
