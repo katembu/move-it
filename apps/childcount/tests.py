@@ -16,7 +16,7 @@ from childcount.commands import *
 
 class TestApp (TestScript):
     apps = (reporter_app.App, locations_app.App, App,)
-    App.FORMS = [PatientRegistrationForm, MUACForm, HealthStatusForm, FeverForm, MobileForm, NewbornForm, ChildForm, HouseHoldVisitForm, PregnancyForm, PostpartumForm, ReferralForm, DeathForm, DispensationForm]
+    App.FORMS = [PatientRegistrationForm, NutritionForm, HealthStatusForm, FeverForm, MobileForm, NewbornForm, ChildForm, HouseHoldVisitForm, PregnancyForm, PostpartumForm, ReferralForm, DeathForm, DispensationForm]
     App.COMMANDS = [WhoCommand, RegistrationCommand]
     fixtures = ['uganda_locations', 'uganda_locations_type']
 

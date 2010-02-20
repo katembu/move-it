@@ -19,6 +19,9 @@ admin.site.register(FollowUpReport)
 admin.site.register(PregnancyReport)
 admin.site.register(NeonatalReport)
 admin.site.register(UnderOneReport)
+admin.site.register(NutritionReport)
+admin.site.register(FeverReport)
+admin.site.register(ReferralReport)
 
 admin.site.register(Case)
 admin.site.register(Referral)
@@ -28,8 +31,7 @@ admin.site.register(DangerSign)
 admin.site.register(DangerSignTranslation)
 admin.site.register(HealthReport)
 
-admin.site.register(FeverReport)
 
-admin.site.register(MUACReport)
-admin.site.register(ReferralReport)
+
+
 
