@@ -16,7 +16,6 @@ from childcount.models import DangerSign
 from childcount.models import Patient
 #from childcount.models import Commodity
 
-from childcount.models.shared_fields import RDTField
 from childcount.models.shared_fields import DangerSignsField
 
 
@@ -218,12 +217,26 @@ class HouseHoldVisitReport(PatientReport):
     danger_signs = models.ManyToManyField(DangerSign)
 
 
-class FeverReport(PatientReport, RDTField):
+class FeverReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
+
+    RDT_POSITIVE = 'P'
+    RDT_NEGATIVE = 'N'
+    RDT_UNKOWN = 'U'
+    RDT_UNAVAILABLE = 'X'
+
+    RDT_CHOICES = (
+        (RDT_POSITIVE, _(u"Positive")),
+        (RDT_NEGATIVE, _(u"Negative")),
+        (RDT_UNKOWN, _(u"Unknown")),
+        (RDT_UNAVAILABLE, _(u"Test unavailable")))
+
+    rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
+                                  choices=RDT_CHOICES)
 
 
 class DiarrheaReport(PatientReport):
@@ -410,14 +423,14 @@ class DispensationReport(PatientReport):
                                          verbose_name=_(u"Commodities"))
 
 
-class MUACReport(PatientReport):
+class NutritionReport(PatientReport):
 
     '''record malnutrition measurements'''
 
     class Meta:
         app_label = 'childcount'
-        verbose_name = _(u"MUAC Report")
-        verbose_name_plural = _(u"MUAC Reports")
+        verbose_name = _(u"Nutrition Report")
+        verbose_name_plural = _(u"Nutrition Reports")
 
     STATUS_MODERATE = 1
     STATUS_SEVERE = 2
@@ -438,13 +451,12 @@ class MUACReport(PatientReport):
         (OEDEMA_NO, _(u"No")),
         (OEDEMA_UNKOWN, _(u"Unknown")))
 
-    muac = models.SmallIntegerField(_(u"MUAC (mm)"))
+    muac = models.SmallIntegerField(_(u"MUAC (mm)"), blank=True, null=True)
     oedema = models.CharField(_(u"Oedema"), max_length=1, \
                               choices=OEDEMA_CHOICES)
+    weight = models.FloatField(_(u"Weight (kg)"), blank=True, null=True)
     status = models.IntegerField(_("Status"),\
-                                 choices=STATUS_CHOICES, db_index=True, \
-                                 blank=True, null=True)
-    weight = models.FloatField(_("Weight"), blank=True, null=True)
+                                 choices=STATUS_CHOICES, blank=True, null=True)
 
     def diagnose(self):
         '''Diagnosis of the patient'''
@@ -457,7 +469,7 @@ class MUACReport(PatientReport):
     def save(self, *args):
         if self.status is None:
             self.diagnose()
-        super(MUACReport, self).save(*args)
+        super(NutritionReport, self).save(*args)
 
     @property
     def verbose_state(self):

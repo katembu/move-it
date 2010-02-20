@@ -8,7 +8,7 @@ from datetime import date, timedelta
 
 from childcount.models import Patient
 from childcount.models import CHW
-from childcount.models.reports import MUACReport
+from childcount.models.reports import NutritionReport 
 from childcount.models.reports import HouseHoldVisitReport
 
 
@@ -19,7 +19,7 @@ class ThePatient(Patient):
         proxy = True
 
     def latest_muac(self):
-        muac = MUACReport.objects.filter(patient=self).latest()
+        muac = NutritionReport.objects.filter(patient=self).latest()
         if not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""

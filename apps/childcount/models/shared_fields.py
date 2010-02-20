@@ -19,30 +19,6 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 
-
-class RDTField(models.Model):
-
-    '''A single field to represent an RDT test result'''
-
-    class Meta:
-        app_label = 'childcount'
-        abstract = True
-
-    RDT_POSITIVE = 'P'
-    RDT_NEGATIVE = 'N'
-    RDT_UNKOWN = 'U'
-    RDT_UNAVAILABLE = 'X'
-
-    RDT_CHOICES = (
-        (RDT_POSITIVE, _(u"Positive")),
-        (RDT_NEGATIVE, _(u"Negative")),
-        (RDT_UNKOWN, _(u"Unknown")),
-        (RDT_UNAVAILABLE, _(u"Test unavailable")))
-
-    rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
-                                  choices=RDT_CHOICES)
-
-
 class DangerSignsField(models.Model):
 
     '''
