@@ -25,7 +25,7 @@ def all_patient_list_pdf(request):
 
     rpt = PDFReport()
     rpt.setTitle(report_title)
-    rpt.setFilename(report_title + '.pdf')
+    rpt.setFilename('_'.join(report_title.split()) + '.pdf')
     rpt.setTableData(reports, cols, _("All Patients"))
     return rpt.render()
 
@@ -35,7 +35,7 @@ def all_patient_list_per_chw_pdf(request):
 
     rpt = PDFReport()
     rpt.setTitle(report_title)
-    rpt.setFilename(report_title + '.pdf')
+    rpt.setFilename('_'.join(report_title.split()) + '.pdf')
 
     cols, sub_cols = ThePatient.patients_summary_list()
 
@@ -65,7 +65,7 @@ def chw(request, rformat='html'):
     if rformat.lower() == 'pdf':
         rpt = PDFReport()
         rpt.setTitle(report_title)
-        rpt.setFilename(report_title + '.pdf')
+        rpt.setFilename('_'.join(report_title.split()) + '.pdf')
 
         for report in reports:
             rows.append([data for data in columns])
