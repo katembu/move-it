@@ -88,13 +88,13 @@ class TheCHWReport(CHW):
             {'name': cls._meta.get_field('location').verbose_name, \
              'bit': '{{ object.location }}'})
         columns.append(
-            {'name': "Number of Patients", \
+            {'name': "No. of Patients", \
              'bit': '{{ object.num_of_patients }}'})
         columns.append(
-            {'name': "Number of Patients Under 5", \
+            {'name': "No, of Patients Under 5", \
              'bit': '{{ object.num_of_underfive }}'})
         columns.append(
-            {'name': "Number of Visits", \
+            {'name': "No. of Visits", \
              'bit': '{{ object.num_of_visits }}'})
 
         sub_columns = None
