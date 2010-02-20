@@ -84,13 +84,9 @@ def chw(request):
         if not 'colspan' in col:
             aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
                             "\"bSearchable\": true },"
-    print columns[1:]
     aocolumns_js = aocolumns_js[:-1]
 
     aggregate = False
-    print columns
-    print sub_columns
-    print len(rows)
     context_dict = {'get_vars': request.META['QUERY_STRING'],
                     'columns': columns, 'sub_columns': sub_columns,
                     'rows': rows, 'report_title': report_title,
