@@ -28,9 +28,9 @@ class ThePatient(Patient):
         columns = []
         columns.append(
             {'name': cls._meta.get_field('household').verbose_name, \
-            'bit': '{{object.household.health_id}}'})
+            'bit': '{{object.household.health_id.upper}}'})
         columns.append(
-            {'name': cls._meta.get_field('health_id').verbose_name, \
+            {'name': cls._meta.get_field('health_id.upper').verbose_name, \
             'bit': '{{object.health_id}}'})
         columns.append(
             {'name': _("Name"), \
