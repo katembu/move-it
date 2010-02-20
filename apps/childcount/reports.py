@@ -17,14 +17,14 @@ def all_patient_list_pdf(request):
     rows = []
 
     reports = ThePatient.objects.all().order_by('chw', 'household')
-    
+
     cols, sub_cols = ThePatient.patients_summary_list()
 
     for report in reports:
         rows.append([data for data in cols])
 
     rpt = PDFReport()
-    rpt.setTitle(report_title )
+    rpt.setTitle(report_title)
     rpt.setFilename(report_title + '.pdf')
     rpt.setTableData(reports, cols, _("All Patients"))
     return rpt.render()
@@ -34,7 +34,7 @@ def all_patient_list_per_chw_pdf(request):
     report_title = ThePatient._meta.verbose_name
 
     rpt = PDFReport()
-    rpt.setTitle(report_title )
+    rpt.setTitle(report_title)
     rpt.setFilename(report_title + '.pdf')
 
     cols, sub_cols = ThePatient.patients_summary_list()
@@ -54,6 +54,7 @@ def all_patient_list_per_chw_pdf(request):
 
     return rpt.render()
 
+
 def chw(request):
     '''Community Health Worker page '''
     report_title = TheCHWReport._meta.verbose_name
@@ -64,15 +65,11 @@ def chw(request):
     i = 0
     for report in reports:
         patients = ThePatient.objects.filter(chw=report)
-        num_patients = patients.count()
-        num_under_5 = 0
-        for person in patients:
-            if person.age_in_days_weeks_months()[2] < 60:
-                num_under_5 +=1        
         i += 1
         row = {}
-        row["cells"] = [{'value': Template(col['bit']).render(Context({'object': report}))} for col in columns]
-        
+        row["cells"] = [{'value': \
+                         Template(col['bit']).render(Context({'object': \
+                                            report}))} for col in columns]
         if i == 100:
             row['complete'] = True
             rows.append(row)
