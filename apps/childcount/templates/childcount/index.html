@@ -4,5 +4,28 @@
 {% endblock %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
-TODO: Add dashboard
+<div>
+<table>
+    <tr>
+        <th>Report Name</th><th>&nbsp;</th>
+    </tr>
+    <tr>
+        <td>Patient List</td>
+        <td><a href='/childcount/patients' class='html'>html</a> 
+            | <a href='/childcount/patients/pdf' class='pdf'>pdf</a>
+        </td>
+    </tr>
+    <tr>
+        <td>Patient list per community health worker</td>
+        <td><a href='/childcount/patients_per_chw/pdf' class='pdf'>pdf</a>
+        </td>
+    </tr>
+    <tr>
+        <td>Community Health workers Summary</td>
+        <td><a href='/childcount/chws' class='html'>html</a> 
+            | <a href='/childcount/chws/pdf' class='pdf'>pdf</a>
+        </td>
+    </tr>
+</table>
+</div>
 {% endblock %}
