@@ -13,7 +13,7 @@ from childcount.forms.utils import MultipleChoiceField
 
 class BirthForm(CCForm):
     KEYWORDS = {
-        'en': ['birth'],
+        'en': ['bir', 'birth'],
     }
     MIN_BIRTH_WEIGHT = 1
     MAX_BIRTH_WEIGHT = 6
@@ -25,11 +25,6 @@ class BirthForm(CCForm):
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_NO, 'N')
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_UNKOWN, 'U')
 
-        breastfed_field = MultipleChoiceField()
-        breastfed_field.add_choice('en', BirthReport.BREASTFED_YES, 'Y')
-        breastfed_field.add_choice('en', BirthReport.BREASTFED_NO, 'N')
-        breastfed_field.add_choice('en', BirthReport.BREASTFED_UNKOWN, 'U')
-
         chw = self.message.persistant_connection.reporter.chw
 
         days, weeks, months = patient.age_in_days_weeks_months()
@@ -39,24 +34,18 @@ class BirthForm(CCForm):
                                   "submit birth reports for patients over " \
                                   "28 days old") % {'age': humanised})
 
-        try:
-            br = BirthReport.objects.filter(patient=patient)
-        except BirthReport.DoesNotExist:
-            pass
-        else:
+        if BirthReport.objects.filter(patient=patient).count() > 0:
+            br = BirthReport.objects.filter(patient=patient)[0]
             raise Inapplicable(_(u"A birth report for %(p)s was already " \
                                   "submited by %(chw)s") % \
-                                  {'p': patient, 'chw': chw})
+                                  {'p': patient, 'chw': br.created_by})
 
-        if len(self.params) < 3:
+        if len(self.params) < 2:
             raise ParseError(_(u"Not enough information, expected: " \
-                                "(delivered in health facility) (breasfed " \
-                                "within an hour of birth) " \
+                                "|delivered in health facility| " \
                                 "weight(kg)(optional)"))
 
-
         cd_field.set_language(chw.language)
-        breastfed_field.set_language(chw.language)
         clinic_delivery = self.params[1]
         if not cd_field.is_valid_choice(clinic_delivery):
             raise BadValue(_(u"|Delivered in health facility?| must be " \
@@ -64,17 +53,10 @@ class BirthForm(CCForm):
                               {'choices': cd_field.choices_string()})
         cd_db = cd_field.get_db_value(clinic_delivery)
 
-        breastfed = self.params[2]
-        if not breastfed_field.is_valid_choice(breastfed):
-            raise BadValue(_(u"|Breastfed within an hour of birth?| must be " \
-                              "%(choices)s") % \
-                            {'choices': breastfed_field.choices_string()})
-        breastfed_db = breastfed_field.get_db_value(breastfed)
-
         weight = None
-        if len(self.params) > 3:
+        if len(self.params) > 2:
             regex = r'(?P<w>\d+(\.?\d*)?).*'
-            match = re.match(regex, self.params[3])
+            match = re.match(regex, self.params[2])
             if match:
                 weight = float(match.groupdict()['w'])
                 if weight > self.MAX_BIRTH_WEIGHT:
@@ -96,20 +78,12 @@ class BirthForm(CCForm):
         elif cd_db == BirthReport.CLINIC_DELIVERY_UNKOWN:
             cd_string = _(u"Unkown delivery location")
 
-        if breastfed_db == BirthReport.BREASTFED_YES:
-            bf_string = _(u"Breastfed at birth")
-        elif breastfed_db == BirthReport.BREASTFED_NO:
-            bf_string = _(u"Did not breastfeed at birth")
-        elif breastfed_db == BirthReport.BREASTFED_UNKOWN:
-            bf_string = _(u"Unkown breastfeeding at birth")
-
-        self.response = '%s, %s' % (cd_string, bf_string)
+        self.response = cd_string
         if weight:
             self.response += _(", %(weight)skg birth weight") % \
                               {'weight': weight}
 
-        form = BirthReport(created_by=chw, patient=patient, \
+        report = BirthReport(created_by=chw, patient=patient, \
                            clinic_delivery=cd_db, \
-                           breastfed=breastfed_db, weight=weight)
-
-        form.save()
+                           weight=weight)
+        report.save()

@@ -503,10 +503,11 @@ class KeywordMapper(object):
             self.add_class(cls)
 
     def get_keywords(self, lang):
-        if lang not in self.keywords:
-            return []
-        return self.keywords[lang.lower()].keys() + \
-               self.keywords[self.MATCH_ALL_LANG_CHAR].keys()
+        if lang.lower() not in self.keywords:
+            lang_keywords = []
+        else:
+            lang_keywords = self.keywords[lang.lower()].keys()
+        return lang_keywords + self.keywords[self.MATCH_ALL_LANG_CHAR].keys()
 
     def get_all_keywords(self):
         keywords = []
@@ -515,9 +516,8 @@ class KeywordMapper(object):
         return keywords
 
     def get_class(self, lang, keyword):
-        if lang not in self.keywords:
-            return None
-        if keyword in self.keywords[lang.lower()]:
+        if lang.lower() in self.keywords and \
+           keyword in self.keywords[lang.lower()]:
             return self.keywords[lang.lower()][keyword]
         if keyword in self.keywords[self.MATCH_ALL_LANG_CHAR]:
             return self.keywords[self.MATCH_ALL_LANG_CHAR][keyword]

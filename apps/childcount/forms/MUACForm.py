@@ -25,7 +25,6 @@ class MUACForm(CCForm):
 
 
     def process(self, patient):
-        response = ""
         keyword = self.params[0]
         
         days, weeks, months = patient.age_in_days_weeks_months()
@@ -81,6 +80,8 @@ class MUACForm(CCForm):
                                                         'prefix': self.WEIGHT}
             except:
                 response += _('Unknown value for weight %s') % self.params[3]
+
+        self.report
 
         #TODO Referral / Case
         '''

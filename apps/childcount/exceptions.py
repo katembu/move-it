@@ -28,7 +28,3 @@ class BadValue(Exception):
 class Inapplicable(Exception):
     def __init__(self, message=_(u"FAILED. Not applicable")):
         self.message = message
-
-
-class NotRegistered(Exception):
-    pass

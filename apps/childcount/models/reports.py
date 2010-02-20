@@ -4,22 +4,6 @@
 
 '''ChildCount Models
 
-CCReport (superclass)
-NonPatientRDTReport
-PatientReport (superclass)
-HealthReport
-DeathReport
-PatientRegistrationReport
-HouseHoldVisitReport
-FeverReport
-PregnancyReport
-PostPartumReport
-BirthReport
-NewbornReport
-ChildReport
-DispensationReport
-MUACReport
-
 
 '''
 
@@ -32,7 +16,7 @@ from childcount.models import DangerSign
 from childcount.models import Patient
 #from childcount.models import Commodity
 
-from childcount.models.shared_fields import RDTField, GenderField
+from childcount.models.shared_fields import RDTField
 from childcount.models.shared_fields import DangerSignsField
 
 
@@ -67,18 +51,6 @@ class CCReport(models.Model):
                                        null=True, blank=True, \
                                        help_text=_(u"When the report was " \
                                                     "last modified"))
-
-
-class NonPatientRDTReport(CCReport, RDTField, GenderField):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Non-patient RDT Report")
-        verbose_name_plural = _(u"Non-patient RDT Reports")
-
-    age = models.PositiveSmallIntegerField(_(u"Age"), help_text=_(u"Age in " \
-                                                                   "years"))
-
 
 class PatientReport(CCReport):
 
@@ -136,9 +108,54 @@ class DeathReport(PatientReport):
         verbose_name = _(u"Death Report")
         verbose_name_plural = _(u"Death Reports")
 
-    death_date = models.DateField(_(u"Date of death"), \
-                                  help_text=_(u"The date of the death " \
-                                               "accurate to within the month"))
+    death_date = models.DateField(_(u"Date of death"))
+
+
+class StillbirthMiscarriageReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Stillbirth / Miscarriage Report")
+        verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
+
+    incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
+
+class FollowUpReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Follow-up Report")
+        verbose_name_plural = _(u"Follow-up Reports")
+
+    IMPROVEMENT_YES = 'Y'
+    IMPROVEMENT_NO = 'N'
+    IMPROVEMENT_UNKOWN = 'U'
+    IMPROVEMENT_UNAVAILABLE = 'L'
+    IMPROVEMENT_CHOICES = (
+                       (IMPROVEMENT_YES, _('Yes')),
+                       (IMPROVEMENT_NO, _('No')),
+                       (IMPROVEMENT_UNKOWN, _('Unkown')),
+                       (IMPROVEMENT_UNAVAILABLE, _('Patient unavailable')))
+
+    VISITED_YES = 'Y'
+    VISITED_NO = 'N'
+    VISITED_UNKOWN = 'U'
+    VISITED_INPATIENT = 'P'
+    VISITED_CHOICES = (
+                       (VISITED_YES, _('Yes')),
+                       (VISITED_NO, _('No')),
+                       (VISITED_UNKOWN, _('Unkown')),
+                       (VISITED_INPATIENT, _('Patient currently inpatient')))
+
+    improvement = models.CharField(_(u"Improvement"), max_length=1, \
+                                   choices=IMPROVEMENT_CHOICES, \
+                              help_text=_(u"Has the patient's condition " \
+                                           "improved since last CHW visit?"))
+
+    visited_clinic = models.CharField(_(u"Visited clinic"), max_length=1, \
+                                   choices=VISITED_CHOICES, \
+                              help_text=_(u"Did the patient visit a health "\
+                                           "facility since last CHW visit?"))
 
 
 class ReferralReport(PatientReport):
@@ -158,7 +175,8 @@ class ReferralReport(PatientReport):
                        (URGENCY_BASIC, _('Basic Referral')),
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
-    urgency = models.CharField(max_length=1, choices=URGENCY_CHOICES)
+    urgency = models.CharField(_(u"Urgency"), max_length=1, \
+                               choices=URGENCY_CHOICES)
 
 
 class DangerSignReport(PatientReport):
@@ -254,9 +272,15 @@ class PregnancyReport(PatientReport):
     pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
                                     help_text=_(u"How many months into the " \
                                                  "pregnancy?"))
-    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
+    anc_visits = models.PositiveSmallIntegerField(_(u"ANC Visits"), \
                                     help_text=_(u"Number of antenatal clinic "\
                                                  "visits during pregnancy"))
+    weeks_since_anc = models.PositiveSmallIntegerField(\
+                                        _(u"Weeks since last ANC visit"), \
+                                        null=True, blank=True,
+                            help_text=_(u"How many weeks since the patient's "\
+                                         "last ANC visit (0 for less " \
+                                         "than 7 days)"))
 
 
 class PostpartumReport(PatientReport):
@@ -280,7 +304,7 @@ class NeonatalReport(PatientReport):
 
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
-                                                 "since delivery"))
+                                                 "since birth"))
 
 class BirthReport(PatientReport):
 
@@ -288,14 +312,6 @@ class BirthReport(PatientReport):
         app_label = 'childcount'
         verbose_name = _(u"Birth Report")
         verbose_name_plural = _(u"Birth Reports")
-
-    BREASTFED_YES = 'Y'
-    BREASTFED_NO = 'N'
-    BREASTFED_UNKOWN = 'U'
-    BREASTFED_CHOICES = (
-        (BREASTFED_YES, _(u"Yes")),
-        (BREASTFED_NO, _(u"No")),
-        (BREASTFED_UNKOWN, _(u"Unknown")))
 
     CLINIC_DELIVERY_YES = 'Y'
     CLINIC_DELIVERY_NO = 'N'
@@ -310,21 +326,16 @@ class BirthReport(PatientReport):
                                        help_text=_(u"Was the baby born in " \
                                                     "a health facility?"))
 
-    breastfed = models.CharField(_(u"Breastfed at birth"), max_length=1, \
-                                 choices=BREASTFED_CHOICES, \
-                                 help_text=_(u"Was the baby breastfed " \
-                                              "within one hour of birth?"))
-
     weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
                                help_text=_(u"Birth weight in kg"))
 
 
-class NewbornReport(PatientReport):
+class UnderOneReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
-        verbose_name = _(u"Newborn Report")
-        verbose_name_plural = _(u"Newborn Reports")
+        verbose_name = _(u"Under One Report")
+        verbose_name_plural = _(u"Under One Reports")
 
     BREAST_YES = 'Y'
     BREAST_NO = 'N'
@@ -334,18 +345,27 @@ class NewbornReport(PatientReport):
         (BREAST_NO, _(u"No")),
         (BREAST_UNKOWN, _(u"Unkown")))
 
-    clinic_vists = models.PositiveSmallIntegerField(_(u"Clinic visits"), \
-                                               help_text=_(u"Number of " \
-                                                            "clinic visits " \
-                                                            "since birth"))
+    IMMUNIZED_YES = 'Y'
+    IMMUNIZED_NO = 'N'
+    IMMUNIZED_UNKOWN = 'U'
+    IMMUNIZED_CHOICES = (
+        (IMMUNIZED_YES, _(u"Yes")),
+        (IMMUNIZED_NO, _(u"No")),
+        (IMMUNIZED_UNKOWN, _(u"Unkown")))
+
 
     breast_only = models.CharField(_(u"Breast feeding Only"), max_length=1, \
                                    choices=BREAST_CHOICES, \
                                    help_text=_(u"Does the mother breast " \
                                                 "feed only?"))
 
+    immunized = models.CharField(_(u"Immunized"), max_length=1, \
+                                   choices=IMMUNIZED_CHOICES, \
+                                   help_text=_(u"Is the child up-to-date on" \
+                                                "immunizations?"))
 
-class ChildReport(PatientReport):
+
+class Report(PatientReport):
 
     class Meta:
         app_label = 'childcount'

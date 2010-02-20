@@ -29,8 +29,7 @@ class App (rapidsms.app.App):
     commands = []
     forms = []
 
-    command_mapper = KeywordMapper()
-    form_mapper = KeywordMapper()
+
 
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
@@ -49,12 +48,12 @@ class App (rapidsms.app.App):
                 except:
                     self.debug(_(u'%s command not found') % command)
 
-    def start(self):
-        for cls in self.forms:
-            self.form_mapper.add_class(cls)
 
-        for cls in self.commands:
-            self.command_mapper.add_class(cls)
+    def start(self):
+        self.command_mapper = KeywordMapper()
+        self.form_mapper = KeywordMapper()
+        self.form_mapper.add_classes(self.forms)
+        self.command_mapper.add_classes(self.commands)
 
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
@@ -87,7 +86,7 @@ class App (rapidsms.app.App):
             if not message.persistant_connection.reporter:
                 message.respond(_(u"You must register before you can send " \
                                    "any reports."))
-                raise NotRegistered
+                return handled
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
@@ -150,7 +149,7 @@ class App (rapidsms.app.App):
                     message.respond(_(u"Error while processing %(frm)s: " \
                                        "%(e)s - Please correct and send all " \
                                        "information again.") % \
-                                       {'frm': pretty_form, 'e': e})
+                                       {'frm': pretty_form, 'e': e.message})
                     return handled
 
                 try:
@@ -188,12 +187,12 @@ class App (rapidsms.app.App):
                                  {'pre': self.FORM_PREFIX, \
                                   'keyword': form['keyword'].upper(), \
                                   'error': form['error']}
-                if 'e' in form and isinstance(form['e'], Inapplicable):
+                if 'e' in form and not isinstance(form['e'], Inapplicable):
                     send_again = True
             if send_again and len(failed_forms) == 1:
-                failed_string += _(" You must send that form again. ")
+                failed_string += _(" You must send that form again.")
             elif send_again and len(failed_forms) > 1:
-                failed_string += _(" You must send those forms again. ")
+                failed_string += _(" You must send those forms again.")
 
             if not (successful_forms and failed_forms):
                 message.respond(successful_string + failed_string)
@@ -209,7 +208,7 @@ class App (rapidsms.app.App):
                 else:
                     cnt_successful = _(u"%d forms successful") % \
                                                         len(successful_forms)
-                response = u"%(f)s, %(s)s." + failed_string + successful_string
+                response = u"%s, %s" % (failed_string, successful_string)
                 message.respond(response)
             return handled
 
