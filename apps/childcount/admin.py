@@ -17,6 +17,7 @@ admin.site.register(DeathReport)
 admin.site.register(StillbirthMiscarriageReport)
 admin.site.register(FollowUpReport)
 admin.site.register(PregnancyReport)
+admin.site.register(NeonatalReport)
 
 admin.site.register(Case)
 admin.site.register(Referral)

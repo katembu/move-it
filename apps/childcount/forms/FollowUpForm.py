@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
-import re
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm

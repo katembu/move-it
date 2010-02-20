@@ -138,36 +138,3 @@ class ChildForm(CCForm):
             response = _('Please check child for malaria and shortness of '\
                              'breath using the fever (F+) Form.')
         return response
-
-
-class NeonatalForm(CCForm):
-    KEYWORDS = {
-        'en': ['b'],
-    }
-    
-    def process(self, patient):
-        if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected +%(command)s no. "\
-                               "of clinic visits since delivery") % \
-                               {'command': self.params[0].upper()})
-
-        clinic_visits = '' + self.params[1]
-        if not clinic_visits.isdigit():
-            raise ParseError(_('Expected number of clinic visits since '\
-                               'delivery'))
-
-        days, weeks, months = patient.age_in_days_weeks_months()
- 
-        if days > 28:
-            raise Inapplicable(_(u"The child is too old for this report"))
-        
-        clinic_visits = int(clinic_visits)
-        created_by = self.message.persistant_connection.reporter.chw
-
-        pr = NeonatalReport(created_by=created_by, patient=patient, \
-                             clinic_visits=clinic_visits)
-        pr.save()
-
-        response = _('%(clinic_visits)s clinic visits') \
-                    % {'clinic_visits': clinic_visits}
-        return response

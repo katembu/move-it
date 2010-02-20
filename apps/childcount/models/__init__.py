@@ -8,7 +8,6 @@ from Patient import Patient
 from CHW import CHW
 from Clinic import Clinic
 
-
 from DangerSign import DangerSign
 from DangerSignTranslation import DangerSignTranslation
 from Configuration import Configuration

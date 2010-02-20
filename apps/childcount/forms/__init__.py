@@ -11,6 +11,7 @@ from childcount.forms.StillbirthMiscarriageForm import \
                                                     StillbirthMiscarriageForm
 from childcount.forms.FollowUpForm import FollowUpForm
 from childcount.forms.PregnancyForm import PregnancyForm
+from childcount.forms.NeonatalForm import NeonatalForm
 
 from childcount.forms.MUACForm import MUACForm
 from childcount.forms.FeverForm import FeverForm
@@ -26,7 +27,6 @@ from childcount.forms.PostpartumForm import PostpartumForm
 from childcount.forms.ReferralForm import ReferralForm
 from childcount.forms.DispensationForm import DispensationForm
 from childcount.forms.DiarrheaForm import DiarrheaForm
-from childcount.forms.ChildForm import NeonatalForm
 from childcount.forms.DangerSignForm import DangerSignForm
 
 from childcount.forms import  utils

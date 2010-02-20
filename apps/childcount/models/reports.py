@@ -304,7 +304,7 @@ class NeonatalReport(PatientReport):
 
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
-                                                 "since delivery"))
+                                                 "since birth"))
 
 class BirthReport(PatientReport):
 
