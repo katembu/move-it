@@ -35,19 +35,23 @@ class CHW(Reporter):
     def table_columns(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('alias').verbose_name})
+            {'name': cls._meta.get_field('alias').verbose_name, \
+            'bit': '{{object.alias}}'})
         columns.append(
-            {'name': cls._meta.get_field('first_name').verbose_name})
+            {'name': cls._meta.get_field('first_name').verbose_name, \
+            'bit': '{{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('last_name').verbose_name})
+            {'name': cls._meta.get_field('last_name').verbose_name, \
+            'bit': '{{object.last_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('location').verbose_name})
+            {'name': cls._meta.get_field('location').verbose_name, \
+            'bit': '{{object.location}}'})
         columns.append(
-            {'name': cls._meta.get_field('role').verbose_name})
+            {'name': _("Number of Patients"), \
+            'bit': '{{_("text defined in views.py")}}'})
         columns.append(
-            {'name': _("Number of Patients")})
-        columns.append(
-            {'name': _("Number of Patients Under 5")})
+            {'name': _("Number of Patients Under 5"), \
+            'bit': '{{_("text defined in views.py")}}'})
 
         sub_columns = None
         return columns, sub_columns
