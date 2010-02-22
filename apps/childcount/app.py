@@ -30,7 +30,6 @@ class App (rapidsms.app.App):
     forms = []
 
 
-
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
         if forms is not None:

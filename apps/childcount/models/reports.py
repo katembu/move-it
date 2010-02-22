@@ -358,6 +358,7 @@ class FamilyPlanningReport(PatientReport):
                                          "seen during visit"))
 
     women_using = models.PositiveSmallIntegerField(_(u"Women using FP"), \
+                                                null=True, blank=True, \
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
 
