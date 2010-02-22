@@ -21,6 +21,7 @@ def chw(request):
     '''Community Health Worker page '''
     report_title = CHW._meta.verbose_name
     rows = []
+    columns, sub_columns = CHW.table_columns()
 
     reports = CHW.objects.filter(role__code='chw')
     i = 0
@@ -34,20 +35,17 @@ def chw(request):
         i += 1
         row = {}
         row["cells"] = []
-        row["cells"].append({"value": report.alias})
-        row["cells"].append({"value": report.first_name})
-        row["cells"].append({"value": report.last_name})
-        row["cells"].append({"value": report.location})
-        row["cells"].append({"value": report.role})
-        row["cells"].append({"value": num_patients})
-        row["cells"].append({"value": num_under_5})
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
+        row["cells"][-2] = {"value": num_patients}
+        row["cells"][-1] = {"value": num_under_5}
 
         if i == 100:
             row['complete'] = True
             rows.append(row)
             break
         rows.append(row)
-    columns, sub_columns = CHW.table_columns()
 
     aocolumns_js = "{ \"sType\": \"html\" },"
     for col in columns[1:] + (sub_columns if sub_columns != None else []):

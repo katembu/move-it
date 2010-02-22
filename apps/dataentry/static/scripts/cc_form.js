@@ -1,4 +1,4 @@
-
+SMSes = {};
 
 ChildCountFormSection = function (id, name, title)
     {

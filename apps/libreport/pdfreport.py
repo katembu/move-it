@@ -189,19 +189,17 @@ class PDFReport():
             data.append(values)
 
         if len(data):
-            table = PDFTable(data, colWidths, None, None, 1)
+            #table = PDFTable(data, colWidths, None, None, 1)
             #table rows n cols formatting
             ts = [
-                ('ALIGNMENT', (0, 0), (-1, -1), 'LEFT'),
-                ('LINEBELOW', (0, 0), (-1, -0), 2, colors.black),
-                ('LINEBELOW', (0, 1), (-1, -1), 0.8, colors.lightgrey),
-                ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize),
-                ('ROWBACKGROUNDS', (0, 0), (-1, -1), \
+                  ('ALIGNMENT', (0, 1), (-1, -1), 'CENTER'),
+                  ('LINEBELOW', (0, 0), (-1, -0), 2, colors.brown),
+                  ('LINEBELOW', (0, 1), (-1, -1), 0.8, colors.lightgoldenrodyellow),
+                  ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                  ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+                  ('TOPPADDING', (0, 0), (-1, -1), 2),('ROWBACKGROUNDS', (0, 0), (-1, -1), \
                  [colors.whitesmoke, colors.white]),
-                ('LEFTPADDING', (0, 0), (-1, -1), 1),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
-                ('TOPPADDING', (0, 0), (-1, -1), 1),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 1)]
+                ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize)]
 
             #last row formatting when required
             if self.hasfooter is True:
@@ -212,7 +210,8 @@ class PDFReport():
                            colors.lightgrey))
                 ts.append(('FONT', (0, -1), (-1, -1), "Times-Roman", 7))
 
-            table.setStyle(TableStyle(ts))
+            #table.setStyle(TableStyle(ts))
+            table = PDFTable(data, colWidths, len(data)*[0.25*inch], style=ts, splitByRow=1)
 
             table.hAlign = "LEFT"
             self.data.append(table)

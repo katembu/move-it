@@ -79,7 +79,15 @@
     dataentry_forms.push(formb);
     dataentry_form = null;
 
+    // init archives
     dataentry_archives = {};
+
+    // init duplicates
+    for (var i in dataentry_forms)
+    {
+        var f = dataentry_forms[i];
+        SMSes[f.name] = [];
+    }
 
     function reset_tables(ccform_txt, feedback_txt)
     {
@@ -156,6 +164,9 @@
         // scrollTo last history
         $('#ccform_body').scrollTo('#sms_'+current, 1)
 
+        // parse input
+        parse_message();
+
         // focus on entry, let's go
         focus_entry();
     }
@@ -185,7 +196,7 @@
     function duplicate_sms(id)
     {
         // copy text from history (SMSes) to input field
-        $('#message').val(SMSes[id].message);
+        $('#message').val(SMSes[dataentry_form.name][id].message);
     }
 
     function form_focus(event)
