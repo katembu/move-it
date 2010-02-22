@@ -54,8 +54,8 @@ class Patient(models.Model):
     updated_on = models.DateTimeField(auto_now=True)
 
 
-    first_name = models.CharField(_(u"First name"), max_length=80)
-    last_name = models.CharField(_(u"Last name"), max_length=32, \
+    first_name = models.CharField(_(u"First name"), max_length=100)
+    last_name = models.CharField(_(u"Last name"), max_length=50, \
                                  help_text=_(u"Family name or surname"))
     gender = models.CharField(_(u"Gender"), max_length=1, \
                               choices=GENDER_CHOICES)

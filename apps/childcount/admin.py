@@ -11,7 +11,10 @@ admin.site.register(Configuration)
 admin.site.register(CHW)
 admin.site.register(Clinic)
 admin.site.register(Patient)
-admin.site.register(PatientRegistrationReport)
+
+#Reports
+admin.site.register(CCReport)
+admin.site.register(PatientReport)
 admin.site.register(BirthReport)
 admin.site.register(DeathReport)
 admin.site.register(StillbirthMiscarriageReport)
@@ -22,14 +25,21 @@ admin.site.register(UnderOneReport)
 admin.site.register(NutritionReport)
 admin.site.register(FeverReport)
 admin.site.register(ReferralReport)
+admin.site.register(FamilyPlanningReport)
+admin.site.register(FamilyPlanningUsage)
+admin.site.register(BedNetReport)
+admin.site.register(DangerSignsReport)
+admin.site.register(MedicineGivenReport)
+admin.site.register(CodedItem)
+admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
 admin.site.register(Referral)
 
-admin.site.register(Commodity)
-admin.site.register(DangerSign)
-admin.site.register(DangerSignTranslation)
-admin.site.register(HealthReport)
+
+
+
+
 
 
 

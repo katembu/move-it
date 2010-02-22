@@ -14,9 +14,6 @@ from reporters.models import Reporter
 
 from childcount.models import DangerSign
 from childcount.models import Patient
-#from childcount.models import Commodity
-
-from childcount.models.shared_fields import DangerSignsField
 
 
 class CCReport(models.Model):
@@ -51,6 +48,7 @@ class CCReport(models.Model):
                                        help_text=_(u"When the report was " \
                                                     "last modified"))
 
+
 class PatientReport(CCReport):
 
     class Meta:
@@ -61,43 +59,28 @@ class PatientReport(CCReport):
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"))
 
 
-class HealthReport(PatientReport):
+class BirthReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
-        verbose_name = _(u"Health Report")
-        verbose_name_plural = _(u"Health Reports")
+        verbose_name = _(u"Birth Report")
+        verbose_name_plural = _(u"Birth Reports")
 
-    DANGER_SIGNS_PRESENT = 'S'
-    DANGER_SIGNS_NONE = 'N'
-    DANGER_SIGNS_UNKOWN = 'U'
-    DANGER_SIGNS_UNAVAILABLE = 'W'
+    CLINIC_DELIVERY_YES = 'Y'
+    CLINIC_DELIVERY_NO = 'N'
+    CLINIC_DELIVERY_UNKOWN = 'U'
+    CLINIC_DELIVERY_CHOICES = (
+        (CLINIC_DELIVERY_YES, _(u"Yes")),
+        (CLINIC_DELIVERY_NO, _(u"No")),
+        (CLINIC_DELIVERY_UNKOWN, _(u"Unknown")))
 
-    DANGER_SIGNS_CHOICES = (
-        (DANGER_SIGNS_PRESENT, _(u"Present")),
-        (DANGER_SIGNS_NONE, _(u"None")),
-        (DANGER_SIGNS_UNKOWN, _(u"Unknown")),
-        (DANGER_SIGNS_UNAVAILABLE, _(u"Unavailable")))
+    clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
+                                       choices=CLINIC_DELIVERY_CHOICES, \
+                                       help_text=_(u"Was the baby born in " \
+                                                    "a health facility?"))
 
-    VISITED_CLINIC_YES = 'Y'
-    VISITED_CLINIC_NO = 'N'
-    VISITED_CLINIC_UNKOWN = 'U'
-    VISITED_CLINIC_INPATIENT = 'K'
-
-    VISITED_CLINIC_CHOICES = (
-        (VISITED_CLINIC_YES, _(u"Yes")),
-        (VISITED_CLINIC_NO, _(u"None")),
-        (VISITED_CLINIC_UNKOWN, _(u"Unknown")),
-        (VISITED_CLINIC_INPATIENT, _(u"Currently inpatient")))
-
-    danger_signs = models.CharField(_(u"Danger Signs"), max_length=1, \
-                                    choices=DANGER_SIGNS_CHOICES)
-
-    visited_clinic = models.CharField(_(u"Recent Clinic Visit"), max_length=1,\
-                                      choices=VISITED_CLINIC_CHOICES, \
-                                      help_text=_(u"Did the patient visit a " \
-                                                   "health facility since " \
-                                                   "the last CHW visit"))
+    weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
+                               help_text=_(u"Birth weight in kg"))
 
 
 class DeathReport(PatientReport):
@@ -118,6 +101,7 @@ class StillbirthMiscarriageReport(PatientReport):
         verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
 
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
+
 
 class FollowUpReport(PatientReport):
 
@@ -157,122 +141,15 @@ class FollowUpReport(PatientReport):
                                            "facility since last CHW visit?"))
 
 
-class ReferralReport(PatientReport):
+class DangerSignsReport(PatientReport):
 
     class Meta:
         app_label = 'childcount'
-        verbose_name = _(u"Referral Report")
-        verbose_name_plural = _(u"Referral Reports")
+        verbose_name = _(u"Danger Signs Report")
+        verbose_name_plural = _(u"Danger Signs Reports")
 
-    URGENCY_AMBULANCE = 'A'
-    URGENCY_EMERGENCY = 'E'
-    URGENCY_BASIC = 'B'
-    URGENCY_CONVENIENT = 'C'
-    URGENCY_CHOICES = (
-                       (URGENCY_AMBULANCE, _('Ambulance Referral')),
-                       (URGENCY_EMERGENCY, _('Emergency Referral')),
-                       (URGENCY_BASIC, _('Basic Referral')),
-                       (URGENCY_CONVENIENT, _('Convenient Referral')))
-
-    urgency = models.CharField(_(u"Urgency"), max_length=1, \
-                               choices=URGENCY_CHOICES)
-
-
-class DangerSignReport(PatientReport):
-    
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"DangerSign Report")
-        verbose_name_plural = _(u"DangerSign Reports")
-
-    danger_signs = models.ManyToManyField(DangerSign, \
+    danger_signs = models.ManyToManyField('CodedItem', \
                                           verbose_name=_(u"Danger signs"))
-
-
-class PatientRegistrationReport(PatientReport):
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Patient Registration Report")
-        verbose_name_plural = _(u"Patient Registration Reports")
-
-
-class HouseHoldVisitReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Household Visit Report")
-        verbose_name_plural = _(u"Household Visit Reports")
-
-    available = models.BooleanField(_(u"HH Member Available"), \
-                                help_text=_(u"Was a houshold member " \
-                                             "available?"))
-    pregnant = models.SmallIntegerField(_("Number of pregnant women"), \
-                                        help_text=_("what was the number of "\
-                                                    "pregnant women?"), \
-                                        blank=True, null=True)
-    underfive = models.SmallIntegerField(_("Number of Under Five children"), \
-                                        help_text=_("what was the number of "\
-                                                    "Under Five children?"), \
-                                        blank=True, null=True)
-    danger_signs = models.ManyToManyField(DangerSign)
-
-
-class FeverReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Fever Report")
-        verbose_name_plural = _(u"Fever Reports")
-
-    RDT_POSITIVE = 'P'
-    RDT_NEGATIVE = 'N'
-    RDT_UNKOWN = 'U'
-    RDT_UNAVAILABLE = 'X'
-
-    RDT_CHOICES = (
-        (RDT_POSITIVE, _(u"Positive")),
-        (RDT_NEGATIVE, _(u"Negative")),
-        (RDT_UNKOWN, _(u"Unknown")),
-        (RDT_UNAVAILABLE, _(u"Test unavailable")))
-
-    rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
-                                  choices=RDT_CHOICES)
-
-
-class DiarrheaReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Diarrhea Report")
-        verbose_name_plural = _(u"Diarrhea Reports")
-
-    '''
-    HOME_YES = 'Y'
-    HOME_NO = 'N'
-    HOME_UNKNOWN = 'U'
-    HOME_CHOICES = (
-                    (HOME_YES, _(u"Yes")),
-                    (HOME_NO, _(u"Yes")),
-                    (HOME_UNKNOWN, _(u"Yes"))
-                    )
-
-    home_treatment = models.CharField(_(u"Home treated?"), \
-                                      max_length=1, \
-                                      choices=HOME_CHOICES,
-                                      help_text=_(u"Is Patient eligible for "\
-                                                  "home treatment"))
-    '''
-    TREATMENT_ORS = 'R'
-    TREATMENT_ZINC = 'Z'
-    TREATMENT_CHOICES = (
-                    (TREATMENT_ORS, _(u"ORS")),
-                    (TREATMENT_ZINC, _(u"ZINC")),
-                    )
-
-    treatment = models.CharField(_("Treatment"), max_length=1, \
-                                 choices=TREATMENT_CHOICES, \
-                                 help_text=_("what treatment was given?(ORS "\
-                                             "or Zinc)"))
 
 
 class PregnancyReport(PatientReport):
@@ -296,18 +173,6 @@ class PregnancyReport(PatientReport):
                                          "than 7 days)"))
 
 
-class PostpartumReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Postpartum Report")
-        verbose_name_plural = _(u"Postpartum Reports")
-
-    clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
-                                    help_text=_(u"Number of clinic visits " \
-                                                 "since delivery"))
-
-
 class NeonatalReport(PatientReport):
 
     class Meta:
@@ -318,29 +183,6 @@ class NeonatalReport(PatientReport):
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "since birth"))
-
-class BirthReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Birth Report")
-        verbose_name_plural = _(u"Birth Reports")
-
-    CLINIC_DELIVERY_YES = 'Y'
-    CLINIC_DELIVERY_NO = 'N'
-    CLINIC_DELIVERY_UNKOWN = 'U'
-    CLINIC_DELIVERY_CHOICES = (
-        (CLINIC_DELIVERY_YES, _(u"Yes")),
-        (CLINIC_DELIVERY_NO, _(u"No")),
-        (CLINIC_DELIVERY_UNKOWN, _(u"Unknown")))
-
-    clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
-                                       choices=CLINIC_DELIVERY_CHOICES, \
-                                       help_text=_(u"Was the baby born in " \
-                                                    "a health facility?"))
-
-    weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
-                               help_text=_(u"Birth weight in kg"))
 
 
 class UnderOneReport(PatientReport):
@@ -378,54 +220,9 @@ class UnderOneReport(PatientReport):
                                                 "immunizations?"))
 
 
-class Report(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Child Report")
-        verbose_name_plural = _(u"Child Reports")
-
-    FEVER_YES = 'F'
-    FEVER_NO = 'N'
-    FEVER_UNKOWN = 'U'
-    FEVER_CHOICES = (
-        (FEVER_YES, _(u"Yes")),
-        (FEVER_NO, _(u"No")),
-        (FEVER_UNKOWN, _(u"Unknown")))
-
-    DIARRHEA_YES = 'D'
-    DIARRHEA_NO = 'N'
-    DIARRHEA_UNKOWN = 'U'
-    DIARRHEA_CHOICES = (
-        (DIARRHEA_YES, _(u"Yes")),
-        (DIARRHEA_NO, _(u"No")),
-        (DIARRHEA_UNKOWN, _(u"Unknown")))
-
-    fever = models.CharField(_(u"Fever"), max_length=1, \
-                             choices=FEVER_CHOICES, \
-                             help_text=_(u"Has the child had a fever in the " \
-                                          "past 3 days? "))
-
-    diarrhea = models.CharField(_(u"Diarrhea"), max_length=1, \
-                                choices=DIARRHEA_CHOICES, \
-                                help_text=_(u"Has the child had diarrhea in " \
-                                             "the past 24 hours? "))
-
-
-class DispensationReport(PatientReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Dispensation Report")
-        verbose_name_plural = _(u"Dispensation Reports")
-
-    commodities = models.ManyToManyField('Commodity', \
-                                         verbose_name=_(u"Commodities"))
-
-
 class NutritionReport(PatientReport):
 
-    '''record malnutrition measurements'''
+    '''record nutrition related measurements'''
 
     class Meta:
         app_label = 'childcount'
@@ -476,3 +273,109 @@ class NutritionReport(PatientReport):
         for k, v in self.STATUS_CHOICES:
             if self.status == k:
                 return v
+
+
+class FeverReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Fever Report")
+        verbose_name_plural = _(u"Fever Reports")
+
+    RDT_POSITIVE = 'P'
+    RDT_NEGATIVE = 'N'
+    RDT_UNKOWN = 'U'
+    RDT_UNAVAILABLE = 'X'
+
+    RDT_CHOICES = (
+        (RDT_POSITIVE, _(u"Positive")),
+        (RDT_NEGATIVE, _(u"Negative")),
+        (RDT_UNKOWN, _(u"Unknown")),
+        (RDT_UNAVAILABLE, _(u"Test unavailable")))
+
+    rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
+                                  choices=RDT_CHOICES)
+
+
+class MedicineGivenReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Medicine Given Report")
+        verbose_name_plural = _(u"Medicine Given Reports")
+
+    medicines = models.ManyToManyField('CodedItem', \
+                                         verbose_name=_(u"Medicines"))
+
+
+class ReferralReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Referral Report")
+        verbose_name_plural = _(u"Referral Reports")
+
+    URGENCY_AMBULANCE = 'A'
+    URGENCY_EMERGENCY = 'E'
+    URGENCY_BASIC = 'B'
+    URGENCY_CONVENIENT = 'C'
+    URGENCY_CHOICES = (
+                       (URGENCY_AMBULANCE, _('Ambulance Referral')),
+                       (URGENCY_EMERGENCY, _('Emergency Referral')),
+                       (URGENCY_BASIC, _('Basic Referral')),
+                       (URGENCY_CONVENIENT, _('Convenient Referral')))
+
+    urgency = models.CharField(_(u"Urgency"), max_length=1, \
+                               choices=URGENCY_CHOICES)
+
+
+class HouseHoldVisitReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Household Visit Report")
+        verbose_name_plural = _(u"Household Visit Reports")
+
+    available = models.BooleanField(_(u"HH Member Available"), \
+                                help_text=_(u"Was a houshold member " \
+                                             "available?"))
+
+    children = models.SmallIntegerField(_("Children under five"), \
+                           help_text=_("Number of children under 5 seen"))
+
+    counseling = models.ManyToManyField('CodedItem', \
+                        verbose_name=_(u"Counseling / advice topics covered"))
+
+
+class FamilyPlanningReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Family Planning Report")
+        verbose_name_plural = _(u"Family Planning Reports")
+
+    women = models.PositiveSmallIntegerField(_(u"Women"), \
+                            help_text=_(u"Number of women aged 15 to 49 " \
+                                         "seen during visit"))
+
+    women_using = models.PositiveSmallIntegerField(_(u"Women using FP"), \
+                            help_text=_(u"Number of the women using " \
+                                         "modern family planning"))
+
+    methods = models.ManyToManyField('CodedItem', verbose_name=_("Methods"),
+                            help_text=_(u"Primary method used by each woman"))
+
+
+class BedNetReport(PatientReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Bednet Report")
+        verbose_name_plural = _(u"Bednet Reports")
+
+    nets = models.PositiveSmallIntegerField(_(u"Bednets"),\
+                            help_text=_(u"Number of functioning bednets " \
+                                         "in the household"))
+
+    sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
+                            help_text=_(u"Number of sleeping sites"))
