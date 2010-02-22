@@ -361,9 +361,6 @@ class FamilyPlanningReport(PatientReport):
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
 
-    methods = models.ManyToManyField('CodedItem', verbose_name=_("Methods"),
-                            help_text=_(u"Primary method used by each woman"))
-
 
 class BedNetReport(PatientReport):
 
