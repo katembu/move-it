@@ -196,7 +196,7 @@ class App (rapidsms.app.App):
                 message.respond(successful_string, 'success')
                 return handled
             if failed_forms and not successful_forms:
-                message.respond(failedl_string, 'error')
+                message.respond(failed_string, 'error')
                 return handled
             else:
                 if len(failed_forms) == 1:
