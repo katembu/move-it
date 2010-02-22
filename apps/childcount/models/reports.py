@@ -370,7 +370,7 @@ class BedNetReport(PatientReport):
         verbose_name = _(u"Bednet Report")
         verbose_name_plural = _(u"Bednet Reports")
 
-    nets = models.PositiveSmallIntegerField(_(u"Bednets"),\
+    nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
                             help_text=_(u"Number of functioning bednets " \
                                          "in the household"))
 
