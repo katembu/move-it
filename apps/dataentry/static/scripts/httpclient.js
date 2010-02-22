@@ -7,6 +7,7 @@ $(document).ready(function(){
 });
 
 function sendMsg() {
+    parse_message();
     var phone = $('#phone').val();
     var message = $('#message').val();
 	if (phone.length > 0 && message.length > 0) {

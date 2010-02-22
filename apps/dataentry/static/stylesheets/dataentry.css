@@ -34,7 +34,7 @@ table.rsmsList tr td.letter, table.rsmsList tr td.s {
 }
 
 table.rsmsList tr td {
-    min-width: 2.5em;
+    min-width: 1em;
     min-height: 1.5em;
     text-align: center;
     font-family: Lekton;
@@ -52,13 +52,14 @@ table.rsmsList tbody tr:last-child td:last-child {
     border-right-width: 4px;
 }
 
-#form_wrapper { margin-top: 1em; }
+#form_wrapper {
+    margin-top: 1%;
+    margin-bottom: 1%;
+}
 label,input { display:block;}
-input { margin-bottom: 1em; width:25em; }
-#message {  }
 
 table.rsmsList tbody {
-    height: 20em;
+    height: 30%;
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;
@@ -71,7 +72,7 @@ table.rsmsList tbody tr {
 #message {
     font-family: Lekton;
 
-    margin: 1em auto;
+    margin: auto auto;
     padding: 0.2em;
 
 	background-color: #dedede;
@@ -80,7 +81,7 @@ table.rsmsList tbody tr {
     -moz-border-radius: 13px;
 
 
-    width: 39em;
+    width: 90%;
     font-size: 2em;
 
     font-family: Lekton;
@@ -122,7 +123,7 @@ table.response thead td {
 }
 
 #feedback tbody {
-    height: 10em;
+    height: 30%;
 }
 
 #feedback td.msg {
@@ -166,6 +167,10 @@ table.response thead td {
     font-family: WhiteRabbit;
 }
 
+#form_buttons li.hover {
+    background-color: green;
+}
+
 #form_buttons li:hover {
     cursor: pointer;    
 }
@@ -174,6 +179,6 @@ input[type = 'submit'], label, h2 {
     display:none;
 }
 
-table.rsmsList thead.cmd tr td, table.rsmsList tbody.cmd tr td {
+table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td {
     text-align: left;
 }
