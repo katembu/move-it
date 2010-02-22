@@ -11,8 +11,6 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
-
-from childcount.models import DangerSign
 from childcount.models import Patient
 
 

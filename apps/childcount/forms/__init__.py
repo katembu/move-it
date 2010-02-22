@@ -16,10 +16,10 @@ from childcount.forms.NeonatalForm import NeonatalForm
 from childcount.forms.UnderOneForm import UnderOneForm
 from childcount.forms.NutritionForm import NutritionForm
 from childcount.forms.FeverForm import FeverForm
-#from childcount.forms.MedicineGivenForm import MedicineGivenForm
+from childcount.forms.MedicineGivenForm import MedicineGivenForm
 from childcount.forms.ReferralForm import ReferralForm
 
-from childcount.forms.HouseHoldVisitForm import HouseHoldVisitForm
+#from childcount.forms.HouseHoldVisitForm import HouseHoldVisitForm
 #from childcount.forms.FamilyPlanningForm import FamilyPlanningForm
 #from childcount.forms.BednetForm import BednetForm
 
