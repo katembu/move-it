@@ -339,7 +339,7 @@ class HouseHoldVisitReport(PatientReport):
                                              "available?"))
 
     children = models.SmallIntegerField(_("Children under five"), \
-                                        blank=True, null=True, 
+                                        blank=True, null=True, \
                             help_text=_("Number of children under 5 seen"))
 
     counseling = models.ManyToManyField('CodedItem', \

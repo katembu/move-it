@@ -36,13 +36,3 @@ admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
 admin.site.register(Referral)
-
-
-
-
-
-
-
-
-
-

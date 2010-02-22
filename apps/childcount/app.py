@@ -29,7 +29,6 @@ class App (rapidsms.app.App):
     commands = []
     forms = []
 
-
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
         if forms is not None:
@@ -46,7 +45,6 @@ class App (rapidsms.app.App):
                     self.commands.append(eval(command))
                 except:
                     self.debug(_(u'%s command not found') % command)
-
 
     def start(self):
         self.command_mapper = KeywordMapper()
