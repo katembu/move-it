@@ -39,11 +39,10 @@ class DangerSignsForm(CCForm):
             else:
                 unkown.append(d)
 
-        invalid_str = _(u"Unkown danger sign code(s): %(codes)s " \
-                          "No danger signs recorded.") % \
-                         {'codes': ', '.join(unkown).upper()}
-
         if unkown:
+            invalid_str = _(u"Unkown danger sign code(s): %(codes)s " \
+                             "No danger signs recorded.") % \
+                             {'codes': ', '.join(unkown).upper()}
             raise ParseError(invalid_str)
 
         if valid:

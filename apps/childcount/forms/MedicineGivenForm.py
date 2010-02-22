@@ -39,11 +39,10 @@ class MedicineGivenForm(CCForm):
             else:
                 unkown.append(d)
 
-        invalid_str = _(u"Unkown medicine code(s): %(codes)s " \
+        if unkown:
+            invalid_str = _(u"Unkown medicine code(s): %(codes)s " \
                           "No medicines recorded.") % \
                          {'codes': ', '.join(unkown).upper()}
-
-        if unkown:
             raise ParseError(invalid_str)
 
         if valid:
