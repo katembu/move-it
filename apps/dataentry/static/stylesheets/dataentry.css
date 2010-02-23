@@ -35,7 +35,7 @@ table.rsmsList tr td.letter, table.rsmsList tr td.s {
 
 table.rsmsList tr td {
     min-width: 1em;
-    min-height: 1.5em;
+    height: 1.5em;
     text-align: center;
     font-family: Lekton;
 }
@@ -59,7 +59,7 @@ table.rsmsList tbody tr:last-child td:last-child {
 label,input { display:block;}
 
 table.rsmsList tbody {
-    height: 12em;
+    height: 15em;
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;

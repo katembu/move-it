@@ -303,37 +303,37 @@
         current = 1;
         switch_forms(0);
 
-        //size_adjust();
-
     }
 
     function size_adjust()
     {
-        var ref_height = 550;
-        var ref_width = 1020;
-        var ref_css_height = 12;
 
-        var current_height = document.body.clientHeight;
-        console.log("current_height: "+current_height);
-        var current_width = document.body.clientWidth;
-        console.log("current_width: "+current_width);
+        var overhead = 160;
+        var window_height = window.outerHeight;
+        var available_height = window_height - overhead;
 
-        var new_css = Math.round(current_height / 3); //(current_height * ref_css_height) / ref_height;
-        console.log("height: "+new_css);
+        console.log("window_height: "+window_height);
+        console.log("available_height: "+available_height);
 
-        var doc = document.getElementById('log');
-        doc.style.height = new_css+'em;';
+        var body_height = Math.round(available_height / 3);
+        var msg_height = Math.round(available_height / 20);
 
-        var doc = document.getElementById('log');
-        doc.style.height = new_css+'px;';
+        console.log("body_height: "+body_height);
+        console.log("msg_height: "+msg_height);
 
         var doc = document.getElementById('ccform_body');
-        doc.style.height = new_css+'px;';
+        doc.style.height = body_height + 'px';
+
+        var doc = document.getElementById('log');
+        doc.style.height = body_height + 'px';
+
+        var doc = document.getElementById('message');
+        doc.style.height = msg_height + 'px';
     }
     </script>
 </head>
 
-<body onload="loadUI();">
+<body onload="loadUI();" onresize="size_adjust();">
 
 <h2>Available forms</h2>
 <ul id="form_buttons">
