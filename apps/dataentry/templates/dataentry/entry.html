@@ -303,6 +303,32 @@
         current = 1;
         switch_forms(0);
 
+        //size_adjust();
+
+    }
+
+    function size_adjust()
+    {
+        var ref_height = 550;
+        var ref_width = 1020;
+        var ref_css_height = 12;
+
+        var current_height = document.body.clientHeight;
+        console.log("current_height: "+current_height);
+        var current_width = document.body.clientWidth;
+        console.log("current_width: "+current_width);
+
+        var new_css = Math.round(current_height / 3); //(current_height * ref_css_height) / ref_height;
+        console.log("height: "+new_css);
+
+        var doc = document.getElementById('log');
+        doc.style.height = new_css+'em;';
+
+        var doc = document.getElementById('log');
+        doc.style.height = new_css+'px;';
+
+        var doc = document.getElementById('ccform_body');
+        doc.style.height = new_css+'px;';
     }
     </script>
 </head>

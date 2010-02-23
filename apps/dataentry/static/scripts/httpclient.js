@@ -7,7 +7,6 @@ $(document).ready(function(){
 });
 
 function sendMsg() {
-    parse_message();
     var phone = $('#phone').val();
     if (phone.length < 3) { alert("Your name is not set! Fill it in yellow box."); return false; }
     var message = $('#message').val();
