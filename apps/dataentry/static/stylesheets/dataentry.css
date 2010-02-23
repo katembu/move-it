@@ -182,3 +182,13 @@ input[type = 'submit'], label, h2 {
 table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td {
     text-align: left;
 }
+
+#phone {
+    width: 4em;
+    position: absolute;
+    bottom:0;
+    background-color: yellow;
+    color: black;
+    border-color: black;
+    font-family: Lekton;
+}
