@@ -1,14 +1,13 @@
 // javascript for the httpclient
 url = "/dataentry/proxy/";
 
-SMSes = {};
-
 $(document).ready(function(){
 	$('#form').submit(function(){ sendMsg(); return false; });
 	setInterval("checkMsgs()", 5000);
 });
 
 function sendMsg() {
+    parse_message();
     var phone = $('#phone').val();
     var message = $('#message').val();
 	if (phone.length > 0 && message.length > 0) {
@@ -18,7 +17,7 @@ function sendMsg() {
 			function (response) { if (response) {
 
                 // store msg in row
-                SMSes[current] = {'message': $('#message').val()}
+                SMSes[dataentry_form.name][current] = {'message': $('#message').val()}
 
                 // create new row
                 current = parseInt(current) + 1;

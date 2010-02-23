@@ -339,7 +339,7 @@ class HouseHoldVisitReport(PatientReport):
                                              "available?"))
 
     children = models.SmallIntegerField(_("Children under five"), \
-                                        blank=True, null=True, 
+                                        blank=True, null=True, \
                             help_text=_("Number of children under 5 seen"))
 
     counseling = models.ManyToManyField('CodedItem', \
@@ -358,11 +358,9 @@ class FamilyPlanningReport(PatientReport):
                                          "seen during visit"))
 
     women_using = models.PositiveSmallIntegerField(_(u"Women using FP"), \
+                                                null=True, blank=True, \
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
-
-    methods = models.ManyToManyField('CodedItem', verbose_name=_("Methods"),
-                            help_text=_(u"Primary method used by each woman"))
 
 
 class BedNetReport(PatientReport):
@@ -372,7 +370,7 @@ class BedNetReport(PatientReport):
         verbose_name = _(u"Bednet Report")
         verbose_name_plural = _(u"Bednet Reports")
 
-    nets = models.PositiveSmallIntegerField(_(u"Bednets"),\
+    nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
                             help_text=_(u"Number of functioning bednets " \
                                          "in the household"))
 

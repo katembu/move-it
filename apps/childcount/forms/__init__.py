@@ -20,7 +20,7 @@ from childcount.forms.MedicineGivenForm import MedicineGivenForm
 from childcount.forms.ReferralForm import ReferralForm
 
 from childcount.forms.HouseHoldVisitForm import HouseHoldVisitForm
-#from childcount.forms.FamilyPlanningForm import FamilyPlanningForm
-#from childcount.forms.BednetForm import BednetForm
+from childcount.forms.FamilyPlanningForm import FamilyPlanningForm
+from childcount.forms.BedNetForm import BedNetForm
 
 from childcount.forms import utils

@@ -29,8 +29,6 @@ class App (rapidsms.app.App):
     commands = []
     forms = []
 
-
-
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
         if forms is not None:
@@ -47,7 +45,6 @@ class App (rapidsms.app.App):
                     self.commands.append(eval(command))
                 except:
                     self.debug(_(u'%s command not found') % command)
-
 
     def start(self):
         self.command_mapper = KeywordMapper()
@@ -85,7 +82,7 @@ class App (rapidsms.app.App):
             #TODO make this form specific
             if not message.persistant_connection.reporter:
                 message.respond(_(u"You must register before you can send " \
-                                   "any reports."))
+                                   "any reports."), 'error')
                 return handled
 
             health_ids_text = forms_match.groupdict()['health_ids']
@@ -121,7 +118,7 @@ class App (rapidsms.app.App):
                                    "a single health ID, followed by a space " \
                                    "then a %(pre)s then the form keyword " \
                                    "you are sending.") % \
-                                   {'pre': self.FORM_PREFIX})
+                                   {'pre': self.FORM_PREFIX}, 'error')
                 return handled
             health_id = health_ids[0]
 
@@ -149,7 +146,8 @@ class App (rapidsms.app.App):
                     message.respond(_(u"Error while processing %(frm)s: " \
                                        "%(e)s - Please correct and send all " \
                                        "information again.") % \
-                                       {'frm': pretty_form, 'e': e.message})
+                                       {'frm': pretty_form, 'e': e.message}, \
+                                        'error')
                     return handled
 
                 try:
@@ -157,7 +155,7 @@ class App (rapidsms.app.App):
                 except Patient.DoesNotExist:
                     message.respond(_(u"%(id)s is not a valid Health ID. " \
                                        "Please check and try again.") % \
-                                       {'id': health_id})
+                                       {'id': health_id}, 'error')
                     return handled
 
                 try:
@@ -194,8 +192,11 @@ class App (rapidsms.app.App):
             elif send_again and len(failed_forms) > 1:
                 failed_string += _(" You must send those forms again.")
 
-            if not (successful_forms and failed_forms):
-                message.respond(successful_string + failed_string)
+            if successful_forms and not failed_forms:
+                message.respond(successful_string, 'success')
+                return handled
+            if failed_forms and not successful_forms:
+                message.respond(failed_string, 'error')
                 return handled
             else:
                 if len(failed_forms) == 1:
@@ -208,8 +209,10 @@ class App (rapidsms.app.App):
                 else:
                     cnt_successful = _(u"%d forms successful") % \
                                                         len(successful_forms)
-                response = u"%s, %s" % (failed_string, successful_string)
-                message.respond(response)
+                response = u"%s, %s: %s, %s" % (cnt_failed, cnt_successful, \
+                                                failed_string, \
+                                                successful_string)
+                message.respond(response, 'warning')
             return handled
 
 

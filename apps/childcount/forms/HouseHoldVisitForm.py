@@ -35,7 +35,7 @@ class HouseHoldVisitForm(CCForm):
 
         hhvr = HouseHoldVisitReport(created_by=chw, patient=patient, \
                                        available=available)
-        
+
         if available:
             if len(self.params) < 3:
                 raise ParseError(_(u"Not enough info, expected: household " \

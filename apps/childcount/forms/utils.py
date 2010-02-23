@@ -8,10 +8,13 @@ import itertools
 from django.utils.translation import ugettext as _
 from django.utils.datastructures import SortedDict
 
+
 class MultipleChoiceField(object):
+
         def __init__(self):
             self.choices = {}
             self.active_language = ''
+
         def add_choice(self, language, db_value, choices):
             if language not in self.choices:
                 self.choices[language] = SortedDict()
@@ -26,9 +29,9 @@ class MultipleChoiceField(object):
             return choice.lower() in self.valid_choices()
 
         def valid_choices(self):
-            return [ char.lower() for char in \
-                itertools.chain(*self.choices[self.active_language].values()) ]
-            
+            return [char.lower() for char in \
+                itertools.chain(*self.choices[self.active_language].values())]
+
         def propper_answer(self, choice):
             if not self.is_valid_choice(choice):
                 return None
@@ -49,6 +52,6 @@ class MultipleChoiceField(object):
         def get_db_value(self, choice):
             if not self.is_valid_choice(choice):
                 return None
-            for key,value in self.choices[self.active_language].iteritems():
+            for key, value in self.choices[self.active_language].iteritems():
                 if choice in [char.lower() for char in value]:
                     return key

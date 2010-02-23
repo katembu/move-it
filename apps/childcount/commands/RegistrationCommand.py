@@ -57,7 +57,7 @@ class RegistrationCommand(CCCommand):
         orig_alias = alias[:20]
         alias = orig_alias.lower()
 
-        if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):            
+        if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):
             n = 1
             while CHW.objects.filter(alias__iexact=alias).count():
                 alias = "%s%d" % (orig_alias.lower(), n)
