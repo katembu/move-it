@@ -161,7 +161,7 @@ class PDFReport():
         for i in elements:
             self.data.append(i)
 
-    def setTableData(self, queryset, fields, title, colWidths=None):
+    def setTableData(self, queryset, fields, title, colWidths=None, hasCounter=False):
         '''set table data
 
         @var queryset: data
@@ -178,13 +178,21 @@ class PDFReport():
         pStyle.spaceAfter = 0
         pStyle.leading = pStyle.fontSize + 2.8
         #prepare the data
+        counter = 0
         for row in queryset:
+            counter += 1
             if not header:
-                data.append([f["name"] for f in fields])
+                value = [f["name"] for f in fields]
+                if hasCounter:
+                    value.insert(0, '#')
+                data.append(value)
                 header = True
             ctx = Context({"object": row})
+
             values = [pheader(Template(h["bit"]).render(ctx), pStyle, sep=0)\
                        for h in fields]
+            if hasCounter:
+                values.insert(0, counter)
 
             data.append(values)
 
