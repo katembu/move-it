@@ -71,6 +71,26 @@ class TheCHWReport(CHW):
         return num
 
     @property
+    def num_of_sam(self):
+        num = NutritionReport.objects.filter(created_by=self, \
+                            status=NutritionReport.STATUS_SEVERE_COMP).count()
+        num += NutritionReport.objects.filter(created_by=self, \
+                                status=NutritionReport.STATUS_SEVERE).count()
+        return num
+
+    @property
+    def num_of_mam(self):
+        num = NutritionReport.objects.filter(created_by=self, \
+                                status=NutritionReport.STATUS_MODERATE).count()
+        return num
+
+    @property
+    def num_of_healthy(self):
+        num = NutritionReport.objects.filter(created_by=self, \
+                                status=NutritionReport.STATUS_HEALTHY).count()
+        return num
+
+    @property
     def num_of_visits(self):
         '''The number of visits in the last 7 days'''
         seven = date.today() - timedelta(7)
@@ -93,11 +113,20 @@ class TheCHWReport(CHW):
             {'name': "No. of Patients", \
              'bit': '{{ object.num_of_patients }}'})
         columns.append(
-            {'name': "No, of Patients Under 5", \
+            {'name': "No. Under 5", \
              'bit': '{{ object.num_of_underfive }}'})
         columns.append(
             {'name': "No. of Visits", \
              'bit': '{{ object.num_of_visits }}'})
+        columns.append(
+            {'name': "No. SAM", \
+             'bit': '{{ object.num_of_sam }}'})
+        columns.append(
+            {'name': "No. MAM", \
+             'bit': '{{ object.num_of_mam }}'})
+        columns.append(
+            {'name': "No. HEALTHY", \
+             'bit': '{{ object.num_of_healthy }}'})
 
         sub_columns = None
         return columns, sub_columns
