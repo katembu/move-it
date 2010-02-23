@@ -97,6 +97,14 @@ class TheCHWReport(CHW):
         num = HouseHoldVisitReport.objects.filter(created_by=self).count()
         return num
 
+    @property
+    def num_muac_eligible(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        num = Patient.objects.filter(chw=self, dob__lte=sixtym, \
+                                     dob__gte=sixm).count()
+        return num
+
     @classmethod
     def summary(cls):
         columns = []
