@@ -36,6 +36,7 @@ def all_patient_list_per_chw_pdf(request):
     rpt = PDFReport()
     rpt.setTitle(report_title)
     rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+    rpt.setRowsPerPage(42)
 
     cols, sub_cols = ThePatient.patients_summary_list()
 
@@ -49,7 +50,7 @@ def all_patient_list_per_chw_pdf(request):
 
         sub_title = u"%s %s" % (chw, summary)
         #rpt.setElements([p(summary)])
-        rpt.setTableData(reports, cols, chw)
+        rpt.setTableData(reports, cols, chw, hasCounter=True)
         rpt.setPageBreak()
 
     return rpt.render()
