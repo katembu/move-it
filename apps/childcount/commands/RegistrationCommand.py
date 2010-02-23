@@ -93,7 +93,7 @@ class RegistrationCommand(CCCommand):
         self.message.respond(
             _(u"Success. You are now registered at %(location)s with " \
                "alias @%(alias)s.") \
-               % {'location': location, 'alias': chw.alias})
+               % {'location': location, 'alias': chw.alias}, 'success')
 
         '''
         #inform admin
