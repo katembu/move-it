@@ -101,8 +101,23 @@ class TheCHWReport(CHW):
     def num_muac_eligible(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
-        num = Patient.objects.filter(chw=self, dob__lte=sixtym, \
-                                     dob__gte=sixm).count()
+        num = Patient.objects.filter(chw=self, dob__gte=sixtym, \
+                                     dob__lte=sixm).count()
+        return num
+
+    @classmethod
+    def total_muac_eligible(cls):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        num = Patient.objects.filter(dob__gte=sixtym, \
+                                     dob__lte=sixm).count()
+        return num
+
+    @classmethod
+    def total_at_risk(cls):
+        num = NutritionReport.objects.filter(status__in=(NutritionReport.STATUS_SEVERE, \
+                                            NutritionReport.STATUS_SEVERE_COMP, \
+                                            NutritionReport.STATUS_MODERATE)).count()
         return num
 
     @classmethod
