@@ -4,7 +4,18 @@
 {% endblock %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
+<style type="text/css">
+.dashboard p.data{
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+}
+.dashboard h2{
+    font-size: 20px;
+} 
+</style>
 <div>
+<table><tr><td>
 <table>
     <tr>
         <th>Report Name</th><th>&nbsp;</th>
@@ -27,5 +38,12 @@
         </td>
     </tr>
 </table>
+</td>
+<td>
+<div class='dashboard'>
+<h2>Nutrition</h2>
+<p>@risk/eligible for muac</p>
+<p class='data'>{{ nutrition }}</p>
+<td></tr></table>
 </div>
 {% endblock %}

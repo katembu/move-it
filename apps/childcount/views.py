@@ -4,17 +4,21 @@
 
 from rapidsms.webui.utils import render_to_response
 from django.utils.translation import gettext_lazy as _
+from django.template import Template, Context
 
 from childcount.models import Patient, CHW
-from django.template import Template, Context
+from childcount.models.ccreports import TheCHWReport
+
 
 
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
     title = "ChildCount-2.0"
+    nutrition = "%(atrisk)s/%(eligible)s" % {'atrisk': TheCHWReport.total_at_risk(), \
+                           'eligible': TheCHWReport.total_muac_eligible()}
     return render_to_response(request, template_name, {
-            "title": title})
+            "title": title, 'nutrition': nutrition})
 
 
 def chw(request):
