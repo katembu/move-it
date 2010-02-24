@@ -45,7 +45,7 @@ class PregnancyForm(CCForm):
             raise ParseError(_('Number of ANC visits must be a number'))
         anc_visits = int(anc_visits)
 
-        if anc_visits != 0 and len(self.params) < 3:
+        if anc_visits != 0 and len(self.params) < 4:
             raise ParseError(_(u"You must include the weeks since the last " \
                                 "ANC visit after the total number of ANC "
                                 "visits"))

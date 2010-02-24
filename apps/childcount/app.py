@@ -226,7 +226,7 @@ class App (rapidsms.app.App):
             try:
                 obj.process()
             except (ParseError, BadValue), e:
-                message.respond(e.message)
+                message.respond(e.message, 'error')
         return handled
 
     def cleanup(self, message):

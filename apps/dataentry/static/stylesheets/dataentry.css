@@ -35,7 +35,7 @@ table.rsmsList tr td.letter, table.rsmsList tr td.s {
 
 table.rsmsList tr td {
     min-width: 1em;
-    min-height: 1.5em;
+    height: 1.5em;
     text-align: center;
     font-family: Lekton;
 }
@@ -59,7 +59,7 @@ table.rsmsList tbody tr:last-child td:last-child {
 label,input { display:block;}
 
 table.rsmsList tbody {
-    height: 30%;
+    height: 15em;
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;
@@ -123,7 +123,7 @@ table.response thead td {
 }
 
 #feedback tbody {
-    height: 30%;
+    height: 12em;
 }
 
 #feedback td.msg {
@@ -181,4 +181,14 @@ input[type = 'submit'], label, h2 {
 
 table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td {
     text-align: left;
+}
+
+#phone {
+    width: 4em;
+    position: absolute;
+    bottom:0;
+    background-color: yellow;
+    color: black;
+    border-color: black;
+    font-family: Lekton;
 }

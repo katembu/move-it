@@ -7,8 +7,8 @@ $(document).ready(function(){
 });
 
 function sendMsg() {
-    parse_message();
     var phone = $('#phone').val();
+    if (phone.length < 3) { alert("Your name is not set! Fill it in yellow box."); return false; }
     var message = $('#message').val();
 	if (phone.length > 0 && message.length > 0) {
 		req = url + $('#phone').val() + "/" + escape($('#message').val());
