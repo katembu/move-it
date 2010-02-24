@@ -11,6 +11,8 @@ from childcount.models import CHW
 from childcount.models.reports import NutritionReport 
 from childcount.models.reports import HouseHoldVisitReport
 
+from logger.models import IncomingMessage
+
 
 class ThePatient(Patient):
 
@@ -113,6 +115,25 @@ class TheCHWReport(CHW):
                                      dob__lte=sixm).count()
         return num
 
+    @property
+    def num_of_sms(self):
+        identity = self.connection().identity
+        num = IncomingMessage.objects.filter(identity=identity).count()
+        return num
+
+    @classmethod
+    def muac_summary(cls):
+        num_healthy = NutritionReport.objects.filter(status=NutritionReport.STATUS_HEALTHY).count()
+        num_mam = NutritionReport.objects.filter(status=NutritionReport.STATUS_MODERATE).count()
+        num_sam = NutritionReport.objects.filter(status=NutritionReport.STATUS_SEVERE).count()
+        num_comp = NutritionReport.objects.filter(status=NutritionReport.STATUS_SEVERE_COMP).count()
+        num_eligible = TheCHWReport.total_muac_eligible()
+        info = {'%s%% HEALTHY' % round((num_healthy / float(num_eligible)) * 100): num_healthy,
+                '%s%% MAM' % round((num_mam / float(num_eligible)) * 100): num_mam,
+                '%s%% SAM' % round((num_sam / float(num_eligible)) * 100): num_sam,
+                '%s%% SAM+' % round((num_comp / float(num_eligible)) * 100): num_comp}
+        return info 
+
     @classmethod
     def total_at_risk(cls):
         num = NutritionReport.objects.filter(status__in=(NutritionReport.STATUS_SEVERE, \
@@ -150,6 +171,9 @@ class TheCHWReport(CHW):
         columns.append(
             {'name': "No. HEALTHY", \
              'bit': '{{ object.num_of_healthy }}'})
+        columns.append(
+            {'name': "No. SMS Sent", \
+             'bit': '{{ object.num_of_sms }}'})
 
         sub_columns = None
         return columns, sub_columns
