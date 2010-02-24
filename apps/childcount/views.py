@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+import os
+
 from rapidsms.webui.utils import render_to_response
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
@@ -9,16 +11,19 @@ from django.template import Template, Context
 from childcount.models import Patient, CHW
 from childcount.models.ccreports import TheCHWReport
 
+from CairoPlot import PiePlot
+from django.http import HttpResponse
 
 
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
-    title = "ChildCount-2.0"
-    nutrition = "%(atrisk)s/%(eligible)s" % {'atrisk': TheCHWReport.total_at_risk(), \
-                           'eligible': TheCHWReport.total_muac_eligible()}
-    return render_to_response(request, template_name, {
-            "title": title, 'nutrition': nutrition})
+    title = "ChildCount-2.0" 
+    info = {}
+    info.update({"title": title})
+    info.update({'atrisk': TheCHWReport.total_at_risk(), \
+                           'eligible': TheCHWReport.total_muac_eligible()})
+    return render_to_response(request, template_name, info)
 
 
 def chw(request):
@@ -134,3 +139,18 @@ def patient(request):
     else:
         return render_to_response(\
                 request, 'childcount/patient.html', context_dict)
+
+
+def nutrition_png(request):
+    nutdata = TheCHWReport.muac_summary()
+    filename = 'nutrition_summary.png'
+    pie = PiePlot(filename, nutdata, 450, 300, shadow=True)
+    pie.render()
+    pie.commit()
+    f = open(filename)
+    data = f.read()
+    f.close()
+    os.unlink(filename)
+    response = HttpResponse(mimetype="image/png")
+    response.write(data)
+    return response

@@ -1,4 +1,11 @@
 {% extends base_template %}
+{% block javascripts %}
+
+{% endblock %}
+{% block page_stylesheets %}
+<link type="text/css" rel="stylesheet" href="/static/childcount/visualize.jQuery.css"/>
+
+{% endblock %}
 {% block page_tabs %}
 
 {% endblock %}
@@ -15,7 +22,7 @@
 } 
 </style>
 <div>
-<table><tr><td>
+<table width="100%"><tr><td>
 <table>
     <tr>
         <th>Report Name</th><th>&nbsp;</th>
@@ -41,9 +48,7 @@
 </td>
 <td>
 <div class='dashboard'>
-<h2>Nutrition</h2>
-<p>@risk/eligible for muac</p>
-<p class='data'>{{ nutrition }}</p>
-<td></tr></table>
+    <h2>Nutrition</h2>
+    <img src='/childcount/nutrition.png' width="400" />
 </div>
 {% endblock %}
