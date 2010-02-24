@@ -19,35 +19,9 @@
 
 	var clog = function(){}
 	var cerr = function(){}
+    var debug = false;
 
-    if(typeof(console)!=='undefined') {clog = console.log; cerr = console.error; }
-
-/*    var form_fields = [
-        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
-        {'id': 'pregnancy', 'type': 's', 'name': 'P', 'title': 'Pregnancy Section'},
-        {'id': 'month', 'type': 'f', 'name': 'MP', 'title': 'Month of pregnancy (1-9)'},
-        {'id': 'visit', 'type': 'f', 'name': 'Vis', 'title': 'Number of ANC Visits (0-9)'},
-        {'id': 'delivery', 'type': 's', 'name': 'A', 'title': 'After Delivery Section (6 weeks)'},
-        {'id': 'visits', 'type': 'f', 'name': 'Vis', 'title': 'Number of Clinic/Hospital Visits since Delivery (0-9)'},
-        {'id': 'breastfeed', 'type': 'f', 'name': 'BF', 'title': 'Breast-feeding only (Y-N-U)'},
-        {'id': 'newborn', 'type': 's', 'name': 'B', 'title': 'Newborn Section (0-5 months)'},
-        {'id': 'visit', 'type': 'f', 'name': 'Vis', 'title': 'Number of clinic/hospital visits since birth (0-20)'},
-        {'id': 'muac', 'type': 's', 'name': 'M', 'title': 'MUAC Section (6-59 months)'},
-        {'id': 'weight', 'type': 'f', 'name': 'Kg', 'title': 'Weight (KG) (Optional)'},
-        {'id': 'fever', 'type': 's', 'name': 'F', 'title': 'Fever Section'},
-        {'id': 'rdt', 'type': 'f', 'name': 'RDT', 'title': 'RDT Result (P-N-U-X)'},
-        {'id': 'risk', 'type': 'f', 'name': 'R.S', 'title': 'Risk Symptoms (V, D, C, N, U)'},
-        {'id': 'diarrhea', 'type': 's', 'name': 'D', 'title': 'Diarrhea Section'},
-        {'id': 'risk', 'type': 'f', 'name': 'R.S', 'title': 'Risk Symptoms (F, V, C, B, N, U)'},
-        {'id': 'medecine', 'type': 's', 'name': 'G', 'title': 'Medecine / Immunization Given'},
-        {'id': 'given', 'type': 'f', 'name': 'Med', 'title': 'Medecine Comodities Given (ACT, PARA, R, Z, BCG, etc)'},
-        {'id': 'referral', 'type': 's', 'name': 'R', 'title': 'Referral to Clinic Section'},
-        {'id': 'clinic', 'type': 'f', 'name': 'Ref', 'title': 'Referral to Clinic (A-B-C)'},
-        {'id': 'danger', 'type': 'f', 'name': 'D.S', 'title': 'Danger Signs (Optionnal)'},
-        {'id': 'fup', 'type': 'f', 'name': 'FuD', 'title': 'Follow Up Date'},
-        {'id': 'follow_up', 'type': 's', 'name': 'U', 'title': 'Follow Uo Care Section'},
-        {'id': 'res', 'type': 'f', 'name': 'Res', 'title': 'Patient Response (B, W, S)'},
-    ]*/
+    if(typeof(console)!=='undefined' && debug) {clog = console.log; cerr = console.error; }
 
     var forma_fields = [
         {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
@@ -86,6 +60,40 @@
     forma.addSection(s);
 
     var formb_fields = [
+        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'Head of Household HEALTH ID'},
+        {'id': 'hiv', 'type': 's', 'name': 'V', 'Vis': 'HH Visit - All households'},
+        {'id': 'available', 'type': 'f', 'name': 'Avai', 'title': 'HH Member Available (Y-N)'},
+        {'id': 'children', 'type': 'f', 'name': 'Child', 'title': 'Number of Children Under-5 seen'},
+        {'id': 'advice', 'type': 'f', 'name': 'Adv', 'title': 'Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH)'},
+        {'id': 'family_planning', 'type': 's', 'name': 'FP', 'title': 'Family Planning Section'},
+        {'id': 'women', 'type': 'f', 'name': '♀', 'title': 'Number of Women Aged 15-49 seen during this visit'},
+        {'id': 'women_plan', 'type': 'f', 'name': '♀+P', 'title': 'Number of these Women currently using modern family planning'},
+        {'id': 'method', 'type': 'f', 'name': 'meth', 'title': 'Primary Family Planning Method used [Record primary method for each woman] (C, I, N, P)'},
+        {'id': 'bednet', 'type': 's', 'name': 'BN', 'title': 'Bednet Section'},
+        {'id': 'bednet_num', 'type': 'f', 'name': '#net', 'title': 'Number of Functioning Bednets in the households'},
+        {'id': 'bednet_sites', 'type': 'f', 'name': '#bed', 'title': 'Number of Sleeping Sites'},
+    ]
+
+    var formb = new ChildCountForm('B');
+
+    var s = new ChildCountFormSection('root', 'root', 'root');
+    for (var fid in formb_fields)
+    {
+        var ff = formb_fields[fid];
+        if (ff['type'] == 's')
+        {
+            formb.addSection(s);
+            var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
+        }
+        if (ff['type'] == 'f')
+        {
+            var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
+            s.addField(f);
+        }
+    }
+    formb.addSection(s);
+
+    var formc_fields = [
         {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
         {'id': 'follow_up', 'type': 's', 'name': 'U', 'title': 'Follow-up Visit Section'},
         {'id': 'improvement', 'type': 'f', 'name': 'Imp', 'title': 'Patient\'s condition improved since last visit (Y-N-U-L)'},
@@ -113,15 +121,15 @@
         {'id': 'clinic_referral', 'type': 'f', 'name': 'Ref', 'title': 'Referral to Clinic )A-E-B-C)'},
     ]
 
-    var formb = new ChildCountForm('B');
+    var formc = new ChildCountForm('C');
 
     var s = new ChildCountFormSection('root', 'root', 'root');
-    for (var fid in formb_fields)
+    for (var fid in formc_fields)
     {
-        var ff = formb_fields[fid];
+        var ff = formc_fields[fid];
         if (ff['type'] == 's')
         {
-            formb.addSection(s);
+            formc.addSection(s);
             var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
         }
         if (ff['type'] == 'f')
@@ -130,7 +138,7 @@
             s.addField(f);
         }
     }
-    formb.addSection(s);
+    formc.addSection(s);
 
     var formfree = new ChildCountForm('free');
     var s = new ChildCountFormSection('root', 'root', 'root');
@@ -141,6 +149,7 @@
     dataentry_forms = [];
     dataentry_forms.push(forma);
     dataentry_forms.push(formb);
+    dataentry_forms.push(formc);
     dataentry_forms.push(formfree);
     dataentry_form = null;
 
@@ -312,14 +321,14 @@
         var window_height = window.outerHeight;
         var available_height = window_height - overhead;
 
-        console.log("window_height: "+window_height);
-        console.log("available_height: "+available_height);
+        clog("window_height: "+window_height);
+        clog("available_height: "+available_height);
 
         var body_height = Math.round(available_height / 3);
         var msg_height = Math.round(available_height / 20);
 
-        console.log("body_height: "+body_height);
-        console.log("msg_height: "+msg_height);
+        clog("body_height: "+body_height);
+        clog("msg_height: "+msg_height);
 
         var doc = document.getElementById('ccform_body');
         doc.style.height = body_height + 'px';

@@ -99,6 +99,18 @@ ChildCountFormSection = function (id, name, title)
      */
     function parse_message()
     {
+
+        // reset fields
+        var doc = document.getElementById('sms_'+current);
+        tds = doc.getElementsByTagName('td');
+        for (var i in tds)
+        {
+            var td = tds[i];
+            if (td['id'] != 'duplicate_'+current && td.className != 's') {
+                tds[i].innerHTML = '';
+            }
+        }
+
         // original message
         var text = $('#message').val();
 
@@ -126,8 +138,6 @@ ChildCountFormSection = function (id, name, title)
                 var section_name = args[0];
                 var csection = dataentry_form.getSectionByName(section_name);
             }
-
-            clog("section: " + csection.displayName());
 
             // store max number of fields for section
             var max_args = csection.fields.length;
