@@ -177,12 +177,19 @@ class PDFReport():
         pStyle.spaceBefore = 0
         pStyle.spaceAfter = 0
         pStyle.leading = pStyle.fontSize + 2.8
+        hStyle = copy.copy(self.styles["Normal"])
+        hStyle.fontName = "Times-Roman"
+        hStyle.fontSize = 7
+        hStyle.alignment = TA_CENTER
+        hStyle.spaceBefore = 0
+        hStyle.spaceAfter = 0
+        #pStyle.leading = pStyle.fontSize + 2.8
         #prepare the data
         counter = 0
         for row in queryset:
             counter += 1
             if not header:
-                value = [f["name"] for f in fields]
+                value = [pheader(f["name"], hStyle, sep=0) for f in fields]
                 if hasCounter:
                     value.insert(0, '#')
                 data.append(value)
