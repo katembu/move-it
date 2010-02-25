@@ -18,6 +18,15 @@
         }
     }, 
     {
+        "pk": 46, 
+        "model": "childcount.codeditem", 
+        "fields": {
+            "code": "ed", 
+            "type": "C", 
+            "description": "General education"
+        }
+    }, 
+    {
         "pk": 41, 
         "model": "childcount.codeditem", 
         "fields": {
@@ -27,12 +36,30 @@
         }
     }, 
     {
+        "pk": 48, 
+        "model": "childcount.codeditem", 
+        "fields": {
+            "code": "im", 
+            "type": "C", 
+            "description": "Immunisations"
+        }
+    }, 
+    {
         "pk": 42, 
         "model": "childcount.codeditem", 
         "fields": {
             "code": "nut", 
             "type": "C", 
             "description": "Nutrition"
+        }
+    }, 
+    {
+        "pk": 47, 
+        "model": "childcount.codeditem", 
+        "fields": {
+            "code": "ph", 
+            "type": "C", 
+            "description": "Public health"
         }
     }, 
     {
