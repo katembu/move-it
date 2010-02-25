@@ -30,9 +30,13 @@ class ThePatient(Patient):
         return u""
 
     @classmethod
-    def under_five(cls):
+    def under_five(cls, chw=None):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        p = Patient.objects.filter(dob__gte=sixtym).order_by("household")
+        if chw:
+            p = Patient.objects.filter(dob__gte=sixtym, \
+                                       chw=chw).order_by("household")
+        else:
+            p = Patient.objects.filter(dob__gte=sixtym).order_by("household")
         return p
 
     @classmethod

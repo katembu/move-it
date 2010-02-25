@@ -69,7 +69,7 @@ def under_five(request):
     chws = TheCHWReport.objects.all()
     for chw in chws:
         rows = []
-        reports = ThePatient.under_five()
+        reports = ThePatient.under_five(chw)
         summary = u"Number of Children: %(num)s" % {'num': reports.count()}
         for report in reports:
             rows.append([data for data in cols])
