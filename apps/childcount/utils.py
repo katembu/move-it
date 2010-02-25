@@ -3,7 +3,7 @@
 # maintainer: dgelvin
 
 import re
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import itertools
 from functools import wraps
 
@@ -525,3 +525,33 @@ class KeywordMapper(object):
 
     def is_keyword(self, lang, keyword):
         return self.get_class(lang, keyword) != None
+
+
+def get_dates_of_the_week(givendate=None):
+    if not givendate:
+        today = datetime.today()
+    else:
+        today = givendate
+    start_of_the_week = today - timedelta(today.weekday())
+    week = []
+    i = 0
+    for i in range(0, 6):
+        day = start_of_the_week + timedelta(i)
+        week.append({'date': day, 'day': day.strftime("%A")})
+    return week
+
+
+def day_start(date):
+    ''' begining of day from date.
+
+    return datetime '''
+    t = date.time().replace(hour=0, minute=1)
+    return datetime.combine(date.date(), t)
+
+
+def day_end(date):
+    ''' end of day from date.
+
+    return datetime '''
+    t = date.time().replace(hour=23, minute=59)
+    return datetime.combine(date.date(), t)
