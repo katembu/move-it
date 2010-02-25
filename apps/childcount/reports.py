@@ -56,6 +56,32 @@ def all_patient_list_per_chw_pdf(request):
     return rpt.render()
 
 
+def under_five(request):
+    report_title = ThePatient._meta.verbose_name
+
+    rpt = PDFReport()
+    rpt.setTitle(report_title)
+    rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+    rpt.setRowsPerPage(42)
+
+    cols, sub_cols = ThePatient.patients_summary_list()
+
+    chws = TheCHWReport.objects.all()
+    for chw in chws:
+        rows = []
+        reports = ThePatient.under_five()
+        summary = u"Number of Children: %(num)s" % {'num': reports.count()}
+        for report in reports:
+            rows.append([data for data in cols])
+
+        sub_title = u"%s %s" % (chw, summary)
+        #rpt.setElements([p(summary)])
+        rpt.setTableData(reports, cols, chw, hasCounter=True)
+        rpt.setPageBreak()
+
+    return rpt.render()
+
+
 def chw(request, rformat='html'):
     '''Community Health Worker page '''
     report_title = TheCHWReport._meta.verbose_name

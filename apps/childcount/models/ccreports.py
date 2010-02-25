@@ -8,8 +8,11 @@ from datetime import date, timedelta
 
 from childcount.models import Patient
 from childcount.models import CHW
-from childcount.models.reports import NutritionReport 
+from childcount.models.reports import NutritionReport
+from childcount.models.reports import FeverReport 
 from childcount.models.reports import HouseHoldVisitReport
+
+from childcount.utils import day_end, day_start, get_dates_of_the_week
 
 from logger.models import IncomingMessage
 
@@ -27,28 +30,34 @@ class ThePatient(Patient):
         return u""
 
     @classmethod
+    def under_five(cls):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        p = Patient.objects.filter(dob__gte=sixtym).order_by("household")
+        return p
+
+    @classmethod
     def patients_summary_list(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('household').verbose_name, \
+            {'name': cls._meta.get_field('household').verbose_name.upper(), \
             'bit': '{{object.household.health_id.upper}}'})
         columns.append(
-            {'name': cls._meta.get_field('health_id').verbose_name, \
+            {'name': cls._meta.get_field('health_id').verbose_name.upper(), \
             'bit': '{{object.health_id.upper}}'})
         columns.append(
-            {'name': _("Name"), \
+            {'name': _("Name".upper()), \
             'bit': '{{object.last_name}} {{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('gender').verbose_name, \
+            {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
         columns.append(
-            {'name': _('age'), \
+            {'name': _("Age".upper()), \
             'bit': '{{object.humanised_age}}'})
         columns.append(
-            {'name': _('Last muac'), \
+            {'name': _("Last muac".upper()), \
             'bit': '{{object.latest_muac}}'})
         columns.append(
-            {'name': cls._meta.get_field('chw').verbose_name, \
+            {'name': cls._meta.get_field('chw').verbose_name.upper(), \
             'bit': '{{object.chw}}'})
 
         sub_columns = None
@@ -145,35 +154,47 @@ class TheCHWReport(CHW):
     def summary(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('alias').verbose_name, \
+            {'name': cls._meta.get_field('alias').verbose_name.upper(), \
              'bit': '@{{ object.alias }}'})
         columns.append(
-            {'name': _("Name"), \
+            {'name': _("Name".upper()), \
              'bit': '{{ object.first_name }} {{ object.last_name }}'})
         columns.append(
-            {'name': cls._meta.get_field('location').verbose_name, \
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
              'bit': '{{ object.location }}'})
         columns.append(
-            {'name': "No. of Patients", \
+            {'name': "No. of Patients".upper(), \
              'bit': '{{ object.num_of_patients }}'})
         columns.append(
-            {'name': "No. Under 5", \
+            {'name': "No. Under 5".upper(), \
              'bit': '{{ object.num_of_underfive }}'})
         columns.append(
-            {'name': "No. of Visits", \
+            {'name': "No. of Visits".upper(), \
              'bit': '{{ object.num_of_visits }}'})
         columns.append(
-            {'name': "No. SAM", \
+            {'name': "No. SAM".upper(), \
              'bit': '{{ object.num_of_sam }}'})
         columns.append(
-            {'name': "No. MAM", \
+            {'name': "No. MAM".upper(), \
              'bit': '{{ object.num_of_mam }}'})
         columns.append(
-            {'name': "No. HEALTHY", \
+            {'name': "No. HEALTHY".upper(), \
              'bit': '{{ object.num_of_healthy }}'})
         columns.append(
-            {'name': "No. SMS Sent", \
+            {'name': "No. SMS Sent".upper(), \
              'bit': '{{ object.num_of_sms }}'})
 
         sub_columns = None
         return columns, sub_columns
+
+    @classmethod
+    def sms_per_day(cls):
+        days_of_the_week = get_dates_of_the_week()
+        data = {}
+        for day in days_of_the_week:
+            start = day_start(day['date'])
+            end = day_end(day['date'])
+            num = IncomingMessage.objects.filter(received__gte=start, \
+                                           received__lte=end).count()
+            data.update({day["day"]: num})
+        return data
