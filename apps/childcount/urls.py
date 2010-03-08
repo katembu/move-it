@@ -24,9 +24,12 @@ urlpatterns = patterns('',
         {'document_root': 'apps/childcount/static', 'show_indexes': True}),
     url(r'^childcount/?$', views.index),
     url(r'^childcount/patients/?$', views.patient),
-    url(r'^childcount/patients/pdf/?$', reports.all_patient_list_pdf),
+    url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', reports.all_patient_list_pdf),
     url(r'^childcount/patients_per_chw/pdf/?$', \
                                     reports.all_patient_list_per_chw_pdf),
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
+    url(r'^childcount/nutrition.png', views.nutrition_png),
+    url(r'^childcount/sms.png', views.sms_png),
+    url(r'^childcount/under_five', reports.under_five)
 )
