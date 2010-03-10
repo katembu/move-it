@@ -225,7 +225,7 @@ class App (rapidsms.app.App):
             obj = cls(message, params)
             try:
                 obj.process()
-            except (ParseError, BadValue), e:
+            except (ParseError, BadValue, NotRegistered), e:
                 message.respond(e.message, 'error')
         return handled
 
