@@ -1,20 +1,29 @@
-// javascript for the httpclient
-url = "/dataentry/proxy/";
 
-$(document).ready(function(){
-	$('#form').submit(function(){ sendMsg(); return false; });
-	setInterval("checkMsgs()", 5000);
+/* HTTP Client */
+
+url = '/dataentry/proxy/';
+
+$(document).ready( function() {
+    $('#form').submit( function(){ send_message(); return false; });
+    setInterval("get_message()", 5000);
 });
 
-function sendMsg() {
-    var phone = $('#phone').val();
-    if (phone.length < 3) { alert("Your name is not set! Fill it in yellow box."); return false; }
-    var message = $('#message').val();
-	if (phone.length > 0 && message.length > 0) {
-		req = url + $('#phone').val() + "/" + escape($('#message').val());
-		$.getJSON(
-			req,
-			function (response) { if (response) {
+function send_message()
+{
+    var identity = $('#phone').val();
+    var message =  $('#message').val();
+
+    if (identity.length < 3) {
+        alert("Your name is not set! Fill it in yellow box."); return false;
+    }
+
+    if (message.length == 0) {
+        alert("Can't send empty message.");   
+    }
+
+    $.getJSON(url + identity + "/" + message, function (data) { 
+
+            if (data) {
 
                 // store msg in row
                 SMSes[dataentry_form.name][current] = {'message': $('#message').val()}
@@ -24,46 +33,35 @@ function sendMsg() {
                 gen_table(current);
 
                 // scroll to new row
-                $('#ccform_body').scrollTo('#sms_'+current, 1)
+                $('#ccform_body').scrollTo('#sms_' + current, 1);
 
                 // empty entry input
 				$('#message').val("");
-			}}
-		);
-	} else {
-        return;
+			}
+    }, "json");
+
+}
+
+function get_message()
+{
+    var identity = $('#phone').val();
+
+    if (identity.length < 3) {
+        return false;
     }
-}
+    
+    $.getJSON(url + identity + "/json_resp", function (data) { 
 
-function decode(str) {
-	str = str.replace(/%23/gi, "#");
-	str = str.replace(/%24/gi, "$");
-	str = str.replace(/%26/gi, "&");
-	str = str.replace(/%3D/gi, "=");
-	str = str.replace(/%3B/gi, ";");
-	str = str.replace(/%2C/gi, ",");
-	str = str.replace(/%3A/gi, ":");
-	str = str.replace(/%3F/gi, "?");
-	str = decodeURI(str);
-	return str;
-}
+            if (data && data.message) {
 
-function checkMsgs() {
-	if ($('#phone').val().length > 0) {
-		req = url + $('#phone').val() + "/json_resp";
-		$.getJSON(
-			req,
-			function (response) { if (response) {
-                clog(response);
-                var status = response.status;
-                clog(status);
-				snippet = '<tr class="out"><td class="status"><img src="/static/dataentry/icons/' + status.toLowerCase() + '.png" /></td><td class="msg">' + decode(response.message) + '</td></tr>';
+                var status = data.status || 'unknown';
+                var message = data.message || "";
+
+				snippet = '<tr class="out"><td class="status"><img src="/static/dataentry/icons/' + status.toLowerCase() + '.png" /></td><td class="msg">' + message + '</td></tr>';
                 doc = document.getElementById('log');
 				doc.innerHTML = snippet += doc.innerHTML;
 
 				$('div.tester').scrollTo('#log tr:last', 800);
-			}}
-
-		);
-	}
+			}
+    }, "json");
 }
