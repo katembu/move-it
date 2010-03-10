@@ -9,6 +9,7 @@ from childcount.models.reports import *
 
 admin.site.register(Configuration)
 admin.site.register(CHW)
+admin.site.register(CHWManager)
 admin.site.register(Clinic)
 admin.site.register(Patient)
 
