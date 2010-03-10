@@ -6,6 +6,7 @@ from Configuration import Configuration
 
 from Patient import Patient
 from CHW import CHW
+from CHWManager import CHWManager
 from Clinic import Clinic
 
 from CodedItem import CodedItem
