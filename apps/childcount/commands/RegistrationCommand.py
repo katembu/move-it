@@ -5,9 +5,9 @@
 import re
 
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User, Group
 
 from reporters.models import Reporter
-from reporters.models import Role
 from locations.models import Location
 
 from childcount.commands import CCCommand
@@ -28,7 +28,6 @@ class RegistrationCommand(CCCommand):
         if self.params[0] == self.ENGLISH_CHW_JOIN:
             reporter_language = self.ENGLISH
 
-        CHW_ROLE_CODE = 'chw'
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough information. Expected: " \
                                 "%(keyword)s location names") % \
@@ -59,7 +58,7 @@ class RegistrationCommand(CCCommand):
 
         if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):
             n = 1
-            while CHW.objects.filter(alias__iexact=alias).count():
+            while User.objects.filter(username__iexact=alias).count():
                 alias = "%s%d" % (orig_alias.lower(), n)
                 n += 1
             chw.alias = alias
@@ -68,21 +67,17 @@ class RegistrationCommand(CCCommand):
         chw.last_name = surname
         chw.language = reporter_language
 
-        try:
-            chw_role = Role.objects.get(code=CHW_ROLE_CODE)
-        except Role.DoesNotExist:
-            #TODO what if there is no chw role?
-            pass
-        else:
-            chw.role = chw_role
-
         chw.location = location
 
-        # set account active
-        # /!\ we use registered_self as active
-        chw.registered_self = True
-
         chw.save()
+        try:
+            chw_group = Group.objects.get(name__iexact='CHW')
+        except Group.DoesNotExist:
+            #TODO what if there is no chw group?
+            pass
+        else:
+            chw.groups.add(chw_group)
+
 
         # attach the reporter to the current connection
         self.message.persistant_connection.reporter = chw.reporter_ptr

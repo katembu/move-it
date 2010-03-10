@@ -10,11 +10,11 @@ CHW - Community Health Worker model
 import re
 
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
-from childcount.models import Clinic
+from childcount.models import Clinic, CHWManager
 
 
 class CHW(Reporter):
@@ -26,6 +26,9 @@ class CHW(Reporter):
         verbose_name = _(u"Community Health Worker")
         verbose_name_plural = _(u"Community Health Workers")
 
+    manager = models.ForeignKey('CHWManager', verbose_name=_(u"Manager"), \
+                               blank=True, null=True)
+
     clinic = models.ForeignKey('Clinic', verbose_name=_(u"Clinic"), \
                                blank=True, null=True,
                                related_name='stationed_chw', \
@@ -35,7 +38,7 @@ class CHW(Reporter):
     def table_columns(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('alias').verbose_name, \
+            {'name': cls._meta.get_field('username').verbose_name, \
             'bit': '{{object.alias}}'})
         columns.append(
             {'name': cls._meta.get_field('first_name').verbose_name, \

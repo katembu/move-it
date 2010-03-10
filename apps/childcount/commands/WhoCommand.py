@@ -7,7 +7,6 @@ import re
 from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
-from reporters.models import Role
 from locations.models import Location
 
 from childcount.commands import CCCommand

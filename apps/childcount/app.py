@@ -10,7 +10,7 @@ from django.utils.translation import ungettext
 from django.db import models
 
 import rapidsms
-from reporters.models import Reporter, Role
+from reporters.models import Reporter
 from locations.models import Location
 from childcount.models import Configuration as Cfg
 from childcount.models import Patient
