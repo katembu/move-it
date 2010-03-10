@@ -16,6 +16,11 @@ class InvalidDOB(Exception):
 class AmbiguousAge(Exception):
     pass
 
+class NotRegistered(Exception):
+
+    def __init__(self, message=_(u"Error: You must be registered first")):
+        self.message = message
+
 
 class ParseError(Exception):
 
