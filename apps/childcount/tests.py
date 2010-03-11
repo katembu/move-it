@@ -52,6 +52,22 @@ class TestApp (TestScript):
     def testCHWRegistration(self):
         self._register()
 
+    def testYouMustBeRegistered(self):
+        self.runScript("""
+            123 > d345 +new bir mary unding f 19730512 p +mob 0720395121
+            123 < You must register before you can send any reports.
+        """)
+
+    def testPatientRegistration(self):
+        self._register()
+        self.runScript("""
+        123 > d345 +new bir mary unding f 19730512 p +mob 0720395121
+        123 < Error while processing +NEW: Could not understand age or date_of_birth of 19730512 - Please correct and send all information again.
+        123 > d345 +new bir mary unding f 12051973 p +mob 0720395121
+        123 < +NEW, +MOB successfuly processed: [You successfuly registered D345 Mary Unding F/36y] [Mobile phone number: 0720395121]
+        123 > d346 +new bir baby mary m 23022009 d345 d345
+        123 < +NEW successfuly processed: [You successfuly registered D346 Baby Mary M/12m]
+        """)
 
     # define your test scripts here.
     # e.g.:
