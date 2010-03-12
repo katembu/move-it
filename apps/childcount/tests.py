@@ -22,7 +22,9 @@ class TestApp (TestScript):
 
     def setUp(self):
         super(TestApp, self).setUp()
+
         
+    def _register(self):
         #print Location.objects.all()
         self.assertEquals(Location.objects.all().count(), 0)
         ldc = Command()
@@ -32,8 +34,6 @@ class TestApp (TestScript):
         ldc.handle('location', filename)
         #print Location.objects.all()
         self.assertEquals(Location.objects.all().count(), 98)
-        
-    def _register(self):
         self.runScript("""
             123 > chw bir lname fname
             123 < Success. You are now registered at Birare with alias @flname.
@@ -48,9 +48,10 @@ class TestApp (TestScript):
             123 > chw bidxcvxxx lname fname
             123 < Location bidxcvxxx does not exist
         """)
-
+    '''
     def testCHWRegistration(self):
         self._register()
+    '''
 
     def testYouMustBeRegistered(self):
         self.runScript("""
