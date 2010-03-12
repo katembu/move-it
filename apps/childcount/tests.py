@@ -70,6 +70,16 @@ class TestApp (TestScript):
         123 < +NEW successfuly processed: [You successfuly registered D346 Baby Mary M/12m]
         """)
 
+        #test forms
+        self.runScript("""
+            123 > +d346 +v y 1
+            123 < Error: Could not understand your message. Your message must start with a single health ID, followed by a space then a + then the form keyword you are sending.
+            123 > d346 +v y 1
+            123 < +V successfuly processed: [Household member available, 1 children under 5 seen]
+            123 > d346 +v y 1 ed nut
+            123 < +V successfuly processed: [Household member available, 1 children under 5 seen, counseling / advice topics covered: General education, Nutrition]
+        """)
+
     # define your test scripts here.
     # e.g.:
     #
