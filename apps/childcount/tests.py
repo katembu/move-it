@@ -25,7 +25,7 @@ class TestApp (TestScript):
 
         
     def _register(self):
-        #print Location.objects.all()
+        #load location fixtures
         self.assertEquals(Location.objects.all().count(), 0)
         ldc = Command()
         filename = os.path.abspath(os.path.join(os.path.dirname(__file__),"fixtures/ruhiira_LocationType"))
@@ -34,6 +34,12 @@ class TestApp (TestScript):
         ldc.handle('location', filename)
         #print Location.objects.all()
         self.assertEquals(Location.objects.all().count(), 98)
+
+        #load codes fixtures
+        filename = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+                                    "fixtures/CodedItems"))
+        ldc.handle('childcount', filename)
+
         self.runScript("""
             123 > chw bir lname fname
             123 < Success. You are now registered at Birare with alias @flname.
@@ -71,6 +77,7 @@ class TestApp (TestScript):
         """)
 
         #test forms
+        #+V - visit
         self.runScript("""
             123 > +d346 +v y 1
             123 < Error: Could not understand your message. Your message must start with a single health ID, followed by a space then a + then the form keyword you are sending.
@@ -80,17 +87,17 @@ class TestApp (TestScript):
             123 < +V successfuly processed: [Household member available, 1 children under 5 seen, counseling / advice topics covered: General education, Nutrition]
         """)
 
-    # define your test scripts here.
-    # e.g.:
-    #
-    # testRegister = """
-    #   8005551212 > register as someuser
-    #   8005551212 < Registered new user 'someuser' for 8005551212!
-    #   8005551212 > tell anotheruser what's up??
-    #   8005550000 < someuser said "what's up??"
-    # """
-    #
-    # You can also do normal unittest.TestCase methods:
-    #
-    # def testMyModel (self):
-    #   self.assertEquals(...)
+        #+FP - family planning
+        self.runScript("""
+            123 > d346 +fp 1 1 cd
+            123 < +FP failed: Unkown family planning code(s): CD No family planning recorded. You must send that form again.
+            123 > d346 +fp 1 1
+            123 < +FP failed: You must specify 1 family planning code(s). One for each of the 1 women using modern family planning. You must send that form again.
+            123 > d346 +fp 1 1 c
+            123 < +FP successfuly processed: [1 women, 1 using family planning: Condoms (1)]
+            123 > d346 +bn 1
+            123 < +BN failed: Not enough info, expected: number of bednets and number of sleeping sites You must send that form again.
+            123 > d346 +bn 1 1
+            123 < +BN successfuly processed: [1 bednets, 1 sleeping sites]
+        """)
+
