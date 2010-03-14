@@ -101,3 +101,29 @@ class TestApp (TestScript):
             123 < +BN successfuly processed: [1 bednets, 1 sleeping sites]
         """)
 
+        #Individual forms
+        self.runScript("""
+            123 > d346 +U y n
+            123 < +U successfuly processed: [Condition improved, Patient did not visit health facility]
+            123 > d346 +S F
+            123 < +S failed: Unkown danger sign code(s): F No danger signs recorded. You must send that form again.
+            123 > d346 +S CV
+            123 < +S successfuly processed: [Danger signs: Convulsions]
+            123 > d346 +P 3 1 n
+            123 < +P failed: Only female patients can be pregnant
+            123 > d345 +P 3 1 n
+            123 < +P failed: Weeks since last ANC visit must be a number You must send that form again.
+            123 > d345 +P 3 1 0
+            123 < +P successfuly processed: [3 months pregnant with 1 ANC visits, last ANC visit less than one week ago]
+            123 > d346 +n 2
+            123 < +N failed: Neonatal reports are only for children less than 28 days old
+            123 > d346 +t n y
+            123 < +T successfuly processed: [Not exclusive breast feeding, Up-to-date on immunisations]
+            123 > d346 +m 134 n
+            123 < +M successfuly processed: [MUAC of 134mm, No signs of oedema]
+            123 > d346 +m 134 y
+            123 < +M successfuly processed: [MUAC of 134mm, Oedema present]
+            123 > d346 +m 134 y 10kg
+            123 < +M successfuly processed: [MUAC of 134mm, Oedema present, Weight 10.0kg]
+        """)
+
