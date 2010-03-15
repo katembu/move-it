@@ -25,6 +25,7 @@ def proxy(req, number, message):
     conf = settings.RAPIDSMS_APPS['dataentry']
     url = "http://%s:%s" % (conf["host"], conf["port"])
 
+    number = number.encode('utf8')
     message = message.encode('utf8')
 
     # quirks for httptester
