@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
-from childcount.models import Patient
+from childcount.models import Patient, Encounter
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
@@ -20,6 +20,7 @@ class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_HH_AGE = 10
     MIN_GUARDIAN_AGE = 10
     MULTIPLE_PATIENTS = False
@@ -35,7 +36,6 @@ class PatientRegistrationForm(CCForm):
     def pre_process(self):
         health_id = self.health_id
 
-        chw = self.message.persistant_connection.reporter.chw
         try:
             p = Patient.objects.get(health_id__iexact=health_id)
         except Patient.DoesNotExist:
@@ -47,8 +47,7 @@ class PatientRegistrationForm(CCForm):
 
         patient = Patient()
         patient.health_id = health_id
-        patient.chw = chw
-        patient.location = chw.location
+        patient.chw = self.chw
         tokens = self.params[1:]
 
         lang = self.message.reporter.language
@@ -68,6 +67,8 @@ class PatientRegistrationForm(CCForm):
                               "must indicate the patient's location code " \
                               "before their name.") % \
                               {'loc': location_code})
+
+        patient.location = location
 
         self.gender_field.set_language(lang)
 

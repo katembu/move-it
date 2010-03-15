@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models.reports import MedicineGivenReport
-from childcount.models import CodedItem
+from childcount.models import CodedItem, Encounter
 from childcount.exceptions import ParseError
 
 
@@ -15,16 +15,18 @@ class MedicineGivenForm(CCForm):
     KEYWORDS = {
         'en': ['g'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info, expected medicine " \
                                 "codes"))
-
-        chw = self.message.persistant_connection.reporter.chw
-
-        mgr = MedicineGivenReport(created_by=chw, \
-                            patient=patient)
+        try:
+            mgr = MedicineGivenReport.objects.get(encounter=self.encounter)
+            mgr.reset()
+        except MedicineGivenReport.DoesNotExist:
+            mgr = MedicineGivenReport(encounter=self.encounter)
+        mgr.form_group = self.form_group
 
         medicines = dict([(medicine.code.lower(), medicine) \
                              for medicine in \

@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.exceptions import ParseError, BadValue, Inapplicable
+from childcount.models import Encounter
 from childcount.models.reports import FollowUpReport
 from childcount.forms.utils import MultipleChoiceField
 
@@ -14,6 +15,7 @@ class FollowUpForm(CCForm):
     KEYWORDS = {
         'en': ['u'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
 
@@ -29,13 +31,18 @@ class FollowUpForm(CCForm):
         v_field.add_choice('en', FollowUpReport.VISITED_UNKOWN, 'U')
         v_field.add_choice('en', FollowUpReport.VISITED_INPATIENT, 'P')
 
-        chw = self.message.persistant_connection.reporter.chw
+        try:
+            fur = FollowUpReport.objects.get(encounter=self.encounter)
+            fur.reset()
+        except FollowUpReport.DoesNotExist:
+            fur = FollowUpReport(encounter=self.encounter)
+        fur.form_group = self.form_group
 
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough information, expected: " \
                                 "| Improvement? | Visited facility? | "))
 
-        imp_field.set_language(chw.language)
+        imp_field.set_language(self.chw.language)
         imp = self.params[1]
         if not imp_field.is_valid_choice(imp):
             raise BadValue(_(u"| Improvement? | Must be " \
@@ -43,7 +50,7 @@ class FollowUpForm(CCForm):
                               {'choices': imp_field.choices_string()})
         imp_db = imp_field.get_db_value(imp)
 
-        v_field.set_language(chw.language)
+        v_field.set_language(self.chw.language)
         v = self.params[2]
         if not v_field.is_valid_choice(v):
             raise BadValue(_(u"| Visited facility? | Must be " \
@@ -73,7 +80,7 @@ class FollowUpForm(CCForm):
 
         self.response = imp_string + ', ' + v_string
 
-        report = FollowUpReport(created_by=chw, patient=patient, \
-                                improvement=imp_db, visited_clinic=v_db)
+        fur.improvement = imp_db
+        fur.visited_clinic = v_db
 
-        report.save()
+        fur.save()

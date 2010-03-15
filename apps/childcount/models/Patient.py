@@ -11,6 +11,7 @@ from datetime import date
 
 from django.db import models
 from django.utils.translation import ugettext as _
+import reversion
 
 from reporters.models import Reporter
 from locations.models import Location
@@ -93,6 +94,9 @@ class Patient(models.Model):
 
     def __unicode__(self):
         return u"%s %s" % (self.last_name, self.first_name)
+
+    def is_head_of_household(self):
+        return self.household == self
 
     def get_dictionary(self):
         days, months = self.age_in_days_months()
@@ -184,3 +188,4 @@ class Patient(models.Model):
 
         sub_columns = None
         return columns, sub_columns
+reversion.register(Patient)

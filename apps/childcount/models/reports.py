@@ -9,12 +9,16 @@
 
 from django.db import models
 from django.utils.translation import ugettext as _
+import reversion
+from reversion.models import Version
 
-from reporters.models import Reporter
+from polymorphic import PolymorphicModel
+
 from childcount.models import Patient
+from childcount.models import Encounter
 
 
-class CCReport(models.Model):
+class CCReport(PolymorphicModel):
 
     '''
     The highest level superclass to be inhereted by all other report classes
@@ -24,40 +28,47 @@ class CCReport(models.Model):
         app_label = 'childcount'
         verbose_name = _(u"ChildCount Report")
         verbose_name_plural = _(u"ChildCount Reports")
-        get_latest_by = ('modified_by',)
 
-    created_by = models.ForeignKey(Reporter, verbose_name=_(u"Created by"), \
-                                   related_name='created_report',
-                                   help_text=_(u"Reporter that created the " \
-                                                "report"))
+    encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
 
-    created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True, \
-                                      help_text=_(u"When the report was " \
-                                                   "created"))
+    def reset(self):
+        self.__init__(pk=self.pk, encounter=self.encounter)
 
-    modified_by = models.ForeignKey(Reporter, verbose_name=_(u"Modified by"), \
-                                    related_name='modified_report',
-                                    null=True, blank=True, \
-                                    help_text=_(u"Reporter that last " \
-                                                 "modified the report"))
+    def patient(self):
+        return encounter.patient
 
-    modified_on = models.DateTimeField(_(u"Modified on"), auto_now=True, \
-                                       null=True, blank=True, \
-                                       help_text=_(u"When the report was " \
-                                                    "last modified"))
+    def chw(self):
+        return encounter.chw
+
+    def inital_version(self):
+        return Version.objects.get_for_object(self)[0]
+
+    def current_version(self):
+        return Version.objects.get_for_object(self).\
+                                      order_by('-revision__date_created')[0]
+
+    def entered_by(self):
+        return self.initial_version().revision.user
+
+    def entered_on(self):
+        return self.initial_version().revision.date_created
+
+    def modified(self):
+        return Version.objects.get_for_object(self).count() > 1
+
+    def modified_by(self):
+        if not self.modified():
+            return None
+        return self.current_version().revision.user
+
+    def modified_on(self):
+        if not self.modified():
+            return None
+        return self.current_version().revision.date_created
+reversion.register(CCReport)
 
 
-class PatientReport(CCReport):
-
-    class Meta:
-        app_label = 'childcount'
-        verbose_name = _(u"Patient Report")
-        verbose_name_plural = _(u"Patient Reports")
-
-    patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"))
-
-
-class BirthReport(PatientReport):
+class BirthReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -79,9 +90,10 @@ class BirthReport(PatientReport):
 
     weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
                                help_text=_(u"Birth weight in kg"))
+reversion.register(BirthReport, follow=['ccreport_ptr'])
 
 
-class DeathReport(PatientReport):
+class DeathReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -89,9 +101,10 @@ class DeathReport(PatientReport):
         verbose_name_plural = _(u"Death Reports")
 
     death_date = models.DateField(_(u"Date of death"))
+reversion.register(DeathReport)
 
 
-class StillbirthMiscarriageReport(PatientReport):
+class StillbirthMiscarriageReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -99,9 +112,10 @@ class StillbirthMiscarriageReport(PatientReport):
         verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
 
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
+reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 
-class FollowUpReport(PatientReport):
+class FollowUpReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -137,9 +151,10 @@ class FollowUpReport(PatientReport):
                                    choices=VISITED_CHOICES, \
                               help_text=_(u"Did the patient visit a health "\
                                            "facility since last CHW visit?"))
+reversion.register(FollowUpReport, follow=['ccreport_ptr'])
 
 
-class DangerSignsReport(PatientReport):
+class DangerSignsReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -148,9 +163,10 @@ class DangerSignsReport(PatientReport):
 
     danger_signs = models.ManyToManyField('CodedItem', \
                                           verbose_name=_(u"Danger signs"))
+reversion.register(DangerSignsReport, follow=['ccreport_ptr'])
 
 
-class PregnancyReport(PatientReport):
+class PregnancyReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -169,9 +185,10 @@ class PregnancyReport(PatientReport):
                             help_text=_(u"How many weeks since the patient's "\
                                          "last ANC visit (0 for less " \
                                          "than 7 days)"))
+reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
 
-class NeonatalReport(PatientReport):
+class NeonatalReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -181,9 +198,10 @@ class NeonatalReport(PatientReport):
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "since birth"))
+reversion.register(NeonatalReport, follow=['ccreport_ptr'])
 
 
-class UnderOneReport(PatientReport):
+class UnderOneReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -216,9 +234,10 @@ class UnderOneReport(PatientReport):
                                    choices=IMMUNIZED_CHOICES, \
                                    help_text=_(u"Is the child up-to-date on" \
                                                 "immunizations?"))
+reversion.register(UnderOneReport, follow=['ccreport_ptr'])
 
 
-class NutritionReport(PatientReport):
+class NutritionReport(CCReport):
 
     '''record nutrition related measurements'''
 
@@ -271,9 +290,10 @@ class NutritionReport(PatientReport):
         for k, v in self.STATUS_CHOICES:
             if self.status == k:
                 return v
+reversion.register(NutritionReport, follow=['ccreport_ptr'])
 
 
-class FeverReport(PatientReport):
+class FeverReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -293,9 +313,10 @@ class FeverReport(PatientReport):
 
     rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
                                   choices=RDT_CHOICES)
+reversion.register(FeverReport, follow=['ccreport_ptr'])
 
 
-class MedicineGivenReport(PatientReport):
+class MedicineGivenReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -304,9 +325,10 @@ class MedicineGivenReport(PatientReport):
 
     medicines = models.ManyToManyField('CodedItem', \
                                          verbose_name=_(u"Medicines"))
+reversion.register(MedicineGivenReport, follow=['ccreport_ptr'])
 
 
-class ReferralReport(PatientReport):
+class ReferralReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -325,9 +347,10 @@ class ReferralReport(PatientReport):
 
     urgency = models.CharField(_(u"Urgency"), max_length=1, \
                                choices=URGENCY_CHOICES)
+reversion.register(ReferralReport, follow=['ccreport_ptr'])
 
 
-class HouseHoldVisitReport(PatientReport):
+class HouseHoldVisitReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -344,9 +367,10 @@ class HouseHoldVisitReport(PatientReport):
 
     counseling = models.ManyToManyField('CodedItem', \
                         verbose_name=_(u"Counseling / advice topics covered"))
+reversion.register(HouseHoldVisitReport, follow=['ccreport_ptr'])
 
 
-class FamilyPlanningReport(PatientReport):
+class FamilyPlanningReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -361,9 +385,11 @@ class FamilyPlanningReport(PatientReport):
                                                 null=True, blank=True, \
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
+reversion.register(FamilyPlanningReport, \
+                   follow=['ccreport_ptr', 'familyplanningusage_set'])
 
 
-class BedNetReport(PatientReport):
+class BedNetReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -376,3 +402,4 @@ class BedNetReport(PatientReport):
 
     sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
                             help_text=_(u"Number of sleeping sites"))
+reversion.register(BedNetReport, follow=['ccreport_ptr'])

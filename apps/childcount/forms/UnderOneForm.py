@@ -6,6 +6,7 @@
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
+from childcount.models import Encounter
 from childcount.models.reports import UnderOneReport
 from childcount.exceptions import Inapplicable, ParseError, BadValue
 from childcount.forms.utils import MultipleChoiceField
@@ -15,6 +16,7 @@ class UnderOneForm(CCForm):
     KEYWORDS = {
         'en': ['t'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
 
@@ -28,10 +30,16 @@ class UnderOneForm(CCForm):
         imm_field.add_choice('en', UnderOneReport.IMMUNIZED_NO, 'N')
         imm_field.add_choice('en', UnderOneReport.IMMUNIZED_UNKOWN, 'U')
 
+        try:
+            uor = UnderOneReport.objects.get(encounter=self.encounter)
+            uor.reset()
+        except UnderOneReport.DoesNotExist:
+            uor = UnderOneReport(encounter=self.encounter)
+        uor.form_group = self.form_group
 
-        chw = self.message.persistant_connection.reporter.chw
-        breast_field.set_language(chw.language)
-        imm_field.set_language(chw.language)
+
+        breast_field.set_language(self.chw.language)
+        imm_field.set_language(self.chw.language)
 
         days, weeks, months = patient.age_in_days_weeks_months()
         if months > 12:
@@ -55,8 +63,8 @@ class UnderOneForm(CCForm):
         imm_db = imm_field.get_db_value(imm)
 
 
-        uor = UnderOneReport(created_by=chw, patient=patient, \
-                        breast_only=breast_db, immunized=imm_db)
+        uor.breast_only = breast_db
+        uor.immunized = imm_db
         uor.save()
 
         if breast_db == UnderOneReport.BREAST_YES:

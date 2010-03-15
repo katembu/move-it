@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import Patient
+from childcount.models import Patient, Encounter
 from childcount.models.reports import PregnancyReport
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
@@ -15,6 +15,7 @@ class PregnancyForm(CCForm):
     KEYWORDS = {
         'en': ['p'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     MIN_PREG_AGE = 9
 
@@ -33,6 +34,14 @@ class PregnancyForm(CCForm):
             raise ParseError(_(u"Not enough info, expected: " \
                                 "| month of pregnancy | number of ANC " \
                                 "visits | weeks since last ANC visit |"))
+
+        try:
+            pr = PregnancyReport.objects.get(encounter=self.encounter)
+            pr.reset()
+        except PregnancyReport.DoesNotExist:
+            pr = PregnancyReport(encounter=self.encounter)
+        pr.form_group = self.form_group
+
 
         month = self.params[1]
         if not month.isdigit() or int(month) not in range(1, 10):
@@ -59,8 +68,6 @@ class PregnancyForm(CCForm):
         else:
             weeks = None
 
-        chw = self.message.persistant_connection.reporter.chw
-
         #TODO Cases
         '''
         pcases = Case.objects.filter(patient=patient, \
@@ -85,10 +92,10 @@ class PregnancyForm(CCForm):
             response += _('Remind the woman she is due for a clinic visit')
         '''
 
-        pr = PregnancyReport(created_by=chw, patient=patient, \
-                             pregnancy_month=month, \
-                             anc_visits=anc_visits, \
-                             weeks_since_anc=weeks)
+        pr.pregnancy_month = month
+        pr.anc_visits = anc_visits
+        pr.weeks_since_anc = weeks
+
         pr.save()
 
         if weeks == 0:
