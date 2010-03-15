@@ -3,17 +3,18 @@
 # maintainer: dgelvin
 
 import re
-from functools import wraps
+from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 from django.utils.translation import ungettext
 from django.db import models
+from reversion import revision
 
 import rapidsms
 from reporters.models import Reporter
 from locations.models import Location
 from childcount.models import Configuration as Cfg
-from childcount.models import Patient
+from childcount.models import Patient, Encounter, FormGroup
 from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
@@ -25,6 +26,9 @@ class App (rapidsms.app.App):
     """
     DEFAULT_LANGUAGE = 'en'
     FORM_PREFIX = '+'
+
+    # The time at which we decide this is a new encounter, in MINUTES
+    ENCOUNTER_TIMEOUT = 6 * 60
 
     commands = []
     forms = []
@@ -57,6 +61,7 @@ class App (rapidsms.app.App):
         pass
 
     @respond_exceptions
+    @revision.create_on_success
     def handle(self, message):
 
         handled = False
@@ -66,6 +71,9 @@ class App (rapidsms.app.App):
             lang = reporter.language
         else:
             lang = self.DEFAULT_LANGUAGE
+
+        if reporter:
+            revision.user = reporter.user_ptr
 
         # make lower case, strip, and remove duplicate spaces
         input_text = re.sub(r'\s{2,}', ' ', message.text.strip().lower())
@@ -84,6 +92,11 @@ class App (rapidsms.app.App):
                 message.respond(_(u"You must register before you can send " \
                                    "any reports."), 'error')
                 return handled
+
+            # TODO get from debackend overloaded message when entered by
+            # data clerk
+            chw = message.persistant_connection.reporter.chw
+            date = datetime.now()
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
@@ -122,9 +135,10 @@ class App (rapidsms.app.App):
                 return handled
             health_id = health_ids[0]
 
+            encounter = None
+            form_group = None
             failed_forms = []
             successful_forms = []
-
             for params in forms:
                 keyword = params[0]
 
@@ -133,7 +147,7 @@ class App (rapidsms.app.App):
                                          'error': _(u"Not a recognised form")})
                     continue
                 cls = self.form_mapper.get_class(lang, keyword)
-                obj = cls(message, params, health_id)
+                obj = cls(message, date, chw, params, health_id)
 
                 # First process.  This is where PatientRegistration will
                 # create the patient records
@@ -158,6 +172,32 @@ class App (rapidsms.app.App):
                                        {'id': health_id}, 'error')
                     return handled
 
+                # If we haven't created the encounter object, we'll create it
+                # now.  We have to do this here, after we know the patient.
+                if encounter is None:
+                    try:
+                        encounter = Encounter.objects.get(chw=chw, \
+                                 patient=patient, type=obj.ENCOUNTER_TYPE, \
+                                 encounter_date__gte=date - \
+                                     timedelta(minutes=self.ENCOUNTER_TIMEOUT))
+                    except Encounter.DoesNotExist:
+                        encounter = Encounter(chw=chw, patient=patient, \
+                                              type=obj.ENCOUNTER_TYPE, \
+                                              encounter_date=date)
+                        encounter.save()
+
+
+                    form_group = FormGroup(
+                           entered_by=message.persistant_connection.reporter, \
+                           backend=message.persistant_connection.backend, \
+                           encounter=encounter)
+                    form_group.save()
+
+                # Set encounter and form_group in the Form object to the ones
+                # created above
+                obj.encounter = encounter
+                obj.form_group = form_group
+
                 try:
                     obj.process(patient)
                 except (ParseError, BadValue, Inapplicable), e:
@@ -167,6 +207,23 @@ class App (rapidsms.app.App):
                     successful_forms.append({'keyword': keyword, \
                                              'response': obj.response, \
                                              'obj': obj})
+
+            # Delete the form_group object if there weren't any successful
+            # forms, otherwise set the FormGroup.forms to a comma delimited
+            # list of the form class names.
+            if not successful_forms:
+                form_group.delete()
+            else:
+                form_group.forms = ','.join(
+                        [form['obj'].__class__.__name__ for form in \
+                                                            successful_forms])
+                form_group.save()
+
+            # At this point, if the encounter object doesn't have a single
+            # FormGroup pointing to it, then no forms were successful this time
+            # and there were no previously successful forms, so we delete it
+            if encounter.formgroup_set.all().count() == 0:
+                encounter.delete()
 
             successful_string = ''
             if successful_forms:

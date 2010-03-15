@@ -5,7 +5,7 @@
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import Patient
+from childcount.models import Encounter
 from childcount.models.reports import NeonatalReport
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
@@ -14,6 +14,7 @@ class NeonatalForm(CCForm):
     KEYWORDS = {
         'en': ['n'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
 
@@ -31,9 +32,14 @@ class NeonatalForm(CCForm):
             raise BadValue(_("|Clinic visits since birth| must be a number"))
         visits = int(visits)
 
-        chw = self.message.persistant_connection.reporter.chw
-        nr = NeonatalReport(created_by=chw, patient=patient, \
-                             clinic_visits=visits)
+        try:
+            nr = NeonatalReport.objects.get(encounter=self.encounter)
+            nr.reset()
+        except NeonatalReport.DoesNotExist:
+            nr = NeonatalReport(encounter=self.encounter)
+        nr.form_group = self.form_group
+
+        nr.clinic_visits = visits
         nr.save()
 
         if visits == 0:

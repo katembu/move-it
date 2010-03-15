@@ -6,6 +6,7 @@ import re
 from django.utils.translation import ugettext as _
 
 from CCForm import CCForm
+from childcount.models import Encounter
 from childcount.models.reports import NutritionReport
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
@@ -15,6 +16,7 @@ class NutritionForm(CCForm):
     KEYWORDS = {
         'en': ['m', 'muac'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     WEIGHT_UNIT = 'kg'
 
@@ -22,13 +24,20 @@ class NutritionForm(CCForm):
     MIN_WEIGHT = 3
 
     def process(self, patient):
-        chw = self.message.persistant_connection.reporter.chw
+
 
         oedema_field = MultipleChoiceField()
         oedema_field.add_choice('en', NutritionReport.OEDEMA_YES, 'Y')
         oedema_field.add_choice('en', NutritionReport.OEDEMA_NO, 'N')
         oedema_field.add_choice('en', NutritionReport.OEDEMA_UNKOWN, 'U')
         keyword = self.params[0]
+
+        try:
+            nr = NutritionReport.objects.get(encounter=self.encounter)
+            nr.reset()
+        except NutritionReport.DoesNotExist:
+            nr = NutritionReport(encounter=self.encounter)
+        nr.form_group = self.form_group
 
         days, weeks, months = patient.age_in_days_weeks_months()
 
@@ -55,7 +64,7 @@ class NutritionForm(CCForm):
         elif muac > 250:
             raise BadValue(_('MUAC too high. Correct and resend.'))
 
-        oedema_field.set_language(chw.language)
+        oedema_field.set_language(self.chw.language)
 
         if not oedema_field.is_valid_choice(self.params[2]):
             raise ParseError(_(u"Oedema must be " \
@@ -81,9 +90,10 @@ class NutritionForm(CCForm):
             else:
                 raise ParseError(_(u"Unkown value. Weight should be a number"))
 
-        mr = NutritionReport(created_by=chw, oedema=oedema_db, \
-                                muac=muac, patient=patient, weight=weight)
-        mr.save()
+        nr.oedema = oedema_db
+        nr.muac = muac
+        nr.weight = weight
+        nr.save()
 
         if muac is None:
             self.response = _(u"MUAC not taking, ")

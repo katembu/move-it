@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.exceptions import ParseError, BadValue, Inapplicable
+from childcount.models import Encounter
 from childcount.models.reports import BirthReport
 from childcount.forms.utils import MultipleChoiceField
 
@@ -15,6 +16,7 @@ class BirthForm(CCForm):
     KEYWORDS = {
         'en': ['bir', 'birth'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_BIRTH_WEIGHT = 1
     MAX_BIRTH_WEIGHT = 6
 
@@ -25,7 +27,15 @@ class BirthForm(CCForm):
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_NO, 'N')
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_UNKOWN, 'U')
 
-        chw = self.message.persistant_connection.reporter.chw
+        try:
+            br = BirthReport.objects.get(encounter=self.encounter)
+        except BirthReport.DoesNotExist:
+            br = BirthReport(encounter=self.encounter)
+            overwrite = False
+        else:
+            br.reset()
+            overwrite = True
+        br.form_group = self.form_group
 
         days, weeks, months = patient.age_in_days_weeks_months()
         humanised = patient.humanised_age()
@@ -34,18 +44,19 @@ class BirthForm(CCForm):
                                   "submit birth reports for patients over " \
                                   "28 days old") % {'age': humanised})
 
-        if BirthReport.objects.filter(patient=patient).count() > 0:
-            br = BirthReport.objects.filter(patient=patient)[0]
+        if BirthReport.objects.filter(encounter__patient=patient).count() > 0 \
+                                                             and not overwrite:
+            br = BirthReport.objects.filter(encounter__patient=patient)[0]
             raise Inapplicable(_(u"A birth report for %(p)s was already " \
                                   "submited by %(chw)s") % \
-                                  {'p': patient, 'chw': br.created_by})
+                                  {'p': patient, 'chw': br.chw()})
 
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough information, expected: " \
                                 "|delivered in health facility| " \
                                 "weight(kg)(optional)"))
 
-        cd_field.set_language(chw.language)
+        cd_field.set_language(self.chw.language)
         clinic_delivery = self.params[1]
         if not cd_field.is_valid_choice(clinic_delivery):
             raise BadValue(_(u"|Delivered in health facility?| must be " \
@@ -83,7 +94,6 @@ class BirthForm(CCForm):
             self.response += _(", %(weight)skg birth weight") % \
                               {'weight': weight}
 
-        report = BirthReport(created_by=chw, patient=patient, \
-                           clinic_delivery=cd_db, \
-                           weight=weight)
-        report.save()
+        br.clinic_delivery = cd_db
+        br.weignt = weight
+        br.save()

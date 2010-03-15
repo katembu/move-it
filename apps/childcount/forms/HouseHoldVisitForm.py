@@ -3,7 +3,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models.reports import HouseHoldVisitReport
-from childcount.models import CodedItem
+from childcount.models import CodedItem, Encounter
 from childcount.forms.utils import MultipleChoiceField
 from childcount.exceptions import ParseError
 
@@ -12,6 +12,7 @@ class HouseHoldVisitForm(CCForm):
     KEYWORDS = {
         'en': ['v'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
     def process(self, patient):
 
@@ -19,9 +20,13 @@ class HouseHoldVisitForm(CCForm):
         available_field.add_choice('en', True, 'Y')
         available_field.add_choice('en', False, 'N')
 
-        chw = self.message.persistant_connection.reporter.chw
+        try:
+            hhvr = HouseHoldVisitReport.objects.get(encounter=self.encounter)
+        except HouseHoldVisitReport.DoesNotExist:
+            hhvr = HouseHoldVisitReport(encounter=self.encounter)
+        hhvr.form_group = self.form_group
 
-        available_field.set_language(chw.language)
+        available_field.set_language(self.chw.language)
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info, expected: household member "\
                                 "available? | number of children | " \
@@ -33,8 +38,7 @@ class HouseHoldVisitForm(CCForm):
 
         available = available_field.get_db_value(self.params[1])
 
-        hhvr = HouseHoldVisitReport(created_by=chw, patient=patient, \
-                                       available=available)
+        hhvr.available = available
 
         if available:
             if len(self.params) < 3:

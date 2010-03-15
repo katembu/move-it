@@ -14,7 +14,7 @@ from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
-from childcount.models import Clinic, CHWManager
+from childcount.models import Clinic
 
 
 class CHW(Reporter):
@@ -26,7 +26,7 @@ class CHW(Reporter):
         verbose_name = _(u"Community Health Worker")
         verbose_name_plural = _(u"Community Health Workers")
 
-    manager = models.ForeignKey('CHWManager', verbose_name=_(u"Manager"), \
+    manager = models.ForeignKey('self', verbose_name=_(u"Manager"), \
                                blank=True, null=True)
 
     clinic = models.ForeignKey('Clinic', verbose_name=_(u"Clinic"), \

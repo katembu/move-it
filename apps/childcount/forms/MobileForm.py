@@ -8,12 +8,14 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue
+from childcount.models import Encounter
 
 
 class MobileForm(CCForm):
     KEYWORDS = {
         'en': ['mob', 'mobile'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
         mobile = ''.join(self.params[1:])

@@ -4,6 +4,7 @@
 
 from django.db import models
 from django.utils.translation import ugettext as _
+import reversion
 
 
 class FamilyPlanningUsage(models.Model):
@@ -18,3 +19,4 @@ class FamilyPlanningUsage(models.Model):
                                    verbose_name=_(u"Family planning report"))
     method = models.ForeignKey('CodedItem', verbose_name=_(u"Method"))
     count = models.PositiveSmallIntegerField(_(u"Count"))
+reversion.register(FamilyPlanningUsage)

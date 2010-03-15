@@ -25,17 +25,22 @@ class StillbirthMiscarriageForm(CCForm):
             raise ParseError(_(u"Not enough info, expected date of " \
                                 "stillbirth or miscarriage"))
 
-        chw = self.message.persistant_connection.reporter.chw
+        try:
+            sbmr = StillbirthMiscarriageReport.objects.get(\
+                                                    encounter=self.encounter)
+            sbmr.reset()
+        except StillbirthMiscarriageReport.DoesNotExist:
+            sbmr = StillbirthMiscarriageReport(encounter=self.encounter)
+        sbmr.form_group = self.form_group
 
         doi_str = ' '.join(self.params[1:])
         try:
-            doi, variance = DOBProcessor.from_dob(chw.language, doi_str)
+            doi, variance = DOBProcessor.from_dob(self.chw.language, doi_str)
         except InvalidDOB:
             raise BadValue(_(u"Could not understand date: %(dod)s") %\
                              {'dod': doi_str})
 
-        sbmr = StillbirthMiscarriageReport(created_by=chw, patient=patient, \
-                         incident_date=doi)
+        sbmr = StillbirthMiscarriageReport(incident_date=doi)
         sbmr.save()
 
         self.response = _("Stillbirth or miscarriage on %(doi)s") % \

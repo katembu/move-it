@@ -6,6 +6,7 @@
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
+from childcount.models import Encounter
 from childcount.models.reports import BedNetReport
 from childcount.exceptions import ParseError
 
@@ -14,16 +15,19 @@ class BedNetForm(CCForm):
     KEYWORDS = {
         'en': ['bn'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
     def process(self, patient):
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info, expected: number of " \
                                 "bednets and number of sleeping sites"))
 
-        chw = self.message.persistant_connection.reporter.chw
-
-        bnr = BedNetReport(created_by=chw, \
-                            patient=patient)
+        try:
+            bnr = BedNetReport.objects.get(encounter=self.encounter)
+            bnr.reset()
+        except BedNetReport.DoesNotExist:
+            bnr = BedNetReport(encounter=self.encounter)
+        bnr.form_group = self.form_group
 
         if not self.params[1].isdigit():
             raise ParseError(_(u"Number of bednets must be a " \

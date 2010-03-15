@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms.CCForm import CCForm
-from childcount.models import Case
+from childcount.models import Encounter
 from childcount.models.reports import FeverReport
 from childcount.forms.utils import MultipleChoiceField
 from childcount.exceptions import ParseError, Inapplicable
@@ -19,17 +19,23 @@ class FeverForm(CCForm):
     KEYWORDS = {
         'en': ['f'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
-        chw = self.message.persistant_connection.reporter.chw
-
         rdt_field = MultipleChoiceField()
         rdt_field.add_choice('en', FeverReport.RDT_POSITIVE, 'Y')
         rdt_field.add_choice('en', FeverReport.RDT_NEGATIVE, 'N')
         rdt_field.add_choice('en', FeverReport.RDT_UNKOWN, 'U')
         rdt_field.add_choice('en', FeverReport.RDT_UNAVAILABLE, 'X')
 
-        rdt_field.set_language(chw.language)
+        try:
+            fr = FeverReport.objects.get(encounter=self.encounter)
+            fr.reset()
+        except FeverReport.DoesNotExist:
+            fr = FeverReport(encounter=self.encounter)
+        fr.form_group = self.form_group
+
+        rdt_field.set_language(self.chw.language)
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info, expected %s") % \
                                                 rdt_field.choices_string)
@@ -41,7 +47,6 @@ class FeverForm(CCForm):
         days, weeks, months = patient.age_in_days_weeks_months()
 
         rdt = rdt_field.get_db_value(self.params[1])
-        print rdt
         if rdt == FeverReport.RDT_POSITIVE:
             years = patient.years()
             tabs, yage = None, None
@@ -91,6 +96,5 @@ class FeverForm(CCForm):
             self.response = _(u"RDT unavailable. Please refer patient to " \
                                "clinic")
 
-        fr = FeverReport(created_by=chw, rdt_result=rdt, \
-                         patient=patient)
+        fr.rdt_result = rdt
         fr.save()

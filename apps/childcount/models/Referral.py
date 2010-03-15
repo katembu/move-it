@@ -11,7 +11,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 from childcount.models import Patient
-from childcount.models.reports import PatientReport
+from childcount.models.reports import CCReport
 
 
 class Referral(models.Model):
@@ -41,7 +41,7 @@ class Referral(models.Model):
     updated_on = models.DateTimeField(_(u"Updated on"), auto_now=True)
     expires_on = models.DateTimeField(_(u"Expires on"), null=True, blank=True)
     description = models.TextField(_(u"Description"))
-    reports = models.ManyToManyField(PatientReport, verbose_name=_(u"Reports"))
+    reports = models.ManyToManyField(CCReport, verbose_name=_(u"Reports"))
 
     def __unicode__(self):
         return u"%s: %s" % (self.status, self.patient)

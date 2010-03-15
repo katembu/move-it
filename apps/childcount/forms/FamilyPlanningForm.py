@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models.reports import FamilyPlanningReport
-from childcount.models import CodedItem, FamilyPlanningUsage
+from childcount.models import CodedItem, FamilyPlanningUsage, Encounter
 from childcount.exceptions import ParseError
 
 
@@ -15,6 +15,7 @@ class FamilyPlanningForm(CCForm):
     KEYWORDS = {
         'en': ['fp'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
     def process(self, patient):
         if len(self.params) < 2:
@@ -22,10 +23,15 @@ class FamilyPlanningForm(CCForm):
                                 "aged 15 - 49 | number using FP | methods " \
                                 "being used"))
 
-        chw = self.message.persistant_connection.reporter.chw
-
-        fpr = FamilyPlanningReport(created_by=chw, \
-                            patient=patient)
+        try:
+            fpr = FamilyPlanningReport.objects.get(encounter=self.encounter)
+        except FamilyPlanningReport.DoesNotExist:
+            fpr = FamilyPlanningReport(encounter=self.encounter)
+        else:
+            for usage in fpr.familyplanningusage_set.all():
+                usage.delete()
+            fpr.reset()
+        fpr.form_group = self.form_group
 
         if not self.params[1].isdigit():
             raise ParseError(_(u"|Number of women aged 15 - 49| must be a " \

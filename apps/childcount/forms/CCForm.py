@@ -8,10 +8,14 @@ class CCForm(object):
     MULTIPLE_PATIENTS = True
     PREFIX = '+'
 
-    def __init__(self, message, params, health_id):
+    def __init__(self, message, date, chw, params, health_id):
         self.message = message
+        self.date = date
+        self.chw = chw
         self.params = params
         self.health_id = health_id
+        self.encounter = None
+        self.form_group = None
         self.response = ''
 
     def pre_process(self):
