@@ -21,39 +21,9 @@ from django.contrib.auth.decorators import login_required
 from childcount.models import CHW
 
 
-@login_required
 def index(req):
-    ''' displays childcount U.I '''
-    today = datetime.date.today().strftime("%Y-%m-%d")
-    chws = CHW.objects.all()
-    return render_to_response(req, 'dataentry/entry.html', \
-                              {'chws': chws, 'today': today})
-
-
-def proxy(req, number, message):
-    ''' HTTP tester compatible proxy to dataentry backend
-
-    will probably disapear soon. '''
-
-    conf = settings.RAPIDSMS_APPS['dataentry']
-    url = "http://%s:%s" % (conf["host"], conf["port"])
-
-    number = number.encode('utf8')
-    message = message.encode('utf8')
-
-    # quirks for httptester
-    if message == "json_resp":
-        action = 'list'
-    else:
-        action = None
-
-    values = [('identity', number), ('message', message), ('action', action)]
-
-    data = urllib.urlencode(values)
-    req = urllib2.Request(url, data)
-    stream = urllib2.urlopen(req)
-
-    return HttpResponse(stream.read(), mimetype="application/json")
+    ''' displays basic U.I '''
+    return render_to_response(req, 'dataentry/index.html', {})
 
 
 def post_proxy(request):

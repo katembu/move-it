@@ -3,22 +3,32 @@
 # maintainer: ukanga
 
 import os
+import datetime
 
 from rapidsms.webui.utils import render_to_response
+from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
+from django.contrib.auth.decorators import login_required
+from CairoPlot import PiePlot, BarPlot
 
 from childcount.models import Patient, CHW
 from childcount.models.ccreports import TheCHWReport
 
-from CairoPlot import PiePlot, BarPlot
-from django.http import HttpResponse
+
+@login_required
+def dataentry(request):
+    ''' displays Data Entry U.I '''
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    chws = CHW.objects.all()
+    return render_to_response(request, 'childcount/data_entry.html', \
+                              {'chws': chws, 'today': today})
 
 
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
-    title = "ChildCount-2.0" 
+    title = "ChildCount-2.0"
     info = {}
     info.update({"title": title})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \

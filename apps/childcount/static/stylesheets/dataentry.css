@@ -1,6 +1,6 @@
 
-@font-face { font-family: WhiteRabbit; src: url("/static/dataentry/WHITRABT.TTF"); }
-@font-face { font-family: Lekton; src: url("/static/dataentry/lekton005_l.otf"); }
+@font-face { font-family: WhiteRabbit; src: url("/static/childcount/WHITRABT.TTF"); }
+@font-face { font-family: Lekton; src: url("/static/childcount/lekton005_l.otf"); }
 
 body {
     font-family: Lekton;

@@ -10,7 +10,5 @@ import dataentry.views as views
 
 urlpatterns = patterns('',
     url(r'^dataentry$', views.index),
-    url(r'^dataentry/proxy/\+?(?P<number>[^\/]+)/(?P<message>.*)$', \
-        views.proxy),
     url(r'^dataentry/proxypost/?$', views.post_proxy),
 )

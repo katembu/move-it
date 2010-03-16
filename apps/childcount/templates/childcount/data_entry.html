@@ -4,24 +4,26 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Data Entry</title>
-	<link rel="stylesheet" type="text/css" href="/static/dataentry/stylesheets/dataentry.css" />
-	<link rel="stylesheet" type="text/css" href="/static/dataentry/stylesheets/datepicker.css" />
-    <script type="text/javascript" src="/static/webapp/javascripts/jquery-1.3.2.min.js"></script>
-    <script type="text/javascript" src="/static/webapp/javascripts/global/jquery.validate-1.5.2.min.js"></script>
-    <script type="text/javascript" src="/static/webapp/javascripts/global/rs-validate.js"></script>
-    <script type="text/javascript" src="/static/webapp/javascripts/global/rs-module-help.js"></script>
+	<title>ChildCount+ Data Entry</title>
+	<link rel="stylesheet" type="text/css" href="/static/childcount/stylesheets/dataentry.css" />
+	<link rel="stylesheet" type="text/css" href="/static/childcount/stylesheets/datepicker.css" />
 
-    <script type="text/javascript" src="/static/dataentry/scripts/jquery.scrollTo-min.js"></script>
-    <script type="text/javascript" src="/static/dataentry/scripts/shortcut.js"></script>
-    <script type="text/javascript" src="/static/dataentry/scripts/httpclient.js"></script>
-    <script type="text/javascript" src="/static/dataentry/scripts/cc_form.js"></script>
-    <script type="text/javascript" src="/static/dataentry/scripts/datepicker.js"></script>
+    <script type="text/javascript" src="/static/childcount/scripts/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="/static/childcount/scripts/jquery.scrollTo-1.4.2-min.js"></script>
+
+    <script type="text/javascript" src="/static/childcount/scripts/shortcut.js"></script>
+    <script type="text/javascript" src="/static/childcount/scripts/cc_form.js"></script>
+    <script type="text/javascript" src="/static/childcount/scripts/datepicker.js"></script>
+
+    <script type="text/javascript" src="/static/dataentry/scripts/client.js"></script>
+
+    <script type="text/javascript" src="/static/childcount/scripts/http.js"></script>
+
     <script type="text/javascript">
 
 	var clog = function(){}
 	var cerr = function(){}
-    var debug = true;
+    var debug = false;
 
     if(typeof(console)!=='undefined' && debug) {clog = console.log; cerr = console.error; }
 
@@ -47,7 +49,7 @@
             var form_id = forms[i];
             // JSON request
             $.ajax({
-                url: '/static/dataentry/' + forms[i] + '.json',
+                url: '/static/childcount/' + forms[i] + '.json',
                 dataType: 'json',
 
                 async: false,

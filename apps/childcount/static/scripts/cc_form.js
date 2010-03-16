@@ -77,7 +77,7 @@ ChildCountFormSection = function (id, name, title)
                 snippet += '<td id="' + build_id_for(section, field, id) + '" class="f" title="' + field.title + '">' + fname + '</td>';
             }
         }
-        snippet += '<td id="duplicate_' + id + '" title="Duplicate SMS"><img class="duplicate" src="/static/dataentry/icons/copy.png" onclick="duplicate_sms(' + id + ');" /></td></tr>';
+        snippet += '<td id="duplicate_' + id + '" title="Duplicate SMS"><img class="duplicate" src="/static/childcount/icons/copy.png" onclick="duplicate_sms(' + id + ');" /></td></tr>';
         if (id == 0)
     	    $('#ccform_head').append(snippet);
         else
