@@ -65,6 +65,16 @@ class CCReport(PolymorphicModel):
         if not self.modified():
             return None
         return self.current_version().revision.date_created
+
+    def __unicode__(self):
+        string = u"%s %s" % (self.encounter, self.__class__.__name__)
+        try:
+            string += " - %s" % self.summary()
+        except AttributeError:
+            pass
+        return string
+
+
 reversion.register(CCReport)
 
 
@@ -88,8 +98,17 @@ class BirthReport(CCReport):
                                        help_text=_(u"Was the baby born in " \
                                                     "a health facility?"))
 
-    weight = models.FloatField(_(u"Birth weight"), null=True, blank=True, \
-                               help_text=_(u"Birth weight in kg"))
+    weight = models.FloatField(_(u"Birth weight (kg)"), null=True, blank=True)
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('clinic_delivery')[0].verbose_name, \
+             self.get_clinic_delivery_display())
+        if self.weight:
+            string += ", %s: %s" % \
+                    (self._meta.get_field_by_name('weight')[0].verbose_name, \
+                     self.weight)
+        return string                 
 reversion.register(BirthReport, follow=['ccreport_ptr'])
 
 
@@ -101,6 +120,11 @@ class DeathReport(CCReport):
         verbose_name_plural = _(u"Death Reports")
 
     death_date = models.DateField(_(u"Date of death"))
+
+    def summary(self):
+        return u"%s: %s" % \
+                (self._meta.get_field_by_name('death_date')[0].verbose_name, \
+                 self.death_date)
 reversion.register(DeathReport)
 
 
@@ -112,6 +136,11 @@ class StillbirthMiscarriageReport(CCReport):
         verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
 
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
+
+    def summary(self):
+        return u"%s: %s" % \
+             (self._meta.get_field_by_name('incident_date')[0].verbose_name, \
+              self.incident_date)
 reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 
@@ -151,6 +180,13 @@ class FollowUpReport(CCReport):
                                    choices=VISITED_CHOICES, \
                               help_text=_(u"Did the patient visit a health "\
                                            "facility since last CHW visit?"))
+
+    def summary(self):
+        return u"%s: %s, %s: %s" % \
+            (self._meta.get_field_by_name('improvement')[0].verbose_name, \
+             self.get_improvement_display(),
+             self._meta.get_field_by_name('visited_clinic')[0].verbose_name, \
+             self.get_visited_clinic_display())
 reversion.register(FollowUpReport, follow=['ccreport_ptr'])
 
 
@@ -163,6 +199,11 @@ class DangerSignsReport(CCReport):
 
     danger_signs = models.ManyToManyField('CodedItem', \
                                           verbose_name=_(u"Danger signs"))
+
+    def summary(self):
+        return u"%s: %s" % \
+            (self._meta.get_field_by_name('danger_signs')[0].verbose_name, \
+             u", ".join([ds.description for ds in self.danger_signs.all()]))
 reversion.register(DangerSignsReport, follow=['ccreport_ptr'])
 
 
@@ -185,6 +226,18 @@ class PregnancyReport(CCReport):
                             help_text=_(u"How many weeks since the patient's "\
                                          "last ANC visit (0 for less " \
                                          "than 7 days)"))
+
+    def summary(self):
+        string = u"%s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('pregnancy_month')[0].verbose_name, \
+             self.pregnancy_month,
+             self._meta.get_field_by_name('anc_visits')[0].verbose_name, \
+             self.anc_visits)
+        if self.weeks_since_anc:
+            string += ", %s: %d" % \
+            (self._meta.get_field_by_name('weeks_since_anc')[0].verbose_name, \
+             self.weeks_since_anc)
+        return string
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
 
@@ -198,6 +251,11 @@ class NeonatalReport(CCReport):
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
                                                  "since birth"))
+
+    def summary(self):
+        return u"%s: %d" % \
+             (self._meta.get_field_by_name('clinic_visits')[0].verbose_name, \
+              self.clinic_visits)
 reversion.register(NeonatalReport, follow=['ccreport_ptr'])
 
 
@@ -234,6 +292,13 @@ class UnderOneReport(CCReport):
                                    choices=IMMUNIZED_CHOICES, \
                                    help_text=_(u"Is the child up-to-date on" \
                                                 "immunizations?"))
+
+    def summary(self):
+        return u"%s: %s, %s: %s" % \
+            (self._meta.get_field_by_name('breast_only')[0].verbose_name, \
+             self.get_breast_only_display(),
+             self._meta.get_field_by_name('immunized')[0].verbose_name, \
+             self.get_immunized_display())
 reversion.register(UnderOneReport, follow=['ccreport_ptr'])
 
 
@@ -285,6 +350,25 @@ class NutritionReport(CCReport):
             self.diagnose()
         super(NutritionReport, self).save(*args)
 
+    def summary(self):
+        strings = []
+        if self.muac:
+            strings.append(u"%s: %s" %
+                    (self._meta.get_field_by_name('muac')[0].verbose_name, \
+                     self.muac))
+        strings.append(u"%s: %s" %
+                (self._meta.get_field_by_name('oedema')[0].verbose_name, \
+                 self.get_oedema_display()))
+        if self.weight:
+            strings.append(u"%s: %s" %
+                    (self._meta.get_field_by_name('weight')[0].verbose_name, \
+                     self.weight))
+        if self.status:
+            strings.append(u"%s: %s" %
+                    (self._meta.get_field_by_name('status')[0].verbose_name, \
+                     self.get_status_display()))
+        return u", ".join(strings)
+
     @property
     def verbose_state(self):
         for k, v in self.STATUS_CHOICES:
@@ -313,6 +397,11 @@ class FeverReport(CCReport):
 
     rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
                                   choices=RDT_CHOICES)
+
+    def summary(self):
+        return u"%s: %s" % \
+            (self._meta.get_field_by_name('rdt_result')[0].verbose_name, \
+             self.get_rdt_result_display())
 reversion.register(FeverReport, follow=['ccreport_ptr'])
 
 
@@ -325,6 +414,11 @@ class MedicineGivenReport(CCReport):
 
     medicines = models.ManyToManyField('CodedItem', \
                                          verbose_name=_(u"Medicines"))
+
+    def summary(self):
+        return u"%s: %s" % \
+            (self._meta.get_field_by_name('medicines')[0].verbose_name, \
+             u", ".join([ds.description for ds in self.medicines.all()]))
 reversion.register(MedicineGivenReport, follow=['ccreport_ptr'])
 
 
@@ -347,6 +441,11 @@ class ReferralReport(CCReport):
 
     urgency = models.CharField(_(u"Urgency"), max_length=1, \
                                choices=URGENCY_CHOICES)
+
+    def summary(self):
+        return u"%s: %s" % \
+            (self._meta.get_field_by_name('urgency')[0].verbose_name, \
+             self.get_urgency_display())
 reversion.register(ReferralReport, follow=['ccreport_ptr'])
 
 
@@ -366,7 +465,18 @@ class HouseHoldVisitReport(CCReport):
                             help_text=_("Number of children under 5 seen"))
 
     counseling = models.ManyToManyField('CodedItem', \
-                        verbose_name=_(u"Counseling / advice topics covered"))
+                       verbose_name=_(u"Counseling / advice topics covered"), \
+                       blank=True)
+
+    def summary(self):
+        string = u"%s: %s" % \
+                (self._meta.get_field_by_name('available')[0].verbose_name, \
+                 bool(self.available))
+        if self.available and self.children is not None:
+            string += ", %s: %d" % \
+                (self._meta.get_field_by_name('children')[0].verbose_name, \
+                 self.children)
+        return string
 reversion.register(HouseHoldVisitReport, follow=['ccreport_ptr'])
 
 
@@ -385,6 +495,21 @@ class FamilyPlanningReport(CCReport):
                                                 null=True, blank=True, \
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
+
+    def summary(self):
+        string = u"%s: %d" % \
+                    (self._meta.get_field_by_name('women')[0].verbose_name, \
+                     self.women)
+        if self.women_using is not None:
+            string += ", %s: %d" % (self._meta.get_field_by_name(\
+                                            'women_using')[0].verbose_name, \
+                                   self.women_using)
+            if self.familyplanningusage_set.all().count() > 0:
+                string += " (%s)" % \
+                            ", ".join([unicode(fpu) for fpu in \
+                                        self.familyplanningusage_set.all()])
+        return string
+
 reversion.register(FamilyPlanningReport, \
                    follow=['ccreport_ptr', 'familyplanningusage_set'])
 
@@ -402,4 +527,11 @@ class BedNetReport(CCReport):
 
     sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
                             help_text=_(u"Number of sleeping sites"))
+
+    def summary(self):
+        return u"%s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('nets')[0].verbose_name, \
+             self.nets,
+             self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
+             self.sleeping_sites)
 reversion.register(BedNetReport, follow=['ccreport_ptr'])

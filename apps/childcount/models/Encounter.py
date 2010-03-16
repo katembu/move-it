@@ -61,4 +61,8 @@ class Encounter(models.Model):
             return None
         return self.current_version().revision.date_created
 
+    def __unicode__(self):
+        return u"%s %s: %s" % (self.get_type_display(), \
+                               self.patient.health_id, \
+                               self.encounter_date)
 reversion.register(Encounter)
