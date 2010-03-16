@@ -16,7 +16,7 @@ admin.site.register(Clinic)
 admin.site.register(Patient, VersionAdmin)
 
 #Reports
-#admin.site.register(CCReport)
+admin.site.register(CCReport, VersionAdmin)
 admin.site.register(BirthReport, VersionAdmin)
 admin.site.register(DeathReport, VersionAdmin)
 admin.site.register(StillbirthMiscarriageReport, VersionAdmin)
