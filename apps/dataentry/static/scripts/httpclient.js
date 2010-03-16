@@ -1,7 +1,7 @@
 
 /* HTTP Client */
 
-url = '/dataentry/proxy/';
+url = '/dataentry/proxypost';
 
 $(document).ready( function() {
     $('#form').submit( function(){ send_message(); return false; });
@@ -11,20 +11,25 @@ $(document).ready( function() {
 function send_message()
 {
     var identity = $('#phone').val();
-    var message =  $('#message').val();
+    var text =  $('#message').val();
+    var chw = $('#chw').val();
+    var encounter_date = $('#date').val() || null;
 
     if (identity.length < 3) {
         alert("Your name is not set! Fill it in yellow box."); return false;
     }
 
-    if (message.length == 0) {
+    if (text.length == 0) {
         alert("Can't send empty message.");   
     }
 
-    $.getJSON(url + identity + "/" + message, function (data) { 
-
-            if (data) {
-
+    $.ajax({
+        type: 'POST',
+        url: url,
+        data: {'identity': identity, 'message': text, 'chw': chw, 'encounter_date': encounter_date},
+        dataType: 'json',
+        success: function (data) {
+                clog(data); 
                 // store msg in row
                 SMSes[dataentry_form.name][current] = {'message': $('#message').val()}
 
@@ -38,8 +43,7 @@ function send_message()
                 // empty entry input
 				$('#message').val("");
 			}
-    }, "json");
-
+    });
 }
 
 function get_message()
@@ -49,19 +53,27 @@ function get_message()
     if (identity.length < 3) {
         return false;
     }
-    
-    $.getJSON(url + identity + "/json_resp", function (data) { 
 
-            if (data && data.message) {
+    $.ajax({
+            type: 'POST',
+            url: url,
+            data: {'identity': identity, 'action': 'list'},
+            dataType: 'json',
+            success: function (data) { 
 
-                var status = data.status || 'unknown';
-                var message = data.message || "";
+                if (data && data.text) {
 
-				snippet = '<tr class="out"><td class="status"><img src="/static/dataentry/icons/' + status.toLowerCase() + '.png" /></td><td class="msg">' + message + '</td></tr>';
-                doc = document.getElementById('log');
-				doc.innerHTML = snippet += doc.innerHTML;
+                    clog(data);
+                    var status = data.status || 'unknown';
+                    var text = data.text || "";
 
-				$('div.tester').scrollTo('#log tr:last', 800);
-			}
-    }, "json");
+				    snippet = '<tr class="out"><td class="status"><img src="/static/dataentry/icons/' + status.toLowerCase() + '.png" /></td><td class="msg">' + text + '</td></tr>';
+                    doc = document.getElementById('log');
+				    doc.innerHTML = snippet += doc.innerHTML;
+
+				    $('div.tester').scrollTo('#log tr:last', 800);
+                
+			    }
+            }
+        });
 }

@@ -6,6 +6,7 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Data Entry</title>
 	<link rel="stylesheet" type="text/css" href="/static/dataentry/stylesheets/dataentry.css" />
+	<link rel="stylesheet" type="text/css" href="/static/dataentry/stylesheets/datepicker.css" />
     <script type="text/javascript" src="/static/webapp/javascripts/jquery-1.3.2.min.js"></script>
     <script type="text/javascript" src="/static/webapp/javascripts/global/jquery.validate-1.5.2.min.js"></script>
     <script type="text/javascript" src="/static/webapp/javascripts/global/rs-validate.js"></script>
@@ -15,152 +16,76 @@
     <script type="text/javascript" src="/static/dataentry/scripts/shortcut.js"></script>
     <script type="text/javascript" src="/static/dataentry/scripts/httpclient.js"></script>
     <script type="text/javascript" src="/static/dataentry/scripts/cc_form.js"></script>
+    <script type="text/javascript" src="/static/dataentry/scripts/datepicker.js"></script>
     <script type="text/javascript">
 
 	var clog = function(){}
 	var cerr = function(){}
-    var debug = false;
+    var debug = true;
 
     if(typeof(console)!=='undefined' && debug) {clog = console.log; cerr = console.error; }
 
-    var forma_fields = [
-        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
-        {'id': 'registration', 'type': 's', 'name': 'NEW', 'title': 'General Registration'},
-        {'id': 'location', 'type': 'f', 'name': 'Loc', 'title': 'Location #'},
-        {'id': 'first_name', 'type': 'f', 'name': 'Fir', 'title': 'First Name'},
-        {'id': 'family_name', 'type': 'f', 'name': 'Sur', 'title': 'Family Name (surname)'},
-        {'id': 'sex', 'type': 'f', 'name': 'Sex', 'title': 'Sex (M-F)'},
-        {'id': 'birthdate', 'type': 'f', 'name': 'Age', 'title': 'Birth Date [DDMMYY] or Age [+m,y]'},
-        {'id': 'hh_caregiver', 'type': 'f', 'name': 'PHH', 'title': 'Primary HH Caregiver ID [P = Same as ID]'},
-        {'id': 'mother_id', 'type': 'f', 'name': 'Mom', 'title': 'If Under-5: Mother\'s HEALTH ID'},
-        {'id': 'birth', 'type': 's', 'name': 'BIR', 'title': 'Birth'},
-        {'id': 'delivered', 'type': 'f', 'name': 'Del', 'title': 'Delivered in Health Facility (Y-N-U)'},
-        {'id': 'weight', 'type': 'f', 'name': 'KG', 'title': 'Weight at Birth (KG)'},
-        {'id': 'mobile', 'type': 's', 'name': 'MOB', 'title': 'Mobile Phone'},
-        {'id': 'mobile_number', 'type': 'f', 'name': 'Num', 'title': 'Mobile Phone Number'},
-    ]
-
-    var forma = new ChildCountForm('A');
-
-    var s = new ChildCountFormSection('root', 'root', 'root');
-    for (var fid in forma_fields)
-    {
-        var ff = forma_fields[fid];
-        if (ff['type'] == 's')
-        {
-            forma.addSection(s);
-            var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
-        }
-        if (ff['type'] == 'f')
-        {
-            var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
-            s.addField(f);
-        }
-    }
-    forma.addSection(s);
-
-    var formb_fields = [
-        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'Head of Household HEALTH ID'},
-        {'id': 'hiv', 'type': 's', 'name': 'V', 'Vis': 'HH Visit - All households'},
-        {'id': 'available', 'type': 'f', 'name': 'Avai', 'title': 'HH Member Available (Y-N)'},
-        {'id': 'children', 'type': 'f', 'name': 'Child', 'title': 'Number of Children Under-5 seen'},
-        {'id': 'advice', 'type': 'f', 'name': 'Adv', 'title': 'Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH)'},
-        {'id': 'family_planning', 'type': 's', 'name': 'FP', 'title': 'Family Planning Section'},
-        {'id': 'women', 'type': 'f', 'name': '♀', 'title': 'Number of Women Aged 15-49 seen during this visit'},
-        {'id': 'women_plan', 'type': 'f', 'name': '♀+P', 'title': 'Number of these Women currently using modern family planning'},
-        {'id': 'method', 'type': 'f', 'name': 'meth', 'title': 'Primary Family Planning Method used [Record primary method for each woman] (C, I, N, P)'},
-        {'id': 'bednet', 'type': 's', 'name': 'BN', 'title': 'Bednet Section'},
-        {'id': 'bednet_num', 'type': 'f', 'name': '#net', 'title': 'Number of Functioning Bednets in the households'},
-        {'id': 'bednet_sites', 'type': 'f', 'name': '#bed', 'title': 'Number of Sleeping Sites'},
-    ]
-
-    var formb = new ChildCountForm('B');
-
-    var s = new ChildCountFormSection('root', 'root', 'root');
-    for (var fid in formb_fields)
-    {
-        var ff = formb_fields[fid];
-        if (ff['type'] == 's')
-        {
-            formb.addSection(s);
-            var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
-        }
-        if (ff['type'] == 'f')
-        {
-            var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
-            s.addField(f);
-        }
-    }
-    formb.addSection(s);
-
-    var formc_fields = [
-        {'id': 'healthid', 'type': 'f', 'name': 'ID', 'title': 'HEALTH ID'},
-        {'id': 'follow_up', 'type': 's', 'name': 'U', 'title': 'Follow-up Visit Section'},
-        {'id': 'improvement', 'type': 'f', 'name': 'Imp', 'title': 'Patient\'s condition improved since last visit (Y-N-U-L)'},
-        {'id': 'clinic_visit', 'type': 'f', 'name': 'Hos', 'title': 'Person visit a clinic or hospital since last CHW visit (Y-U-P)'},
-        {'id': 'danger_signs', 'type': 's', 'name': 'S', 'title': 'Current Danger Signs'},
-        {'id': 'current_danger_signs', 'type': 'f', 'name': 'D.S', 'title': 'Current Danger Signs'},
-        {'id': 'pregnancy', 'type': 's', 'name': 'P', 'title': 'Pregnancy Check-up'},
-        {'id': 'pregnancy_month', 'type': 'f', 'name': 'MP', 'title': 'Month of pregnancy (1-9)'},
-        {'id': 'anc_visits', 'type': 'f', 'name': 'Vis', 'title': 'Number of ANC visits during pregnancy'},
-        {'id': 'anc_last_visit', 'type': 'f', 'name': 'Lvis', 'title': 'Weeks since last ANC visit [0 = less than 7 days]'},
-        {'id': 'neonatal', 'type': 's', 'name': 'N', 'title': 'Neonatal Check-up (0-28 days)'},
-        {'id': 'post_visits', 'type': 'f', 'name': 'Vis', 'title': 'Number of postnatal visit to clinic or hospital since birth?'},
-        {'id': 'under_one', 'type': 's', 'name': 'T', 'title': 'Under-1 Check-up (0-11 months)'},
-        {'id': 'breast_feeding', 'type': 'f', 'name': 'BF', 'title': 'Breast-feeding only (Y-N-U)'},
-        {'id': 'immunization', 'type': 'f', 'name': 'Imm', 'title': 'Child up-to-date on immunizations?'},
-        {'id': 'nutrition', 'type': 's', 'name': 'M', 'title': 'Nutrition Section'},
-        {'id': 'muac', 'type': 'f', 'name': 'MUAC', 'title': 'MUAC Measurement [0 = No measurement]'},
-        {'id': 'oedema', 'type': 'f', 'name': 'Oed', 'title': 'Oedema (Y-N-U)'},
-        {'id': 'wieght', 'type': 'f', 'name': 'KG', 'title': 'Weight in KG [Optionnal]'},
-        {'id': 'fever', 'type': 's', 'name': 'F', 'title': 'Fever Section'},
-        {'id': 'rdt', 'type': 'f', 'name': 'RDT', 'title': 'RDT Result Positive (Y-N-U-X)'},
-        {'id': 'medecine', 'type': 's', 'name': 'G', 'title': 'Medecine Given Section'},
-        {'id': 'medecine_given', 'type': 'f', 'name': 'Med', 'title': 'Medecine Given (ACT, R, Z)'},
-        {'id': 'referral', 'type': 's', 'name': 'R', 'title': 'Referral to Clinic Section'},
-        {'id': 'clinic_referral', 'type': 'f', 'name': 'Ref', 'title': 'Referral to Clinic )A-E-B-C)'},
-    ]
-
-    var formc = new ChildCountForm('C');
-
-    var s = new ChildCountFormSection('root', 'root', 'root');
-    for (var fid in formc_fields)
-    {
-        var ff = formc_fields[fid];
-        if (ff['type'] == 's')
-        {
-            formc.addSection(s);
-            var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
-        }
-        if (ff['type'] == 'f')
-        {
-            var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
-            s.addField(f);
-        }
-    }
-    formc.addSection(s);
-
-    var formfree = new ChildCountForm('free');
-    var s = new ChildCountFormSection('root', 'root', 'root');
-    var f = new ChildCountFormField('message', 'message', 'Full message');
-    s.addField(f);
-    formfree.addSection(s);
-
     dataentry_forms = [];
-    dataentry_forms.push(forma);
-    dataentry_forms.push(formb);
-    dataentry_forms.push(formc);
-    dataentry_forms.push(formfree);
     dataentry_form = null;
 
-    // init archives
-    dataentry_archives = {};
-
-    // init duplicates
-    for (var i in dataentry_forms)
+    function load_json_forms()
     {
-        var f = dataentry_forms[i];
-        SMSes[f.name] = [];
+        dataentry_forms = [];
+
+        var formfree = new ChildCountForm('free');
+        var s = new ChildCountFormSection('root', 'root', 'root');
+        var f = new ChildCountFormField('message', 'message', 'Full message');
+        s.addField(f);
+        formfree.addSection(s);
+        dataentry_forms.push(formfree);
+        
+        var forms = ['form_a', 'form_b', 'form_c']
+
+        for (var i in forms)
+        {
+            var form_fields = [];
+            var form_id = forms[i];
+            // JSON request
+            $.ajax({
+                url: '/static/dataentry/' + forms[i] + '.json',
+                dataType: 'json',
+
+                async: false,
+                success: function (data) { if (data) { form_fields = data['fields']; form_id = data['id']} }
+            });
+
+            var form_obj = new ChildCountForm(form_id);
+
+            var s = new ChildCountFormSection('root', 'root', 'root');
+            for (var fid in form_fields)
+            {
+                var ff = form_fields[fid];
+                if (ff['type'] == 's')
+                {
+                    form_obj.addSection(s);
+                    var s = new ChildCountFormSection(ff['id'], ff['name'], ff['title']);
+                }
+                if (ff['type'] == 'f')
+                {
+                    var f = new ChildCountFormField(ff['id'], ff['name'], ff['title']);
+                    s.addField(f);
+                }
+            }
+            form_obj.addSection(s);
+
+            dataentry_forms.push(form_obj);
+        }
+
+        // init archives
+        dataentry_archives = {};
+
+        // init duplicates
+        for (var i in dataentry_forms)
+        {
+            var f = dataentry_forms[i];
+            SMSes[f.name] = [];
+        }
+
     }
 
     function reset_tables(ccform_txt, feedback_txt)
@@ -298,6 +223,9 @@
     
     function loadUI() {
 
+        // load forms
+        load_json_forms();
+
         // add UI shortcuts
         shortcut.add("Ctrl+Enter", focus_entry);
 
@@ -357,8 +285,17 @@
 
 <div id="form_wrapper">
 <form id="form" name="form">
+<div id="user_input">
+{% if user.is_authenticated %}
+Logged in as {{ user }} (<a href="/accounts/logout/">Change</a>).
+<input type="hidden" id="phone" name="phone" value="{{ user.username }}" />
+{% else %}
 <label for="phone">Phone Number:</label>
 <input type="text" id="phone" name="phone" value="" />
+{% endif %}
+<p>Date of Encounter: <input type="text" name="date" id="date" value="{{ today }}" onclick="displayDatePicker('date', false, 'ymd', '-', true);" /></p>
+<p>CHW: <select name="chw" id="chw">{% for chw in chws %}<option value="{{ chw.id }}" label="{{ chw }}">{{ chw }}</option>{% endfor %}</select></p>
+</div>
 <label for="message">Message:</label>
 <input type="text" id="message" name="message" onkeydown="" onkeyup="parse_message();" autocomplete="off" />
 <input type="submit" id="submit" name="submit" value="Send" />

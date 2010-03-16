@@ -183,12 +183,20 @@ table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td {
     text-align: left;
 }
 
-#phone {
-    width: 4em;
+#user_input {
     position: absolute;
     bottom:0;
     background-color: yellow;
     color: black;
     border-color: black;
     font-family: Lekton;
+    width: auto;
+}
+
+#user_input p, #user_input input {
+    display: inline;
+}
+
+#date {
+    width: 6em;
 }
