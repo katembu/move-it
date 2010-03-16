@@ -93,10 +93,30 @@ class App (rapidsms.app.App):
                                    "any reports."), 'error')
                 return handled
 
-            # TODO get from debackend overloaded message when entered by
-            # data clerk
-            chw = message.persistant_connection.reporter.chw
-            date = datetime.now()
+            # If this is coming from debackend, it will have message.chw and
+            # message.encounter_date.  Otherwise, the reporter is the chw,
+            # and the encounter date is now
+            if 'chw' in message.__dict__:
+                try:
+                    chw = CHW.objects.get(pk=message.chw)
+                except CHW.DoesNotExist:
+                    message.respond(_(u"Problem getting chw from "\
+                                       "message."), 'error')
+                    return handled
+            else:
+                chw = message.persistant_connection.reporter.chw
+            if 'encounter_date' in message.__dict__:
+                try:
+                    date = datetime.strptime(message.encounter_date, \
+                                             "%Y-%m-%d")
+                    # set it to midday on that day...
+                    encounter_date = date + timedelta(hours=12)
+                except ValueError:
+                    message.respond(_(u"Problem getting encounter_date from "\
+                                       "message."), 'error')
+                    return handled
+            else:
+                encounter_date = date = datetime.now()
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
@@ -147,7 +167,7 @@ class App (rapidsms.app.App):
                                          'error': _(u"Not a recognised form")})
                     continue
                 cls = self.form_mapper.get_class(lang, keyword)
-                obj = cls(message, date, chw, params, health_id)
+                obj = cls(message, encounter_date, chw, params, health_id)
 
                 # First process.  This is where PatientRegistration will
                 # create the patient records
@@ -178,17 +198,16 @@ class App (rapidsms.app.App):
                     try:
                         encounter = Encounter.objects.get(chw=chw, \
                                  patient=patient, type=obj.ENCOUNTER_TYPE, \
-                                 encounter_date__gte=date - \
+                                 encounter_date__gte=encounter_date - \
                                      timedelta(minutes=self.ENCOUNTER_TIMEOUT))
                     except Encounter.DoesNotExist:
                         encounter = Encounter(chw=chw, patient=patient, \
                                               type=obj.ENCOUNTER_TYPE, \
-                                              encounter_date=date)
+                                              encounter_date=encounter_date)
                         encounter.save()
 
-
                     form_group = FormGroup(
-                           entered_by=message.persistant_connection.reporter, \
+                           entered_by=reporter, \
                            backend=message.persistant_connection.backend, \
                            encounter=encounter)
                     form_group.save()
@@ -211,9 +230,9 @@ class App (rapidsms.app.App):
             # Delete the form_group object if there weren't any successful
             # forms, otherwise set the FormGroup.forms to a comma delimited
             # list of the form class names.
-            if not successful_forms:
+            if form_group and not successful_forms:
                 form_group.delete()
-            else:
+            elif form_group:
                 form_group.forms = ','.join(
                         [form['obj'].__class__.__name__ for form in \
                                                             successful_forms])
@@ -222,7 +241,7 @@ class App (rapidsms.app.App):
             # At this point, if the encounter object doesn't have a single
             # FormGroup pointing to it, then no forms were successful this time
             # and there were no previously successful forms, so we delete it
-            if encounter.formgroup_set.all().count() == 0:
+            if encounter and encounter.formgroup_set.all().count() == 0:
                 encounter.delete()
 
             successful_string = ''

@@ -38,3 +38,7 @@ class FormGroup(models.Model):
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"), \
                                 null=True, blank=True)
+
+    def __unicode__(self):
+        return u"%s (%s) %s %s" % (self.encounter, self.forms, self.backend, \
+                                   self.entered_by)

@@ -19,4 +19,7 @@ class FamilyPlanningUsage(models.Model):
                                    verbose_name=_(u"Family planning report"))
     method = models.ForeignKey('CodedItem', verbose_name=_(u"Method"))
     count = models.PositiveSmallIntegerField(_(u"Count"))
+
+    def __unicode__(self):
+        return u"%s: %d" % (self.method.description, self.count)
 reversion.register(FamilyPlanningUsage)

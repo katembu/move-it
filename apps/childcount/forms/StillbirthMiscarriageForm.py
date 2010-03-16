@@ -11,6 +11,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
 from childcount.exceptions import Inapplicable
+from childcount.models import Encounter
 from childcount.models.reports import StillbirthMiscarriageReport
 from childcount.utils import DOBProcessor
 
@@ -19,6 +20,7 @@ class StillbirthMiscarriageForm(CCForm):
     KEYWORDS = {
         'en': ['sbm'],
     }
+    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
         if len(self.params) < 2:
@@ -40,7 +42,7 @@ class StillbirthMiscarriageForm(CCForm):
             raise BadValue(_(u"Could not understand date: %(dod)s") %\
                              {'dod': doi_str})
 
-        sbmr = StillbirthMiscarriageReport(incident_date=doi)
+        sbmr.incident_date = doi
         sbmr.save()
 
         self.response = _("Stillbirth or miscarriage on %(doi)s") % \
