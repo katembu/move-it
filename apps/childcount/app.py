@@ -93,9 +93,9 @@ class App (rapidsms.app.App):
                                    "any reports."), 'error')
                 return handled
 
-            # TODO get from debackend overloaded message when entered by
-            # data clerk
-
+            # If this is coming from debackend, it will have message.chw and
+            # message.encounter_date.  Otherwise, the reporter is the chw,
+            # and the encounter date is now
             if 'chw' in message.__dict__:
                 try:
                     chw = CHW.objects.get(pk=message.chw)
@@ -105,10 +105,10 @@ class App (rapidsms.app.App):
                     return handled
             else:
                 chw = message.persistant_connection.reporter.chw
-
             if 'encounter_date' in message.__dict__:
                 try:
-                    date = datetime.strptime(message.encounter_date, "%Y%m%d")
+                    date = datetime.strptime(message.encounter_date, \
+                                             "%Y-%m-%d")
                     # set it to midday on that day...
                     encounter_date = date + timedelta(hours=12)
                 except ValueError:
