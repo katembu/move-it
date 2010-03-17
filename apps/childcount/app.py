@@ -72,6 +72,7 @@ class App (rapidsms.app.App):
         else:
             lang = self.DEFAULT_LANGUAGE
 
+        # Set the user of revision, equal to the user object of the reporter
         if reporter:
             revision.user = reporter.user_ptr
 
@@ -80,7 +81,7 @@ class App (rapidsms.app.App):
 
         ### Forms
         split_regex = re.compile( \
-         r'^\s*((?P<health_ids>.*?)\s*)??(?P<forms>%(form_prefix)s.*$)' % \
+         r'^\s*((?P<health_ids>.*?)\s*)??(?P<forms>%(form_prefix)s.+$)' % \
              {'form_prefix': re.escape(self.FORM_PREFIX)})
         forms_match = split_regex.match(input_text)
 
@@ -101,7 +102,7 @@ class App (rapidsms.app.App):
                     chw = CHW.objects.get(pk=message.chw)
                 except CHW.DoesNotExist:
                     message.respond(_(u"Problem getting chw from "\
-                                       "message."), 'error')
+                                       "backend."), 'error')
                     return handled
             else:
                 chw = message.persistant_connection.reporter.chw
@@ -113,7 +114,7 @@ class App (rapidsms.app.App):
                     encounter_date = date + timedelta(hours=12)
                 except ValueError:
                     message.respond(_(u"Problem getting encounter_date from "\
-                                       "message."), 'error')
+                                       "backend."), 'error')
                     return handled
             else:
                 encounter_date = date = datetime.now()
@@ -155,10 +156,11 @@ class App (rapidsms.app.App):
                 return handled
             health_id = health_ids[0]
 
-            encounter = None
-            form_group = None
+
             failed_forms = []
             successful_forms = []
+
+            pre_processed_form_objects = []
             for params in forms:
                 keyword = params[0]
 
@@ -167,12 +169,12 @@ class App (rapidsms.app.App):
                                          'error': _(u"Not a recognised form")})
                     continue
                 cls = self.form_mapper.get_class(lang, keyword)
-                obj = cls(message, encounter_date, chw, params, health_id)
+                form = cls(message, encounter_date, chw, params, health_id)
 
                 # First process.  This is where PatientRegistration will
                 # create the patient records
                 try:
-                    obj.pre_process()
+                    form.pre_process()
                 except (ParseError, BadValue, Inapplicable), e:
                     pretty_form = '%s%s' % (self.FORM_PREFIX, \
                                             keyword.upper())
@@ -183,66 +185,118 @@ class App (rapidsms.app.App):
                                        {'frm': pretty_form, 'e': e.message}, \
                                         'error')
                     return handled
+                pre_processed_form_objects.append(form)
 
-                try:
-                    patient = Patient.objects.get(health_id__iexact=health_id)
-                except Patient.DoesNotExist:
-                    message.respond(_(u"%(id)s is not a valid Health ID. " \
-                                       "Please check and try again.") % \
-                                       {'id': health_id}, 'error')
-                    return handled
+            # Now that we have run pre-process, health_id should point to a
+            # valid paitent (new patients are created in the
+            # PatientRegistrationForm pre_process method
+            try:
+                patient = Patient.objects.get(health_id__iexact=health_id)
+            except Patient.DoesNotExist:
+                message.respond(_(u"%(id)s is not a valid Health ID. " \
+                                   "Please check and try again.") % \
+                                   {'id': health_id}, 'error')
+                return handled
 
-                # If we haven't created the encounter object, we'll create it
-                # now.  We have to do this here, after we know the patient.
-                if encounter is None:
+            # If all of the forms are household forms and the patient is not
+            # head of household, don't proceed to process.  If there is one
+            # or more household forms mixed with one or more individual forms
+            # that will get caught later.
+            patient_filter = lambda form: form.ENCOUNTER_TYPE == \
+                                                       Encounter.TYPE_PATIENT
+            patient_forms = filter(patient_filter, \
+                                   pre_processed_form_objects)
+            if len(patient_forms) == 0 and not patient.is_head_of_household():
+                message.respond(_(u"Error: You tried to send househould " \
+                                   "forms for someone who is not head of " \
+                                   "household. You must send those forms " \
+                                   "with their head of household health id. " \
+                                   "Their head of household is " \
+                                   "%(hoh)s (Health ID: %(hohid)s)") % \
+                              {'hoh': patient.household.full_name(), \
+                               'hohid': patient.household.health_id.upper()}, \
+                               'error')
+
+                return handled
+
+            encounters = {}
+            encounters[Encounter.TYPE_PATIENT] = None
+            encounters[Encounter.TYPE_HOUSEHOLD] = None
+
+            form_groups = {}
+            form_groups[Encounter.TYPE_PATIENT] = None
+            form_groups[Encounter.TYPE_HOUSEHOLD] = None
+            for form in pre_processed_form_objects:
+
+                if form.ENCOUNTER_TYPE == Encounter.TYPE_HOUSEHOLD and \
+                   not patient.is_head_of_household():
+                    failed_forms.append({'keyword': keyword, \
+                                         'error': _(u"This form is for head " \
+                                                     "of households only")})
+                    continue
+
+                # If we haven't created the encounter objects, we'll create
+                # them now.
+                if encounters[form.ENCOUNTER_TYPE] is None:
                     try:
-                        encounter = Encounter.objects.get(chw=chw, \
-                                 patient=patient, type=obj.ENCOUNTER_TYPE, \
+                        encounters[form.ENCOUNTER_TYPE] = \
+                            Encounter.objects.get(chw=chw, \
+                                 patient=patient, type=form.ENCOUNTER_TYPE, \
                                  encounter_date__gte=encounter_date - \
                                      timedelta(minutes=self.ENCOUNTER_TIMEOUT))
                     except Encounter.DoesNotExist:
-                        encounter = Encounter(chw=chw, patient=patient, \
-                                              type=obj.ENCOUNTER_TYPE, \
+                        encounters[form.ENCOUNTER_TYPE] = \
+                                    Encounter(chw=chw, patient=patient, \
+                                              type=form.ENCOUNTER_TYPE, \
                                               encounter_date=encounter_date)
-                        encounter.save()
+                        encounters[form.ENCOUNTER_TYPE].save()
 
-                    form_group = FormGroup(
+                    form_groups[form.ENCOUNTER_TYPE] = FormGroup(
                            entered_by=reporter, \
                            backend=message.persistant_connection.backend, \
-                           encounter=encounter)
-                    form_group.save()
+                           encounter=encounters[form.ENCOUNTER_TYPE])
+                    form_groups[form.ENCOUNTER_TYPE].save()
 
                 # Set encounter and form_group in the Form object to the ones
                 # created above
-                obj.encounter = encounter
-                obj.form_group = form_group
+                form.encounter = encounters[form.ENCOUNTER_TYPE]
+                form.form_group = form_groups[form.ENCOUNTER_TYPE]
 
                 try:
-                    obj.process(patient)
+                    form.process(patient)
                 except (ParseError, BadValue, Inapplicable), e:
                     failed_forms.append({'keyword': keyword, \
                                          'error': e.message, 'e': e})
                 else:
                     successful_forms.append({'keyword': keyword, \
-                                             'response': obj.response, \
-                                             'obj': obj})
+                                             'response': form.response, \
+                                             'obj': form})
+                    # Append this successful form class name to the comma
+                    # delimited list in FormGroup.
+                    class_name = form.__class__.__name__
+                    if not form_groups[form.ENCOUNTER_TYPE].forms:
+                        form_groups[form.ENCOUNTER_TYPE].forms = class_name
+                    else:
+                        form_groups[form.ENCOUNTER_TYPE].forms += \
+                                                               ',' + class_name
+                    form_groups[form.ENCOUNTER_TYPE].save()
 
-            # Delete the form_group object if there weren't any successful
-            # forms, otherwise set the FormGroup.forms to a comma delimited
-            # list of the form class names.
-            if form_group and not successful_forms:
-                form_group.delete()
-            elif form_group:
-                form_group.forms = ','.join(
-                        [form['obj'].__class__.__name__ for form in \
-                                                            successful_forms])
-                form_group.save()
 
-            # At this point, if the encounter object doesn't have a single
-            # FormGroup pointing to it, then no forms were successful this time
-            # and there were no previously successful forms, so we delete it
-            if encounter and encounter.formgroup_set.all().count() == 0:
-                encounter.delete()
+            for form_type in [Encounter.TYPE_PATIENT, \
+                              Encounter.TYPE_HOUSEHOLD]:
+                # Delete the form_group objects if there weren't any successful
+                # forms, otherwise set the FormGroup.forms to a comma delimited
+                # list of the form class names.
+                if form_groups[form_type] and not form_groups[form_type].forms:
+                    form_groups[form_type].delete()
+
+                # At this point, if the encounter object doesn't have a single
+                # FormGroup pointing to it, then no forms were successful this
+                # time and there were no previously successful forms for that
+                # encounter, so we delete it
+                if encounters[form_type] and \
+                   encounters[form_type].formgroup_set.all().count() == 0:
+                    encounters[form_type].delete()
 
             successful_string = ''
             if successful_forms:
