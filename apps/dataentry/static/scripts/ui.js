@@ -43,14 +43,14 @@ function send_message()
         return false;   
     }
 
+    data = {'identity': identity, 'message': text};
+    res = proxy_send(data, on_proxy_send);
+
     // store identity in a cookie
     if (encodeURIComponent)
         identity = encodeURIComponent(identity);
 
     createCookie('dataentry_identity', identity);
-
-    data = {'identity': identity, 'message': text};
-    res = proxy_send(data, on_proxy_send);
 }
 
 /* send_message callback: copy message text to history and create a new row in Sent table */
