@@ -47,7 +47,7 @@ table.rsmsList tr td {
     font-family: Lekton;
 }
 
-table.rsmsList tbody tr:last-child td {
+table.rsmsList.sent tbody tr:last-child td {
     border-width: 4px 0;
     border-style: solid;
     border-color: #b5a296 #fff;
@@ -55,7 +55,7 @@ table.rsmsList tbody tr:last-child td {
 table.rsmsList tbody tr:last-child td:first-child {
     border-left-width: 4px;
 }
-table.rsmsList tbody tr:last-child td:last-child {
+table.rsmsList.sent tbody tr:last-child td:last-child {
     border-right-width: 4px;
 }
 
@@ -65,11 +65,12 @@ table.rsmsList tbody tr:last-child td:last-child {
 }
 /*label,input { display:block;}*/
 
-table.rsmsList tbody {
+table.rsmsList tbody, #ccform_body, #log {
 
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;
+    height: 230px;
 }
 table.rsmsList tbody tr {
     position: relative;

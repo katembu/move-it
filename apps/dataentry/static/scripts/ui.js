@@ -8,8 +8,14 @@ $(document).ready( function() {
 
     // set identity from cookie if exists
     var identity = readCookie('dataentry_identity');
-    if (identity && identity.length > 0)
-        $('#phone').val(decodeURIComponent(identity));
+    if (identity && identity.length > 0) {
+
+        if (decodeURIComponent)
+            identity = decodeURIComponent(identity);
+
+        $('#phone').val(identity);
+
+    }
 
     // give message box the focus
     focus_entry();
@@ -38,7 +44,10 @@ function send_message()
     }
 
     // store identity in a cookie
-    createCookie('dataentry_identity', encodeURIComponent(identity));
+    if (encodeURIComponent)
+        identity = encodeURIComponent(identity);
+
+    createCookie('dataentry_identity', identity);
 
     data = {'identity': identity, 'message': text};
     res = proxy_send(data, on_proxy_send);
@@ -77,6 +86,14 @@ function get_message()
     data = proxy_get(identity, on_proxy_get);
 }
 
+/* sorts an array of nodes with order attribute */
+function sortNodes(a, b)
+{
+    try { ao = a.getAttribute('order'); } catch(e) { ao = 0; }
+    try { bo = b.getAttribute('order'); } catch(e) { bo = 0; }
+    return bo - ao;
+}
+
 /* get_message callback: copy message info into the Inbox table */
 function on_proxy_get(data)
 {
@@ -84,11 +101,42 @@ function on_proxy_get(data)
         var status = data.status || 'unknown';
         var text = data.text || "";
 
-	    snippet = '<tr class="out"><td class="status"><img src="/static/childcount/icons/' + status.toLowerCase() + '.png" /></td><td class="msg">' + text + '</td></tr>';
-        doc = document.getElementById('log');
-	    doc.innerHTML = snippet += doc.innerHTML;
+        // get the tbody
+        var doc = document.getElementById('log');
 
-	    $('div.tester').scrollTo('#log tr:last', 800);
+        // create new element for the row
+        var new_tr = document.createElement('tr');
+        new_tr.setAttribute('order', current);
+        new_tr.className = 'out';
+        var status_td = document.createElement('td');
+        status_td.className = 'status';
+        status_td.innerHTML = '<img src="/static/childcount/icons/' + status.toLowerCase() + '.png" />';
+        var msg_td = document.createElement('td');
+        msg_td.className = 'msg';
+        msg_td.innerHTML = text;
+        new_tr.appendChild(status_td);
+        new_tr.appendChild(msg_td);
+
+        // add new row at end of list
+        doc.appendChild(new_tr);
+
+        // retrieve all rows and sort by order attribute
+        var trs = doc.getElementsByTagName('tr');
+        nodesA = [];
+        for (var i=0;i<trs.length;i++) {
+            nodesA.push(trs[i]);
+        }
+        var sorted_nodes = nodesA.sort(sortNodes);
+
+        // remove all trs from tbody
+        while (doc.firstChild) {
+              doc.removeChild(doc.firstChild);
+        }
+
+        // add all tr from sorted list
+        for (var i=0;i<sorted_nodes.length;i++) {
+            doc.appendChild(sorted_nodes[i]);
+        }
     }
 }
 
@@ -150,21 +198,4 @@ function readCookie(name) {
 function eraseCookie(name) {
 	createCookie(name,"",-1);
 }
-
-UTF8 = {
-	encode: function(s){
-		for(var c, i = -1, l = (s = s.split("")).length, o = String.fromCharCode; ++i < l;
-			s[i] = (c = s[i].charCodeAt(0)) >= 127 ? o(0xc0 | (c >>> 6)) + o(0x80 | (c & 0x3f)) : s[i]
-		);
-		return s.join("");
-	},
-	decode: function(s){
-		for(var a, b, i = -1, l = (s = s.split("")).length, o = String.fromCharCode, c = "charCodeAt"; ++i < l;
-			((a = s[i][c](0)) & 0x80) &&
-			(s[i] = (a & 0xfc) == 0xc0 && ((b = s[i + 1][c](0)) & 0xc0) == 0x80 ?
-			o(((a & 0x03) << 6) + (b & 0x3f)) : o(128), s[++i] = "")
-		);
-		return s.join("");
-	}
-};
 
