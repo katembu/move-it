@@ -6,6 +6,11 @@ $(document).ready( function() {
     current = 0;
     gen_table(current);
 
+    // set identity from cookie if exists
+    var identity = readCookie('dataentry_identity');
+    if (identity && identity.length > 0)
+        $('#phone').val(decodeURIComponent(identity));
+
     // give message box the focus
     focus_entry();
 
@@ -31,6 +36,9 @@ function send_message()
         alert("You can't send empty messages!\nPlease write something and retry.");
         return false;   
     }
+
+    // store identity in a cookie
+    createCookie('dataentry_identity', encodeURIComponent(identity));
 
     data = {'identity': identity, 'message': text};
     res = proxy_send(data, on_proxy_send);
@@ -114,3 +122,49 @@ function focus_entry()
 {
     $('#message').focus();
 }
+
+/* generic function to record a cookie */
+function createCookie(name,value,days) {
+	if (days) {
+		var date = new Date();
+		date.setTime(date.getTime()+(days*24*60*60*1000));
+		var expires = "; expires="+date.toGMTString();
+	}
+	else var expires = "";
+	document.cookie = name+"="+value+expires+"; path=/";
+}
+
+/* generic function to read a cookie */
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+
+/* generic function to delete a cookie */
+function eraseCookie(name) {
+	createCookie(name,"",-1);
+}
+
+UTF8 = {
+	encode: function(s){
+		for(var c, i = -1, l = (s = s.split("")).length, o = String.fromCharCode; ++i < l;
+			s[i] = (c = s[i].charCodeAt(0)) >= 127 ? o(0xc0 | (c >>> 6)) + o(0x80 | (c & 0x3f)) : s[i]
+		);
+		return s.join("");
+	},
+	decode: function(s){
+		for(var a, b, i = -1, l = (s = s.split("")).length, o = String.fromCharCode, c = "charCodeAt"; ++i < l;
+			((a = s[i][c](0)) & 0x80) &&
+			(s[i] = (a & 0xfc) == 0xc0 && ((b = s[i + 1][c](0)) & 0xc0) == 0x80 ?
+			o(((a & 0x03) << 6) + (b & 0x3f)) : o(128), s[++i] = "")
+		);
+		return s.join("");
+	}
+};
+
