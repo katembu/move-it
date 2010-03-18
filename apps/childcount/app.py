@@ -3,6 +3,7 @@
 # maintainer: dgelvin
 
 import re
+import time
 from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
@@ -63,7 +64,6 @@ class App (rapidsms.app.App):
     @respond_exceptions
     @revision.create_on_success
     def handle(self, message):
-
         handled = False
 
         reporter = message.persistant_connection.reporter
@@ -71,6 +71,13 @@ class App (rapidsms.app.App):
             lang = reporter.language
         else:
             lang = self.DEFAULT_LANGUAGE
+
+        # Use the datetime coming from the backend as the date. Times
+        # from the backend are UTC naive. We convert it to localtime
+        # naive. The system clock of the server must be set to the
+        # local time zone for this to work. This won't work correctly
+        # for locations with DST.
+        message.date = message.date - timedelta(seconds=time.timezone)
 
         # Set the user of revision, equal to the user object of the reporter
         if reporter:
@@ -86,6 +93,7 @@ class App (rapidsms.app.App):
         forms_match = split_regex.match(input_text)
 
         if forms_match:
+
             handled = True
 
             #TODO make this form specific
@@ -96,7 +104,7 @@ class App (rapidsms.app.App):
 
             # If this is coming from debackend, it will have message.chw and
             # message.encounter_date.  Otherwise, the reporter is the chw,
-            # and the encounter date is now
+            # and the encounter date is from the backend
             if 'chw' in message.__dict__:
                 try:
                     chw = CHW.objects.get(pk=message.chw)
@@ -117,7 +125,7 @@ class App (rapidsms.app.App):
                                        "backend."), 'error')
                     return handled
             else:
-                encounter_date = date = datetime.now()
+                encounter_date = message.date
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
@@ -285,8 +293,7 @@ class App (rapidsms.app.App):
             for form_type in [Encounter.TYPE_PATIENT, \
                               Encounter.TYPE_HOUSEHOLD]:
                 # Delete the form_group objects if there weren't any successful
-                # forms, otherwise set the FormGroup.forms to a comma delimited
-                # list of the form class names.
+                # forms.
                 if form_groups[form_type] and not form_groups[form_type].forms:
                     form_groups[form_type].delete()
 
