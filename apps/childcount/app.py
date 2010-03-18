@@ -235,6 +235,7 @@ class App (rapidsms.app.App):
             form_groups[Encounter.TYPE_PATIENT] = None
             form_groups[Encounter.TYPE_HOUSEHOLD] = None
             for form in pre_processed_form_objects:
+                keyword = form.params[0]
 
                 if form.ENCOUNTER_TYPE == Encounter.TYPE_HOUSEHOLD and \
                    not patient.is_head_of_household():
@@ -307,6 +308,7 @@ class App (rapidsms.app.App):
 
             successful_string = ''
             if successful_forms:
+                print successful_forms
                 keywords = [self.FORM_PREFIX + f['keyword'].upper() \
                                                    for f in successful_forms]
                 successful_string += ', '.join(keywords) + \
