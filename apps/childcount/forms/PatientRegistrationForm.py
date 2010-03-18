@@ -210,7 +210,7 @@ class PatientRegistrationForm(CCForm):
 
         if len(patient_check) > 0:
             old_p = patient_check[0]
-            if old_p.chw == chw:
+            if old_p.chw == self.chw:
                 patient_chw = _(u"you")
             else:
                 patient_chw = patient_check[0].chw
