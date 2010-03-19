@@ -116,6 +116,15 @@ class OpenMRSFormInterface(object):
         else:
             sex = sex.upper()
 
+        #assign new patient details
+        self.patient___medical_record_number = mri
+        self.patient___birthdate = dob
+        self.patient___birthdate_estimated = dob_estimate
+        self.patient___family_name = family_name
+        self.patient___given_name = given_name
+        self.patient___middle_name = middle_name
+        self.patient___sex = sex
+
     def load_template(self):
         fp = open('apps/mgvmrs/templates/%(template)s' \
                 % {'template': self.template_name})
