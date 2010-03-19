@@ -110,7 +110,7 @@ function on_proxy_get(data)
         new_tr.className = 'out';
         var status_td = document.createElement('td');
         status_td.className = 'status';
-        status_td.innerHTML = '<img src="/static/childcount/icons/' + status.toLowerCase() + '.png" />';
+        status_td.innerHTML = '<img src="/static/dataentry/icons/' + status.toLowerCase() + '.png" />';
         var msg_td = document.createElement('td');
         msg_td.className = 'msg';
         msg_td.innerHTML = text;
@@ -145,7 +145,7 @@ function gen_table(id)
 {
     var snippet = '<tr id="sms_' + id + '">';
     snippet += '<td id="td_' + id + '" class="f" title="message"></td>';
-    snippet += '<td id="duplicate_' + id + '" title="Duplicate SMS"><img class="duplicate" src="/static/childcount/icons/copy.png" onclick="duplicate_sms(' + id + ');" /></td></tr>';
+    snippet += '<td id="duplicate_' + id + '" title="Duplicate SMS"><img class="duplicate" src="/static/dataentry/icons/copy.png" onclick="duplicate_sms(' + id + ');" /></td></tr>';
     $('#ccform_body').append(snippet);
 }
 

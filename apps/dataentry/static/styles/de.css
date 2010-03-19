@@ -42,9 +42,10 @@ table.rsmsList tr td.letter, table.rsmsList tr td.s {
 
 table.rsmsList tr td {
     min-width: 1em;
-    height: 1.5em;
+    height: 1.65em;
     text-align: center;
     font-family: Lekton;
+    font-size: 2em;
 }
 
 table.rsmsList.sent tbody tr:last-child td {
@@ -88,16 +89,17 @@ table.rsmsList tbody tr {
 	border: 2px solid #007;
 	border-color: #f4f4f4 #b9b9b9 #979797 #f1f1f1;
     width: 98%;
-    font-size: 2em;
+    font-size: 2.5em;
 }
 
 #ccform_body tr:last-child {
     color: blue;    
 }
 
-#ccform_body tr td:last-child {
+#ccform tr td:last-child {
     padding-right: 15px; 
     border-width: 0;
+    text-align: center;
 }
 
 #ccform_body tr td img:hover {
@@ -106,7 +108,7 @@ table.rsmsList tbody tr {
 
 #ccform_body tr:last-child td img, #ccform_head tr td img {
     opacity: 0.5;
-    cursor: auto;
+    cursor: pointer;
 }
 
 #ccform {

@@ -14,11 +14,7 @@ import random
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from rapidsms.webui.utils import render_to_response
-from django.core.urlresolvers import reverse
 from rapidsms.webui import settings
-from django.contrib.auth.decorators import login_required
-
-from childcount.models import CHW
 
 
 def index(req):
