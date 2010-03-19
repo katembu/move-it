@@ -74,6 +74,13 @@ class CCReport(PolymorphicModel):
             pass
         return string
 
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {}
 
 reversion.register(CCReport)
 
