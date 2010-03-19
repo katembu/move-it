@@ -141,6 +141,13 @@ class Patient(models.Model):
         return u'%s %s %s/%s' % (self.health_id.upper(), self.full_name(), \
                                  self.gender, self.humanised_age())
 
+    def is_under_five(self):
+        days, weeks, months = self.age_in_days_weeks_months()
+        if months < 60:
+            return True
+        else:
+            return False
+
     @classmethod
     def is_valid_health_id(cls, health_id):
         MIN_LENGTH = 4
