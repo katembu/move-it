@@ -1,14 +1,17 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: dgelvin
 
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models.reports import HouseHoldVisitReport
+from childcount.models.reports import HouseholdVisitReport
 from childcount.models import CodedItem, Encounter
 from childcount.forms.utils import MultipleChoiceField
 from childcount.exceptions import ParseError
 
 
-class HouseHoldVisitForm(CCForm):
+class HouseholdVisitForm(CCForm):
     KEYWORDS = {
         'en': ['v'],
     }
@@ -21,9 +24,9 @@ class HouseHoldVisitForm(CCForm):
         available_field.add_choice('en', False, 'N')
 
         try:
-            hhvr = HouseHoldVisitReport.objects.get(encounter=self.encounter)
-        except HouseHoldVisitReport.DoesNotExist:
-            hhvr = HouseHoldVisitReport(encounter=self.encounter)
+            hhvr = HouseholdVisitReport.objects.get(encounter=self.encounter)
+        except HouseholdVisitReport.DoesNotExist:
+            hhvr = HouseholdVisitReport(encounter=self.encounter)
         hhvr.form_group = self.form_group
 
         available_field.set_language(self.chw.language)
