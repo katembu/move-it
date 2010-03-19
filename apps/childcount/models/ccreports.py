@@ -10,7 +10,7 @@ from childcount.models import Patient
 from childcount.models import CHW
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import FeverReport 
-from childcount.models.reports import HouseHoldVisitReport
+from childcount.models.reports import HouseholdVisitReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week
 
@@ -109,7 +109,7 @@ class TheCHWReport(CHW):
     def num_of_visits(self):
         '''The number of visits in the last 7 days'''
         seven = date.today() - timedelta(7)
-        num = HouseHoldVisitReport.objects.filter(created_by=self).count()
+        num = HouseholdVisitReport.objects.filter(created_by=self).count()
         return num
 
     @property

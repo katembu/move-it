@@ -67,7 +67,7 @@ class CCReport(PolymorphicModel):
         return self.current_version().revision.date_created
 
     def __unicode__(self):
-        string = u"%s %s" % (self.encounter, self.__class__.__name__)
+        string = u"%s %s" % (self.encounter, self._meta.verbose_name)
         try:
             string += " - %s" % self.summary()
         except AttributeError:
@@ -456,7 +456,7 @@ class ReferralReport(CCReport):
 reversion.register(ReferralReport, follow=['ccreport_ptr'])
 
 
-class HouseHoldVisitReport(CCReport):
+class HouseholdVisitReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
@@ -484,7 +484,7 @@ class HouseHoldVisitReport(CCReport):
                 (self._meta.get_field_by_name('children')[0].verbose_name, \
                  self.children)
         return string
-reversion.register(HouseHoldVisitReport, follow=['ccreport_ptr'])
+reversion.register(HouseholdVisitReport, follow=['ccreport_ptr'])
 
 
 class FamilyPlanningReport(CCReport):
@@ -528,17 +528,54 @@ class BedNetReport(CCReport):
         verbose_name = _(u"Bednet Report")
         verbose_name_plural = _(u"Bednet Reports")
 
+    sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
+                            help_text=_(u"Number of sleeping sites"))
+
     nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
                             help_text=_(u"Number of functioning bednets " \
                                          "in the household"))
 
-    sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
-                            help_text=_(u"Number of sleeping sites"))
-
     def summary(self):
         return u"%s: %d, %s: %d" % \
-            (self._meta.get_field_by_name('nets')[0].verbose_name, \
-             self.nets,
-             self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
-             self.sleeping_sites)
+            (self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
+             self.sleeping_sites, \
+             self._meta.get_field_by_name('nets')[0].verbose_name, \
+             self.nets)
 reversion.register(BedNetReport, follow=['ccreport_ptr'])
+
+
+class SickMembersReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Sick Household Members Report")
+        verbose_name_plural = _(u"Sick Household Members Reports")
+
+    sick = models.PositiveSmallIntegerField(_(u"Others sick"), \
+                           help_text=_(u"Number of other sick household " \
+                                        "members seen during visit"))
+
+    rdts = models.PositiveSmallIntegerField(_(u"RDTs"), \
+                           help_text=_(u"Number of RDTs used on other " \
+                                        "sick household members"))
+
+    positive_rdts = models.PositiveSmallIntegerField(_(u"Positive RDTs"), \
+                           help_text=_(u"Number of positve RDTs cases for " \
+                                        "other sick household members"))
+
+    on_treatment = models.PositiveSmallIntegerField(_(u"Others on treatment"),\
+                           help_text=_(u"Number of other sick household " \
+                                        "members receiving anti-malarial " \
+                                        "treatment"))
+
+    def summary(self):
+        return u"%s: %d, %s: %d, %s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('sick')[0].verbose_name, \
+             self.sick,
+             self._meta.get_field_by_name('rdts')[0].verbose_name, \
+             self.rdts,
+             self._meta.get_field_by_name('positive_rdts')[0].verbose_name, \
+             self.positive_rdts,
+             self._meta.get_field_by_name('on_treatment')[0].verbose_name, \
+             self.on_treatment)
+reversion.register(SickMembersReport, follow=['ccreport_ptr'])
