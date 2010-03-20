@@ -34,7 +34,9 @@ admin.site.register(BedNetReport, VersionAdmin)
 admin.site.register(SickMembersReport, VersionAdmin)
 admin.site.register(DangerSignsReport, VersionAdmin)
 admin.site.register(MedicineGivenReport, VersionAdmin)
-admin.site.register(CodedItem)
+class CodedItemAdmin(admin.ModelAdmin):
+    list_filter = ('type', )
+admin.site.register(CodedItem, CodedItemAdmin)
 admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
