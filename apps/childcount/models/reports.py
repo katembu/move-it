@@ -37,10 +37,10 @@ class CCReport(PolymorphicModel):
         self.__init__(pk=self.pk, encounter=self.encounter)
 
     def patient(self):
-        return encounter.patient
+        return self.encounter.patient
 
     def chw(self):
-        return encounter.chw
+        return self.encounter.chw
 
     def inital_version(self):
         return Version.objects.get_for_object(self)[0]
