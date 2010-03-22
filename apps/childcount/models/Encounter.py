@@ -45,7 +45,7 @@ class Encounter(models.Model):
                                        choices=TYPE_CHOICES, \
                                        help_text=_(u"The type of encounter"))
 
-    sync_omrs = models.BooleanField(_('OMRS'), null=True, blank=True)
+    sync_omrs = models.NullBooleanField(_('OMRS'), null=True, blank=True)
 
     def inital_version(self):
         return Version.objects.get_for_object(self)[0]
