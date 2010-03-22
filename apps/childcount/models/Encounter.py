@@ -45,6 +45,8 @@ class Encounter(models.Model):
                                        choices=TYPE_CHOICES, \
                                        help_text=_(u"The type of encounter"))
 
+    sync_omrs = models.BooleanField(_('OMRS'), null=True, blank=True)
+
     def inital_version(self):
         return Version.objects.get_for_object(self)[0]
 
@@ -73,7 +75,8 @@ class Encounter(models.Model):
     @classmethod
     def send_to_omrs(cls):
         from childcount.models.reports import CCReport
-        encounters = cls.objects.filter(type=Encounter.TYPE_PATIENT)
+        encounters = cls.objects.filter(type=Encounter.TYPE_PATIENT, \
+            sync_omrs__ne=True)
         for encounter in encounters:
             reports = CCReport.objects.filter(encounter=encounter)
             #is the patient registered? if there are reports it is probably not
@@ -102,9 +105,13 @@ class Encounter(models.Model):
                     omrsform.assign(key, value)
             try:
                 transmit_form(omrsform)
+                encounter.sync_omrs = True
+                encounter.save()
             except OpenMRSTransmissionError, e:
                 #TODO : Log this error
                 print e
+                encounter.sync_omrs = False
+                encounter.save()
                 continue
             #TODO : Mark this encounter as having been sent to omrs
 
