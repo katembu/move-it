@@ -696,3 +696,14 @@ class SickMembersReport(CCReport):
              self._meta.get_field_by_name('on_treatment')[0].verbose_name, \
              self.on_treatment)
 reversion.register(SickMembersReport, follow=['ccreport_ptr'])
+
+
+class VerbalAutopsyReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        verbose_name = _(u"Verbal Autopsy Report")
+        verbose_name_plural = _(u"Verbal Autopsy Reports")
+
+    done = models.BooleanField(_("Done?"), \
+                                help_text=_('Was a Verbal Autopsy done?'))

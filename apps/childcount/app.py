@@ -14,11 +14,14 @@ from reversion import revision
 import rapidsms
 from reporters.models import Reporter
 from locations.models import Location
+from scheduler.models import EventSchedule
+
 from childcount.models import Configuration as Cfg
 from childcount.models import Patient, Encounter, FormGroup
 from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
+from childcount.schedules import *
 from childcount.utils import respond_exceptions, KeywordMapper
 
 
@@ -56,6 +59,14 @@ class App (rapidsms.app.App):
         self.form_mapper = KeywordMapper()
         self.form_mapper.add_classes(self.forms)
         self.command_mapper.add_classes(self.commands)
+
+        # set up a every 30 minutes to generate and/or send xforms to omrs
+        try:
+            EventSchedule.objects.get(callback="childcount.schedules.send_to_omrs")
+        except EventSchedule.DoesNotExist:
+            schedule = EventSchedule(callback="childcount.schedules.send_to_omrs", \
+                                     minutes=set([30]) )
+            schedule.save()
 
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
