@@ -47,7 +47,9 @@ class MultipleChoiceField(object):
             if len(choices) == 2:
                 return _(u" or ").join(choices)
             else:
-                return _(u"%s, or %s") % (', '.join(choices[:-1]), choices[-1])
+                return _(u"%(choices)s, or %(lastchoice)s") \
+                       % {'choices': ', '.join(choices[:-1]), \
+                          'lastchoice': choices[-1]}
 
         def get_db_value(self, choice):
             if not self.is_valid_choice(choice):
