@@ -6,7 +6,7 @@ import re
 import time
 from datetime import datetime, timedelta
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, activate
 from django.utils.translation import ungettext
 from django.db import models
 from reversion import revision
@@ -82,6 +82,8 @@ class App (rapidsms.app.App):
             lang = reporter.language
         else:
             lang = self.DEFAULT_LANGUAGE
+
+        activate(lang)
 
         # Use the datetime coming from the backend as the date. Times
         # from the backend are UTC naive. We convert it to localtime
