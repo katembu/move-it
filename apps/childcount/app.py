@@ -17,7 +17,7 @@ from locations.models import Location
 from scheduler.models import EventSchedule
 
 from childcount.models import Configuration as Cfg
-from childcount.models import Patient, Encounter, FormGroup
+from childcount.models import Patient, Encounter, FormGroup, CHW
 from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
