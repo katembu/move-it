@@ -60,14 +60,6 @@ class App (rapidsms.app.App):
         self.form_mapper.add_classes(self.forms)
         self.command_mapper.add_classes(self.commands)
 
-        # set up a every 30 minutes to generate and/or send xforms to omrs
-        try:
-            EventSchedule.objects.get(callback="childcount.schedules.send_to_omrs")
-        except EventSchedule.DoesNotExist:
-            schedule = EventSchedule(callback="childcount.schedules.send_to_omrs", \
-                                     minutes=set([30]) )
-            schedule.save()
-
     def parse(self, message):
         """Parse and annotate messages in the parse phase."""
         pass

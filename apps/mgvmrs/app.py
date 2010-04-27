@@ -10,10 +10,34 @@ from mgvmrs.forms import *
 from mgvmrs.utils import *
 
 
+def loop2mn(loop):
+    ''' Generates an array of numbers for Event Schudule minutes '''
+
+    try:
+        loop = int(loop)
+    except:
+        loop = 5
+
+    mn = []
+    for num in range(0,60):
+        if num % loop == 0:
+            mn.append(num)
+    return mn
+
+
 class App (rapidsms.app.App):
     ''' demo App only
 
     demonstrates how to use the OMRS link '''
+
+    def start(self):
+        # set up a every 30 minutes to generate and/or send xforms to omrs
+        try:
+            EventSchedule.objects.get(callback="mgvmrs.encounters.send_to_omrs")
+        except EventSchedule.DoesNotExist:
+            schedule = EventSchedule(callback="mgvmrs.encounters.send_to_omrs", \
+                                     minutes=set(loop2mn(1)) )
+            schedule.save()
 
     def handle(self, message):
         # debug only.

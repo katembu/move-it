@@ -71,6 +71,9 @@ class OpenMRSFormInterface(object):
     encounter___location_id = None
     encounter___provider_id = None
 
+    # Form ID (in OMRS)
+    openmrs__form_id = None
+
     # Template
     template_name = 'defaultForm.xml'
 
@@ -239,6 +242,7 @@ class OpenMRSFormInterface(object):
             'encounter___encounter_datetime',
             'encounter___location_id',
             'encounter___provider_id',
+            'openmrs__form_id',
         ):
             value = eval("self." + field)
             form[field] = value

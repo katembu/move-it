@@ -38,7 +38,7 @@ def transmit_form(form):
     #print "sending to %s" % openmrs_config['server']
     xml_form = form.render()
 
-    #print xml_form
+    print xml_form
 
     headers = {"Content-type": "text/xml", "Accept": "text/plain"}
 
@@ -67,4 +67,4 @@ def transmit_form(form):
     # data is useless right now
     data = response.read()
     conn.close()
-    #print data
+    print data
