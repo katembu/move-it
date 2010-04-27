@@ -14,10 +14,6 @@ from django.utils.translation import ugettext as _
 from reversion.models import Version
 from django.db.models import Q
 
-from mgvmrs.forms import OpenMRSUnderFiveForm, OpenMRSOverFiveForm, \
-                            OpenMRSTransmissionError, OpenMRSConsultationForm
-from mgvmrs.utils import transmit_form
-
 from childcount.models import CHW, Patient
 
 

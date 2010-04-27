@@ -5,6 +5,7 @@
 from datetime import datetime
 
 import rapidsms
+from scheduler.models import EventSchedule
 
 from mgvmrs.forms import *
 from mgvmrs.utils import *
@@ -30,13 +31,22 @@ class App (rapidsms.app.App):
 
     demonstrates how to use the OMRS link '''
 
+    def configure(self, individual_id=1, household_id=1, location_id=1, \
+                  interval=30, *args, **kwargs):
+        self.individual_id = int(individual_id)
+        self.household_id = int(household_id)
+        self.location_id = int(location_id)
+        self.interval = int(interval)
+
     def start(self):
-        # set up a every 30 minutes to generate and/or send xforms to omrs
+        # set up a every <interval> minutes to generate/send xforms to omrs
         try:
-            EventSchedule.objects.get(callback="mgvmrs.encounters.send_to_omrs")
+            EventSchedule.objects.get(\
+                                     callback="mgvmrs.encounters.send_to_omrs")
         except EventSchedule.DoesNotExist:
-            schedule = EventSchedule(callback="mgvmrs.encounters.send_to_omrs", \
-                                     minutes=set(loop2mn(1)) )
+            schedule = EventSchedule(\
+                                   callback="mgvmrs.encounters.send_to_omrs", \
+                                   minutes=set(loop2mn(self.interval)) )
             schedule.save()
 
     def handle(self, message):

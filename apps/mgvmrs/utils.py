@@ -6,11 +6,13 @@ import httplib
 import urllib
 from datetime import datetime
 
+from childcount.models import Configuration
+
 from mgvmrs.forms.OpenMRSFormInterface import *
 
 # Not sure we absolutely want to depend on CC
 try:
-    from childcount.models import Configuration
+    
     openmrs_config = {
         'path_xform_post': Configuration.get('openmrs_path_xform_post'),
         'password': Configuration.get('openmrs_password'),
@@ -18,8 +20,8 @@ try:
         'server_port': Configuration.get('openmrs_server_port'),
         'server': Configuration.get('openmrs_server'),
     }
-except:
-    #raise
+except Configuration.DoesNotExist:
+    raise
     openmrs_config = {
         'path_xform_post': "/openmrs/module/xforms/xformDataUpload" \
                                    ".form?uname=%(username)s&pw=%(password)s",
@@ -35,10 +37,11 @@ def transmit_form(form):
 
     raise OpenMRSTransmissionError on error '''
 
-    #print "sending to %s" % openmrs_config['server']
+    print "sending to %s" % openmrs_config['server']
     xml_form = form.render()
 
-    print xml_form
+    # print sent XML for debug
+    #print xml_form
 
     headers = {"Content-type": "text/xml", "Accept": "text/plain"}
 
@@ -67,4 +70,4 @@ def transmit_form(form):
     # data is useless right now
     data = response.read()
     conn.close()
-    print data
+    #print data
