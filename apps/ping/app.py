@@ -16,7 +16,7 @@ from bonjour.utils import *
 def import_function(func):
     ''' import a function from full python path string
 
-    returns function.'''Before
+    returns function.'''
     if func.find('.') == -1:
         f = eval(func)
     else:
