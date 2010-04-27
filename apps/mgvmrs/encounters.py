@@ -11,6 +11,7 @@ from mgvmrs.utils import transmit_form
 from childcount.models import Encounter
 from childcount.models.reports import CCReport
 
+
 def send_to_omrs(router, *args, **kwargs):
     ''' Forwards Encounter to OpenMRS
 
@@ -72,16 +73,19 @@ def send_to_omrs(router, *args, **kwargs):
             omrsdict = report.get_omrs_dict()
             for key in omrsdict:
                 value = omrsdict[key]
-                omrsform.assign(key, value)      
+                omrsform.assign(key, value)
 
         # send xform to omrs and change sync status
         try:
             transmit_form(omrsform)
             encounter.sync_omrs = True
             encounter.save()
+            router.log('DEBUG', \
+                          u"Successfuly sent XForm to OpenMRS: %s" % encounter)
         except OpenMRSTransmissionError, e:
             #TODO : Log this error
-            print e
+            router.log('DEBUG', omrsform.render())
+            router.log('DEBUG', e)
             encounter.sync_omrs = False
             encounter.save()
             continue

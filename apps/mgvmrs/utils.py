@@ -10,9 +10,7 @@ from childcount.models import Configuration
 
 from mgvmrs.forms.OpenMRSFormInterface import *
 
-# Not sure we absolutely want to depend on CC
 try:
-    
     openmrs_config = {
         'path_xform_post': Configuration.get('openmrs_path_xform_post'),
         'password': Configuration.get('openmrs_password'),
@@ -28,7 +26,7 @@ except Configuration.DoesNotExist:
         'password': "pass",
         'user': "admin",
         'server_port': "8080",
-        'server': "192.168.5.202"
+        'server': "192.168.5.202",
     }
 
 
@@ -37,7 +35,7 @@ def transmit_form(form):
 
     raise OpenMRSTransmissionError on error '''
 
-    print "sending to %s" % openmrs_config['server']
+    #print "sending to %s" % openmrs_config['server']
     xml_form = form.render()
 
     # print sent XML for debug
