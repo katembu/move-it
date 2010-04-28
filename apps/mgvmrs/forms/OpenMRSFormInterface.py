@@ -93,7 +93,7 @@ class OpenMRSFormInterface(object):
         if not isinstance(encounter_datetime, datetime):
             raise UnexpectedValueError(_(u"Encounter datetime invalid"))
         self.encounter___encounter_datetime = \
-                                    encounter_datetime.strftime(XFORM_DATETIME_FMT)
+                                encounter_datetime.strftime(XFORM_DATETIME_FMT)
 
         # load template
         self.load_template()
