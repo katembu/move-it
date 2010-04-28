@@ -41,6 +41,10 @@ def send_to_omrs(router, *args, **kwargs):
                                           Q(sync_omrs__in=(None, False)))
 
     for encounter in encounters:
+        # loop only on open Encounter
+        if not encounter.is_open:
+            continue
+
         # reports contains actual data for an encounter.
         reports = CCReport.objects.filter(encounter=encounter)
 

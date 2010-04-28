@@ -254,8 +254,10 @@ class App (rapidsms.app.App):
                 if encounters[form.ENCOUNTER_TYPE] is None:
                     try:
                         encounters[form.ENCOUNTER_TYPE] = \
-                            Encounter.objects.get(chw=chw, \
-                                 patient=patient, type=form.ENCOUNTER_TYPE)
+                            Encounter.objects.filter(chw=chw, \
+                                 patient=patient, \
+                                 type=form.ENCOUNTER_TYPE)\
+                                 .latest('encounter_date')
                         if not encounters[form.ENCOUNTER_TYPE].is_open == True:
                             raise Encounter.DoesNotExist
                     except Encounter.DoesNotExist:

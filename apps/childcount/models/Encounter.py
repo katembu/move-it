@@ -72,6 +72,8 @@ class Encounter(models.Model):
     @property
     def is_open(self):
         ''' return true if TIMEOUT minutes has not passed since creation '''
+        if self.sync_omrs == True:
+            return False
         now = datetime.now()
         td = timedelta(minutes=self.TIMEOUT)
         return self.encounter_date > (now - td)
