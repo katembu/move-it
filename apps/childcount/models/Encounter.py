@@ -7,6 +7,8 @@
 Encounter - Encounter model
 '''
 
+from datetime import datetime, timedelta
+
 import reversion
 from django.db import models
 from django.db.models import Q
@@ -29,6 +31,8 @@ class Encounter(models.Model):
     TYPE_CHOICES = (
         (TYPE_PATIENT, _(u"Patient")),
         (TYPE_HOUSEHOLD, _(u"Household")))
+    # Encounter validity duration in minutes
+    TIMEOUT = 6 * 60
 
     encounter_date = models.DateTimeField(_(u"Encounter date"))
 
@@ -64,6 +68,13 @@ class Encounter(models.Model):
         if not self.modified():
             return None
         return self.current_version().revision.date_created
+
+    @property
+    def is_open(self):
+        ''' return true if TIMEOUT minutes has not passed since creation '''
+        now = datetime.now()
+        td = timedelta(minutes=self.TIMEOUT)
+        return self.encounter_date > (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \

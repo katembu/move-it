@@ -255,9 +255,9 @@ class App (rapidsms.app.App):
                     try:
                         encounters[form.ENCOUNTER_TYPE] = \
                             Encounter.objects.get(chw=chw, \
-                                 patient=patient, type=form.ENCOUNTER_TYPE, \
-                                 encounter_date__gte=encounter_date - \
-                                     timedelta(minutes=self.ENCOUNTER_TIMEOUT))
+                                 patient=patient, type=form.ENCOUNTER_TYPE)
+                        if not encounters[form.ENCOUNTER_TYPE].is_open == True:
+                            raise Encounter.DoesNotExist
                     except Encounter.DoesNotExist:
                         encounters[form.ENCOUNTER_TYPE] = \
                                     Encounter(chw=chw, patient=patient, \
