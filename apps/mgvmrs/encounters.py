@@ -4,12 +4,14 @@
 
 from rapidsms.webui import settings
 from django.db.models import Q
-from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
-                         OpenMRSHouseholdForm
-from mgvmrs.utils import transmit_form
 
 from childcount.models import Encounter
 from childcount.models.reports import CCReport
+
+from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
+                         OpenMRSHouseholdForm
+from mgvmrs.utils import transmit_form
+from mgvmrs.models import User
 
 
 def send_to_omrs(router, *args, **kwargs):
@@ -23,14 +25,15 @@ def send_to_omrs(router, *args, **kwargs):
     # retrieve mgvmrs configuration
     conf = settings.RAPIDSMS_APPS['mgvmrs']
 
-    # Form IDs and Field location ID are site-specific
-    individual_id = int(conf['individual_id'])
-    household_id = int(conf['household_id'])
-    location_id = int(conf['location_id'])
-
-    # provider is temporary fixed.
-    # TODO: add field to CHW to store OMRS ID
-    provider_id = 1
+    try:
+        # Form IDs and Field location ID are site-specific
+        individual_id = int(conf['individual_id'])
+        household_id = int(conf['household_id'])
+        location_id = int(conf['location_id'])
+        # provider is a fallback if CHW has no OMRS ID in DB.
+        provider_id = int(conf['provider_id'])
+    except KeyError:
+        raise Exception("Invalid [mgvmrs] configuration")
 
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
@@ -55,10 +58,17 @@ def send_to_omrs(router, *args, **kwargs):
             omrsformclass = OpenMRSConsultationForm
             form_id = individual_id
 
+        try:
+            # retrieve CHW from local mapping.
+            provider = int(User.objects.get(chw=encounter.chw).openmrs_id)
+        except User.DoesNotExist:
+            # use fall-back ID from config
+            provider = provider_id
+
         # create form
         omrsform = omrsformclass(create, encounter.patient.health_id, \
-                                    int(location_id),
-                                    int(provider_id),
+                                    location_id,
+                                    provider,
                                     encounter.encounter_date, \
                                     encounter.patient.dob, \
                                     bool(encounter.patient.estimated_dob), \
