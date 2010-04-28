@@ -30,6 +30,7 @@ def send_to_omrs(router, *args, **kwargs):
         individual_id = int(conf['individual_id'])
         household_id = int(conf['household_id'])
         location_id = int(conf['location_id'])
+        identifier_type = int(conf['identifier_type'])
         # provider is a fallback if CHW has no OMRS ID in DB.
         provider_id = int(conf['provider_id'])
     except KeyError:
@@ -77,6 +78,7 @@ def send_to_omrs(router, *args, **kwargs):
                                     encounter.patient.gender)
         # assign site-specific ID
         omrsform.openmrs__form_id = form_id
+        omrsform.patient___identifier_type = identifier_type
 
         # each report contains reference to OMRS fields
         for report in reports:
