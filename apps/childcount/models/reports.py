@@ -14,7 +14,7 @@ from reversion.models import Version
 
 from polymorphic import PolymorphicModel
 
-from mgvmrs.forms import OpenMRSUnderFiveForm, OpenMRSOverFiveForm
+from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
 from childcount.models import Patient
 from childcount.models import Encounter
@@ -117,7 +117,13 @@ class BirthReport(CCReport):
             string += ", %s: %s" % \
                     (self._meta.get_field_by_name('weight')[0].verbose_name, \
                      self.weight)
-        return string                 
+        return string
+
+    def get_omrs_dict(self):
+        igive = {
+            'weight': self.weight,
+        }
+        return igive
 reversion.register(BirthReport, follow=['ccreport_ptr'])
 
 
@@ -196,6 +202,29 @@ class FollowUpReport(CCReport):
              self.get_improvement_display(),
              self._meta.get_field_by_name('visited_clinic')[0].verbose_name, \
              self.get_visited_clinic_display())
+
+    def get_omrs_dict(self):
+
+        improv_map = {
+            self.IMPROVEMENT_YES: OpenMRSConsultationForm.YES, 
+            self.IMPROVEMENT_NO: OpenMRSConsultationForm.NO,
+            self.IMPROVEMENT_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+            self.IMPROVEMENT_UNAVAILABLE: OpenMRSConsultationForm.UNAVAILABLE,
+        }
+
+        visit_map = {
+            self.VISITED_YES: OpenMRSConsultationForm.YES,
+            self.VISITED_NO: OpenMRSConsultationForm.NO,
+            self.VISITED_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+            self.VISITED_INPATIENT: OpenMRSConsultationForm.INPATIENT,
+        }
+
+        igive = {
+            'patients_condition_improved': improv_map[self.improvement],
+            'visit_to_health_facility_since_last_home_visit': \
+                                                visit_map[self.visited_clinic],
+        }
+        return igive
 reversion.register(FollowUpReport, follow=['ccreport_ptr'])
 
 
@@ -215,40 +244,57 @@ class DangerSignsReport(CCReport):
              u", ".join([ds.description for ds in self.danger_signs.all()]))
 
     def get_omrs_dict(self):
-        omrclassob = None
-        if self.patient().is_under_five():
-            omrclassob = OpenMRSUnderFiveForm
-        else:
-            omrclassob = OpenMRSOverFiveForm
         igive = {}
         i = 0
         for ds in self.danger_signs.all():
             if i == 0:
-                igive.update({'danger_signs_present': omrclassob.YES})
+                igive.update({'danger_signs_present': OpenMRSConsultationForm.YES})
                 i = 1
-            if ds.code.upper() == 'FV':
-                igive.update({'fever': omrclassob.YES})
-            if ds.code.upper() == 'OD':
-                igive.update({'oedema': omrclassob.YES})
-                igive.update({'reasons_for_referral__oedema': True})
+                igive.update({'reasons_for_referral__regimen_failure': True})
+            if ds.code.upper() == 'AS':
+                igive.update({'reasons_for_referral__physical_trauma': True})
+            if ds.code.upper() == 'BM':
+                igive.update({'reasons_for_referral__no_fetal_movements': True})
             if ds.code.upper() == 'BV':
                 igive.update({'reasons_for_referral__blurred_vision': True})
             if ds.code.upper() == 'CC':
                 igive.update({'reasons_for_referral__cough': True})
             if ds.code.upper() == 'CV':
                 igive.update({'reasons_for_referral__convulsions': True})
+            if ds.code.upper() == 'CW':
+                igive.update({'reasons_for_referral__cough_lasting_more_than_3_weeks': True})
+            if ds.code.upper() == 'FP':
+                igive.update({'reasons_for_referral__fever_in_first_trimester_of_pregnancy': True})
             if ds.code.upper() == 'NB':
                 igive.update({'reasons_for_referral__night_blindness': True})
+            if ds.code.upper() == 'OD':
+                igive.update({'oedema': OpenMRSConsultationForm.YES})
+                igive.update({'reasons_for_referral__oedema': True})
             if ds.code.upper() == 'PA':
                 igive.update({'reasons_for_referral__abdominal_pain': True})
             if ds.code.upper() == 'PH':
                 igive.update({'reasons_for_referral__severe_headache': True})
+            if ds.code.upper() == 'PU':
+                igive.update({'reasons_for_referral__dysuria': True})
+            if ds.code.upper() == 'SF':
+                igive.update({'reasons_for_referral__dermatitis': True})
+            if ds.code.upper() == 'SW': # HERE
+                igive.update({'reasons_for_referral__peripheral_edema': True})
             if ds.code.upper() == 'VB':
                 igive.update({'reasons_for_referral__abnormal_vaginal_bleeding': True})
             if ds.code.upper() == 'VD':
                 igive.update({'reasons_for_referral__vaginal_discharge': True})
-            if ds.code.upper() == 'wl':
+            if ds.code.upper() == 'VP': # HERE
+                igive.update({'reasons_for_referral__acute_vaginitis': True})
+            if ds.code.upper() == 'WL':
                 igive.update({'reasons_for_referral__weight_loss': True})
+            if ds.code.upper() == 'NF': # HERE
+                igive.update({'reasons_for_referral__unable_to_drink': True})
+            if ds.code.upper() == 'Z':
+                igive.update({'reasons_for_referral__other_non_coded': True})
+            # HERE not found
+            # igive.update({'reasons_for_referral__postpartum_depression': True})
+
         return igive
 reversion.register(DangerSignsReport, follow=['ccreport_ptr'])
 
@@ -288,7 +334,8 @@ class PregnancyReport(CCReport):
     def get_omrs_dict(self):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
-            'antenatal_visit_number': self.anc_visits
+            'antenatal_visit_number': self.anc_visits,
+            'weeks_since_last_anc': self.weeks_since_anc,
         }
         return {}
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
@@ -358,16 +405,22 @@ class UnderOneReport(CCReport):
              self._meta.get_field_by_name('immunized')[0].verbose_name, \
              self.get_immunized_display())
     def get_omrs_dict(self):
-        breastfed_exclusively = None
-        if self.BREAST_YES:
-            breastfed_exclusively = OpenMRSUnderFiveForm.YES
-        elif self.BREAST_YES:
-            breastfed_exclusively = OpenMRSUnderFiveForm.NO
-        else:
-            breastfed_exclusively = OpenMRSUnderFiveForm.UNKNOWN
+
+        breast_map = {
+            self.BREAST_YES: OpenMRSConsultationForm.YES,
+            self.BREAST_NO: OpenMRSConsultationForm.NO,
+            self.BREAST_UNKOWN: OpenMRSConsultationForm.UNKNOWN
+        }
+
+        immun_map = {
+            self.IMMUNIZED_YES: OpenMRSConsultationForm.YES,
+            self.IMMUNIZED_NO: OpenMRSConsultationForm.NO,
+            self.IMMUNIZED_UNKOWN: OpenMRSConsultationForm.UNKNOWN
+        }
 
         return {
-            'breastfed_exclusively': breastfed_exclusively
+            'breastfed_exclusively': breast_map[self.breast_only],
+            'immunizations_up_to_date': immun_map[self.immunized],
         }
 reversion.register(UnderOneReport, follow=['ccreport_ptr'])
 
@@ -446,20 +499,20 @@ class NutritionReport(CCReport):
                 return v
 
     def get_omrs_dict(self):
-        has_oedema = None
-        ref_oedema = None
-        if self.oedema == self.OEDEMA_YES:
-            has_oedema = OpenMRSUnderFiveForm.YES
-            ref_oedema = True
-        elif self.oedema == self.OEDEMA_NO:
-            has_oedema = OpenMRSUnderFiveForm.NO
-        else:
-            has_oedema = OpenMRSUnderFiveForm.UNKNOWN
+
+        oedema_map = {
+            self.OEDEMA_YES: OpenMRSConsultationForm.YES,
+            self.OEDEMA_NO: OpenMRSConsultationForm.NO,
+            self.OEDEMA_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+        }
+
         return {
             'mid_upper_arm_circumference': self.muac,
-            'oedema': has_oedema,
-            'reasons_for_referral__oedema': ref_oedema
+            'oedema': oedema_map[self.oedema],
+            'weight': self.weight,
         }
+        if self.oedema == OEDEMA_YES:
+            igive.update({'reasons_for_referral__oedema': True})
 reversion.register(NutritionReport, follow=['ccreport_ptr'])
 
 
@@ -488,15 +541,16 @@ class FeverReport(CCReport):
              self.get_rdt_result_display())
 
     def get_omrs_dict(self):
-        rdt = None
-        if self.rdt_result == self.RDT_POSITIVE:
-            rdt = OpenMRSUnderFiveForm.POSITIVE
-        elif sef.rdt_result == self.RDT_NEGATIVE:
-            rdt = OpenMRSUnderFiveForm.NEGATIVE
-        else:
-            rdt = OpenMRSUnderFiveForm.INDETERMINATE
+
+        rdt_map = {
+            self.RDT_POSITIVE: OpenMRSConsultationForm.POSITIVE,
+            self.RDT_NEGATIVE: OpenMRSConsultationForm.NEGATIVE,
+            # HERE. mapped UNKOWN as INDETERMINATE
+            self.RDT_UNKOWN: OpenMRSConsultationForm.INDETERMINATE,
+        }
+
         return {
-            'rapid_test_for_malaria': rdt
+            'rapid_test_for_malaria': rdt_map[self.rdt_result]
         }
 reversion.register(FeverReport, follow=['ccreport_ptr'])
 
@@ -521,11 +575,11 @@ class MedicineGivenReport(CCReport):
         value = []
         for med in self.medicines.all():
             if med.code.upper() == 'ACT':
-                value.append(OpenMRSUnderFiveForm.MEDIC_ORDER_ANTIMALARIAL)
+                value.append(OpenMRSConsultationForm.MEDIC_ORDER_ANTIMALARIAL)
             if med.code.upper() == 'R':
-                value.append(OpenMRSUnderFiveForm.MEDIC_ORDER_ORS)
+                value.append(OpenMRSConsultationForm.MEDIC_ORDER_ORS)
             if med.code.upper() == 'Z':
-                value.append(OpenMRSUnderFiveForm.MEDIC_ORDER_ZINC)
+                value.append(OpenMRSConsultationForm.MEDIC_ORDER_ZINC)
         if len(value):
             igive.update({'current_medication_order': value})
         return igive
@@ -558,15 +612,17 @@ class ReferralReport(CCReport):
              self.get_urgency_display())
 
     def get_omrs_dict(self):
-        priority = None
-        if self.urgency in (self.URGENCY_AMBULANCE, self.URGENCY_EMERGENCY):
-            priority = OpenMRSUnderFiveForm.REFERRAL_EMERGENCY
-        elif self.urgency == self.URGENCY_BASIC:
-            priority = OpenMRSUnderFiveForm.REFERRAL_URGENT
-        else:
-            priority = OpenMRSUnderFiveForm.REFERRAL_WHEN_CONVENIENT
+
+        prio_map = {
+            self.URGENCY_AMBULANCE: OpenMRSConsultationForm.REFERRAL_AMBULANCE,
+            self.URGENCY_EMERGENCY: OpenMRSConsultationForm.REFERRAL_EMERGENCY,
+            # HERE. mapped BASIC as URGENT.
+            self.URGENCY_BASIC: OpenMRSConsultationForm.REFERRAL_URGENT,
+            self.URGENCY_CONVENIENT: \
+                              OpenMRSConsultationForm.REFERRAL_WHEN_CONVENIENT,
+        }
         return {
-            'referral_priority': priority
+            'referral_priority': prio_map[self.urgency]
         }
 reversion.register(ReferralReport, follow=['ccreport_ptr'])
 
@@ -599,6 +655,30 @@ class HouseholdVisitReport(CCReport):
                 (self._meta.get_field_by_name('children')[0].verbose_name, \
                  self.children)
         return string
+
+    def get_omrs_dict(self):
+        if self.available:
+            avail = OpenMRSHouseholdForm.YES
+        else:
+            avail = OpenMRSHouseholdForm.NO
+        igive = {
+            'hh_member_available': avail,
+            'number_children_under_five': self.children,
+        }
+        for ct in self.counseling.all():
+            if ct.code.upper() == 'NUT':
+                igive.update({'counseling_topics__nutrition': True})
+            if ct.code.upper() in ('FP', 'BP'):
+                igive.update({'counseling_topics__family_planning': True})
+            if ct.code.upper() == 'EC':
+                igive.update({'counseling_topics__sanitation_and_hygiene': True})
+            if ct.code.upper() in ('ED', 'PH', 'IM'):
+                igive.update({'counseling_topics__other_non_coded': True})
+            # HERE not found
+            #    igive.update({'counseling_topics__bednet': True})
+            #    igive.update({'counseling_topics__alcohol': True})
+            #    igive.update({'counseling_topics__tobacco': True})
+        return igive
 reversion.register(HouseholdVisitReport, follow=['ccreport_ptr'])
 
 
@@ -632,6 +712,11 @@ class FamilyPlanningReport(CCReport):
                                         self.familyplanningusage_set.all()])
         return string
 
+    def get_omrs_dict(self):
+        return {
+            'women_seen': self.women,
+            'women_using_family_planning': self.women_using,
+        }
 reversion.register(FamilyPlanningReport, \
                    follow=['ccreport_ptr', 'familyplanningusage_set'])
 
@@ -656,6 +741,12 @@ class BedNetReport(CCReport):
              self.sleeping_sites, \
              self._meta.get_field_by_name('nets')[0].verbose_name, \
              self.nets)
+
+    def get_omrs_dict(self):
+        return {
+            'sleeping_sites': self.sleeping_sites,
+            'bednets': self.nets,
+        }
 reversion.register(BedNetReport, follow=['ccreport_ptr'])
 
 
@@ -693,6 +784,14 @@ class SickMembersReport(CCReport):
              self.positive_rdts,
              self._meta.get_field_by_name('on_treatment')[0].verbose_name, \
              self.on_treatment)
+
+    def get_omrs_dict(self):
+        return {
+            'other_sick_members': self.sick,
+            'rdts_used': self.rdts,
+            'positive_rdts': self.positive_rdts,
+            'other_sick_members_on_treatment': self.on_treatment,
+        }
 reversion.register(SickMembersReport, follow=['ccreport_ptr'])
 
 
