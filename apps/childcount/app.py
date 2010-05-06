@@ -74,6 +74,8 @@ class App (rapidsms.app.App):
             lang = reporter.language
         else:
             lang = self.DEFAULT_LANGUAGE
+            # store default language in reporter during session
+            message.persistant_connection.reporter.language = lang
 
         activate(lang)
 
