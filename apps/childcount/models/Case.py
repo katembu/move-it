@@ -51,8 +51,7 @@ class Case(models.Model):
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \
                                 db_index=True)
 
-    type = models.SmallIntegerField(_(u"Type of case"), choices=TYPE_CHOICES, \
-                               default=TYPE_CHOICES)
+    type = models.SmallIntegerField(_(u"Type of case"), choices=TYPE_CHOICES)
 
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_OPEN)

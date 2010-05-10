@@ -106,7 +106,7 @@ class Migration(SchemaMigration):
         db.create_table('childcount_ccreport', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('encounter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['childcount.Encounter'])),
-            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_ccreport_set', null=True, to=orm['contenttypes.ContentType'])),
+            ('polymorphic_ctype', self.gf('django.db.models.fields.related.ForeignKey')(related_name='polymorphic_childcount.ccreport_set', null=True, to=orm['contenttypes.ContentType'])),
         ))
         db.send_create_signal('childcount', ['CCReport'])
 
@@ -217,7 +217,7 @@ class Migration(SchemaMigration):
         db.send_create_signal('childcount', ['ReferralReport'])
 
         # Adding model 'HouseholdVisitReport'
-        db.create_table('childcount_householdvisitreport', (
+        db.create_table('hhvisitrpt', (
             ('available', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True)),
             ('ccreport_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['childcount.CCReport'], unique=True, primary_key=True)),
             ('children', self.gf('django.db.models.fields.SmallIntegerField')(null=True, blank=True)),
@@ -225,12 +225,12 @@ class Migration(SchemaMigration):
         db.send_create_signal('childcount', ['HouseholdVisitReport'])
 
         # Adding M2M table for field counseling on 'HouseholdVisitReport'
-        db.create_table('childcount_householdvisitreport_counseling', (
+        db.create_table('hhvisitrpt_counseling', (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('householdvisitreport', models.ForeignKey(orm['childcount.householdvisitreport'], null=False)),
             ('codeditem', models.ForeignKey(orm['childcount.codeditem'], null=False))
         ))
-        db.create_unique('childcount_householdvisitreport_counseling', ['householdvisitreport_id', 'codeditem_id'])
+        db.create_unique('hhvisitrpt_counseling', ['householdvisitreport_id', 'codeditem_id'])
 
         # Adding model 'FamilyPlanningReport'
         db.create_table('childcount_familyplanningreport', (
@@ -301,7 +301,7 @@ class Migration(SchemaMigration):
             ('patient', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['childcount.Patient'])),
             ('created_on', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
             ('updated_on', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.SmallIntegerField')(default=((0, u'Pregnancy'), (1, u'Malnutrition'), (2, u'Fever'), (3, u'Diarrhea')))),
+            ('type', self.gf('django.db.models.fields.SmallIntegerField')()),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('expires_on', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
         ))
@@ -397,10 +397,10 @@ class Migration(SchemaMigration):
         db.delete_table('childcount_referralreport')
 
         # Deleting model 'HouseholdVisitReport'
-        db.delete_table('childcount_householdvisitreport')
+        db.delete_table('hhvisitrpt')
 
         # Removing M2M table for field counseling on 'HouseholdVisitReport'
-        db.delete_table('childcount_householdvisitreport_counseling')
+        db.delete_table('hhvisitrpt_counseling')
 
         # Deleting model 'FamilyPlanningReport'
         db.delete_table('childcount_familyplanningreport')
@@ -480,14 +480,14 @@ class Migration(SchemaMigration):
             'patient': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['childcount.Patient']"}),
             'reports': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['childcount.CCReport']"}),
             'status': ('django.db.models.fields.SmallIntegerField', [], {'default': '0'}),
-            'type': ('django.db.models.fields.SmallIntegerField', [], {'default': "((0, u'Pregnancy'), (1, u'Malnutrition'), (2, u'Fever'), (3, u'Diarrhea'))"}),
+            'type': ('django.db.models.fields.SmallIntegerField', [], {}),
             'updated_on': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'})
         },
         'childcount.ccreport': {
             'Meta': {'object_name': 'CCReport'},
             'encounter': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['childcount.Encounter']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_ccreport_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
+            'polymorphic_ctype': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'polymorphic_childcount.ccreport_set'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"})
         },
         'childcount.chw': {
             'Meta': {'object_name': 'CHW', '_ormbases': ['reporters.Reporter']},
@@ -574,7 +574,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
         'childcount.householdvisitreport': {
-            'Meta': {'object_name': 'HouseholdVisitReport', '_ormbases': ['childcount.CCReport']},
+            'Meta': {'object_name': 'HouseholdVisitReport', 'db_table': "'hhvisitrpt'", '_ormbases': ['childcount.CCReport']},
             'available': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
             'ccreport_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['childcount.CCReport']", 'unique': 'True', 'primary_key': 'True'}),
             'children': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),

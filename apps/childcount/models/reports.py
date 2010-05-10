@@ -633,6 +633,8 @@ class HouseholdVisitReport(CCReport):
         app_label = 'childcount'
         verbose_name = _(u"Household Visit Report")
         verbose_name_plural = _(u"Household Visit Reports")
+        db_table = 'hhvisitrpt'
+
 
     available = models.BooleanField(_(u"HH Member Available"), \
                                 help_text=_(u"Was a houshold member " \
