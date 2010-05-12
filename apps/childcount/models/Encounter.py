@@ -23,6 +23,7 @@ class Encounter(models.Model):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_encounter'
         verbose_name = _(u"Encounter")
         verbose_name_plural = _(u"Encounters")
 

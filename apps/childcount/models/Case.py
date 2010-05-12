@@ -25,6 +25,7 @@ class Case(models.Model):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_case'
         verbose_name = _(u"Case")
         verbose_name_plural = _(u"Cases")
         get_latest_by = 'created_on'

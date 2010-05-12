@@ -28,6 +28,7 @@ class CCReport(PolymorphicModel):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_ccrpt'
         verbose_name = _(u"ChildCount Report")
         verbose_name_plural = _(u"ChildCount Reports")
 
@@ -91,6 +92,7 @@ class BirthReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_birthrpt'
         verbose_name = _(u"Birth Report")
         verbose_name_plural = _(u"Birth Reports")
 
@@ -131,6 +133,7 @@ class DeathReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_deathrpt'
         verbose_name = _(u"Death Report")
         verbose_name_plural = _(u"Death Reports")
 
@@ -147,6 +150,7 @@ class StillbirthMiscarriageReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_sbmcrpt'
         verbose_name = _(u"Stillbirth / Miscarriage Report")
         verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
 
@@ -163,6 +167,7 @@ class FollowUpReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_furpt'
         verbose_name = _(u"Follow-up Report")
         verbose_name_plural = _(u"Follow-up Reports")
 
@@ -232,6 +237,7 @@ class DangerSignsReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_dsrpt'
         verbose_name = _(u"Danger Signs Report")
         verbose_name_plural = _(u"Danger Signs Reports")
 
@@ -303,6 +309,7 @@ class PregnancyReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_pregrpt'
         verbose_name = _(u"Pregnancy Report")
         verbose_name_plural = _(u"Pregnancy Reports")
 
@@ -345,6 +352,7 @@ class NeonatalReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_neorpt'
         verbose_name = _(u"Neonatal Report")
         verbose_name_plural = _(u"Neonatal Reports")
 
@@ -368,6 +376,7 @@ class UnderOneReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_uonerpt'
         verbose_name = _(u"Under One Report")
         verbose_name_plural = _(u"Under One Reports")
 
@@ -431,6 +440,7 @@ class NutritionReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_nutrpt'
         verbose_name = _(u"Nutrition Report")
         verbose_name_plural = _(u"Nutrition Reports")
 
@@ -520,6 +530,7 @@ class FeverReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_fevrpt'
         verbose_name = _(u"Fever Report")
         verbose_name_plural = _(u"Fever Reports")
 
@@ -559,6 +570,7 @@ class MedicineGivenReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_medsrpt'
         verbose_name = _(u"Medicine Given Report")
         verbose_name_plural = _(u"Medicine Given Reports")
 
@@ -590,6 +602,7 @@ class ReferralReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_refrpt'
         verbose_name = _(u"Referral Report")
         verbose_name_plural = _(u"Referral Reports")
 
@@ -631,9 +644,9 @@ class HouseholdVisitReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_hhvisitrpt'
         verbose_name = _(u"Household Visit Report")
         verbose_name_plural = _(u"Household Visit Reports")
-        db_table = 'hhvisitrpt'
 
 
     available = models.BooleanField(_(u"HH Member Available"), \
@@ -688,6 +701,7 @@ class FamilyPlanningReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_fprpt'
         verbose_name = _(u"Family Planning Report")
         verbose_name_plural = _(u"Family Planning Reports")
 
@@ -727,6 +741,7 @@ class BedNetReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_bnrpt'
         verbose_name = _(u"Bednet Report")
         verbose_name_plural = _(u"Bednet Reports")
 
@@ -756,6 +771,7 @@ class SickMembersReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_sickrpt'
         verbose_name = _(u"Sick Household Members Report")
         verbose_name_plural = _(u"Sick Household Members Reports")
 
@@ -801,6 +817,7 @@ class VerbalAutopsyReport(CCReport):
 
     class Meta:
         app_label = 'childcount'
+        db_table = 'cc_autopsyrpt'
         verbose_name = _(u"Verbal Autopsy Report")
         verbose_name_plural = _(u"Verbal Autopsy Reports")
 
