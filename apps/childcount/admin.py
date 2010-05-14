@@ -4,9 +4,9 @@
 
 from django.contrib import admin
 from reversion.admin import VersionAdmin
+from reversion.models import Version, Revision
 
 from childcount.models import *
-from childcount.models.reports import *
 
 admin.site.register(Configuration)
 admin.site.register(CHW)
@@ -41,3 +41,5 @@ admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
 admin.site.register(Referral)
+admin.site.register(Version)
+admin.site.register(Revision)

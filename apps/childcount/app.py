@@ -74,8 +74,10 @@ class App (rapidsms.app.App):
             lang = reporter.language
         else:
             lang = self.DEFAULT_LANGUAGE
+
             # store default language in reporter during session
-            message.persistant_connection.reporter.language = lang
+            if reporter:
+                reporter.language = lang
 
         activate(lang)
 
@@ -373,7 +375,7 @@ class App (rapidsms.app.App):
             obj = cls(message, params)
             try:
                 obj.process()
-            except (ParseError, BadValue, NotRegistered), e:
+            except (ParseError, BadValue, NotRegistered, Inapplicable), e:
                 message.respond(e.message, 'error')
         return handled
 

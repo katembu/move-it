@@ -16,4 +16,5 @@ from Referral import Referral
 from FamilyPlanningUsage import FamilyPlanningUsage
 from Case import Case
 
+from reports import *
 import reports
