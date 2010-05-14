@@ -192,14 +192,14 @@ class App (rapidsms.app.App):
                 # create the patient records
                 try:
                     form.pre_process()
-                except (ParseError, BadValue, Inapplicable), e:
+                except CCException, e:
                     pretty_form = '%s%s' % (self.FORM_PREFIX, \
                                             keyword.upper())
 
                     message.respond(_(u"Error while processing %(frm)s: " \
                                        "%(e)s - Please correct and send all " \
                                        "information again.") % \
-                                       {'frm': pretty_form, 'e': e.message}, \
+                                       {'frm': pretty_form, 'e': e}, \
                                         'error')
                     return handled
                 pre_processed_form_objects.append(form)
@@ -284,9 +284,9 @@ class App (rapidsms.app.App):
 
                 try:
                     form.process(patient)
-                except (ParseError, BadValue, Inapplicable), e:
+                except CCException, e:
                     failed_forms.append({'keyword': keyword, \
-                                         'error': e.message, 'e': e})
+                                         'error': unicode(e), 'e': e})
                 else:
                     successful_forms.append({'keyword': keyword, \
                                              'response': form.response, \
@@ -375,8 +375,8 @@ class App (rapidsms.app.App):
             obj = cls(message, params)
             try:
                 obj.process()
-            except (ParseError, BadValue, NotRegistered, Inapplicable), e:
-                message.respond(e.message, 'error')
+            except CCException, e:
+                message.respond(e, 'error')
         return handled
 
     def cleanup(self, message):
