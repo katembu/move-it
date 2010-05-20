@@ -18,6 +18,7 @@ from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
 from childcount.models import Patient
 from childcount.models import Encounter
+from childcount.models import Vaccine
 
 
 class CCReport(PolymorphicModel):
@@ -432,6 +433,18 @@ class UnderOneReport(CCReport):
             'immunizations_up_to_date': immun_map[self.immunized],
         }
 reversion.register(UnderOneReport, follow=['ccreport_ptr'])
+
+
+class SauriUnderOneReport(UnderOneReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_sauri_uonerpt'
+        verbose_name = _(u"Sauri Under One Report")
+        verbose_name_plural = _(u"Sauri Under One Reports")
+
+    vaccine = models.ManyToManyField(Vaccine, verbose_name=_(u"Vaccine"))
+reversion.register(SauriUnderOneReport, follow=['ccreport_ptr'])
 
 
 class NutritionReport(CCReport):
