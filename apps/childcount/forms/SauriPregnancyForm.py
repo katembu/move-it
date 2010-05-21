@@ -105,11 +105,16 @@ class SauriPregnancyForm(CCForm):
         else:
             weeks = None
 
+        tested_hiv_field.set_language(self.chw.language)
+        iron_supplement_field.set_language(self.chw.language)
+        folic_supplement_field.set_language(self.chw.language)
+        cd4_count_field.set_language(self.chw.language)
         if not iron_supplement_field.is_valid_choice(self.params[4]):
             raise ParseError(_(u"Iron Supplement %(choices)s") % \
                             {'choices': iron_supplement_field.choices_string()})
 
         iron_supplement = iron_supplement_field.get_db_value(self.params[4])
+        
 
         if not folic_supplement_field.is_valid_choice(self.params[5]):
             raise ParseError(_(u"Folic Acid Supplement %(choices)s") % \
