@@ -27,7 +27,7 @@ class SauriPregnancyForm(CCForm):
         tested_hiv_field.add_choice('en',
                                 SauriPregnancyReport.TESTED_NOREACTIVE, 'NR')
         tested_hiv_field.add_choice('en', \
-                                SauriPregnancyReport.TESTED_NOUNKOWN, 'NU')
+                                SauriPregnancyReport.TESTED_NOUNKNOWN, 'NU')
         tested_hiv_field.add_choice('en', \
                             SauriPregnancyReport.TESTED_YESNOTREACTIVE, 'YN')
 
@@ -39,7 +39,7 @@ class SauriPregnancyForm(CCForm):
         iron_supplement_field.add_choice('en', \
                                         SauriPregnancyReport.IRON_UNKNOWN, 'U')
         iron_supplement_field.add_choice('en', \
-                                    SauriPregnancyReport.IRON_DOSNOTHAVE, 'X')
+                                    SauriPregnancyReport.IRON_DOESNOTHAVE, 'X')
 
         folic_supplement_field = MultipleChoiceField()
         folic_supplement_field.add_choice('en', \
@@ -49,7 +49,7 @@ class SauriPregnancyForm(CCForm):
         folic_supplement_field.add_choice('en', \
                                         SauriPregnancyReport.FOLIC_UNKNOWN, 'U')
         folic_supplement_field.add_choice('en', \
-                                    SauriPregnancyReport.FOLIC_DOSNOTHAVE, 'X')
+                                    SauriPregnancyReport.FOLIC_DOESNOTHAVE, 'X')
 
         cd4_count_field = MultipleChoiceField()
         cd4_count_field.add_choice('en', \

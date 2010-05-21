@@ -349,65 +349,51 @@ class PregnancyReport(CCReport):
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
 
-class SauriPregnancyReport(CCReport):
+class SauriPregnancyReport(PregnancyReport):
 
     class Meta:
         app_label = 'childcount'
-        db_table = 'cc_pregrpt'
-        verbose_name = _(u"Pregnancy Report")
-        verbose_name_plural = _(u"Pregnancy Reports")
+        db_table = 'cc_sauri_pregrpt'
+        verbose_name = _(u"Sauri Pregnancy Report")
+        verbose_name_plural = _(u"Sauri Pregnancy Reports")
 
     IRON_YES = 'Y'
     IRON_NO = 'N'
-    IRON_UNKOWN = 'U'
+    IRON_UNKNOWN = 'U'
     IRON_DOESNOTHAVE = 'X'
     IRON_CHOICES = (
                        (IRON_YES, _('Yes')),
                        (IRON_NO, _('No')),
-                       (IRON_UNKOWN, _('Unkown')),
+                       (IRON_UNKNOWN, _('Unkown')),
                        (IRON_DOESNOTHAVE, _('Does not have')))
 
     FOLIC_YES = 'Y'
     FOLIC_NO = 'N'
-    FOLIC_UNKOWN = 'U'
+    FOLIC_UNKNOWN = 'U'
     FOLIC_DOESNOTHAVE = 'X'
     FOLIC_CHOICES = (
                        (FOLIC_YES, _('Yes')),
                        (FOLIC_NO, _('No')),
-                       (FOLIC_UNKOWN, _('Unkown')),
+                       (FOLIC_UNKNOWN, _('Unkown')),
                        (FOLIC_DOESNOTHAVE, _('Does not have')))
 
     TESTED_YESREACTIVE = 'YR'
     TESTED_NOREACTIVE = 'NR'
-    TESTED_NOUNKOWN = 'NU'
+    TESTED_NOUNKNOWN = 'NU'
     TESTED_YESNOTREACTIVE = 'YN'
     TESTED_CHOICES = (
                        (TESTED_YESREACTIVE, _('Yes Reactive')),
                        (TESTED_NOREACTIVE, _('No Reactive')),
-                       (TESTED_NOUNKOWN, _('No Status Unkown')),
+                       (TESTED_NOUNKNOWN, _('No Status Unkown')),
                        (TESTED_YESNOTREACTIVE, _('Yes Not Reactive')))
 
     CD4_YES = 'Y'
     CD4_NO = 'N'
-    CD4_UNKOWN = 'U'
+    CD4_UNKNOWN = 'U'
     CD4_CHOICES = (
         (CD4_YES, _(u"Yes")),
         (CD4_NO, _(u"No")),
-        (CD4_UNKOWN, _(u"Unkown")))
-
-
-    pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
-                                    help_text=_(u"How many months into the " \
-                                                 "pregnancy?"))
-    anc_visits = models.PositiveSmallIntegerField(_(u"ANC Visits"), \
-                                    help_text=_(u"Number of antenatal clinic "\
-                                                 "visits during pregnancy"))
-    weeks_since_anc = models.PositiveSmallIntegerField(\
-                                        _(u"Weeks since last ANC visit"), \
-                                        null=True, blank=True,
-                            help_text=_(u"How many weeks since the patient's "\
-                                         "last ANC visit (0 for less " \
-                                         "than 7 days)"))
+        (CD4_UNKNOWN, _(u"Unkown")))
 
     iron_supplement = models.CharField(_(u"Taking Iron"), max_length=1, \
                                    choices=IRON_CHOICES, \
@@ -432,25 +418,6 @@ class SauriPregnancyReport(CCReport):
     pmtc_arv = models.ForeignKey('CodedItem', \
                                          verbose_name=_(u"PMTC ARV"))
 
-    def summary(self):
-        string = u"%s: %d, %s: %d" % \
-            (self._meta.get_field_by_name('pregnancy_month')[0].verbose_name, \
-             self.pregnancy_month,
-             self._meta.get_field_by_name('anc_visits')[0].verbose_name, \
-             self.anc_visits)
-        if self.weeks_since_anc:
-            string += ", %s: %d" % \
-            (self._meta.get_field_by_name('weeks_since_anc')[0].verbose_name, \
-             self.weeks_since_anc)
-        return string
-
-    def get_omrs_dict(self):
-        igive = {
-            'month_of_current_gestation': self.pregnancy_month,
-            'antenatal_visit_number': self.anc_visits,
-            'weeks_since_last_anc': self.weeks_since_anc,
-        }
-        return {}
 reversion.register(SauriPregnancyReport, follow=['ccreport_ptr'])
 
 
