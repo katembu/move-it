@@ -415,8 +415,8 @@ class SauriPregnancyReport(PregnancyReport):
                                    choices=CD4_CHOICES, null=True, blank=True, \
                                    help_text=_(u"Was CD4 count done?"))
 
-    pmtc_arv = models.ForeignKey('CodedItem', \
-                                         verbose_name=_(u"PMTC ARV"))
+    pmtc_arv = models.ForeignKey('CodedItem', null=True, blank=True, \
+                                    verbose_name=_(u"PMTC ARV"))
 
 reversion.register(SauriPregnancyReport, follow=['ccreport_ptr'])
 
