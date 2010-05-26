@@ -14,6 +14,7 @@ admin.site.register(Encounter, VersionAdmin)
 admin.site.register(FormGroup)
 admin.site.register(Clinic)
 admin.site.register(Patient, VersionAdmin)
+admin.site.register(HealthId, VersionAdmin)
 
 #Reports
 admin.site.register(CCReport, VersionAdmin)
