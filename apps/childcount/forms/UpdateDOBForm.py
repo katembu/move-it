@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: katembu
-import re
+
+'''  Update date of Birth form  '''
+
+
+
 from django.utils.translation import ugettext as _
 from childcount.utils import DOBProcessor
 from childcount.forms import CCForm
@@ -9,7 +13,7 @@ from childcount.models import Patient, Encounter
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
      
-#update DoB
+#update DoB class
 class UpdateDOBForm(CCForm):
 
     KEYWORDS = {
