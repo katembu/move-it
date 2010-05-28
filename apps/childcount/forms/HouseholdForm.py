@@ -16,7 +16,6 @@ class HouseholdForm(CCForm):
     }
 
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
-    #PREVIOUS_ID = {'en': 'P'}
     MIN_HH_AGE = 10
 
     def process(self, patient):
