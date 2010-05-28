@@ -32,4 +32,5 @@ from childcount.forms import utils
 from childcount.forms.SauriUnderOneForm import SauriUnderOneForm
 from childcount.forms.SauriPregnancyForm import SauriPregnancyForm
 from childcount.forms.HouseholdForm import HouseholdForm
+from childcount.forms.UpdateNameForm import UpdateNameForm
 #endsauri
