@@ -25,7 +25,6 @@ def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
     if rformat == 'pdf':
         for report in reports:
             rows.append([data for data in columns])
-    
         rpt = PDFReport()
         rpt.setTitle(report_title)
         rpt.setFilename('_'.join(report_title.split()) + '.pdf')
@@ -44,20 +43,20 @@ def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
                 rows.append(row)
                 break
             rows.append(row)
-    
+
         aocolumns_js = "{ \"sType\": \"html\" },"
         for col in columns[1:] + (sub_columns if sub_columns != None else []):
             if not 'colspan' in col:
                 aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
                                 "\"bSearchable\": true },"
         aocolumns_js = aocolumns_js[:-1]
-    
+
         aggregate = False
         context_dict = {'get_vars': request.META['QUERY_STRING'],
                         'columns': columns, 'sub_columns': sub_columns,
                         'rows': rows, 'report_title': report_title,
                         'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
-    
+
         if request.method == 'GET' and 'excel' in request.GET:
             '''response = HttpResponse(mimetype="application/vnd.ms-excel")
             filename = "%s %s.xls" % \
@@ -67,9 +66,11 @@ def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
             from findug.utils import create_excel
             response.write(create_excel(context_dict))
             return response'''
-            return render_to_response(request, 'childcount/patient.html', context_dict)
+            return render_to_response(request, 'childcount/patient.html', \
+                                        context_dict)
         else:
-            return render_to_response(request, 'childcount/patient.html', context_dict)
+            return render_to_response(request, 'childcount/patient.html', \
+                                        context_dict)
 
 
 def all_patient_list_per_chw_pdf(request):
@@ -156,20 +157,20 @@ def chw(request, rformat='html'):
                 rows.append(row)
                 break
             rows.append(row)
-    
+
         aocolumns_js = "{ \"sType\": \"html\" },"
         for col in columns[1:] + (sub_columns if sub_columns != None else []):
             if not 'colspan' in col:
                 aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
                                 "\"bSearchable\": true },"
         aocolumns_js = aocolumns_js[:-1]
-    
+
         aggregate = False
         context_dict = {'get_vars': request.META['QUERY_STRING'],
                         'columns': columns, 'sub_columns': sub_columns,
                         'rows': rows, 'report_title': report_title,
                         'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
-    
+
         if request.method == 'GET' and 'excel' in request.GET:
             '''response = HttpResponse(mimetype="application/vnd.ms-excel")
             filename = "%s %s.xls" % \
@@ -179,6 +180,8 @@ def chw(request, rformat='html'):
             from findug.utils import create_excel
             response.write(create_excel(context_dict))
             return response'''
-            return render_to_response(request, 'childcount/chw.html', context_dict)
+            return render_to_response(request, 'childcount/chw.html', \
+                                        context_dict)
         else:
-            return render_to_response(request, 'childcount/chw.html', context_dict)
+            return render_to_response(request, 'childcount/chw.html', \
+                                            context_dict)
