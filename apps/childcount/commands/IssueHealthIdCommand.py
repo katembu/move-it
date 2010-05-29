@@ -34,16 +34,22 @@ class IssueHealthIdCommand(CCCommand):
         else:
             #issue 5 ids
             list = CHWHealthId.objects.filter(chw=None, used=False)
-
-            #get a random list of 5
-            ids = random.sample(list, 5)
-            for id in ids:
-                id.chw = chw
-                id.issued_on = datetime.datetime.now()
-                id.used = False
-                id.save()
-            self.message.respond(_(u"Health IDs: %(health_id)s") %
-                                {'health_id':\
-                                    ', '.join(['%s' % h.health_id for h in ids])})
+            if not list:
+                self.message.respond(_(u"No health Ids available now! Please"))
+            else:
+                #get a random list of 5
+                if list.count() > 5:
+                    ids  = random.sample(list, 5)
+                else:
+                    ids = random.sample(list, list.count())
+                for id in ids:
+                    id.chw = chw
+                    id.issued_on = datetime.datetime.now()
+                    id.used = False
+                    id.save()
+                self.message.respond(_(u"Health IDs: %(health_id)s") %
+                                        {'health_id':\
+                                            ', '.join([h.health_id.health_id \
+                                                        for h in ids])})
 
         return True
