@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
-from childcount.models import Patient, Encounter, HealthId
+from childcount.models import Patient, Encounter, HealthId, CHWHealthId
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
@@ -212,6 +212,17 @@ class PatientRegistrationForm(CCForm):
         health_id_obj.issued_on = datetime.now()
         health_id_obj.status = HealthId.STATUS_ISSUED
         health_id_obj.save()
+
+        #indicate the health id as being used by a chw
+        try:
+            if CHWHealthId.objects.filter(health_id=health_id_obj):
+                chw_healthid_obj =\
+                    CHWHealthId.objects.get(health_id=health_id_obj)
+                chw_healthid_obj.used = True
+                chw_healthid_obj.chw = patient.chw
+                chw_healthid_obj.save()
+        except:
+            pass
 
         self.response = _("You successfuly registered %(patient)s") % \
                     {'patient': patient}
