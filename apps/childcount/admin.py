@@ -13,7 +13,12 @@ admin.site.register(CHW)
 admin.site.register(Encounter, VersionAdmin)
 admin.site.register(FormGroup)
 admin.site.register(Clinic)
-admin.site.register(Patient, VersionAdmin)
+
+
+class PatientAdmin(VersionAdmin):
+    list_display = ('__unicode__', 'location', 'chw')
+    search_fields = ['health_id', 'first_name', 'last_name']
+admin.site.register(Patient, PatientAdmin)
 
 
 class HealthIdAdmin(VersionAdmin):
