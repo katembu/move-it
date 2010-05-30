@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import Patient, Encounter
+from childcount.models import Patient, Encounter, CodedItem
 from childcount.models.reports import SPregnancy as SauriPregnancyReport
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
@@ -130,6 +130,36 @@ class SauriPregnancyForm(CCForm):
         pr.tested_hiv = tested_hiv
         pr.iron_supplement = iron_supplement
         pr.folic_suppliment = folic_supplement
+        
+        supplement_str = u''
+        if pr.iron_supplement == SauriPregnancyReport.IRON_YES\
+            and pr.folic_suppliment == SauriPregnancyReport.FOLIC_YES:
+            supplement_str = _(u"taking iron and folic suppliments")
+        elif pr.iron_supplement == SauriPregnancyReport.IRON_NO\
+            and pr.folic_suppliment == SauriPregnancyReport.FOLIC_NO:
+            supplement_str = _(u"not taking iron and folic supplements")
+        elif pr.iron_supplement == SauriPregnancyReport.IRON_DOESNOTHAVE\
+            and pr.folic_suppliment == SauriPregnancyReport.FOLIC_DOESNOTHAVE:
+            supplement_str = _(u"does not have iron and folic suppliments")
+        else:
+            if pr.iron_supplement == SauriPregnancyReport.IRON_YES:
+                supplement_str = _(u"taking iron suppliment")
+            elif pr.iron_supplement == SauriPregnancyReport.IRON_NO:
+                supplement_str = _(u"not taking iron suppliment")
+            elif pr.iron_supplement == SauriPregnancyReport.IRON_DOESNOTHAVE:
+                supplement_str = _(u"does not iron suppliment")
+            else:
+                supplement_str += _(u"taking iron unkown status")
+            supplement_str += ", "
+            if pr.folic_suppliment == SauriPregnancyReport.FOLIC_YES:
+                supplement_str += _(u"taking folic suppliment")
+            elif pr.folic_suppliment == SauriPregnancyReport.FOLIC_NO:
+                supplement_str += _(u"not taking folic suppliment")
+            elif pr.folic_suppliment == SauriPregnancyReport.FOLIC_DOESNOTHAVE:
+                supplement_str += _(u"does not have folic suppliment")
+            else:
+                supplement_str += _(u"taking folic unkown status")
+            
 
         if tested_hiv in (SauriPregnancyReport.TESTED_YESREACTIVE, \
                             SauriPregnancyReport.TESTED_NOREACTIVE):
@@ -145,10 +175,15 @@ class SauriPregnancyForm(CCForm):
             cd4_count = cd4_count_field.get_db_value(self.params[7])
 
             pmtc_arv = self.params[8]
-            #TODO check against Coded items
-
+            if pmtc_arv.lower() is not 'n':
+                medicines = dict([(medicine.code.lower(), medicine) \
+                                 for medicine in \
+                                 CodedItem.objects.filter(\
+                                    type=CodedItem.TYPE_MEDICINE)])
+                obj = medicines.get(pmtc_arv.lower(), None)
+                if obj is not None:
+                    pr.pmtc_arv = obj
             pr.cd4_count = cd4_count
-            pr.pmtc_arv = pmtc_arv
 
         #TODO Cases
         '''
@@ -192,3 +227,6 @@ class SauriPregnancyForm(CCForm):
                                         'visits': anc_visits}
         if weeks is not None:
             self.response += _(u", last ANC visit %s") % last_str
+
+        if supplement_str is not None:
+            self.response += _(u", %s") % supplement_str
