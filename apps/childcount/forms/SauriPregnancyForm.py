@@ -60,15 +60,15 @@ class SauriPregnancyForm(CCForm):
                                         SauriPregnancyReport.CD4_UNKNOWN, 'U')
 
         if patient.gender != Patient.GENDER_FEMALE:
-            raise Inapplicable(_(u"Only female patients can be pregnant"))
+            raise Inapplicable(_(u"Only female patients can be pregnant."))
 
         if patient.years() < self.MIN_PREG_AGE:
             raise Inapplicable(_(u"Patient is too young to be pregnant " \
-                                "(%(age)s)") % \
+                                "(%(age)s).") % \
                                 {'age': patient.humanised_age()})
 
         if len(self.params) < 7:
-            raise ParseError(_(u"Not enough info, expected: " \
+            raise ParseError(_(u"Not enough info. Expected: " \
                                 "| month of pregnancy | number of ANC " \
                                 "visits | weeks since last ANC visit |"))
 
@@ -82,24 +82,25 @@ class SauriPregnancyForm(CCForm):
         month = self.params[1]
         if not month.isdigit() or int(month) not in range(1, 10):
             raise BadValue(_("Month of pregnancy must be a number between "\
-                               "1 and 9"))
+                               "1 and 9."))
         month = int(month)
 
         anc_visits = self.params[2]
         if not anc_visits.isdigit():
-            raise ParseError(_('Number of ANC visits must be a number'))
+            raise ParseError(_(u"Number of ANC visits must be entered as " \
+                               "a number."))
         anc_visits = int(anc_visits)
 
         if anc_visits != 0 and len(self.params) < 4:
             raise ParseError(_(u"You must include the weeks since the last " \
                                 "ANC visit after the total number of ANC "
-                                "visits"))
+                                "visits."))
 
         if anc_visits != 0:
             weeks = self.params[3]
             if not weeks.isdigit():
-                raise ParseError(_(u"Weeks since last ANC visit must be a " \
-                                    "number"))
+                raise ParseError(_(u"Weeks since last ANC visit must be " \
+                                   "entered as a number"))
             weeks = int(weeks)
         else:
             weeks = None
@@ -165,9 +166,9 @@ class SauriPregnancyForm(CCForm):
                             SauriPregnancyReport.TESTED_NOREACTIVE):
 
             if len(self.params) < 9:
-                raise ParseError(_(u"Not enough info, expected: " \
-                                "please ask if CD4 count has been done and "\
-                                "check if the patient is on pmtc arvs"))
+                raise ParseError(_(u"Not enough info. Expected: " \
+                                "Please ask if CD4 count has been taken and "\
+                                "check if the patient is on PMTC ARVs."))
             if not cd4_count_field.is_valid_choice(self.params[7]):
                 raise ParseError(_(u"CD4 Count %(choices)s") % \
                                 {'choices': cd4_count_field.choices_string()})

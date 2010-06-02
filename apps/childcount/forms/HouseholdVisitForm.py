@@ -31,12 +31,12 @@ class HouseholdVisitForm(CCForm):
 
         available_field.set_language(self.chw.language)
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected: household member "\
+            raise ParseError(_(u"Not enough info. Expected: household member "\
                                 "available? | number of children | " \
                                 "counseling / advice given (optional)"))
         if not available_field.is_valid_choice(self.params[1]):
             raise ParseError(_(u"|Any HH Member Available?| must be "\
-                               "%(choices)s") % \
+                               "%(choices)s.") % \
                               {'choices': available_field.choices_string()})
 
         available = available_field.get_db_value(self.params[1])
@@ -45,12 +45,13 @@ class HouseholdVisitForm(CCForm):
 
         if available:
             if len(self.params) < 3:
-                raise ParseError(_(u"Not enough info, expected: household " \
+                raise ParseError(_(u"Not enough info. Expected: household " \
                                 "member available? | number of children | " \
                                 "counseling / advice given (optional)"))
 
             if not self.params[2].isdigit():
-                raise ParseError(_("|Number of children| must be a number"))
+                raise ParseError(_("|Number of children| must be entered as " \
+                                   "a number."))
 
             children = int(self.params[2])
             hhvr.children = children
@@ -70,7 +71,7 @@ class HouseholdVisitForm(CCForm):
                         unkown.append(d)
 
                 if unkown:
-                    invalid_str = _(u"Unkown counseling topic code(s): " \
+                    invalid_str = _(u"Unknown counseling topic code(s): " \
                                      "%(codes)s No household visit " \
                                      "recorded.") % \
                                      {'codes': ', '.join(unkown).upper()}
@@ -83,12 +84,12 @@ class HouseholdVisitForm(CCForm):
         hhvr.save()
 
         if not available:
-            self.response = _(u"Household member not available")
+            self.response = _(u"Household member not available.")
             return
 
         if available:
             self.response = _(u"Household member available, %(kids)d " \
-                               "children under 5 seen") % \
+                               "children under 5 seen.") % \
                                                       {'kids': hhvr.children}
             if hhvr.counseling.count() > 0:
                 self.response += _(u", counseling / advice topics covered: " \
