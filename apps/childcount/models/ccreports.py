@@ -9,7 +9,7 @@ from datetime import date, timedelta
 
 from childcount.models import Patient
 from childcount.models import CHW
-from childcount.models import NutritionReport, FeverReport
+from childcount.models import NutritionReport, FeverReport,ReferralReport
 from childcount.models import BirthReport
 from childcount.models import HouseholdVisitReport
 
@@ -55,6 +55,20 @@ class ThePatient(Patient):
                 return True
             return False
         except HouseholdVisitReport.DoesNotExist:
+            return False
+
+    def ontime_muac(self):
+        try:
+            nr = NutritionReport.objects.filter(encounter_patient=self).latest()
+            latest_date = nr.encounter.encounter_date
+            old_date = ldate - timedelta(90)
+            nr = NutritionReport.objects.filter(encounter_patient=self, \
+                                encunter__encounter_date__gte=old_date, \
+                                encounter__encounter_date__lt=latest_date)
+            if nr.count():
+                return True
+            return False
+        except NutritionReport.DoesNotExist:
             return False
 
     @classmethod
@@ -109,9 +123,11 @@ class TheCHWReport(CHW):
 
     @property
     def num_of_underfive(self):
+        return self.patient_under_five().count()
+
+    def patients_under_five(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        num = Patient.objects.filter(chw=self, dob__lte=sixtym).count()
-        return num
+        return Patient.objects.filter(chw=self, dob__lte=sixtym)
 
     @property
     def num_of_sam(self):
@@ -197,6 +213,47 @@ class TheCHWReport(CHW):
         if num_of_births == 0:
             return 0
         return (round(num_of_clinic_delivery/float(num_of_births))*100)
+
+    def num_underfive_refferred(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        rr = ReferralReport.objects.filter(encounter__patient__dob__lte=sixtym)
+        return rr.count()
+
+    def num_underfive_malaria(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym)
+        return fr.count()
+    
+    def num_underfive_diarrhea(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym)
+        return fr.count()
+
+    def percentage_ontime_muac(self):
+        underfives = self.patients_under_five()
+        count = 0
+        for achild in underfives:
+            if achild.ontime_muac():
+                count += 1
+        if not count:
+            return count
+        else:
+            total_count = underfives.count()
+            return round(100 * (count/float(total_count)))
+
+    def num_of_active_sam_cases(self):
+        count = 0
+        danger = (NutritionReport.STATUS_SEVERE, \
+                        NutritionReport.STATUS_SEVERE_COMP)
+        nr = NutritionReport.objects\
+                        .filter(chw=self, status__in=danger)\
+                        .values('encounter__patient').distinct()
+        for r in nr:
+            p = Patient.objects.get(id=r['encounter_patient'])
+            latest = Nutrition.objects.filter(encounter_patient=p).latest()
+            if latest.status in danger:
+                count += 1
+        return count
 
     @classmethod
     def muac_summary(cls):
