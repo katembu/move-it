@@ -3,14 +3,15 @@
 # maintainer: ukanga
 
 from django.utils.translation import gettext as _
+from django.db.models import F
 
 from datetime import date, timedelta
 
 from childcount.models import Patient
 from childcount.models import CHW
-from childcount.models.reports import NutritionReport
-from childcount.models.reports import FeverReport
-from childcount.models.reports import HouseholdVisitReport
+from childcount.models import NutritionReport, FeverReport
+from childcount.models import BirthReport
+from childcount.models import HouseholdVisitReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week
 
@@ -28,6 +29,33 @@ class ThePatient(Patient):
         if not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
+
+    def check_visit_within_seven_days_of_birth(self):
+        seven_days_after_birth = self.dob + timedelta(7)
+        hvr = HouseholdVisitReport.objects\
+                .filter(encounter__encounter_date__gt=self.dob, \
+                    encounter__encounter_date__lte=seven_days_after_birth)\
+                .count()
+        if hvr:
+            return True
+        else:
+            return False
+
+    def visit_within_90_days_of_last_visit(self):
+        try:
+            hvr = HouseholdVisitReport.objects\
+                        .filter(encounter__patient=self.household).latest()
+            latest_date = hvr.encounter.encounter_date
+            old_date = ldate - timedelta(90)
+            hvr = HouseholdVisitReport.objects\
+                        .filter(encounter__patient=self.household, \
+                                encunter__encounter_date__gte=old_date, \
+                                encounter__encounter_date__lt=latest_date)
+            if hvr.count():
+                return True
+            return False
+        except HouseholdVisitReport.DoesNotExist:
+            return False
 
     @classmethod
     def under_five(cls, chw=None):
@@ -133,6 +161,42 @@ class TheCHWReport(CHW):
         identity = self.connection().identity
         num = IncomingMessage.objects.filter(identity=identity).count()
         return num
+
+    def number_of_households(self):
+        return self.households().count()
+
+    def households(self):
+        return Patient.objects.filter(health_id=F('household__health_id'), \
+                                        chw=self)
+
+    def num_of_householdvisits(self):
+        return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
+
+    def percentage_ontime_visits(self):
+        households = self.households()
+        num_on_time = 0
+        for household in households:
+            if household.visit_within_90_days_of_last_visit():
+                num_on_time += 1
+        if num_on_time is 0:
+            return 0
+        else:
+            total_households = households.count()
+            return round((num_on_time/float(total_households))*100)
+
+    def num_of_births(self):
+        return BirthReport.objects.filter(encounter__chw=self).count()
+
+    def num_of_clinic_delivery(self):
+        return BirthReport.objects.filter(encounter__chw=self, \
+                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).coun()
+
+    def percentage_clinic_deliveries(self):
+        num_of_clinic_delivery = self.num_of_clinic_delivery()
+        num_of_births = self.num_of_births()
+        if num_of_births == 0:
+            return 0
+        return (round(num_of_clinic_delivery/float(num_of_births))*100)
 
     @classmethod
     def muac_summary(cls):
