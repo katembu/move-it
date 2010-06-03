@@ -43,8 +43,8 @@ class CancelCommand(CCCommand):
         if last_rev.date_created + \
            timedelta(minutes=self.CANCEL_TIMEOUT_MIN) < datetime.now():
             raise Inapplicable(_(u"Cancel failed. You cannot cancel a " \
-                                  "report after more than %(num)d minutes.") %\
-                                  {'num': self.CANCEL_TIMEOUT_MIN})
+                                 "report after %(num)d minutes.") %\
+                                 {'num': self.CANCEL_TIMEOUT_MIN})
 
         # If the current version's revision is not equal to the last revision
         # by this user then someone else has modified it since.  This could

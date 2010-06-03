@@ -468,12 +468,12 @@ class KeywordMapper(object):
         try:
             cls_keywords = eval('cls.%s' % self.KEYWORDS_VAR)
         except AttributeError:
-            raise Exception(_(u"You tried to load %(cls)s but it does not " \
-                               "have %(k)s defined.") % \
-                               {'cls': cls, 'k': self.KEYWORDS_VAR})
+            raise Exception(_(u"You attempted to load %(cls)s without " \
+                              "%(k)s defined.") % \
+                              {'cls': cls, 'k': self.KEYWORDS_VAR})
 
         if not isinstance(cls_keywords, dict):
-            raise Exception(_(u"%(k)s must be a dictionary in %(cls)s") % \
+            raise Exception(_(u"%(k)s must be a dictionary in %(cls)s.") % \
                              {'cls': cls, 'k': self.KEYWORDS_VAR})
 
         for lang in cls_keywords.keys():

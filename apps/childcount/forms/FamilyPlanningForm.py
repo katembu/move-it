@@ -19,9 +19,9 @@ class FamilyPlanningForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected: number of women " \
+            raise ParseError(_(u"Not enough info. Expected: number of women " \
                                 "aged 15 - 49 | number using FP | methods " \
-                                "being used"))
+                                "being used."))
 
         try:
             fpr = FamilyPlanningReport.objects.get(encounter=self.encounter)
@@ -34,32 +34,32 @@ class FamilyPlanningForm(CCForm):
         fpr.form_group = self.form_group
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"|Number of women aged 15 - 49| must be a " \
-                                "number"))
+            raise ParseError(_(u"|Number of women aged 15 - 49| must be " \
+                                "entered as a number."))
 
         fpr.women = int(self.params[1])
         if fpr.women == 0:
-            self.response = _(u"No women aged 15 - 49 seen")
+            self.response = _(u"No women aged 15 - 49 visited.")
             fpr.save()
             return
 
         if len(self.params) < 3:
-            raise ParseError(_(u"After the number of women aged 15-49, you " \
-                                "must indicate the number of them using " \
-                                "modern family planning"))
+            raise ParseError(_(u"After entering the number of women aged " \
+                               "15-49, you must indicate how many use " \
+                               "modern family planning methods."))
 
         if not self.params[2].isdigit():
             raise ParseError(_(u"Number of women using modern family " \
-                                "planning must be a number"))
+                                "planning must be entered as a number."))
         fpr.women_using = int(self.params[2])
 
         if fpr.women_using > fpr.women:
             raise BadValue(_(u"The number of women using family planning " \
-                              "cannot be greater than the total number of " \
-                              "women"))
+                              "can not be greater than the total number of " \
+                              "women."))
         if fpr.women_using == 0:
             self.response = _(u"%(women)d women aged 15-49, none using " \
-                               "modern family planning") % \
+                               "modern family planning.") % \
                                {'women': fpr.women}
             fpr.save()
             return

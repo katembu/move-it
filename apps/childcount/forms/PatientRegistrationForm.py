@@ -88,7 +88,7 @@ class PatientRegistrationForm(CCForm):
 
         if len(gender_indexes) == 0:
             raise ParseError(_(u"You must indicate gender after the name " \
-                                "with a %(choices)s") % \
+                                "with a %(choices)s.") % \
                               {'choices': self.gender_field.choices_string()})
 
         dob = None
@@ -96,8 +96,8 @@ class PatientRegistrationForm(CCForm):
             # the gender field is at the end of the tokens.  We don't know
             # what to do about this.
             if i == len(tokens) - 1:
-                raise ParseError(_(u"Could not understand your message. " \
-                                    "Expected %(expected)s") % \
+                raise ParseError(_(u"Message not understood. Expected: " \
+                                    "%(expected)s") % \
                                     {'expected': expected})
 
             dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1])
@@ -107,15 +107,15 @@ class PatientRegistrationForm(CCForm):
                 days, weeks, months = patient.age_in_days_weeks_months()
                 if days < 60 and variance > 1:
                     raise BadValue(_(u"You must provide an exact birth date " \
-                                      "for children under 2 months"))
+                                      "for children under 2 months."))
                 elif months < 24 and variance > 30:
                     raise BadValue(_(u"You must provide an exact birth date " \
-                                      "or the age in months for children " \
-                                      "under two years"))
+                                      "or the age, in months, for children " \
+                                      "under two years."))
 
         if not dob:
             raise ParseError(_(u"Could not understand age or " \
-                                    "date_of_birth of %(string)s") % \
+                                    "date_of_birth of %(string)s.") % \
                                     {'string': tokens[i + 1]})
 
         patient.estimated_dob = variance > 1
@@ -123,7 +123,7 @@ class PatientRegistrationForm(CCForm):
         # if the gender field is the first or second
         if i == 0:
             raise ParseError(_(u"You must provide a patient name before " \
-                                "their sex"))
+                                "their sex."))
 
         patient.last_name, patient.first_name, alias = \
                              clean_names(' '.join(tokens[:i]), \
@@ -141,7 +141,7 @@ class PatientRegistrationForm(CCForm):
         if len(tokens) == 0:
             raise ParseError(_(u"You must indicate the head of " \
                                 "household after the age. If this " \
-                                "is the head of household " \
+                                "is the head of household, " \
                                 "write %(char)s after the dob/age.") % \
                                 {'char': self.PREVIOUS_ID[lang]})
 
@@ -150,8 +150,8 @@ class PatientRegistrationForm(CCForm):
         if household == self.PREVIOUS_ID[lang].lower():
             if patient.years() < self.MIN_HH_AGE:
                 raise BadValue(_(u"This patient is too young to be a head of "\
-                                  "household. You must provide their head of" \
-                                  "household"))
+                                  "household. You must provide the correct "\
+                                  "head of household."))
             patient.household = patient
             self_hoh = True
 
@@ -163,15 +163,14 @@ class PatientRegistrationForm(CCForm):
             except Patient.DoesNotExist:
                 raise BadValue(_(u"Could not find head of household " \
                                   "with health ID %(id)s. You must " \
-                                  "register the head of household " \
-                                  "first") % \
+                                  "first register the head of household.") % \
                                   {'id': household})
 
             age = patient.household.years()
             if age < self.MIN_HH_AGE:
                 raise BadValue(_(u"The head of household you specified is " \
                                   "too young to be a head of household " \
-                                  "(%(hh)s)") % {'hh': patient.household})
+                                  "(%(hh)s).") % {'hh': patient.household})
 
             # if the household head they listed is not a head of household
             if patient.household.household != patient.household:
@@ -179,7 +178,7 @@ class PatientRegistrationForm(CCForm):
                                   "(%(hh)s) is not a head of household. " \
                                   "Their head of household is (%(hhhh)s). " \
                                   "If they are the head, set their head of " \
-                                  "household to %(char)s") % \
+                                  "household to %(char)s.") % \
                                   {'hh': patient.household, \
                                    'hhhh': patient.household.household, \
                                    'char': self.PREVIOUS_ID[lang]})
@@ -197,7 +196,7 @@ class PatientRegistrationForm(CCForm):
                 patient_chw = patient_check[0].chw
             raise BadValue(_(u"%(name)s %(sex)s/%(age)s was already " \
                               "registered by %(chw)s. Their health id is " \
-                              "%(id)s") % \
+                              "%(id)s.") % \
                               {'name': old_p.full_name(), \
                                'sex': old_p.gender, \
                                'age': old_p.humanised_age(), \
@@ -224,5 +223,5 @@ class PatientRegistrationForm(CCForm):
         except:
             pass
 
-        self.response = _("You successfuly registered %(patient)s") % \
+        self.response = _("You successfuly registered %(patient)s.") % \
                     {'patient': patient}

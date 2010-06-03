@@ -19,8 +19,8 @@ class MedicineGivenForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected medicine " \
-                                "codes"))
+            raise ParseError(_(u"Not enough info. Expected: Medicine " \
+                                "codes."))
         try:
             mgr = MedicineGivenReport.objects.get(encounter=self.encounter)
             mgr.reset()
@@ -42,7 +42,7 @@ class MedicineGivenForm(CCForm):
                 unkown.append(d)
 
         if unkown:
-            invalid_str = _(u"Unkown medicine code(s): %(codes)s " \
+            invalid_str = _(u"Unknown medicine code(s): %(codes)s " \
                           "No medicines recorded.") % \
                          {'codes': ', '.join(unkown).upper()}
             raise ParseError(invalid_str)

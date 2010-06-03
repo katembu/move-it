@@ -24,8 +24,8 @@ class StillbirthMiscarriageForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected date of " \
-                                "stillbirth or miscarriage"))
+            raise ParseError(_(u"Not enough info. Expected: Date of " \
+                                "stillbirth or miscarriage."))
 
         try:
             sbmr = StillbirthMiscarriageReport.objects.get(\
@@ -39,11 +39,11 @@ class StillbirthMiscarriageForm(CCForm):
         try:
             doi, variance = DOBProcessor.from_dob(self.chw.language, doi_str)
         except InvalidDOB:
-            raise BadValue(_(u"Could not understand date: %(dod)s") %\
+            raise BadValue(_(u"Could not understand date: %(dod)s.") %\
                              {'dod': doi_str})
 
         sbmr.incident_date = doi
         sbmr.save()
 
-        self.response = _("Stillbirth or miscarriage on %(doi)s") % \
+        self.response = _("Stillbirth or miscarriage on %(doi)s.") % \
                          {'doi': doi}

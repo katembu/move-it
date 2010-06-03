@@ -195,12 +195,14 @@ class FollowUpReport(CCReport):
     improvement = models.CharField(_(u"Improvement"), max_length=1, \
                                    choices=IMPROVEMENT_CHOICES, \
                               help_text=_(u"Has the patient's condition " \
-                                           "improved since last CHW visit?"))
+                                           "improved since the last " \
+                                           "CHW visit?"))
 
     visited_clinic = models.CharField(_(u"Visited clinic"), max_length=1, \
                                    choices=VISITED_CHOICES, \
                               help_text=_(u"Did the patient visit a health "\
-                                           "facility since last CHW visit?"))
+                                           "facility since the last " \
+                                           "CHW visit?"))
 
     def summary(self):
         return u"%s: %s, %s: %s" % \
@@ -243,7 +245,7 @@ class DangerSignsReport(CCReport):
         verbose_name_plural = _(u"Danger Signs Reports")
 
     danger_signs = models.ManyToManyField('CodedItem', \
-                                          verbose_name=_(u"Danger signs"))
+                                          verbose_name=_(u"Danger Signs"))
 
     def summary(self):
         return u"%s: %s" % \
@@ -327,7 +329,7 @@ class PregnancyReport(CCReport):
                                         null=True, blank=True,
                             help_text=_(u"How many weeks since the patient's "\
                                          "last ANC visit (0 for less " \
-                                         "than 7 days)"))
+                                         "than 7 days)?"))
 
     def summary(self):
         string = u"%s: %d, %s: %d" % \
@@ -389,7 +391,7 @@ class SPregnancy(PregnancyReport):
     TESTED_CHOICES = (
                        (TESTED_YESREACTIVE, _('Yes Reactive')),
                        (TESTED_NOREACTIVE, _('No Reactive')),
-                       (TESTED_NOUNKNOWN, _('No Status Unkown')),
+                       (TESTED_NOUNKNOWN, _('No Status Unknown')),
                        (TESTED_YESNOTREACTIVE, _('Yes Not Reactive')))
 
     CD4_YES = 'Y'
@@ -415,9 +417,9 @@ class SPregnancy(PregnancyReport):
                               help_text=_(u"Did the mother get tested for "\
                                             "HIV?"))
 
-    cd4_count = models.CharField(_(u"Done CD4 Count"), max_length=1, \
+    cd4_count = models.CharField(_(u"Completed CD4 Count"), max_length=1, \
                                    choices=CD4_CHOICES, null=True, blank=True,\
-                                   help_text=_(u"Was CD4 count done?"))
+                                   help_text=_(u"Was CD4 count taken?"))
 
     pmtc_arv = models.ForeignKey('CodedItem', null=True, blank=True, \
                                     verbose_name=_(u"PMTC ARV"))
@@ -462,7 +464,7 @@ class UnderOneReport(CCReport):
     BREAST_CHOICES = (
         (BREAST_YES, _(u"Yes")),
         (BREAST_NO, _(u"No")),
-        (BREAST_UNKOWN, _(u"Unkown")))
+        (BREAST_UNKOWN, _(u"Unknown")))
 
     IMMUNIZED_YES = 'Y'
     IMMUNIZED_NO = 'N'
@@ -472,10 +474,10 @@ class UnderOneReport(CCReport):
         (IMMUNIZED_NO, _(u"No")),
         (IMMUNIZED_UNKOWN, _(u"Unkown")))
 
-    breast_only = models.CharField(_(u"Breast feeding Only"), max_length=1, \
-                                   choices=BREAST_CHOICES, \
-                                   help_text=_(u"Does the mother breast " \
-                                                "feed only?"))
+    breast_only = models.CharField(_(u"Breast feeding exclusively"), \
+                                   max_length=1, choices=BREAST_CHOICES, \
+                                   help_text=_(u"Does the mother " \
+                                               "exclusively breast feed?"))
 
     immunized = models.CharField(_(u"Immunized"), max_length=1, \
                                    choices=IMMUNIZED_CHOICES, \
@@ -737,7 +739,7 @@ class HouseholdVisitReport(CCReport):
                                 help_text=_(u"Was a houshold member " \
                                              "available?"))
 
-    children = models.SmallIntegerField(_("Children under five"), \
+    children = models.SmallIntegerField(_("Children Under Five"), \
                                         blank=True, null=True, \
                             help_text=_("Number of children under 5 seen"))
 
@@ -906,5 +908,5 @@ class VerbalAutopsyReport(CCReport):
         verbose_name = _(u"Verbal Autopsy Report")
         verbose_name_plural = _(u"Verbal Autopsy Reports")
 
-    done = models.BooleanField(_("Done?"), \
-                                help_text=_('Was a Verbal Autopsy done?'))
+    done = models.BooleanField(_("Completed?"), \
+                                help_text=_('Was a Verbal Autopsy conducted?'))

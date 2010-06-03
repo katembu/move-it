@@ -37,7 +37,7 @@ class RegistrationCommand(CCCommand):
         try:
             location = Location.objects.get(code=location_code)
         except Location.DoesNotExist:
-            raise BadValue(_(u"Location %(location)s does not exist") % \
+            raise BadValue(_(u"Location %(location)s does not exist.") % \
                               {'location': location_code})
 
         flat_name = ' '.join(self.params[2:])
@@ -84,7 +84,7 @@ class RegistrationCommand(CCCommand):
 
         # inform target
         self.message.respond(
-            _(u"Success. You are now registered at %(location)s with " \
+            _(u"You are now registered at %(location)s with " \
                "alias @%(alias)s.") \
                % {'location': location, 'alias': chw.alias}, 'success')
 
