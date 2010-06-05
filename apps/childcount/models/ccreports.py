@@ -5,12 +5,12 @@
 from django.utils.translation import gettext as _
 from django.db.models import F
 
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from childcount.models import Patient
 from childcount.models import CHW
 from childcount.models import NutritionReport, FeverReport,ReferralReport
-from childcount.models import BirthReport
+from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week
@@ -46,10 +46,10 @@ class ThePatient(Patient):
             hvr = HouseholdVisitReport.objects\
                         .filter(encounter__patient=self.household).latest()
             latest_date = hvr.encounter.encounter_date
-            old_date = ldate - timedelta(90)
+            old_date = latest_date - timedelta(90)
             hvr = HouseholdVisitReport.objects\
                         .filter(encounter__patient=self.household, \
-                                encunter__encounter_date__gte=old_date, \
+                                encounter__encounter_date__gte=old_date, \
                                 encounter__encounter_date__lt=latest_date)
             if hvr.count():
                 return True
@@ -59,11 +59,11 @@ class ThePatient(Patient):
 
     def ontime_muac(self):
         try:
-            nr = NutritionReport.objects.filter(encounter_patient=self).latest()
+            nr = NutritionReport.objects.filter(encounter__patient=self).latest()
             latest_date = nr.encounter.encounter_date
-            old_date = ldate - timedelta(90)
-            nr = NutritionReport.objects.filter(encounter_patient=self, \
-                                encunter__encounter_date__gte=old_date, \
+            old_date = latest_date - timedelta(90)
+            nr = NutritionReport.objects.filter(encounter__patient=self, \
+                                encounter__encounter_date__gte=old_date, \
                                 encounter__encounter_date__lt=latest_date)
             if nr.count():
                 return True
@@ -123,7 +123,7 @@ class TheCHWReport(CHW):
 
     @property
     def num_of_underfive(self):
-        return self.patient_under_five().count()
+        return self.patients_under_five().count()
 
     def patients_under_five(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -178,6 +178,7 @@ class TheCHWReport(CHW):
         num = IncomingMessage.objects.filter(identity=identity).count()
         return num
 
+    @property
     def number_of_households(self):
         return self.households().count()
 
@@ -192,7 +193,8 @@ class TheCHWReport(CHW):
         households = self.households()
         num_on_time = 0
         for household in households:
-            if household.visit_within_90_days_of_last_visit():
+            thepatient = ThePatient.objects.get(health_id=household.health_id)
+            if thepatient.visit_within_90_days_of_last_visit():
                 num_on_time += 1
         if num_on_time is 0:
             return 0
@@ -203,9 +205,20 @@ class TheCHWReport(CHW):
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
 
+    def percentage_ontime_birth_visits(self):
+        births = BirthReport.objects.filter(encounter__chw=self)
+        count = 0
+        for birth in births:
+            thepatient = ThePatient.objects.get(id=birth.encounter.patient)
+            if thepatient.check_visit_within_seven_days_of_birth():
+                count += 1
+        if not count:
+            return count
+        return round(100 * (count/float(births.count())))
+
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
-                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).coun()
+                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def percentage_clinic_deliveries(self):
         num_of_clinic_delivery = self.num_of_clinic_delivery()
@@ -216,24 +229,26 @@ class TheCHWReport(CHW):
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        rr = ReferralReport.objects.filter(encounter__patient__dob__lte=sixtym)
+        rr = ReferralReport.objects.filter(encounter__patient__dob__lte=sixtym,
+                        encounter__chw=self)
         return rr.count()
 
     def num_underfive_malaria(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym)
+        fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym, \
+                                        encounter__chw=self)
         return fr.count()
     
     def num_underfive_diarrhea(self):
-        sixtym = date.today() - timedelta(int(30.4375 * 59))
-        fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym)
-        return fr.count()
+        #TODO
+        return 0
 
     def percentage_ontime_muac(self):
         underfives = self.patients_under_five()
         count = 0
         for achild in underfives:
-            if achild.ontime_muac():
+            thepatient = ThePatient.objects.get(id=achild.id)
+            if thepatient.ontime_muac():
                 count += 1
         if not count:
             return count
@@ -246,14 +261,58 @@ class TheCHWReport(CHW):
         danger = (NutritionReport.STATUS_SEVERE, \
                         NutritionReport.STATUS_SEVERE_COMP)
         nr = NutritionReport.objects\
-                        .filter(chw=self, status__in=danger)\
+                        .filter(encounter__chw=self, status__in=danger)\
                         .values('encounter__patient').distinct()
         for r in nr:
-            p = Patient.objects.get(id=r['encounter_patient'])
-            latest = Nutrition.objects.filter(encounter_patient=p).latest()
+            p = Patient.objects.get(id=r['encounter__patient'])
+            latest = NutritionReport.objects.filter(encounter__patient=p)\
+                                            .latest()
             if latest.status in danger:
                 count += 1
         return count
+
+    def num_of_pregnant_women(self):
+        return len(self.pregnant_women())
+
+    def pregnant_women(self):
+        c = []
+        pregs = PregnancyReport.objects.filter(encounter__chw=self)\
+                                .values('encounter__patient').distinct()
+        for preg in pregs:
+            patient = Patient.objects.get(id=preg['encounter__patient'])
+            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+                                        .latest()
+            days = (pr.encounter.encounter_date - datetime.now()).days
+            months = round(days / 30.4375)
+            if pr.pregnancy_month + months < 9:
+                c.append(patient)
+        return c
+
+    def num_pregnant_refferred(self):
+        pwomen = self.pregnant_women()
+        rr = ReferralReport.objects.filter(encounter__patient__in=pwomen, \
+                                        encounter__chw=self)
+        return rr.count()
+
+    def percentage_pregnant_ontime_visits(self):
+        pwomen = self.pregnant_women()
+        count = 0
+        for patient in pwomen:
+            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+                                        .latest()
+            latest_date = pr.encounter.encounter_date
+            old_date = latest_date - timedelta(6 * 7)
+            pr = PregnancyReport.objects.filter(encounter__patient=patient, \
+                                encounter__encounter_date__gte=old_date, \
+                                encounter__encounter_date__lt=latest_date)
+            if pr.count():
+                count += 1
+        if not count:
+            return count
+        else:
+            total_count = len(pwomen)
+            return round(100*(count/float(total_count)))
+            
 
     @classmethod
     def muac_summary(cls):
@@ -332,3 +391,48 @@ class TheCHWReport(CHW):
                                            received__lte=end).count()
             data.update({day["day"]: num})
         return data
+
+class OperationalReport():
+    columns = []
+    def __init__(self):
+        columns = []
+        columns.append({'name': _("CHW"), 'bit': '{{object}}'})
+        columns.append({'name': _("# of Households"), \
+                'bit': '{{object.number_of_households}}'})
+        columns.append({'name': _("# of Household Visits"), \
+                'bit': '{{object.num_of_householdvisits}}'})
+        columns.append({'name': _("% of HHs receiving on-time routine visit "\
+                                    "(within 90 days) [S23]"), \
+                'bit': '{{object.percentage_ontime_visits}}%'})
+        columns.append({'name': _("# of Births"), \
+                'bit': '{{object.num_of_births}}'})
+        columns.append({'name': _("% Births delivered in Health Facility [S4]"),
+                'bit': '{{object.percentage_clinic_deliveries}}%'})
+        columns.append({'name': _("% Newborns checked within 7 days of birth "\
+                            "[S6]"), \
+                'bit': '{{object.percentage_ontime_birth_visits}}%'})
+        columns.append({'name': _("# of Under-5s"), \
+                'bit': '{{object.num_of_underfive}}'})
+        columns.append({'name': _("# Under-5 Referred for Danger Signs"), \
+                'bit': '{{object.num_underfive_refferred}}'})
+        columns.append({'name': _("# Under-5 Treated for Malarias"), \
+                'bit': '{{object.num_underfive_malaria}}'})
+        columns.append({'name': _("# Under-5 Treated for Diarrhea"), \
+                'bit': '{{object.num_underfive_diarrhea}}'})
+        columns.append({'name': _("% receiving on-time MUAC (within 90 days) "\
+                                    "[S11]"), \
+                'bit': '{{object.percentage_ontime_muac}}%'})
+        columns.append({'name': _("# of Active GAM cases"), \
+                'bit': '{{object.num_of_active_sam_cases}}'})
+        columns.append({'name': _("# of Pregnant Women"), \
+                'bit': '{{object.num_of_pregnant_women}}'})
+        columns.append({'name': _("# Pregnant Women Referred for Danger Signs"),
+                'bit': '{{object.num_pregnant_refferred}}'})
+        columns.append({'name': _("% receiving on-time visit (within 6 weeks) "\
+                        "[S24]"), \
+                'bit': '{{object.percentage_pregnant_ontime_visits}}'})
+        self.columns = columns
+
+    def get_columns(self):
+        return self.columns
+
