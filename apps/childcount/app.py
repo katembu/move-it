@@ -370,7 +370,7 @@ class App (rapidsms.app.App):
             try:
                 obj.process()
             except CCException, e:
-                message.respond(e, 'error')
+                message.respond(e.message, 'error')
         return handled
 
     def cleanup(self, message):
