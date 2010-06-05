@@ -96,6 +96,7 @@ class PDFReport():
     fontSize = 8
     rowsperpage = 90
     print_on_both_sides = False
+    firstRowHeight = 0.25
 
     def __init__(self):
         self.headers.append("")
@@ -189,6 +190,13 @@ class PDFReport():
                        colors.lightgrey))
             ts.append(('FONT', (0, -1), (-1, -1), "Times-Roman", 7))
         return ts
+
+    def setFirstRowHeight(self, height):
+        '''Set the height of the first row'''
+        self.firstRowHeight = height
+
+    def getFirstRowHeight(self):
+        return  self.firstRowHeight
 
     def setTableData(self, queryset, fields, title, colWidths=None, \
                                                             hasCounter=False):
