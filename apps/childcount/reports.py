@@ -6,11 +6,18 @@ from rapidsms.webui.utils import render_to_response
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 
+try:
+    from reportlab.lib.units import inch
+except ImportError:
+    pass
+
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
 
 from libreport.pdfreport import PDFReport, p
 from libreport.csvreport import CSVReport
+
+from locations.models import Location
 
 
 def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
@@ -189,14 +196,27 @@ def chw(request, rformat='html'):
 
 
 def operationalreport(request, rformat):
+    opr = OperationalReport()
     if rformat == u'csv':
         rpt = CSVReport()
+        rpt.setTableData(TheCHWReport.objects.all(), opr.get_columns(), \
+            'Operational Report')
     else:
         #pdf
         rpt = PDFReport()
+        rpt.setLandscape(False)
+        rpt.setFirstRowHeight(2.5)
+        rpt.rotateText(True)
+        rpt.setRowsPerPage(19)
+        colWidths = [1 * inch]
+        colWidths.extend((len(opr.get_columns()) - 1) * [0.4 * inch] )
+        for location in Location.objects.all():
+            if not TheCHWReport.objects.filter(location=location).count():
+                continue
+            rpt.setTableData(TheCHWReport.objects.filter(location=location), \
+                            opr.get_columns(), _('Operational Report %s') % \
+                            location, colWidths=colWidths)
+            rpt.setPageBreak()
 
-    opr = OperationalReport()
-    rpt.setTableData(TheCHWReport.objects.all(), opr.get_columns(), \
-            'Operational Report')
     return rpt.render()
 
