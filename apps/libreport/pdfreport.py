@@ -199,6 +199,7 @@ class PDFReport():
         return  self.firstRowHeight
 
     def getRowHeights(self, numOfRows):
+        '''retuns the row heights'''
         rh = [self.getFirstRowHeight() * inch]
         numOfRows -= 1
         rh.extend(numOfRows * [0.25 * inch])
@@ -455,3 +456,4 @@ class MultiColDocTemplate(BaseDocTemplate):
 
     def setHeaders(self, headers):
         self.headers = headers
+
