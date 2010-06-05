@@ -10,6 +10,7 @@ from django.template import Template, Context
 from django.http import HttpResponse
 
 try:
+    from reportlab.platypus.flowables import Flowable
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.platypus import BaseDocTemplate, PageTemplate, \
         Paragraph, PageBreak, Frame, FrameBreak, NextPageTemplate, Spacer, \
@@ -234,7 +235,7 @@ class PDFReport():
         for row in queryset:
             counter += 1
             if not header:
-                value = [pheader(f["name"], hStyle, sep=0) for f in fields]
+                value = [(pheader(f["name"], hStyle, sep=0) for f in fields]
                 if hasCounter:
                     value.insert(0, '#')
                 data.append(value)
@@ -456,4 +457,22 @@ class MultiColDocTemplate(BaseDocTemplate):
 
     def setHeaders(self, headers):
         self.headers = headers
+
+
+class RotatedText(Flowable):
+
+    '''Rotates text in a table cell.'''
+
+    def __init__(self, text ):
+        Flowable.__init__(self)
+        self.text=text
+
+    def draw(self):
+        canv = self.canv
+        canv.rotate(90)
+        canv.drawString( 0, -1, self.text)
+
+    def wrap(self, aW, aH) :
+        canv = self.canv
+        return canv._leading, canv.stringWidth(self.text)
 
