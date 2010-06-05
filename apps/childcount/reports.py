@@ -7,9 +7,10 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 
 from childcount.models.ccreports import TheCHWReport
-from childcount.models.ccreports import ThePatient
+from childcount.models.ccreports import ThePatient, OperationalReport
 
 from libreport.pdfreport import PDFReport, p
+from libreport.csvreport import CSVReport
 
 
 def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
@@ -185,3 +186,17 @@ def chw(request, rformat='html'):
         else:
             return render_to_response(request, 'childcount/chw.html', \
                                             context_dict)
+
+
+def operationalreport(request, rformat):
+    if rformat == u'csv':
+        rpt = CSVReport()
+    else:
+        #pdf
+        rpt = PDFReport()
+
+    opr = OperationalReport()
+    rpt.setTableData(TheCHWReport.objects.all(), opr.get_columns(), \
+            'Operational Report')
+    return rpt.render()
+

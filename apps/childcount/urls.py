@@ -29,6 +29,7 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
+    url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', reports.operationalreport),
 
     url(r'^childcount/dataentry/?$', views.dataentry),
 )
