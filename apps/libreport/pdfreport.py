@@ -198,6 +198,12 @@ class PDFReport():
     def getFirstRowHeight(self):
         return  self.firstRowHeight
 
+    def getRowHeights(self, numOfRows):
+        rh = [self.getFirstRowHeight() * inch]
+        numOfRows -= 1
+        rh.extend(numOfRows * [0.25 * inch])
+        return rh
+
     def setTableData(self, queryset, fields, title, colWidths=None, \
                                                             hasCounter=False):
         '''set table data
@@ -244,7 +250,7 @@ class PDFReport():
         if len(data):
             ts = self.getTableStyle()
 
-            table = PDFTable(data, colWidths, len(data) * [0.25 * inch], \
+            table = PDFTable(data, colWidths, self.getRowHeights(len(data)), \
                                 style=ts, splitByRow=1)
 
             table.hAlign = "LEFT"
