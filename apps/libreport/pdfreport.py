@@ -86,6 +86,7 @@ class PDFReport():
     pageinfo = ""
     filename = "report"
     styles = getSampleStyleSheet()
+    table_style = None
     data = []
     landscape = False
     hasfooter = False
@@ -161,6 +162,34 @@ class PDFReport():
         for i in elements:
             self.data.append(i)
 
+    def setTableStyle(self, ts):
+        self.table_style = ts
+
+    def getTableStyle(self):
+        if self.table_style:
+            return self.table_style
+        ts = [
+              ('ALIGNMENT', (0, 1), (-1, -1), 'CENTER'),
+              ('LINEBELOW', (0, 0), (-1, -0), 2, colors.brown),
+              ('LINEBELOW', (0, 1), (-1, -1), 0.8, \
+                                            colors.lightgoldenrodyellow),
+              ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+              ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+              ('TOPPADDING', (0, 0), (-1, -1), 2), ('ROWBACKGROUNDS', \
+                                                (0, 0), (-1, -1), \
+             [colors.whitesmoke, colors.white]),
+            ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize)]
+
+        #last row formatting when required
+        if self.hasfooter is True:
+            ts.append(('LINEABOVE', (0, -1), (-1, -1), 1, colors.black))
+            ts.append(('LINEBELOW', (0, -1), (-1, -1), 2, colors.black))
+            ts.append(('LINEBELOW', (0, 3), (-0, -0), 2, colors.green))
+            ts.append(('LINEBELOW', (0, -1), (-1, -1), 0.8, \
+                       colors.lightgrey))
+            ts.append(('FONT', (0, -1), (-1, -1), "Times-Roman", 7))
+        return ts
+
     def setTableData(self, queryset, fields, title, colWidths=None, \
                                                             hasCounter=False):
         '''set table data
@@ -205,30 +234,8 @@ class PDFReport():
             data.append(values)
 
         if len(data):
-            #table = PDFTable(data, colWidths, None, None, 1)
-            #table rows n cols formatting
-            ts = [
-                  ('ALIGNMENT', (0, 1), (-1, -1), 'CENTER'),
-                  ('LINEBELOW', (0, 0), (-1, -0), 2, colors.brown),
-                  ('LINEBELOW', (0, 1), (-1, -1), 0.8, \
-                                                colors.lightgoldenrodyellow),
-                  ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                  ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
-                  ('TOPPADDING', (0, 0), (-1, -1), 2), ('ROWBACKGROUNDS', \
-                                                    (0, 0), (-1, -1), \
-                 [colors.whitesmoke, colors.white]),
-                ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize)]
+            ts = self.getTableStyle()
 
-            #last row formatting when required
-            if self.hasfooter is True:
-                ts.append(('LINEABOVE', (0, -1), (-1, -1), 1, colors.black))
-                ts.append(('LINEBELOW', (0, -1), (-1, -1), 2, colors.black))
-                ts.append(('LINEBELOW', (0, 3), (-0, -0), 2, colors.green))
-                ts.append(('LINEBELOW', (0, -1), (-1, -1), 0.8, \
-                           colors.lightgrey))
-                ts.append(('FONT', (0, -1), (-1, -1), "Times-Roman", 7))
-
-            #table.setStyle(TableStyle(ts))
             table = PDFTable(data, colWidths, len(data) * [0.25 * inch], \
                                 style=ts, splitByRow=1)
 
