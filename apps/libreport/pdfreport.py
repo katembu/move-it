@@ -98,6 +98,7 @@ class PDFReport():
     rowsperpage = 90
     print_on_both_sides = False
     firstRowHeight = 0.25
+    rotateTextFirstRow = False
 
     def __init__(self):
         self.headers.append("")
@@ -171,7 +172,7 @@ class PDFReport():
         if self.table_style:
             return self.table_style
         ts = [
-              ('ALIGNMENT', (0, 1), (-1, -1), 'CENTER'),
+              ('ALIGNMENT', (0, 1), (-1, -1), 'LEFT'),
               ('LINEBELOW', (0, 0), (-1, -0), 2, colors.brown),
               ('LINEBELOW', (0, 1), (-1, -1), 0.8, \
                                             colors.lightgoldenrodyellow),
@@ -206,6 +207,9 @@ class PDFReport():
         rh.extend(numOfRows * [0.25 * inch])
         return rh
 
+    def rotateText(self, bl):
+        self.rotateTextFirstRow = bl
+
     def setTableData(self, queryset, fields, title, colWidths=None, \
                                                             hasCounter=False):
         '''set table data
@@ -235,7 +239,10 @@ class PDFReport():
         for row in queryset:
             counter += 1
             if not header:
-                value = [(pheader(f["name"], hStyle, sep=0) for f in fields]
+                if self.rotateTextFirstRow:
+                    value = [RotatedText(f["name"]) for f in fields]
+                else:
+                    value = [pheader(f["name"], hStyle, sep=0) for f in fields]
                 if hasCounter:
                     value.insert(0, '#')
                 data.append(value)
