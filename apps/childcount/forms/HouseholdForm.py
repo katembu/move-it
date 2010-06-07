@@ -23,7 +23,7 @@ class HouseholdForm(CCForm):
    
         #Check if tokens are less than 2 at least one person shd be house hold
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info, expected: Patient health id "\
+            raise ParseError(_(u"Not enough info. Expected: Patient health id "\
                                 "+hed | household healthid | mother health id" \
                                   "or gurdian id"))
       
@@ -47,8 +47,7 @@ class HouseholdForm(CCForm):
             mother = Patient.objects.get(health_id__iexact=motherid, \
                                         household__health_id__iexact=household)
             if mother == patient:
-                   raise BadValue(_(u"Please enter the correct information " \
-                                  "u cant be your own mother "))   
+                   raise BadValue(_(u"Patient can not be its own mother."))
                              
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find head of mother " \

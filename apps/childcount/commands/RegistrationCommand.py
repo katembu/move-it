@@ -29,7 +29,7 @@ class RegistrationCommand(CCCommand):
             reporter_language = self.ENGLISH
 
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough information. Expected: " \
+            raise ParseError(_(u"Not enough info. Expected: " \
                                 "%(keyword)s location names") % \
                                 {'keyword': self.params[0]})
 

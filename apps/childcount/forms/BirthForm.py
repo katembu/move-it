@@ -54,7 +54,7 @@ class BirthForm(CCForm):
                                   {'p': patient, 'chw': br.chw()})
 
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough information. Expected: " \
+            raise ParseError(_(u"Not enough info. Expected: " \
                                 "|Mom Health ID|delivered in health facility" \
                                 "| weight(kg)(optional)"))
 
