@@ -28,7 +28,7 @@ class MedicineGivenForm(CCForm):
             mgr = MedicineGivenReport(encounter=self.encounter)
         mgr.form_group = self.form_group
 
-        medicines = dict([(medicine.code.lower(), medicine) \
+        medicines = dict([(medicine.local_code.lower(), medicine) \
                              for medicine in \
                              CodedItem.objects.filter(\
                                 type=CodedItem.TYPE_MEDICINE)])

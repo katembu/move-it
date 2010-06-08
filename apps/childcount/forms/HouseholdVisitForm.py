@@ -57,7 +57,7 @@ class HouseholdVisitForm(CCForm):
             hhvr.children = children
 
             if len(self.params) > 3:
-                topics = dict([(counseling.code.lower(), counseling) \
+                topics = dict([(counseling.local_code.lower(), counseling) \
                                  for counseling in \
                                  CodedItem.objects.filter(\
                                     type=CodedItem.TYPE_COUNSELING)])

@@ -177,7 +177,7 @@ class SauriPregnancyForm(CCForm):
 
             pmtc_arv = self.params[8]
             if pmtc_arv.lower() is not 'n':
-                medicines = dict([(medicine.code.lower(), medicine) \
+                medicines = dict([(medicine.local_code.lower(), medicine) \
                                  for medicine in \
                                  CodedItem.objects.filter(\
                                     type=CodedItem.TYPE_MEDICINE)])

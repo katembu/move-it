@@ -12,7 +12,6 @@ from FormGroup import FormGroup
 
 from Vaccine import Vaccine
 from CodedItem import CodedItem
-from CodedItemTranslation import CodedItemTranslation
 from Referral import Referral
 from FamilyPlanningUsage import FamilyPlanningUsage
 from Case import Case

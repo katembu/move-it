@@ -48,8 +48,8 @@ admin.site.register(MedicineGivenReport, VersionAdmin)
 
 class CodedItemAdmin(admin.ModelAdmin):
     list_filter = ('type', )
+    list_display = ('code', 'local_code', 'description', 'type',)
 admin.site.register(CodedItem, CodedItemAdmin)
-admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
 admin.site.register(Referral)

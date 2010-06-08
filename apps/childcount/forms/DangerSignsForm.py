@@ -29,7 +29,7 @@ class DangerSignsForm(CCForm):
             dsr = DangerSignsReport(encounter=self.encounter)
         dsr.form_group = self.form_group
 
-        danger_signs = dict([(danger_sign.code.lower(), danger_sign) \
+        danger_signs = dict([(danger_sign.local_code.lower(), danger_sign) \
                              for danger_sign in \
                              CodedItem.objects.filter(\
                                 type=CodedItem.TYPE_DANGER_SIGN)])

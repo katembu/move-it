@@ -70,7 +70,7 @@ class FamilyPlanningForm(CCForm):
                                 "using modern family planning.") % \
                                 {'num': fpr.women_using})
 
-        methods = dict([(method.code.lower(), method) \
+        methods = dict([(method.local_code.lower(), method) \
                              for method in \
                              CodedItem.objects.filter(\
                                 type=CodedItem.TYPE_FAMILY_PLANNING)])
