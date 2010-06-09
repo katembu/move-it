@@ -17,6 +17,7 @@ from FamilyPlanningUsage import FamilyPlanningUsage
 from Case import Case
 from HealthId import HealthId
 from CHWHealthId import CHWHealthId
+from DeadPerson import DeadPerson
 
 from reports import *
 import reports
