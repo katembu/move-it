@@ -18,6 +18,7 @@ from locations.models import Location
 
 from childcount.models import Clinic
 from childcount.models import CHW
+from childcount.models import Patient
 
 
 class DeadPerson(models.Model):
@@ -49,18 +50,18 @@ class DeadPerson(models.Model):
                                  help_text=_(u"Family name or surname"))
     gender = models.CharField(_(u"Gender"), max_length=1, \
                               choices=GENDER_CHOICES)
-    dob = models.DateField(_(u"Date of Birth"), null=True, blank=True)
-    dod = models.DateField(_(u"Date of Death"), null=True, blank=True)
-    household = models.ForeignKey('self', blank=True, null=True, \
+    dob = models.DateField(_(u"Date of Birth"))
+    dod = models.DateField(_(u"Date of Death"))
+    household = models.ForeignKey('Patient', blank=True, null=True, \
                                   verbose_name=_(u"Head of House"), \
                                   help_text=_(u"The primary caregiver in " \
                                                "this person's household " \
                                                "(self if primary caregiver)"),\
-                                  related_name='household_member')
+                                  related_name='deads_household_member')
     chw = models.ForeignKey('CHW', db_index=True,
                             verbose_name=_(u"Community Health Worker"))
     location = models.ForeignKey(Location, blank=True, null=True, \
-                                 related_name='deadpsresident', \
+                                 related_name='deads_resident', \
                                  verbose_name=_(u"Location"), \
                                  help_text=_(u"The location this person " \
                                               "lives within"))
@@ -73,8 +74,8 @@ class DeadPerson(models.Model):
                               blank=True, null=True)
 
     def __unicode__(self):
-        return u'%s %s/%s' % (self.full_name(), \
-                                 self.gender, self.humanised_age())
+        return u'%s %s/%s died on %s' % (self.full_name(), \
+                                 self.gender, self.humanised_age(), self.dod)
 
     def get_dictionary(self):
         days, months = self.age_in_days_months()
