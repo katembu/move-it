@@ -15,7 +15,7 @@ from childcount.utils import authenticated
 from childcount.utils import clean_names, DOBProcessor
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
-from childcount.models import DeadPerson
+from childcount.models import DeadPerson, Patient
 
 
 class DeathCommand(CCCommand):
@@ -37,6 +37,7 @@ class DeathCommand(CCCommand):
         chw = self.message.persistant_connection.reporter.chw
         lang = self.message.reporter.language
         death = DeadPerson()
+        death.chw = chw
 
         expected = _(u"dead person names | gender | age or " \
                       "DOB | date_of_death | [head_of_household]")
@@ -85,7 +86,7 @@ class DeathCommand(CCCommand):
         death.last_name, death.first_name, alias = \
                              clean_names(' '.join(tokens[:i]), \
                              surname_first=self.SURNAME_FIRST)
-
+ 
         # remove the name tokens
         tokens = tokens[i:]
 
@@ -93,9 +94,34 @@ class DeathCommand(CCCommand):
         death.gender = self.gender_field.get_db_value(tokens.pop(0))
 
         # remove the age token
+        tokens = tokens[1:]
+
+        if len(tokens) == 0:
+            raise ParseError(_(u"You must provide the date of death"))
+        if len(tokens[0]) < 4:
+            raise ParseError(_(u"Could not understand date_of_death of "\
+                                "%(string)s. Please provide an exact date of"\
+                                " death in the format DDMMYY.") % \
+                                    {'string': tokens[0]})
+        try:
+            dod, variance = DOBProcessor.from_dob(lang, tokens[0])
+        except:
+            raise ParseError(_(u"Could not understand date_of_death of "\
+                                "%(string)s. Please provide an exact date of"\
+                                " death in the format DDMMYY.") % \
+                                    {'string': tokens[0]})
+
+        if not dod:
+            raise ParseError(_(u"Could not understand " \
+                                    "date_of_death of %(string)s.") % \
+                                    {'string': tokens[0]})
+        death.dod = dod
+
+        #remove the dod token
         tokens.pop(0)
-        if len(tokens) > 1:
-            death.household = tokens.pop(0)
+
+        if len(tokens) > 0:
+            household = tokens.pop(0)
             
             # Patient is not a head of household
             try:
@@ -129,22 +155,19 @@ class DeathCommand(CCCommand):
 
         if len(death_check) > 0:
             old_p = death_check[0]
-            if old_p.chw == self.chw:
+            if old_p.chw == chw:
                 death_chw = _(u"you")
             else:
                 death_chw = death_check[0].chw
             raise BadValue(_(u"%(name)s %(sex)s/%(age)s was already " \
-                              "registered by %(chw)s. Their health id is " \
-                              "%(id)s.") % \
+                              "reported by %(chw)s. ") % \
                               {'name': old_p.full_name(), \
                                'sex': old_p.gender, \
                                'age': old_p.humanised_age(), \
-                               'chw': death_chw, \
-                               'id': old_p.health_id.upper()})
-        #death.save()
-        print death
+                               'chw': death_chw})
+        death.save()
 
-        self.response = _("You successfuly reported the death of %(death)s.") % \
-                    {'death': death}
+        self.message.respond(_("You successfuly reported the death of "\
+                                "%(death)s.") % {'death': death})
         return True
 
