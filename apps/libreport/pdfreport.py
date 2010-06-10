@@ -483,3 +483,16 @@ class RotatedText(Flowable):
         canv = self.canv
         return canv._leading, canv.stringWidth(self.text)
 
+
+class RotatedParagraph(Flowable):
+    '''Rotates a paragraph'''
+    def __init__(self, paragraph, aW, aH):
+        self.paragraph = paragraph
+        self.width = aW
+        self.height = aH
+    def draw(self):
+        canv = self.canv
+        canv.rotate(90)
+        self.paragraph.wrap(self.width, self.height)
+        self.paragraph.drawOn(canv, 0, 0)
+
