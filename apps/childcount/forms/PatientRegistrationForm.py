@@ -28,7 +28,7 @@ class PatientRegistrationForm(CCForm):
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
 
-    PREVIOUS_ID = {'en': 'P'}
+    PREVIOUS_ID = {'en': 'H'}
 
     SURNAME_FIRST = False
 
