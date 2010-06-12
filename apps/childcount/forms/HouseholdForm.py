@@ -33,6 +33,9 @@ class HouseholdForm(CCForm):
             patient.household = Patient.objects.get( \
                                          health_id__iexact=household, \
                                          household__health_id__iexact=household)
+            if patient.household  == patient:
+                   raise BadValue(_(u"Please enter the correct information " \
+                                  "u cant be patient then gurdian/mother"))  
                              
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find head of household " \
@@ -40,20 +43,21 @@ class HouseholdForm(CCForm):
                                   "register the head of household " \
                                   "first") % \
                                   {'id': household})
-
+        
+        #check mother/gurdian exist
         motherid = self.params[2]
         try:
             mother = Patient.objects.get(health_id__iexact=motherid, \
                                         household__health_id__iexact=household)
             if mother == patient:
                    raise BadValue(_(u"Please enter the correct information " \
-                                  "u cant be your own mother "))   
+                                  "u cant be patient then gurdian/mother"))   
                              
         except Patient.DoesNotExist:
-            raise BadValue(_(u"Could not find head of mother " \
-                                  "with health ID %(id)s. You must " \
-                                  "register the mother first") % \
-                                  {'id': household})
+            raise BadValue(_(u"Could not find mother/gurdian " \
+                                  "with health ID %(motherid)s. You must " \
+                                  "register the mother/gurdian first") % \
+                                  {'motherid': motherid})
         
         patient.mother = mother
 
