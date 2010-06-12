@@ -240,7 +240,14 @@ class PDFReport():
             counter += 1
             if not header:
                 if self.rotateTextFirstRow:
-                    value = [RotatedText(f["name"]) for f in fields]
+                    hStyle.borderWidth = 1
+                    hStyle.borderColor = "#FF00FF"
+                    hStyle.alignment = TA_LEFT
+                    hStyle.borderPadding = 5
+                    value = [RotatedParagraph( Paragraph(f["name"], hStyle), \
+                                            self.getFirstRowHeight() * inch, \
+                                            0.25 * inch) \
+                                            for f in fields]
                 else:
                     value = [pheader(f["name"], hStyle, sep=0) for f in fields]
                 if hasCounter:
@@ -494,5 +501,5 @@ class RotatedParagraph(Flowable):
         canv = self.canv
         canv.rotate(90)
         self.paragraph.wrap(self.width, self.height)
-        self.paragraph.drawOn(canv, 0, 0)
+        self.paragraph.drawOn(canv, -(self.width/2) + 15, self.height)
 
