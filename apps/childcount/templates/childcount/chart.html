@@ -26,7 +26,7 @@
 
 $(function(){
  	
-	$('#moses').hide();
+ $('#moses').hide();
 });
 		
     </script>
@@ -40,96 +40,28 @@ $(function(){
 <caption>{{report_title}}{% if scope %}: {{scope}}{% endif %}</caption>
     <thead>
     <tr>
-    {% for column in columns %}
-            {% if sub_columns %}
-                {% if column.colspan %}
-                    <th scope="col" colspan="{{column.colspan}}" class="spanned"{% ifequal columns|length 15%} style="font-size:8px"{% endifequal %}>{{column.name}}</th>
-                {% else %}
-                    <th rowspan="2" scope="col">{{column.name}}</th>
-                {% endif %}
-            {% else %}
-                <th>{{column.name}}</th>
-            {% endif %}
-    {% endfor %}
+    	<td></td>
+	<th> No of patient registered </th>
+	<th> No of fish</th>
     </tr>
-    {% if sub_columns %}
-    <tr>
-        {% for column in sub_columns %}
-            <th>{{column.name}}</th>
-        {% endfor %}
-    </tr>
-    {% endif %}
+   
     
     </thead>
     <tbody>
 	
         {% for row in rows %}
 				
-            <tr{% if not row.complete %} class="inc"{%endif%}>
-            {% for cell in row.cells%}
-			{{cell.value}}
-                    <td>{{cell.value|default_if_none:""}}</td>
-            {% endfor %}
+            <tr>
+            	
+                 <th>{{ row.location|length}}{{row.location|default_if_none:""}}</th>
+		 <td >{{ row.totalsms|length}}{{row.totalsms|default_if_none:""}}</td>
+           	<td>3</td>	
             </tr>
         {% endfor %}
     </tbody>
 
 </table>
 
-
-<table >
-<caption>2009 Employee Sales by Department</caption>
-	
-	<thead>
-		<tr>
-			<td></td>
-			<th scope="col">food</th>
-			<th scope="col">auto</th>
-			<th scope="col">household</th>
-			<th scope="col">furniture</th>
-			<th scope="col">kitchen</th>
-			<th scope="col">bath</th>
-		</tr>
-	</thead>
-	<tbody>
-		<tr>
-			<th scope="row">Mary</th>
-			<td>190</td>
-			<td>160</td>
-			<td>40</td>
-			<td>120</td>
-			<td>30</td>
-			<td>70</td>
-		</tr>
-		<tr>
-			<th scope="row">Tom</th>
-			<td>3</td>
-			<td>40</td>
-			<td>30</td>
-			<td>45</td>
-			<td>35</td>
-			<td>49</td>
-		</tr>
-		<tr>
-			<th scope="row">Brad</th>
-			<td>10</td>
-			<td>180</td>
-			<td>10</td>
-			<td>85</td>
-			<td>25</td>
-			<td>79</td>
-		</tr>
-		<tr>
-			<th scope="row">Kate</th>
-			<td>40</td>
-			<td>80</td>
-			<td>90</td>
-			<td>25</td>
-			<td>15</td>
-			<td>119</td>
-		</tr>		
-	</tbody>
-</table>	
 
 <div style="clear:both;"></div>
 {% endblock %}

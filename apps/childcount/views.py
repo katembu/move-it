@@ -198,14 +198,19 @@ def chart_summary(request):
         p = Patient.objects.filter(location=report).count()
         
         if p >= 1 :
-            i += 1
-            row = {}
-            row["cells"] = []
-            row["cells"] = [{'value': \
-                            Template(col['bit']).render(Context({'object': \
-                                report}))} for col in columns]
-            row["cells"][1] = {"value": p}
 
+            row = {}
+            row = { 'location': report, 'totalsms': p }
+            ''' ignore this junk
+                i += 1
+                row = {}
+                row["cells"] = []
+                row["cells"] = [{'value': \
+                                Template(col['bit']).render(Context({'object': \
+                                    report}))} for col in columns]
+                row["cells"][1] = {"value": p}
+            
+            '''
             rows.append(row)
         else:
             pass
