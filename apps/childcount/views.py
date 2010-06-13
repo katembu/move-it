@@ -3,7 +3,8 @@
 # maintainer: ukanga
 
 import os
-import datetime
+
+from datetime import date, timedelta
 
 from rapidsms.webui.utils import render_to_response
 from django.http import HttpResponse
@@ -11,9 +12,9 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.contrib.auth.decorators import login_required
 from CairoPlot import PiePlot, BarPlot
-
+from locations.models import Location
 from childcount.models import Patient, CHW
-from childcount.models.ccreports import TheCHWReport
+from childcount.models.ccreports import TheCHWReport, LocationReport
 
 
 @login_required
@@ -179,3 +180,43 @@ def sms_png(request):
     response = HttpResponse(mimetype="image/png")
     response.write(data)
     return response
+
+def chart_summary(request):
+    '''Generate chart'''
+    report_title = _(u"Activity per location in last 28 days")
+    rows = []
+    
+    columns, sub_columns =  LocationReport.summary()
+
+    #get location rember to filter clinics, villages, parish
+    reports = Location.objects.all()
+    i = 0
+    for report in reports:
+        
+        drange = date.today() - timedelta(int(28))
+        #,dob__gte=drange
+        p = Patient.objects.filter(location=report).count()
+        
+        if p >= 1 :
+            i += 1
+            row = {}
+            row["cells"] = []
+            row["cells"] = [{'value': \
+                            Template(col['bit']).render(Context({'object': \
+                                report}))} for col in columns]
+            row["cells"][1] = {"value": p}
+
+            rows.append(row)
+        else:
+            pass
+
+    
+    print columns
+    print sub_columns
+    
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title}
+
+    return render_to_response(\
+                request, 'childcount/chart.html', context_dict)
