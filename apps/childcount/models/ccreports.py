@@ -7,6 +7,7 @@ from django.utils.translation import gettext as _
 from datetime import date, timedelta
 
 from childcount.models import Patient
+from locations.models import Location
 from childcount.models import CHW
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import FeverReport 
@@ -202,3 +203,41 @@ class TheCHWReport(CHW):
                                            received__lte=end).count()
             data.update({day["day"]: num})
         return data
+
+
+#display report of each village activeness for the last 28 days(registered)
+class LocationReport(Patient, Location):
+    
+    @classmethod
+    def patients_per_loc(cls):
+        #last 28 days
+        drange = date.today() - timedelta(int(28))
+
+        #get location rember to filter clinics, villages, parish
+        loc = Location.objects.all()
+       
+        for locsum in loc:
+            p = Patient.objects.filter(location=locsum,dob__gte=drange).count()
+            return p
+
+        
+
+
+    @classmethod
+    def summary(cls):
+        columns = []
+        
+        columns.append(
+            {'name': '', \
+             'bit': '{{ object.name }}'})
+        
+        columns.append(
+            {'name': _("No. SMS Sent".upper()), \
+             'bit': '{{ object.num_of_sms }}'})
+        columns.append(
+            {'name': _("Total registered".upper()), \
+             'bit': '{{ object.patients_per_loc}}'})
+        
+        sub_columns = None
+        return columns, sub_columns
+
