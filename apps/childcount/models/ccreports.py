@@ -234,9 +234,6 @@ class LocationReport(Patient, Location):
         columns.append(
             {'name': _("No. SMS Sent".upper()), \
              'bit': '{{ object.num_of_sms }}'})
-        columns.append(
-            {'name': _("Total registered".upper()), \
-             'bit': '{{ object.patients_per_loc}}'})
         
         sub_columns = None
         return columns, sub_columns
