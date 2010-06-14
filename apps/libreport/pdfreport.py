@@ -173,13 +173,14 @@ class PDFReport():
             return self.table_style
         ts = [
               ('ALIGNMENT', (0, 1), (-1, -1), 'LEFT'),
-              ('LINEBELOW', (0, 0), (-1, -0), 2, colors.brown),
+              ('LINEBELOW', (0, 0), (-1, -0), 2, colors.black),
+              ('GRID', (0, 0), (-1, -0), 0.25, colors.black),
               ('LINEBELOW', (0, 1), (-1, -1), 0.8, \
-                                            colors.lightgoldenrodyellow),
+                                            colors.lightgrey),
               ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
               ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
               ('TOPPADDING', (0, 0), (-1, -1), 2), ('ROWBACKGROUNDS', \
-                                                (0, 0), (-1, -1), \
+                                                (0, 1), (-1, -1), \
              [colors.whitesmoke, colors.white]),
             ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize)]
 
@@ -228,10 +229,10 @@ class PDFReport():
         pStyle.spaceAfter = 0
         pStyle.leading = pStyle.fontSize + 2.8
         hStyle = copy.copy(self.styles["Normal"])
-        hStyle.fontName = "Times-Roman"
-        hStyle.fontSize = 7
+        #hStyle.fontName = "Arial Narrow-Bold"
+        hStyle.fontSize = 8
         hStyle.alignment = TA_CENTER
-        hStyle.spaceBefore = 0
+        #hStyle.spaceBefore = 0
         hStyle.spaceAfter = 0
         #pStyle.leading = pStyle.fontSize + 2.8
         #prepare the data
@@ -240,11 +241,11 @@ class PDFReport():
             counter += 1
             if not header:
                 if self.rotateTextFirstRow:
-                    hStyle.borderWidth = 1
-                    hStyle.borderColor = "#FF00FF"
+                    hStyle.borderWidth = 0
                     hStyle.alignment = TA_LEFT
                     hStyle.borderPadding = 5
-                    value = [RotatedParagraph( Paragraph(f["name"], hStyle), \
+                    value = [RotatedParagraph( Paragraph('<b>' + f["name"] + \
+                                                    '</b>', hStyle), \
                                             self.getFirstRowHeight() * inch, \
                                             0.25 * inch) \
                                             for f in fields]
@@ -497,9 +498,11 @@ class RotatedParagraph(Flowable):
         self.paragraph = paragraph
         self.width = aW
         self.height = aH
+        print 'W: ', self.width, ' H: ', self.height
     def draw(self):
         canv = self.canv
         canv.rotate(90)
         self.paragraph.wrap(self.width, self.height)
-        self.paragraph.drawOn(canv, -(self.width/2) + 15, self.height)
+        #drawOn(canvas, x, y)
+        self.paragraph.drawOn(canv, -(self.width / 2) + 15, -(self.height))
 
