@@ -35,7 +35,7 @@ class HouseholdForm(CCForm):
                                          household__health_id__iexact=household)
             if patient.household  == patient:
                    raise BadValue(_(u"Please enter the correct information " \
-                                  "u cant be patient then gurdian/mother"))  
+                                  "you cant be patient then gurdian/mother"))  
                              
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find head of household " \
@@ -51,7 +51,7 @@ class HouseholdForm(CCForm):
                                         household__health_id__iexact=household)
             if mother == patient:
                    raise BadValue(_(u"Please enter the correct information " \
-                                  "u cant be patient then gurdian/mother"))   
+                                  "you cant be patient then gurdian/mother"))   
                              
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find mother/gurdian " \
