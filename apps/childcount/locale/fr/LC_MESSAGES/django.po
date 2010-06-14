@@ -8,19 +8,22 @@ msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-08 07:30+0000\n"
-"PO-Revision-Date: 2010-06-08 07:34-0000\n"
+"PO-Revision-Date: 2010-06-14 10:53+0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Pootle 1.2.1\n"
 "X-Poedit-Language: French\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: app.py:48
 #, python-format
 msgid "%s form not found."
-msgstr "form %s introuvable."
+msgstr "Section %s introuvable."
 
 #: app.py:55
 #, python-format
@@ -2444,4 +2447,3 @@ msgstr ""
 #: models/reports.py:913
 msgid "Was a Verbal Autopsy conducted?"
 msgstr ""
-
