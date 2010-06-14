@@ -156,12 +156,23 @@ class StillbirthMiscarriageReport(CCReport):
         verbose_name = _(u"Stillbirth / Miscarriage Report")
         verbose_name_plural = _(u"Stillbirth / Miscarriage Reports")
 
+    TYPE_STILL_BIRTH = 'S'
+    TYPE_MISCARRIAGE = 'M'
+    TYPE_CHOICES = (
+                       (TYPE_STILL_BIRTH, _('Still birth')),
+                       (TYPE_MISCARRIAGE, _('Miscarriage')))
+
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
+    type = models.CharField(_(u"Type"), max_length=1, choices=TYPE_CHOICES, \
+                            blank=True, null=True)
 
     def summary(self):
-        return u"%s: %s" % \
-             (self._meta.get_field_by_name('incident_date')[0].verbose_name, \
-              self.incident_date)
+        if self.type is None:
+            type = _(u"Still birth or miscarriage")
+        else:
+            type = self.get_type_display()
+        return _(u"%(type)s on %(date)s") % \
+             {'type': type, 'date': self.incident_date}
 reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 
@@ -426,6 +437,23 @@ class SPregnancy(PregnancyReport):
                                     verbose_name=_(u"PMTC ARV"))
 
 reversion.register(SPregnancy, follow=['ccreport_ptr'])
+
+class BCPillReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_bcprpt'
+        verbose_name = _(u"Birth Control Pill Report")
+        verbose_name_plural = _(u"Birth Control Pill Reports")
+
+    pills = models.PositiveSmallIntegerField(_(u"Pills given"))
+
+    def summary(self):
+        return u"%s: %d" % \
+             (self._meta.get_field_by_name('pills')[0].verbose_name, \
+              self.pills)
+
+reversion.register(BCPillReport, follow=['ccreport_ptr'])
 
 
 class NeonatalReport(CCReport):

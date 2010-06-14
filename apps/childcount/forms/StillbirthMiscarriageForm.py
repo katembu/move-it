@@ -14,6 +14,7 @@ from childcount.exceptions import Inapplicable
 from childcount.models import Encounter
 from childcount.models.reports import StillbirthMiscarriageReport
 from childcount.utils import DOBProcessor
+from childcount.forms.utils import MultipleChoiceField
 
 
 class StillbirthMiscarriageForm(CCForm):
@@ -23,9 +24,20 @@ class StillbirthMiscarriageForm(CCForm):
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
-        if len(self.params) < 2:
+
+        type_field = MultipleChoiceField()
+        type_field.add_choice('en', \
+                              StillbirthMiscarriageReport.TYPE_STILL_BIRTH, \
+                              'SB')
+        type_field.add_choice('en', \
+                              StillbirthMiscarriageReport.TYPE_MISCARRIAGE, \
+                              'MC')
+
+        type_field.set_language(self.chw.language)
+        if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: Date of " \
-                                "stillbirth or miscarriage."))
+                                "incident, then %(choices)s") % \
+                                {'choices': type_field.choices_string()})
 
         try:
             sbmr = StillbirthMiscarriageReport.objects.get(\
@@ -34,6 +46,13 @@ class StillbirthMiscarriageForm(CCForm):
         except StillbirthMiscarriageReport.DoesNotExist:
             sbmr = StillbirthMiscarriageReport(encounter=self.encounter)
         sbmr.form_group = self.form_group
+
+        type = self.params.pop()
+        if not type_field.is_valid_choice(type):
+            raise ParseError(_(u"You must indicate %(choices)s after the " \
+                                "date.") % \
+                                {'choices': type_field.choices_string()})
+        sbmr.type = type_field.get_db_value(type)
 
         doi_str = ' '.join(self.params[1:])
         try:

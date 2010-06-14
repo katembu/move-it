@@ -13,7 +13,7 @@ from childcount.exceptions import ParseError
 
 class FamilyPlanningForm(CCForm):
     KEYWORDS = {
-        'en': ['fp'],
+        'en': ['k'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
