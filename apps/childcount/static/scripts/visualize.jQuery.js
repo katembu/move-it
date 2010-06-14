@@ -19,7 +19,7 @@ $.fn.visualize = function(options, container){
 			appendKey: true, //color key is added to chart
 
 // Moses to add more colors
-			colors: ['#be1e2d','#666699','#92d5ea','#ee8310','#8d10ee','#5a3b16','#26a4ed','#f45a90','#e9e744'],
+			colors:['#be1e2d','#666699','#92d5ea','#ee8310','#8d10ee','#5a3b16','#26a4ed','#f45a90','#e9e744','	#6B8E23','#FFA500','#C71585','#FF6347','#E9967A','#ADFF2F','#FFEFD5','#800000','#778899','#A52A2A'],
 			textColors: [], //corresponds with colors array. null/undefined items will fall back to CSS
 			parseDirection: 'x', //which direction to parse the table data
 			pieMargin: 20, //pie charts only - spacing around pie
