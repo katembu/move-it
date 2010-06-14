@@ -69,7 +69,22 @@ class App (rapidsms.app.App):
     def handle(self, message):
         handled = False
 
-        reporter = message.persistant_connection.reporter
+
+        # If this is coming from debackend, it will have message.chw and
+        # message.encounter_date.  Otherwise, the reporter is the chw,
+        # and the encounter date is from the backend
+        if 'chw' in message.__dict__:
+            try:
+                chw = CHW.objects.get(pk=message.chw)
+            except CHW.DoesNotExist:
+                message.respond(_(u"Problem getting CHW from backend."), \
+                                'error')
+                return handled
+            reporter = chw.reporter
+            message.reporter = reporter
+        else:
+            reporter = message.persistant_connection.reporter
+
         if reporter and reporter.language:
             lang = reporter.language
         else:
@@ -102,39 +117,24 @@ class App (rapidsms.app.App):
         forms_match = split_regex.match(input_text)
 
         if forms_match:
-
             handled = True
-
-            #TODO make this form specific
-            if not message.persistant_connection.reporter:
-                message.respond(_(u"You must register before you can send" \
-                                  " reports."), 'error')
+            if not reporter:
+                message.respond(_(u"You must register before you can send"\
+                                  u" reports."), 'error')
                 return handled
 
-            # If this is coming from debackend, it will have message.chw and
-            # message.encounter_date.  Otherwise, the reporter is the chw,
-            # and the encounter date is from the backend
-            if 'chw' in message.__dict__:
-                try:
-                    chw = CHW.objects.get(pk=message.chw)
-                except CHW.DoesNotExist:
-                    message.respond(_(u"Problem getting CHW from backend."), \
-                                    'error')
-                    return handled
-            else:
-                chw = message.persistant_connection.reporter.chw
+            chw = reporter.chw
             if 'encounter_date' in message.__dict__:
                 try:
                     date = datetime.strptime(message.encounter_date, \
                                              "%Y-%m-%d")
                     # set it to midday on that day...
-                    encounter_date = date + timedelta(hours=12)
+                    message.date = date + timedelta(hours=12)
                 except ValueError:
                     message.respond(_(u"Problem getting encounter_date from "\
                                        "backend."), 'error')
                     return handled
-            else:
-                encounter_date = message.date
+            encounter_date = message.date
 
             health_ids_text = forms_match.groupdict()['health_ids']
             forms_text = forms_match.groupdict()['forms']
