@@ -438,6 +438,7 @@ class SPregnancy(PregnancyReport):
 
 reversion.register(SPregnancy, follow=['ccreport_ptr'])
 
+
 class BCPillReport(CCReport):
 
     class Meta:
