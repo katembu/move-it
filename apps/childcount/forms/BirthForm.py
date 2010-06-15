@@ -15,6 +15,7 @@ from childcount.forms.utils import MultipleChoiceField
 class BirthForm(CCForm):
     KEYWORDS = {
         'en': ['bir', 'birth'],
+        'fr': ['bir', 'birth'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_BIRTH_WEIGHT = 1

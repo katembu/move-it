@@ -15,6 +15,7 @@ from childcount.forms.utils import MultipleChoiceField
 class NutritionForm(CCForm):
     KEYWORDS = {
         'en': ['m', 'muac'],
+        'fr': ['m', 'muac'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

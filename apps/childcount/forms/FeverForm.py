@@ -18,6 +18,7 @@ from childcount.exceptions import ParseError, Inapplicable
 class FeverForm(CCForm):
     KEYWORDS = {
         'en': ['f'],
+        'fr': ['f'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

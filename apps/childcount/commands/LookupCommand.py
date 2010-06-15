@@ -24,6 +24,7 @@ class LookupCommand(CCCommand):
 
     KEYWORDS = {
         'en': ['lookup'],
+        'fr': ['lookup'],
     }
 
     @authenticated

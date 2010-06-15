@@ -14,6 +14,7 @@ from childcount.forms.utils import MultipleChoiceField
 class HouseholdForm(CCForm):
     KEYWORDS = {
         'en': ['hed', 'head'],
+        'fr': ['hed', 'head'],
     }
 
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
