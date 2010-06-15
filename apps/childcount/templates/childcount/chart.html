@@ -26,7 +26,7 @@
 
 $(function(){
  	
- $('#moses').hide();
+ //$('#moses').hide();
 });
 		
     </script>
@@ -40,10 +40,15 @@ $(function(){
 <caption>{{report_title}}{% if scope %}: {{scope}}{% endif %}</caption>
     <thead>
     <tr>
-    	<td></td>
-	<th> No of patient registered </th>
-	<th> No of fish</th>
+     {% for column in columns %}
+            {% if forloop.first %}
+            	<td></td>
+            {% else %}
+                <th scope="col">{{column.name}}</th>
+            {% endif %}
+    {% endfor %}
     </tr>
+   
    
     
     </thead>
@@ -52,10 +57,13 @@ $(function(){
         {% for row in rows %}
 				
             <tr>
-            	
-                 <th>{{ row.location|length}}{{row.location|default_if_none:""}}</th>
-		 <td >{{ row.totalsms|length}}{{row.totalsms|default_if_none:""}}</td>
-           	<td>3</td>	
+            {% for cell in row.cells %}
+		{% if forloop.first %}
+		<th scope="row">{{cell.value|default_if_none:""}}</th> 
+                 {% else %}   <td>{{cell.value|default_if_none:""}}</td>
+		{% endif %}
+            {% endfor %}
+             	
             </tr>
         {% endfor %}
     </tbody>
