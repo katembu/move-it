@@ -15,6 +15,7 @@ from childcount.exceptions import ParseError
 class DangerSignsForm(CCForm):
     KEYWORDS = {
         'en': ['s'],
+        'fr': ['s'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

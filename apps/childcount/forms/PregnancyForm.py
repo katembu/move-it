@@ -14,6 +14,7 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 class PregnancyForm(CCForm):
     KEYWORDS = {
         'en': ['p'],
+        'fr': ['p'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

@@ -14,6 +14,7 @@ from childcount.models.reports import VerbalAutopsyReport
 class VerbalAutopsyForm(CCForm):
     KEYWORDS = {
         'en': ['va'],
+        'fr': ['va'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

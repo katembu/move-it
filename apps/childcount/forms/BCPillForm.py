@@ -14,6 +14,7 @@ from childcount.exceptions import ParseError
 class BCPillForm(CCForm):
     KEYWORDS = {
         'en': ['l'],
+        'fr': ['l'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 

@@ -14,6 +14,7 @@ from childcount.exceptions import ParseError
 class HouseholdVisitForm(CCForm):
     KEYWORDS = {
         'en': ['v'],
+        'fr': ['v'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 

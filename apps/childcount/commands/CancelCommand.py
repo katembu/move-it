@@ -18,6 +18,7 @@ class CancelCommand(CCCommand):
 
     KEYWORDS = {
         'en': ['cancel'],
+        'fr': ['cancel', 'annuler'],
     }
 
     # The time (in minutes) during which a report can be canceled.

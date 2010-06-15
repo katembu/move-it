@@ -13,6 +13,7 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 class NeonatalForm(CCForm):
     KEYWORDS = {
         'en': ['n'],
+        'fr': ['n'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

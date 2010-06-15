@@ -15,6 +15,7 @@ from childcount.forms.utils import MultipleChoiceField
 class SauriPregnancyForm(CCForm):
     KEYWORDS = {
         'en': ['p'],
+        'fr': ['p'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
