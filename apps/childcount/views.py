@@ -198,23 +198,17 @@ def chart_summary(request):
     for report in reports:
         
         drange = date.today() - timedelta(int(28))
-        #,dob__gte=drange
-        p = Patient.objects.filter(location=report).count()
+        #
+        p = Patient.objects.filter(location=report,created_on__gte=drange).count()
         
         if p >= 1 :
-
+            i += 1
             row = {}
-            row = { 'location': report, 'totalsms': p }
-            ''' ignore this junk
-                i += 1
-                row = {}
-                row["cells"] = []
-                row["cells"] = [{'value': \
+            row["cells"] = []
+            row["cells"] = [{'value': \
                                 Template(col['bit']).render(Context({'object': \
                                     report}))} for col in columns]
-                row["cells"][1] = {"value": p}
-            
-            '''
+            row["cells"][1] = {"value": p}
             rows.append(row)
         else:
             pass
