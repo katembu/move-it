@@ -18,6 +18,7 @@ from childcount.forms.NutritionForm import NutritionForm
 from childcount.forms.FeverForm import FeverForm
 from childcount.forms.MedicineGivenForm import MedicineGivenForm
 from childcount.forms.ReferralForm import ReferralForm
+from childcount.forms.BCPillForm import BCPillForm
 
 from childcount.forms.HouseholdVisitForm import HouseholdVisitForm
 from childcount.forms.FamilyPlanningForm import FamilyPlanningForm

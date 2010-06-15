@@ -22,7 +22,7 @@ class HouseholdForm(CCForm):
    
         #Check if tokens are less than 2 at least one person shd be house hold
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info, expected: Patient health id "\
+            raise ParseError(_(u"Not enough info. Expected: Patient health id "\
                                 "+hed | household healthid | mother health id" \
                                   "or gurdian id"))
       
@@ -68,3 +68,4 @@ class HouseholdForm(CCForm):
                                 {'patient': patient, \
                                'father':  patient.household, \
                                'mother':  patient.mother }
+

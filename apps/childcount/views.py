@@ -11,8 +11,11 @@ from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.contrib.auth.decorators import login_required
+
 from CairoPlot import PiePlot, BarPlot
+
 from locations.models import Location
+
 from childcount.models import Patient, CHW
 from childcount.models.ccreports import TheCHWReport, LocationReport
 
@@ -181,6 +184,7 @@ def sms_png(request):
     response.write(data)
     return response
 
+
 def chart_summary(request):
     '''Generate chart'''
     report_title = _(u"Activity per location in last 28 days")
@@ -225,3 +229,4 @@ def chart_summary(request):
 
     return render_to_response(\
                 request, 'childcount/chart.html', context_dict)
+

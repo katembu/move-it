@@ -7,3 +7,6 @@ from childcount.commands.RegistrationCommand import RegistrationCommand
 from childcount.commands.WhoCommand import WhoCommand
 from childcount.commands.LookupCommand import LookupCommand
 from childcount.commands.CancelCommand import CancelCommand
+from childcount.commands.IssueHealthIdCommand import IssueHealthIdCommand
+from childcount.commands.DeathCommand import DeathCommand
+

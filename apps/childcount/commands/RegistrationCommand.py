@@ -29,7 +29,7 @@ class RegistrationCommand(CCCommand):
             reporter_language = self.ENGLISH
 
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough information. Expected: " \
+            raise ParseError(_(u"Not enough info. Expected: " \
                                 "%(keyword)s location names") % \
                                 {'keyword': self.params[0]})
 
@@ -37,7 +37,7 @@ class RegistrationCommand(CCCommand):
         try:
             location = Location.objects.get(code=location_code)
         except Location.DoesNotExist:
-            raise BadValue(_(u"Location %(location)s does not exist") % \
+            raise BadValue(_(u"Location %(location)s does not exist.") % \
                               {'location': location_code})
 
         flat_name = ' '.join(self.params[2:])
@@ -78,15 +78,13 @@ class RegistrationCommand(CCCommand):
         else:
             chw.groups.add(chw_group)
 
-
         # attach the reporter to the current connection
         self.message.persistant_connection.reporter = chw.reporter_ptr
         self.message.persistant_connection.save()
 
-
         # inform target
         self.message.respond(
-            _(u"Success. You are now registered at %(location)s with " \
+            _(u"You are now registered at %(location)s with " \
                "alias @%(alias)s.") \
                % {'location': location, 'alias': chw.alias}, 'success')
 

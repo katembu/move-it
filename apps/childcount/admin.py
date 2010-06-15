@@ -13,8 +13,17 @@ admin.site.register(CHW)
 admin.site.register(Encounter, VersionAdmin)
 admin.site.register(FormGroup)
 admin.site.register(Clinic)
-admin.site.register(Patient, VersionAdmin)
-admin.site.register(HealthId, VersionAdmin)
+
+
+class PatientAdmin(VersionAdmin):
+    list_display = ('__unicode__', 'location', 'chw')
+    search_fields = ['health_id', 'first_name', 'last_name']
+admin.site.register(Patient, PatientAdmin)
+
+
+class HealthIdAdmin(VersionAdmin):
+    search_fields = ['health_id']
+admin.site.register(HealthId, HealthIdAdmin)
 
 #Reports
 admin.site.register(CCReport, VersionAdmin)
@@ -35,13 +44,16 @@ admin.site.register(BedNetReport, VersionAdmin)
 admin.site.register(SickMembersReport, VersionAdmin)
 admin.site.register(DangerSignsReport, VersionAdmin)
 admin.site.register(MedicineGivenReport, VersionAdmin)
+
+
 class CodedItemAdmin(admin.ModelAdmin):
     list_filter = ('type', )
+    list_display = ('code', 'local_code', 'description', 'type',)
 admin.site.register(CodedItem, CodedItemAdmin)
-admin.site.register(CodedItemTranslation)
 
 admin.site.register(Case)
 admin.site.register(Referral)
 admin.site.register(Version)
 admin.site.register(Revision)
 admin.site.register(Vaccine)
+admin.site.register(DeadPerson)

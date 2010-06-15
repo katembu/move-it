@@ -4,36 +4,44 @@
 
 from django.utils.translation import ugettext as _
 
+
 class CCException(Exception):
     message = _(u"An error has occured.")
 
     def __unicode__(self):
         return self.message
 
+
 class InvalidAge(CCException):
     pass
+
 
 class InvalidDOB(CCException):
     pass
 
+
 class AmbiguousAge(CCException):
     pass
 
+
 class NotRegistered(CCException):
-    def __init__(self, message=_(u"Error: You must be registered first")):
+    def __init__(self, message=_(u"Error: You must first be registered.")):
         self.message = message
+
 
 class ParseError(CCException):
 
-    def __init__(self, message=_(u"FAILED. unable to understand")):
+    def __init__(self, message=_(u"FAILED. Unable to understand message.")):
         self.message = message
+
 
 class BadValue(CCException):
 
-    def __init__(self, message=_(u"FAILED. Bad value")):
+    def __init__(self, message=_(u"FAILED. Bad value.")):
         self.message = message
+
 
 class Inapplicable(CCException):
 
-    def __init__(self, message=_(u"FAILED. Not applicable")):
+    def __init__(self, message=_(u"FAILED. Not applicable.")):
         self.message = message
