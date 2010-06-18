@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-15 13:10+0000\n"
+"POT-Creation-Date: 2010-06-18 11:36+0000\n"
 "PO-Revision-Date: 2010-06-14 10:53+0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
@@ -1240,8 +1240,9 @@ msgstr ""
 
 #: models/Case.py:57 models/HealthId.py:39 models/Patient.py:91
 #: models/Referral.py:39 models/reports.py:589
+#: templates/childcount/data_entry.html:40
 msgid "Status"
-msgstr ""
+msgstr "Statut"
 
 #: models/Case.py:60 models/Referral.py:45
 msgid "Reports"
@@ -1797,6 +1798,7 @@ msgid "Name"
 msgstr ""
 
 #: models/DeadPerson.py:134 models/Patient.py:189 models/ccreports.py:100
+#: templates/childcount/forms/a.json:10
 msgid "Age"
 msgstr ""
 
@@ -2553,38 +2555,438 @@ msgid "ChildCount+ Data Entry"
 msgstr "Saisie des données ChildCount+"
 
 #: templates/childcount/data_entry.html:28
+msgid "free"
+msgstr "libre"
+
+#: templates/childcount/data_entry.html:30
+msgid "message"
+msgstr "message"
+
+#: templates/childcount/data_entry.html:30
+msgid "Full message"
+msgstr "Message complet"
+
+#: templates/childcount/data_entry.html:40
+msgid "Message"
+msgstr "Message"
+
+#: templates/childcount/data_entry.html:55
 msgid "Available forms"
 msgstr "Formulaires disponibles"
 
-#: templates/childcount/data_entry.html:32
+#: templates/childcount/data_entry.html:59
 msgid "SMS Log"
 msgstr "Messages envoyés"
 
-#: templates/childcount/data_entry.html:43
+#: templates/childcount/data_entry.html:70
 #, python-format
 msgid "Logged in as %(user)s"
 msgstr "Identifié en tant que %(user)s"
 
-#: templates/childcount/data_entry.html:43
+#: templates/childcount/data_entry.html:70
 msgid "Change"
 msgstr "Changer"
 
-#: templates/childcount/data_entry.html:46
+#: templates/childcount/data_entry.html:73
 msgid "Phone Number:"
 msgstr "Numéro de téléphone :"
 
-#: templates/childcount/data_entry.html:49
+#: templates/childcount/data_entry.html:76
 msgid "Date of Encounter:"
 msgstr "Date de visite :"
 
-#: templates/childcount/data_entry.html:50
+#: templates/childcount/data_entry.html:77
 msgid "CHW:"
 msgstr "ASC"
 
-#: templates/childcount/data_entry.html:52
+#: templates/childcount/data_entry.html:79
 msgid "Message:"
 msgstr "Message :"
 
-#: templates/childcount/data_entry.html:58
+#: templates/childcount/data_entry.html:85
 msgid "Response Log"
 msgstr "Messages reçus"
+
+#: templates/childcount/forms/a.json:4 templates/childcount/forms/b.json:4
+#: templates/childcount/forms/c.json:4
+msgid "ID"
+msgstr ""
+
+#: templates/childcount/forms/a.json:4 templates/childcount/forms/c.json:4
+msgid "HEALTH ID"
+msgstr "CODE SANTÉ"
+
+#: templates/childcount/forms/a.json:5
+msgid "NEW"
+msgstr "NEW"
+
+#: templates/childcount/forms/a.json:5
+msgid "General Registration"
+msgstr "Enregistrement"
+
+#: templates/childcount/forms/a.json:6
+msgid "Loc"
+msgstr ""
+
+#: templates/childcount/forms/a.json:6
+msgid "Location #"
+msgstr ""
+
+#: templates/childcount/forms/a.json:7
+msgid "Fir"
+msgstr ""
+
+#: templates/childcount/forms/a.json:7
+msgid "First Name"
+msgstr ""
+
+#: templates/childcount/forms/a.json:8
+msgid "Sur"
+msgstr ""
+
+#: templates/childcount/forms/a.json:8
+msgid "Family Name (surname)"
+msgstr ""
+
+#: templates/childcount/forms/a.json:9
+msgid "Sex"
+msgstr ""
+
+#: templates/childcount/forms/a.json:9
+msgid "Sex (M-F)"
+msgstr ""
+
+#: templates/childcount/forms/a.json:10
+msgid "Birth Date [DDMMYY] or Age [+m,y]"
+msgstr ""
+
+#: templates/childcount/forms/a.json:11
+msgid "PHH"
+msgstr ""
+
+#: templates/childcount/forms/a.json:11
+msgid "Primary HH Caregiver ID [P = Same as ID]"
+msgstr ""
+
+#: templates/childcount/forms/a.json:12
+msgid "BIR"
+msgstr ""
+
+#: templates/childcount/forms/a.json:12
+msgid "Birth"
+msgstr ""
+
+#: templates/childcount/forms/a.json:13
+msgid "Mom"
+msgstr ""
+
+#: templates/childcount/forms/a.json:13
+msgid "Mother's HEALTH ID [U = Unknown]"
+msgstr ""
+
+#: templates/childcount/forms/a.json:14
+msgid "Del"
+msgstr ""
+
+#: templates/childcount/forms/a.json:14
+msgid "Delivered in Health Facility (Y-N-U)"
+msgstr ""
+
+#: templates/childcount/forms/a.json:15 templates/childcount/forms/c.json:22
+msgid "KG"
+msgstr ""
+
+#: templates/childcount/forms/a.json:15
+msgid "Weight at Birth (KG)"
+msgstr ""
+
+#: templates/childcount/forms/a.json:16
+msgid "MOB"
+msgstr ""
+
+#: templates/childcount/forms/a.json:16
+msgid "Mobile Phone"
+msgstr ""
+
+#: templates/childcount/forms/a.json:17
+msgid "Num"
+msgstr ""
+
+#: templates/childcount/forms/a.json:17
+#, fuzzy
+msgid "Mobile Phone Number"
+msgstr "Numéro de téléphone :"
+
+#: templates/childcount/forms/b.json:4
+msgid "Head of Household HEALTH ID"
+msgstr ""
+
+#: templates/childcount/forms/b.json:5
+msgid "V"
+msgstr ""
+
+#: templates/childcount/forms/b.json:5
+msgid "HH Visit - All households"
+msgstr ""
+
+#: templates/childcount/forms/b.json:6
+msgid "Avai"
+msgstr ""
+
+#: templates/childcount/forms/b.json:6
+msgid "HH Member Available (Y-N)"
+msgstr ""
+
+#: templates/childcount/forms/b.json:7
+msgid "Child"
+msgstr ""
+
+#: templates/childcount/forms/b.json:7
+msgid "Number of Children Under-5 seen"
+msgstr ""
+
+#: templates/childcount/forms/b.json:8
+msgid "Adv"
+msgstr ""
+
+#: templates/childcount/forms/b.json:8
+msgid "Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH)"
+msgstr ""
+
+#: templates/childcount/forms/b.json:9
+msgid "FP"
+msgstr ""
+
+#: templates/childcount/forms/b.json:9
+msgid "Family Planning Section"
+msgstr ""
+
+#: templates/childcount/forms/b.json:10
+msgid "♀"
+msgstr ""
+
+#: templates/childcount/forms/b.json:10
+msgid "Number of Women Aged 15-49 seen during this visit"
+msgstr ""
+
+#: templates/childcount/forms/b.json:11
+msgid "♀+P"
+msgstr ""
+
+#: templates/childcount/forms/b.json:11
+msgid "Number of these Women currently using modern family planning"
+msgstr ""
+
+#: templates/childcount/forms/b.json:12
+msgid "meth"
+msgstr ""
+
+#: templates/childcount/forms/b.json:12
+msgid ""
+"Primary Family Planning Method used [Record primary method for each woman] "
+"(C, I, N, P)"
+msgstr ""
+
+#: templates/childcount/forms/b.json:13
+msgid "BN"
+msgstr ""
+
+#: templates/childcount/forms/b.json:13
+msgid "Bednet Section"
+msgstr ""
+
+#: templates/childcount/forms/b.json:14
+msgid "#net"
+msgstr ""
+
+#: templates/childcount/forms/b.json:14
+msgid "Number of Functioning Bednets in the households"
+msgstr ""
+
+#: templates/childcount/forms/b.json:15
+msgid "#bed"
+msgstr ""
+
+#: templates/childcount/forms/b.json:15
+msgid "Number of Sleeping Sites"
+msgstr ""
+
+#: templates/childcount/forms/c.json:5
+msgid "U"
+msgstr ""
+
+#: templates/childcount/forms/c.json:5
+msgid "Follow-up Visit Section"
+msgstr ""
+
+#: templates/childcount/forms/c.json:6
+msgid "Imp"
+msgstr ""
+
+#: templates/childcount/forms/c.json:6
+msgid "Patient's condition improved since last visit (Y-N-U-L)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:7
+msgid "Hos"
+msgstr ""
+
+#: templates/childcount/forms/c.json:7
+msgid "Person visit a clinic or hospital since last CHW visit (Y-U-P)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:8
+msgid "S"
+msgstr ""
+
+#: templates/childcount/forms/c.json:8 templates/childcount/forms/c.json:9
+msgid "Current Danger Signs"
+msgstr ""
+
+#: templates/childcount/forms/c.json:9
+msgid "D.S"
+msgstr ""
+
+#: templates/childcount/forms/c.json:10
+msgid "P"
+msgstr ""
+
+#: templates/childcount/forms/c.json:10
+msgid "Pregnancy Check-up"
+msgstr ""
+
+#: templates/childcount/forms/c.json:11
+msgid "MP"
+msgstr ""
+
+#: templates/childcount/forms/c.json:11
+msgid "Month of pregnancy (1-9)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:12 templates/childcount/forms/c.json:15
+msgid "Vis"
+msgstr ""
+
+#: templates/childcount/forms/c.json:12
+msgid "Number of ANC visits during pregnancy"
+msgstr ""
+
+#: templates/childcount/forms/c.json:13
+msgid "Lvis"
+msgstr ""
+
+#: templates/childcount/forms/c.json:13
+msgid "Weeks since last ANC visit [0 = less than 7 days]"
+msgstr ""
+
+#: templates/childcount/forms/c.json:14
+msgid "N"
+msgstr ""
+
+#: templates/childcount/forms/c.json:14
+msgid "Neonatal Check-up (0-28 days)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:15
+msgid "Number of postnatal visit to clinic or hospital since birth?"
+msgstr ""
+
+#: templates/childcount/forms/c.json:16
+msgid "T"
+msgstr ""
+
+#: templates/childcount/forms/c.json:16
+msgid "Under-1 Check-up (0-11 months)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:17
+msgid "BF"
+msgstr ""
+
+#: templates/childcount/forms/c.json:17
+msgid "Breast-feeding only (Y-N-U)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:18
+msgid "Imm"
+msgstr ""
+
+#: templates/childcount/forms/c.json:18
+msgid "Child up-to-date on immunizations?"
+msgstr ""
+
+#: templates/childcount/forms/c.json:19
+msgid "M"
+msgstr ""
+
+#: templates/childcount/forms/c.json:19
+msgid "Nutrition Section"
+msgstr ""
+
+#: templates/childcount/forms/c.json:20
+msgid "MUAC"
+msgstr ""
+
+#: templates/childcount/forms/c.json:20
+msgid "MUAC Measurement [0 = No measurement]"
+msgstr ""
+
+#: templates/childcount/forms/c.json:21
+msgid "Oed"
+msgstr ""
+
+#: templates/childcount/forms/c.json:21
+msgid "Oedema (Y-N-U)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:22
+msgid "Weight in KG [Optionnal]"
+msgstr ""
+
+#: templates/childcount/forms/c.json:23
+msgid "F"
+msgstr ""
+
+#: templates/childcount/forms/c.json:23
+msgid "Fever Section"
+msgstr ""
+
+#: templates/childcount/forms/c.json:24
+msgid "RDT"
+msgstr ""
+
+#: templates/childcount/forms/c.json:24
+msgid "RDT Result Positive (Y-N-U-X)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:25
+msgid "G"
+msgstr ""
+
+#: templates/childcount/forms/c.json:25
+msgid "Medecine Given Section"
+msgstr ""
+
+#: templates/childcount/forms/c.json:26
+msgid "Med"
+msgstr ""
+
+#: templates/childcount/forms/c.json:26
+msgid "Medecine Given (ACT, R, Z)"
+msgstr ""
+
+#: templates/childcount/forms/c.json:27
+msgid "R"
+msgstr ""
+
+#: templates/childcount/forms/c.json:27
+msgid "Referral to Clinic Section"
+msgstr ""
+
+#: templates/childcount/forms/c.json:28
+msgid "Ref"
+msgstr ""
+
+#: templates/childcount/forms/c.json:28
+msgid "Referral to Clinic )A-E-B-C)"
+msgstr ""

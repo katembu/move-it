@@ -20,6 +20,33 @@
 
     <script type="text/javascript" src="/static/childcount/scripts/http.js"></script>
 
+    <script type="text/javascript">
+        var FORM_URL = "{% url form "FORMID" %}";
+        var forms = [];
+        {% for form in forms %}forms.push("{{ form }}");{% endfor %}
+
+        var formfree = new ChildCountForm('{% trans "free" %}');
+        var s = new ChildCountFormSection('root', 'root', 'root');
+        var f = new ChildCountFormField('message', '{% trans "message" %}', '{% trans "Full message" %}');
+        s.addField(f);
+        formfree.addSection(s);
+
+        function reset_tables(ccform_txt, feedback_txt)
+        {
+            if (ccform_txt == null)
+                ccform_txt = '<thead id="ccform_head" class="' + dataentry_form.id + '"></thead><tbody id="ccform_body" class="' + dataentry_form.id + '"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>    <tr></tr><tr></tr></tbody>';
+
+            if (feedback_txt == null)
+                feedback_txt = '<thead class="' + dataentry_form.id + '"><tr><td>{% trans "Status" %}</td><td>{% trans "Message" %}</td></tr></thead><tbody class="' + dataentry_form.id + '" id="log"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr></tbody>';
+
+            var doc = document.getElementById('ccform')
+            doc.innerHTML = ccform_txt;
+
+            var doc = document.getElementById('feedback')
+            doc.innerHTML = feedback_txt;
+        }
+    </script>
+
     <script type="text/javascript" src="/static/childcount/scripts/ui.js"></script>
 </head>
 

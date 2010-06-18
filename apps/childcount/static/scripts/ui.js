@@ -6,20 +6,13 @@ var debug = false;
 if(typeof(console)!=='undefined' && debug) {clog = console.log; cerr = console.error; }
 
 dataentry_forms = [];
-dataentry_form = null;
+dataentry_form = null;f
 
 function load_json_forms()
 {
     dataentry_forms = [];
 
-    var formfree = new ChildCountForm('free');
-    var s = new ChildCountFormSection('root', 'root', 'root');
-    var f = new ChildCountFormField('message', 'message', 'Full message');
-    s.addField(f);
-    formfree.addSection(s);
     dataentry_forms.push(formfree);
-    
-    var forms = ['form_a', 'form_b', 'form_c']
 
     for (var i in forms)
     {
@@ -27,7 +20,7 @@ function load_json_forms()
         var form_id = forms[i];
         // JSON request
         $.ajax({
-            url: '/static/childcount/' + forms[i] + '.json',
+            url: FORM_URL.replace('FORMID', forms[i]),
             dataType: 'json',
 
             async: false,
@@ -66,21 +59,6 @@ function load_json_forms()
         SMSes[f.name] = [];
     }
 
-}
-
-function reset_tables(ccform_txt, feedback_txt)
-{
-    if (ccform_txt == null)
-        ccform_txt = '<thead id="ccform_head" class="' + dataentry_form.id + '"></thead><tbody id="ccform_body" class="' + dataentry_form.id + '"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr>    <tr></tr><tr></tr></tbody>';
-
-    if (feedback_txt == null)
-        feedback_txt = '<thead class="' + dataentry_form.id + '"><tr><td>Status</td><td>Message</td></tr></thead><tbody class="' + dataentry_form.id + '" id="log"><tr></tr><tr></tr><tr></tr><tr></tr><tr></tr></tbody>';
-
-    var doc = document.getElementById('ccform')
-    doc.innerHTML = ccform_txt;
-
-    var doc = document.getElementById('feedback')
-    doc.innerHTML = feedback_txt;
 }
 
 function save_form(form)
