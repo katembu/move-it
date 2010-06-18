@@ -25,6 +25,6 @@
         {'id': 'medecine', 'type': 's', 'name': "{% trans "G" %}", 'title': "{% trans "Medecine Given Section" %}"},
         {'id': 'medecine_given', 'type': 'f', 'name': "{% trans "Med" %}", 'title': "{% trans "Medecine Given (ACT, R, Z)" %}"},
         {'id': 'referral', 'type': 's', 'name': "{% trans "R" %}", 'title': "{% trans "Referral to Clinic Section" %}"},
-        {'id': 'clinic_referral', 'type': 'f', 'name': "{% trans "Ref" %}", 'title': "{% trans "Referral to Clinic )A-E-B-C)" %}"},
+        {'id': 'clinic_referral', 'type': 'f', 'name': "{% trans "Ref" %}", 'title': "{% trans "Referral to Clinic (A-E-B-C)" %}"},
     ]
 }
