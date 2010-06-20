@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.models import Encounter
-from childcount.models.reports import BedNetReport
+from childcount.models.reports import BednetReport
 from childcount.exceptions import ParseError
 
 
