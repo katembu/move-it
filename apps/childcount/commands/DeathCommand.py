@@ -22,6 +22,7 @@ class DeathCommand(CCCommand):
 
     KEYWORDS = {
         'en': ['ddb'],
+        'fr': ['ddb'],
     }
 
     MIN_HH_AGE = 10

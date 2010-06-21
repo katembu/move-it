@@ -14,6 +14,7 @@ from childcount.exceptions import ParseError
 class BedNetForm(CCForm):
     KEYWORDS = {
         'en': ['bn'],
+        'fr': ['bn'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 

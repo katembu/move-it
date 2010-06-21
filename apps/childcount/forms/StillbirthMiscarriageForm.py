@@ -20,6 +20,7 @@ from childcount.forms.utils import MultipleChoiceField
 class StillbirthMiscarriageForm(CCForm):
     KEYWORDS = {
         'en': ['sbm'],
+        'fr': ['sbm'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

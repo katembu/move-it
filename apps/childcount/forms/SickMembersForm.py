@@ -13,6 +13,7 @@ from childcount.exceptions import ParseError
 class SickMembersForm(CCForm):
     KEYWORDS = {
         'en': ['e'],
+        'fr': ['e'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 

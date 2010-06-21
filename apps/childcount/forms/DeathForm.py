@@ -19,6 +19,7 @@ from childcount.utils import DOBProcessor
 class DeathForm(CCForm):
     KEYWORDS = {
         'en': ['dda'],
+        'fr': ['dda'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

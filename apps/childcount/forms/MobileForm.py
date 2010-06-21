@@ -14,6 +14,7 @@ from childcount.models import Encounter
 class MobileForm(CCForm):
     KEYWORDS = {
         'en': ['mob', 'mobile'],
+        'fr': ['mob', 'mobile'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

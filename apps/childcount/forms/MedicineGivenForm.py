@@ -14,6 +14,7 @@ from childcount.exceptions import ParseError
 class MedicineGivenForm(CCForm):
     KEYWORDS = {
         'en': ['g'],
+        'fr': ['g'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

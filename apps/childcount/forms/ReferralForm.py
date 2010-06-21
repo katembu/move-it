@@ -10,6 +10,7 @@ from childcount.forms.utils import MultipleChoiceField
 class ReferralForm(CCForm):
     KEYWORDS = {
         'en': ['r'],
+        'fr': ['r'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

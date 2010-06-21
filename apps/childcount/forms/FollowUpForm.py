@@ -14,6 +14,7 @@ from childcount.forms.utils import MultipleChoiceField
 class FollowUpForm(CCForm):
     KEYWORDS = {
         'en': ['u'],
+        'fr': ['u'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 

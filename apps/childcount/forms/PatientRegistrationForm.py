@@ -19,6 +19,7 @@ from childcount.forms.utils import MultipleChoiceField
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new'],
+        'fr': ['new'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_HH_AGE = 10
