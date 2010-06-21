@@ -6,27 +6,43 @@ import os
 
 from datetime import date, timedelta
 
+import re
+
+
 from rapidsms.webui.utils import render_to_response
 from django.http import HttpResponse
-from django.utils.translation import gettext_lazy as _
-from django.template import Template, Context
+from django.utils.translation import gettext_lazy as _, activate
+from django.template import Template, Context, loader
 from django.contrib.auth.decorators import login_required
 
-from CairoPlot import PiePlot, BarPlot
 
-from locations.models import Location
-
-from childcount.models import Patient, CHW
+from childcount.models import Patient, CHW, Configuration
 from childcount.models.ccreports import TheCHWReport, LocationReport
 
+
+form_config = Configuration.objects.get(key='dataentry_forms').value
+forms = re.split(r'\s*,*\s*', form_config)
 
 @login_required
 def dataentry(request):
     ''' displays Data Entry U.I '''
     today = datetime.date.today().strftime("%Y-%m-%d")
     chws = CHW.objects.all()
+    chw = CHW.objects.get(id=request.user.id)
     return render_to_response(request, 'childcount/data_entry.html', \
-                              {'chws': chws, 'today': today})
+                              {'chws': chws, 'today': today, \
+                               'chw': chw, 'forms': forms})
+
+@login_required
+def form(request, formid):
+    ''' sends form_id according to user's language '''
+
+    chw = CHW.objects.get(id=request.user.id)
+    activate(chw.language)
+    form = loader.get_template('childcount/forms/%s.json' % formid)\
+                              .render(Context({}))
+
+    return HttpResponse(form, mimetype="application/json")
 
 
 def index(request):
