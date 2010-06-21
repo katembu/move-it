@@ -557,6 +557,18 @@ def day_end(date):
     t = date.time().replace(hour=23, minute=59)
     return datetime.combine(date.date(), t)
 
+
+def get_median(listOfNumericValues):
+    ''' get the median of a list of numeric values '''
+    ls = sorted(listOfNumericValues)
+    if len(ls) % 2 == 1:
+        return ls[((len(ls) + 1) / 2) - 1]
+    else:
+        lowerv = ls[(len(ls) / 2) - 1]
+        upperv = ls[len(ls)/2]
+    return float(lowerv + upperv) / 2
+
+
 from reportlab.platypus.flowables import Flowable
 
 
