@@ -17,7 +17,7 @@ try:
     from reportlab.platypus import Table, TableStyle
     from reportlab.lib import colors
     from reportlab.lib.units import inch
-    from reportlab.lib.enums import TA_CENTER
+    from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 except ImportError:
     pass
 
@@ -244,6 +244,8 @@ def operationalreportable(title, indata=None):
     #styleH4
     styleN2 = copy.copy(styleN)
     styleN2.alignment = TA_CENTER
+    styleN3 = copy.copy(styleN)
+    styleN3.alignment = TA_RIGHT
 
     opr = OperationalReport()
     cols = opr.get_columns()
@@ -277,7 +279,7 @@ def operationalreportable(title, indata=None):
     fourthrow = [Paragraph('Target:', styleH3)]
     fourthrow.extend([Paragraph(item, styleN) for item in ['-', '-', '100', \
                         '-', '100', '100', '-', '-', '-', '-', '100', '-', \
-                        '-', '-', '100', '100', '<=2', '0', '-']])
+                        '-', '-', '100', '100', '&lt;=2', '0', '-']])
     data.append(fourthrow)
     
     fifthrow = [Paragraph('<ul>List of CHWs</ul>', styleH4)]
@@ -291,8 +293,10 @@ def operationalreportable(title, indata=None):
     if indata:
         for row in indata:
             ctx = Context({"object": row})
-            values = [Paragraph(Template(col["bit"]).render(ctx), \
-                                styleN) for col in cols]
+            values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                                styleN)]
+            values.extend([Paragraph(Template(col["bit"]).render(ctx), \
+                                styleN3) for col in cols[1:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.25 * inch])
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
