@@ -556,3 +556,33 @@ def day_end(date):
     return datetime '''
     t = date.time().replace(hour=23, minute=59)
     return datetime.combine(date.date(), t)
+
+
+def get_median(listOfNumericValues):
+    ''' get the median of a list of numeric values '''
+    ls = sorted(listOfNumericValues)
+    if len(ls) % 2 == 1:
+        return ls[((len(ls) + 1) / 2) - 1]
+    else:
+        lowerv = ls[(len(ls) / 2) - 1]
+        upperv = ls[len(ls)/2]
+    return float(lowerv + upperv) / 2
+
+
+from reportlab.platypus.flowables import Flowable
+
+
+class RotatedParagraph(Flowable):
+    '''Rotates a paragraph'''
+    def __init__(self, paragraph, aW, aH):
+        self.paragraph = paragraph
+        self.width = aW
+        self.height = aH
+        print 'W: ', self.width, ' H: ', self.height
+    def draw(self):
+        canv = self.canv
+        canv.rotate(90)
+        self.paragraph.wrap(self.width, self.height)
+        #drawOn(canvas, x, y)
+        self.paragraph.drawOn(canv, 0, -(self.height))
+

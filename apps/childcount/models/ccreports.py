@@ -10,13 +10,14 @@ from datetime import date, timedelta, datetime
 from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW
-from childcount.models import NutritionReport, FeverReport,ReferralReport
+from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
-from childcount.models import HouseholdVisitReport
+from childcount.models import HouseholdVisitReport, FollowUpReport
 
-from childcount.utils import day_end, day_start, get_dates_of_the_week
+from childcount.utils import day_end, day_start, get_dates_of_the_week, \
+                                get_median
 
-from logger.models import IncomingMessage
+from logger.models import IncomingMessage, OutgoingMessage
 
 
 class ThePatient(Patient):
@@ -201,7 +202,7 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return round((num_on_time/float(total_households))*100)
+            return int(round((num_on_time/float(total_households))*100))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
@@ -215,7 +216,7 @@ class TheCHWReport(CHW):
                 count += 1
         if not count:
             return count
-        return round(100 * (count/float(births.count())))
+        return int(round(100 * (count/float(births.count()))))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
@@ -226,7 +227,7 @@ class TheCHWReport(CHW):
         num_of_births = self.num_of_births()
         if num_of_births == 0:
             return 0
-        return (round(num_of_clinic_delivery/float(num_of_births))*100)
+        return int(round(num_of_clinic_delivery/float(num_of_births))*100)
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -255,7 +256,7 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = underfives.count()
-            return round(100 * (count/float(total_count)))
+            return int(round(100 * (count/float(total_count))))
 
     def num_of_active_sam_cases(self):
         count = 0
@@ -312,8 +313,60 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = len(pwomen)
-            return round(100*(count/float(total_count)))
-            
+            return int(round(100*(count/float(total_count))))
+
+    def percentage_ontime_followup(self):
+        referrals = ReferralReport.objects.filter(encounter__chw=self)
+        if not referrals:
+            return ''
+        num_referrals = referrals.count()
+        ontimefollowup = 0
+        for referral in referrals:
+            rdate = referral.encounter.encounter_date
+            day2later = day_end(rdate + timedelta(2))
+            fur = FollowUpReport.objects.filter(encounter__chw=self, \
+                            encounter__patient=referral.encounter.patient, \
+                            encounter__encounter_date__gt=rdate, \
+                            encounter__encounter_date__lte=day2later)
+            if fur:
+                ontimefollowup += 1
+        return '%s%%' % int(round((ontimefollowup / \
+                        float(num_referrals)) * 100))
+
+    def median_number_of_followup_days(self):
+        referrals = ReferralReport.objects.filter(encounter__chw=self)
+        lsdays = []
+        for referral in referrals:
+            rdate = referral.encounter.encounter_date
+            fur = FollowUpReport.objects.filter(encounter__chw=self, \
+                            encounter__patient=referral.encounter.patient, \
+                            encounter__encounter_date__gt=rdate)\
+                            .order_by('encounter__encounter_date')
+            if fur:
+                fdate = fur[0].encounter.encounter_date
+                lsdays.append((fdate - rdate).days)
+        if not lsdays:
+            return ''
+        return int(get_median(lsdays))
+
+    def sms_error_rate(self):
+        total_sms = IncomingMessage.objects.filter(identity=self.connection()\
+                                    .identity).count()
+        if total_sms == 0:
+            return 0
+        total_error_sms = OutgoingMessage.objects.filter(identity=self\
+                                    .connection().identity, \
+                                    text__icontains='error').count()
+        return int(round((total_error_sms / float(total_sms)) * 100))
+
+    def days_since_last_sms(self):
+        now = datetime.now()
+        last_sms = IncomingMessage.objects.filter(identity=self.connection()\
+                                    .identity, received__lte=now)\
+                                    .order_by('-received')
+        if not last_sms:
+            return None
+        return (now - last_sms[0].received).days
 
     @classmethod
     def muac_summary(cls):
@@ -327,13 +380,13 @@ class TheCHWReport(CHW):
                         status=NutritionReport.STATUS_SEVERE_COMP).count()
         num_eligible = TheCHWReport.total_muac_eligible()
         info = {'%s%% HEALTHY' %\
-                round((num_healthy / float(num_eligible)) * 100): num_healthy,
+                int(round((num_healthy / float(num_eligible)) * 100)): num_healthy,
                 '%s%% MAM' %\
-                    round((num_mam / float(num_eligible)) * 100): num_mam,
+                    int(round((num_mam / float(num_eligible)) * 100)): num_mam,
                 '%s%% SAM' %\
-                    round((num_sam / float(num_eligible)) * 100): num_sam,
+                    int(round((num_sam / float(num_eligible)) * 100)): num_sam,
                 '%s%% SAM+' %\
-                    round((num_comp / float(num_eligible)) * 100): num_comp}
+                    int(round((num_comp / float(num_eligible)) * 100)): num_comp}
         return info
 
     @classmethod
@@ -455,8 +508,8 @@ class OperationalReport():
                 'bit': '{{object.num_underfive_malaria}}'})
         columns.append({'name': _("# Under-5 Treated for Diarrhea"), \
                 'bit': '{{object.num_underfive_diarrhea}}'})
-        columns.append({'name': _("% receiving on-time MUAC (within 90 days) "\
-                                    "[S11]"), \
+        columns.append({'name': _("% Under-5 receiving on-time MUAC "\
+                                    "(within 90 days) [S11]"), \
                 'bit': '{{object.percentage_ontime_muac}}%'})
         columns.append({'name': _("# of Active GAM cases"), \
                 'bit': '{{object.num_of_active_sam_cases}}'})
@@ -464,9 +517,18 @@ class OperationalReport():
                 'bit': '{{object.num_of_pregnant_women}}'})
         columns.append({'name': _("# Pregnant Women Referred for Danger Signs"),
                 'bit': '{{object.num_pregnant_refferred}}'})
-        columns.append({'name': _("% receiving on-time visit (within 6 weeks) "\
-                        "[S24]"), \
+        columns.append({'name': _("% Pregnant receiving on-time visit"\
+                        " (within 6 weeks) [S24]"), \
                 'bit': '{{object.percentage_pregnant_ontime_visits}}'})
+        columns.append({'name': _("% Referred / Treated receiving on-time "\
+                                    "follow-up (within 2 days) [S13]"),
+                'bit': '{{object.percentage_ontime_followup}}'})
+        columns.append({'name': _("Median # of days for follow-up [S25]"), \
+                'bit': '{{object.median_number_of_followup_days}}'})
+        columns.append({'name': _("SMS Error Rate %"),
+                'bit': '{{object.sms_error_rate}}%'})
+        columns.append({'name': _("Days since last SMS transmission"), \
+                'bit': '{{object.days_since_last_sms}}'})
         self.columns = columns
 
     def get_columns(self):
