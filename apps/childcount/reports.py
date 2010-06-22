@@ -36,7 +36,6 @@ styles = getSampleStyleSheet()
 styleN = styles['Normal']
 styleH = styles['Heading1']
 styleH3 = styles['Heading3']
-styleH4 = styles['Heading4']
 
 
 def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
@@ -241,7 +240,6 @@ def operationalreport(request, rformat):
 def operationalreportable(title, indata=None):
     styleH3.fontName = 'Times-Bold'
     styleH3.alignment = TA_CENTER
-    #styleH4
     styleN2 = copy.copy(styleN)
     styleN2.alignment = TA_CENTER
     styleN3 = copy.copy(styleN)
@@ -282,7 +280,7 @@ def operationalreportable(title, indata=None):
                         '-', '-', '100', '100', '&lt;=2', '0', '-']])
     data.append(fourthrow)
     
-    fifthrow = [Paragraph('<ul>List of CHWs</ul>', styleH4)]
+    fifthrow = [Paragraph('<u>List of CHWs</u>', styleH3)]
     fifthrow.extend([Paragraph(item, styleN) for item in [''] * 19])
     data.append(fifthrow)
 
