@@ -75,7 +75,7 @@ class BirthForm(CCForm):
                 raise BadValue(_(u"Could not find mother / guardian " \
                                     "with health ID %(id)s. You must " \
                                     "register the mother first.") % \
-                                    {'id': household})
+                                    {'id': mother})
             if patient.mother < self.MIN_GUARDIAN_AGE:
                 raise BadValue(_(u"The mother / guardian you specified " \
                                     "is too young to be a mother." \
