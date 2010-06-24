@@ -37,3 +37,4 @@ from childcount.forms.HouseholdForm import HouseholdForm
 
 from childcount.forms.BednetCoverageForm import BednetCoverageForm
 from childcount.forms.BednetUtilizationForm import BednetUtilizationForm
+from childcount.forms.SanitationForm import SanitationForm
