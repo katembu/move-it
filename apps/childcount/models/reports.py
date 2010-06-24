@@ -1012,3 +1012,78 @@ class SanitationReport(CCReport):
                               choices=SHARE_CHOICES, help_text=_(u"Do you " \
                                 "share the tolet"))
 reversion.register(SanitationReport, follow=['ccreport_ptr'])
+
+
+class DrinkingWaterReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_drnkwater_rpt'
+        verbose_name = _(u"Drinking Water Report")
+        verbose_name_plural = _(u"Drinking Water Reports")
+
+    PIPED_WATER = 'A'
+    PUBLIC_TAP_STANDPIPE = 'B'
+    TUBEWELL_BOREHOLE = 'C'
+    PROTECTED_DUG_WELL = 'D'
+    UNPROTECTED_DUG_WELL = 'E'
+    PROTECTED_SPRING = 'F'
+    UNPROTECTED_SPRING = 'G'
+    RAIN_COLLECTION = 'H'
+    SURFACE_WATER = 'I'
+    OTHER = 'J'
+
+    DRNKWATER_CHOICES = (
+        (PIPED_WATER, _(u'Piped water into dwelling or yard/plot')),
+        (PUBLIC_TAP_STANDPIPE, _(u'Public Tap/Standpipe')),
+        (TUBEWELL_BOREHOLE, _(u'Tube well / Borehole')),
+        (PROTECTED_DUG_WELL, _(u'Protected dug well')),
+        (UNPROTECTED_DUG_WELL, _(u'Unprotected Dug well')),
+        (PROTECTED_SPRING, _(u'Protected Spring')),
+        (UNPROTECTED_SPRING, _(u'Unprotected spring')),
+        (RAIN_COLLECTION, _(u'Rain water collection')),
+        (SURFACE_WATER, _(u'Surface water (river, dam, lake, pond, stream')),
+        (OTHER, _(u'Other')))
+
+    TREAT_YES = 'Y'
+    TREAT_NO = 'N'
+    TREAT_UNKOWN = 'U'
+    TREAT_CHOICES = (
+        (TREAT_YES, _(u"Yes")),
+        (TREAT_NO, _(u"No")),
+        (TREAT_UNKOWN, _(u"Dont know")))
+
+    TREATMENT_METHOD_BOIL = 'A'
+    TREATMENT_METHOD_ADDBLEACH_CHLORINE = 'B'
+    TREATMENT_METHOD_CLOTH = 'C'
+    TREATMENT_METHOD_WATERFILTER = 'D'
+    TREATMENT_METHOD_SOLARDISINFECTION = 'E'
+    TREATMENT_METHOD_STAND_SETTLE = 'F'
+    TREATMENT_METHOD_OTHER = 'G'
+    TREATMENT_METHOD_DONTKNOW = 'H'
+    TREATMENT_CHOICES = (
+        (TREATMENT_METHOD_BOIL, _(u"Boil")),
+        (TREATMENT_METHOD_ADDBLEACH_CHLORINE, _(u"Add bleach/chlorine")),
+        (TREATMENT_METHOD_CLOTH, _(u"Strain it through a cloth")),
+        (TREATMENT_METHOD_WATERFILTER, _(u"Use water filter: sand/ceramic")),
+        (TREATMENT_METHOD_SOLARDISINFECTION, _(u"Solar disinfection")),
+        (TREATMENT_METHOD_STAND_SETTLE, _(u"Let it stand and settle")),
+        (TREATMENT_METHOD_OTHER, _(u"Other")),
+        (TREATMENT_METHOD_DONTKNOW, _(u"Dont know")),)
+
+    water_source = models.CharField(_(u"Water Source"), max_length=1, \
+                              choices=DRNKWATER_CHOICES)
+    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
+                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
+                                "treat water"))
+
+    water_source = models.CharField(_(u"Water Source"), max_length=1, \
+                              choices=DRNKWATER_CHOICES)
+    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
+                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
+                                "treat water"))
+    treatment_method = models.CharField(_(u"Treatment method"), max_length=1, \
+                              choices=TREATMENT_CHOICES, help_text=_(u"What " \
+                                "do you use to make it safer to drink"), \
+                                blank=True)
+reversion.register(DrinkingWaterReport, follow=['ccreport_ptr'])
