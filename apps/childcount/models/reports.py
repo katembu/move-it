@@ -968,3 +968,47 @@ class BednetUtilization(CCReport):
 
 reversion.register(BednetUtilization, follow=['ccreport_ptr'])
 
+
+class SanitationReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_sanitation_rpt'
+        verbose_name = _(u"Sanitation Report")
+        verbose_name = _(u"Sanitation Reports")
+
+    FLUSH = 'A'
+    VENTILATED_IMPROVED_PIT = 'B'
+    PITLAT_WITH_SLAB = 'C'
+    PITLAT_WITHOUT_SLAB = 'D'
+    COMPOSTING_TOILET = 'E'
+    BUCKET = 'F'
+    HANGING_TOILET_LAT = 'G'
+    NO_FACILITY_OR_BUSH = 'H'
+    OTHER = 'I'
+
+    TOILET_LAT_CHOICES = (
+        (FLUSH, _(u'Flush')),
+        (VENTILATED_IMPROVED_PIT, _(u'Ventilated Improved Pit Latrine')),
+        (PITLAT_WITH_SLAB, _(u'Pit Latrine with slab')),
+        (PITLAT_WITHOUT_SLAB, _(u'Pit Latrine without slab')),
+        (COMPOSTING_TOILET, _(u'Compositing Pit Toilet')),
+        (BUCKET, _(u'Bucket')),
+        (HANGING_TOILET_LAT, _(u'Hanging Toilet Latrine')),
+        (NO_FACILITY_OR_BUSH, _(u'No facility')),
+        (OTHER, _(u'Other')))
+
+    SHARE_YES = 'Y'
+    SHARE_NO = 'N'
+    SHARE_UNKOWN = 'U'
+    SHARE_CHOICES = (
+        (SHARE_YES, _(u"Yes")),
+        (SHARE_NO, _(u"No")),
+        (SHARE_UNKOWN, _(u"Unknown")))
+
+    toilet_lat = models.CharField(_(u"Toilet Type"), max_length=1, \
+                              choices=TOILET_LAT_CHOICES)
+    share_toilet = models.CharField(_(u"Do you share"), max_length=1, \
+                              choices=SHARE_CHOICES, help_text=_(u"Do you " \
+                                "share the tolet"))
+reversion.register(SanitationReport, follow=['ccreport_ptr'])
