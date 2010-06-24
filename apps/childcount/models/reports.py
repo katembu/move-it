@@ -939,3 +939,32 @@ class VerbalAutopsyReport(CCReport):
 
     done = models.BooleanField(_("Completed?"), \
                                 help_text=_('Was a Verbal Autopsy conducted?'))
+
+
+class BednetUtilization(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_bdnutil_rpt'
+        verbose_name = _(u"Bednet utilization Report")
+        verbose_name_plural = _(u"Bednet utilization reports")
+
+    child_underfive = models.PositiveSmallIntegerField(_(u"Number of " \
+                                            "children under five "), \
+                            help_text=_(u"Number of children under five who " \
+                                        " slept here last nite "))
+
+    child_lastnite = models.PositiveSmallIntegerField(_(u"Number of children" \
+                                            "under five "), \
+                            help_text=_(u"Number of children under five who " \
+                                           "slept here  under bednet "))
+
+    def summary(self):
+        return u"%s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('child_underfive')[0].verbose_name, \
+             self.child_underfive, \
+             self._meta.get_field_by_name('child_lastnite')[0].verbose_name, \
+             self.child_lastnite)
+
+reversion.register(BednetUtilization, follow=['ccreport_ptr'])
+
