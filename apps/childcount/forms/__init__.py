@@ -36,3 +36,4 @@ from childcount.forms.HouseholdForm import HouseholdForm
 #endsauri
 
 from childcount.forms.BednetCoverageForm import BednetCoverageForm
+from childcount.forms.BednetUtilizationForm import BednetUtilizationForm
