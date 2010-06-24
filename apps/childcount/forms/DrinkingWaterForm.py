@@ -10,7 +10,6 @@ from childcount.models import Patient, Encounter
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
 
-
 class DrinkingWaterForm(CCForm):
     KEYWORDS = {
         'en': ['dw'],
