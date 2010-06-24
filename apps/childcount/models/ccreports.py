@@ -72,6 +72,14 @@ class ThePatient(Patient):
         except NutritionReport.DoesNotExist:
             return False
 
+    def status_text(self):
+        ''' Return the text in status choices '''
+        #TODO There is a smarter way of doing this, get it done
+        for status in self.STATUS_CHOICES:
+            if self.status in status:
+                return status[1]
+        return None
+
     @classmethod
     def under_five(cls, chw=None):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
