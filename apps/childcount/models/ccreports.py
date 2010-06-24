@@ -110,6 +110,25 @@ class ThePatient(Patient):
         sub_columns = None
         return columns, sub_columns
 
+    def patient_register_columns(cls):
+        columns = []
+        columns.append(
+            {'name': cls._meta.get_field('health_id').verbose_name.upper(), \
+            'bit': '{{object.health_id.upper}}'})
+        columns.append(
+            {'name': _("Name".upper()), \
+            'bit': '{{object.last_name}} {{object.first_name}}'})
+        columns.append(
+            {'name': cls._meta.get_field('gender').verbose_name.upper(), \
+            'bit': '{{object.gender}}'})
+        columns.append(
+            {'name': _("Age".upper()), \
+            'bit': '{{object.humanised_age}}'})
+        columns.append(
+            {'name': _("status".upper()), \
+            'bit': '{{object.status}}'})    
+        return columns
+
 
 class TheCHWReport(CHW):
 
