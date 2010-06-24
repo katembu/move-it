@@ -45,6 +45,7 @@ admin.site.register(SickMembersReport, VersionAdmin)
 admin.site.register(DangerSignsReport, VersionAdmin)
 admin.site.register(MedicineGivenReport, VersionAdmin)
 admin.site.register(BednetUtilization, VersionAdmin)
+admin.site.register(SanitationReport, VersionAdmin)
 
 
 class CodedItemAdmin(admin.ModelAdmin):
