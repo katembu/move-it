@@ -74,11 +74,13 @@ class ThePatient(Patient):
 
     def status_text(self):
         ''' Return the text in status choices '''
+        if not self.pk:
+            return ''
         #TODO There is a smarter way of doing this, get it done
         for status in self.STATUS_CHOICES:
             if self.status in status:
                 return status[1]
-        return None
+        return ''
 
     @classmethod
     def under_five(cls, chw=None):
@@ -121,20 +123,23 @@ class ThePatient(Patient):
     def patient_register_columns(cls):
         columns = []
         columns.append(
-            {'name': cls._meta.get_field('health_id').verbose_name.upper(), \
+            {'name': _(u"HID"), \
             'bit': '{{object.health_id.upper}}'})
         columns.append(
-            {'name': _("Name".upper()), \
+            {'name': _(u"Name".upper()), \
             'bit': '{{object.last_name}} {{object.first_name}}'})
         columns.append(
             {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
         columns.append(
-            {'name': _("Age".upper()), \
+            {'name': _(u"Age".upper()), \
             'bit': '{{object.humanised_age}}'})
         columns.append(
-            {'name': _("status".upper()), \
-            'bit': '{{object.status}}'})    
+            {'name': _(u"Status".upper()), \
+            'bit': '{{object.status_text}}'})
+        columns.append(
+            {'name': _(u"HHID".upper()), \
+            'bit': '{{object.household.health_id.upper}}'})
         return columns
 
 
