@@ -4,7 +4,7 @@
 
 import re
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, activate
 from django.contrib.auth.models import User, Group
 
 from reporters.models import Reporter
@@ -71,7 +71,10 @@ class RegistrationCommand(CCCommand):
 
         chw.first_name = firstnames
         chw.last_name = surname
+
+        # change language
         chw.language = reporter_language
+        activate(chw.language)
 
         chw.location = location
 
