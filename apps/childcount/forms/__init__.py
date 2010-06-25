@@ -39,3 +39,4 @@ from childcount.forms.BednetCoverageForm import BednetCoverageForm
 from childcount.forms.BednetUtilizationForm import BednetUtilizationForm
 from childcount.forms.SanitationForm import SanitationForm
 from childcount.forms.DrinkingWaterForm import DrinkingWaterForm
+from childcount.forms.BednetDistributionForm import BednetDistributionForm
