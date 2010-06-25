@@ -318,3 +318,115 @@ def operationalreportable(title, indata=None):
                 ]))
     return tb
 
+
+def registerlist(request, rformat):
+    filename = 'registerlist.pdf'
+    story = []
+    
+    for location in Clinic.objects.all():
+        chws = TheCHWReport.objects.filter(location=location)
+        if not chws.count():
+            continue
+        for chw in chws:
+            households = chw.households()
+            if not households:
+                continue
+            patients = []
+            boxes = []
+            for household in households:
+                trow = len(patients)
+                patients.append(household)
+                hs = ThePatient.objects.filter(household=household)\
+                                .exclude(health_id=household.health_id)\
+                                .order_by('household')
+                patients.extend(hs)
+                patients.append(ThePatient())
+                brow = len(patients) - 1
+                boxes.append({"top": trow, "bottom": brow})
+            tb = thepatientregister(_(u"CHW: %s: %s") % (location, chw), \
+                                    patients, boxes)
+            story.append(tb)
+            story.append(PageBreak())
+        story.append(PageBreak())
+    from libreport.pdfreport import MultiColDocTemplate
+    from reportlab.platypus import NextPageTemplate
+    story.insert(0, PageBreak())
+    story.insert(0, NextPageTemplate("laterPages"))
+    doc = MultiColDocTemplate(filename, 2, pagesize = landscape(A4), \
+                            topMargin=(0.5 * inch), showBoundary=0)
+    doc.build(story)
+    response = HttpResponse(mimetype='application/pdf')
+    response['Cache-Control'] = ""
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    
+    response.write(open(filename).read())
+    os.remove(filename)
+    return response
+
+
+def thepatientregister(title, indata=None, boxes=None):
+    styleH3.fontName = 'Times-Bold'
+    styleH3.alignment = TA_CENTER
+    styleH5 = copy.copy(styleH3)
+    styleH5.fontSize = 8
+    styleN.fontSize = 8
+    styleN.spaceAfter = 0
+    styleN.spaceBefore = 0
+    styleN2 = copy.copy(styleN)
+    styleN2.alignment = TA_CENTER
+    styleN3 = copy.copy(styleN)
+    styleN3.alignment = TA_RIGHT
+
+    rpt = ThePatient()
+    cols = rpt.patient_register_columns()
+
+    hdata = [Paragraph('%s' % title, styleH3)]
+    hdata.extend((len(cols) - 1) * [''])
+    data = [hdata]
+
+    #styleN.borderWidth = 0
+    #styleN.borderColor = colors.red 
+    firstrow = [Paragraph(cols[0]['name'], styleH5)]
+    firstrow.extend([Paragraph(col['name'], styleH5) for col in cols[1:]])
+    data.append(firstrow)
+
+    rowHeights = [None, 0.2 * inch]
+    colWidths = [0.5 * inch, 1.5 * inch]
+    colWidths.extend((len(cols) - 2) * [0.5 * inch])
+
+    ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
+                            ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
+                            colors.black),
+                            ('LINEBELOW', (0, 1), (len(cols) - 1, 1), 1, \
+                            colors.black),
+                            ('INNERGRID', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),\
+                            ('BOX', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey)]
+    if indata:
+        for row in indata:
+            ctx = Context({"object": row})
+            values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                                styleN)]
+            values.extend([Paragraph(Template(cols[1]["bit"]).render(ctx), \
+                                styleN)])
+            values.extend([Paragraph(Template(col["bit"]).render(ctx), \
+                                styleN2) for col in cols[2:]])
+            data.append(values)
+        rowHeights.extend(len(indata) * [0.2 * inch])
+
+        tscount = 0
+        for box in boxes:
+            if tscount % 2:
+                ts.append((('BOX', (0, box['top'] + 2), \
+                        (-1, box['bottom'] + 2), 0.5, colors.black)))
+            else:
+                 ts.append((('BOX', (0, box['top'] + 2), \
+                        (-1, box['bottom'] + 2), 0.5, colors.black)))
+            ts.append((('BACKGROUND', (0, box['top'] + 2), \
+                        (1, box['top'] + 2), colors.lightgrey)))
+            tscount += 1
+    tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
+    tb.setStyle(TableStyle(ts))
+    return tb
+
