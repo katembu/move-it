@@ -1087,3 +1087,16 @@ class DrinkingWaterReport(CCReport):
                                 "do you use to make it safer to drink"), \
                                 blank=True)
 reversion.register(DrinkingWaterReport, follow=['ccreport_ptr'])
+
+
+class BednetIssuedReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_bdnstc_rpt'
+        verbose_name = _(u"Bednet Distribution Report")
+        verbose_name = _(u"Betnet Distribution Reports")
+
+    bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"))
+
+reversion.register(BednetIssuedReport, follow=['ccreport_ptr'])
