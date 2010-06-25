@@ -1,4 +1,17 @@
-class Bednetlookup(CCForm):
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: katembu
+
+from django.utils.translation import ugettext as _
+from django.db.models import Sum
+
+from childcount.forms import CCForm
+from childcount.models.reports import BedNetReport, BednetIssuedReport
+from childcount.models import Patient, Encounter
+from childcount.exceptions import ParseError, BadValue, Inapplicable
+
+
+class BednetLookupForm(CCForm):
     KEYWORDS = {
         'en': ['bs'],
         'fr': ['bs'],
@@ -8,9 +21,9 @@ class Bednetlookup(CCForm):
     def process(self, patient):
         #check if survey has been done
         try:
-            bnr = BednetReport.objects.get(encounter__patient=self.\
+            bnr = BedNetReport.objects.get(encounter__patient=self.\
                                         encounter.patient)
-        except BednetReport.DoesNotExist:
+        except BedNetReport.DoesNotExist:
             raise ParseError(_(u"Report  Survey doesnt exist for Kamau"))
 
         else:
