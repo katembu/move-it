@@ -398,7 +398,7 @@ def clean_names(flat_name, surname_first=True):
     flat_name = re.sub('\d', '', flat_name)
 
     # break up the name into a list
-    names = re.findall('\w+', flat_name)
+    names = re.findall('\w+', flat_name, re.U)
 
     surname = firstnames = alias = u''
 
@@ -407,6 +407,7 @@ def clean_names(flat_name, surname_first=True):
         surname = names.pop(pop_index).title()
         firstnames = ' '.join(names).title()
         alias = ''.join([c[0] for c in names] + [surname]).lower()
+        alias = ''.join(re.findall('\w+', alias))
 
         if not names and not surname_first:
             surname, firstnames = firstnames, surname

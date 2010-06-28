@@ -33,6 +33,9 @@ urlpatterns = patterns('',
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', reports.operationalreport),
 
+    url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
+    url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),
+
     url(r'^childcount/dataentry/?$', views.dataentry),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', views.form, name='form'),
 )

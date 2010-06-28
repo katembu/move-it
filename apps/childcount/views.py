@@ -10,18 +10,23 @@ import re
 
 
 from rapidsms.webui.utils import render_to_response
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse
+from django.core.urlresolvers import reverse
 from django.utils.translation import gettext_lazy as _, activate
 from django.template import Template, Context, loader
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, UserManager, Group
+from django import forms
+from reporters.models import PersistantConnection, PersistantBackend
+from locations.models import Location
 
 
 from childcount.models import Patient, CHW, Configuration
 from childcount.models.ccreports import TheCHWReport, LocationReport
-
+from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
-forms = re.split(r'\s*,*\s*', form_config)
+cc_forms = re.split(r'\s*,*\s*', form_config)
 
 @login_required
 def dataentry(request):
@@ -31,7 +36,7 @@ def dataentry(request):
     chw = CHW.objects.get(id=request.user.id)
     return render_to_response(request, 'childcount/data_entry.html', \
                               {'chws': chws, 'today': today, \
-                               'chw': chw, 'forms': forms})
+                               'chw': chw, 'forms': cc_forms})
 
 @login_required
 def form(request, formid):
@@ -54,6 +59,97 @@ def index(request):
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
     return render_to_response(request, template_name, info)
+
+class CHWForm(forms.Form):
+    #username = forms.CharField(max_length=30)
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    password = forms.CharField()
+    language = forms.CharField(min_length=2, max_length=5)
+    location = forms.ChoiceField(choices=[(location.id, location.name) \
+                                       for location in Location.objects.all()])
+    mobile = forms.CharField(required=False)
+
+def add_chw(request):
+
+    info = {}
+    
+    if request.method == 'POST':
+        form = CHWForm(request.POST)
+        if form.is_valid():
+
+            #username = form.cleaned_data['username']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            password = form.cleaned_data['password']
+            language = form.cleaned_data['language']
+            location = form.cleaned_data['location']
+            mobile = form.cleaned_data['mobile']
+
+            # CHW creation
+            chw = CHW()
+            # names and alias
+            surname, firstnames, alias = clean_names(u"%s %s" % \
+                                  (last_name, first_name), surname_first=True)
+            orig_alias = alias[:20]
+            alias = orig_alias.lower()
+            if alias != chw.alias and not re.match(r'%s\d' % alias, chw.alias):
+                n = 1
+                while User.objects.filter(username__iexact=alias).count():
+                    alias = "%s%d" % (orig_alias.lower(), n)
+                    n += 1
+                chw.alias = alias
+            chw.first_name = firstnames
+            chw.last_name = surname
+            # properties
+            chw.language = language
+            chw.location = Location.objects.get(id=location)
+            chw.mobile = mobile
+            chw.save()
+
+            # set password through User.s
+            chw.set_password(password)
+            chw.save()
+
+            # Add CHW Group
+            chw.groups.add(Group.objects.get(name__iexact='CHW'))
+
+            # create dataentry connection
+            c = PersistantConnection(backend=PersistantBackend.objects.get(\
+                                                   slug__iexact='dataentry'), \
+                                     identity=chw.username, \
+                                     reporter=chw, \
+                                     last_seen=datetime.datetime.now())
+            c.save()
+
+            # add mobile connection
+            try:
+                pygsm = PersistantBackend.objects.get(slug__iexact='pygsm')
+            except:
+                pygsm = PersistantBackend(slug='pygsm', title='pygsm')
+                pygsm.save()
+
+            if mobile:
+                c = PersistantConnection(backend=pygsm, \
+                                         identity=mobile, \
+                                         reporter=chw, \
+                                         last_seen=datetime.datetime.now())
+                c.save()
+
+            return HttpResponseRedirect(reverse('childcount.views.index'))
+    else:
+        form = CHWForm()
+
+    info.update({'form': form})
+
+    return render_to_response(request, 'childcount/add_chw.html', info)
+
+def list_chw(request):
+
+    info = {}
+    chews = CHW.objects.all().order_by('-id')
+    info.update({'chews': chews})
+    return render_to_response(request, 'childcount/list_chw.html', info)
 
 
 def chw(request):
@@ -240,3 +336,40 @@ def chart_summary(request):
     return render_to_response(\
                 request, 'childcount/chart.html', context_dict)
 
+def bednet_summary(request):
+    '''House Patients page '''
+    report_title = Patient._meta.verbose_name
+    rows = []
+    columns, sub_columns = BdnethouseHold.summary()
+
+    reports = BdnethouseHold.return_household()
+    i = 0
+    for report in reports:
+        i += 1
+        row = {}
+        row["cells"] = []
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
+
+        rows.append(row)
+
+    aocolumns_js = "{ \"sType\": \"html\" },"
+    for col in columns[1:] + (sub_columns if sub_columns != None else []):
+        if not 'colspan' in col:
+            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
+                            "\"bSearchable\": true },"
+    print columns[1:]
+    aocolumns_js = aocolumns_js[:-1]
+
+    aggregate = False
+    print columns
+    print sub_columns
+    print len(rows)
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title,
+                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+
+    return render_to_response(\
+                request, 'childcount/bednet.html', context_dict)
