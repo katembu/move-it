@@ -912,6 +912,36 @@ class VerbalAutopsyReport(CCReport):
                                 help_text=_('Was a Verbal Autopsy conducted?'))
 
 
+class BedNetReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_bnrpt'
+        verbose_name = _(u"Bednet Report")
+        verbose_name_plural = _(u"Bednet Reports")
+
+    sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
+                            help_text=_(u"Number of sleeping sites"))
+
+    nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
+                            help_text=_(u"Number of functioning bednets " \
+                                         "in the household"))
+
+    def summary(self):
+        return u"%s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
+             self.sleeping_sites, \
+             self._meta.get_field_by_name('nets')[0].verbose_name, \
+             self.nets)
+
+    def get_omrs_dict(self):
+        return {
+            'sleeping_sites': self.sleeping_sites,
+            'bednets': self.nets,
+        }
+reversion.register(BedNetReport, follow=['ccreport_ptr'])
+
+
 class BednetUtilization(CCReport):
 
     class Meta:
