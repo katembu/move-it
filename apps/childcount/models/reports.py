@@ -912,36 +912,6 @@ class VerbalAutopsyReport(CCReport):
                                 help_text=_('Was a Verbal Autopsy conducted?'))
 
 
-class BednetReport(CCReport):
-
-    class Meta:
-        app_label = 'childcount'
-        db_table = 'cc_bnrpt'
-        verbose_name = _(u"Bednet Report")
-        verbose_name_plural = _(u"Bednet Reports")
-
-    sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
-                            help_text=_(u"Number of sleeping sites"))
-
-    nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
-                            help_text=_(u"Number of functioning bednets " \
-                                         "in the household"))
-
-    def summary(self):
-        return u"%s: %d, %s: %d" % \
-            (self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
-             self.sleeping_sites, \
-             self._meta.get_field_by_name('nets')[0].verbose_name, \
-             self.nets)
-
-    def get_omrs_dict(self):
-        return {
-            'sleeping_sites': self.sleeping_sites,
-            'bednets': self.nets,
-        }
-reversion.register(BednetReport, follow=['ccreport_ptr'])
-
-
 class BednetUtilization(CCReport):
 
     class Meta:
@@ -950,8 +920,8 @@ class BednetUtilization(CCReport):
         verbose_name = _(u"Bednet utilization Report")
         verbose_name_plural = _(u"Bednet utilization reports")
 
-    child_underfive = models.PositiveSmallIntegerField(_(u"Number of children" \
-                                            "under five "), \
+    child_underfive = models.PositiveSmallIntegerField(_(u"Number of " \
+                                            "children under five "), \
                             help_text=_(u"Number of children under five who " \
                                         " slept here last nite "))
 
@@ -968,6 +938,126 @@ class BednetUtilization(CCReport):
              self.child_lastnite)
 
 reversion.register(BednetUtilization, follow=['ccreport_ptr'])
+
+
+class SanitationReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_sanitation_rpt'
+        verbose_name = _(u"Sanitation Report")
+        verbose_name_plural= _(u"Sanitation Reports")
+
+    FLUSH = 'A'
+    VENTILATED_IMPROVED_PIT = 'B'
+    PITLAT_WITH_SLAB = 'C'
+    PITLAT_WITHOUT_SLAB = 'D'
+    COMPOSTING_TOILET = 'E'
+    BUCKET = 'F'
+    HANGING_TOILET_LAT = 'G'
+    NO_FACILITY_OR_BUSH = 'H'
+    OTHER = 'I'
+
+    TOILET_LAT_CHOICES = (
+        (FLUSH, _(u'Flush')),
+        (VENTILATED_IMPROVED_PIT, _(u'Ventilated Improved Pit Latrine')),
+        (PITLAT_WITH_SLAB, _(u'Pit Latrine with slab')),
+        (PITLAT_WITHOUT_SLAB, _(u'Pit Latrine without slab')),
+        (COMPOSTING_TOILET, _(u'Compositing Pit Toilet')),
+        (BUCKET, _(u'Bucket')),
+        (HANGING_TOILET_LAT, _(u'Hanging Toilet Latrine')),
+        (NO_FACILITY_OR_BUSH, _(u'No facility')),
+        (OTHER, _(u'Other')))
+
+    SHARE_YES = 'Y'
+    SHARE_NO = 'N'
+    SHARE_UNKOWN = 'U'
+    SHARE_CHOICES = (
+        (SHARE_YES, _(u"Yes")),
+        (SHARE_NO, _(u"No")),
+        (SHARE_UNKOWN, _(u"Unknown")))
+
+    toilet_lat = models.CharField(_(u"Toilet Type"), max_length=1, \
+                              choices=TOILET_LAT_CHOICES)
+    share_toilet = models.CharField(_(u"Do you share"), max_length=1, \
+                              choices=SHARE_CHOICES, help_text=_(u"Do you " \
+                                "share the tolet"))
+reversion.register(SanitationReport, follow=['ccreport_ptr'])
+
+
+class DrinkingWaterReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_drnkwater_rpt'
+        verbose_name = _(u"Drinking Water Report")
+        verbose_name_plural = _(u"Drinking Water Reports")
+
+    PIPED_WATER = 'A'
+    PUBLIC_TAP_STANDPIPE = 'B'
+    TUBEWELL_BOREHOLE = 'C'
+    PROTECTED_DUG_WELL = 'D'
+    UNPROTECTED_DUG_WELL = 'E'
+    PROTECTED_SPRING = 'F'
+    UNPROTECTED_SPRING = 'G'
+    RAIN_COLLECTION = 'H'
+    SURFACE_WATER = 'I'
+    OTHER = 'J'
+
+    DRNKWATER_CHOICES = (
+        (PIPED_WATER, _(u'Piped water into dwelling or yard/plot')),
+        (PUBLIC_TAP_STANDPIPE, _(u'Public Tap/Standpipe')),
+        (TUBEWELL_BOREHOLE, _(u'Tube well / Borehole')),
+        (PROTECTED_DUG_WELL, _(u'Protected dug well')),
+        (UNPROTECTED_DUG_WELL, _(u'Unprotected Dug well')),
+        (PROTECTED_SPRING, _(u'Protected Spring')),
+        (UNPROTECTED_SPRING, _(u'Unprotected spring')),
+        (RAIN_COLLECTION, _(u'Rain water collection')),
+        (SURFACE_WATER, _(u'Surface water (river, dam, lake, pond, stream')),
+        (OTHER, _(u'Other')))
+
+    TREAT_YES = 'Y'
+    TREAT_NO = 'N'
+    TREAT_UNKOWN = 'U'
+    TREAT_CHOICES = (
+        (TREAT_YES, _(u"Yes")),
+        (TREAT_NO, _(u"No")),
+        (TREAT_UNKOWN, _(u"Dont know")))
+
+    TREATMENT_METHOD_BOIL = 'A'
+    TREATMENT_METHOD_ADDBLEACH_CHLORINE = 'B'
+    TREATMENT_METHOD_CLOTH = 'C'
+    TREATMENT_METHOD_WATERFILTER = 'D'
+    TREATMENT_METHOD_SOLARDISINFECTION = 'E'
+    TREATMENT_METHOD_STAND_SETTLE = 'F'
+    TREATMENT_METHOD_OTHER = 'G'
+    TREATMENT_METHOD_DONTKNOW = 'H'
+    TREATMENT_CHOICES = (
+        (TREATMENT_METHOD_BOIL, _(u"Boil")),
+        (TREATMENT_METHOD_ADDBLEACH_CHLORINE, _(u"Add bleach/chlorine")),
+        (TREATMENT_METHOD_CLOTH, _(u"Strain it through a cloth")),
+        (TREATMENT_METHOD_WATERFILTER, _(u"Use water filter: sand/ceramic")),
+        (TREATMENT_METHOD_SOLARDISINFECTION, _(u"Solar disinfection")),
+        (TREATMENT_METHOD_STAND_SETTLE, _(u"Let it stand and settle")),
+        (TREATMENT_METHOD_OTHER, _(u"Other")),
+        (TREATMENT_METHOD_DONTKNOW, _(u"Dont know")),)
+
+    water_source = models.CharField(_(u"Water Source"), max_length=1, \
+                              choices=DRNKWATER_CHOICES)
+    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
+                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
+                                "treat water"))
+
+    water_source = models.CharField(_(u"Water Source"), max_length=1, \
+                              choices=DRNKWATER_CHOICES)
+    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
+                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
+                                "treat water"))
+    treatment_method = models.CharField(_(u"Treatment method"), max_length=1, \
+                              choices=TREATMENT_CHOICES, help_text=_(u"What " \
+                                "do you use to make it safer to drink"), \
+                                blank=True)
+reversion.register(DrinkingWaterReport, follow=['ccreport_ptr'])
 
 
 class BednetIssuedReport(CCReport):
