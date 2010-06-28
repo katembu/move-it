@@ -23,6 +23,7 @@ from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration
 from childcount.models.ccreports import TheCHWReport, LocationReport
+from childcount.models.bdntreports import BdnethouseHold
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
