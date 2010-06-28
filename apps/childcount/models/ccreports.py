@@ -27,7 +27,7 @@ class ThePatient(Patient):
         proxy = True
 
     def latest_muac(self):
-        muac = NutritionReport.objects.filter(patient=self).latest()
+        muac = NutritionReport.objects.filter(encounter__patient=self).latest()
         if not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
