@@ -21,8 +21,9 @@ from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
 
-from childcount.models import Patient, CHW, Configuration
-from childcount.models.ccreports import TheCHWReport, LocationReport
+from childcount.models import Patient, CHW, Configuration, Clinic
+from childcount.models.ccreports import TheCHWReport, LocationReport, \
+                                ClinicReport
 from childcount.models.bdntreports import BdnethouseHold
 from childcount.utils import clean_names
 
@@ -57,6 +58,7 @@ def index(request):
     title = "ChildCount-2.0"
     info = {}
     info.update({"title": title})
+    info.update(clinic_report(request))
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
     return render_to_response(request, template_name, info)
@@ -374,3 +376,40 @@ def bednet_summary(request):
 
     return render_to_response(\
                 request, 'childcount/bednet.html', context_dict)
+
+def clinic_report(request):
+    '''House Patients page '''
+    report_title = ClinicReport._meta.verbose_name
+    rows = []
+    columns, sub_columns = ClinicReport.summary()
+
+    reports = ClinicReport.objects.all()
+    i = 0
+    for report in reports:
+        i += 1
+        row = {}
+        row["cells"] = []
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
+
+        rows.append(row)
+
+    aocolumns_js = "{ \"sType\": \"html\" },"
+    for col in columns[1:] + (sub_columns if sub_columns != None else []):
+        if not 'colspan' in col:
+            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
+                            "\"bSearchable\": true },"
+    print columns[1:]
+    aocolumns_js = aocolumns_js[:-1]
+
+    aggregate = False
+    print columns
+    print sub_columns
+    print len(rows)
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title,
+                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+
+    return context_dict
