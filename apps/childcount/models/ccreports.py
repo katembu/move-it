@@ -565,12 +565,13 @@ class OperationalReport():
     def get_columns(self):
         return self.columns
 
+
 class ClinicReport(Clinic):
 
     class Meta:
         verbose_name = _("Clinic Report")
         proxy = True
-   
+
     @property
     def registeredpatient(self):
         total = Patient.objects.filter(chw__location=self)
@@ -593,7 +594,6 @@ class ClinicReport(Clinic):
     def rdtreported(self):
         fr = FeverReport.objects.filter(encounter__patient__chw__location=self)
         return fr.count()
-    
 
     @classmethod
     def summary(cls):
@@ -608,12 +608,11 @@ class ClinicReport(Clinic):
             {'name': _("#Patients".upper()), \
              'bit': '{{object.registeredpatient}}'})
         columns.append(
-            {'name':  _("#Patients not to tied household".upper()), \
+            {'name':  _("# not tied to household".upper()), \
              'bit': '{{object.pntied_household}}'})
         columns.append(
             {'name': "#RDT ".upper(), \
              'bit': '{{object.rdtreported}}'})
 
         sub_columns = None
-        return columns, sub_columns        
-
+        return columns, sub_columns
