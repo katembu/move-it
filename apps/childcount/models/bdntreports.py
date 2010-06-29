@@ -116,15 +116,7 @@ class BdntClinicReport():
         columns.append(
             {'name': "% Partial/full Bednet coverage".upper(), \
              'bit': '{{ object.num_of_sam }}'})
-        columns.append(
-            {'name': "No. MAM".upper(), \
-             'bit': '{{ object.num_of_mam }}'})
-        columns.append(
-            {'name': "No. HEALTHY".upper(), \
-             'bit': '{{ object.num_of_healthy }}'})
-        columns.append(
-            {'name': "No. SMS Sent".upper(), \
-             'bit': '{{ object.num_of_sms }}'})
+
 
         sub_columns = None
         return columns, sub_columns
