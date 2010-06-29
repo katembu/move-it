@@ -18,7 +18,6 @@ class HouseholdForm(CCForm):
     }
 
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
-    #PREVIOUS_ID = {'en': 'P'}
     MIN_HH_AGE = 10
 
     def process(self, patient):
@@ -43,6 +42,7 @@ class HouseholdForm(CCForm):
                                   "register the head of household " \
                                   "first") % \
                                   {'id': household})
+
         #check mother/gurdian exist
         motherid = self.params[2]
         try:
@@ -51,11 +51,13 @@ class HouseholdForm(CCForm):
             if mother == patient:
                 raise BadValue(_(u"Please enter the correct information " \
                                   "you cant be patient then gurdian/mother"))
+
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find mother/gurdian " \
                                   "with health ID %(motherid)s. You must " \
                                   "register the mother/gurdian first") % \
                                   {'motherid': motherid})
+
         patient.mother = mother
 
         patient.save()

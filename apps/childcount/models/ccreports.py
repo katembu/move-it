@@ -8,6 +8,7 @@ from django.db.models import F
 from datetime import date, timedelta, datetime
 
 from childcount.models import Patient
+from locations.models import Location
 from childcount.models import CHW
 from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
@@ -26,7 +27,7 @@ class ThePatient(Patient):
         proxy = True
 
     def latest_muac(self):
-        muac = NutritionReport.objects.filter(patient=self).latest()
+        muac = NutritionReport.objects.filter(encounter__patient=self).latest()
         if not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
@@ -476,6 +477,41 @@ class TheCHWReport(CHW):
                                            received__lte=end).count()
             data.update({day["day"]: num})
         return data
+
+
+#display report of each village activeness for the last 28 days(registered)
+class LocationReport(Patient, Location):
+    
+    @classmethod
+    def patients_per_loc(cls):
+        #last 28 days
+        drange = date.today() - timedelta(int(28))
+
+        #get location rember to filter clinics, villages, parish
+        loc = Location.objects.all()
+       
+        for locsum in loc:
+            p = Patient.objects.filter(location=locsum,dob__gte=drange).count()
+            return p
+
+        
+
+
+    @classmethod
+    def summary(cls):
+        columns = []
+        
+        columns.append(
+            {'name': '', \
+             'bit': '{{ object.name }}'})
+        
+        columns.append(
+            {'name': _("No. Children Registered".upper()), \
+             'bit': '{{ object.num_of_sms }}'})
+        
+        sub_columns = None
+        return columns, sub_columns
+
 
 class OperationalReport():
     columns = []
