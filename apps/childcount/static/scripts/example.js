@@ -1,8 +1,9 @@
 // Run the script on DOM ready:
 $(function(){
- 	$('#moses').visualize({type: 'pie', height: '300px', width: '420px'});
-	$('#moses').visualize({type: 'bar', width: '600px'});
-	//$('#moses').visualize({type: 'area', width: '420px'});
-	//$('#moses').visualize({type: 'line', width: '420px'});
+
+	// clinic pie chart
+	//$('#clinicpie').visualize({type: 'pie', height: '270px', width: '350px'});
+	$('#clinicpie').visualize({type: 'bar', width: '500px'});
+	$('#clinicpie').hide()
 
 });
