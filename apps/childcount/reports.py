@@ -343,13 +343,30 @@ def registerlist(request, rformat):
                 patients.append(ThePatient())
                 brow = len(patients) - 1
                 boxes.append({"top": trow, "bottom": brow})
+
+            #Sauri specific start
+            if ThePatient.objects.filter(health_id='XXXXX'):
+                #default_household -> dh
+                dh = ThePatient.objects.get(health_id='XXXXX')
+                patients.append(dh)
+                hs = ThePatient.objects.filter(household=dh, \
+                                                chw=chw)\
+                                        .exclude(health_id=dh.health_id)
+                patients.extend(hs)
+                brow = len(patients) - 1
+                boxes.append({"top": trow, "bottom": brow})
+            #End Sauri specific
+
             tb = thepatientregister(_(u"CHW: %s: %s") % (location, chw), \
                                     patients, boxes)
             story.append(tb)
             story.append(PageBreak())
-        story.append(PageBreak())
+            if (((len(patients) / 74) + 1 ) % 2) == 1 :
+                story.append(PageBreak())
+        #story.append(PageBreak())
     from libreport.pdfreport import MultiColDocTemplate
     from reportlab.platypus import NextPageTemplate
+    story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
     doc = MultiColDocTemplate(filename, 2, pagesize = landscape(A4), \
