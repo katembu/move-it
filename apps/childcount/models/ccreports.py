@@ -8,7 +8,8 @@ from django.db.models import F
 from datetime import date, timedelta, datetime
 
 from childcount.models import Patient
-from childcount.models import CHW
+from locations.models import Location
+from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport, FollowUpReport
@@ -26,7 +27,7 @@ class ThePatient(Patient):
         proxy = True
 
     def latest_muac(self):
-        muac = NutritionReport.objects.filter(patient=self).latest()
+        muac = NutritionReport.objects.filter(encounter__patient=self).latest()
         if not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
@@ -477,6 +478,40 @@ class TheCHWReport(CHW):
             data.update({day["day"]: num})
         return data
 
+
+class LocationReport(Patient, Location):
+    #display report of each village activeness for the last 28 days(registered)
+    @classmethod
+    def patients_per_loc(cls):
+        #last 28 days
+        drange = date.today() - timedelta(int(28))
+
+        #get location rember to filter clinics, villages, parish
+        loc = Location.objects.all()
+       
+        for locsum in loc:
+            p = Patient.objects.filter(location=locsum,dob__gte=drange).count()
+            return p
+
+        
+
+
+    @classmethod
+    def summary(cls):
+        columns = []
+        
+        columns.append(
+            {'name': '', \
+             'bit': '{{ object.name }}'})
+        
+        columns.append(
+            {'name': _("No. Children Registered".upper()), \
+             'bit': '{{ object.num_of_sms }}'})
+        
+        sub_columns = None
+        return columns, sub_columns
+
+
 class OperationalReport():
     columns = []
     def __init__(self):
@@ -530,3 +565,54 @@ class OperationalReport():
     def get_columns(self):
         return self.columns
 
+
+class ClinicReport(Clinic):
+
+    class Meta:
+        verbose_name = _("Clinic Report")
+        proxy = True
+
+    @property
+    def registeredpatient(self):
+        total = Patient.objects.filter(chw__location=self)
+        return total.count()
+
+    @property
+    def househoulds(self):
+        thousehold = Patient.objects.filter(health_id=F(\
+                                                    'household__health_id'),\
+                                        chw__location=self)
+        return thousehold.count()
+
+    @property
+    def pntied_household(self):
+        nttied_household = Patient.objects.filter(chw__location=self,\
+                                            household__health_id='xxxxx')
+        return nttied_household.count()
+
+    @property
+    def rdtreported(self):
+        fr = FeverReport.objects.filter(encounter__patient__chw__location=self)
+        return fr.count()
+
+    @classmethod
+    def summary(cls):
+        columns = []
+        columns.append(
+            {'name': cls._meta.get_field('name').verbose_name.upper(), \
+             'bit': '{{object.name}}'})
+        columns.append(
+            {'name': _("#House hold".upper()), \
+             'bit': '{{object.househoulds}}'})
+        columns.append(
+            {'name': _("#Patients".upper()), \
+             'bit': '{{object.registeredpatient}}'})
+        columns.append(
+            {'name':  _("# not tied to household".upper()), \
+             'bit': '{{object.pntied_household}}'})
+        columns.append(
+            {'name': "#RDT ".upper(), \
+             'bit': '{{object.rdtreported}}'})
+
+        sub_columns = None
+        return columns, sub_columns

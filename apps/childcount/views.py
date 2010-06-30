@@ -3,8 +3,11 @@
 # maintainer: ukanga
 
 import os
-import datetime
+
+from datetime import date, timedelta
+
 import re
+
 
 from rapidsms.webui.utils import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
@@ -17,8 +20,11 @@ from django import forms
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
-from childcount.models import Patient, CHW, Configuration
-from childcount.models.ccreports import TheCHWReport
+
+from childcount.models import Patient, CHW, Configuration, Clinic
+from childcount.models.ccreports import TheCHWReport, LocationReport, \
+                                ClinicReport
+from childcount.models.bdntreports import BdnethouseHold
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
@@ -52,6 +58,7 @@ def index(request):
     title = "ChildCount-2.0"
     info = {}
     info.update({"title": title})
+    info.update(clinic_report(request))
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
     return render_to_response(request, template_name, info)
@@ -261,3 +268,148 @@ def patient(request):
     else:
         return render_to_response(\
                 request, 'childcount/patient.html', context_dict)
+
+
+def nutrition_png(request):
+    nutdata = TheCHWReport.muac_summary()
+    filename = 'nutrition_summary.png'
+    pie = PiePlot(filename, nutdata, 450, 300, shadow=True)
+    pie.render()
+    pie.commit()
+    f = open(filename)
+    data = f.read()
+    f.close()
+    os.unlink(filename)
+    response = HttpResponse(mimetype="image/png")
+    response.write(data)
+    return response
+
+
+def sms_png(request):
+    data = TheCHWReport.sms_per_day()
+    filename = 'sms.png'
+    pie = BarPlot(filename, data, 450, 300)
+    pie.render()
+    pie.commit()
+    f = open(filename)
+    data = f.read()
+    f.close()
+    os.unlink(filename)
+    response = HttpResponse(mimetype="image/png")
+    response.write(data)
+    return response
+
+
+def chart_summary(request):
+    '''Generate chart'''
+    report_title = _(u"Activity per location in last 28 days")
+    rows = []
+    
+    columns, sub_columns =  LocationReport.summary()
+
+    #get location rember to filter clinics, villages, parish
+    reports = Location.objects.all()
+    i = 0
+    for report in reports:
+        
+        drange = date.today() - timedelta(int(28))
+        #
+        p = Patient.objects.filter(location=report,created_on__gte=drange).count()
+        
+        if p >= 1 :
+            i += 1
+            row = {}
+            row["cells"] = []
+            row["cells"] = [{'value': \
+                                Template(col['bit']).render(Context({'object': \
+                                    report}))} for col in columns]
+            row["cells"][1] = {"value": p}
+            rows.append(row)
+        else:
+            pass
+
+    
+    print columns
+    print sub_columns
+    
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title}
+
+    return render_to_response(\
+                request, 'childcount/chart.html', context_dict)
+
+def bednet_summary(request):
+    '''House Patients page '''
+    report_title = Patient._meta.verbose_name
+    rows = []
+    columns, sub_columns = BdnethouseHold.summary()
+
+    reports = BdnethouseHold.return_household()
+    i = 0
+    for report in reports:
+        i += 1
+        row = {}
+        row["cells"] = []
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
+
+        rows.append(row)
+
+    aocolumns_js = "{ \"sType\": \"html\" },"
+    for col in columns[1:] + (sub_columns if sub_columns != None else []):
+        if not 'colspan' in col:
+            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
+                            "\"bSearchable\": true },"
+    print columns[1:]
+    aocolumns_js = aocolumns_js[:-1]
+
+    aggregate = False
+    print columns
+    print sub_columns
+    print len(rows)
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title,
+                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+
+    return render_to_response(\
+                request, 'childcount/bednet.html', context_dict)
+
+def clinic_report(request):
+    '''House Patients page '''
+    report_title = ClinicReport._meta.verbose_name
+    rows = []
+    columns, sub_columns = ClinicReport.summary()
+
+    reports = ClinicReport.objects.all()
+    i = 0
+    for report in reports:
+        i += 1
+        row = {}
+        row["cells"] = []
+        row["cells"] = [{'value': \
+                        Template(col['bit']).render(Context({'object': \
+                            report}))} for col in columns]
+
+        rows.append(row)
+
+    aocolumns_js = "{ \"sType\": \"html\" },"
+    for col in columns[1:] + (sub_columns if sub_columns != None else []):
+        if not 'colspan' in col:
+            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
+                            "\"bSearchable\": true },"
+    print columns[1:]
+    aocolumns_js = aocolumns_js[:-1]
+
+    aggregate = False
+    print columns
+    print sub_columns
+    print len(rows)
+    context_dict = {'get_vars': request.META['QUERY_STRING'],
+                    'columns': columns, 'sub_columns': sub_columns,
+                    'rows': rows, 'report_title': report_title,
+                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+
+    return context_dict

@@ -446,4 +446,3 @@ def thepatientregister(title, indata=None, boxes=None):
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
     return tb
-

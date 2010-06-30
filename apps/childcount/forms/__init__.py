@@ -33,4 +33,13 @@ from childcount.forms import utils
 from childcount.forms.SauriUnderOneForm import SauriUnderOneForm
 from childcount.forms.SauriPregnancyForm import SauriPregnancyForm
 from childcount.forms.HouseholdForm import HouseholdForm
+from childcount.forms.UpdateNameForm import UpdateNameForm
+from childcount.forms.UpdateDOBForm import UpdateDOBForm
 #endsauri
+
+from childcount.forms.BednetCoverageForm import BednetCoverageForm
+from childcount.forms.BednetUtilizationForm import BednetUtilizationForm
+from childcount.forms.SanitationForm import SanitationForm
+from childcount.forms.DrinkingWaterForm import DrinkingWaterForm
+from childcount.forms.BednetDistributionForm import BednetDistributionForm
+from childcount.forms.BednetLookupForm import BednetLookupForm

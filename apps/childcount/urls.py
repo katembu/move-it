@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     admin_urls,
     url(r'^childcount/?$', views.index),
     url(r'^childcount/patients/?$', views.patient),
+    url(r'^childcount/chart/?$', views.chart_summary),
+    url(r'^childcount/bednet/?$', views.bednet_summary),
     url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
         reports.all_patient_list_pdf),
     url(r'^childcount/patients_per_chw/pdf/?$', \
