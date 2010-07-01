@@ -4,7 +4,7 @@
 
 import os
 
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import re
 
@@ -33,7 +33,7 @@ cc_forms = re.split(r'\s*,*\s*', form_config)
 @login_required
 def dataentry(request):
     ''' displays Data Entry U.I '''
-    today = datetime.date.today().strftime("%Y-%m-%d")
+    today = date.today().strftime("%Y-%m-%d")
     chws = CHW.objects.all()
     chw = CHW.objects.get(id=request.user.id)
     return render_to_response(request, 'childcount/data_entry.html', \
