@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-18 12:58+0000\n"
-"PO-Revision-Date: 2010-06-14 10:53+0000\n"
-"Last-Translator: rgaudin <rgaudin@gmail.com>\n"
+"PO-Revision-Date: 2010-07-01 23:14-0000\n"
+"Last-Translator: reg <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,7 +28,7 @@ msgstr "Section %s introuvable."
 #: app.py:55
 #, python-format
 msgid "%s command not found."
-msgstr ""
+msgstr "Commande %s introuvable."
 
 #: app.py:80
 msgid "Problem getting CHW from backend."
@@ -44,10 +44,7 @@ msgstr ""
 
 #: app.py:164
 #, python-format
-msgid ""
-"Error: Message not understood. Your message must start with a single health "
-"ID, followed by a space then a %(pre)s, then the keyword of the form you are "
-"sending."
+msgid "Error: Message not understood. Your message must start with a single health ID, followed by a space then a %(pre)s, then the keyword of the form you are sending."
 msgstr ""
 
 #: app.py:182
@@ -56,9 +53,7 @@ msgstr ""
 
 #: app.py:195
 #, python-format
-msgid ""
-"Error occurred while processing %(frm)s: %(e)s. Please correct and send all "
-"information again."
+msgid "Error occurred while processing %(frm)s: %(e)s. Please correct and send all information again."
 msgstr ""
 
 #: app.py:209
@@ -68,10 +63,7 @@ msgstr ""
 
 #: app.py:223
 #, python-format
-msgid ""
-"Error: You tried to send househould forms for someone who is not head "
-"ofhousehold. You must send the forms with the head of household health ID."
-"Their head of household health ID is %(hoh)s (Health ID: %(hohid)s)"
+msgid "Error: You tried to send househould forms for someone who is not head ofhousehold. You must send the forms with the head of household health ID.Their head of household health ID is %(hoh)s (Health ID: %(hohid)s)"
 msgstr ""
 
 #: app.py:248
@@ -167,8 +159,7 @@ msgid "Cancel failed. You cannot cancel a report after %(num)d minutes."
 msgstr ""
 
 #: commands/CancelCommand.py:63
-msgid ""
-"Cancel failed. Another user has already modified one or more of your reports."
+msgid "Cancel failed. Another user has already modified one or more of your reports."
 msgstr ""
 
 #: commands/CancelCommand.py:86
@@ -176,8 +167,7 @@ msgid "Previous message successfully canceled."
 msgstr ""
 
 #: commands/DeathCommand.py:43
-msgid ""
-"dead person names | gender | age or DOB | date_of_death | [head_of_household]"
+msgid "dead person names | gender | age or DOB | date_of_death | [head_of_household]"
 msgstr ""
 
 #: commands/DeathCommand.py:46
@@ -185,22 +175,26 @@ msgstr ""
 msgid "Not enough information. Expected: %(keyword)s %(expected)s"
 msgstr ""
 
-#: commands/DeathCommand.py:62 forms/PatientRegistrationForm.py:91
+#: commands/DeathCommand.py:62
+#: forms/PatientRegistrationForm.py:91
 #, python-format
 msgid "You must indicate gender after the name with a %(choices)s."
 msgstr ""
 
-#: commands/DeathCommand.py:71 forms/PatientRegistrationForm.py:100
+#: commands/DeathCommand.py:71
+#: forms/PatientRegistrationForm.py:100
 #, python-format
 msgid "Message not understood. Expected: %(expected)s"
 msgstr ""
 
-#: commands/DeathCommand.py:78 forms/PatientRegistrationForm.py:118
+#: commands/DeathCommand.py:78
+#: forms/PatientRegistrationForm.py:118
 #, python-format
 msgid "Could not understand age or date_of_birth of %(string)s."
 msgstr ""
 
-#: commands/DeathCommand.py:84 forms/PatientRegistrationForm.py:126
+#: commands/DeathCommand.py:84
+#: forms/PatientRegistrationForm.py:126
 msgid "You must provide a patient name before their sex."
 msgstr ""
 
@@ -208,11 +202,10 @@ msgstr ""
 msgid "You must provide the date of death"
 msgstr ""
 
-#: commands/DeathCommand.py:103 commands/DeathCommand.py:110
+#: commands/DeathCommand.py:103
+#: commands/DeathCommand.py:110
 #, python-format
-msgid ""
-"Could not understand date_of_death of %(string)s. Please provide an exact "
-"date of death in the format DDMMYY."
+msgid "Could not understand date_of_death of %(string)s. Please provide an exact date of death in the format DDMMYY."
 msgstr ""
 
 #: commands/DeathCommand.py:116
@@ -220,28 +213,25 @@ msgstr ""
 msgid "Could not understand date_of_death of %(string)s."
 msgstr ""
 
-#: commands/DeathCommand.py:132 forms/PatientRegistrationForm.py:165
+#: commands/DeathCommand.py:132
+#: forms/PatientRegistrationForm.py:165
 #, python-format
-msgid ""
-"Could not find head of household with health ID %(id)s. You must first "
-"register the head of household."
+msgid "Could not find head of household with health ID %(id)s. You must first register the head of household."
 msgstr ""
 
-#: commands/DeathCommand.py:139 forms/PatientRegistrationForm.py:172
+#: commands/DeathCommand.py:139
+#: forms/PatientRegistrationForm.py:172
 #, python-format
-msgid ""
-"The head of household you specified is too young to be a head of household (%"
-"(hh)s)."
+msgid "The head of household you specified is too young to be a head of household (%(hh)s)."
 msgstr ""
 
 #: commands/DeathCommand.py:145
 #, python-format
-msgid ""
-"The head of household you specified (%(hh)s) is not a head of household. "
-"Their head of household is (%(hhhh)s). "
+msgid "The head of household you specified (%(hh)s) is not a head of household. Their head of household is (%(hhhh)s). "
 msgstr ""
 
-#: commands/DeathCommand.py:160 forms/PatientRegistrationForm.py:195
+#: commands/DeathCommand.py:160
+#: forms/PatientRegistrationForm.py:195
 msgid "you"
 msgstr ""
 
@@ -314,11 +304,8 @@ msgstr "Vous êtes enregistré à %(location)s avec l'alias @%(alias)s."
 
 #: commands/WhoCommand.py:29
 #, python-format
-msgid ""
-"You are registered as %(full_name)s from %(location)s with alias @%(alias)s."
-msgstr ""
-"Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias @%"
-"(alias)s."
+msgid "You are registered as %(full_name)s from %(location)s with alias @%(alias)s."
+msgstr "Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias @%(alias)s."
 
 #: forms/BCPillForm.py:23
 msgid "Not enough info. Expected: number of pills given."
@@ -334,8 +321,7 @@ msgid "%(pills)d pills given."
 msgstr ""
 
 #: forms/BedNetForm.py:23
-msgid ""
-"Not enough info. Expected: number of sleeping sites and number of bednets."
+msgid "Not enough info. Expected: number of sleeping sites and number of bednets."
 msgstr ""
 
 #: forms/BedNetForm.py:34
@@ -353,9 +339,7 @@ msgstr ""
 
 #: forms/BirthForm.py:46
 #, python-format
-msgid ""
-"Patient is %(age)s old. You can not submit birth reports for patients over "
-"28 days old."
+msgid "Patient is %(age)s old. You can not submit birth reports for patients over 28 days old."
 msgstr ""
 
 #: forms/BirthForm.py:53
@@ -364,22 +348,17 @@ msgid "A birth report for %(p)s was already submited by %(chw)s."
 msgstr ""
 
 #: forms/BirthForm.py:58
-msgid ""
-"Not enough info. Expected: |Mom Health ID|delivered in health facility| "
-"weight(kg)(optional)"
+msgid "Not enough info. Expected: |Mom Health ID|delivered in health facility| weight(kg)(optional)"
 msgstr ""
 
 #: forms/BirthForm.py:75
 #, python-format
-msgid ""
-"Could not find mother / guardian with health ID %(id)s. You must register "
-"the mother first."
+msgid "Could not find mother / guardian with health ID %(id)s. You must register the mother first."
 msgstr ""
 
 #: forms/BirthForm.py:80
 #, python-format
-msgid ""
-"The mother / guardian you specified is too young to be a mother.(%(hh)s)"
+msgid "The mother / guardian you specified is too young to be a mother.(%(hh)s)"
 msgstr ""
 
 #: forms/BirthForm.py:86
@@ -452,9 +431,7 @@ msgid "Died on %(dod)s"
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:23
-msgid ""
-"Not enough info. Expected: number of women aged 15 - 49 | number using FP | "
-"methods being used."
+msgid "Not enough info. Expected: number of women aged 15 - 49 | number using FP | methods being used."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:38
@@ -466,20 +443,15 @@ msgid "No women aged 15 - 49 visited."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:48
-msgid ""
-"After entering the number of women aged 15-49, you must indicate how many "
-"use modern family planning methods."
+msgid "After entering the number of women aged 15-49, you must indicate how many use modern family planning methods."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:53
-msgid ""
-"Number of women using modern family planning must be entered as a number."
+msgid "Number of women using modern family planning must be entered as a number."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:58
-msgid ""
-"The number of women using family planning can not be greater than the total "
-"number of women."
+msgid "The number of women using family planning can not be greater than the total number of women."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:62
@@ -488,9 +460,7 @@ msgid "%(women)d women aged 15-49, none using modern family planning."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:69
-msgid ""
-"You must specify %(num)d family planning code(s). One for each of the %(num)"
-"s women using modern family planning."
+msgid "You must specify %(num)d family planning code(s). One for each of the %(num)s women using modern family planning."
 msgstr ""
 
 #: forms/FamilyPlanningForm.py:88
@@ -503,7 +473,8 @@ msgstr ""
 msgid "%(women)d women, %(using)d using family planning: %(fp_string)s"
 msgstr ""
 
-#: forms/FeverForm.py:40 forms/ReferralForm.py:26
+#: forms/FeverForm.py:40
+#: forms/ReferralForm.py:26
 #, python-format
 msgid "Not enough info. Expected: %s"
 msgstr ""
@@ -513,7 +484,8 @@ msgstr ""
 msgid "RDT Result must be %(choices)s."
 msgstr ""
 
-#: forms/FeverForm.py:58 forms/FeverForm.py:60
+#: forms/FeverForm.py:58
+#: forms/FeverForm.py:60
 msgid "less than 3"
 msgstr ""
 
@@ -523,9 +495,7 @@ msgstr ""
 
 #: forms/FeverForm.py:72
 #, python-format
-msgid ""
-"Child is %(age)s. Please provide %(tabs)s tab%(plural)s of Coartem (ACT) "
-"twice a day for 3 days."
+msgid "Child is %(age)s. Please provide %(tabs)s tab%(plural)s of Coartem (ACT) twice a day for 3 days."
 msgstr ""
 
 #: forms/FeverForm.py:79
@@ -587,28 +557,22 @@ msgid "Patient currently inpatient at health facility."
 msgstr ""
 
 #: forms/HouseholdForm.py:27
-msgid ""
-"Not enough info. Expected: Patient health id +hed | household healthid | "
-"mother health id or gurdian id"
+msgid "Not enough info. Expected: Patient health id +hed | household healthid | mother health id or gurdian id"
 msgstr ""
 
-#: forms/HouseholdForm.py:38 forms/HouseholdForm.py:52
-msgid ""
-"Please enter the correct information you cant be patient then gurdian/mother"
+#: forms/HouseholdForm.py:38
+#: forms/HouseholdForm.py:52
+msgid "Please enter the correct information you cant be patient then gurdian/mother"
 msgstr ""
 
 #: forms/HouseholdForm.py:41
 #, python-format
-msgid ""
-"Could not find head of household with health ID %(id)s. You must register "
-"the head of household first"
+msgid "Could not find head of household with health ID %(id)s. You must register the head of household first"
 msgstr ""
 
 #: forms/HouseholdForm.py:55
 #, python-format
-msgid ""
-"Could not find mother/gurdian with health ID %(motherid)s. You must register "
-"the mother/gurdian first"
+msgid "Could not find mother/gurdian with health ID %(motherid)s. You must register the mother/gurdian first"
 msgstr ""
 
 #: forms/HouseholdForm.py:63
@@ -616,10 +580,9 @@ msgstr ""
 msgid "You successfuly associated  %(patient)s with  %(father)s , %(mother)s"
 msgstr ""
 
-#: forms/HouseholdVisitForm.py:35 forms/HouseholdVisitForm.py:49
-msgid ""
-"Not enough info. Expected: household member available? | number of children "
-"| counseling / advice given (optional)"
+#: forms/HouseholdVisitForm.py:35
+#: forms/HouseholdVisitForm.py:49
+msgid "Not enough info. Expected: household member available? | number of children | counseling / advice given (optional)"
 msgstr ""
 
 #: forms/HouseholdVisitForm.py:39
@@ -633,8 +596,7 @@ msgstr ""
 
 #: forms/HouseholdVisitForm.py:75
 #, python-format
-msgid ""
-"Unknown counseling topic code(s): %(codes)s No household visit recorded."
+msgid "Unknown counseling topic code(s): %(codes)s No household visit recorded."
 msgstr ""
 
 #: forms/HouseholdVisitForm.py:88
@@ -708,9 +670,7 @@ msgid "Child is too young for MUAC."
 msgstr ""
 
 #: forms/NutritionForm.py:46
-msgid ""
-"Child is older than 59 months. If there are any concerns about the child, "
-"please refer to a clinic."
+msgid "Child is older than 59 months. If there are any concerns about the child, please refer to a clinic."
 msgstr ""
 
 #: forms/NutritionForm.py:51
@@ -795,9 +755,7 @@ msgstr ""
 
 #: forms/PatientRegistrationForm.py:74
 #, python-format
-msgid ""
-"%(loc)s is not a valid location code. You must indicate the patient's "
-"location code before their name."
+msgid "%(loc)s is not a valid location code. You must indicate the patient's location code before their name."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:110
@@ -805,37 +763,26 @@ msgid "You must provide an exact birth date for children under 2 months."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:113
-msgid ""
-"You must provide an exact birth date or the age, in months, for children "
-"under two years."
+msgid "You must provide an exact birth date or the age, in months, for children under two years."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:143
 #, python-format
-msgid ""
-"You must indicate the head of household after the age. If this is the head "
-"of household, write %(char)s after the dob/age."
+msgid "You must indicate the head of household after the age. If this is the head of household, write %(char)s after the dob/age."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:153
-msgid ""
-"This patient is too young to be a head of household. You must provide the "
-"correct head of household."
+msgid "This patient is too young to be a head of household. You must provide the correct head of household."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:178
 #, python-format
-msgid ""
-"The head of household you specified (%(hh)s) is not a head of household. "
-"Their head of household is (%(hhhh)s). If they are the head, set their head "
-"of household to %(char)s."
+msgid "The head of household you specified (%(hh)s) is not a head of household. Their head of household is (%(hhhh)s). If they are the head, set their head of household to %(char)s."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:198
 #, python-format
-msgid ""
-"%(name)s %(sex)s/%(age)s was already registered by %(chw)s. Their health id "
-"is %(id)s."
+msgid "%(name)s %(sex)s/%(age)s was already registered by %(chw)s. Their health id is %(id)s."
 msgstr ""
 
 #: forms/PatientRegistrationForm.py:227
@@ -853,9 +800,7 @@ msgid "Patient is too young to be pregnant (%(age)s)"
 msgstr ""
 
 #: forms/PregnancyForm.py:33
-msgid ""
-"Not enough info, expected: | month of pregnancy | number of ANC visits | "
-"weeks since last ANC visit |"
+msgid "Not enough info, expected: | month of pregnancy | number of ANC visits | weeks since last ANC visit |"
 msgstr ""
 
 #: forms/PregnancyForm.py:46
@@ -867,34 +812,37 @@ msgid "Number of ANC visits must be a number"
 msgstr ""
 
 #: forms/PregnancyForm.py:56
-msgid ""
-"You must include the weeks since the last ANC visit after the total number "
-"of ANC visits"
+msgid "You must include the weeks since the last ANC visit after the total number of ANC visits"
 msgstr ""
 
 #: forms/PregnancyForm.py:63
 msgid "Weeks since last ANC visit must be a number"
 msgstr ""
 
-#: forms/PregnancyForm.py:100 forms/SauriPregnancyForm.py:221
+#: forms/PregnancyForm.py:100
+#: forms/SauriPregnancyForm.py:221
 msgid " less than one week ago"
 msgstr ""
 
-#: forms/PregnancyForm.py:102 forms/SauriPregnancyForm.py:223
+#: forms/PregnancyForm.py:102
+#: forms/SauriPregnancyForm.py:223
 msgid " one week ago"
 msgstr ""
 
-#: forms/PregnancyForm.py:104 forms/SauriPregnancyForm.py:225
+#: forms/PregnancyForm.py:104
+#: forms/SauriPregnancyForm.py:225
 #, python-format
 msgid " %(weeks)d weeks ago"
 msgstr ""
 
-#: forms/PregnancyForm.py:106 forms/SauriPregnancyForm.py:227
+#: forms/PregnancyForm.py:106
+#: forms/SauriPregnancyForm.py:227
 #, python-format
 msgid "%(month)d months pregnant with %(visits)d ANC visits"
 msgstr ""
 
-#: forms/PregnancyForm.py:110 forms/SauriPregnancyForm.py:231
+#: forms/PregnancyForm.py:110
+#: forms/SauriPregnancyForm.py:231
 #, python-format
 msgid ", last ANC visit %s"
 msgstr ""
@@ -904,11 +852,13 @@ msgstr ""
 msgid "Referral to clinic, choices are %(choices)s."
 msgstr ""
 
-#: forms/ReferralForm.py:44 models/reports.py:732
+#: forms/ReferralForm.py:44
+#: models/reports.py:732
 msgid "Ambulance Referral"
 msgstr ""
 
-#: forms/ReferralForm.py:46 models/reports.py:733
+#: forms/ReferralForm.py:46
+#: models/reports.py:733
 msgid "Emergency Referral"
 msgstr ""
 
@@ -916,7 +866,8 @@ msgstr ""
 msgid "Basic Referral (24hrs)"
 msgstr ""
 
-#: forms/ReferralForm.py:50 models/reports.py:735
+#: forms/ReferralForm.py:50
+#: models/reports.py:735
 msgid "Convenient Referral"
 msgstr ""
 
@@ -930,9 +881,7 @@ msgid "Patient is too young to be pregnant (%(age)s)."
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:72
-msgid ""
-"Not enough info. Expected: | month of pregnancy | number of ANC visits | "
-"weeks since last ANC visit |"
+msgid "Not enough info. Expected: | month of pregnancy | number of ANC visits | weeks since last ANC visit |"
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:85
@@ -944,9 +893,7 @@ msgid "Number of ANC visits must be entered as a number."
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:96
-msgid ""
-"You must include the weeks since the last ANC visit after the total number "
-"of ANC visits."
+msgid "You must include the weeks since the last ANC visit after the total number of ANC visits."
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:103
@@ -1013,9 +960,7 @@ msgid "taking folic unkown status"
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:170
-msgid ""
-"Not enough info. Expected: Please ask if CD4 count has been taken and check "
-"if the patient is on PMTC ARVs."
+msgid "Not enough info. Expected: Please ask if CD4 count has been taken and check if the patient is on PMTC ARVs."
 msgstr ""
 
 #: forms/SauriPregnancyForm.py:174
@@ -1028,21 +973,24 @@ msgstr ""
 msgid ", %s"
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:48 forms/UnderOneForm.py:46
+#: forms/SauriUnderOneForm.py:48
+#: forms/UnderOneForm.py:46
 msgid "Child is too old for this report."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:51 forms/UnderOneForm.py:49
-msgid ""
-"Not enough info. Expected: | breast feeding only | up-to-date immunisations"
+#: forms/SauriUnderOneForm.py:51
+#: forms/UnderOneForm.py:49
+msgid "Not enough info. Expected: | breast feeding only | up-to-date immunisations"
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:56 forms/UnderOneForm.py:54
+#: forms/SauriUnderOneForm.py:56
+#: forms/UnderOneForm.py:54
 #, python-format
 msgid "|Breast feeding only?| must be %(choices)s."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:62 forms/UnderOneForm.py:60
+#: forms/SauriUnderOneForm.py:62
+#: forms/UnderOneForm.py:60
 #, python-format
 msgid "|Up-to-date Immunisations?| must be %(choices)s."
 msgstr ""
@@ -1057,34 +1005,38 @@ msgstr ""
 msgid ". Vaccines: %(vs)s"
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:100 forms/UnderOneForm.py:70
+#: forms/SauriUnderOneForm.py:100
+#: forms/UnderOneForm.py:70
 msgid "Exclusive breast feeding."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:102 forms/UnderOneForm.py:72
+#: forms/SauriUnderOneForm.py:102
+#: forms/UnderOneForm.py:72
 msgid "Not exclusive breast feeding."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:104 forms/UnderOneForm.py:74
+#: forms/SauriUnderOneForm.py:104
+#: forms/UnderOneForm.py:74
 msgid "Unkown if exclusively breast feeding."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:107 forms/UnderOneForm.py:77
+#: forms/SauriUnderOneForm.py:107
+#: forms/UnderOneForm.py:77
 msgid "Up-to-date on immunisations."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:109 forms/UnderOneForm.py:79
+#: forms/SauriUnderOneForm.py:109
+#: forms/UnderOneForm.py:79
 msgid "Not up-to-date on immunisations."
 msgstr ""
 
-#: forms/SauriUnderOneForm.py:111 forms/UnderOneForm.py:81
+#: forms/SauriUnderOneForm.py:111
+#: forms/UnderOneForm.py:81
 msgid "Unkown if up-to-date on immunisations."
 msgstr ""
 
 #: forms/SickMembersForm.py:29
-msgid ""
-"Not enough info. Expected: number of sick | number of RDTs | number of "
-"positive RDTs | number on treatment"
+msgid "Not enough info. Expected: number of sick | number of RDTs | number of positive RDTs | number on treatment"
 msgstr ""
 
 #: forms/SickMembersForm.py:35
@@ -1136,7 +1088,9 @@ msgstr ""
 msgid "%(choices)s, or %(lastchoice)s"
 msgstr ""
 
-#: models/CHW.py:27 models/DeadPerson.py:62 models/Patient.py:78
+#: models/CHW.py:27
+#: models/DeadPerson.py:62
+#: models/Patient.py:78
 msgid "Community Health Worker"
 msgstr ""
 
@@ -1148,7 +1102,8 @@ msgstr ""
 msgid "Manager"
 msgstr ""
 
-#: models/CHW.py:33 models/Clinic.py:22
+#: models/CHW.py:33
+#: models/Clinic.py:22
 msgid "Clinic"
 msgstr ""
 
@@ -1180,8 +1135,11 @@ msgstr ""
 msgid "Community health worker"
 msgstr ""
 
-#: models/CHWHealthId.py:25 models/Case.py:62 models/DeadPerson.py:43
-#: models/Patient.py:53 models/Referral.py:41
+#: models/CHWHealthId.py:25
+#: models/Case.py:62
+#: models/DeadPerson.py:43
+#: models/Patient.py:53
+#: models/Referral.py:41
 msgid "Created on"
 msgstr ""
 
@@ -1205,11 +1163,13 @@ msgstr ""
 msgid "Cases"
 msgstr ""
 
-#: models/Case.py:38 models/Referral.py:34
+#: models/Case.py:38
+#: models/Referral.py:34
 msgid "Open"
 msgstr ""
 
-#: models/Case.py:39 models/Referral.py:35
+#: models/Case.py:39
+#: models/Referral.py:35
 msgid "Closed"
 msgstr ""
 
@@ -1221,7 +1181,8 @@ msgstr ""
 msgid "Malnutrition"
 msgstr ""
 
-#: models/Case.py:49 models/CodedItem.py:30
+#: models/Case.py:49
+#: models/CodedItem.py:30
 msgid "Fever"
 msgstr ""
 
@@ -1229,8 +1190,11 @@ msgstr ""
 msgid "Diarrhea"
 msgstr ""
 
-#: models/Case.py:52 models/Encounter.py:33 models/Encounter.py:42
-#: models/Patient.py:30 models/Referral.py:38
+#: models/Case.py:52
+#: models/Encounter.py:33
+#: models/Encounter.py:42
+#: models/Patient.py:30
+#: models/Referral.py:38
 msgid "Patient"
 msgstr ""
 
@@ -1238,20 +1202,26 @@ msgstr ""
 msgid "Type of case"
 msgstr ""
 
-#: models/Case.py:57 models/HealthId.py:39 models/Patient.py:91
-#: models/Referral.py:39 models/reports.py:589
+#: models/Case.py:57
+#: models/HealthId.py:39
+#: models/Patient.py:91
+#: models/Referral.py:39
+#: models/reports.py:589
 msgid "Status"
 msgstr "Statut"
 
-#: models/Case.py:60 models/Referral.py:45
+#: models/Case.py:60
+#: models/Referral.py:45
 msgid "Reports"
 msgstr ""
 
-#: models/Case.py:64 models/Referral.py:42
+#: models/Case.py:64
+#: models/Referral.py:42
 msgid "Updated on"
 msgstr ""
 
-#: models/Case.py:66 models/Referral.py:43
+#: models/Case.py:66
+#: models/Referral.py:43
 msgid "Expires on"
 msgstr ""
 
@@ -1363,7 +1333,8 @@ msgstr ""
 msgid "Dehydration"
 msgstr ""
 
-#: models/CodedItem.py:29 models/CodedItem.py:68
+#: models/CodedItem.py:29
+#: models/CodedItem.py:68
 msgid "fp"
 msgstr ""
 
@@ -1419,7 +1390,8 @@ msgstr ""
 msgid "od"
 msgstr ""
 
-#: models/CodedItem.py:36 models/reports.py:586
+#: models/CodedItem.py:36
+#: models/reports.py:586
 msgid "Oedema"
 msgstr ""
 
@@ -1431,7 +1403,8 @@ msgstr ""
 msgid "Abdominal / pelvic pain"
 msgstr ""
 
-#: models/CodedItem.py:38 models/CodedItem.py:71
+#: models/CodedItem.py:38
+#: models/CodedItem.py:71
 msgid "ph"
 msgstr ""
 
@@ -1519,7 +1492,8 @@ msgstr ""
 msgid "Weight loss"
 msgstr ""
 
-#: models/CodedItem.py:49 models/CodedItem.py:62
+#: models/CodedItem.py:49
+#: models/CodedItem.py:62
 msgid "z"
 msgstr ""
 
@@ -1595,7 +1569,8 @@ msgstr ""
 msgid "Environmental cleanliness"
 msgstr ""
 
-#: models/CodedItem.py:68 models/CodedItem.py:94
+#: models/CodedItem.py:68
+#: models/CodedItem.py:94
 msgid "Family planning"
 msgstr ""
 
@@ -1627,7 +1602,8 @@ msgstr ""
 msgid "Immunisations"
 msgstr ""
 
-#: models/CodedItem.py:85 models/CodedItemTranslation.py:26
+#: models/CodedItem.py:85
+#: models/CodedItemTranslation.py:26
 msgid "Coded Item"
 msgstr ""
 
@@ -1635,7 +1611,8 @@ msgstr ""
 msgid "Coded Items"
 msgstr ""
 
-#: models/CodedItem.py:93 models/DangerSignTranslation.py:27
+#: models/CodedItem.py:93
+#: models/DangerSignTranslation.py:27
 msgid "Danger sign"
 msgstr ""
 
@@ -1647,12 +1624,16 @@ msgstr ""
 msgid "Counseling topic"
 msgstr ""
 
-#: models/CodedItem.py:98 models/CodedItemTranslation.py:27
-#: models/DangerSignTranslation.py:26 models/Vaccine.py:18
+#: models/CodedItem.py:98
+#: models/CodedItemTranslation.py:27
+#: models/DangerSignTranslation.py:26
+#: models/Vaccine.py:18
 msgid "Code"
 msgstr ""
 
-#: models/CodedItem.py:99 models/Encounter.py:47 models/reports.py:166
+#: models/CodedItem.py:99
+#: models/Encounter.py:47
+#: models/reports.py:166
 msgid "Type"
 msgstr ""
 
@@ -1664,16 +1645,20 @@ msgstr ""
 msgid "Coded Item Translations"
 msgstr ""
 
-#: models/CodedItemTranslation.py:22 models/DangerSignTranslation.py:22
+#: models/CodedItemTranslation.py:22
+#: models/DangerSignTranslation.py:22
 msgid "French"
 msgstr ""
 
-#: models/CodedItemTranslation.py:24 models/DangerSignTranslation.py:24
+#: models/CodedItemTranslation.py:24
+#: models/DangerSignTranslation.py:24
 msgid "Language"
 msgstr ""
 
-#: models/CodedItemTranslation.py:28 models/Configuration.py:20
-#: models/DangerSignTranslation.py:28 models/Referral.py:44
+#: models/CodedItemTranslation.py:28
+#: models/Configuration.py:20
+#: models/DangerSignTranslation.py:28
+#: models/Referral.py:44
 #: models/Vaccine.py:19
 msgid "Description"
 msgstr ""
@@ -1706,35 +1691,43 @@ msgstr ""
 msgid "Dead Persons"
 msgstr ""
 
-#: models/DeadPerson.py:40 models/Patient.py:38
+#: models/DeadPerson.py:40
+#: models/Patient.py:38
 msgid "Male"
 msgstr ""
 
-#: models/DeadPerson.py:41 models/Patient.py:39
+#: models/DeadPerson.py:41
+#: models/Patient.py:39
 msgid "Female"
 msgstr ""
 
-#: models/DeadPerson.py:44 models/Patient.py:54
+#: models/DeadPerson.py:44
+#: models/Patient.py:54
 msgid "When the patient record was created"
 msgstr ""
 
-#: models/DeadPerson.py:48 models/Patient.py:58
+#: models/DeadPerson.py:48
+#: models/Patient.py:58
 msgid "First name"
 msgstr ""
 
-#: models/DeadPerson.py:49 models/Patient.py:59
+#: models/DeadPerson.py:49
+#: models/Patient.py:59
 msgid "Last name"
 msgstr ""
 
-#: models/DeadPerson.py:50 models/Patient.py:60
+#: models/DeadPerson.py:50
+#: models/Patient.py:60
 msgid "Family name or surname"
 msgstr ""
 
-#: models/DeadPerson.py:51 models/Patient.py:61
+#: models/DeadPerson.py:51
+#: models/Patient.py:61
 msgid "Gender"
 msgstr ""
 
-#: models/DeadPerson.py:53 models/Patient.py:63
+#: models/DeadPerson.py:53
+#: models/Patient.py:63
 msgid "Date of Birth"
 msgstr ""
 
@@ -1742,66 +1735,82 @@ msgstr ""
 msgid "Date of Death"
 msgstr ""
 
-#: models/DeadPerson.py:56 models/Patient.py:72
+#: models/DeadPerson.py:56
+#: models/Patient.py:72
 msgid "Head of House"
 msgstr ""
 
-#: models/DeadPerson.py:57 models/Patient.py:73
-msgid ""
-"The primary caregiver in this person's household (self if primary caregiver)"
+#: models/DeadPerson.py:57
+#: models/Patient.py:73
+msgid "The primary caregiver in this person's household (self if primary caregiver)"
 msgstr ""
 
-#: models/DeadPerson.py:65 models/Patient.py:81
+#: models/DeadPerson.py:65
+#: models/Patient.py:81
 msgid "Location"
 msgstr ""
 
-#: models/DeadPerson.py:66 models/Patient.py:82
+#: models/DeadPerson.py:66
+#: models/Patient.py:82
 msgid "The location this person lives within"
 msgstr ""
 
-#: models/DeadPerson.py:69 models/Patient.py:85
+#: models/DeadPerson.py:69
+#: models/Patient.py:85
 msgid "Health facility"
 msgstr ""
 
-#: models/DeadPerson.py:70 models/Patient.py:86
+#: models/DeadPerson.py:70
+#: models/Patient.py:86
 msgid "The primary health facility that this patient visits"
 msgstr ""
 
-#: models/DeadPerson.py:73 models/Patient.py:89
+#: models/DeadPerson.py:73
+#: models/Patient.py:89
 msgid "Mobile phone number"
 msgstr ""
 
-#: models/DeadPerson.py:105 models/Patient.py:127
+#: models/DeadPerson.py:105
+#: models/Patient.py:127
 #, python-format
 msgid "%(days)sd"
 msgstr ""
 
-#: models/DeadPerson.py:107 models/Patient.py:129
+#: models/DeadPerson.py:107
+#: models/Patient.py:129
 #, python-format
 msgid "%(weeks)sw"
 msgstr ""
 
-#: models/DeadPerson.py:109 models/Patient.py:131
+#: models/DeadPerson.py:109
+#: models/Patient.py:131
 #, python-format
 msgid "%(months)sm"
 msgstr ""
 
-#: models/DeadPerson.py:112 models/Patient.py:134
+#: models/DeadPerson.py:112
+#: models/Patient.py:134
 #, python-format
 msgid "%(years)sy"
 msgstr ""
 
-#: models/DeadPerson.py:128 models/Patient.py:183 models/ccreports.py:94
+#: models/DeadPerson.py:128
+#: models/Patient.py:183
+#: models/ccreports.py:94
 #: models/ccreports.py:353
 msgid "Name"
 msgstr ""
 
-#: models/DeadPerson.py:134 models/Patient.py:189 models/ccreports.py:100
+#: models/DeadPerson.py:134
+#: models/Patient.py:189
+#: models/ccreports.py:100
 #: templates/childcount/forms/a.json:10
 msgid "Age"
 msgstr ""
 
-#: models/Encounter.py:27 models/FormGroup.py:40 models/reports.py:37
+#: models/Encounter.py:27
+#: models/FormGroup.py:40
+#: models/reports.py:37
 msgid "Encounter"
 msgstr ""
 
@@ -1817,7 +1826,8 @@ msgstr ""
 msgid "Encounter date"
 msgstr ""
 
-#: models/Encounter.py:40 models/ccreports.py:399
+#: models/Encounter.py:40
+#: models/ccreports.py:399
 msgid "CHW"
 msgstr ""
 
@@ -1841,7 +1851,8 @@ msgstr ""
 msgid "Family Planning Usages"
 msgstr ""
 
-#: models/FamilyPlanningUsage.py:19 models/reports.py:821
+#: models/FamilyPlanningUsage.py:19
+#: models/reports.py:821
 msgid "Family Planning Report"
 msgstr ""
 
@@ -1881,7 +1892,9 @@ msgstr ""
 msgid "Backend"
 msgstr ""
 
-#: models/HealthId.py:18 models/HealthId.py:32 models/Patient.py:50
+#: models/HealthId.py:18
+#: models/HealthId.py:32
+#: models/Patient.py:50
 msgid "Health ID"
 msgstr ""
 
@@ -1961,7 +1974,8 @@ msgstr ""
 msgid "Referral ID"
 msgstr ""
 
-#: models/Vaccine.py:14 models/reports.py:552
+#: models/Vaccine.py:14
+#: models/reports.py:552
 msgid "Vaccine"
 msgstr ""
 
@@ -2064,19 +2078,33 @@ msgstr ""
 msgid "Birth Reports"
 msgstr ""
 
-#: models/reports.py:105 models/reports.py:192 models/reports.py:202
-#: models/reports.py:384 models/reports.py:394 models/reports.py:413
-#: models/reports.py:494 models/reports.py:502 models/reports.py:581
+#: models/reports.py:105
+#: models/reports.py:192
+#: models/reports.py:202
+#: models/reports.py:384
+#: models/reports.py:394
+#: models/reports.py:413
+#: models/reports.py:494
+#: models/reports.py:502
+#: models/reports.py:581
 msgid "Yes"
 msgstr ""
 
-#: models/reports.py:106 models/reports.py:193 models/reports.py:203
-#: models/reports.py:385 models/reports.py:395 models/reports.py:414
-#: models/reports.py:495 models/reports.py:503 models/reports.py:582
+#: models/reports.py:106
+#: models/reports.py:193
+#: models/reports.py:203
+#: models/reports.py:385
+#: models/reports.py:395
+#: models/reports.py:414
+#: models/reports.py:495
+#: models/reports.py:503
+#: models/reports.py:582
 msgid "No"
 msgstr ""
 
-#: models/reports.py:107 models/reports.py:496 models/reports.py:583
+#: models/reports.py:107
+#: models/reports.py:496
+#: models/reports.py:583
 #: models/reports.py:663
 msgid "Unknown"
 msgstr ""
@@ -2142,8 +2170,12 @@ msgstr ""
 msgid "Follow-up Reports"
 msgstr ""
 
-#: models/reports.py:194 models/reports.py:204 models/reports.py:386
-#: models/reports.py:396 models/reports.py:415 models/reports.py:504
+#: models/reports.py:194
+#: models/reports.py:204
+#: models/reports.py:386
+#: models/reports.py:396
+#: models/reports.py:415
+#: models/reports.py:504
 msgid "Unkown"
 msgstr ""
 
@@ -2212,8 +2244,7 @@ msgid "Weeks since last ANC visit"
 msgstr ""
 
 #: models/reports.py:342
-msgid ""
-"How many weeks since the patient's last ANC visit (0 for less than 7 days)?"
+msgid "How many weeks since the patient's last ANC visit (0 for less than 7 days)?"
 msgstr ""
 
 #: models/reports.py:376
@@ -2224,7 +2255,8 @@ msgstr ""
 msgid "Sauri Pregnancy Reports"
 msgstr ""
 
-#: models/reports.py:387 models/reports.py:397
+#: models/reports.py:387
+#: models/reports.py:397
 msgid "Does not have"
 msgstr ""
 
@@ -2529,8 +2561,7 @@ msgid "Others on treatment"
 msgstr ""
 
 #: models/reports.py:907
-msgid ""
-"Number of other sick household members receiving anti-malarial treatment"
+msgid "Number of other sick household members receiving anti-malarial treatment"
 msgstr ""
 
 #: models/reports.py:937
@@ -2549,12 +2580,14 @@ msgstr ""
 msgid "Was a Verbal Autopsy conducted?"
 msgstr ""
 
-#: templates/childcount/forms/a.json:4 templates/childcount/forms/b.json:4
+#: templates/childcount/forms/a.json:4
+#: templates/childcount/forms/b.json:4
 #: templates/childcount/forms/c.json:4
 msgid "ID"
 msgstr "No"
 
-#: templates/childcount/forms/a.json:4 templates/childcount/forms/c.json:4
+#: templates/childcount/forms/a.json:4
+#: templates/childcount/forms/c.json:4
 msgid "HEALTH ID"
 msgstr "No de santé"
 
@@ -2634,7 +2667,8 @@ msgstr "Acc"
 msgid "Delivered in Health Facility (Y-N-U)"
 msgstr "Accouchement dans un centre de santé (O-N-I)"
 
-#: templates/childcount/forms/a.json:15 templates/childcount/forms/c.json:22
+#: templates/childcount/forms/a.json:15
+#: templates/childcount/forms/c.json:22
 msgid "KG"
 msgstr "KG"
 
@@ -2723,12 +2757,8 @@ msgid "meth"
 msgstr "meth"
 
 #: templates/childcount/forms/b.json:12
-msgid ""
-"Primary Family Planning Method used [Record primary method for each woman] "
-"(C, I, N, P)"
-msgstr ""
-"Principal méthode de contraception utilisée (CD, IUD, IJ, IP, PL, ST) "
-"[indiquer pour chaque femme]"
+msgid "Primary Family Planning Method used [Record primary method for each woman] (C, I, N, P)"
+msgstr "Principal méthode de contraception utilisée (CD, IUD, IJ, IP, PL, ST) [indiquer pour chaque femme]"
 
 #: templates/childcount/forms/b.json:13
 msgid "BN"
@@ -2776,15 +2806,14 @@ msgstr "Hop"
 
 #: templates/childcount/forms/c.json:7
 msgid "Person visit a clinic or hospital since last CHW visit (Y-U-P)"
-msgstr ""
-"Le malade est allé à la clinique depuis la dernière visite du relais (O-N-I-"
-"A)"
+msgstr "Le malade est allé à la clinique depuis la dernière visite du relais (O-N-I-A)"
 
 #: templates/childcount/forms/c.json:8
 msgid "S"
 msgstr "S"
 
-#: templates/childcount/forms/c.json:8 templates/childcount/forms/c.json:9
+#: templates/childcount/forms/c.json:8
+#: templates/childcount/forms/c.json:9
 msgid "Current Danger Signs"
 msgstr "Signes de danger actuels"
 
@@ -2808,7 +2837,8 @@ msgstr "MG"
 msgid "Month of pregnancy (1-9)"
 msgstr "Mois de grossesse (1-9)"
 
-#: templates/childcount/forms/c.json:12 templates/childcount/forms/c.json:15
+#: templates/childcount/forms/c.json:12
+#: templates/childcount/forms/c.json:15
 msgid "Vis"
 msgstr "Vis"
 
@@ -2822,9 +2852,7 @@ msgstr "DVis"
 
 #: templates/childcount/forms/c.json:13
 msgid "Weeks since last ANC visit [0 = less than 7 days]"
-msgstr ""
-"Nombre de semaine écoulées depuis la dernière visite prénatale [0 = moins de "
-"7 jours]"
+msgstr "Nombre de semaine écoulées depuis la dernière visite prénatale [0 = moins de 7 jours]"
 
 #: templates/childcount/forms/c.json:14
 msgid "N"
@@ -2836,8 +2864,7 @@ msgstr "Suivi du nouveau-né (0-28 jours)"
 
 #: templates/childcount/forms/c.json:15
 msgid "Number of postnatal visit to clinic or hospital since birth?"
-msgstr ""
-"Nombre de visites postnatale à l'hopital ou à la clinique depuis la naissance"
+msgstr "Nombre de visites postnatale à l'hopital ou à la clinique depuis la naissance"
 
 #: templates/childcount/forms/c.json:16
 msgid "T"
