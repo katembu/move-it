@@ -216,7 +216,16 @@ def chw(request, rformat='html'):
 def operationalreport(request, rformat):
     filename = 'operationalreport.pdf'
     story = []
+
+    from cStringIO import StringIO
+    from reportlab.pdfgen import canvas
+    from django.http import HttpResponse
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=operationalreport.pdf'
+
     
+    buffer = StringIO()
+
     for location in Clinic.objects.all():
         if not TheCHWReport.objects.filter(location=location).count():
             continue
@@ -225,17 +234,16 @@ def operationalreport(request, rformat):
         story.append(tb)
         story.append(PageBreak())
 
-    doc = SimpleDocTemplate(filename, pagesize = landscape(A4), \
+    doc = SimpleDocTemplate(buffer, pagesize = landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
-    response = HttpResponse(mimetype='application/pdf')
-    response['Cache-Control'] = ""
-    response['Content-Disposition'] = "attachment; filename=%s" % filename
-    response.write(open(filename).read())
-    os.remove(filename)
-    return response
 
+    # Get the value of the StringIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+    return response
 
 def operationalreportable(title, indata=None):
     styleH3.fontName = 'Times-Bold'
