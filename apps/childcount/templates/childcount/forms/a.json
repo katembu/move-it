@@ -8,7 +8,7 @@
         {'id': 'family_name', 'type': 'f', 'name': "{% trans "Sur" %}", 'title': "{% trans "Family Name (surname)" %}"},
         {'id': 'sex', 'type': 'f', 'name': "{% trans "Sex" %}", 'title': "{% trans "Sex (M-F)" %}"},
         {'id': 'birthdate', 'type': 'f', 'name': "{% trans "Age" %}", 'title': "{% trans "Birth Date [DDMMYY] or Age [+m,y]" %}"},
-        {'id': 'hh_caregiver', 'type': 'f', 'name': "{% trans "PHH" %}", 'title': "{% trans "Primary HH Caregiver ID [P = Same as ID]" %}"},
+        {'id': 'hh_caregiver', 'type': 'f', 'name': "{% trans "PHH" %}", 'title': "{% trans "Primary HH Caregiver ID [H = Same as ID]" %}"},
         {'id': 'birth', 'type': 's', 'name': "{% trans "BIR" %}", 'title': "{% trans "Birth" %}"},
         {'id': 'mother_id', 'type': 'f', 'name': "{% trans "Mom" %}", 'title': "{% trans "Mother's HEALTH ID [U = Unknown]" %}"},
         {'id': 'delivered', 'type': 'f', 'name': "{% trans "Del" %}", 'title': "{% trans "Delivered in Health Facility (Y-N-U)" %}"},
