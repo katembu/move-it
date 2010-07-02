@@ -29,9 +29,21 @@ class DOBProcessor:
         YEARS: ['y', 'yr', 'yrs', 'year', 'years'],
     }
 
+    UNITS['fr'] = {
+        DAYS: ['j', 'jour', 'jours', 'd', 'day', 'days'],
+        WEEKS: ['s', 'sem', 'semaine', 'semaines', 'w', 'wk', 'wks', \
+                'week', 'weeks'],
+        MONTHS: ['m', 'moi', 'mois', 'mon', 'mths', 'month', 'months'],
+        YEARS: ['a', 'an', 'ans', 'ann', 'annee', 'année', 'années', \
+                'annees', 'y', 'yr', 'yrs', 'year', 'years'],
+    }
+
     ABRV_MONTHS = {}
     ABRV_MONTHS['en'] = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', \
                          'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+
+    ABRV_MONTHS['fr'] = ['jan', 'fev', 'mar', 'avr', 'mai', 'juin', \
+                         'juil', 'aou', 'sep', 'oct', 'nov', 'dec']
 
     #TODO Site specific stuff:
     #           Date order

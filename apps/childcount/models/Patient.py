@@ -91,9 +91,6 @@ class Patient(models.Model):
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
 
-    def __unicode__(self):
-        return u"%s %s" % (self.last_name, self.first_name)
-
     def is_head_of_household(self):
         return self.household == self
 
