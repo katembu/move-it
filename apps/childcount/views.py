@@ -59,6 +59,8 @@ def index(request):
     info = {}
     info.update({"title": title})
     info.update(clinic_report(request))
+    clinics = Clinic.objects.all()
+    info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
     return render_to_response(request, template_name, info)
