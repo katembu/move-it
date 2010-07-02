@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-18 12:58+0000\n"
-"PO-Revision-Date: 2010-07-01 23:14-0000\n"
-"Last-Translator: reg <rgaudin@gmail.com>\n"
+"PO-Revision-Date: 2010-07-02 13:21-0000\n"
+"Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -23,7 +23,7 @@ msgstr ""
 #: app.py:48
 #, python-format
 msgid "%s form not found."
-msgstr "Section %s introuvable."
+msgstr "Terme %s introuvable."
 
 #: app.py:55
 #, python-format
@@ -36,7 +36,7 @@ msgstr ""
 
 #: app.py:122
 msgid "You must register before you can send reports."
-msgstr ""
+msgstr "Vous devez vous inscrire avant de pouvoir envoyer des déclarations."
 
 #: app.py:134
 msgid "Problem getting encounter_date from backend."
@@ -45,104 +45,104 @@ msgstr ""
 #: app.py:164
 #, python-format
 msgid "Error: Message not understood. Your message must start with a single health ID, followed by a space then a %(pre)s, then the keyword of the form you are sending."
-msgstr ""
+msgstr "Erreur: message non compris. Votre message doit commencer par un simple no. de santé, suivi d'un espace, puis un %(pre)s, puis le mot clé du formulaire que vous envoyez."
 
 #: app.py:182
 msgid "Not a recognised form."
-msgstr ""
+msgstr "Terme non reconnu."
 
 #: app.py:195
 #, python-format
 msgid "Error occurred while processing %(frm)s: %(e)s. Please correct and send all information again."
-msgstr ""
+msgstr "Une erreur s'est produite lors du traitement de %(frm)s: %(e)s. Veuillez la corriger et renvoyer les informations à nouveau."
 
 #: app.py:209
 #, python-format
 msgid "%(id)s is not a valid health ID. Please correct and try again."
-msgstr ""
+msgstr "%(id)s n'est pas un no. de santé valide. Veuillez le corriger et réessayer."
 
 #: app.py:223
 #, python-format
 msgid "Error: You tried to send househould forms for someone who is not head ofhousehold. You must send the forms with the head of household health ID.Their head of household health ID is %(hoh)s (Health ID: %(hohid)s)"
-msgstr ""
+msgstr "Erreur. Vous avez tenter d'envoyer des termes pour le ménage pour quelqu'un qui n'est pas chef de ménage. Vous devez envoyer les formulaires avec le numéro de santé du chef de ménage. Le no. de santé du chef de famille est %(hoh)s (No. de santé: %(hohid)s)"
 
 #: app.py:248
 msgid "This form is only for head of households."
-msgstr ""
+msgstr "Ce terme est uniquement pour les chefs de ménage."
 
 #: app.py:321
 msgid " Successfully processed:"
-msgstr ""
+msgstr "traité avec succès:"
 
 #: app.py:336
 msgid " You must resend the form."
-msgstr ""
+msgstr "Vous devez renvoyer le terme."
 
 #: app.py:338
 msgid " You must resend the forms."
-msgstr ""
+msgstr "Vous devez renvoyer les termes."
 
 #: app.py:348
 msgid "One form failed."
-msgstr ""
+msgstr "Echec d'un terme."
 
 #: app.py:350
 #, python-format
 msgid "%d forms failed."
-msgstr ""
+msgstr "%d termes ont échoué"
 
 #: app.py:353
 msgid "One successful."
-msgstr ""
+msgstr "Réussi"
 
 #: app.py:355
 #, python-format
 msgid "%d forms successful."
-msgstr ""
+msgstr "%d termes réussis"
 
 #: exceptions.py:9
 msgid "An error has occured."
-msgstr ""
+msgstr "Une erreur s'est produite"
 
 #: exceptions.py:28
 msgid "Error: You must first be registered."
-msgstr ""
+msgstr "Erreur: Vous devez vous inscrire d'abord."
 
 #: exceptions.py:34
 msgid "FAILED. Unable to understand message."
-msgstr ""
+msgstr "ECHEC. Impossible de comprendre le message."
 
 #: exceptions.py:40
 msgid "FAILED. Bad value."
-msgstr ""
+msgstr "ECHEC. Mauvaise valeur."
 
 #: exceptions.py:46
 msgid "FAILED. Not applicable."
-msgstr ""
+msgstr "ECHEC. Non valide."
 
 #: reports.py:39
 msgid "All Patients"
-msgstr ""
+msgstr "Tout patient"
 
 #: reports.py:217
 #, python-format
 msgid "Operational Report %s"
-msgstr ""
+msgstr "Déclaration opérationnelle %s"
 
 #: utils.py:429
 #, python-format
 msgid "%(number)s is not a registered number."
-msgstr ""
+msgstr "%(number)s n'est pas un nombre listé. "
 
 #: utils.py:453
 #, python-format
 msgid "An error has occured (%(e)s)."
-msgstr ""
+msgstr "Une erreur s'est produite (%(e)s)."
 
 #: utils.py:471
 #, python-format
 msgid "You attempted to load %(cls)s without %(k)s defined."
-msgstr ""
+msgstr "Vous avez tenté de charger %(cls)s sans définir %(k)s."
 
 #: utils.py:476
 #, python-format
@@ -151,104 +151,104 @@ msgstr ""
 
 #: commands/CancelCommand.py:39
 msgid "Cancel failed. There is nothing to cancel."
-msgstr ""
+msgstr "Echec de l'annulation. Il n'y a rien à annuler."
 
 #: commands/CancelCommand.py:46
 #, python-format
 msgid "Cancel failed. You cannot cancel a report after %(num)d minutes."
-msgstr ""
+msgstr "Echec de l'annulation. Vous ne pouvez pas annuler une déclaration après %(num)d minutes."
 
 #: commands/CancelCommand.py:63
 msgid "Cancel failed. Another user has already modified one or more of your reports."
-msgstr ""
+msgstr "Echec de l'annulation. Un autre utilisateur a déjà modifié un ou plusieurs de vos déclarations."
 
 #: commands/CancelCommand.py:86
 msgid "Previous message successfully canceled."
-msgstr ""
+msgstr "Réussite de l'annulation du message précédent."
 
 #: commands/DeathCommand.py:43
 msgid "dead person names | gender | age or DOB | date_of_death | [head_of_household]"
-msgstr ""
+msgstr "noms des personnes décédées | genre | âge ou DDN | date_du_décès | [chef_de_ménage]"
 
 #: commands/DeathCommand.py:46
 #, python-format
 msgid "Not enough information. Expected: %(keyword)s %(expected)s"
-msgstr ""
+msgstr "Pas assez d'informations. Requis: %(keyword)s %(expected)s"
 
 #: commands/DeathCommand.py:62
 #: forms/PatientRegistrationForm.py:91
 #, python-format
 msgid "You must indicate gender after the name with a %(choices)s."
-msgstr ""
+msgstr "Vous devez indiquer le genre après le nom avec %(choices)s."
 
 #: commands/DeathCommand.py:71
 #: forms/PatientRegistrationForm.py:100
 #, python-format
 msgid "Message not understood. Expected: %(expected)s"
-msgstr ""
+msgstr "Message non compris. Requis: %(expected)s"
 
 #: commands/DeathCommand.py:78
 #: forms/PatientRegistrationForm.py:118
 #, python-format
 msgid "Could not understand age or date_of_birth of %(string)s."
-msgstr ""
+msgstr "N'a pas pu comprendre l'âge ou la date_de_naissance de %(string)s."
 
 #: commands/DeathCommand.py:84
 #: forms/PatientRegistrationForm.py:126
 msgid "You must provide a patient name before their sex."
-msgstr ""
+msgstr "Vous devez stipuler le nom du patient avant le genre"
 
 #: commands/DeathCommand.py:101
 msgid "You must provide the date of death"
-msgstr ""
+msgstr "Vous devez stipuler la date de décès"
 
 #: commands/DeathCommand.py:103
 #: commands/DeathCommand.py:110
 #, python-format
 msgid "Could not understand date_of_death of %(string)s. Please provide an exact date of death in the format DDMMYY."
-msgstr ""
+msgstr "N'a pas pu comprendre la date_de_décès de %(string)s. Veuillez stipuler une date exacte de décès avec format JJMMAA."
 
 #: commands/DeathCommand.py:116
 #, python-format
 msgid "Could not understand date_of_death of %(string)s."
-msgstr ""
+msgstr "N'a pas pu comprendre la date_de_décès de %(string)s."
 
 #: commands/DeathCommand.py:132
 #: forms/PatientRegistrationForm.py:165
 #, python-format
 msgid "Could not find head of household with health ID %(id)s. You must first register the head of household."
-msgstr ""
+msgstr "Impossible de trouver un chef de ménage avec le No. de santé %(id)s. Vous devez enregistrer d'abord le chef de ménage."
 
 #: commands/DeathCommand.py:139
 #: forms/PatientRegistrationForm.py:172
 #, python-format
 msgid "The head of household you specified is too young to be a head of household (%(hh)s)."
-msgstr ""
+msgstr "Le chef de ménage que vous avez spécifié est trop jeune pour être chef de ménage (%(hh)s)."
 
 #: commands/DeathCommand.py:145
 #, python-format
 msgid "The head of household you specified (%(hh)s) is not a head of household. Their head of household is (%(hhhh)s). "
-msgstr ""
+msgstr "Le chef de ménage que vous avez spécifié (%(hh)s) n'est pas un chef de ménage. Leur chef de ménage est (%(hhhh)s)."
 
 #: commands/DeathCommand.py:160
 #: forms/PatientRegistrationForm.py:195
 msgid "you"
-msgstr ""
+msgstr "Vous"
 
 #: commands/DeathCommand.py:163
 #, python-format
 msgid "%(name)s %(sex)s/%(age)s was already reported by %(chw)s. "
-msgstr ""
+msgstr "%(name)s %(sex)s/%(age)s a déjà été soumis par %(chw)s."
 
 #: commands/DeathCommand.py:171
 #, python-format
 msgid "You successfuly reported the death of %(death)s."
-msgstr ""
+msgstr "Vous avez réussi à signaler le décès de %(death)s."
 
 #: commands/IssueHealthIdCommand.py:31
 #, python-format
 msgid "You still have: %(health_id)s"
-msgstr ""
+msgstr "Vous avez encore: %(health_id)s"
 
 #: commands/IssueHealthIdCommand.py:39
 msgid "No health Ids available now! Please"
@@ -257,45 +257,45 @@ msgstr ""
 #: commands/IssueHealthIdCommand.py:51
 #, python-format
 msgid "Health IDs: %(health_id)s"
-msgstr ""
+msgstr "No. de santé: %(health_id)s"
 
 #: commands/LookupCommand.py:35
 msgid "Lookup command requires at least a first or last name."
-msgstr ""
+msgstr "L'outil de recherche nécessite au moins un prénom ou nom de famille"
 
 #: commands/LookupCommand.py:76
 msgid "No matching patient found. Please retry with only first or last name."
-msgstr ""
+msgstr "Aucun patient correspondant trouvé. Veuillez réessayer avec un prénom ou un nom de famille seulement."
 
 #: commands/LookupCommand.py:83
 #, python-format
 msgid "#%(id)s: %(name)s from %(location)s"
-msgstr ""
+msgstr "#%(id)s: %(name)s de %(location)s"
 
 #: commands/LookupCommand.py:97
 #, python-format
 msgid "%(total)s matches"
-msgstr ""
+msgstr "%(total)s résultats correspondants"
 
 #: commands/LookupCommand.py:99
 #, python-format
 msgid "%(total)s approx. matches"
-msgstr ""
+msgstr "%(total)s résultats approximatifs correspondants"
 
 #: commands/LookupCommand.py:104
 #, python-format
 msgid "%(intro)s: %(list)s"
-msgstr ""
+msgstr "%(intro)s: %(list)s"
 
 #: commands/RegistrationCommand.py:38
 #, python-format
 msgid "Not enough info. Expected: %(keyword)s location names"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: %(keyword)s noms de lieu"
 
 #: commands/RegistrationCommand.py:46
 #, python-format
 msgid "Location %(location)s does not exist."
-msgstr ""
+msgstr "Lieu %(location)s n'existe pas."
 
 #: commands/RegistrationCommand.py:93
 #, python-format
@@ -309,121 +309,121 @@ msgstr "Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias 
 
 #: forms/BCPillForm.py:23
 msgid "Not enough info. Expected: number of pills given."
-msgstr ""
+msgstr "Pas assez d'infos. Requis: nombre de pillules données."
 
 #: forms/BCPillForm.py:33
 msgid "Number of pills given must be entered a number."
-msgstr ""
+msgstr "Le nombre de pillules données doit être entré en chiffres."
 
 #: forms/BCPillForm.py:40
 #, python-format
 msgid "%(pills)d pills given."
-msgstr ""
+msgstr "%(pills)d pillules données."
 
 #: forms/BedNetForm.py:23
 msgid "Not enough info. Expected: number of sleeping sites and number of bednets."
-msgstr ""
+msgstr "Pas assez d'infos. Requis: nombre de couchages et nombre de moustiquaires."
 
 #: forms/BedNetForm.py:34
 msgid "Number of sleeping sites must be entered asa number."
-msgstr ""
+msgstr "Le nombre de couchages doit être entré en chiffres."
 
 #: forms/BedNetForm.py:40
 msgid "Number of bednets must be a number"
-msgstr ""
+msgstr "Le nombre de moustiquaires doit être entré en chiffres"
 
 #: forms/BedNetForm.py:47
 #, python-format
 msgid "%(sites)d sleeping site(s), %(nets)d bednet(s)"
-msgstr ""
+msgstr "%(sites)d couchage(s), %(nets)d moustiquaire(s)"
 
 #: forms/BirthForm.py:46
 #, python-format
 msgid "Patient is %(age)s old. You can not submit birth reports for patients over 28 days old."
-msgstr ""
+msgstr "Le patient ets âgé de %(age)s. Vous ne pouvez pas soumettre une déclaration de naissance pour les patients de plus de 28 jours."
 
 #: forms/BirthForm.py:53
 #, python-format
 msgid "A birth report for %(p)s was already submited by %(chw)s."
-msgstr ""
+msgstr "Une déclaration de naissance pour %(p)s a déjà été soumis par %(chw)s."
 
 #: forms/BirthForm.py:58
 msgid "Not enough info. Expected: |Mom Health ID|delivered in health facility| weight(kg)(optional)"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: | No. de Santé de la mère | accouchement en centre de santé | poids(kg)(facultatif)"
 
 #: forms/BirthForm.py:75
 #, python-format
 msgid "Could not find mother / guardian with health ID %(id)s. You must register the mother first."
-msgstr ""
+msgstr "Mère / tuteur introuvable avec le No. de santé %(id)s. Vous devez enregistrer la mère d'abord."
 
 #: forms/BirthForm.py:80
 #, python-format
 msgid "The mother / guardian you specified is too young to be a mother.(%(hh)s)"
-msgstr ""
+msgstr "La mère / tuteur que vous avez spécifié est trop jeune pour être mère.(%(hh)s)"
 
 #: forms/BirthForm.py:86
 #, python-format
 msgid "|Delivered in health facility?| must be %(choices)s."
-msgstr ""
+msgstr "|Accouchement en centre de santé?| doit être %(choices)s."
 
 #: forms/BirthForm.py:100
 #, python-format
 msgid "Birth weight can not be greater than %(max)skg."
-msgstr ""
+msgstr "Le poids de naissance ne peut pas être supérieur à %(max)skg."
 
 #: forms/BirthForm.py:104
 #, python-format
 msgid "Birth weight can not be less than %(min)skg."
-msgstr ""
+msgstr "Le poids de naissance ne peut pas être inférieur à %(min)skg."
 
 #: forms/BirthForm.py:108
 msgid "Unkown value. Weight should be a number"
-msgstr ""
+msgstr "Valeur inconnue. Le poids devrait être en chiffres."
 
 #: forms/BirthForm.py:111
 msgid "Delivered in health facility."
-msgstr ""
+msgstr "Accouchement en clinique."
 
 #: forms/BirthForm.py:113
 msgid "Home delivery."
-msgstr ""
+msgstr "Accouchement à la maison."
 
 #: forms/BirthForm.py:115
 msgid "Unkown delivery location."
-msgstr ""
+msgstr "Lieu de l'accouchement inconnu."
 
 #: forms/BirthForm.py:119
 #, python-format
 msgid ", %(weight)skg birth weight"
-msgstr ""
+msgstr "poids de naissance de ,%(weight)skg"
 
 #: forms/DangerSignsForm.py:24
 msgid "Not enough info, expected danger sign codes"
-msgstr ""
+msgstr "Pas assez d'infos, codes des signes de danger requis"
 
 #: forms/DangerSignsForm.py:47
 #, python-format
 msgid "Unkown danger sign code(s): %(codes)s No danger signs recorded."
-msgstr ""
+msgstr "Code(s) de signes de danger inconnu(s): %(codes)s Pas de signes de danger enregistrés."
 
 #: forms/DangerSignsForm.py:54
 #, python-format
 msgid "Danger signs: %(ds)s"
-msgstr ""
+msgstr "Signes de danger: %(ds)s"
 
 #: forms/DeathForm.py:28
 msgid "Not enough info. Expected: date of death."
-msgstr ""
+msgstr "Pas assez d'infos. Requis: date de décès"
 
 #: forms/DeathForm.py:42
 #, python-format
 msgid "A death report for %(p)s was already submited by %(chw)s."
-msgstr ""
+msgstr "Une déclaration de décès pour %(p)s a déjà été soumise par %(chw)s."
 
 #: forms/DeathForm.py:50
 #, python-format
 msgid "Could not understand date of death: %(dod)s."
-msgstr ""
+msgstr "N'a pas pu comprendre la date de décès: %(dod)s."
 
 #: forms/DeathForm.py:60
 #, python-format
@@ -432,307 +432,307 @@ msgstr ""
 
 #: forms/FamilyPlanningForm.py:23
 msgid "Not enough info. Expected: number of women aged 15 - 49 | number using FP | methods being used."
-msgstr ""
+msgstr "Pas assez d'infos. Requis: Nombre de femmes entre 15 et 49 ans | nombre utilisant le PF | méthodes utilisées."
 
 #: forms/FamilyPlanningForm.py:38
 msgid "|Number of women aged 15 - 49| must be entered as a number."
-msgstr ""
+msgstr "|Nombre de femmes âgées de 15 à 49 ans| doit être entré en chiffres."
 
 #: forms/FamilyPlanningForm.py:43
 msgid "No women aged 15 - 49 visited."
-msgstr ""
+msgstr "Pas de femmes âgées de 15 à 49 ans visitées."
 
 #: forms/FamilyPlanningForm.py:48
 msgid "After entering the number of women aged 15-49, you must indicate how many use modern family planning methods."
-msgstr ""
+msgstr "Après avoir entré le nombre de femmes âgées de 15 à 49 ans, vous devez indiquer combien d'entre elles utilisent des méthodes de planning familial modernes."
 
 #: forms/FamilyPlanningForm.py:53
 msgid "Number of women using modern family planning must be entered as a number."
-msgstr ""
+msgstr "Nombre de femmes utilisant le planning familial doit être entré en chiffres."
 
 #: forms/FamilyPlanningForm.py:58
 msgid "The number of women using family planning can not be greater than the total number of women."
-msgstr ""
+msgstr "Le nombre de femmes utilisant le planning familial ne peut pas être supérieur au nombre total de femmes."
 
 #: forms/FamilyPlanningForm.py:62
 #, python-format
 msgid "%(women)d women aged 15-49, none using modern family planning."
-msgstr ""
+msgstr "%(women)d femmes âgées de 15 à 49 ans, aucune utilisant le planning familial moderne"
 
 #: forms/FamilyPlanningForm.py:69
 msgid "You must specify %(num)d family planning code(s). One for each of the %(num)s women using modern family planning."
-msgstr ""
+msgstr "Vous devez spécifier %(num)d code(s) de planning familial. Un pour chacune des %(num)s femmes utilisant le planning familial moderne."
 
 #: forms/FamilyPlanningForm.py:88
 #, python-format
 msgid "Unkown family planning code(s): %(codes)s No family planning recorded."
-msgstr ""
+msgstr "Code(s) de planning familial inconnu: %(codes)s Pas de planning familial enregistré."
 
 #: forms/FamilyPlanningForm.py:104
 #, python-format
 msgid "%(women)d women, %(using)d using family planning: %(fp_string)s"
-msgstr ""
+msgstr "%(women)d femmes, %(using)d utilisant le planning familial: %(fp_string)s"
 
 #: forms/FeverForm.py:40
 #: forms/ReferralForm.py:26
 #, python-format
 msgid "Not enough info. Expected: %s"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: %s"
 
 #: forms/FeverForm.py:44
 #, python-format
 msgid "RDT Result must be %(choices)s."
-msgstr ""
+msgstr "Résultat de TDR doit être %(choices)s."
 
 #: forms/FeverForm.py:58
 #: forms/FeverForm.py:60
 msgid "less than 3"
-msgstr ""
+msgstr "moins de 3 ans"
 
 #: forms/FeverForm.py:69
 msgid "Child is too young for treatment. Please refer IMMEDIATELY to clinic."
-msgstr ""
+msgstr "L'enfant est trop jeune pour le traitement. Veuillez le renvoyer IMMEDIATEMENT vers un centre de santé"
 
 #: forms/FeverForm.py:72
 #, python-format
 msgid "Child is %(age)s. Please provide %(tabs)s tab%(plural)s of Coartem (ACT) twice a day for 3 days."
-msgstr ""
+msgstr "L'enfant est âgé de %(age)s. Veuillez fournir %(tabs)s tab%(plural)s de Coartem (ACT) deux fois par jour pendant 3 jours."
 
 #: forms/FeverForm.py:79
 msgid "Positive RDT result. "
-msgstr ""
+msgstr "Résultat de TDR positif"
 
 #: forms/FeverForm.py:92
 msgid "Negative RDT result."
-msgstr ""
+msgstr "Résultat de TDR négatif"
 
 #: forms/FeverForm.py:94
 msgid "Unkown RDT result."
-msgstr ""
+msgstr "Résultat de TDR inconnu"
 
 #: forms/FollowUpForm.py:43
 msgid "Not enough info. Expected: | Improvement? | Visited facility? | "
-msgstr ""
+msgstr "Pas assez d'infos. Requis: | Améliorations? | S'est rendu dans un centre de santé? |"
 
 #: forms/FollowUpForm.py:49
 #, python-format
 msgid "| Improvement? | Must be %(choices)s."
-msgstr ""
+msgstr "| Améliorations? | doit être %(choices)s."
 
 #: forms/FollowUpForm.py:57
 #, python-format
 msgid "| Visited facility? | Must be %(choices)s."
-msgstr ""
+msgstr "| S'est rendu dans un centre de santé | doit être %(choices)s."
 
 #: forms/FollowUpForm.py:63
 msgid "Condition improved."
-msgstr ""
+msgstr "L'état s'est amélioré"
 
 #: forms/FollowUpForm.py:65
 msgid "Condition did not improve."
-msgstr ""
+msgstr "L'état ne s'est pas amélioré"
 
 #: forms/FollowUpForm.py:67
 msgid "Condition improvement unkown."
-msgstr ""
+msgstr "L'amélioration de l'état est inconnue"
 
 #: forms/FollowUpForm.py:69
 msgid "Patient unavailable."
-msgstr ""
+msgstr "Patient non disponible"
 
 #: forms/FollowUpForm.py:72
 msgid "Patient visited health facility."
-msgstr ""
+msgstr "Le patient s'est rendu au centre de santé"
 
 #: forms/FollowUpForm.py:74
 msgid "Patient did not visit health facility."
-msgstr ""
+msgstr "Le patient ne s'est pas rendu au centre de santé"
 
 #: forms/FollowUpForm.py:76
 msgid "Unknown if patient visited health facility."
-msgstr ""
+msgstr "information inconnue si le patient s'est oui ou non rendu au centre de santé"
 
 #: forms/FollowUpForm.py:78
 msgid "Patient currently inpatient at health facility."
-msgstr ""
+msgstr "Le patient est actuellement hospitalisé au centre de santé"
 
 #: forms/HouseholdForm.py:27
 msgid "Not enough info. Expected: Patient health id +hed | household healthid | mother health id or gurdian id"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: No. de santé du patient +hed | No. de santé du ménage | No. de santé dela mère ou le no. didentification du tuteur"
 
 #: forms/HouseholdForm.py:38
 #: forms/HouseholdForm.py:52
 msgid "Please enter the correct information you cant be patient then gurdian/mother"
-msgstr ""
+msgstr "Veuillez entrer les informations correctes, vous ne pouvez pas être patient puis tuteur/mère"
 
 #: forms/HouseholdForm.py:41
 #, python-format
 msgid "Could not find head of household with health ID %(id)s. You must register the head of household first"
-msgstr ""
+msgstr "N'a pas pu trouver le chef de ménage avec le No. de santé %(id)s. Vou devez enregistrer le chef de ménage d'abord."
 
 #: forms/HouseholdForm.py:55
 #, python-format
 msgid "Could not find mother/gurdian with health ID %(motherid)s. You must register the mother/gurdian first"
-msgstr ""
+msgstr "N'a pas pu trouver la mère / tuteur avec le No. de santé  %(motherid)s. Vous devez enregistrer la mère / tuteur d'abord"
 
 #: forms/HouseholdForm.py:63
 #, python-format
 msgid "You successfuly associated  %(patient)s with  %(father)s , %(mother)s"
-msgstr ""
+msgstr "Vous avez réussi à associer %(patient)s avec  %(father)s , %(mother)s"
 
 #: forms/HouseholdVisitForm.py:35
 #: forms/HouseholdVisitForm.py:49
 msgid "Not enough info. Expected: household member available? | number of children | counseling / advice given (optional)"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: membre du ménage disponible? | nombre d'enfants | conseil/ suivi donné (facultatif)"
 
 #: forms/HouseholdVisitForm.py:39
 #, python-format
 msgid "|Any HH Member Available?| must be %(choices)s."
-msgstr ""
+msgstr "|membre du ménage disponible?| doit être %(choices)s."
 
 #: forms/HouseholdVisitForm.py:54
 msgid "|Number of children| must be entered as a number."
-msgstr ""
+msgstr "|Nombre d'enfants| doit être entré en chiffres"
 
 #: forms/HouseholdVisitForm.py:75
 #, python-format
 msgid "Unknown counseling topic code(s): %(codes)s No household visit recorded."
-msgstr ""
+msgstr "Code(s) de conseils inconnu: %(codes)s Pas de visite de ménage enregistrée"
 
 #: forms/HouseholdVisitForm.py:88
 msgid "Household member not available."
-msgstr ""
+msgstr "Membre du ménage non disponible"
 
 #: forms/HouseholdVisitForm.py:92
 #, python-format
 msgid "Household member available, %(kids)d children under 5 seen."
-msgstr ""
+msgstr "Membre du ménage disponible, %(kids)d enfants ont été vus"
 
 #: forms/HouseholdVisitForm.py:96
 #, python-format
 msgid ", counseling / advice topics covered: %(topics)s"
-msgstr ""
+msgstr ", thèmes de conseil / suivi abordés:  %(topics)s"
 
 #: forms/MedicineGivenForm.py:23
 msgid "Not enough info. Expected: Medicine codes."
-msgstr ""
+msgstr "Pas assez d'infos: requis: codes de médicaments"
 
 #: forms/MedicineGivenForm.py:46
 #, python-format
 msgid "Unknown medicine code(s): %(codes)s No medicines recorded."
-msgstr ""
+msgstr "Code(s) de médicaments inconnu(s): %(codes)s  Pas de médicaments enregistrés"
 
 #: forms/MedicineGivenForm.py:53
 #, python-format
 msgid "Medicine given: %(ds)s"
-msgstr ""
+msgstr "Médicament donné: %(ds)s"
 
 #: forms/MobileForm.py:25
 msgid "Expected: phone number."
-msgstr ""
+msgstr "Requis: numéro de téléphone"
 
 #: forms/MobileForm.py:28
 msgid "Phone number cannot be longer than 16 digits."
-msgstr ""
+msgstr "Le numéro de téléphone ne peut pas être supérieur à 16 chiffres"
 
 #: forms/MobileForm.py:31
 #, python-format
 msgid "Mobile phone number: %(mobile)s"
-msgstr ""
+msgstr "Numéro de téléphone portable: %(mobile)s"
 
 #: forms/NeonatalForm.py:24
 msgid "Neonatal reports are only for children less than 28 days old."
-msgstr ""
+msgstr "La déclaration de naissance est uniquement pour les enfants de moins de 28 jours"
 
 #: forms/NeonatalForm.py:28
 msgid "Not enough info. Expected: number of clinic visits since birth"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: nombre de visites au centre de santé depuis la naissance"
 
 #: forms/NeonatalForm.py:33
 msgid "|Clinic visits since birth| must be entered as a number"
-msgstr ""
+msgstr "|Visites au centre de santé| doit être entré en chiffres"
 
 #: forms/NeonatalForm.py:48
 msgid "No postnatal clinic visits since birth."
-msgstr ""
+msgstr "Pas de visites postnatales au centre de santé depuis la naissance"
 
 #: forms/NeonatalForm.py:50
 msgid "One postnatal clinic visit since birth."
-msgstr ""
+msgstr "Une visite postnatale au centre de santé depuis la naissance"
 
 #: forms/NeonatalForm.py:52
 #, python-format
 msgid "%(visits)d postnatal clinic visit since birth."
-msgstr ""
+msgstr "%(visits)d visites postnatales au centre de santé depuis la naissance"
 
 #: forms/NutritionForm.py:44
 msgid "Child is too young for MUAC."
-msgstr ""
+msgstr "L'enfant est trop jeune pour la MPB"
 
 #: forms/NutritionForm.py:46
 msgid "Child is older than 59 months. If there are any concerns about the child, please refer to a clinic."
-msgstr ""
+msgstr "L'enfant est plus âgé que 59 mois. Si il y a des inquiétudes au sujet de l'enfant, veuillez le renvoyer vers un centre de santé."
 
 #: forms/NutritionForm.py:51
 msgid "Not enough info. Expected: | muac | oedema | weight (optional)"
-msgstr ""
+msgstr "Pas assez d'infos. Requis: | mpb | œdème | poids (facultatif)"
 
 #: forms/NutritionForm.py:55
 msgid "MUAC must be entered as a number."
-msgstr ""
+msgstr "MPB doit être entré en chiffres"
 
 #: forms/NutritionForm.py:61
 msgid "MUAC too low. If correct, refer child to clinic IMMEDIATELY!"
-msgstr ""
+msgstr "MPB est trop bas. Si correct, veuillez renvoyer l'enfant vers un centre de santé IMMEDIATEMENT!"
 
 #: forms/NutritionForm.py:64
 msgid "MUAC too high. Correct and resend."
-msgstr ""
+msgstr "MPB trop élevé. Corrigez et renvoyez."
 
 #: forms/NutritionForm.py:69
 #, python-format
 msgid "Oedema must be %(choices)s."
-msgstr ""
+msgstr "Œdème doit être %(choices)s."
 
 #: forms/NutritionForm.py:82
 #, python-format
 msgid "Weight can not be greater than %(max)skg."
-msgstr ""
+msgstr "Le poids ne peut pas être supérieur à %(max)skg."
 
 #: forms/NutritionForm.py:86
 #, python-format
 msgid "Weight can not be less than %(min)skg."
-msgstr ""
+msgstr "Le poids ne peut pas être inférieur à %(min)skg."
 
 #: forms/NutritionForm.py:90
 msgid "Unkown value. Weight should be entered as a number."
-msgstr ""
+msgstr "Valeur inconnue. Le poids doit être entré en chiffres."
 
 #: forms/NutritionForm.py:98
 msgid "MUAC not taken, "
-msgstr ""
+msgstr "PB non mesuré,"
 
 #: forms/NutritionForm.py:100
 #, python-format
 msgid "MUAC of %(muac)smm, "
-msgstr ""
+msgstr "MPB de %(muac)smm, "
 
 #: forms/NutritionForm.py:103
 msgid "Oedema present."
-msgstr ""
+msgstr "Œdèmes présents."
 
 #: forms/NutritionForm.py:105
 msgid "No signs of oedema."
-msgstr ""
+msgstr "Pas de signe d'œdèmes."
 
 #: forms/NutritionForm.py:107
 msgid "Oedema unkown."
-msgstr ""
+msgstr "Présence d'œdèmes inconnue."
 
 #: forms/NutritionForm.py:110
 #, python-format
 msgid ", Weight %(w)skg"
-msgstr ""
+msgstr ", Poids %(w)skg"
 
 #: forms/PatientRegistrationForm.py:44
 #, python-format
@@ -2625,7 +2625,7 @@ msgstr "Nom de famille"
 
 #: templates/childcount/forms/a.json:9
 msgid "Sex"
-msgstr "Sex"
+msgstr "Sexe"
 
 #: templates/childcount/forms/a.json:9
 msgid "Sex (M-F)"
@@ -2702,7 +2702,7 @@ msgstr "V"
 
 #: templates/childcount/forms/b.json:5
 msgid "HH Visit - All households"
-msgstr "VAD - Pour tous ménage"
+msgstr "VAD - Pour tout ménage"
 
 #: templates/childcount/forms/b.json:6
 msgid "Avai"
@@ -2888,7 +2888,7 @@ msgstr "Vacc"
 
 #: templates/childcount/forms/c.json:18
 msgid "Child up-to-date on immunizations?"
-msgstr "L'enfant est-il a jour de ses vaccinations ? (O-N)"
+msgstr "L'enfant est-il à jour de ses vaccinations ? (O-N)"
 
 #: templates/childcount/forms/c.json:19
 msgid "M"
@@ -2912,7 +2912,7 @@ msgstr "Oed"
 
 #: templates/childcount/forms/c.json:21
 msgid "Oedema (Y-N-U)"
-msgstr "Œdeme (O-N-I)"
+msgstr "Œdème (O-N-I)"
 
 #: templates/childcount/forms/c.json:22
 msgid "Weight in KG [Optionnal]"
