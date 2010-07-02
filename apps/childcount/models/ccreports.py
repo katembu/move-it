@@ -61,7 +61,8 @@ class ThePatient(Patient):
 
     def ontime_muac(self):
         try:
-            nr = NutritionReport.objects.filter(encounter__patient=self).latest()
+            nr = NutritionReport.objects.filter(encounter__patient=self)\
+                                        .latest()
             latest_date = nr.encounter.encounter_date
             old_date = latest_date - timedelta(90)
             nr = NutritionReport.objects.filter(encounter__patient=self, \
@@ -234,7 +235,7 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return int(round((num_on_time/float(total_households))*100))
+            return int(round((num_on_time / float(total_households)) * 100))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
@@ -248,18 +249,18 @@ class TheCHWReport(CHW):
                 count += 1
         if not count:
             return count
-        return int(round(100 * (count/float(births.count()))))
+        return int(round(100 * (count / float(births.count()))))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
-                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
+                    clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def percentage_clinic_deliveries(self):
         num_of_clinic_delivery = self.num_of_clinic_delivery()
         num_of_births = self.num_of_births()
         if num_of_births == 0:
             return 0
-        return int(round(num_of_clinic_delivery/float(num_of_births))*100)
+        return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -272,7 +273,7 @@ class TheCHWReport(CHW):
         fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym, \
                                         encounter__chw=self)
         return fr.count()
-    
+
     def num_underfive_diarrhea(self):
         #TODO
         return 0
@@ -288,7 +289,7 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = underfives.count()
-            return int(round(100 * (count/float(total_count))))
+            return int(round(100 * (count / float(total_count))))
 
     def num_of_active_sam_cases(self):
         count = 0
@@ -345,7 +346,7 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = len(pwomen)
-            return int(round(100*(count/float(total_count))))
+            return int(round(100 * (count / float(total_count))))
 
     def percentage_ontime_followup(self):
         referrals = ReferralReport.objects.filter(encounter__chw=self)
@@ -412,13 +413,15 @@ class TheCHWReport(CHW):
                         status=NutritionReport.STATUS_SEVERE_COMP).count()
         num_eligible = TheCHWReport.total_muac_eligible()
         info = {'%s%% HEALTHY' %\
-                int(round((num_healthy / float(num_eligible)) * 100)): num_healthy,
+                int(round((num_healthy / float(num_eligible)) * 100)): \
+                    num_healthy,
                 '%s%% MAM' %\
                     int(round((num_mam / float(num_eligible)) * 100)): num_mam,
                 '%s%% SAM' %\
                     int(round((num_sam / float(num_eligible)) * 100)): num_sam,
                 '%s%% SAM+' %\
-                    int(round((num_comp / float(num_eligible)) * 100)): num_comp}
+                    int(round((num_comp / float(num_eligible)) * 100)): \
+                        num_comp}
         return info
 
     @classmethod
@@ -488,32 +491,31 @@ class LocationReport(Patient, Location):
 
         #get location rember to filter clinics, villages, parish
         loc = Location.objects.all()
-       
+
         for locsum in loc:
-            p = Patient.objects.filter(location=locsum,dob__gte=drange).count()
+            p = Patient.objects.filter(location=locsum, \
+                                        dob__gte=drange).count()
             return p
-
-        
-
 
     @classmethod
     def summary(cls):
         columns = []
-        
+
         columns.append(
             {'name': '', \
              'bit': '{{ object.name }}'})
-        
+
         columns.append(
             {'name': _("No. Children Registered".upper()), \
              'bit': '{{ object.num_of_sms }}'})
-        
+
         sub_columns = None
         return columns, sub_columns
 
 
 class OperationalReport():
     columns = []
+
     def __init__(self):
         columns = []
         columns.append({'name': _("CHW"), 'bit': '{{object}}'})
@@ -526,7 +528,8 @@ class OperationalReport():
                 'bit': '{{object.percentage_ontime_visits}}%'})
         columns.append({'name': _("# of Births"), \
                 'bit': '{{object.num_of_births}}'})
-        columns.append({'name': _("% Births delivered in Health Facility [S4]"),
+        columns.append({'name': _("% Births delivered in Health Facility"\
+                                    " [S4]"),
                 'bit': '{{object.percentage_clinic_deliveries}}%'})
         columns.append({'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
@@ -546,7 +549,8 @@ class OperationalReport():
                 'bit': '{{object.num_of_active_sam_cases}}'})
         columns.append({'name': _("# of Pregnant Women"), \
                 'bit': '{{object.num_of_pregnant_women}}'})
-        columns.append({'name': _("# Pregnant Women Referred for Danger Signs"),
+        columns.append({'name': _("# Pregnant Women Referred for Danger"\
+                                    " Signs"),
                 'bit': '{{object.num_pregnant_refferred}}'})
         columns.append({'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
