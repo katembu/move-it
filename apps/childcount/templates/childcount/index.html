@@ -70,9 +70,18 @@ position:relative;
         </td>
     </tr>
     <tr>
+        <td>Pateint Register</td>
+        <td>
+            <ul>
+            {% for clinic in clinics %}
+                <li><a href='/childcount/registerlist/{{ clinic.id }}'>{{ clinic }}</a></li>
+            {% endfor %}
+            </ul>
+        </td>
+    </tr>
+    <tr>
         <td>Patient List</td>
         <td><a href='/childcount/patients' class='html'>html</a> 
-            | <a href='/childcount/patients/pdf' class='pdf'>pdf</a>
         </td>
     </tr>
     <tr>

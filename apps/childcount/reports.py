@@ -10,11 +10,13 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.http import HttpResponse
 
+from cStringIO import StringIO
+
 try:
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import letter, landscape, A4
     from reportlab.platypus import Paragraph, SimpleDocTemplate, PageBreak
-    from reportlab.platypus import Table, TableStyle
+    from reportlab.platypus import Table, TableStyle, NextPageTemplate
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
@@ -28,6 +30,7 @@ from childcount.utils import RotatedParagraph
 
 from libreport.pdfreport import PDFReport, p
 from libreport.csvreport import CSVReport
+from libreport.pdfreport import MultiColDocTemplate
 
 from locations.models import Location
 
@@ -217,12 +220,8 @@ def operationalreport(request, rformat):
     filename = 'operationalreport.pdf'
     story = []
 
-    from cStringIO import StringIO
-    from reportlab.pdfgen import canvas
-    from django.http import HttpResponse
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=operationalreport.pdf'
-
     
     buffer = StringIO()
 
@@ -327,66 +326,69 @@ def operationalreportable(title, indata=None):
     return tb
 
 
-def registerlist(request, rformat):
+def registerlist(request, clinic_id):
     filename = 'registerlist.pdf'
+    try:
+        clinic = Clinic.objects.get(id=clinic_id)
+        response = HttpResponse(mimetype='application/pdf')
+        response['Cache-Control'] = ""
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        gen_patient_register_pdf(response, clinic)
+        return response
+    except Clinic.DoesNotExist:
+        HttpResponse(_(u"The specified clinic is not known"))
+
+
+def gen_patient_register_pdf(filename, location):
     story = []
-    
-    for location in Clinic.objects.all():
-        chws = TheCHWReport.objects.filter(location=location)
-        if not chws.count():
+    chws = TheCHWReport.objects.filter(location=location)
+    if not chws.count():
+        story.append(Paragraph(_("No report for %s.") % location, styleN))
+    for chw in chws:
+        households = chw.households()
+        if not households:
             continue
-        for chw in chws:
-            households = chw.households()
-            if not households:
-                continue
-            patients = []
-            boxes = []
-            for household in households:
-                trow = len(patients)
-                patients.append(household)
-                hs = ThePatient.objects.filter(household=household)\
-                                .exclude(health_id=household.health_id)\
-                                .order_by('household')
-                patients.extend(hs)
-                patients.append(ThePatient())
-                brow = len(patients) - 1
-                boxes.append({"top": trow, "bottom": brow})
+        patients = []
+        boxes = []
+        for household in households:
+            trow = len(patients)
+            patients.append(household)
+            hs = ThePatient.objects.filter(household=household)\
+                            .exclude(health_id=household.health_id)\
+                            .order_by('household')
+            patients.extend(hs)
+            patients.append(ThePatient())
+            brow = len(patients) - 1
+            boxes.append({"top": trow, "bottom": brow})
 
-            #Sauri specific start
-            if ThePatient.objects.filter(health_id='XXXXX'):
-                #default_household -> dh
-                dh = ThePatient.objects.get(health_id='XXXXX')
-                patients.append(dh)
-                hs = ThePatient.objects.filter(household=dh, \
-                                                chw=chw)\
-                                        .exclude(health_id=dh.health_id)
-                patients.extend(hs)
-                brow = len(patients) - 1
-                boxes.append({"top": trow, "bottom": brow})
-            #End Sauri specific
+        #Sauri specific start
+        if ThePatient.objects.filter(health_id='XXXXX'):
+            #default_household -> dh
+            dh = ThePatient.objects.get(health_id='XXXXX')
+            patients.append(dh)
+            hs = ThePatient.objects.filter(household=dh, \
+                                            chw=chw)\
+                                    .exclude(health_id=dh.health_id)
+            patients.extend(hs)
+            brow = len(patients) - 1
+            boxes.append({"top": trow, "bottom": brow})
+        #End Sauri specific
 
-            tb = thepatientregister(_(u"CHW: %s: %s") % (location, chw), \
-                                    patients, boxes)
-            story.append(tb)
+        tb = thepatientregister(_(u"CHW: %s: %s") % (location, chw), \
+                                patients, boxes)
+        story.append(tb)
+        story.append(PageBreak())
+        # 74 is the number of rows per page, should probably put this in a 
+        # variable
+        if (((len(patients) / 74) + 1 ) % 2) == 1 :
             story.append(PageBreak())
-            if (((len(patients) / 74) + 1 ) % 2) == 1 :
-                story.append(PageBreak())
-        #story.append(PageBreak())
-    from libreport.pdfreport import MultiColDocTemplate
-    from reportlab.platypus import NextPageTemplate
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
     doc = MultiColDocTemplate(filename, 2, pagesize = landscape(A4), \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
-    response = HttpResponse(mimetype='application/pdf')
-    response['Cache-Control'] = ""
-    response['Content-Disposition'] = "attachment; filename=%s" % filename
-    
-    response.write(open(filename).read())
-    os.remove(filename)
-    return response
+    return filename
 
 
 def thepatientregister(title, indata=None, boxes=None):
