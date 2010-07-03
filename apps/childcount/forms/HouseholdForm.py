@@ -16,16 +16,14 @@ class HouseholdForm(CCForm):
         'en': ['hed', 'head'],
         'fr': ['hed', 'head'],
     }
-
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_HH_AGE = 10
 
     def process(self, patient):
         #Check if tokens are less than 2 at least one person shd be house hold
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info. Expected: Patient health id"\
-                                " +hed | household healthid | mother health" \
-                                  " id or gurdian id"))
+            raise ParseError(_(u"Not enough info, expected: household " \
+                                "healthid | mother/gurdian healthid"))
 
         household = self.params[1]
 
@@ -37,11 +35,9 @@ class HouseholdForm(CCForm):
                 raise BadValue(_(u"Please enter the correct information " \
                                   "you cant be patient then gurdian/mother"))
         except Patient.DoesNotExist:
-            raise BadValue(_(u"Could not find head of household " \
-                                  "with health ID %(id)s. You must " \
-                                  "register the head of household " \
-                                  "first") % \
-                                  {'id': household})
+            raise BadValue(_(u"Could not find head of household with " \
+                              "healthID %(id)s. You must register the head" \
+                              "of household first") % {'id': household})
 
         #check mother/gurdian exist
         motherid = self.params[2]
@@ -54,9 +50,9 @@ class HouseholdForm(CCForm):
 
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find mother/gurdian " \
-                                  "with health ID %(motherid)s. You must " \
-                                  "register the mother/gurdian first") % \
-                                  {'motherid': motherid})
+                              "with health ID %(motherid)s. You must " \
+                              "register the mother/gurdian first") % \
+                              {'motherid': motherid})
 
         patient.mother = mother
 
