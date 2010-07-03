@@ -7,24 +7,40 @@
 {% endblock page_stylesheets %}
 
 {% block javascripts %}
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/raphael-min.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.raphael.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/enhance.js"></script>	
 	<script type="text/javascript" charset="utf-8">
-		// Run capabilities test
-		enhance({
-			loadScripts: [
-				'/static/childcount/scripts/excanvas.js',
-				'/static/childcount/scripts/jquery-1.3.2.min.js',
-				'/static/childcount/scripts/visualize.jQuery.js',
-				'/static/childcount/scripts/example.js'
-			],
-			loadStyles: [
-				'/static/childcount/stylesheets/visualize.css',
-				'/static/childcount/stylesheets/visualize-light.css'
-			]	
-		}); 
+
 
 // Run the script on DOM ready:
-	
+     window.onload = function () {
+                var r = Raphael("muacpie", width=400, height=250);
+
+                r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+                
+                //r.g.text(250, 30, "Interactive Pie Chart").attr({"font-size": 20});
+
+                var pie = r.g.piechart(280, 120, 100, {{risk|safe}}, legendpos: "west" });
+                pie.hover(function () {
+                    this.sector.stop();
+                    this.sector.scale(1.1, 1.1, this.cx, this.cy);
+                    if (this.label) {
+                        this.label[0].stop();
+                        this.label[0].scale(1.5);
+                        this.label[1].attr({"font-weight": 800});
+                    }
+                }, function () {
+                    this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+                    if (this.label) {
+                        this.label[0].animate({scale: 0.5}, 500, "bounce");
+                        this.label[1].attr({"font-weight": 400});
+                    }
+                });
+                
+            };
+ 
     </script>
 {% endblock javascripts %}
 
@@ -39,22 +55,26 @@
     font-weight: 600;
     text-align: center;
 }
+
 .dashboard h2{
     font-size: 20px;
 } 
 
 #ch-l {
 float:left;
+width:55%;
 
 }
 #ch-r {
 float:right;
 position:relative;
+border: 1px solid #eef;
+
 }
 </style>
 <div id='ch-bd'><div id='ch-l'>
 <h2>Child count Reports</h2>
-<table  cellpadding="0" cellspacing="0" border="0" id="report" class="display"> 
+<table  cellpadding="0" cellspacing="0" border="0" id="report" > 
     <tr>
         <td>General Operations</td>
         <td><a href='{% url add_chw %}' class='html'>Create CHW Account</a>
@@ -104,9 +124,11 @@ position:relative;
 </table>
 </div>
 <div id='ch-r'>
-<h2>Child count Reports</h2>
-
+<h2>Malnutrition </h2>
+<div id='muacpie'>
 </div>
+<h2>Malnutrition </h2>
+
 </div>
 
 <div style="clear:both;"></div>
@@ -145,6 +167,7 @@ position:relative;
         {% endfor %}
     </tbody>
 
-</table></div>
+</table>
+</div>
 {% endblock %}
 
