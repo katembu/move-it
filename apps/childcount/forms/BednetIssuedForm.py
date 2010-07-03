@@ -31,8 +31,8 @@ class BednetIssuedForm(CCForm):
             bnr = BednetReport.objects.get(\
                     encounter__patient=self.encounter.patient)
         except BednetReport.DoesNotExist:
-            raise ParseError(_(u"Report  Survey doesnt exist for Kamau"))
-
+            raise ParseError(_(u"Survey Report doesnt exist for %(pat)s") % \
+                                {'pat': patient})
         else:
             ssite = bnr.sleeping_sites
             active_bdnet = bnr.nets
@@ -41,8 +41,8 @@ class BednetIssuedForm(CCForm):
         #Check earlier report and modify
         try:
             pr = BednetIssuedReport.objects.filter(\
-                                    encounter__patient=self.encounter.patient).\
-                                    latest()
+                                    encounter__patient=self.encounter.patient)\
+                                    .latest()
         except BednetIssuedReport.DoesNotExist:
             pr = BednetIssuedReport(encounter=self.encounter)
 
@@ -53,4 +53,3 @@ class BednetIssuedForm(CCForm):
 
         pr.bednet_received = bdnt
         pr.save()
-
