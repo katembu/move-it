@@ -411,14 +411,22 @@ class TheCHWReport(CHW):
         num_comp = NutritionReport.objects.filter(\
                         status=NutritionReport.STATUS_SEVERE_COMP).count()
         num_eligible = TheCHWReport.total_muac_eligible()
-        info = {'%s%% HEALTHY' %\
-                int(round((num_healthy / float(num_eligible)) * 100)): num_healthy,
-                '%s%% MAM' %\
-                    int(round((num_mam / float(num_eligible)) * 100)): num_mam,
-                '%s%% SAM' %\
-                    int(round((num_sam / float(num_eligible)) * 100)): num_sam,
-                '%s%% SAM+' %\
-                    int(round((num_comp / float(num_eligible)) * 100)): num_comp}
+
+        unkwn = num_eligible - num_healthy - num_mam - num_sam - num_comp
+ 
+        hp = int(round((num_healthy / float(num_eligible)) * 100))
+        modp = int(round((num_mam / float(num_eligible)) * 100))
+        svp = int(round((num_sam / float(num_eligible)) * 100))
+        svcomp = int(round((num_comp / float(num_eligible)) * 100))
+        unkp = int(round((unkwn / float(num_eligible)) * 100))
+
+        info = _(u"[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {" \
+                        "legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% " \
+                        "Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe " \
+                        " Completely\", \"%(unkp)d%% Unknown\"]") % \
+                        {'hel': num_healthy, 'mmod': num_mam, 'sev': num_sam, \
+                            'sevcomp': num_comp, 'unkwn': unkwn, 'hp': hp, \
+                            'mp': modp, 'svp': svp, 'scm': svcomp, 'unkp': unkp}
         return info
 
     @classmethod
@@ -488,26 +496,23 @@ class LocationReport(Patient, Location):
 
         #get location rember to filter clinics, villages, parish
         loc = Location.objects.all()
-       
+
         for locsum in loc:
-            p = Patient.objects.filter(location=locsum,dob__gte=drange).count()
+            p = Patient.objects.filter(location=locsum, \
+                                            dob__gte=drange).count()
             return p
-
-        
-
 
     @classmethod
     def summary(cls):
         columns = []
-        
+
         columns.append(
             {'name': '', \
              'bit': '{{ object.name }}'})
-        
         columns.append(
             {'name': _("No. Children Registered".upper()), \
              'bit': '{{ object.num_of_sms }}'})
-        
+
         sub_columns = None
         return columns, sub_columns
 
@@ -595,6 +600,18 @@ class ClinicReport(Clinic):
         fr = FeverReport.objects.filter(encounter__patient__chw__location=self)
         return fr.count()
 
+    @property
+    def hvisit(self):
+        hvisit = HouseholdVisitReport.objects.filter(\
+                                    encounter__patient__chw__location=self)
+        return hvisit.count()
+
+    @property
+    def muacreport(self):
+        muac = NutritionReport.objects.filter(\
+                                    encounter__patient__chw__location=self)
+        return muac.count()
+
     @classmethod
     def summary(cls):
         columns = []
@@ -605,11 +622,14 @@ class ClinicReport(Clinic):
             {'name': _("#House hold".upper()), \
              'bit': '{{object.househoulds}}'})
         columns.append(
+            {'name': _("#House visits".upper()), \
+             'bit': '{{object.hvisit}}'})
+        columns.append(
             {'name': _("#Patients".upper()), \
              'bit': '{{object.registeredpatient}}'})
         columns.append(
-            {'name':  _("# not tied to household".upper()), \
-             'bit': '{{object.pntied_household}}'})
+            {'name': _("#Muac".upper()), \
+             'bit': '{{object.muacreport}}'})
         columns.append(
             {'name': "#RDT ".upper(), \
              'bit': '{{object.rdtreported}}'})
