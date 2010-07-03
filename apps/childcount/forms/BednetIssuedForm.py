@@ -19,18 +19,11 @@ class BednetIssuedForm(CCForm):
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
     def process(self, patient):
-        if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: number of " \
-                                " bednets issued."))
-        if not self.params[1].isdigit():
-            raise ParseError(_(u"Number of children who slept here last" \
-                                "nite should be number"))
-        bdnt = self.params[1]
         #check if house hold survey has been taken
         try:
-            bnr = BednetReport.objects.get(\
+            bnr = BedNetReport.objects.get(\
                     encounter__patient=self.encounter.patient)
-        except BednetReport.DoesNotExist:
+        except BedNetReport.DoesNotExist:
             raise ParseError(_(u"Survey Report doesnt exist for %(pat)s") % \
                                 {'pat': patient})
         else:
@@ -47,6 +40,13 @@ class BednetIssuedForm(CCForm):
             pr = BednetIssuedReport(encounter=self.encounter)
 
         pr.form_group = self.form_group
+
+        if len(self.params) < 2:
+            raise ParseError(_(u"Not enough info. Expected: number of " \
+                                " bednets issued."))
+        if not self.params[1].isdigit():
+            raise ParseError(_(u"Bednet issued should be number"))
+        bdnt = self.params[1]
 
         self.response = _(u"%(patient)s. Has received %(bdnt)s bednet") % \
                                     {'patient': patient, 'bdnt': bdnt}
