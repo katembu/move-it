@@ -19,8 +19,8 @@ class BednetCoverageForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info. Expected: number of " \
-                                "sleeping sites and number of bednets."))
+            raise ParseError(_(u"Not enough info. Expected: sleeping sites " \
+                                "| number of bednets."))
 
         try:
             bnr = BedNetReport.objects.get(encounter__patient=self.\
@@ -45,9 +45,9 @@ class BednetCoverageForm(CCForm):
                                 "number"))
 
         bnr.nets = int(self.params[2])
-        
         bnr.save()
 
-        self.response = _(u"%(patient)s:%(sites)d sleeping site(s), %(nets)d " \
-                            "bednet(s)") % {'patient': patient, \
-                            'sites': bnr.sleeping_sites, 'nets': bnr.nets}
+        self.response = _(u"%(patient)s:%(sites)d sleeping site(s), " \
+                           "%(nets)d bednet(s)") % \
+                           {'patient': patient, 'sites': bnr.sleeping_sites, \
+                            'nets': bnr.nets}
