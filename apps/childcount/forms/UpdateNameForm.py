@@ -18,8 +18,8 @@ class UpdateNameForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info, expected: Patient health" \
-                                " id +UNAME New Name"))
+            raise ParseError(_(u"Not enough info, expected: First Name | " \
+                                "Last Name"))
         #hold  previous Name
         pname = _(u" %(fname)s  %(lname)s ") % {'fname': patient.first_name, \
                    'lname': patient.last_name}
