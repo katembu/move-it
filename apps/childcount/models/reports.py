@@ -978,15 +978,15 @@ class SanitationReport(CCReport):
         verbose_name = _(u"Sanitation Report")
         verbose_name_plural= _(u"Sanitation Reports")
 
-    FLUSH = 'A'
-    VENTILATED_IMPROVED_PIT = 'B'
-    PITLAT_WITH_SLAB = 'C'
-    PITLAT_WITHOUT_SLAB = 'D'
-    COMPOSTING_TOILET = 'E'
-    BUCKET = 'F'
-    HANGING_TOILET_LAT = 'G'
-    NO_FACILITY_OR_BUSH = 'H'
-    OTHER = 'I'
+    FLUSH = 'FL'
+    VENTILATED_IMPROVED_PIT = 'VP'
+    PITLAT_WITH_SLAB = 'PY'
+    PITLAT_WITHOUT_SLAB = 'PN'
+    COMPOSTING_TOILET = 'CT'
+    BUCKET = 'BT'
+    HANGING_TOILET_LAT = 'HT'
+    NO_FACILITY_OR_BUSH = 'NS'
+    OTHER = 'Z'
 
     TOILET_LAT_CHOICES = (
         (FLUSH, _(u'Flush')),
@@ -1023,16 +1023,16 @@ class DrinkingWaterReport(CCReport):
         verbose_name = _(u"Drinking Water Report")
         verbose_name_plural = _(u"Drinking Water Reports")
 
-    PIPED_WATER = 'A'
-    PUBLIC_TAP_STANDPIPE = 'B'
-    TUBEWELL_BOREHOLE = 'C'
-    PROTECTED_DUG_WELL = 'D'
-    UNPROTECTED_DUG_WELL = 'E'
-    PROTECTED_SPRING = 'F'
-    UNPROTECTED_SPRING = 'G'
-    RAIN_COLLECTION = 'H'
-    SURFACE_WATER = 'I'
-    OTHER = 'J'
+    PIPED_WATER = 'PP'
+    PUBLIC_TAP_STANDPIPE = 'PT'
+    TUBEWELL_BOREHOLE = 'TB'
+    PROTECTED_DUG_WELL = 'PW'
+    UNPROTECTED_DUG_WELL = 'UW'
+    PROTECTED_SPRING = 'PS'
+    UNPROTECTED_SPRING = 'UP'
+    RAIN_COLLECTION = 'RW'
+    SURFACE_WATER = 'SU'
+    OTHER = 'Z'
 
     DRNKWATER_CHOICES = (
         (PIPED_WATER, _(u'Piped water into dwelling or yard/plot')),
@@ -1054,18 +1054,18 @@ class DrinkingWaterReport(CCReport):
         (TREAT_NO, _(u"No")),
         (TREAT_UNKOWN, _(u"Dont know")))
 
-    TREATMENT_METHOD_BOIL = 'A'
-    TREATMENT_METHOD_ADDBLEACH_CHLORINE = 'B'
-    TREATMENT_METHOD_CLOTH = 'C'
-    TREATMENT_METHOD_WATERFILTER = 'D'
-    TREATMENT_METHOD_SOLARDISINFECTION = 'E'
-    TREATMENT_METHOD_STAND_SETTLE = 'F'
-    TREATMENT_METHOD_OTHER = 'G'
-    TREATMENT_METHOD_DONTKNOW = 'H'
+    TREATMENT_METHOD_BOIL = 'BW'
+    TREATMENT_METHOD_ADDBLEACH_CHLORINE = 'AC'
+    TREATMENT_METHOD_CLOTH = 'SC'
+    TREATMENT_METHOD_WATERFILTER = 'WF'
+    TREATMENT_METHOD_SOLARDISINFECTION = 'SR'
+    TREATMENT_METHOD_STAND_SETTLE = 'LS'
+    TREATMENT_METHOD_OTHER = 'Z'
+    TREATMENT_METHOD_DONTKNOW = 'U'
     TREATMENT_CHOICES = (
-        (TREATMENT_METHOD_BOIL, _(u"Boil")),
+        (TREATMENT_METHOD_BOIL, _(u"Boil water")),
         (TREATMENT_METHOD_ADDBLEACH_CHLORINE, _(u"Add bleach/chlorine")),
-        (TREATMENT_METHOD_CLOTH, _(u"Strain it through a cloth")),
+        (TREATMENT_METHOD_CLOTH, _(u"Strain it through cloth")),
         (TREATMENT_METHOD_WATERFILTER, _(u"Use water filter: sand/ceramic")),
         (TREATMENT_METHOD_SOLARDISINFECTION, _(u"Solar disinfection")),
         (TREATMENT_METHOD_STAND_SETTLE, _(u"Let it stand and settle")),
