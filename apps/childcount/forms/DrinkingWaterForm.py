@@ -10,6 +10,7 @@ from childcount.models import Patient, Encounter
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.forms.utils import MultipleChoiceField
 
+
 class DrinkingWaterForm(CCForm):
     KEYWORDS = {
         'en': ['dw'],
@@ -20,19 +21,21 @@ class DrinkingWaterForm(CCForm):
     def process(self, patient):
         #Water source field
         wats_field = MultipleChoiceField()
-        wats_field.add_choice('en', DrinkingWaterReport.PIPED_WATER, 'A')
+        wats_field.add_choice('en', DrinkingWaterReport.PIPED_WATER, 'PP')
         wats_field.add_choice('en', DrinkingWaterReport.PUBLIC_TAP_STANDPIPE, \
-                                        'B')
-        wats_field.add_choice('en', DrinkingWaterReport.TUBEWELL_BOREHOLE,'C')
+                                    'PT')
+        wats_field.add_choice('en', DrinkingWaterReport.TUBEWELL_BOREHOLE, \
+                                    'TB')
         wats_field.add_choice('en', DrinkingWaterReport.PROTECTED_DUG_WELL, \
-                                        'D')
+                                    'PW')
         wats_field.add_choice('en', DrinkingWaterReport.UNPROTECTED_DUG_WELL, \
-                                        'E')
-        wats_field.add_choice('en', DrinkingWaterReport.PROTECTED_SPRING, 'F')
-        wats_field.add_choice('en', DrinkingWaterReport.UNPROTECTED_SPRING, 'G')
-        wats_field.add_choice('en', DrinkingWaterReport.RAIN_COLLECTION, 'H')
-        wats_field.add_choice('en', DrinkingWaterReport.SURFACE_WATER, 'I')
-        wats_field.add_choice('en', DrinkingWaterReport.OTHER, 'J')
+                                    'UW')
+        wats_field.add_choice('en', DrinkingWaterReport.PROTECTED_SPRING, 'PS')
+        wats_field.add_choice('en', DrinkingWaterReport.UNPROTECTED_SPRING, \
+                                    'UP')
+        wats_field.add_choice('en', DrinkingWaterReport.RAIN_COLLECTION, 'RW')
+        wats_field.add_choice('en', DrinkingWaterReport.SURFACE_WATER, 'SU')
+        wats_field.add_choice('en', DrinkingWaterReport.OTHER, 'Z')
 
         #treatment status choice
         treat_field = MultipleChoiceField()
@@ -43,21 +46,21 @@ class DrinkingWaterForm(CCForm):
         #method used
         tmethod_field = MultipleChoiceField()
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                        TREATMENT_METHOD_BOIL, 'A')
+                                        TREATMENT_METHOD_BOIL, 'BW')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_ADDBLEACH_CHLORINE, 'B')
+                                    TREATMENT_METHOD_ADDBLEACH_CHLORINE, 'AC')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_CLOTH, 'C')
+                                    TREATMENT_METHOD_CLOTH, 'SC')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_WATERFILTER, 'D')
+                                    TREATMENT_METHOD_WATERFILTER, 'WF')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_SOLARDISINFECTION, 'E')
+                                    TREATMENT_METHOD_SOLARDISINFECTION, 'SR')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_STAND_SETTLE, 'F')
+                                    TREATMENT_METHOD_STAND_SETTLE, 'LS')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_OTHER, 'G')
+                                    TREATMENT_METHOD_OTHER, 'Z')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_DONTKNOW, 'H')
+                                    TREATMENT_METHOD_DONTKNOW, 'U')
 
         try:
             drnkr = DrinkingWaterReport.objects.get(encounter=self.encounter)
@@ -70,7 +73,6 @@ class DrinkingWaterForm(CCForm):
         wats_field.set_language(self.chw.language)
         treat_field.set_language(self.chw.language)
         tmethod_field.set_language(self.chw.language)
-
 
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. What is source of water  " \
@@ -101,7 +103,7 @@ class DrinkingWaterForm(CCForm):
                 raise ParseError(_(u"|Which method do you use?| must be " \
                                 "%(choices)s.") % \
                                 {'choices': tmethod_field.choices_string()})
-            
+
             method_used = tmethod_field.get_db_value(self.params[3])
 
         drnkr.treatment_method = method_used
