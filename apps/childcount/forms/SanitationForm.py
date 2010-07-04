@@ -58,7 +58,7 @@ class SanitationForm(CCForm):
 
         toilet_latrine = self.params[1]
         if not sanit_field.is_valid_choice(toilet_latrine):
-            raise ParseError(_(u"|Toilet type | must be %(choices)s.") \
+            raise ParseError(_(u"| Toilet type | must be %(choices)s.") \
                              % {'choices': sanit_field.choices_string()})
 
         snr.toilet_lat = sanit_field.get_db_value(toilet_latrine)
