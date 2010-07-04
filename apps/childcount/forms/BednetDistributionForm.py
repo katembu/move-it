@@ -24,8 +24,8 @@ class BednetDistributionForm(CCForm):
             bnr = BedNetReport.objects.get(encounter__patient=self.\
                                         encounter.patient)
         except BedNetReport.DoesNotExist:
-            raise ParseError(_(u"Survey Report doesnt exist for %(pat)s") % \
-                                {'pat': patient})
+            raise ParseError(_(u"Report  Survey doesnt exist for " \
+                                "%(patient)s ") % {'patient': patient})
         else:
             ssite = bnr.sleeping_sites
             active_bdnet = bnr.nets
