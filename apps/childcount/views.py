@@ -58,8 +58,10 @@ def index(request):
     title = "ChildCount-2.0"
     info = {}
     info.update({"title": title})
+    info.update({'risk': nutrition_png(request)})
     info.update(clinic_report(request))
     clinics = Clinic.objects.all()
+    info.update({'sms': sms_png(request)})
     info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
@@ -274,6 +276,9 @@ def patient(request):
 
 def nutrition_png(request):
     nutdata = TheCHWReport.muac_summary()
+    return nutdata
+
+    '''
     filename = 'nutrition_summary.png'
     pie = PiePlot(filename, nutdata, 450, 300, shadow=True)
     pie.render()
@@ -285,10 +290,13 @@ def nutrition_png(request):
     response = HttpResponse(mimetype="image/png")
     response.write(data)
     return response
+    '''
 
 
 def sms_png(request):
     data = TheCHWReport.sms_per_day()
+    return data
+    '''    
     filename = 'sms.png'
     pie = BarPlot(filename, data, 450, 300)
     pie.render()
@@ -300,7 +308,7 @@ def sms_png(request):
     response = HttpResponse(mimetype="image/png")
     response.write(data)
     return response
-
+    '''
 
 def chart_summary(request):
     '''Generate chart'''

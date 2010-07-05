@@ -45,7 +45,8 @@ class DeathForm(CCForm):
 
         dod_str = ' '.join(self.params[1:])
         try:
-            dod, variance = DOBProcessor.from_dob(self.chw.language, dod_str)
+            dod, variance = DOBProcessor.from_dob(self.chw.language, dod_str, \
+                                                  self.date.date())
         except InvalidDOB:
             raise BadValue(_(u"Could not understand date of death: " \
                              "%(dod)s.") % \

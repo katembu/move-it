@@ -24,27 +24,29 @@ class BednetLookupForm(CCForm):
             bnr = BedNetReport.objects.get(encounter__patient=self.\
                                         encounter.patient)
         except BedNetReport.DoesNotExist:
-            raise ParseError(_(u"Report  Survey doesnt exist for Kamau"))
-
+            raise ParseError(_(u"Survey Report doesnt exist for %(pat)s" \
+                                "Contact your CHW please") % \
+                                {'pat': patient})
         else:
             ssite = int(bnr.sleeping_sites)
             active_bdnet = int(bnr.nets)
-            bdnt_needed = ssite - active_bdnet 
+            bdnt_needed = ssite - active_bdnet
             #check bednet issued to date
-            bdnt_issued = BednetIssuedReport.objects.filter(encounter__patient \
-                                    =self.encounter.patient).aggregate(stotal=\
-                                    Sum('bednet_received'))['stotal']
+            bdnt_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self.encounter.patient)\
+                                    .aggregate(\
+                                    stotal=Sum('bednet_received'))['stotal']
             if bdnt_issued is None:
-                bdnt_issued = 0  
+                bdnt_issued = 0
 
             #calculate bednet required to be issued
             bdnt_required = bdnt_needed - bdnt_issued
 
             if bdnt_required <= 0:
-                self.response = _(u"%(patient)s has already %(nets)d bednets " \
-                                  "for %(site)d .Last received from ") % \
-                                    {'patient': patient, 'nets': bdnt_needed, \
-                                     'site': bdnt_needed}
+                self.response = _(u"%(patient)s has already %(nets)d bednets" \
+                                   "for %(site)d .Last received from ") % \
+                                   {'patient': patient, 'nets': bdnt_needed, \
+                                    'site': bdnt_needed}
 
             else:
                 self.response = _(u"%(patient)s. Need %(nets)d bednets " \

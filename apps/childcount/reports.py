@@ -221,8 +221,8 @@ def operationalreport(request, rformat):
     story = []
 
     response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=operationalreport.pdf'
-    
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+
     buffer = StringIO()
 
     for location in Clinic.objects.all():
@@ -233,7 +233,7 @@ def operationalreport(request, rformat):
         story.append(tb)
         story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize = landscape(A4), \
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
@@ -243,6 +243,7 @@ def operationalreport(request, rformat):
     buffer.close()
     response.write(pdf)
     return response
+
 
 def operationalreportable(title, indata=None):
     styleH3.fontName = 'Times-Bold'
@@ -274,11 +275,9 @@ def operationalreportable(title, indata=None):
             Paragraph('E2', styleH3), Paragraph('F1', styleH3), \
             Paragraph('F2', styleH3)]]
 
-    #styleN.borderWidth = 0
-    #styleN.borderColor = colors.red 
     thirdrow = [Paragraph(cols[0]['name'], styleH3)]
-    thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), 2.3 * inch, \
-                                    0.25 * inch) for col in cols[1:]])
+    thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
+                                2.3 * inch, 0.25 * inch) for col in cols[1:]])
     data.append(thirdrow)
 
     fourthrow = [Paragraph('Target:', styleH3)]
@@ -286,7 +285,7 @@ def operationalreportable(title, indata=None):
                         '-', '100', '100', '-', '-', '-', '-', '100', '-', \
                         '-', '-', '100', '100', '&lt;=2', '0', '-']])
     data.append(fourthrow)
-    
+
     fifthrow = [Paragraph('<u>List of CHWs</u>', styleH3)]
     fifthrow.extend([Paragraph(item, styleN) for item in [''] * 19])
     data.append(fifthrow)
@@ -294,7 +293,7 @@ def operationalreportable(title, indata=None):
     rowHeights = [None, None, None, 2.3 * inch, 0.25 * inch, 0.25 * inch]
     colWidths = [1.5 * inch]
     colWidths.extend((len(cols) - 1) * [0.5 * inch])
-    
+
     if indata:
         for row in indata:
             ctx = Context({"object": row})
@@ -378,14 +377,14 @@ def gen_patient_register_pdf(filename, location):
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
-        # 74 is the number of rows per page, should probably put this in a 
+        # 74 is the number of rows per page, should probably put this in a
         # variable
-        if (((len(patients) / 74) + 1 ) % 2) == 1 :
+        if (((len(patients) / 74) + 1) % 2) == 1:
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize = landscape(A4), \
+    doc = MultiColDocTemplate(filename, 2, pagesize=landscape(A4), \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
     return filename
@@ -411,8 +410,6 @@ def thepatientregister(title, indata=None, boxes=None):
     hdata.extend((len(cols) - 1) * [''])
     data = [hdata]
 
-    #styleN.borderWidth = 0
-    #styleN.borderColor = colors.red 
     firstrow = [Paragraph(cols[0]['name'], styleH5)]
     firstrow.extend([Paragraph(col['name'], styleH5) for col in cols[1:]])
     data.append(firstrow)
@@ -448,7 +445,7 @@ def thepatientregister(title, indata=None, boxes=None):
                 ts.append((('BOX', (0, box['top'] + 2), \
                         (-1, box['bottom'] + 2), 0.5, colors.black)))
             else:
-                 ts.append((('BOX', (0, box['top'] + 2), \
+                ts.append((('BOX', (0, box['top'] + 2), \
                         (-1, box['bottom'] + 2), 0.5, colors.black)))
             ts.append((('BACKGROUND', (0, box['top'] + 2), \
                         (1, box['top'] + 2), colors.lightgrey)))

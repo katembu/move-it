@@ -21,16 +21,18 @@ class SanitationForm(CCForm):
     def process(self, patient):
         #Sanitation type source field
         sanit_field = MultipleChoiceField()
-        sanit_field.add_choice('en', SanitationReport.FLUSH, 'A')
-        sanit_field.add_choice('en', SanitationReport.VENTILATED_IMPROVED_PIT, \
-                                        'B')
-        sanit_field.add_choice('en', SanitationReport.PITLAT_WITH_SLAB,'C')
-        sanit_field.add_choice('en', SanitationReport.PITLAT_WITHOUT_SLAB, 'D')
-        sanit_field.add_choice('en', SanitationReport.COMPOSTING_TOILET, 'E')
-        sanit_field.add_choice('en', SanitationReport.BUCKET, 'F')
-        sanit_field.add_choice('en', SanitationReport.HANGING_TOILET_LAT, 'G')
-        sanit_field.add_choice('en', SanitationReport.NO_FACILITY_OR_BUSH, 'H')
-        sanit_field.add_choice('en', SanitationReport.OTHER, 'I')
+        sanit_field.add_choice('en', SanitationReport.FLUSH, 'FL')
+        sanit_field.add_choice('en', \
+                                SanitationReport.VENTILATED_IMPROVED_PIT, 'VP')
+        sanit_field.add_choice('en', SanitationReport.PITLAT_WITH_SLAB, 'PN')
+        sanit_field.add_choice('en', SanitationReport.PITLAT_WITHOUT_SLAB, \
+                                    'PY')
+        sanit_field.add_choice('en', SanitationReport.COMPOSTING_TOILET, 'CT')
+        sanit_field.add_choice('en', SanitationReport.BUCKET, 'BT')
+        sanit_field.add_choice('en', SanitationReport.HANGING_TOILET_LAT, 'HT')
+        sanit_field.add_choice('en', SanitationReport.NO_FACILITY_OR_BUSH, \
+                                     'NS')
+        sanit_field.add_choice('en', SanitationReport.OTHER, 'Z')
 
         #share status choice
         share_field = MultipleChoiceField()
@@ -49,15 +51,14 @@ class SanitationForm(CCForm):
         sanit_field.set_language(self.chw.language)
         share_field.set_language(self.chw.language)
 
-
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. What kind of toilet " \
-                                "facility do members of your household use | " \
-                                "do you share?"))
+                                "facility do members of your household " \
+                                "use | do you share?"))
 
         toilet_latrine = self.params[1]
         if not sanit_field.is_valid_choice(toilet_latrine):
-            raise ParseError(_(u"|Toilet type | must be %(choices)s.") \
+            raise ParseError(_(u"| Toilet type | must be %(choices)s.") \
                              % {'choices': sanit_field.choices_string()})
 
         snr.toilet_lat = sanit_field.get_db_value(toilet_latrine)
@@ -72,5 +73,3 @@ class SanitationForm(CCForm):
         snr.share_toilet = share_toilet
 
         snr.save()
-
-

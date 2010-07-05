@@ -72,7 +72,8 @@ class DeathCommand(CCCommand):
                                     "%(expected)s") % \
                                     {'expected': expected})
 
-            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1])
+            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1], \
+                                                         self.date.date())
 
         if not dob:
             raise ParseError(_(u"Could not understand age or " \
@@ -105,7 +106,8 @@ class DeathCommand(CCCommand):
                                 " death in the format DDMMYY.") % \
                                     {'string': tokens[0]})
         try:
-            dod, variance = DOBProcessor.from_dob(lang, tokens[0])
+            dod, variance = DOBProcessor.from_dob(lang, tokens[0], \
+                                                  self.date.date())
         except:
             raise ParseError(_(u"Could not understand date_of_death of "\
                                 "%(string)s. Please provide an exact date of"\

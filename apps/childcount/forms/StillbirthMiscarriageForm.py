@@ -57,7 +57,8 @@ class StillbirthMiscarriageForm(CCForm):
 
         doi_str = ' '.join(self.params[1:])
         try:
-            doi, variance = DOBProcessor.from_dob(self.chw.language, doi_str)
+            doi, variance = DOBProcessor.from_dob(self.chw.language, doi_str, \
+                                                  self.date.date())
         except InvalidDOB:
             raise BadValue(_(u"Could not understand date: %(dod)s.") %\
                              {'dod': doi_str})

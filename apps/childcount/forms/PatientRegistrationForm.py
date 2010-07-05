@@ -28,13 +28,17 @@ class PatientRegistrationForm(CCForm):
     gender_field = MultipleChoiceField()
     gender_field.add_choice('en', Patient.GENDER_MALE, 'M')
     gender_field.add_choice('en', Patient.GENDER_FEMALE, 'F')
+    gender_field.add_choice('fr', Patient.GENDER_MALE, 'M')
+    gender_field.add_choice('fr', Patient.GENDER_FEMALE, 'F')
 
-    PREVIOUS_ID = {'en': 'H'}
+    PREVIOUS_ID = {'en': 'H', 'fr': 'H'}
 
     SURNAME_FIRST = False
 
     def pre_process(self):
         health_id = self.health_id
+
+        print self.date
 
         try:
             p = Patient.objects.get(health_id__iexact=health_id)
@@ -101,7 +105,8 @@ class PatientRegistrationForm(CCForm):
                                     "%(expected)s") % \
                                     {'expected': expected})
 
-            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1])
+            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1], \
+                                                         self.date.date())
 
             if dob:
                 patient.dob = dob
