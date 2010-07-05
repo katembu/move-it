@@ -55,7 +55,7 @@ class DOBProcessor:
     MAX_AGE = 105
 
     @classmethod
-    def from_age_or_dob(cls, lang, age_or_dob):
+    def from_age_or_dob(cls, lang, age_or_dob, date_ref=None):
         age_or_dob = age_or_dob.strip().lower()
 
         if len(age_or_dob) == 0:
@@ -66,38 +66,38 @@ class DOBProcessor:
             age_or_dob = unicode(age_or_dob)
 
         try:
-            dob, variance = cls.from_age(lang, age_or_dob)
+            dob, variance = cls.from_age(lang, age_or_dob, date_ref)
         except InvalidAge:
             pass
         else:
-            if cls.is_valid_dob(lang, age_or_dob):
+            if cls.is_valid_dob(lang, age_or_dob, date_ref):
                 raise AmbiguousAge
             return dob, variance
 
         try:
-            dob, variance = cls.from_dob(lang, age_or_dob)
+            dob, variance = cls.from_dob(lang, age_or_dob, date_ref)
         except InvalidDOB:
             return None, None
         else:
             return dob, variance
 
     @classmethod
-    def is_valid_dob_or_age(cls, lang, age_or_dob):
-        return cls.is_valid_dob(lang, age_or_dob) or \
-               cls.is_valid_age(lang, age_or_dob)
+    def is_valid_dob_or_age(cls, lang, age_or_dob, date_ref=None):
+        return cls.is_valid_dob(lang, age_or_dob, date_ref) or \
+               cls.is_valid_age(lang, age_or_dob, date_ref)
 
     @classmethod
-    def is_valid_dob(cls, lang, dob_string):
+    def is_valid_dob(cls, lang, dob_string, date_ref=None):
         try:
-            dob, variance = cls.from_dob(lang, dob_string)
+            dob, variance = cls.from_dob(lang, dob_string, date_ref)
         except InvalidDOB:
             return False
         return True
 
     @classmethod
-    def is_valid_age(cls, lang, age_string):
+    def is_valid_age(cls, lang, age_string, date_ref=None):
         try:
-            dob, variance = cls.from_age(lang, age_string)
+            dob, variance = cls.from_age(lang, age_string, date_ref)
         except InvalidAge:
             return False
         return True
@@ -109,7 +109,12 @@ class DOBProcessor:
         return list(itertools.chain(*cls.UNITS[lang].values()))
 
     @classmethod
-    def from_dob(cls, lang, string):
+    def from_dob(cls, lang, string, date_ref=None):
+
+        # if no reference date specified, default to today
+        if not date_ref:
+            date_ref = date.today()
+
         FIELD_DELIMTERS = ['\\', '/', '.', ',', '-']
         string = string.strip().lower()
         variance = 0
@@ -157,7 +162,7 @@ class DOBProcessor:
         if match and int(match.groupdict()['m']) <= 12:
             month = int(match.groupdict()['m'])
             year = int(match.groupdict()['y'])
-            if date(int('2%03d' % year), month, 1) > date.today():
+            if date(int('2%03d' % year), month, 1) > date_ref:
                 year_prefix = 19
             else:
                 year_prefix = 20
@@ -165,7 +170,7 @@ class DOBProcessor:
             variance = 15
             dob = date(year=year, month=month, day=15)
 
-            if (date.today().year - dob.year) > cls.MAX_AGE:
+            if (date_ref.year - dob.year) > cls.MAX_AGE:
                 raise InvalidDOB
             return dob, variance
 
@@ -237,7 +242,7 @@ class DOBProcessor:
                     dob = date(int('2%03d' % year), month, day)
                 except ValueError:
                     raise InvalidDOB
-                if dob > date.today():
+                if dob > date_ref:
                     year = int('19%02d' % year)
                 else:
                     year = int('2%03d' % year)
@@ -247,7 +252,7 @@ class DOBProcessor:
             except ValueError:
                 raise InvalidDOB
 
-            if (date.today().year - dob.year) > cls.MAX_AGE:
+            if (date_ref.year - dob.year) > cls.MAX_AGE:
                 raise InvalidDOB
             variance = 0
             return dob, variance
@@ -256,7 +261,12 @@ class DOBProcessor:
         raise InvalidDOB
 
     @classmethod
-    def from_age(cls, lang, string):
+    def from_age(cls, lang, string, date_ref):
+
+        # if no reference date specified, default to today
+        if not date_ref:
+            date_ref = date.today()
+
         MONTH_IN_DAYS = 30.4368499
         MONTH_IN_WEEKS = 4.34812141
         YEAR_IN_DAYS = 365.242199
@@ -344,7 +354,7 @@ class DOBProcessor:
             age_in_days = buckets[cls.DAYS] + buckets[cls.WEEKS] * 7 + \
                           buckets[cls.MONTHS] * MONTH_IN_DAYS + \
                           buckets[cls.YEARS] * YEAR_IN_DAYS
-            dob = date.today() - timedelta(days=age_in_days)
+            dob = date_ref - timedelta(days=age_in_days)
 
         elif buckets[cls.WEEKS] > 0:
             variance = 3
@@ -355,7 +365,7 @@ class DOBProcessor:
                 age_in_weeks += 0.5
             else:
                 age_in_weeks -= 0.5
-            dob = date.today() - timedelta(weeks=age_in_weeks)
+            dob = date_ref - timedelta(weeks=age_in_weeks)
 
         elif buckets[cls.MONTHS] > 0:
             variance = 15
@@ -365,7 +375,7 @@ class DOBProcessor:
                 age_in_weeks += MONTH_IN_WEEKS * 0.5
             else:
                 age_in_weeks -= MONTH_IN_WEEKS * 0.5
-            dob = date.today() - timedelta(weeks=age_in_weeks)
+            dob = date_ref - timedelta(weeks=age_in_weeks)
 
         elif buckets[cls.YEARS] > 0:
             variance = 182
@@ -374,11 +384,11 @@ class DOBProcessor:
                 age_in_weeks += YEAR_IN_WEEKS * 0.5
             else:
                 age_in_weeks -= YEAR_IN_WEEKS * 0.5
-            dob = date.today() - timedelta(weeks=age_in_weeks)
+            dob = date_ref - timedelta(weeks=age_in_weeks)
         else:
             raise InvalidAge
 
-        if (date.today().year - dob.year) > cls.MAX_AGE:
+        if (date_ref.year - dob.year) > cls.MAX_AGE:
             raise InvalidAge
 
         return dob, variance
