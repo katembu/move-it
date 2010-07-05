@@ -483,9 +483,13 @@ class TheCHWReport(CHW):
             end = day_end(day['date'])
             num = IncomingMessage.objects.filter(received__gte=start, \
                                            received__lte=end).count()
+            total_error_sms = OutgoingMessage.objects.filter(sent__gte=start, \
+                                           sent__lte=end, \
+                                    text__icontains='error').count()
+            c_sms = num - total_error_sms
 
-            data.append({'day': day["day"], 'total': num, 'correcct_sm': num,\
-                         'wrong_sms': num})
+            data.append({'day': day["day"], 'total': num, 'correcct_sm': c_sms,\
+                         'wrong_sms': total_error_sms})
         return data
 
 
