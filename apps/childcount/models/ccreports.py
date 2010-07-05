@@ -477,13 +477,15 @@ class TheCHWReport(CHW):
     @classmethod
     def sms_per_day(cls):
         days_of_the_week = get_dates_of_the_week()
-        data = {}
+        data = []
         for day in days_of_the_week:
             start = day_start(day['date'])
             end = day_end(day['date'])
             num = IncomingMessage.objects.filter(received__gte=start, \
                                            received__lte=end).count()
-            data.update({day["day"]: num})
+
+            data.append({'day': day["day"], 'total': num, 'correcct_sm': num,\
+                         'wrong_sms': num})
         return data
 
 
