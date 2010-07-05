@@ -15,7 +15,7 @@ from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport, FollowUpReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week, \
-                                get_median
+                                get_median, seven_days_to_date
 
 from logger.models import IncomingMessage, OutgoingMessage
 
@@ -476,7 +476,7 @@ class TheCHWReport(CHW):
 
     @classmethod
     def sms_per_day(cls):
-        days_of_the_week = get_dates_of_the_week()
+        days_of_the_week = seven_days_to_date()
         data = []
         for day in days_of_the_week:
             start = day_start(day['date'])
