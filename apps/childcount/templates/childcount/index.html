@@ -26,11 +26,12 @@
 
 #ch-l {
 float:left;
-
+width: 50%
 }
 #ch-r {
 float:right;
 position:relative;
+width: 50%
 }
 </style>
 <div id='ch-bd'><div id='ch-l'>
@@ -44,48 +45,26 @@ position:relative;
 		    <h2>ChildCount Reports</h2>
 		</div>
 	    <div class="bd">
-<table  cellpadding="0" cellspacing="0" border="0" id="report" class="display"> 
-    <tr>
-        <th>Report Name</th><th>&nbsp;</th>
-    </tr>
-    <tr>
-        <td>Operational Report</td>
-        <td><a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
-        </td>
-    </tr>
-    <tr>
-        <td>Patient Register</td>
-        <td>
-            <ul>
-            {% for clinic in clinics %}
-                <li><a href='/childcount/registerlist/{{ clinic.id }}'>{{ clinic }}</a></li>
-            {% endfor %}
-            </ul>
-        </td>
-    </tr>
-    <tr>
-        <td>Patient List</td>
-        <td><a href='/childcount/patients' class='html'>html</a> 
-        </td>
-    </tr>
-    <tr>
-        <td>Under five Patient List</td>
-        <td><a href='/childcount/patients/underfive/html' class='html'>html</a> 
-            | <a href='/childcount/patients/underfive/pdf' class='pdf'>pdf</a>
-        </td>
-    </tr>
-    <tr>
-        <td>Patient list per community health worker</td>
-        <td><a href='/childcount/patients_per_chw/pdf' class='pdf'>pdf</a>
-        </td>
-    </tr>
-    <tr>
-        <td>Under five list per community health worker</td>
-        <td><a href='/childcount/under_five' class='pdf'>pdf</a>
-        </td>
-    </tr>
-
-</table>
+        <ul>
+            <li>Operational Report <a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
+            </li>
+            <li>Patient Register
+                <ul>
+                {% for clinic in clinics %}
+                    <li><a href='/childcount/registerlist/{{ clinic.id }}'>{{ clinic }}</a></li>
+                {% endfor %}
+                </ul>
+            </li>
+            <li>Patient List <a href='/childcount/patients' class='html'>html</a> 
+            </li>
+            <li>Under five Patient List <a href='/childcount/patients/underfive/html' class='html'>html</a> 
+                | <a href='/childcount/patients/underfive/pdf' class='pdf'>pdf</a>
+            </li>
+            <li>Patient list per community health worker <a href='/childcount/patients_per_chw/pdf' class='pdf'>pdf</a>
+            </li>
+            <li>Under five list per community health worker <a href='/childcount/under_five' class='pdf'>pdf</a>
+            </li>
+        </ul>
     </div>
 
     </div>
