@@ -38,6 +38,8 @@ class PatientRegistrationForm(CCForm):
     def pre_process(self):
         health_id = self.health_id
 
+        print self.date
+
         try:
             p = Patient.objects.get(health_id__iexact=health_id)
         except Patient.DoesNotExist:
@@ -103,7 +105,8 @@ class PatientRegistrationForm(CCForm):
                                     "%(expected)s") % \
                                     {'expected': expected})
 
-            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1])
+            dob, variance = DOBProcessor.from_age_or_dob(lang, tokens[i + 1], \
+                                                         self.date.date())
 
             if dob:
                 patient.dob = dob

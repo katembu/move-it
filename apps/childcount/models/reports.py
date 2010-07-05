@@ -976,7 +976,7 @@ class SanitationReport(CCReport):
         app_label = 'childcount'
         db_table = 'cc_sanitation_rpt'
         verbose_name = _(u"Sanitation Report")
-        verbose_name_plural= _(u"Sanitation Reports")
+        verbose_name_plural = _(u"Sanitation Reports")
 
     FLUSH = 'FL'
     VENTILATED_IMPROVED_PIT = 'VP'

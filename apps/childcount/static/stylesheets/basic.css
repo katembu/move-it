@@ -1,10 +1,45 @@
-/* page styles */
-body { font-family: "Segoe UI", Frutiger,Tahoma,Helvetica,"Helvetica Neue", Arial, sans-serif; }
-table {  border-collapse: collapse; }
-td, th { 
-   text-align: center; 
-   border: 1px solid #ddd; 
-   padding:2px 5px; 
-   }
-   
-caption {margin: 0 0 .5em; font-weight: bold;  }
+/* block styles */
+.block .ft .first {
+    width:39px;
+    background:url(/static/childcount/images/centerbox_bl.gif) no-repeat left bottom;
+    height:19px;
+    float:left;
+}
+.block .ft .last {
+    background:url(/static/childcount/images/centerbox_br.gif) no-repeat right bottom;
+    width:39px;
+    height:19px;
+    float:right;
+}
+.block .bd {
+    background:url(/static/childcount/images/centerbox_12.gif) repeat-y right;
+    padding:15px 30px;
+    display: block;
+}
+.block .block_child {
+    background: url(/static/childcount/images/centerbox_l.gif) repeat-y left;
+}
+.block .hd {
+    background: url(/static/childcount/images/centerbox_lt.gif) no-repeat 0 0;
+}
+.block .hd h2 {
+    font-family:"Lucida Grand", Arial, Helvetica, sans-serif;
+    background:url(/static/childcount/images/centerbox_t.gif) no-repeat right bottom;
+    margin:0px;
+    padding-left:20px;
+    padding-bottom: 10px;
+    color:#555;
+    font-size:18px;
+    font-weight:normal;
+    border-bottom: 0px;
+}
+.block .ft a {
+    float:left;
+    padding: 10px;
+}
+.block .ft {
+    padding:0px;
+    background:url(/static/childcount/images/centerbox_b_bg.gif) repeat-x bottom;
+    height:19px;
+    clear: both;
+}

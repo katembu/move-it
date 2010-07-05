@@ -5,6 +5,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+
 class CodedItem(models.Model):
 
     TYPE_DANGER_SIGN = 'DS'
@@ -87,8 +88,6 @@ class CodedItem(models.Model):
         ordering = ('type', 'code')
         unique_together = ('type', 'code')
 
-
-
     TYPE_CHOICES = (
         (TYPE_DANGER_SIGN, _(u"Danger sign")),
         (TYPE_FAMILY_PLANNING, _(u"Family planning")),
@@ -115,4 +114,3 @@ class CodedItem(models.Model):
             if local_code == value[0]:
                 return CodedItem.objects.get(code=key)
         raise KeyError(u"No matching Coded Item.")
-        
