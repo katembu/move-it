@@ -561,7 +561,21 @@ def get_dates_of_the_week(givendate=None):
     i = 0
     for i in range(0, 6):
         day = start_of_the_week + timedelta(i)
-        week.append({'date': day, 'day': day.strftime("%A")})
+        week.append({'date': day, 'day': day.strftime("%a")})
+    return week
+
+
+def seven_days_to_date(givendate=None):
+    if not givendate:
+        today = datetime.today()
+    else:
+        today = givendate
+    start_of_the_week = today - timedelta(6)
+    week = []
+    i = 0
+    for i in range(0, 7):
+        day = start_of_the_week + timedelta(i)
+        week.append({'date': day, 'day': day.strftime("%a")})
     return week
 
 
