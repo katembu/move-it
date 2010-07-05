@@ -6,7 +6,37 @@
 {% endblock page_stylesheets %}
 
 {% block javascripts %}
+<script type="text/javascript" src="http://www.google.com/jsapi">
+    </script>
+<script type="text/javascript">
 
+     // google.load('visualization', '1',       {packages: ['piechart']});
+  google.load('visualization', '1', {packages: ['corechart']});
+    </script>
+    <script type="text/javascript">
+function drawVisualization() {
+  // Create and populate the data table.
+  var data = new google.visualization.DataTable();
+  data.addColumn('string', 'x');
+  data.addColumn('number', 'Total');
+  data.addColumn('number', 'Correct');
+  data.addColumn('number', 'Error');
+{% for sm in sms %}
+	data.addRow(["{{sm.day|safe}}", {{sm.total|safe}}, {{sm.correcct_sm|safe}}, {{sm.wrong_sms|safe}}]);    
+
+{% endfor %}
+
+ 
+  // Create and draw the visualization.
+  new google.visualization.LineChart(document.getElementById('visualize')).
+      draw(data, {curveType: "function",
+                  	width: 400, height: 230, 
+			title: 'SMS Received ',
+			colors:['black','green', 'red']}
+          );
+}
+google.setOnLoadCallback(drawVisualization);
+</script>
 {% endblock javascripts %}
 
 {% block page_tabs %}
@@ -79,11 +109,11 @@ width: 50%
     <div class='block'>
     <div class="block_child">
 	    <div class="hd">
-		    <h2>&nbsp;
+		    <h2>SMS Graph
 		    </h2>
 	    </div>
-	    <div class="bd">
-	    <p>Charts here nnnnnnnnnn nnnnnnnnnnnn nnnnnn</p>
+	    <div class="bd" >
+	    	<div id='visualize'></div>
 	    </div>
 
     </div>
