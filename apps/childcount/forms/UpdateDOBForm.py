@@ -30,7 +30,8 @@ class UpdateDOBForm(CCForm):
             raise BadValue(_(u"Information not enough healthid | +udob | " \
                                 "New DOB"))
 
-        dob, variance = DOBProcessor.from_age_or_dob(lang, self.params[1:])
+        dob, variance = DOBProcessor.from_age_or_dob(lang, self.params[1:], \
+                                                     self.date.date())
         
         if dob:
             patient.dob = dob
