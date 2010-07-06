@@ -22,8 +22,7 @@ from locations.models import Location
 
 
 from childcount.models import Patient, CHW, Configuration, Clinic
-from childcount.models.ccreports import TheCHWReport, LocationReport, \
-                                ClinicReport
+from childcount.models.ccreports import TheCHWReport, ClinicReport
 from childcount.models.bdntreports import BdnethouseHold
 from childcount.utils import clean_names
 
@@ -310,44 +309,6 @@ def sms_png(request):
     return response
     '''
 
-def chart_summary(request):
-    '''Generate chart'''
-    report_title = _(u"Activity per location in last 28 days")
-    rows = []
-    
-    columns, sub_columns =  LocationReport.summary()
-
-    #get location rember to filter clinics, villages, parish
-    reports = Location.objects.all()
-    i = 0
-    for report in reports:
-        
-        drange = date.today() - timedelta(int(28))
-        #
-        p = Patient.objects.filter(location=report,created_on__gte=drange).count()
-        
-        if p >= 1 :
-            i += 1
-            row = {}
-            row["cells"] = []
-            row["cells"] = [{'value': \
-                                Template(col['bit']).render(Context({'object': \
-                                    report}))} for col in columns]
-            row["cells"][1] = {"value": p}
-            rows.append(row)
-        else:
-            pass
-
-    
-    print columns
-    print sub_columns
-    
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title}
-
-    return render_to_response(\
-                request, 'childcount/chart.html', context_dict)
 
 def bednet_summary(request):
     '''House Patients page '''
