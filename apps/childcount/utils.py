@@ -473,7 +473,7 @@ def respond_exceptions(func):
         try:
             return func(self, *args)
         except Exception, e:
-            message.respond(_(u"An error has occured (%(e)s).") % {'e': e}, \
+            message.respond(_(u"An error has occured: %(e)s") % {'e': e}, \
                             'error')
             raise
     return wrapper

@@ -634,7 +634,7 @@ class ClinicReport(Clinic):
             {'name': _("#Patients".upper()), \
              'bit': '{{object.registeredpatient}}'})
         columns.append(
-            {'name': _("#Muac".upper()), \
+            {'name': _("#MUAC".upper()), \
              'bit': '{{object.muacreport}}'})
         columns.append(
             {'name': "#RDT ".upper(), \
