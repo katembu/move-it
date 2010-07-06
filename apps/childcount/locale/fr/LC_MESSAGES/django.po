@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-18 12:58+0000\n"
-"PO-Revision-Date: 2010-07-05 15:27-0000\n"
+"PO-Revision-Date: 2010-07-06 09:21-0000\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -252,7 +252,7 @@ msgstr "Vous avez encore: %(health_id)s"
 
 #: commands/IssueHealthIdCommand.py:39
 msgid "No health Ids available now! Please"
-msgstr ""
+msgstr "Pas de No. de santé disponible!"
 
 #: commands/IssueHealthIdCommand.py:51
 #, python-format
@@ -1523,7 +1523,7 @@ msgstr "n"
 
 #: models/CodedItem.py:55
 msgid "Norplant"
-msgstr ""
+msgstr "Norplant"
 
 #: models/CodedItem.py:56
 msgid "p"
@@ -1559,7 +1559,7 @@ msgstr "bp"
 
 #: models/CodedItem.py:66
 msgid "Birth plan"
-msgstr ""
+msgstr "Plan de grossesse"
 
 #: models/CodedItem.py:67
 msgid "ec"
@@ -2249,11 +2249,11 @@ msgstr "Combien de semaines passées depuis la dernière visite de soins prénat
 
 #: models/reports.py:376
 msgid "Sauri Pregnancy Report"
-msgstr ""
+msgstr "Compte-rendu de grossesse Sauri"
 
 #: models/reports.py:377
 msgid "Sauri Pregnancy Reports"
-msgstr ""
+msgstr "Comptes-rendus de grossesse Sauri"
 
 #: models/reports.py:387
 #: models/reports.py:397
@@ -2366,11 +2366,11 @@ msgstr "Est-ce que l'enfant est à jour dans ses vaccins?"
 
 #: models/reports.py:549
 msgid "Sauri Under One Report"
-msgstr ""
+msgstr "Compte-rendu des moins d'unan Sauri"
 
 #: models/reports.py:550
 msgid "Sauri Under One Reports"
-msgstr ""
+msgstr "Comptes-rendus des moins d'un an Sauri"
 
 #: models/reports.py:563
 msgid "Nutrition Report"
