@@ -176,6 +176,22 @@ class TheCHWReport(CHW):
         num = NutritionReport.objects.filter(created_by=self, \
                                 status=NutritionReport.STATUS_MODERATE).count()
         return num
+    
+    def mam_cases(self, startDate=None, endDate=None):
+        return NutritionReport.objects.filter(encounter__chw=self, \
+                                encounter__encounter_date__gte=startDate, \
+                                encounter__encounter_date__lte=endDate).count()
+                                
+    def severe_mam_cases(self, startDate=None, endDate=None):
+        num = NutritionReport.objects.filter(encounter__chw=self, \
+                            status=NutritionReport.STATUS_SEVERE_COMP, \
+                            encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()
+        num += NutritionReport.objects.filter(encounter__chw=self, \
+                                status=NutritionReport.STATUS_SEVERE, \
+                            encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()
+        return num
 
     @property
     def num_of_healthy(self):
@@ -223,6 +239,11 @@ class TheCHWReport(CHW):
     def num_of_householdvisits(self):
         return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
 
+    def household_visit(self, startDate=None, endDate=None):
+        return HouseholdVisitReport.objects.filter(encounter__chw=self, \
+                                encounter__encounter_date__gte=startDate, \
+                                encounter__encounter_date__lte=endDate).count()
+                                
     def percentage_ontime_visits(self):
         households = self.households()
         num_on_time = 0
@@ -272,7 +293,12 @@ class TheCHWReport(CHW):
         fr = FeverReport.objects.filter(encounter__patient__dob__lte=sixtym, \
                                         encounter__chw=self)
         return fr.count()
-    
+
+    def rdt_cases(self, startDate=None, endDate=None):
+        return FeverReport.objects.filter(encounter__chw=self, \
+                                encounter__encounter_date__gte=startDate, \
+                                encounter__encounter_date__lte=endDate).count()
+                                   
     def num_underfive_diarrhea(self):
         #TODO
         return 0
@@ -400,6 +426,26 @@ class TheCHWReport(CHW):
             return None
         return (now - last_sms[0].received).days
 
+    def activity_summary(self):
+        today = datetime.today() 
+        startDate = today - timedelta(today.weekday())
+        p = {}
+        
+        p['sdate'] = startDate.day
+        p['edate'] = today.day()
+        p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
+                            endDate=today)
+        p['numhvisit'] = self.household_visit(startDate=startDate, \
+                            endDate=today)
+        p['muac'] = self.mam_cases(startDate=startDate, endDate=today)
+        p['rdt'] = self.rdt_cases(startDate=startDate, endDate=today)
+        p['household'] = self.number_of_households
+        p['tclient'] = self.num_of_patients
+        p['ufive'] = self.num_of_underfive
+
+
+        return p
+
     @classmethod
     def muac_summary(cls):
         num_healthy = NutritionReport.objects.filter(\
@@ -486,41 +532,22 @@ class TheCHWReport(CHW):
             total_error_sms = OutgoingMessage.objects.filter(sent__gte=start, \
                                            sent__lte=end, \
                                     text__icontains='error').count()
-            c_sms = num - total_error_sms
+            csms = num - total_error_sms
 
-            data.append({'day': day["day"], 'total': num, 'correcct_sm': c_sms,\
-                         'wrong_sms': total_error_sms})
+            hvr = HouseholdVisitReport.objects.filter(\
+                            encounter__encounter_date__gt=start, \
+                            encounter__encounter_date__lte=end).count()
+            fr = FeverReport.objects.filter(\
+                            encounter__encounter_date__gt=start, \
+                            encounter__encounter_date__lte=end).count()
+            nutr = NutritionReport.objects.filter(\
+                            encounter__encounter_date__gt=start, \
+                            encounter__encounter_date__lte=end).count()
+
+            data.append({'day': day["day"], 'total': num, 'correcct_sm': csms, \
+                         'wrong_sms': total_error_sms, 'muac': nutr, \
+                         'rdt': fr, 'householdv': hvr})
         return data
-
-
-class LocationReport(Patient, Location):
-    #display report of each village activeness for the last 28 days(registered)
-    @classmethod
-    def patients_per_loc(cls):
-        #last 28 days
-        drange = date.today() - timedelta(int(28))
-
-        #get location rember to filter clinics, villages, parish
-        loc = Location.objects.all()
-
-        for locsum in loc:
-            p = Patient.objects.filter(location=locsum, \
-                                            dob__gte=drange).count()
-            return p
-
-    @classmethod
-    def summary(cls):
-        columns = []
-
-        columns.append(
-            {'name': '', \
-             'bit': '{{ object.name }}'})
-        columns.append(
-            {'name': _("No. Children Registered".upper()), \
-             'bit': '{{ object.num_of_sms }}'})
-
-        sub_columns = None
-        return columns, sub_columns
 
 
 class OperationalReport():
