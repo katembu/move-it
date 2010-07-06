@@ -373,7 +373,7 @@ def gen_patient_register_pdf(filename, location):
             boxes.append({"top": trow, "bottom": brow})
         #End Sauri specific
 
-        tb = thepatientregister(_(u"CHW: %s: %s") % (location, chw), \
+        tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % (location, chw), \
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
