@@ -10,3 +10,4 @@ from childcount.commands.CancelCommand import CancelCommand
 from childcount.commands.IssueHealthIdCommand import IssueHealthIdCommand
 from childcount.commands.DeathCommand import DeathCommand
 from childcount.commands.LangCommand import LangCommand
+from childcount.commands.ActivityCommand import ActivityCommand
