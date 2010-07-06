@@ -56,8 +56,8 @@ class BirthForm(CCForm):
 
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: " \
-                                "|Mom Health ID|delivered in health facility" \
-                                "| weight(kg)(optional)"))
+                                "| Mom Health ID | delivered in health " \
+                                "facility | weight(kg)(optional) |"))
 
         cd_field.set_language(self.chw.language)
         lang = self.message.reporter.language
@@ -83,7 +83,7 @@ class BirthForm(CCForm):
 
         clinic_delivery = self.params[2]
         if not cd_field.is_valid_choice(clinic_delivery):
-            raise BadValue(_(u"|Delivered in health facility?| must be " \
+            raise BadValue(_(u"| Delivered in health facility? | must be " \
                               "%(choices)s.") % \
                               {'choices': cd_field.choices_string()})
         cd_db = cd_field.get_db_value(clinic_delivery)

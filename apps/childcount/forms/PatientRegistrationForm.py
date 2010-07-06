@@ -64,11 +64,11 @@ class PatientRegistrationForm(CCForm):
 
         lang = self.message.reporter.language
 
-        expected = _(u"location | patient names | gender | age or " \
-                      "DOB | head_of_household")
+        expected = _(u"| location | patient names | gender | age or " \
+                      "DOB | head_of_household |")
 
         if len(tokens) < 5:
-            raise ParseError(_(u"Not enough info. You must send: " \
+            raise ParseError(_(u"Not enough info. Expected: " \
                                 "%(expected)s") % {'expected': expected})
 
         location_code = tokens.pop(0)
@@ -77,7 +77,7 @@ class PatientRegistrationForm(CCForm):
         except Location.DoesNotExist:
             raise BadValue(_(u"%(loc)s is not a valid location code. You " \
                               "must indicate the patient's location code " \
-                              "before their name.") % \
+                              "before his name.") % \
                               {'loc': location_code})
 
         patient.location = location
@@ -182,9 +182,9 @@ class PatientRegistrationForm(CCForm):
             if patient.household.household != patient.household:
                 raise BadValue(_(u"The head of household you specified " \
                                   "(%(hh)s) is not a head of household. " \
-                                  "Their head of household is (%(hhhh)s). " \
-                                  "If they are the head, set their head of " \
-                                  "household to %(char)s.") % \
+                                  "His head of household is (%(hhhh)s). " \
+                                  "If he is the head, set him head of " \
+                                  "household.") % \
                                   {'hh': patient.household, \
                                    'hhhh': patient.household.household, \
                                    'char': self.PREVIOUS_ID[lang]})

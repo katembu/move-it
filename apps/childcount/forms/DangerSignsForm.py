@@ -21,7 +21,7 @@ class DangerSignsForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info, expected danger sign " \
+            raise ParseError(_(u"Not enough info. Expected: danger sign " \
                                 "codes"))
 
         try:

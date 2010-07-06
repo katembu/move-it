@@ -22,8 +22,8 @@ class HouseholdForm(CCForm):
     def process(self, patient):
         #Check if tokens are less than 2 at least one person shd be house hold
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info, expected: household " \
-                                "healthid | mother/gurdian healthid"))
+            raise ParseError(_(u"Not enough info. Expected: | household " \
+                                "healthid | mother/guardian healthid |"))
 
         household = self.params[1]
 
@@ -32,26 +32,26 @@ class HouseholdForm(CCForm):
                                         health_id__iexact=household, \
                                         household__health_id__iexact=household)
             if patient.household == patient:
-                raise BadValue(_(u"Please enter the correct information " \
-                                  "you cant be patient then gurdian/mother"))
+                raise BadValue(_(u"Please enter the correct information. " \
+                                  "You can't be patient and guardian/mother"))
         except Patient.DoesNotExist:
             raise BadValue(_(u"Could not find head of household with " \
                               "healthID %(id)s. You must register the head" \
                               "of household first") % {'id': household})
 
-        #check mother/gurdian exist
+        #check mother/guardian exist
         motherid = self.params[2]
         try:
             mother = Patient.objects.get(health_id__iexact=motherid, \
                                         household__health_id__iexact=household)
             if mother == patient:
                 raise BadValue(_(u"Please enter the correct information " \
-                                  "you cant be patient then gurdian/mother"))
+                                  "you cant be patient then guardian/mother"))
 
         except Patient.DoesNotExist:
-            raise BadValue(_(u"Could not find mother/gurdian " \
+            raise BadValue(_(u"Could not find mother/guardian " \
                               "with health ID %(motherid)s. You must " \
-                              "register the mother/gurdian first") % \
+                              "register the mother/guardian first") % \
                               {'motherid': motherid})
 
         patient.mother = mother

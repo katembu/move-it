@@ -47,17 +47,17 @@ class UnderOneForm(CCForm):
 
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: | breast feeding " \
-                                "only | up-to-date immunisations"))
+                                "only | up-to-date immunisations |"))
 
         breast = self.params[1]
         if not breast_field.is_valid_choice(breast):
-            raise ParseError(_(u"|Breast feeding only?| must be %(choices)s.") \
+            raise ParseError(_(u"| Breast feeding only? | must be %(choices)s.") \
                              % {'choices': breast_field.choices_string()})
         breast_db = breast_field.get_db_value(breast)
 
         imm = self.params[2]
         if not imm_field.is_valid_choice(imm):
-            raise ParseError(_(u"|Up-to-date Immunisations?| must be " \
+            raise ParseError(_(u"| Up-to-date Immunisations? | must be " \
                                 "%(choices)s.") % \
                                 {'choices': imm_field.choices_string()})
         imm_db = imm_field.get_db_value(imm)

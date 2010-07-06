@@ -32,7 +32,7 @@ class BCPillForm(CCForm):
         if not self.params[1].isdigit():
             raise ParseError(_(u"Number of pills " \
                                 "given must be " \
-                                "entered a number."))
+                                "entered as a number."))
 
         bcpr.pills = int(self.params[1])
         bcpr.save()

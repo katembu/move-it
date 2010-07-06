@@ -32,7 +32,7 @@ class BedNetForm(CCForm):
 
         if not self.params[1].isdigit():
             raise ParseError(_(u"Number of sleeping sites must be entered as" \
-                                "a number."))
+                                " a number."))
 
         bnr.sleeping_sites = int(self.params[1])
 

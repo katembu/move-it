@@ -193,7 +193,7 @@ class App (rapidsms.app.App):
                                             keyword.upper())
 
                     message.respond(_(u"Error occurred while processing " \
-                                      "%(frm)s: %(e)s. Please correct and " \
+                                      "%(frm)s: %(e)s Please correct and " \
                                       "send all information again.") % \
                                        {'frm': pretty_form, 'e': e}, \
                                         'error')

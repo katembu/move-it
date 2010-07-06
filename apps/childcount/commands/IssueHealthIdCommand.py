@@ -36,7 +36,7 @@ class IssueHealthIdCommand(CCCommand):
             #issue 5 ids
             list = CHWHealthId.objects.filter(chw=None, used=False)
             if not list:
-                self.message.respond(_(u"No health Ids available now! Please"))
+                self.message.respond(_(u"No health Ids available now!"))
             else:
                 #get a random list of 5
                 if list.count() > 5:

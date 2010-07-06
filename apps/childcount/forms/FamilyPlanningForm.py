@@ -20,9 +20,9 @@ class FamilyPlanningForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: number of women " \
+            raise ParseError(_(u"Not enough info. Expected: | number of women " \
                                 "aged 15 - 49 | number using FP | methods " \
-                                "being used."))
+                                "being used |"))
 
         try:
             fpr = FamilyPlanningReport.objects.get(encounter=self.encounter)
@@ -35,7 +35,7 @@ class FamilyPlanningForm(CCForm):
         fpr.form_group = self.form_group
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"|Number of women aged 15 - 49| must be " \
+            raise ParseError(_(u"| Number of women aged 15 - 49 | must be " \
                                 "entered as a number."))
 
         fpr.women = int(self.params[1])
@@ -51,7 +51,8 @@ class FamilyPlanningForm(CCForm):
 
         if not self.params[2].isdigit():
             raise ParseError(_(u"Number of women using modern family " \
-                                "planning must be entered as a number."))
+                                "planning methods must be entered as " \
+                                "a number."))
         fpr.women_using = int(self.params[2])
 
         if fpr.women_using > fpr.women:
@@ -67,7 +68,8 @@ class FamilyPlanningForm(CCForm):
 
         if len(self.params[3:]) < fpr.women_using:
             raise ParseError(_(u"You must specify %(num)d family planning " \
-                                "code(s). One for each of the %(num)s women " \
+                                "methods code(s). One for each of the " \
+                                "%(num)s women " \
                                 "using modern family planning.") % \
                                 {'num': fpr.women_using})
 
