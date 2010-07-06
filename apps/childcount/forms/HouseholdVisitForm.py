@@ -32,11 +32,12 @@ class HouseholdVisitForm(CCForm):
 
         available_field.set_language(self.chw.language)
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: household member "\
+            raise ParseError(_(u"Not enough info. Expected: | household " \
+                                "member " \
                                 "available? | number of children | " \
-                                "counseling / advice given (optional)"))
+                                "counseling / advice given (optional) |"))
         if not available_field.is_valid_choice(self.params[1]):
-            raise ParseError(_(u"|Any HH Member Available?| must be "\
+            raise ParseError(_(u"| Any HH Member Available? | must be "\
                                "%(choices)s.") % \
                               {'choices': available_field.choices_string()})
 
@@ -46,12 +47,12 @@ class HouseholdVisitForm(CCForm):
 
         if available:
             if len(self.params) < 3:
-                raise ParseError(_(u"Not enough info. Expected: household " \
+                raise ParseError(_(u"Not enough info. Expected: | household " \
                                 "member available? | number of children | " \
-                                "counseling / advice given (optional)"))
+                                "counseling / advice given (optional) |"))
 
             if not self.params[2].isdigit():
-                raise ParseError(_("|Number of children| must be entered as " \
+                raise ParseError(_("| Number of children | must be entered as " \
                                    "a number."))
 
             children = int(self.params[2])

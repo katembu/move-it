@@ -111,20 +111,21 @@ class SauriPregnancyForm(CCForm):
         folic_supplement_field.set_language(self.chw.language)
         cd4_count_field.set_language(self.chw.language)
         if not iron_supplement_field.is_valid_choice(self.params[4]):
-            raise ParseError(_(u"Iron Supplement %(choices)s") % \
+            raise ParseError(_(u"| Iron Supplement | must be %(choices)s") % \
                             {'choices': \
                                 iron_supplement_field.choices_string()})
 
         iron_supplement = iron_supplement_field.get_db_value(self.params[4])
 
         if not folic_supplement_field.is_valid_choice(self.params[5]):
-            raise ParseError(_(u"Folic Acid Supplement %(choices)s") % \
+            raise ParseError(_(u"| Folic Acid Supplement | must be " \
+                                "%(choices)s") % \
                         {'choices': folic_supplement_field.choices_string()})
 
         folic_supplement = folic_supplement_field.get_db_value(self.params[5])
 
         if not tested_hiv_field.is_valid_choice(self.params[6]):
-            raise ParseError(_(u"Tested HIV %(choices)s") % \
+            raise ParseError(_(u"| Tested HIV | must be %(choices)s") % \
                             {'choices': tested_hiv_field.choices_string()})
 
         tested_hiv = tested_hiv_field.get_db_value(self.params[6])
@@ -136,29 +137,29 @@ class SauriPregnancyForm(CCForm):
         supplement_str = u''
         if pr.iron_supplement == SauriPregnancyReport.IRON_YES\
             and pr.folic_suppliment == SauriPregnancyReport.FOLIC_YES:
-            supplement_str = _(u"taking iron and folic suppliments")
+            supplement_str = _(u"taking iron and folic supplements")
         elif pr.iron_supplement == SauriPregnancyReport.IRON_NO\
             and pr.folic_suppliment == SauriPregnancyReport.FOLIC_NO:
             supplement_str = _(u"not taking iron and folic supplements")
         elif pr.iron_supplement == SauriPregnancyReport.IRON_DOESNOTHAVE\
             and pr.folic_suppliment == SauriPregnancyReport.FOLIC_DOESNOTHAVE:
-            supplement_str = _(u"does not have iron and folic suppliments")
+            supplement_str = _(u"does not have iron and folic supplements")
         else:
             if pr.iron_supplement == SauriPregnancyReport.IRON_YES:
-                supplement_str = _(u"taking iron suppliment")
+                supplement_str = _(u"taking iron supplements")
             elif pr.iron_supplement == SauriPregnancyReport.IRON_NO:
-                supplement_str = _(u"not taking iron suppliment")
+                supplement_str = _(u"not taking iron supplements")
             elif pr.iron_supplement == SauriPregnancyReport.IRON_DOESNOTHAVE:
-                supplement_str = _(u"does not iron suppliment")
+                supplement_str = _(u"does not iron supplements")
             else:
                 supplement_str += _(u"taking iron unkown status")
             supplement_str += ", "
             if pr.folic_suppliment == SauriPregnancyReport.FOLIC_YES:
-                supplement_str += _(u"taking folic suppliment")
+                supplement_str += _(u"taking folic supplement")
             elif pr.folic_suppliment == SauriPregnancyReport.FOLIC_NO:
-                supplement_str += _(u"not taking folic suppliment")
+                supplement_str += _(u"not taking folic supplement")
             elif pr.folic_suppliment == SauriPregnancyReport.FOLIC_DOESNOTHAVE:
-                supplement_str += _(u"does not have folic suppliment")
+                supplement_str += _(u"does not have folic supplement")
             else:
                 supplement_str += _(u"taking folic unkown status")
             
@@ -171,7 +172,7 @@ class SauriPregnancyForm(CCForm):
                                 "Please ask if CD4 count has been taken and "\
                                 "check if the patient is on PMTC ARVs."))
             if not cd4_count_field.is_valid_choice(self.params[7]):
-                raise ParseError(_(u"CD4 Count %(choices)s") % \
+                raise ParseError(_(u"| CD4 Count | must be %(choices)s") % \
                                 {'choices': cd4_count_field.choices_string()})
 
             cd4_count = cd4_count_field.get_db_value(self.params[7])

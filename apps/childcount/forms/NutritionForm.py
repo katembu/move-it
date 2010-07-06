@@ -49,10 +49,10 @@ class NutritionForm(CCForm):
 
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: | muac | oedema " \
-                                "| weight (optional)"))
+                                "| weight (optional) |"))
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"MUAC must be entered as a number."))
+            raise ParseError(_(u"| MUAC | must be entered as a number."))
 
         muac = int(self.params[1])
         if muac == 0:
@@ -66,7 +66,7 @@ class NutritionForm(CCForm):
         oedema_field.set_language(self.chw.language)
 
         if not oedema_field.is_valid_choice(self.params[2]):
-            raise ParseError(_(u"Oedema must be " \
+            raise ParseError(_(u"| Oedema | must be " \
                                 "%(choices)s.") % \
                                {'choices': oedema_field.choices_string()})
 

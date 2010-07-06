@@ -31,13 +31,13 @@ class NotRegistered(CCException):
 
 class ParseError(CCException):
 
-    def __init__(self, message=_(u"FAILED. Unable to understand message.")):
+    def __init__(self, message=_(u"FAILED. Unable to understand message. ")):
         self.message = message
 
 
 class BadValue(CCException):
 
-    def __init__(self, message=_(u"FAILED. Bad value.")):
+    def __init__(self, message=_(u"FAILED. Bad value. ")):
         self.message = message
 
 

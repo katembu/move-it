@@ -414,15 +414,15 @@ class SPregnancy(PregnancyReport):
         (CD4_NO, _(u"No")),
         (CD4_UNKNOWN, _(u"Unkown")))
 
-    iron_supplement = models.CharField(_(u"Taking Iron"), max_length=1, \
+    iron_supplement = models.CharField(_(u"Taking Iron supplements"), max_length=1, \
                                    choices=IRON_CHOICES, \
                               help_text=_(u"Is the mother taking iron "\
                                             "supplement?"))
 
-    folic_suppliment = models.CharField(_(u"Taking Folic Acid"), max_length=1,\
+    folic_suppliment = models.CharField(_(u"Taking Folic Acid supplements"), max_length=1,\
                                    choices=FOLIC_CHOICES,\
                               help_text=_(u"Is the mother taking folic acid "\
-                                            "suppliment?"))
+                                            "supplement?"))
 
     tested_hiv = models.CharField(_(u"Tested for HIV"), max_length=2, \
                                    choices=TESTED_CHOICES, \

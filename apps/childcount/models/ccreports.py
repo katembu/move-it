@@ -112,7 +112,7 @@ class ThePatient(Patient):
             {'name': _("Age".upper()), \
             'bit': '{{object.humanised_age}}'})
         columns.append(
-            {'name': _("Last muac".upper()), \
+            {'name': _("Last MUAC".upper()), \
             'bit': '{{object.latest_muac}}'})
         columns.append(
             {'name': cls._meta.get_field('chw').verbose_name.upper(), \
