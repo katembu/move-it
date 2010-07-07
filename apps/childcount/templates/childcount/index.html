@@ -10,7 +10,6 @@
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.raphael.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.line.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
-<script type="text/javascript" language="javascript" src="/static/childcount/scripts/enhance.js"></script>	
 	<script type="text/javascript" charset="utf-8">
 
 // Run the script on DOM ready:
@@ -65,6 +64,7 @@
                 // lines.symbols[0][1].animate({fill: "#f00"}, 1000);
   };
 </script>
+
 {% endblock javascripts %}
 
 {% block page_tabs %}
@@ -72,26 +72,21 @@
 {% endblock %}
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
-<style type="text/css">
-.dashboard p.data{
-    font-size: 24px;
-    font-weight: 600;
-    text-align: center;
-}
-.dashboard h2{
-    font-size: 20px;
-} 
 
-#ch-l {
-float:left;
-width: 50%
-}
-#ch-r {
-float:right;
-position:relative;
-width: 50%
-}
-</style>
+<table width="100%" class='summary'>
+    <tr>
+        <th>No. Of Households</th>
+        <th>No. Of Patients</th>
+        <th>No. Of Underfives</th>
+        <th>No. Of Pregnant Women</th>
+    </tr>
+    <tr>
+        <td>{{summary.num_households}}</td>
+        <td>{{summary.num_patients}}</td>
+        <td>{{summary.num_underfive}}</td>
+        <td>{{summary.num_pregnant}}</td>
+    </tr>
+</table>
 <div id='ch-bd'><div id='ch-l'>
     <p>General Options:
     <a href='{% url add_chw %}' class='html'>Create CHW Account</a>
