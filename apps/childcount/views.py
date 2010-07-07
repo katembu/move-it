@@ -23,6 +23,7 @@ from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.models.ccreports import TheCHWReport, ClinicReport
+from childcount.models.ccreports import SummaryReport
 from childcount.models.bdntreports import BdnethouseHold
 from childcount.utils import clean_names
 
@@ -63,7 +64,12 @@ def index(request):
     info.update({'sms': sms_png(request)})
     info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
-                           'eligible': TheCHWReport.total_muac_eligible()})
+                           'eligible': TheCHWReport.total_muac_eligible()}
+    )
+    #Summary Report
+    sr = SummaryReport.summary()
+    info.update(sr)
+
     return render_to_response(request, template_name, info)
 
 class CHWForm(forms.Form):

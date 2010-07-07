@@ -669,3 +669,41 @@ class ClinicReport(Clinic):
 
         sub_columns = None
         return columns, sub_columns
+
+
+class SummaryReport():
+
+    '''Cluster-wide Summary Reports'''
+
+    def num_of_patients(self):
+        return Patient.objects.all().count()
+
+    def num_of_underfive(self):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        return Patient.objects.filter(dob__gte=sixtym).count()
+
+    def num_of_households(self):
+       return Patient.objects\
+                    .filter(health_id=F('household__health_id')).count()
+
+    def num_pregnant(self):
+        c = 0
+        pregs = PregnancyReport.objects.filter()\
+                                .values('encounter__patient').distinct()
+        for preg in pregs:
+            patient = Patient.objects.get(id=preg['encounter__patient'])
+            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+                                        .latest()
+            days = (pr.encounter.encounter_date - datetime.now()).days
+            months = round(days / 30.4375)
+            if pr.pregnancy_month + months < 9:
+                c += 1
+        return c
+
+    @classmethod
+    def summary(cls):
+        sr = cls()
+        return {"summary": {"num_underfive": sr.num_of_underfive(), \
+                            "num_patients": sr.num_of_patients(), \
+                            "num_households": sr.num_of_households(), \
+                            "num_pregnant": sr.num_pregnant()}}
