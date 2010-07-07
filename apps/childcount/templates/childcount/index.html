@@ -6,36 +6,64 @@
 {% endblock page_stylesheets %}
 
 {% block javascripts %}
-<script type="text/javascript" src="http://www.google.com/jsapi">
-    </script>
-<script type="text/javascript">
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/raphael-min.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.raphael.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.line.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/enhance.js"></script>	
+	<script type="text/javascript" charset="utf-8">
 
-     // google.load('visualization', '1',       {packages: ['piechart']});
-  google.load('visualization', '1', {packages: ['corechart']});
-    </script>
-    <script type="text/javascript">
-function drawVisualization() {
-  // Create and populate the data table.
-  var data = new google.visualization.DataTable();
-  data.addColumn('string', 'x');
-  data.addColumn('number', 'Total');
-  data.addColumn('number', 'Correct');
-  data.addColumn('number', 'Error');
-{% for sm in sms %}
-	data.addRow(["{{sm.day|safe}}", {{sm.total|safe}}, {{sm.correcct_sm|safe}}, {{sm.wrong_sms|safe}}]);    
+// Run the script on DOM ready:
+     window.onload = function () {
+                var r = Raphael("muacpie", width=400, height=250);
 
-{% endfor %}
+                var pie = r.g.piechart(280, 120, 100, {{risk|safe}}, legendpos: "west" });
+                pie.hover(function () {
+                    this.sector.stop();
+                    this.sector.scale(1.1, 1.1, this.cx, this.cy);
+                    if (this.label) {
+                        this.label[0].stop();
+                        this.label[0].scale(1.5);
+                        this.label[1].attr({"font-weight": 800});
+                    }
+                }, function () {
+                    this.sector.animate({scale: [1, 1, this.cx, this.cy]}, 500, "bounce");
+                    if (this.label) {
+                        this.label[0].animate({scale: 0.5}, 500, "bounce");
+                        this.label[1].attr({"font-weight": 400});
+                    }
+                });
+            /*    
+		var s = Raphael("smspie", width=400, height=250);
 
- 
-  // Create and draw the visualization.
-  new google.visualization.LineChart(document.getElementById('visualize')).
-      draw(data, {curveType: "function",
-                  	width: 400, height: 230, 
-			title: 'SMS Received ',
-			colors:['black','green', 'red']}
-          );
-}
-google.setOnLoadCallback(drawVisualization);
+                s.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+                
+                //r.g.text(250, 30, "Interactive Pie Chart").attr({"font-size": 20});
+
+                var pie = s.g.piechart(280, 120, 100, {{risk|safe}}, legendpos: "west" });
+          */
+
+ var r = Raphael("smspie");
+                r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+                
+                var x = [], y = [], y2 = [], y3 = [];
+                for (var i = 0; i < 500; i++) {
+                    x[i] = i * 10;
+                    y[i] = (y[i - 1] || 0) + (Math.random() * 7) - 3;
+                    y2[i] = (y2[i - 1] || 150) + (Math.random() * 7) - 3.5;
+                    y3[i] = (y3[i - 1] || 300) + (Math.random() * 7) - 4;
+                }
+
+               
+
+               // r.g.linechart(10, 10, 300, 220, x, [y, y2, y3]);
+                //r.g.linechart(330, 10, 300, 220, x, [y, y2, y3], {shade: true});
+                //r.g.linechart(10, 250, 400, 400, x, [y, y2, y3], {nostroke: true, shade: true});
+                var lines = r.g.linechart(10, 10, 320, 320, [[7, 7, 9, 4, 5, 6, 7],[3.5, 4.5, 5.5, 6.5, 7, 8]], [[12, 32, 23, 15, 17, 27, 22], [10, 20, 30, 25, 15, 28]], {nostroke: false, axis: "0 0 1 1"})
+                // lines.lines[0].animate({"stroke-width": 6}, 1000);
+                // lines.symbols[0].attr({stroke: "#fff"});
+                // lines.symbols[0][1].animate({fill: "#f00"}, 1000);
+  };
 </script>
 {% endblock javascripts %}
 
@@ -124,6 +152,11 @@ width: 50%
     </div>
 </div>
 </div>
+    
+<h2>Sms Per day </h2>
+<div id='smspie'> 
+</div>
+
 </div>
 
 <div style="clear:both;"></div>

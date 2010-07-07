@@ -139,6 +139,15 @@ border:1px solid brown;
     </tbody>
 
 </table>
+<div class="pagination">  
+       <span class="step-links">  
+       {% if reports.has_previous %}<a href="?page=%7B%7B%20reports.previous_page_number%20%7D%7D" class="util-link">previous</a>{% endif %}  
+       {% if reports.has_next %}<a href="?page=%7B%7B%20reports.next_page_number%20%7D%7D" class="util-link">next</a>{% endif %}  
+       </span>  
+       <span class="current">  
+           {{ reports }}  
+       </span>  
+   </div>
 </div>
 <div id='ch-r'>
 </div>
