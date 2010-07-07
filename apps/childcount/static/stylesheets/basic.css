@@ -1,3 +1,24 @@
+.dashboard p.data{
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+}
+.dashboard h2{
+    font-size: 20px;
+} 
+
+#ch-l {
+float:left;
+width: 50%
+}
+#ch-r {
+float:right;
+position:relative;
+width: 50%
+}
+#ch-bd a{
+    color: #897C04
+}
 /* block styles */
 .block .ft .first {
     width:39px;
@@ -6,7 +27,7 @@
     float:left;
 }
 .block .ft .last {
-    background:url(/static/childcount/images/centerbox_br.gif) no-repeat right bottom;
+    background:url(/static/childcount/images/centerbox_br.gif) no-repeat right bottom;;
     width:39px;
     height:19px;
     float:right;
@@ -28,7 +49,7 @@
     margin:0px;
     padding-left:20px;
     padding-bottom: 10px;
-    color:#555;
+    color: #A34103;
     font-size:18px;
     font-weight:normal;
     border-bottom: 0px;
@@ -43,3 +64,23 @@
     height:19px;
     clear: both;
 }
+.summary th {
+    background-color: #f7f7f7;
+    border-color: white;
+    border-style: solid;
+    border-width: 1px;
+    color: #00bbff;
+    font-size: 1.0012em;
+    text-align: center;
+}
+.summary td {
+    background: #999999;
+    border-color: #FFFFFF;
+    border-style: dotted solid double;
+    border-width: 0 1px 3px;
+    color: #FFaa00;
+    text-align: center;
+    font-size: 1.8239em;
+    font-weight: 900;
+}
+
