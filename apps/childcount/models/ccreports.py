@@ -176,12 +176,12 @@ class TheCHWReport(CHW):
         num = NutritionReport.objects.filter(created_by=self, \
                                 status=NutritionReport.STATUS_MODERATE).count()
         return num
-    
+
     def mam_cases(self, startDate=None, endDate=None):
         return NutritionReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
-                                
+
     def severe_mam_cases(self, startDate=None, endDate=None):
         num = NutritionReport.objects.filter(encounter__chw=self, \
                             status=NutritionReport.STATUS_SEVERE_COMP, \
@@ -243,7 +243,7 @@ class TheCHWReport(CHW):
         return HouseholdVisitReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
-                                
+
     def percentage_ontime_visits(self):
         households = self.households()
         num_on_time = 0
@@ -298,7 +298,7 @@ class TheCHWReport(CHW):
         return FeverReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
-                                   
+                   
     def num_underfive_diarrhea(self):
         #TODO
         return 0
@@ -427,7 +427,7 @@ class TheCHWReport(CHW):
         return (now - last_sms[0].received).days
 
     def activity_summary(self):
-        today = datetime.today() 
+        today = datetime.today()
         startDate = today - timedelta(today.weekday())
         p = {}
         
@@ -442,7 +442,6 @@ class TheCHWReport(CHW):
         p['household'] = self.number_of_households
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
-
 
         return p
 
@@ -459,7 +458,7 @@ class TheCHWReport(CHW):
         num_eligible = TheCHWReport.total_muac_eligible()
 
         unkwn = num_eligible - num_healthy - num_mam - num_sam - num_comp
- 
+
         hp = int(round((num_healthy / float(num_eligible)) * 100))
         modp = int(round((num_mam / float(num_eligible)) * 100))
         svp = int(round((num_sam / float(num_eligible)) * 100))
@@ -683,7 +682,7 @@ class SummaryReport():
         return Patient.objects.filter(dob__gte=sixtym).count()
 
     def num_of_households(self):
-       return Patient.objects\
+        return Patient.objects\
                     .filter(health_id=F('household__health_id')).count()
 
     def num_pregnant(self):
@@ -707,3 +706,67 @@ class SummaryReport():
                             "num_patients": sr.num_of_patients(), \
                             "num_households": sr.num_of_households(), \
                             "num_pregnant": sr.num_pregnant()}}
+
+
+class Week_Summary_Report():
+
+    '''Last-seven-days-wide Summary Reports'''
+    def num_of_patients(self, startDate=None, endDate=None):
+        return Patient.objects.filter(created_on__gte=startDate, \
+                                      created_on__lte=endDate).count()
+
+    def num_of_underfive(self, startDate=None, endDate=None):
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        return Patient.objects.filter(dob__gte=sixtym, \
+                                      created_on__gte=startDate, \
+                                      created_on__lte=endDate).count()
+
+    def num_of_households(self, startDate=None, endDate=None):
+        return Patient.objects\
+                    .filter(health_id=F('household__health_id')).count()
+
+    def num_of_muac(self, startDate=None, endDate=None):
+        num = NutritionReport.objects.filter(\
+                            status=NutritionReport.STATUS_SEVERE_COMP, \
+                            encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()
+        num += NutritionReport.objects.filter(\
+                                status=NutritionReport.STATUS_SEVERE, \
+                            encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()
+
+        return num
+
+    def num_of_rdts(self, startDate=None, endDate=None):
+        return FeverReport.objects.filter(\
+                                encounter__encounter_date__gte=startDate, \
+                                encounter__encounter_date__lte=endDate).count()
+
+    def num_pregnant(self, startDate=None, endDate=None):
+        c = 0
+        pregs = PregnancyReport.objects.filter(\
+                                encounter__encounter_date__gte=startDate, \
+                                encounter__encounter_date__lte=endDate)\
+                                .values('encounter__patient').distinct()
+        for preg in pregs:
+            patient = Patient.objects.get(id=preg['encounter__patient'])
+            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+                                        .latest()
+            days = (pr.encounter.encounter_date - datetime.now()).days
+            months = round(days / 30.4375)
+            if pr.pregnancy_month + months < 9:
+                c += 1
+        return c
+
+    @classmethod
+    def summary(cls):
+        sr = cls()
+        endDate = datetime.today()
+        startDate = endDate - timedelta(endDate.weekday())
+
+        return {"week_report": {"num_mam_sam": sr.num_of_muac(\
+                                    startDate=startDate, endDate=endDate), \
+                            "num_rdt": sr.num_of_rdts( \
+                                    startDate=startDate, endDate=endDate), \
+                            "num_pregnant": sr.num_pregnant( \
+                                    startDate=startDate, endDate=endDate)}}
