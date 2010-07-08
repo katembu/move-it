@@ -432,7 +432,7 @@ class TheCHWReport(CHW):
         p = {}
         
         p['sdate'] = startDate.day
-        p['edate'] = today.day()
+        p['edate'] = today.day
         p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
                             endDate=today)
         p['numhvisit'] = self.household_visit(startDate=startDate, \
