@@ -219,12 +219,12 @@ def chw(request, rformat='html'):
 def operationalreport(request, rformat):
     filename = 'operationalreport.pdf'
     story = []
-    filename = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+    fn = os.path.abspath(os.path.join(os.path.dirname(__file__), \
                     './rpts/%s' % filename))
-    if not os.path.isfile(filename):
+    if not os.path.isfile(fn):
         return HttpResponse("No Report Generated yet")
     else:
-        f = open(filename, 'r')
+        f = open(fn, 'r')
         pdf = f.read()
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
