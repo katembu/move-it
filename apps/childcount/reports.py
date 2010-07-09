@@ -220,7 +220,7 @@ def operationalreport(request, rformat):
     filename = 'operationalreport.pdf'
     story = []
     filename = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                    './reports/%s' % filename))
+                    './rpts/%s' % filename))
     if not os.path.isfile(filename):
         return HttpResponse("No Report Generated yet")
     else:

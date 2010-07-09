@@ -37,7 +37,7 @@ from rapidsms import manager
 from childcount.reports import *
 
 reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                                        '../apps/childcount/reports'))
+                                        '../apps/childcount/rpts'))
 #check if reports folder is there
 if not os.path.isdir(reports_folder):
     os.mkdir(reports_folder)
