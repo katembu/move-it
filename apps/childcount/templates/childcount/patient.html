@@ -37,6 +37,60 @@ border:1px solid brown;
     #content img{
         border: 0 solid white;
     }
+/** PAGINATOR **/
+.paginator { padding:.5em .75em; float:left; font:normal .8em arial; }
+ 
+.paginator .prev-na,
+.paginator .next-na {
+	padding:.3em;
+	font:bold .875em arial;
+}
+ 
+.paginator .prev-na,
+.paginator .next-na {
+	border:1px solid #ccc;
+	background-color:#f9f9f9;
+	color:#aaa;
+	font-weight:normal;
+}
+ 
+.paginator .prev a, .paginator .prev a:visited,
+.paginator .next a, .paginator .next a:visited {
+	border:1px solid #c2ee62;
+	background-color:#edfdd0;
+	color:#234f32;
+	padding:.3em;
+	font:bold .875em arial;
+}
+ 
+.paginator .prev, .paginator .prev-na { margin-right:.5em; }
+.paginator .next, .paginator .next-na { margin-left:.5em; }
+ 
+.paginator .page a, .paginator .page a:visited, .paginator .curr {
+	padding:.25em;
+	font:normal .875em verdana;
+	border:1px solid #C2EE62;
+	background-color:#EDFDD0;
+	margin:0em .25em;	
+	color:#006000;
+}
+ 
+.paginator .curr { 
+	background-color:#234f32;
+	color:#fff;
+	border:1px solid #234f32;
+	font-weight:bold;
+	font-size:1em;
+}
+ 
+.paginator .page a:hover,
+.paginator .curr a:hover,
+.paginator .prev a:hover,
+.paginator .next a:hover {
+	color:#fff;
+	background-color:#234f32;
+	border:1px solid #234f32;
+}
 </style>
 {% endblock page_stylesheets %}
 
@@ -80,15 +134,37 @@ border:1px solid brown;
     </tbody>
 
 </table>
-<div class="pagination">
-       <span class="step-links">
-       {% if reports.has_previous %}<a href="?page={{ reports.previous_page_number }}" class="util-link">previous</a>{% endif %}
-       {% if reports.has_next %}<a href="?page={{ reports.next_page_number }}" class="util-link">next</a>{% endif %}
-       </span>
-       <span class="current">
-           {{reports.number}}
-       </span>
-   </div>
+
+{% if is_paginated %}
+<div class="paginator">
+{% if has_previous %}<span class="prev"><a href="page/{{ previous }}" title="Previous Page">&laquo; Previous</a></span>{% else %}<span class="prev-na">&laquo; Previous</span>{% endif %}
+ 
+{% if not in_leading_range %}
+	{% for num in pages_outside_trailing_range %}
+		<span class="page"><a href="page/{{ num }}" >{{ num }}</a></span>
+	{% endfor %}
+	...
+{% endif %}
+ 
+{% for num in page_numbers %}
+  {% ifequal num page %}
+    <span class="curr" title="Current Page">{{ num }}</span>
+  {% else %}
+  	<span class="page"><a href="page/{{ num }}" title="Page {{ num }}">{{ num }}</a></span>
+  {% endifequal %}
+{% endfor %}
+ 
+{% if not in_trailing_range %}
+	...
+	{% for num in pages_outside_leading_range reversed %}
+		<span class="page"><a href="{{base_url}}/page/{{ num }}" >{{ num }}</a></span>
+	{% endfor %}
+{% endif %}
+ 
+{% if has_next %}<span class="next"><a href="{{base_url}}/page/{{ next }}" title="Next Page">Next &raquo;</a></span>{% else %}<span class="next-na">Next &raquo;</span>{% endif %}
+</div> 
+{% endif %}
+
 </div>
 <div id='ch-r'>
 </div>
