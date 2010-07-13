@@ -1101,3 +1101,45 @@ class BednetIssuedReport(CCReport):
     bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"))
 
 reversion.register(BednetIssuedReport, follow=['ccreport_ptr'])
+
+
+class AntenatalVisitReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_iavrpt'
+        verbose_name = _(u"Initail Antenatal Visit Report")
+        verbose_name_plural = _(u"Initail Antenatal Visit Reports")
+
+    HIV_YES = 'Y'
+    HIV_NO = 'N'
+    HIV_UNKNOWN = 'U'
+    HIV_CHOICES = (
+        (HIV_YES, _(u"Yes")),
+        (HIV_NO, _(u"No")),
+        (HIV_UNKNOWN, _(u"Unknown")))
+
+    pregnancy_week = models.PositiveSmallIntegerField(_(u"Weeks Pregnant"), \
+                                    help_text=_(u"How many weeks into the " \
+                                                 "pregnancy?"))
+    expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
+    hiv  = models.CharField(_(u"HIV+?"), max_length=1, \
+                              choices=HIV_CHOICES)
+    blood_drawn = models.BooleanField(_(u"Blood drawn?"))
+
+    def summary(self):
+        string = u"%s: %d, %s: %d" % \
+            (self._meta.get_field_by_name('pregnancy_week')[0].verbose_name, \
+             self.pregnancy_week,
+             self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+             self.expected_on)
+        if self.blood_drawn:
+            string += ", %s: %s" % \
+            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+             _(u"Yes"))
+        else:
+            string += ", %s: %s" % \
+            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+             _(u"No"))
+        return string
+reversion.register(AntenatalVisitReport, follow=['ccreport_ptr'])
