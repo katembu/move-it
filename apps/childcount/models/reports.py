@@ -1118,6 +1118,11 @@ class AntenatalVisitReport(CCReport):
         (HIV_YES, _(u"Yes")),
         (HIV_NO, _(u"No")),
         (HIV_UNKNOWN, _(u"Unknown")))
+    BLOOD_DRAWN_YES = True
+    BLOOD_DRAWN_NO = False
+    BLOOD_DRAWN_CHOICES = (
+        (BLOOD_DRAWN_YES, _(u"Yes")),
+        (BLOOD_DRAWN_NO, _(u"No")))
 
     pregnancy_week = models.PositiveSmallIntegerField(_(u"Weeks Pregnant"), \
                                     help_text=_(u"How many weeks into the " \
@@ -1125,7 +1130,8 @@ class AntenatalVisitReport(CCReport):
     expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
     hiv  = models.CharField(_(u"HIV+?"), max_length=1, \
                               choices=HIV_CHOICES)
-    blood_drawn = models.BooleanField(_(u"Blood drawn?"))
+    blood_drawn = models.BooleanField(_(u"Blood drawn?"), \
+                                        choices=BLOOD_DRAWN_CHOICES)
 
     def summary(self):
         string = u"%s: %d, %s: %d" % \
