@@ -582,7 +582,7 @@ class OperationalReport():
         columns.append({'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
                 'bit': '{{object.percentage_ontime_muac}}%'})
-        columns.append({'name': _("# of Active GAM cases"), \
+        columns.append({'name': _("# of Active SAM cases"), \
                 'bit': '{{object.num_of_active_sam_cases}}'})
         columns.append({'name': _("# of Pregnant Women"), \
                 'bit': '{{object.num_of_pregnant_women}}'})
