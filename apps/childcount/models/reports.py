@@ -953,12 +953,12 @@ class BednetUtilization(CCReport):
     child_underfive = models.PositiveSmallIntegerField(_(u"Number of " \
                                             "children under five "), \
                             help_text=_(u"Number of children under five who " \
-                                        " slept here last nite "))
+                                        " slept here last night."))
 
     child_lastnite = models.PositiveSmallIntegerField(_(u"Number of children" \
-                                            "under five "), \
+                                            "under five"), \
                             help_text=_(u"Number of children under five who " \
-                                           "slept here  under bednet "))
+                                           "slept under a bednet last night."))
 
     def summary(self):
         return u"%s: %d, %s: %d" % \
@@ -1009,9 +1009,9 @@ class SanitationReport(CCReport):
 
     toilet_lat = models.CharField(_(u"Toilet Type"), max_length=1, \
                               choices=TOILET_LAT_CHOICES)
-    share_toilet = models.CharField(_(u"Do you share"), max_length=1, \
+    share_toilet = models.CharField(_(u"Do you share?"), max_length=1, \
                               choices=SHARE_CHOICES, help_text=_(u"Do you " \
-                                "share the tolet"))
+                                "share the toilet?"))
 reversion.register(SanitationReport, follow=['ccreport_ptr'])
 
 
