@@ -49,6 +49,7 @@ admin.site.register(SanitationReport, VersionAdmin)
 admin.site.register(DrinkingWaterReport, VersionAdmin)
 admin.site.register(AntenatalVisitReport, VersionAdmin)
 admin.site.register(AppointmentReport, VersionAdmin)
+admin.site.register(PregnancyRegistrationReport, VersionAdmin)
 
 class CodedItemAdmin(admin.ModelAdmin):
     list_filter = ('type', )
