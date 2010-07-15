@@ -1141,11 +1141,11 @@ class AntenatalVisitReport(CCReport):
              self.expected_on)
         if self.blood_drawn:
             string += ", %s: %s" % \
-            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
              _(u"Yes"))
         else:
             string += ", %s: %s" % \
-            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
              _(u"No"))
         return string
 reversion.register(AntenatalVisitReport, follow=['ccreport_ptr'])
