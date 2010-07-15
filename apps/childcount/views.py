@@ -32,6 +32,7 @@ from childcount.utils import clean_names
 form_config = Configuration.objects.get(key='dataentry_forms').value
 cc_forms = re.split(r'\s*,*\s*', form_config)
 
+
 @login_required
 def dataentry(request):
     ''' displays Data Entry U.I '''
@@ -41,6 +42,7 @@ def dataentry(request):
     return render_to_response(request, 'childcount/data_entry.html', \
                               {'chws': chws, 'today': today, \
                                'chw': chw, 'forms': cc_forms})
+
 
 @login_required
 def form(request, formid):
@@ -66,8 +68,8 @@ def index(request):
     info.update({'sms': sms_png(request)})
     info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
-                           'eligible': TheCHWReport.total_muac_eligible()}
-    )
+                           'eligible': TheCHWReport.total_muac_eligible()})
+
     #Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
@@ -80,9 +82,9 @@ def index(request):
     #General Summary report -  all
     gsr = GeneralSummaryReport.summary()
     info.update(gsr)
-    
 
     return render_to_response(request, template_name, info)
+
 
 class CHWForm(forms.Form):
     #username = forms.CharField(max_length=30)
@@ -94,10 +96,11 @@ class CHWForm(forms.Form):
                                        for location in Location.objects.all()])
     mobile = forms.CharField(required=False)
 
+
 def add_chw(request):
 
     info = {}
-    
+
     if request.method == 'POST':
         form = CHWForm(request.POST)
         if form.is_valid():
@@ -167,6 +170,7 @@ def add_chw(request):
     info.update({'form': form})
 
     return render_to_response(request, 'childcount/add_chw.html', info)
+
 
 def list_chw(request):
 
@@ -245,19 +249,19 @@ def patient(request):
     rows = []
 
     columns, sub_columns = Patient.table_columns()
-
     getpages = Paginator(Patient.objects.all(), MAX_PAGE_PER_PAGE)
-    
+
+    #get the requested page, else if it wrong display page 1
     try:
         page = int(request.GET.get('page', DEFAULT_PAGE))
     except ValueError:
         page = DEFAULT_PAGE
 
+    #get the requested page, if its out of range display last page
     try:
         reports = getpages.page(page)
     except (EmptyPage, InvalidPage):
         reports = getpages.page(getpages.num_pages)
-
 
     for report in reports.object_list:
         row = {}
@@ -266,11 +270,7 @@ def patient(request):
                         Template(col['bit']).render(Context({'object': \
                             report}))} for col in columns]
         rows.append(row)
-        
-        
-    #rows.append(row)
-        
-    aocolumns_js = "{ \"sType\": \"html\" },"
+
     for col in columns[1:] + (sub_columns if sub_columns != None else []):
         if not 'colspan' in col:
             aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
@@ -286,7 +286,7 @@ def patient(request):
                     'columns': columns, 'sub_columns': sub_columns,
                     'rows': rows, 'report_title': report_title,
                     'aocolumns_js': aocolumns_js}
-                    
+
     if getpages.num_pages > 1:
         context_dict.update(pagenator(getpages, reports))
 
@@ -298,37 +298,10 @@ def nutrition_png(request):
     nutdata = TheCHWReport.muac_summary()
     return nutdata
 
-    '''
-    filename = 'nutrition_summary.png'
-    pie = PiePlot(filename, nutdata, 450, 300, shadow=True)
-    pie.render()
-    pie.commit()
-    f = open(filename)
-    data = f.read()
-    f.close()
-    os.unlink(filename)
-    response = HttpResponse(mimetype="image/png")
-    response.write(data)
-    return response
-    '''
-
 
 def sms_png(request):
     data = TheCHWReport.sms_per_day()
     return data
-    '''    
-    filename = 'sms.png'
-    pie = BarPlot(filename, data, 450, 300)
-    pie.render()
-    pie.commit()
-    f = open(filename)
-    data = f.read()
-    f.close()
-    os.unlink(filename)
-    response = HttpResponse(mimetype="image/png")
-    response.write(data)
-    return response
-    '''
 
 
 def bednet_summary(request):
@@ -372,6 +345,7 @@ def bednet_summary(request):
 
     return render_to_response(\
                 request, 'childcount/bednet.html', context_dict)
+
 
 def clinic_report(request):
     '''House Patients page '''
@@ -463,5 +437,4 @@ def pagenator(getpages, reports):
             "in_leading_range": in_leading_range,
             "in_trailing_range": in_trailing_range,
             "pages_outside_leading_range": pages_outside_leading_range,
-            "pages_outside_trailing_range": pages_outside_trailing_range
-            }
+            "pages_outside_trailing_range": pages_outside_trailing_range}
