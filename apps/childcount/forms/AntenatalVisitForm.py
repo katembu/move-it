@@ -3,6 +3,7 @@
 # maintainer: dgelvin
 
 
+from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
@@ -10,6 +11,7 @@ from childcount.models.reports import AntenatalVisitReport
 from childcount.models import Encounter
 from childcount.exceptions import ParseError, BadValue, InvalidDOB
 from childcount.utils import DOBProcessor
+from childcount.forms.utils import MultipleChoiceField
 
 
 class AntenatalVisitForm(CCForm):
@@ -41,15 +43,17 @@ class AntenatalVisitForm(CCForm):
         avr.form_group = self.form_group
 
         hiv_field.set_language(self.chw.language)
-        blood_drawn.set_language(self.chw.language)
+        blood_drawn_field.set_language(self.chw.language)
         if not self.params[1].isdigit():
             raise ParseError(_(u"Length of pregnancy in weeks" \
                                 "must be entered as a number."))
 
         expected_on_str = self.params[2]
         try:
+            #need to trick DOBProcessor: use a future date for date_ref
+            date_ref = datetime.today() + timedelta(375)
             expected_on, variance = DOBProcessor.from_dob(self.chw.language, \
-                                                    dod_str, self.date.date())
+                                            expected_on_str, date_ref.date())
         except InvalidDOB:
             raise BadValue(_(u"Could not understand expected date of" \
                              " delivery: %(expected_on)s.") % \
