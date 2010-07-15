@@ -56,7 +56,7 @@ def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
             rows.append([data for data in columns])
         rpt = PDFReport()
         rpt.setTitle(report_title)
-        rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+        rpt.setFilename('_'.join(report_title.split()))
         rpt.setTableData(reports, columns, _("All Patients"))
         return rpt.render()
     else:
@@ -107,7 +107,7 @@ def all_patient_list_per_chw_pdf(request):
 
     rpt = PDFReport()
     rpt.setTitle(report_title)
-    rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+    rpt.setFilename('_'.join(report_title.split()))
     rpt.setRowsPerPage(42)
 
     columns, sub_columns = ThePatient.patients_summary_list()
@@ -133,7 +133,7 @@ def under_five(request):
 
     rpt = PDFReport()
     rpt.setTitle(report_title)
-    rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+    rpt.setFilename('_'.join(report_title.split()))
     rpt.setRowsPerPage(42)
 
     columns, sub_columns = ThePatient.patients_summary_list()
@@ -164,7 +164,7 @@ def chw(request, rformat='html'):
     if rformat.lower() == 'pdf':
         rpt = PDFReport()
         rpt.setTitle(report_title)
-        rpt.setFilename('_'.join(report_title.split()) + '.pdf')
+        rpt.setFilename('_'.join(report_title.split()))
 
         for report in reports:
             rows.append([data for data in columns])
@@ -345,7 +345,9 @@ def registerlist(request, clinic_id):
         gen_patient_register_pdf(response, clinic)
         return response
     except Clinic.DoesNotExist:
-        HttpResponse(_(u"The specified clinic is not known"))
+        return HttpResponse(_(u"The specified clinic is not known"))
+    '''except:
+        return HttpResponse(_("Error"))'''
 
 
 def gen_patient_register_pdf(filename, location):
@@ -383,7 +385,8 @@ def gen_patient_register_pdf(filename, location):
             boxes.append({"top": trow, "bottom": brow})
         #End Sauri specific
 
-        tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % (location, chw), \
+        tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % \
+                                {'loc': location, 'chw':chw}, \
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
