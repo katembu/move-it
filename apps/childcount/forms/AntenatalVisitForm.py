@@ -58,6 +58,11 @@ class AntenatalVisitForm(CCForm):
             raise BadValue(_(u"Could not understand expected date of" \
                              " delivery: %(expected_on)s.") % \
                              {'expected_on': expected_on_str})
+        if expected_on < self.date.date():
+            raise BadValue(_(u"%(expected_on)s is already in the past, " \
+                            "the expected delivery date should be a "\
+                            "future date." % \
+                                {'expected_on': expected_on}))
 
         if not hiv_field.is_valid_choice(self.params[3]):
             raise ParseError(_(u"HIV+ must be %(choices)s.") % \
