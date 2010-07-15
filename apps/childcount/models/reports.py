@@ -1149,3 +1149,20 @@ class AntenatalVisitReport(CCReport):
              _(u"No"))
         return string
 reversion.register(AntenatalVisitReport, follow=['ccreport_ptr'])
+
+
+class AppointmentReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_appointment'
+        verbose_name = _(u"Appointment")
+        verbose_name_plural = _(u"Appointments")
+
+    appointment_date = models.DateTimeField(_(u"Next appointment"))
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('appointment_date')[0].verbose_name)
+        return string
+reversion.register(AppointmentReport, follow=['ccreport_ptr'])
