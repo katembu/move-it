@@ -1167,3 +1167,42 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
+
+
+class PregnancyRegistrationReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_pregregrpt'
+        verbose_name = _(u"Pregnancy Registration")
+        verbose_name_plural = _(u"Pregnancy Registrations")
+
+    MARRIED_YES = True
+    MARRIED_NO = False
+    #MARRIED_UNKNOWN = 'U'
+    MARRIED_CHOICES = (
+        (MARRIED_YES, _(u"Yes")),
+        (MARRIED_NO, _(u"No")),
+        #(MARRIED_UNKNOWN, _(u"Unknown"))
+    )
+
+    married = models.BooleanField(_(u"Married?"), \
+                                        choices=MARRIED_CHOICES)
+    pregnancies = models.PositiveSmallIntegerField(_("Number of Pregancies"))
+    number_of_children = models.PositiveSmallIntegerField(_("Number of " \
+                                                            "Pregancies"), \
+                                                            default=0,
+                                                        blank=True, null=True)
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('married')[0].verbose_name, \
+            self.married)
+        string += u", %s: %s" % \
+            (self._meta.get_field_by_name('pregnancies')[0].verbose_name, \
+            self.pregnancies)
+        string += u", %s: %s" % \
+            (self._meta.get_field_by_name('number_of_children')[0]\
+                .verbose_name, self.number_of_children)
+        return string
+reversion.register(PregnancyRegistrationReport, follow=['ccreport_ptr'])
