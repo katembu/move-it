@@ -23,9 +23,9 @@ from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.models.ccreports import TheCHWReport, ClinicReport
-from childcount.models.ccreports import Month_Summary_Report
-from childcount.models.ccreports import General_Summary_Report
-from childcount.models.ccreports import SummaryReport, Week_Summary_Report
+from childcount.models.ccreports import MonthSummaryReport
+from childcount.models.ccreports import GeneralSummaryReport
+from childcount.models.ccreports import SummaryReport, WeekSummaryReport
 from childcount.models.bdntreports import BednetHousehold
 from childcount.utils import clean_names
 
@@ -72,13 +72,13 @@ def index(request):
     sr = SummaryReport.summary()
     info.update(sr)
     #This Week Summary Report
-    wsr = Week_Summary_Report.summary()
+    wsr = WeekSummaryReport.summary()
     info.update(wsr)
     #This month summary report
-    msr = Month_Summary_Report.summary()
+    msr = MonthSummaryReport.summary()
     info.update(msr)
     #General Summary report -  all
-    gsr = General_Summary_Report.summary()
+    gsr = GeneralSummaryReport.summary()
     info.update(gsr)
     
 
@@ -422,10 +422,9 @@ def pagenator(getpages, reports):
         in_leading_range = in_trailing_range = False
         pages_outside_leading_range = pages_outside_trailing_range = range(0)
 
-
         if (getpages.num_pages <= LEADING_PAGE_RANGE_DISPLAYED):
             in_leading_range = in_trailing_range = True
-            page_numbers = [n for n in range(1,\
+            page_numbers = [n for n in range(1, \
                   getpages.num_pages + 1) if n > 0 and n <= getpages.num_pages]
         elif (reports.number <= LEADING_PAGE_RANGE):
             in_leading_range = True
@@ -464,4 +463,5 @@ def pagenator(getpages, reports):
             "in_leading_range": in_leading_range,
             "in_trailing_range": in_trailing_range,
             "pages_outside_leading_range": pages_outside_leading_range,
-            "pages_outside_trailing_range": pages_outside_trailing_range}
+            "pages_outside_trailing_range": pages_outside_trailing_range
+            }

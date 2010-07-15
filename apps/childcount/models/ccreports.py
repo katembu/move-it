@@ -13,6 +13,7 @@ from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport, FollowUpReport
+from childcount.models import ImmunizationSchedule, ImmunizationNotification
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week, \
                                 get_median, seven_days_to_date, \
@@ -83,6 +84,29 @@ class ThePatient(Patient):
             if self.status in status:
                 return status[1]
         return ''
+
+
+    def generate_schedule(self):
+        schedule = ImmunizationSchedule.objects.all()
+        for period in schedule:
+            patient_dob = self.dob
+            notify_on = datetime.today()
+            ImmunizationNotification = ImmunizationNotification()
+            if not ImmunizationNotification.objects.filter(patient=self, \
+                                                        immunization=period):
+                ImmunizationNotification.patient = self
+                if period.period_type == ImmunizationSchedule.PERIOD_DAYS:
+                    notify_on = patient_dob + timedelta(period.period)
+                    ImmunizationNotification.notify_on = notify_on
+                if period.period_type == ImmunizationSchedule.PERIOD_WEEKS:
+                    notify_on = patient_dob + timedelta(period.period * 7)
+                    ImmunizationNotification.notify_on = notify_on
+                if period.period_type == ImmunizationSchedule.PERIOD_MONTHS:
+                    notify_on = patient_dob + timedelta(30.4375 * period.period)
+                    ImmunizationNotification.notify_on = notify_on
+
+                ImmunizationNotification.save()
+
 
     @classmethod
     def under_five(cls, chw=None):
@@ -711,7 +735,7 @@ class SummaryReport():
                             "num_pregnant": sr.num_pregnant()}}
 
 
-class Week_Summary_Report():
+class WeekSummaryReport():
 
     '''This week Summary Reports'''
     def num_of_patients(self, startDate=None, endDate=None):
@@ -774,7 +798,7 @@ class Week_Summary_Report():
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
 
-class Month_Summary_Report():
+class MonthSummaryReport():
 
     '''This month Summary Reports'''
     def num_of_patients(self, startDate=None, endDate=None):
@@ -836,7 +860,7 @@ class Month_Summary_Report():
                                     startDate=startDate, endDate=endDate), \
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
-class General_Summary_Report():
+class GeneralSummaryReport():
 
     '''This month Summary Reports'''
     def num_of_patients(self, startDate=None, endDate=None):
