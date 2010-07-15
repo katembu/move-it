@@ -46,3 +46,5 @@ from childcount.forms.BednetIssuedForm import BednetIssuedForm
 
 from childcount.forms.AntenatalVisitForm import AntenatalVisitForm
 from childcount.forms.AppointmentForm import AppointmentForm
+from childcount.forms.PregnancyRegistrationForm import \
+                                                    PregnancyRegistrationForm
