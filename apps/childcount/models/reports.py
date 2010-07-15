@@ -1163,6 +1163,7 @@ class AppointmentReport(CCReport):
 
     def summary(self):
         string = u"%s: %s" % \
-            (self._meta.get_field_by_name('appointment_date')[0].verbose_name)
+            (self._meta.get_field_by_name('appointment_date')[0].verbose_name,\
+             self.appointment_date)
         return string
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
