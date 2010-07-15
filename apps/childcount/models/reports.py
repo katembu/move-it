@@ -1134,7 +1134,7 @@ class AntenatalVisitReport(CCReport):
                                         choices=BLOOD_DRAWN_CHOICES)
 
     def summary(self):
-        string = u"%s: %d, %s: %d" % \
+        string = u"%s: %d, %s: %s" % \
             (self._meta.get_field_by_name('pregnancy_week')[0].verbose_name, \
              self.pregnancy_week,
              self._meta.get_field_by_name('expected_on')[0].verbose_name, \
