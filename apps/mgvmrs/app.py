@@ -53,7 +53,7 @@ class App (rapidsms.app.App):
 
     def handle(self, message):
         # debug only.
-        if not message.text == ('omrs process encounters queue'):
+        if not message.text == 'omrs process encounters queue':
             return False
 
         message.respond(u"Launching Encounters queue processing.")
