@@ -77,7 +77,7 @@ class Encounter(models.Model):
             return False
         now = datetime.now()
         td = timedelta(minutes=self.TIMEOUT)
-        return self.encounter_date > (now - td)
+        return self.encounter_date < (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \
