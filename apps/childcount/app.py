@@ -14,7 +14,6 @@ from reversion import revision
 import rapidsms
 from reporters.models import Reporter
 from locations.models import Location
-from scheduler.models import EventSchedule
 
 from childcount.models import Configuration as Cfg
 from childcount.models import Patient, Encounter, FormGroup, CHW
