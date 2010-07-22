@@ -20,7 +20,6 @@ from childcount.models import Patient, Encounter, FormGroup, CHW
 from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
-from childcount.schedules import *
 from childcount.utils import respond_exceptions, KeywordMapper
 
 
