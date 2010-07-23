@@ -29,8 +29,8 @@ class BednetLookupForm(CCForm):
                                 {'patient': patient})
         else:
             ssite = int(bnr.sleeping_sites)
-            active_bdnet = int(bnr.nets)
-            bdnt_needed = ssite - active_bdnet
+            active_bednet = int(bnr.function_nets)
+            bdnt_needed = ssite - active_bednet
             #check bednet issued to date
             bdnt_issued = BednetIssuedReport.objects.filter(\
                                     encounter__patient=self.encounter.patient)\
@@ -43,10 +43,11 @@ class BednetLookupForm(CCForm):
             bdnt_required = bdnt_needed - bdnt_issued
 
             if bdnt_required <= 0:
-                self.response = _(u"%(patient)s has already %(nets)d bednets" \
-                                   "for %(site)d sites.") % \
+                self.response = _(u"%(patient)s has already received " \
+                                   "%(nets)d bednets for %(site)d sites." \
+                                   "Required: %(req)d ") % \
                                    {'patient': patient, 'nets': bdnt_needed, \
-                                    'site': bdnt_needed}
+                                    'site': bdnt_needed, 'req': bdnt_required}
 
             else:
                 self.response = _(u"%(patient)s need %(nets)d bednets " \

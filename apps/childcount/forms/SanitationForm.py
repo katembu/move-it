@@ -34,14 +34,13 @@ class SanitationForm(CCForm):
                                      'NS')
         sanit_field.add_choice('en', SanitationReport.OTHER, 'Z')
 
-        #share status choice
-        share_field = MultipleChoiceField()
-        share_field.add_choice('en', SanitationReport.SHARE_YES, 'Y')
-        share_field.add_choice('en', SanitationReport.SHARE_NO, 'N')
-        share_field.add_choice('en', SanitationReport.SHARE_UNKOWN, 'U')
+        sanit_share = MultipleChoiceField()
+        sanit_share.add_choice('en', SanitationReport.PB, 'PB')
+        sanit_share.add_choice('en', SanitationReport.U, 'U')
 
         try:
-            snr = SanitationReport.objects.get(encounter=self.encounter)
+            snr = SanitationReport.objects.get(encounter__patient=self.\
+                                        encounter.patient)
             snr.reset()
         except SanitationReport.DoesNotExist:
             snr = SanitationReport(encounter=self.encounter)
@@ -49,28 +48,31 @@ class SanitationForm(CCForm):
         snr.form_group = self.form_group
 
         sanit_field.set_language(self.chw.language)
-        share_field.set_language(self.chw.language)
+        sanit_share.set_language(self.chw.language)
 
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: | What kind of " \
-                                "toilet " \
-                                "facility do members of your household " \
-                                "use | do you share? |"))
+                                "toilet facility do members of your  " \
+                                "household use | how many share? |"))
 
         toilet_latrine = self.params[1]
         if not sanit_field.is_valid_choice(toilet_latrine):
-            raise ParseError(_(u"| Toilet type | must be %(choices)s.") \
+            raise ParseError(_(u"Toilet type must be %(choices)s.") \
                              % {'choices': sanit_field.choices_string()})
 
         snr.toilet_lat = sanit_field.get_db_value(toilet_latrine)
 
         share_toilet = self.params[2]
-        if not share_field.is_valid_choice(share_toilet):
-            raise ParseError(_(u"|Do you share toilet?| must be " \
+        if share_toilet.isdigit():
+            snr.share_toilet = int(share_toilet)
+        elif sanit_share.is_valid_choice(share_toilet):
+            snr.share_toilet = sanit_share.get_db_value(share_toilet)
+        else:
+            raise ParseError(_(u"Do you share toilet? must be a number, " \
                                 "%(choices)s.") % \
-                                {'choices': share_field.choices_string()})
-        share_toilet = share_field.get_db_value(share_toilet)
-
-        snr.share_toilet = share_toilet
+                                {'choices': sanit_share.choices_string()})
 
         snr.save()
+
+        self.response = _(u"Primary Sanitation: %(san)s Share: %(share)s ") % \
+                           {'san': snr.toilet_lat, 'share': self.params[2]}

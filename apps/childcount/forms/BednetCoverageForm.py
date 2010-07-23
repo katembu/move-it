@@ -18,9 +18,10 @@ class BednetCoverageForm(CCForm):
     ENCOUNTER_TYPE = Encounter.TYPE_HOUSEHOLD
 
     def process(self, patient):
-        if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info. Expected: | sleeping sites " \
-                                "| number of bednets |"))
+        if len(self.params) < 5:
+            raise ParseError(_(u"Not enough info. Expected: | sleeping" \
+                                " sites | number of function bednets |" \
+                                " earlier bednet | damaged bednet "))
 
         try:
             bnr = BedNetReport.objects.get(encounter__patient=self.\
@@ -35,19 +36,33 @@ class BednetCoverageForm(CCForm):
         bnr.form_group = self.form_group
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"| Number of sleeping sites | must be " \
+            raise ParseError(_(u"Number of sleeping sites must be " \
                                 "a number."))
 
         bnr.sleeping_sites = int(self.params[1])
 
         if not self.params[2].isdigit():
-            raise ParseError(_(u"| Number of bednets | must be a " \
-                                "number."))
+            raise ParseError(_(u"Number of functioning(recent received) " \
+                                "bednet must be a number."))
 
-        bnr.nets = int(self.params[2])
+        bnr.function_nets = int(self.params[2])
+        bnr.function_nets
+        if not self.params[3].isdigit():
+            raise ParseError(_(u"Number of bednets received earlier " \
+                                "must be a number."))
+
+        bnr.earlier_nets = int(self.params[3])
+
+        if not self.params[4].isdigit():
+            raise ParseError(_(u"Number of damaged bednets received " \
+                                "recent must be a  number."))
+
+        bnr.damaged_nets = int(self.params[4])
         bnr.save()
 
         self.response = _(u"%(patient)s: %(sites)d sleeping site(s), " \
-                           "%(nets)d bednet(s).") % \
+                           "%(nets)d bednet(s) Earlier: %(er)d " \
+                           "Damaged bednet: %(dm)d.") % \
                            {'patient': patient, 'sites': bnr.sleeping_sites, \
-                            'nets': bnr.nets}
+                            'nets': bnr.function_nets, \
+                            'er': bnr.earlier_nets, 'dm': bnr.damaged_nets}

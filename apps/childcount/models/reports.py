@@ -923,22 +923,23 @@ class BedNetReport(CCReport):
     sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
                             help_text=_(u"Number of sleeping sites"))
 
-    nets = models.PositiveSmallIntegerField(_(u"Bednets"), \
-                            help_text=_(u"Number of functioning bednets " \
-                                         "in the household"))
+    function_nets = models.PositiveSmallIntegerField(_(u"Recent Bednets"), \
+                            help_text=_(u"Number of functioning bednets "))
+    earlier_nets = models.PositiveSmallIntegerField(_(u"Earlier Bednets"), \
+                            help_text=_(u"Number of bednets received " \
+                            "earlier "))
+    damaged_nets = models.PositiveSmallIntegerField(_(u"Damaged Bednets"), \
+                            help_text=_(u"Number of recent bednets that are" \
+                                        "damaged "))
+
 
     def summary(self):
         return u"%s: %d, %s: %d" % \
             (self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
              self.sleeping_sites, \
-             self._meta.get_field_by_name('nets')[0].verbose_name, \
+             self._meta.get_field_by_name('function_nets')[0].verbose_name, \
              self.nets)
 
-    def get_omrs_dict(self):
-        return {
-            'sleeping_sites': self.sleeping_sites,
-            'bednets': self.nets,
-        }
 reversion.register(BedNetReport, follow=['ccreport_ptr'])
 
 
@@ -950,15 +951,39 @@ class BednetUtilization(CCReport):
         verbose_name = _(u"Bednet utilization Report")
         verbose_name_plural = _(u"Bednet utilization reports")
 
-    child_underfive = models.PositiveSmallIntegerField(_(u"Number of " \
-                                            "children under five "), \
-                            help_text=_(u"Number of children under five who " \
-                                        " slept here last night."))
+    DONT_HAVE = 'NH'
+    BEDNET_DAMAGED = 'BD'
+    DIFFICULT_HUNG = 'DH'
+    SMALL_ROOM = 'SR'
+    DIFFICULT_BREATHE = 'DB'
+    NOT_EFFECTIVE = 'NE'
+    OTHER = 'Z'
+    UNKNOWN = 'U'
+    U = -1
 
-    child_lastnite = models.PositiveSmallIntegerField(_(u"Number of children" \
-                                            "under five"), \
-                            help_text=_(u"Number of children under five who " \
-                                           "slept under a bednet last night."))
+    REASON_CHOICES = (
+        (DIFFICULT_BREATHE, _(u'Difficult to breathe')),
+        (NOT_EFFECTIVE, _(u'Dont think its effective')),
+        (SMALL_ROOM, _(u'Room too small')),
+        (DIFFICULT_HUNG, _(u'Difficult to hung')),
+        (BEDNET_DAMAGED, _(u'Bednet damaged')),
+        (DONT_HAVE, _(u'Dont have')),
+        (UNKNOWN, _(u'Unknown')),
+        (OTHER, _(u'Other')))
+        
+    child_underfive = models.PositiveSmallIntegerField(_(u"children under " \
+                            " five "), help_text=_(u"Number of children " \
+                            "under five who slept here last night."))
+    child_lastnite = models.PositiveSmallIntegerField(_(u"Children slept " \
+                            "under bednet"), help_text=_(u"Number of children" \
+                            " under five who slept under bednet last night."))
+    hanging_bednet= models.SmallIntegerField(_(u"Number of hanging" \
+                            "Bednet"), help_text=_(u"Number of hanging " \
+                            "bednet"))
+    reason = models.CharField(_(u"Reason "), \
+                            help_text=_(u"reason why some children" \
+                            "did sleep under bednet"), null=True, blank=True, \
+                            max_length=2, choices=REASON_CHOICES)
 
     def summary(self):
         return u"%s: %d, %s: %d" % \
@@ -999,19 +1024,15 @@ class SanitationReport(CCReport):
         (NO_FACILITY_OR_BUSH, _(u'No facility')),
         (OTHER, _(u'Other')))
 
-    SHARE_YES = 'Y'
-    SHARE_NO = 'N'
-    SHARE_UNKOWN = 'U'
-    SHARE_CHOICES = (
-        (SHARE_YES, _(u"Yes")),
-        (SHARE_NO, _(u"No")),
-        (SHARE_UNKOWN, _(u"Unknown")))
+    PB = -2
+    U = -1
 
-    toilet_lat = models.CharField(_(u"Toilet Type"), max_length=1, \
+    toilet_lat = models.CharField(_(u"Toilet Type"), max_length=2, \
                               choices=TOILET_LAT_CHOICES)
-    share_toilet = models.CharField(_(u"Do you share?"), max_length=1, \
-                              choices=SHARE_CHOICES, help_text=_(u"Do you " \
-                                "share the toilet?"))
+    share_toilet = models.SmallIntegerField(_(u"How many do you share?"), \
+                                help_text=_(u"How many people" \
+                                "share the toilet(open to public = -1, " \
+                                "unknown = -2 )"))
 reversion.register(SanitationReport, follow=['ccreport_ptr'])
 
 
@@ -1046,16 +1067,10 @@ class DrinkingWaterReport(CCReport):
         (SURFACE_WATER, _(u'Surface water (river, dam, lake, pond, stream')),
         (OTHER, _(u'Other')))
 
-    TREAT_YES = 'Y'
-    TREAT_NO = 'N'
-    TREAT_UNKOWN = 'U'
-    TREAT_CHOICES = (
-        (TREAT_YES, _(u"Yes")),
-        (TREAT_NO, _(u"No")),
-        (TREAT_UNKOWN, _(u"Dont know")))
-
+ 
     TREATMENT_METHOD_BOIL = 'BW'
-    TREATMENT_METHOD_ADDBLEACH_CHLORINE = 'AC'
+    TREATMENT_METHOD_DONATED_CHLORINE = 'DC'
+    TREATMENT_METHOD_BOUGHT_CHLORINE = 'BC'
     TREATMENT_METHOD_CLOTH = 'SC'
     TREATMENT_METHOD_WATERFILTER = 'WF'
     TREATMENT_METHOD_SOLARDISINFECTION = 'SR'
@@ -1064,7 +1079,8 @@ class DrinkingWaterReport(CCReport):
     TREATMENT_METHOD_DONTKNOW = 'U'
     TREATMENT_CHOICES = (
         (TREATMENT_METHOD_BOIL, _(u"Boil water")),
-        (TREATMENT_METHOD_ADDBLEACH_CHLORINE, _(u"Add bleach/chlorine")),
+        (TREATMENT_METHOD_DONATED_CHLORINE, _(u"Donated bleach/chlorine")),
+        (TREATMENT_METHOD_BOUGHT_CHLORINE, _(u"Bought bleach/chlorine")),
         (TREATMENT_METHOD_CLOTH, _(u"Strain it through cloth")),
         (TREATMENT_METHOD_WATERFILTER, _(u"Use water filter: sand/ceramic")),
         (TREATMENT_METHOD_SOLARDISINFECTION, _(u"Solar disinfection")),
@@ -1072,18 +1088,10 @@ class DrinkingWaterReport(CCReport):
         (TREATMENT_METHOD_OTHER, _(u"Other")),
         (TREATMENT_METHOD_DONTKNOW, _(u"Dont know")),)
 
-    water_source = models.CharField(_(u"Water Source"), max_length=1, \
-                              choices=DRNKWATER_CHOICES)
-    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
-                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
-                                "treat water"))
 
-    water_source = models.CharField(_(u"Water Source"), max_length=1, \
+    water_source = models.CharField(_(u"Water Source"), max_length=2, \
                               choices=DRNKWATER_CHOICES)
-    treat_water = models.CharField(_(u"Do you treat water"), max_length=1, \
-                              choices=TREAT_CHOICES, help_text=_(u"Do you " \
-                                "treat water"))
-    treatment_method = models.CharField(_(u"Treatment method"), max_length=1, \
+    treatment_method = models.CharField(_(u"Treatment method"), max_length=2, \
                               choices=TREATMENT_CHOICES, help_text=_(u"What " \
                                 "do you use to make it safer to drink"), \
                                 blank=True)
@@ -1096,7 +1104,7 @@ class BednetIssuedReport(CCReport):
         app_label = 'childcount'
         db_table = 'cc_bdnstc_rpt'
         verbose_name = _(u"Bednet Distribution Report")
-        verbose_name = _(u"Betnet Distribution Reports")
+        verbose_name_plural= _(u"Betnet Distribution Reports")
 
     bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"))
 

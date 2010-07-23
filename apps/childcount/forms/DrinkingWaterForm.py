@@ -37,18 +37,14 @@ class DrinkingWaterForm(CCForm):
         wats_field.add_choice('en', DrinkingWaterReport.SURFACE_WATER, 'SU')
         wats_field.add_choice('en', DrinkingWaterReport.OTHER, 'Z')
 
-        #treatment status choice
-        treat_field = MultipleChoiceField()
-        treat_field.add_choice('en', DrinkingWaterReport.TREAT_YES, 'Y')
-        treat_field.add_choice('en', DrinkingWaterReport.TREAT_NO, 'N')
-        treat_field.add_choice('en', DrinkingWaterReport.TREAT_UNKOWN, 'U')
-
         #method used
         tmethod_field = MultipleChoiceField()
         tmethod_field.add_choice('en', DrinkingWaterReport. \
                                         TREATMENT_METHOD_BOIL, 'BW')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
-                                    TREATMENT_METHOD_ADDBLEACH_CHLORINE, 'AC')
+                                    TREATMENT_METHOD_BOUGHT_CHLORINE, 'BC')
+        tmethod_field.add_choice('en', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_DONATED_CHLORINE, 'DC')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
                                     TREATMENT_METHOD_CLOTH, 'SC')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
@@ -63,7 +59,8 @@ class DrinkingWaterForm(CCForm):
                                     TREATMENT_METHOD_DONTKNOW, 'U')
 
         try:
-            drnkr = DrinkingWaterReport.objects.get(encounter=self.encounter)
+            drnkr = DrinkingWaterReport.objects.get(encounter__patient=self.\
+                                        encounter.patient)
             drnkr.reset()
         except DrinkingWaterReport.DoesNotExist:
             drnkr = DrinkingWaterReport(encounter=self.encounter)
@@ -71,41 +68,32 @@ class DrinkingWaterForm(CCForm):
         drnkr.form_group = self.form_group
 
         wats_field.set_language(self.chw.language)
-        treat_field.set_language(self.chw.language)
         tmethod_field.set_language(self.chw.language)
 
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: | What is " \
-                                "source of water | do you treat ? | what do " \
-                                "you use to treat? |"))
+                                "source of water | what do you use to  " \
+                                "treat water ? |"))
 
         wats = self.params[1]
         if not wats_field.is_valid_choice(wats):
-            raise ParseError(_(u"|Water Source| must be %(choices)s.") \
+            raise ParseError(_(u"|Water Source must be %(choices)s.") \
                              % {'choices': wats_field.choices_string()})
 
         drnkr.water_source = wats_field.get_db_value(wats)
 
-        treat = self.params[2]
-        if not treat_field.is_valid_choice(treat):
-            raise ParseError(_(u"|Do you treat water?| must be " \
-                                "%(choices)s.") % \
-                                {'choices': treat_field.choices_string()})
-        treat_water = treat_field.get_db_value(treat)
+        self.response = _(u"Primary water source: %(water)s ") % \
+                           {'water': drnkr.water_source}
 
-        drnkr.treat_water = treat_water
-
-        if treat_water in (DrinkingWaterReport.TREAT_YES):
-            if len(self.params) < 3:
-                raise ParseError(_(u"Not enough info. Expected: " \
-                                    "Method used to treat water "))
-
-            if not tmethod_field.is_valid_choice(self.params[3]):
-                raise ParseError(_(u"|Which method do you use?| must be " \
+        if len(self.params) > 2:
+            if not tmethod_field.is_valid_choice(self.params[2]):
+                raise ParseError(_(u"Which method do you use? must be " \
                                 "%(choices)s.") % \
                                 {'choices': tmethod_field.choices_string()})
 
-            method_used = tmethod_field.get_db_value(self.params[3])
+            method_used = tmethod_field.get_db_value(self.params[2])
+            drnkr.treatment_method = method_used
+            self.response += _(", Treatment method: %(treatment)s ") % \
+                            {'treatment': drnkr.treatment_method}
 
-        drnkr.treatment_method = method_used
         drnkr.save()

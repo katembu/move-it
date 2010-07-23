@@ -27,9 +27,9 @@ class BednetDistributionForm(CCForm):
             raise ParseError(_(u"Report Survey doesnt exist for " \
                                 "%(patient)s ") % {'patient': patient})
         else:
-            ssite = bnr.sleeping_sites
-            active_bdnet = bnr.nets
-            bdnt_needed = ssite - active_bdnet
+            ssite = int(bnr.sleeping_sites)
+            active_bednet = int(bnr.function_nets)
+            bdnt_needed = ssite - active_bednet
 
         #create object
         try:
@@ -45,23 +45,42 @@ class BednetDistributionForm(CCForm):
                                     encounter__patient=self.encounter.patient)\
                                     .aggregate(\
                                     stotal=Sum('bednet_received'))['stotal']
+
         if bdnt_issued is None:
             bdnt_issued = 0
 
         #calculate bednet required to be issued
         bdnt_required = bdnt_needed - bdnt_issued
         #if less then zero nno bed ned required
-        if bdnt_required < 0:
+        if bdnt_required <= 0:
             self.response = _(u"%(patient)s has already received %(nets)d " \
-                               "nets for %(site)d sleeping sites.") % \
+                               "nets for %(site)d sleeping sites.Last " \
+                               "received") % \
                                {'patient': patient, 'nets': bdnt_needed, \
                                 'site': bdnt_needed}
+            try:
+                last_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self.encounter.patient)\
+                                    .latest()
+            except BednetIssuedReport.DoesNotExist:
+                self.response += _(u": None")
+
+            self.response += _(u" %(last_issued)d bednet") % \
+                               {'last_issued': last_issued.bednet_received}
         else:
             self.response = _(u"%(patient)s. %(ssite)d Sleeping sites.Need " \
-                               "%(bdnt_required)d bednet(s).Last " \
-                               "received: ") % \
+                               "%(bdnt_required)d bednet(s).Last received") % \
                                {'patient': patient, 'ssite': bdnt_needed, \
                                 'bdnt_required': bdnt_required}
+            try:
+                last_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self.encounter.patient)\
+                                    .latest()
+            except BednetIssuedReport.DoesNotExist:
+                self.response += _(u": None")
+
+            self.response += _(u" %(last_issued)d bednet") % \
+                               {'last_issued': last_issued.bednet_received}
 
         pr.bednet_received = bdnt_required
         pr.save()

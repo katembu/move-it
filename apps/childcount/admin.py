@@ -50,6 +50,7 @@ admin.site.register(MedicineGivenReport, VersionAdmin)
 #Bednet Sanitation
 admin.site.register(BednetUtilization, VersionAdmin)
 admin.site.register(SanitationReport, VersionAdmin)
+admin.site.register(BednetIssuedReport, VersionAdmin)
 admin.site.register(DrinkingWaterReport, VersionAdmin)
 #PMTCT
 admin.site.register(AntenatalVisitReport, VersionAdmin)
