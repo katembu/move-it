@@ -271,21 +271,14 @@ def patient(request):
                             report}))} for col in columns]
         rows.append(row)
 
-    for col in columns[1:] + (sub_columns if sub_columns != None else []):
-        if not 'colspan' in col:
-            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": true },"
     print columns[1:]
-    aocolumns_js = aocolumns_js[:-1]
 
-    aggregate = False
     print columns
     print sub_columns
     print len(rows)
     context_dict = {'get_vars': request.META['QUERY_STRING'],
                     'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title,
-                    'aocolumns_js': aocolumns_js}
+                    'rows': rows, 'report_title': report_title}
 
     if getpages.num_pages > 1:
         context_dict.update(pagenator(getpages, reports))
