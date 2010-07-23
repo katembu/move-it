@@ -59,7 +59,8 @@ class DrinkingWaterForm(CCForm):
                                     TREATMENT_METHOD_DONTKNOW, 'U')
 
         try:
-            drnkr = DrinkingWaterReport.objects.get(encounter=self.encounter)
+            drnkr = DrinkingWaterReport.objects.get(encounter__patient=self.\
+                                        encounter.patient)
             drnkr.reset()
         except DrinkingWaterReport.DoesNotExist:
             drnkr = DrinkingWaterReport(encounter=self.encounter)
