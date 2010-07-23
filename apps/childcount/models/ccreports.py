@@ -63,7 +63,8 @@ class ThePatient(Patient):
 
     def ontime_muac(self):
         try:
-            nr = NutritionReport.objects.filter(encounter__patient=self).latest()
+            nr = NutritionReport.objects\
+                    .filter(encounter__patient=self).latest()
             latest_date = nr.encounter.encounter_date
             old_date = latest_date - timedelta(90)
             nr = NutritionReport.objects.filter(encounter__patient=self, \
@@ -85,28 +86,27 @@ class ThePatient(Patient):
                 return status[1]
         return ''
 
-
     def generate_schedule(self):
         schedule = ImmunizationSchedule.objects.all()
         for period in schedule:
             patient_dob = self.dob
             notify_on = datetime.today()
-            ImmunizationNotification = ImmunizationNotification()
+            immunization = ImmunizationNotification()
             if not ImmunizationNotification.objects.filter(patient=self, \
                                                         immunization=period):
-                ImmunizationNotification.patient = self
+                immunization.patient = self
+                immunization.immunization = period
                 if period.period_type == ImmunizationSchedule.PERIOD_DAYS:
                     notify_on = patient_dob + timedelta(period.period)
-                    ImmunizationNotification.notify_on = notify_on
+                    immunization.notify_on = notify_on
                 if period.period_type == ImmunizationSchedule.PERIOD_WEEKS:
                     notify_on = patient_dob + timedelta(period.period * 7)
-                    ImmunizationNotification.notify_on = notify_on
+                    immunization.notify_on = notify_on
                 if period.period_type == ImmunizationSchedule.PERIOD_MONTHS:
                     notify_on = patient_dob + timedelta(30.4375 * period.period)
-                    ImmunizationNotification.notify_on = notify_on
+                    immunization.notify_on = notify_on
 
-                ImmunizationNotification.save()
-
+                immunization.save()
 
     @classmethod
     def under_five(cls, chw=None):
@@ -280,7 +280,7 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return int(round((num_on_time/float(total_households))*100))
+            return int(round((num_on_time / float(total_households)) * 100))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
@@ -294,7 +294,7 @@ class TheCHWReport(CHW):
                 count += 1
         if not count:
             return count
-        return int(round(100 * (count/float(births.count()))))
+        return int(round(100 * (count / float(births.count()))))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
@@ -305,7 +305,7 @@ class TheCHWReport(CHW):
         num_of_births = self.num_of_births()
         if num_of_births == 0:
             return 0
-        return int(round(num_of_clinic_delivery/float(num_of_births))*100)
+        return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -323,7 +323,7 @@ class TheCHWReport(CHW):
         return FeverReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
-                   
+
     def num_underfive_diarrhea(self):
         #TODO
         return 0
@@ -339,7 +339,7 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = underfives.count()
-            return int(round(100 * (count/float(total_count))))
+            return int(round(100 * (count / float(total_count))))
 
     def num_of_active_sam_cases(self):
         count = 0
@@ -396,7 +396,7 @@ class TheCHWReport(CHW):
             return count
         else:
             total_count = len(pwomen)
-            return int(round(100*(count/float(total_count))))
+            return int(round(100 * (count / float(total_count))))
 
     def percentage_ontime_followup(self):
         referrals = ReferralReport.objects.filter(encounter__chw=self)
@@ -455,7 +455,7 @@ class TheCHWReport(CHW):
         today = datetime.today()
         startDate = today - timedelta(today.weekday())
         p = {}
-        
+
         p['sdate'] = startDate.day
         p['edate'] = today.day
         p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
@@ -494,11 +494,13 @@ class TheCHWReport(CHW):
 
         info = _(u"[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {" \
                         "legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% " \
-                        "Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe " \
-                        " Completely\", \"%(unkp)d%% Unknown\"]") % \
+                        "Moderate\",\"%(svp)d%% Severe\", " \
+                        "\"%(scm)d%% Severe Completely\", " \
+                        "\"%(unkp)d%% Unknown\"]") % \
                         {'hel': num_healthy, 'mmod': num_mam, 'sev': num_sam, \
                             'sevcomp': num_comp, 'unkwn': unkwn, 'hp': hp, \
-                            'mp': modp, 'svp': svp, 'scm': svcomp, 'unkp': unkp}
+                            'mp': modp, 'svp': svp, 'scm': svcomp, \
+                            'unkp': unkp}
         return info
 
     @classmethod
@@ -570,14 +572,15 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__gt=start, \
                             encounter__encounter_date__lte=end).count()
 
-            data.append({'day': day["day"], 'total': num, 'correcct_sm': csms, \
-                         'wrong_sms': total_error_sms, 'muac': nutr, \
-                         'rdt': fr, 'householdv': hvr})
+            data.append({'day': day["day"], 'total': num, \
+                         'correcct_sm': csms, 'wrong_sms': total_error_sms, \
+                         'muac': nutr, 'rdt': fr, 'householdv': hvr})
         return data
 
 
 class OperationalReport():
     columns = []
+
     def __init__(self):
         columns = []
         columns.append({'name': _("CHW"), 'bit': '{{object}}'})
@@ -590,7 +593,8 @@ class OperationalReport():
                 'bit': '{{object.percentage_ontime_visits}}%'})
         columns.append({'name': _("# of Births"), \
                 'bit': '{{object.num_of_births}}'})
-        columns.append({'name': _("% Births delivered in Health Facility [S4]"),
+        columns.append({'name': _("% Births delivered in "\
+                                    "Health Facility [S4]"),
                 'bit': '{{object.percentage_clinic_deliveries}}%'})
         columns.append({'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
@@ -610,7 +614,8 @@ class OperationalReport():
                 'bit': '{{object.num_of_active_sam_cases}}'})
         columns.append({'name': _("# of Pregnant Women"), \
                 'bit': '{{object.num_of_pregnant_women}}'})
-        columns.append({'name': _("# Pregnant Women Referred for Danger Signs"),
+        columns.append({'name': _("# Pregnant Women Referred for "\
+                                    "Danger Signs"),
                 'bit': '{{object.num_pregnant_refferred}}'})
         columns.append({'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
@@ -798,6 +803,7 @@ class WeekSummaryReport():
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
 
+
 class MonthSummaryReport():
 
     '''This month Summary Reports'''
@@ -860,6 +866,8 @@ class MonthSummaryReport():
                                     startDate=startDate, endDate=endDate), \
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
+
+
 class GeneralSummaryReport():
 
     '''This month Summary Reports'''
