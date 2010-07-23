@@ -61,7 +61,7 @@ class BednetCoverageForm(CCForm):
         bnr.save()
 
         self.response = _(u"%(patient)s: %(sites)d sleeping site(s), " \
-                           "%(nets)d bednet(s) Earlier: %(er)d" \
+                           "%(nets)d bednet(s) Earlier: %(er)d " \
                            "Damaged bednet: %(dm)d.") % \
                            {'patient': patient, 'sites': bnr.sleeping_sites, \
                             'nets': bnr.function_nets, \

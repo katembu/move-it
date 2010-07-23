@@ -27,9 +27,9 @@ class BednetIssuedForm(CCForm):
             raise ParseError(_(u"Survey Report doesnt exist for %(pat)s") % \
                                 {'pat': patient})
         else:
-            ssite = bnr.sleeping_sites
-            active_bdnet = bnr.nets
-            bdnt_needed = ssite - active_bdnet
+            ssite = int(bnr.sleeping_sites)
+            active_bednet = int(bnr.function_nets)
+            bdnt_needed = ssite - active_bednet
 
         #Check earlier report and modify
         try:
