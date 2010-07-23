@@ -10,7 +10,6 @@ from childcount.models import *
 
 admin.site.register(Configuration)
 admin.site.register(CHW)
-admin.site.register(Encounter, VersionAdmin)
 admin.site.register(FormGroup)
 admin.site.register(Clinic)
 
@@ -24,6 +23,10 @@ admin.site.register(Patient, PatientAdmin)
 class HealthIdAdmin(VersionAdmin):
     search_fields = ['health_id']
 admin.site.register(HealthId, HealthIdAdmin)
+
+class EncounterAdmin(VersionAdmin):
+    list_filter = ['sync_omrs', 'type']
+admin.site.register(Encounter, EncounterAdmin)
 
 #Reports
 admin.site.register(CCReport, VersionAdmin)
