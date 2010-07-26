@@ -8,7 +8,11 @@ import itertools
 from functools import wraps
 
 import rapidsms
+import urllib2
 
+from urllib import urlencode
+
+from django.conf import settings
 from django.utils.translation import gettext as _
 from childcount.exceptions import *
 
@@ -630,3 +634,18 @@ class RotatedParagraph(Flowable):
         #drawOn(canvas, x, y)
         self.paragraph.drawOn(canv, 0, -(self.height))
 
+def send_msg(reporter, text):
+   '''
+   Sends a message to a reporter using the ajax app.  This goes to
+   ajax_POST_send_message in findtb app.py
+   '''
+   
+     
+   conf = settings.RAPIDSMS_APPS['ajax']
+   url = "http://%s:%s/childcount/send_message" % (conf["host"], conf["port"])
+
+   data = {'reporter': reporter.pk, \
+           'text': text}
+   req = urllib2.Request(url, urlencode(data))
+   stream = urllib2.urlopen(req)
+   stream.close()
