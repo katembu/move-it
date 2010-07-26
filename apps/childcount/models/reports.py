@@ -1185,22 +1185,27 @@ class PregnancyRegistrationReport(CCReport):
         verbose_name = _(u"Pregnancy Registration")
         verbose_name_plural = _(u"Pregnancy Registrations")
 
-    MARRIED_YES = True
-    MARRIED_NO = False
-    #MARRIED_UNKNOWN = 'U'
+    MARRIED_YES = 'Y'
+    MARRIED_NO = 'N'
+    MARRIED_UNKNOWN = 'U'
     MARRIED_CHOICES = (
         (MARRIED_YES, _(u"Yes")),
         (MARRIED_NO, _(u"No")),
-        #(MARRIED_UNKNOWN, _(u"Unknown"))
+        (MARRIED_UNKNOWN, _(u"Unknown"))
     )
 
-    married = models.BooleanField(_(u"Married?"), \
+    married = models.CharField(_(u"Married?"), max_length=1, \
                                         choices=MARRIED_CHOICES)
     pregnancies = models.PositiveSmallIntegerField(_("Number of Pregancies"))
     number_of_children = models.PositiveSmallIntegerField(_("Number of " \
                                                             "Pregancies"), \
                                                             default=0,
                                                         blank=True, null=True)
+    husband = models.ForeignKey('Patient', blank=True, null=True, \
+                                  verbose_name=_(u"Husband"), \
+                                  help_text=_(u"The husband to this pregnant"\
+                                            " woman"),\
+                                  related_name='husband')
 
     def summary(self):
         string = u"%s: %s" % \
