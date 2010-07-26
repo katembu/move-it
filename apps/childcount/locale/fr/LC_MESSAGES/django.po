@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-15 15:56+0000\n"
-"PO-Revision-Date: 2010-07-15 17:01-0000\n"
+"POT-Creation-Date: 2010-07-26 16:04+0000\n"
+"PO-Revision-Date: 2010-07-26 16:20-0000\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -20,82 +20,82 @@ msgstr ""
 "X-Poedit-Language: French\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: app.py:48
+#: app.py:46
 #, python-format
 msgid "%s form not found."
 msgstr "Terme %s introuvable."
 
-#: app.py:55
+#: app.py:53
 #, python-format
 msgid "%s command not found."
 msgstr "Commande %s introuvable."
 
-#: app.py:80
+#: app.py:78
 msgid "Problem getting CHW from backend."
 msgstr ""
 
-#: app.py:122
+#: app.py:120
 msgid "You must register before you can send reports."
 msgstr "Vous devez vous inscrire avant de pouvoir envoyer des comptes-rendus."
 
-#: app.py:134
+#: app.py:132
 msgid "Problem getting encounter_date from backend."
 msgstr ""
 
-#: app.py:164
+#: app.py:162
 #, python-format
 msgid "Error: Message not understood. Your message must start with a single health ID, followed by a space then a %(pre)s, then the keyword of the form you are sending."
 msgstr "Erreur: message non compris. Votre message doit commencer par un simple no. de santé, suivi d'un espace, puis un %(pre)s, puis le mot clé du formulaire que vous envoyez."
 
-#: app.py:182
+#: app.py:180
 msgid "Not a recognised form."
 msgstr "Terme non reconnu."
 
-#: app.py:195
+#: app.py:193
 #, python-format
 msgid "Error occurred while processing %(frm)s: %(e)s Please correct and send all information again."
 msgstr "Une erreur s'est produite lors du traitement de %(frm)s: %(e)s. Veuillez la corriger et renvoyer les informations à nouveau."
 
-#: app.py:209
+#: app.py:207
 #, python-format
 msgid "%(id)s is not a valid health ID. Please correct and try again."
 msgstr "%(id)s n'est pas un no. de santé valide. Veuillez le corriger et réessayer."
 
-#: app.py:223
+#: app.py:221
 #, python-format
 msgid "Error: You tried to send househould forms for someone who is not head ofhousehold. You must send the forms with the head of household health ID.Their head of household health ID is %(hoh)s (Health ID: %(hohid)s)"
 msgstr "Erreur. Vous avez tenter d'envoyer des termes pour le ménage pour quelqu'un qui n'est pas chef de ménage. Vous devez envoyer les formulaires avec le numéro de santé du chef de ménage. Le no. de santé du chef de famille est %(hoh)s (No. de santé: %(hohid)s)"
 
-#: app.py:248
+#: app.py:246
 msgid "This form is only for head of households."
 msgstr "Ce terme est uniquement pour les chefs de ménage."
 
-#: app.py:321
+#: app.py:319
 msgid " Successfully processed:"
 msgstr " Traité avec succès:"
 
-#: app.py:336
+#: app.py:334
 msgid " You must resend the form."
 msgstr " Vous devez renvoyer le terme."
 
-#: app.py:338
+#: app.py:336
 msgid " You must resend the forms."
 msgstr " Vous devez renvoyer les termes."
 
-#: app.py:348
+#: app.py:346
 msgid "One form failed."
 msgstr "Echec d'un terme."
 
-#: app.py:350
+#: app.py:348
 #, python-format
 msgid "%d forms failed."
 msgstr "%d termes ont échoué"
 
-#: app.py:353
+#: app.py:351
 msgid "One successful."
 msgstr "Réussi"
 
-#: app.py:355
+#: app.py:353
 #, python-format
 msgid "%d forms successful."
 msgstr "%d termes réussis"
@@ -432,35 +432,58 @@ msgid "%(sites)d sleeping site(s), %(nets)d bednet(s)"
 msgstr "%(sites)d couchage(s), %(nets)d moustiquaire(s)"
 
 #: forms/BednetCoverageForm.py:22
-msgid "Not enough info. Expected: | sleeping sites | number of bednets |"
-msgstr "Pas assez d'infos. Requis: | nombre de couchages | nombre de moustiquaires |"
+msgid "Not enough info. Expected: | sleeping sites | number of function bednets | earlier bednet | damaged bednet "
+msgstr ""
 
-#: forms/BednetCoverageForm.py:38
-msgid "| Number of sleeping sites | must be a number."
+#: forms/BednetCoverageForm.py:39
+#, fuzzy
+msgid "Number of sleeping sites must be a number."
 msgstr "| Nombre de couchages | doit être entré en chiffres."
 
-#: forms/BednetCoverageForm.py:44
-msgid "| Number of bednets | must be a number."
+#: forms/BednetCoverageForm.py:45
+#, fuzzy
+msgid "Number of functioning(recent received) bednet must be a number."
+msgstr "Le nombre de moustiquaires doit être entré en chiffres"
+
+#: forms/BednetCoverageForm.py:51
+#, fuzzy
+msgid "Number of bednets received earlier must be a number."
 msgstr "| Nombre de moustiquaires | doit être entré en chiffres"
 
-#: forms/BednetCoverageForm.py:50
+#: forms/BednetCoverageForm.py:57
+#, fuzzy
+msgid "Number of damaged bednets received recent must be a  number."
+msgstr "| Nombre de moustiquaires | doit être entré en chiffres"
+
+#: forms/BednetCoverageForm.py:63
 #, python-format
-msgid "%(patient)s: %(sites)d sleeping site(s), %(nets)d bednet(s)."
-msgstr "%(patient)s: %(sites)d couchage(s), %(nets)d moustiquaire(s)."
+msgid "%(patient)s: %(sites)d sleeping site(s), %(nets)d bednet(s) Earlier: %(er)d Damaged bednet: %(dm)d."
+msgstr ""
 
 #: forms/BednetDistributionForm.py:27
 #, python-format
 msgid "Report Survey doesnt exist for %(patient)s "
 msgstr "Compte-rendu de l'enquête n'existe pas pour %(patient)s "
 
-#: forms/BednetDistributionForm.py:55
-#, python-format
-msgid "%(patient)s has already received %(nets)d nets for %(site)d sleeping sites."
+#: forms/BednetDistributionForm.py:56
+#, fuzzy, python-format
+msgid "%(patient)s has already received %(nets)d nets for %(site)d sleeping sites.Last received"
 msgstr "%(patient)s ont déjà reçu %(nets)d moustiquaires pour %(site)d couchages."
 
-#: forms/BednetDistributionForm.py:60
+#: forms/BednetDistributionForm.py:66
+#: forms/BednetDistributionForm.py:80
+msgid ": None"
+msgstr ""
+
+#: forms/BednetDistributionForm.py:68
+#: forms/BednetDistributionForm.py:82
 #, python-format
-msgid "%(patient)s. %(ssite)d Sleeping sites.Need %(bdnt_required)d bednet(s).Last received: "
+msgid " %(last_issued)d bednet"
+msgstr "%(last_issued)d moustiquaire"
+
+#: forms/BednetDistributionForm.py:71
+#, fuzzy, python-format
+msgid "%(patient)s. %(ssite)d Sleeping sites.Need %(bdnt_required)d bednet(s).Last received"
 msgstr "%(patient)s. %(ssite)d couchages en tout. Besoin de %(bdnt_required)d moustiquaires. Derniers reçus:"
 
 #: forms/BednetIssuedForm.py:27
@@ -488,35 +511,56 @@ msgstr "Compte-rendu de l'enquête n'existe pas pour %(patient)s. Veuillez conta
 
 #: forms/BednetLookupForm.py:46
 #, fuzzy, python-format
-msgid "%(patient)s has already %(nets)d bednetsfor %(site)d sites."
-msgstr "%(patient)s ont besoin de %(nets)d moustiquaires pour %(site)d sites. Derniers reçus depuis"
+msgid "%(patient)s has already received %(nets)d bednets for %(site)d sites.Required: %(req)d "
+msgstr "%(patient)s ont déjà reçu %(nets)d moustiquaires pour %(site)d couchages."
 
-#: forms/BednetLookupForm.py:52
+#: forms/BednetLookupForm.py:53
 #, python-format
 msgid "%(patient)s need %(nets)d bednets for %(site)d sites."
 msgstr "%(patient)s ont besoin de %(nets)d moustiquaires pour %(site)d couchages."
 
-#: forms/BednetUtilizationForm.py:22
-msgid "Not enough info. Expected: | number of children who slept here last night |  how many slept under bednets |"
+#: forms/BednetUtilizationForm.py:37
+#, fuzzy
+msgid "Not enough info. Expected: | number of children who slept here last night |  how many slept under bednets | hanging bednets"
 msgstr "Pas assez d'infos. Requis: | nombre d'enfants qui ont dormi ici la nuit dernière | combien ont dormi sous une moustiquaire |"
 
-#: forms/BednetUtilizationForm.py:34
+#: forms/BednetUtilizationForm.py:57
 #, fuzzy
-msgid "| Number of children who slept here lastnight | should be a number."
+msgid "Number of children who slept here lastnight should be a number."
 msgstr "|Nombre d'enfants| doit être entré en chiffres"
 
-#: forms/BednetUtilizationForm.py:39
-msgid "| Number of children under bednet | should be a number."
+#: forms/BednetUtilizationForm.py:63
+#, fuzzy
+msgid "Number of children under bednet should be a number."
 msgstr "| Nombre d'enfants sous une moustiquaire | doit être entré en chiffres."
 
-#: forms/BednetUtilizationForm.py:44
-msgid "| Number of children who slept under bednet | should be more than number of whom slept here."
-msgstr "| Nombre d'enfants qui dorment sous une moustiquaire | devrait être supérieur au nombre de ceux qui dorment ici."
+#: forms/BednetUtilizationForm.py:69
+msgid "Number of under five who slept here last night should be more than those who slept under bednet"
+msgstr "Nombre d'enfants de moins de 5 ans qui ont dormi ici hier soir devrait être moins que celui de ceux qui ont dormi sous une moustiquaire"
 
-#: forms/BednetUtilizationForm.py:50
+#: forms/BednetUtilizationForm.py:79
 #, python-format
-msgid "%(sites)d child(ren) slept here last nite  %(nets)d slept under bednet(s)"
+msgid "How many hanging bednet must be a number or, %(choices)s."
 msgstr ""
+
+#: forms/BednetUtilizationForm.py:83
+#, python-format
+msgid "%(sites)d child(ren) slept here last nite %(nets)d slept under bednet(s) Hanging: %(han)s"
+msgstr ""
+
+#: forms/BednetUtilizationForm.py:95
+#, fuzzy, python-format
+msgid "| Reason must be %(choices)s."
+msgstr "Résultat de TDR doit être %(choices)s."
+
+#: forms/BednetUtilizationForm.py:101
+#, python-format
+msgid " Reason: %(reason)s "
+msgstr "Raison: %(reason)s "
+
+#: forms/BednetUtilizationForm.py:104
+msgid " You must state the reason why children never slept under bednet"
+msgstr "Vous devez spécifier la raison pour laquelle les enfants n'ont jamais dormi sous une moustiquaire"
 
 #: forms/BirthForm.py:46
 #, python-format
@@ -611,28 +655,29 @@ msgstr "N'a pas pu comprendre la date de décès: %(dod)s."
 msgid "Died on %(dod)s"
 msgstr "Décédé(e) le %(dod)s"
 
-#: forms/DrinkingWaterForm.py:78
-msgid "Not enough info. Expected: | What is source of water | do you treat ? | what do you use to treat? |"
-msgstr "Pas assez d'infos. Requis: | Quelle est la source de l'eau | Est-elle traitée? | Qu'est ce qui est utilisé pour traiter? |"
+#: forms/DrinkingWaterForm.py:74
+msgid "Not enough info. Expected: | What is source of water | what do you use to  treat water ? |"
+msgstr "Pas assez d'infos. Requis: | Quelle est la source de l'eau | Qu'est ce que vous utilisez pour traiter l'eau? |"
 
-#: forms/DrinkingWaterForm.py:84
-#, python-format
-msgid "|Water Source| must be %(choices)s."
+#: forms/DrinkingWaterForm.py:80
+#, fuzzy, python-format
+msgid "|Water Source must be %(choices)s."
 msgstr "| Source d'eau | doit être %(choices)s."
 
-#: forms/DrinkingWaterForm.py:91
+#: forms/DrinkingWaterForm.py:85
 #, python-format
-msgid "|Do you treat water?| must be %(choices)s."
-msgstr "| Traitez-vous l'eau? | doit être %(choices)s."
+msgid "Primary water source: %(water)s "
+msgstr "Source d'eau primaire: %(water)s "
 
-#: forms/DrinkingWaterForm.py:100
-msgid "Not enough info. Expected: Method used to treat water "
-msgstr "Pas assez d'infos. Requis: méthode utilisée pour traiter l'eau"
-
-#: forms/DrinkingWaterForm.py:104
-#, python-format
-msgid "|Which method do you use?| must be %(choices)s."
+#: forms/DrinkingWaterForm.py:90
+#, fuzzy, python-format
+msgid "Which method do you use? must be %(choices)s."
 msgstr "| Quelle méthode utilisez-vous? | doit être %(choices)s."
+
+#: forms/DrinkingWaterForm.py:96
+#, python-format
+msgid ", Treatment method: %(treatment)s "
+msgstr ", méthode de traitement: %(treatment)s "
 
 #: forms/FamilyPlanningForm.py:23
 msgid "Not enough info. Expected: | number of women aged 15 - 49 | number using FP | methods being used |"
@@ -1110,19 +1155,25 @@ msgstr "Référence basique (24hrs)"
 msgid "Convenient Referral"
 msgstr "Référence pratique"
 
-#: forms/SanitationForm.py:55
-msgid "Not enough info. Expected: | What kind of toilet facility do members of your household use | do you share? |"
+#: forms/SanitationForm.py:54
+#, fuzzy
+msgid "Not enough info. Expected: | What kind of toilet facility do members of your  household use | how many share? |"
 msgstr "Pas assez d'infos. Requis: | Quelle sorte de toilette est-ce que les membres de votre ménage utilisent? | Est-ce que vous partagez? |"
 
-#: forms/SanitationForm.py:62
-#, python-format
-msgid "| Toilet type | must be %(choices)s."
+#: forms/SanitationForm.py:60
+#, fuzzy, python-format
+msgid "Toilet type must be %(choices)s."
 msgstr "| Type de toilettes | doit être %(choices)s."
 
-#: forms/SanitationForm.py:69
-#, python-format
-msgid "|Do you share toilet?| must be %(choices)s."
+#: forms/SanitationForm.py:71
+#, fuzzy, python-format
+msgid "Do you share toilet? must be a number, %(choices)s."
 msgstr "| Est-ce que vous partagez les toilettes? | doit être %(choices)s."
+
+#: forms/SanitationForm.py:77
+#, python-format
+msgid "Primary Sanitation: %(san)s Share: %(share)s "
+msgstr ""
 
 #: forms/SauriPregnancyForm.py:64
 msgid "Only female patients can be pregnant."
@@ -1483,7 +1534,7 @@ msgstr "Sorte de cas"
 #: models/HealthId.py:39
 #: models/Patient.py:91
 #: models/Referral.py:39
-#: models/ccreports.py:140
+#: models/ccreports.py:164
 #: models/reports.py:590
 #: templates/childcount/data_entry.html:40
 msgid "Status"
@@ -1777,9 +1828,10 @@ msgid "z"
 msgstr "z"
 
 #: models/CodedItem.py:50
-#: models/reports.py:1000
-#: models/reports.py:1047
-#: models/reports.py:1072
+#: models/reports.py:972
+#: models/reports.py:1025
+#: models/reports.py:1068
+#: models/reports.py:1088
 msgid "Other"
 msgstr "Autre"
 
@@ -2078,16 +2130,16 @@ msgstr "%(years)sy"
 
 #: models/DeadPerson.py:128
 #: models/Patient.py:180
-#: models/ccreports.py:107
 #: models/ccreports.py:131
-#: models/ccreports.py:495
+#: models/ccreports.py:155
+#: models/ccreports.py:521
 msgid "Name"
 msgstr "Nom"
 
 #: models/DeadPerson.py:134
 #: models/Patient.py:186
-#: models/ccreports.py:113
 #: models/ccreports.py:137
+#: models/ccreports.py:161
 #: templates/childcount/forms/a.json:10
 msgid "Age"
 msgstr "Age"
@@ -2111,7 +2163,7 @@ msgid "Encounter date"
 msgstr "Date de consultation"
 
 #: models/Encounter.py:40
-#: models/ccreports.py:559
+#: models/ccreports.py:586
 msgid "CHW"
 msgstr "ASC"
 
@@ -2346,7 +2398,7 @@ msgid "Household Name"
 msgstr "Nom du ménage"
 
 #: models/bdntreports.py:83
-#: models/ccreports.py:151
+#: models/ccreports.py:175
 msgid "Community Health Worker Report"
 msgstr "Compte-rendu de l'Agent de santé communautaire"
 
@@ -2362,122 +2414,122 @@ msgstr "Couverture par moustiquaires complète"
 msgid "% Full Bednet coverage"
 msgstr "% de complétion de couverture par moustiquaires"
 
-#: models/ccreports.py:27
+#: models/ccreports.py:28
 msgid "Patient List Report"
 msgstr "Compte-rendu de la liste des patients"
 
-#: models/ccreports.py:116
+#: models/ccreports.py:140
 msgid "Last MUAC"
 msgstr "Dernier PB"
 
-#: models/ccreports.py:128
+#: models/ccreports.py:152
 msgid "HID"
 msgstr ""
 
-#: models/ccreports.py:143
+#: models/ccreports.py:167
 msgid "HHID"
 msgstr "No. de santé du ménage"
 
-#: models/ccreports.py:471
-#, python-format
-msgid "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe  Completely\", \"%(unkp)d%% Unknown\"]"
+#: models/ccreports.py:495
+#, fuzzy, python-format
+msgid "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe Completely\", \"%(unkp)d%% Unknown\"]"
 msgstr "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe  Completely\", \"%(unkp)d%% Unknown\"]"
 
-#: models/ccreports.py:560
+#: models/ccreports.py:587
 msgid "# of Households"
 msgstr "# de ménages"
 
-#: models/ccreports.py:562
+#: models/ccreports.py:589
 msgid "# of Household Visits"
 msgstr "# de visites rendues au ménage"
 
-#: models/ccreports.py:564
+#: models/ccreports.py:591
 #, python-format
 msgid "% of HHs receiving on-time routine visit (within 90 days) [S23]"
 msgstr "% de ménages recevant des visites de routines à temps (dans les 90 jours) [S23]"
 
-#: models/ccreports.py:567
+#: models/ccreports.py:594
 msgid "# of Births"
 msgstr "# de naissances"
 
-#: models/ccreports.py:569
+#: models/ccreports.py:596
 msgid "% Births delivered in Health Facility [S4]"
 msgstr "% de naissances données dans un centre de santé"
 
-#: models/ccreports.py:571
+#: models/ccreports.py:599
 msgid "% Newborns checked within 7 days of birth [S6]"
 msgstr "% de nouveau-nés vérifiés dans les 7 jours suivant la naissance [S6]"
 
-#: models/ccreports.py:574
+#: models/ccreports.py:602
 msgid "# of Under-5s"
 msgstr "# de moins de 5 ans"
 
-#: models/ccreports.py:576
+#: models/ccreports.py:604
 msgid "# Under-5 Referred for Danger Signs"
 msgstr "# de moins de 5 ans référencés pour signes de danger"
 
-#: models/ccreports.py:578
+#: models/ccreports.py:606
 msgid "# Under-5 Treated for Malarias"
 msgstr "# de moins de 5 and sous traitement pour le paludisme"
 
-#: models/ccreports.py:580
+#: models/ccreports.py:608
 msgid "# Under-5 Treated for Diarrhea"
 msgstr "# de moins de 5 ans sous traitement pour la diarrhée"
 
-#: models/ccreports.py:582
+#: models/ccreports.py:610
 msgid "% Under-5 receiving on-time MUAC (within 90 days) [S11]"
 msgstr "% de moins de 5 ans recevant un PB dans les temps (dans les 90 jours) [S11]"
 
-#: models/ccreports.py:585
+#: models/ccreports.py:613
 msgid "# of Active SAM cases"
 msgstr "# de cas de MAS actifs"
 
-#: models/ccreports.py:587
+#: models/ccreports.py:615
 msgid "# of Pregnant Women"
 msgstr "# de femmes enceintes"
 
-#: models/ccreports.py:589
+#: models/ccreports.py:617
 msgid "# Pregnant Women Referred for Danger Signs"
 msgstr "# de femmes enceintes référencées pour signes de danger"
 
-#: models/ccreports.py:591
+#: models/ccreports.py:620
 msgid "% Pregnant receiving on-time visit (within 6 weeks) [S24]"
 msgstr "% des femmes enceintes recevant des visites dans les temps (dans les 6 semaines) [S24]"
 
-#: models/ccreports.py:594
+#: models/ccreports.py:623
 msgid "% Referred / Treated receiving on-time follow-up (within 2 days) [S13]"
 msgstr "% Référencé / Traité recevant un suivi dans les temps (en 2 jours) [S13]"
 
-#: models/ccreports.py:597
+#: models/ccreports.py:626
 msgid "Median # of days for follow-up [S25]"
 msgstr "# median de jours depuis le suivi [25]"
 
-#: models/ccreports.py:599
+#: models/ccreports.py:628
 msgid "SMS Error Rate %"
 msgstr "% d'erreurs SMS"
 
-#: models/ccreports.py:601
+#: models/ccreports.py:630
 msgid "Days since last SMS transmission"
 msgstr "Jours depuis la dernière transmission SMS"
 
-#: models/ccreports.py:612
+#: models/ccreports.py:641
 msgid "Clinic Report"
 msgstr "Compte-rendu du centre de santé"
 
-#: models/ccreports.py:657
+#: models/ccreports.py:686
 #, fuzzy
 msgid "#House hold"
 msgstr "Ménage"
 
-#: models/ccreports.py:660
+#: models/ccreports.py:689
 msgid "#House visits"
 msgstr "# de visites à domicile"
 
-#: models/ccreports.py:663
+#: models/ccreports.py:692
 msgid "#Patients"
 msgstr "#Patients"
 
-#: models/ccreports.py:666
+#: models/ccreports.py:695
 msgid "#MUAC"
 msgstr "#PB"
 
@@ -2510,12 +2562,10 @@ msgstr "Comptes-rendus de naissances"
 #: models/reports.py:495
 #: models/reports.py:503
 #: models/reports.py:582
-#: models/reports.py:1006
-#: models/reports.py:1053
-#: models/reports.py:1118
-#: models/reports.py:1124
-#: models/reports.py:1145
-#: models/reports.py:1184
+#: models/reports.py:1126
+#: models/reports.py:1132
+#: models/reports.py:1153
+#: models/reports.py:1192
 msgid "Yes"
 msgstr "Oui"
 
@@ -2528,12 +2578,10 @@ msgstr "Oui"
 #: models/reports.py:496
 #: models/reports.py:504
 #: models/reports.py:583
-#: models/reports.py:1007
-#: models/reports.py:1054
-#: models/reports.py:1119
-#: models/reports.py:1125
-#: models/reports.py:1149
-#: models/reports.py:1185
+#: models/reports.py:1127
+#: models/reports.py:1133
+#: models/reports.py:1157
+#: models/reports.py:1193
 msgid "No"
 msgstr "Non"
 
@@ -2541,8 +2589,8 @@ msgstr "Non"
 #: models/reports.py:497
 #: models/reports.py:584
 #: models/reports.py:664
-#: models/reports.py:1008
-#: models/reports.py:1120
+#: models/reports.py:971
+#: models/reports.py:1128
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -3006,253 +3054,308 @@ msgid "Number of sleeping sites"
 msgstr "Nombre de sites de couchage"
 
 #: models/reports.py:926
-msgid "Bednets"
-msgstr "Moustiquaires"
+msgid "Recent Bednets"
+msgstr "Moustiquaires récentes"
 
 #: models/reports.py:927
-msgid "Number of functioning bednets in the household"
-msgstr "Nombre de moustiquaires fonctionnelles dand le ménage"
+msgid "Number of functioning bednets "
+msgstr "Nombre de moustiquaires fonctionnelles"
 
-#: models/reports.py:950
+#: models/reports.py:928
+msgid "Earlier Bednets"
+msgstr "Moustiquaires précédentes"
+
+#: models/reports.py:929
+msgid "Number of bednets received earlier "
+msgstr "Nombre de moustiquaires reçues précédemment"
+
+#: models/reports.py:931
+msgid "Damaged Bednets"
+msgstr "Moustiquaires abîmées"
+
+#: models/reports.py:932
+#, fuzzy
+msgid "Number of recent bednets that aredamaged "
+msgstr "Le nombre de moustiquaires doit être entré en chiffres"
+
+#: models/reports.py:951
 msgid "Bednet utilization Report"
 msgstr "Compte-rendu de l'utilisation des moustiquaires"
 
-#: models/reports.py:951
+#: models/reports.py:952
 msgid "Bednet utilization reports"
 msgstr "Comptes-rendus de l'utilisation des moustiquaires"
 
-#: models/reports.py:953
-msgid "Number of children under five "
-msgstr "Nombre d'enfants de moins de 5 ans"
+#: models/reports.py:965
+msgid "Difficult to breathe"
+msgstr "difficulté respiratoire"
 
-#: models/reports.py:955
+#: models/reports.py:966
+msgid "Dont think its effective"
+msgstr ""
+
+#: models/reports.py:967
+msgid "Room too small"
+msgstr "Pièce trop petite"
+
+#: models/reports.py:968
 #, fuzzy
-msgid "Number of children under five who  slept here last night."
-msgstr "Nombre d'enfants de moins de 5 ans vus"
+msgid "Difficult to hung"
+msgstr "difficulté respiratoire"
 
-#: models/reports.py:958
+#: models/reports.py:969
+msgid "Bednet damaged"
+msgstr "Moustiquaire abîmée"
+
+#: models/reports.py:970
 #, fuzzy
-msgid "Number of childrenunder five"
-msgstr "Nombre d'enfants de moins de 5 ans vus"
+msgid "Dont have"
+msgstr "N'a pas"
 
-#: models/reports.py:960
-msgid "Number of children under five who slept under a bednet last night."
-msgstr "Nombre d'enfants de moins de 5 ans qui ont dormi sous une moustiquaire la nuit dernière."
+#: models/reports.py:974
+msgid "children under  five "
+msgstr ""
+
+#: models/reports.py:975
+msgid "Number of children under five who slept here last night."
+msgstr "Nombre d'enfants de moins de 5 ans qui ont dormi ici la nuit dernière."
+
+#: models/reports.py:977
+msgid "Children slept under bednet"
+msgstr "Les enfants ont dormi sous une moustiquaire"
 
 #: models/reports.py:978
+msgid "Number of children under five who slept under bednet last night."
+msgstr "Nombre d'enfants de moins de 5 ans qui ont dormi sous une moustiquaire la nuit dernière."
+
+#: models/reports.py:980
+#, fuzzy
+msgid "Number of hangingBednet"
+msgstr "Nombre de patients"
+
+#: models/reports.py:981
+#, fuzzy
+msgid "Number of hanging bednet"
+msgstr "Nombre de patients"
+
+#: models/reports.py:983
+msgid "Reason "
+msgstr "Raison"
+
+#: models/reports.py:984
+#, fuzzy
+msgid "reason why some childrendid sleep under bednet"
+msgstr "Nombre d'enfants de moins de 5 ans vus"
+
+#: models/reports.py:1003
 msgid "Sanitation Report"
 msgstr "Compte-rendu de conditions sanitaires"
 
-#: models/reports.py:979
+#: models/reports.py:1004
 msgid "Sanitation Reports"
 msgstr "Comptes-rendus de conditions sanitaires"
 
-#: models/reports.py:992
+#: models/reports.py:1017
 msgid "Flush"
 msgstr "Tirer la chasse d'eau"
 
-#: models/reports.py:993
+#: models/reports.py:1018
 msgid "Ventilated Improved Pit Latrine"
 msgstr "Latrines à fosses ventilées et améliorées"
 
-#: models/reports.py:994
+#: models/reports.py:1019
 msgid "Pit Latrine with slab"
 msgstr "Latrines à fosses pavées"
 
-#: models/reports.py:995
+#: models/reports.py:1020
 msgid "Pit Latrine without slab"
 msgstr "Latrines à fosses non pavées"
 
-#: models/reports.py:996
+#: models/reports.py:1021
 msgid "Compositing Pit Toilet"
 msgstr ""
 
-#: models/reports.py:997
+#: models/reports.py:1022
 msgid "Bucket"
 msgstr "Seau"
 
-#: models/reports.py:998
+#: models/reports.py:1023
 msgid "Hanging Toilet Latrine"
 msgstr ""
 
-#: models/reports.py:999
+#: models/reports.py:1024
 msgid "No facility"
 msgstr "Pas d'établissement médical"
 
-#: models/reports.py:1010
+#: models/reports.py:1030
 msgid "Toilet Type"
 msgstr "Type de toilettes"
 
-#: models/reports.py:1012
-msgid "Do you share?"
-msgstr "Partagez-vous?"
+#: models/reports.py:1032
+msgid "How many do you share?"
+msgstr "Combien partagez-vous?"
 
-#: models/reports.py:1013
-msgid "Do you share the toilet?"
-msgstr "Est-ce que vous partagez les toilettes?"
+#: models/reports.py:1033
+msgid "How many peopleshare the toilet(open to public = -1, unknown = -2 )"
+msgstr ""
 
-#: models/reports.py:1023
+#: models/reports.py:1044
 msgid "Drinking Water Report"
 msgstr "Compte-rendu de la consommation d'eau"
 
-#: models/reports.py:1024
+#: models/reports.py:1045
 msgid "Drinking Water Reports"
 msgstr "Comptes-rendus de la consommation d'eau"
 
-#: models/reports.py:1038
+#: models/reports.py:1059
 msgid "Piped water into dwelling or yard/plot"
 msgstr "Adduction d'eau dans un logement ou cour/jardin"
 
-#: models/reports.py:1039
+#: models/reports.py:1060
 msgid "Public Tap/Standpipe"
 msgstr "Robinet public/tube"
 
-#: models/reports.py:1040
+#: models/reports.py:1061
 msgid "Tube well / Borehole"
 msgstr "Puits tubulaire / trou de forage"
 
-#: models/reports.py:1041
+#: models/reports.py:1062
 msgid "Protected dug well"
 msgstr "Puits creusé protégé"
 
-#: models/reports.py:1042
+#: models/reports.py:1063
 msgid "Unprotected Dug well"
 msgstr "Puits creusé non protégé"
 
-#: models/reports.py:1043
+#: models/reports.py:1064
 msgid "Protected Spring"
 msgstr "Source protégée"
 
-#: models/reports.py:1044
+#: models/reports.py:1065
 msgid "Unprotected spring"
 msgstr "Source non protégée"
 
-#: models/reports.py:1045
+#: models/reports.py:1066
 msgid "Rain water collection"
 msgstr "Collecte de l'eau de pluie"
 
-#: models/reports.py:1046
+#: models/reports.py:1067
 msgid "Surface water (river, dam, lake, pond, stream"
 msgstr "Eau de surface (rivière, fleuve, barrage, lac, étang, ruisseau)"
 
-#: models/reports.py:1055
-#: models/reports.py:1073
+#: models/reports.py:1081
+msgid "Boil water"
+msgstr "Faire bouillir l'eau"
+
+#: models/reports.py:1082
+msgid "Donated bleach/chlorine"
+msgstr "Javel/chlore donné(e)"
+
+#: models/reports.py:1083
+msgid "Bought bleach/chlorine"
+msgstr "Javel/chlore acheté(e)"
+
+#: models/reports.py:1084
+msgid "Strain it through cloth"
+msgstr "Filtrer par chiffon/tissu"
+
+#: models/reports.py:1085
+msgid "Use water filter: sand/ceramic"
+msgstr "Utilisez un filtre pour l'eau: sable/céramique"
+
+#: models/reports.py:1086
+msgid "Solar disinfection"
+msgstr "Désinfection solaire"
+
+#: models/reports.py:1087
+msgid "Let it stand and settle"
+msgstr "Laisser en position verticale reposer"
+
+#: models/reports.py:1089
 #, fuzzy
 msgid "Dont know"
 msgstr "Inconnu"
 
-#: models/reports.py:1066
-msgid "Boil water"
-msgstr "Faire bouillir l'eau"
-
-#: models/reports.py:1067
-msgid "Add bleach/chlorine"
-msgstr "Ajoutez de la javel/chlore"
-
-#: models/reports.py:1068
-msgid "Strain it through cloth"
-msgstr "Filtrer par chiffon/tissu"
-
-#: models/reports.py:1069
-msgid "Use water filter: sand/ceramic"
-msgstr "Utilisez un filtre pour l'eau: sable/céramique"
-
-#: models/reports.py:1070
-msgid "Solar disinfection"
-msgstr "Désinfection solaire"
-
-#: models/reports.py:1071
-msgid "Let it stand and settle"
-msgstr "Laisser en position verticale reposer"
-
-#: models/reports.py:1075
-#: models/reports.py:1081
+#: models/reports.py:1092
 msgid "Water Source"
 msgstr "Source d'eau"
 
-#: models/reports.py:1077
-#: models/reports.py:1078
-#: models/reports.py:1083
-#: models/reports.py:1084
-msgid "Do you treat water"
-msgstr "Traitez-vous l'eau"
-
-#: models/reports.py:1086
+#: models/reports.py:1094
 msgid "Treatment method"
 msgstr "Méthode de traitement"
 
-#: models/reports.py:1087
+#: models/reports.py:1095
 msgid "What do you use to make it safer to drink"
 msgstr "Qu'est-ce que vous utilisez pour faire que l'eau soit plus sans danger pour boire"
 
-#: models/reports.py:1098
+#: models/reports.py:1106
 msgid "Bednet Distribution Report"
 msgstr "Compte-rendu de distribution des moustiquaires"
 
-#: models/reports.py:1099
+#: models/reports.py:1107
 msgid "Betnet Distribution Reports"
 msgstr "Comptes-rendus de distribution des moustiquaires"
 
-#: models/reports.py:1101
+#: models/reports.py:1109
 msgid "Bed net received"
 msgstr "Moustiquaires reçues"
 
-#: models/reports.py:1111
+#: models/reports.py:1119
 #, fuzzy
 msgid "Initail Antenatal Visit Report"
 msgstr "Compte-rendu de la liste des patients"
 
-#: models/reports.py:1112
+#: models/reports.py:1120
 #, fuzzy
 msgid "Initail Antenatal Visit Reports"
 msgstr "Compte-rendu de la liste des patients"
 
-#: models/reports.py:1127
+#: models/reports.py:1135
 msgid "Weeks Pregnant"
 msgstr "Semaines de grossesse"
 
-#: models/reports.py:1128
+#: models/reports.py:1136
 msgid "How many weeks into the pregnancy?"
 msgstr "Combien de semaines de grossesse?"
 
-#: models/reports.py:1130
+#: models/reports.py:1138
 msgid "Expected Date of Delivery"
 msgstr "Date prévue de l'accouchement"
 
-#: models/reports.py:1131
+#: models/reports.py:1139
 msgid "HIV+?"
 msgstr "VIH positif?"
 
-#: models/reports.py:1133
+#: models/reports.py:1141
 msgid "Blood drawn?"
 msgstr "sang récolté?"
 
-#: models/reports.py:1159
+#: models/reports.py:1167
 msgid "Appointment"
 msgstr "Rendez-vous"
 
-#: models/reports.py:1160
+#: models/reports.py:1168
 msgid "Appointments"
 msgstr "Rendez-vous"
 
-#: models/reports.py:1162
+#: models/reports.py:1170
 msgid "Next appointment"
 msgstr "Prochain rendez-vous"
 
-#: models/reports.py:1177
+#: models/reports.py:1185
 msgid "Pregnancy Registration"
 msgstr "Enregistrement de grossesse"
 
-#: models/reports.py:1178
+#: models/reports.py:1186
 msgid "Pregnancy Registrations"
 msgstr "Enregistrements de grossesse"
 
-#: models/reports.py:1189
+#: models/reports.py:1197
 msgid "Married?"
 msgstr "Marié(e)?"
 
-#: models/reports.py:1191
-#: models/reports.py:1192
+#: models/reports.py:1199
+#: models/reports.py:1200
 msgid "Number of Pregancies"
 msgstr "Nombre de grossesses"
 
@@ -3700,16 +3803,37 @@ msgid "Referral to Clinic (A-E-B-C)"
 msgstr "Référence clinique (A-E-B-C)"
 
 #, fuzzy
+#~ msgid "%(patient)s has already %(nets)d bednetsfor %(site)d sites."
+#~ msgstr ""
+#~ "%(patient)s ont besoin de %(nets)d moustiquaires pour %(site)d sites. "
+#~ "Derniers reçus depuis"
+
+#~ msgid "|Do you treat water?| must be %(choices)s."
+#~ msgstr "| Traitez-vous l'eau? | doit être %(choices)s."
+
+#~ msgid "Not enough info. Expected: Method used to treat water "
+#~ msgstr "Pas assez d'infos. Requis: méthode utilisée pour traiter l'eau"
+
+#~ msgid "Number of children under five "
+#~ msgstr "Nombre d'enfants de moins de 5 ans"
+
+#, fuzzy
+#~ msgid "Number of childrenunder five"
+#~ msgstr "Nombre d'enfants de moins de 5 ans vus"
+
+#~ msgid "Do you share the toilet?"
+#~ msgstr "Est-ce que vous partagez les toilettes?"
+
+#~ msgid "Do you treat water"
+#~ msgstr "Traitez-vous l'eau"
+
+#, fuzzy
 #~ msgid ""
 #~ "Please enter the correct information you cant be patient then guardian/"
 #~ "mother"
 #~ msgstr ""
 #~ "Veuillez entrer les informations correctes, vous ne pouvez pas être "
 #~ "patient puis tuteur/mère"
-
-#, fuzzy
-#~ msgid "Number of children under five who slept here  under bednet "
-#~ msgstr "Nombre d'enfants de moins de 5 ans vus"
 
 #~ msgid "Activity per location in last 28 days"
 #~ msgstr "Activité par lieu dans les 28 derniers jours"
