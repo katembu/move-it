@@ -1167,7 +1167,24 @@ class AppointmentReport(CCReport):
         verbose_name = _(u"Appointment")
         verbose_name_plural = _(u"Appointments")
 
+    STATUS_OPEN = 0
+    STATUS_CLOSED = 1
+    STATUS_CHOICES = (
+        (STATUS_OPEN, _("Open")),
+        (STATUS_CLOSED, _("Closed"))
+    )
+    
     appointment_date = models.DateTimeField(_(u"Next appointment"))
+    closed_date = models.DateTimeField(_(u"Date closed"), blank=True, \
+                                        null=True)
+    notification_sent = models.BooleanField(_(u"Notification Sent"), \
+                                help_text=_(u"Has the CHW been notified?"),
+                                default=False)
+    status = models.PositiveSmallIntegerField(_("Status"), \
+                                                choices=STATUS_CHOICES,
+                                help_text=_(u"Is the appointment still open" \
+                                            " or closed?"), \
+                                            default=STATUS_OPEN)
 
     def summary(self):
         string = u"%s: %s" % \
