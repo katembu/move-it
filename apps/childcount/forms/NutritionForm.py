@@ -127,7 +127,7 @@ class NutritionForm(CCForm):
                 g = Group.objects.get(name='Facilitator')
                 for user in g.user_set.all():
                     send_msg(user.reporter, msg)
-            except:
+            except Group.DoesNotExist:
                 pass
         #TODO Referral / Case
         '''
