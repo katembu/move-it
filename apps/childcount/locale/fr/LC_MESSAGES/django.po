@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-26 16:04+0000\n"
-"PO-Revision-Date: 2010-07-26 16:20-0000\n"
+"POT-Creation-Date: 2010-07-27 16:28+0000\n"
+"PO-Revision-Date: 2010-07-27 16:40-0000\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -138,22 +138,22 @@ msgstr "Pas de compte-rendu pour %s."
 msgid "CHW: %(loc)s: %(chw)s"
 msgstr "ASC: %(loc)s: %(chw)s"
 
-#: utils.py:452
+#: utils.py:456
 #, python-format
 msgid "%(number)s is not a registered number."
 msgstr "%(number)s n'est pas un nombre listé. "
 
-#: utils.py:476
+#: utils.py:480
 #, python-format
 msgid "An error has occured: %(e)s"
 msgstr "Une erreur s'est produite: (%(e)s)."
 
-#: utils.py:494
+#: utils.py:498
 #, python-format
 msgid "You attempted to load %(cls)s without %(k)s defined."
 msgstr "Vous avez tenté de charger %(cls)s sans définir %(k)s."
 
-#: utils.py:499
+#: utils.py:503
 #, python-format
 msgid "%(k)s must be a dictionary in %(cls)s."
 msgstr ""
@@ -161,22 +161,22 @@ msgstr ""
 #: commands/ActivityCommand.py:31
 #, python-format
 msgid "This week(%(sdate)s -%(edate)s): %(numhvisit)d household visit, %(muac)d MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT. You have %(household)d households, %(ufive)d under five, %(tclient)d total registerd clients"
-msgstr ""
+msgstr "Cette semaine(%(sdate)s -%(edate)s): %(numhvisit)d visites à domicile, %(muac)d PB(%(severemuac)d MAS/MAM) %(rdt)d TDR. Vous avez %(household)d ménages, %(ufive)d de moins de 5 ans, %(tclient)d clients total enregistrés"
 
-#: commands/CancelCommand.py:39
+#: commands/CancelCommand.py:40
 msgid "Cancel failed. There is nothing to cancel."
 msgstr "Echec de l'annulation. Il n'y a rien à annuler."
 
-#: commands/CancelCommand.py:46
+#: commands/CancelCommand.py:47
 #, python-format
 msgid "Cancel failed. You cannot cancel a report after %(num)d minutes."
 msgstr "Echec de l'annulation. Vous ne pouvez pas annuler un compte-rendu après %(num)d minutes."
 
-#: commands/CancelCommand.py:63
+#: commands/CancelCommand.py:64
 msgid "Cancel failed. Another user has already modified one or more of your reports."
 msgstr "Echec de l'annulation. Un autre utilisateur a déjà modifié un ou plusieurs de vos comptes-rendus."
 
-#: commands/CancelCommand.py:86
+#: commands/CancelCommand.py:101
 msgid "Previous message successfully canceled."
 msgstr "Réussite de l'annulation du message précédent."
 
@@ -340,63 +340,48 @@ msgstr "Vous êtes enregistré à %(location)s avec l'alias @%(alias)s."
 msgid "You are registered as %(full_name)s from %(location)s with alias @%(alias)s."
 msgstr "Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias @%(alias)s."
 
-#: forms/AntenatalVisitForm.py:37
+#: forms/AntenatalVisitForm.py:25
 #: forms/PregnancyRegistrationForm.py:31
 msgid "Not enough info."
 msgstr "Pas assez d'infos."
 
-#: forms/AntenatalVisitForm.py:48
-#, fuzzy
-msgid "Length of pregnancy in weeksmust be entered as a number."
-msgstr "Le nombre de pillules données doit être entré en chiffres."
-
-#: forms/AntenatalVisitForm.py:58
+#: forms/AntenatalVisitForm.py:40
 #, python-format
 msgid "Could not understand expected date of delivery: %(expected_on)s."
 msgstr "N'a pas pu comprendre la date d'accouchement: %(expected_on)s."
 
-#: forms/AntenatalVisitForm.py:62
+#: forms/AntenatalVisitForm.py:44
 #, python-format
 msgid "%(expected_on)s is already in the past, the expected delivery date should be a future date."
 msgstr "%(expected_on)s est déjà passé, la date d'accouchement devrait être dans le futur."
 
-#: forms/AntenatalVisitForm.py:65
-#: forms/AppointmentForm.py:44
-#: forms/AppointmentForm.py:48
+#: forms/AntenatalVisitForm.py:47
+#: forms/AppointmentForm.py:50
+#: forms/AppointmentForm.py:54
 msgid "expected_on"
 msgstr "Prévu le"
 
-#: forms/AntenatalVisitForm.py:68
-#, fuzzy, python-format
-msgid "HIV+ must be %(choices)s."
-msgstr "| Testé pour le VIH | %(choices)s"
-
-#: forms/AntenatalVisitForm.py:72
-#, fuzzy, python-format
-msgid "Blood drawn must be %(choices)s."
-msgstr "| Œdème | doit être %(choices)s."
-
-#: forms/AntenatalVisitForm.py:81
+#: forms/AntenatalVisitForm.py:51
 #, python-format
-msgid "%(weeks)d weeks pregnant, expected date of delivery is %(expected_on)s."
-msgstr "%(weeks)d semaines enceinte, date d'accouchement prévue le %(expected_on)s."
+msgid "Expected date of delivery is %(expected_on)s."
+msgstr "La date prévue de l'accouchement est %(expected_on)s."
 
-#: forms/AppointmentForm.py:26
+#: forms/AppointmentForm.py:32
 #, fuzzy
 msgid "Not enough info. Expected date of appointment"
 msgstr "Pas assez d'infos. Requis: date de décès"
 
-#: forms/AppointmentForm.py:42
+#: forms/AppointmentForm.py:48
 #, python-format
 msgid "Could not understand the date of appointment %(expected_on)s"
 msgstr "N'a pas pu comprendre la date de rendez-vous %(expected_on)s"
 
-#: forms/AppointmentForm.py:46
+#: forms/AppointmentForm.py:52
 #, python-format
 msgid "%(expected_on)s is already in the past, please use a future date of appointment."
 msgstr "%(expected_on)s est déjà passé, veuillez utiliser une date de rendez-vous dans le futur."
 
-#: forms/AppointmentForm.py:52
+#: forms/AppointmentForm.py:69
 #, python-format
 msgid "Next appointment is on %(expected_on)s."
 msgstr "Le prochain rendez-vous est le %(expected_on)s."
@@ -473,7 +458,7 @@ msgstr "%(patient)s ont déjà reçu %(nets)d moustiquaires pour %(site)d coucha
 #: forms/BednetDistributionForm.py:66
 #: forms/BednetDistributionForm.py:80
 msgid ": None"
-msgstr ""
+msgstr ": Aucun"
 
 #: forms/BednetDistributionForm.py:68
 #: forms/BednetDistributionForm.py:82
@@ -917,74 +902,89 @@ msgstr "Une visite postnatale au centre de santé depuis la naissance"
 msgid "%(visits)d postnatal clinic visit since birth."
 msgstr "%(visits)d visites postnatales au centre de santé depuis la naissance"
 
-#: forms/NutritionForm.py:44
+#: forms/NutritionForm.py:46
 msgid "Child is too young for MUAC."
 msgstr "L'enfant est trop jeune pour le PB"
 
-#: forms/NutritionForm.py:46
+#: forms/NutritionForm.py:48
 msgid "Child is older than 59 months. If there are any concerns about the child, please refer to a clinic."
 msgstr "L'enfant est plus âgé que 59 mois. Si il y a des inquiétudes au sujet de l'enfant, veuillez le renvoyer vers un centre de santé."
 
-#: forms/NutritionForm.py:51
+#: forms/NutritionForm.py:53
 msgid "Not enough info. Expected: | muac | oedema | weight (optional) |"
 msgstr "Pas assez d'infos. Requis: | PB | œdème | poids (facultatif) |"
 
-#: forms/NutritionForm.py:55
+#: forms/NutritionForm.py:57
 msgid "| MUAC | must be entered as a number."
 msgstr "| PB | doit être entré en chiffres"
 
-#: forms/NutritionForm.py:61
+#: forms/NutritionForm.py:63
 msgid "MUAC too low. If correct, refer child to clinic IMMEDIATELY!"
 msgstr "PB est trop bas. Si correct, veuillez renvoyer l'enfant vers un centre de santé IMMEDIATEMENT!"
 
-#: forms/NutritionForm.py:64
+#: forms/NutritionForm.py:66
 msgid "MUAC too high. Correct and resend."
 msgstr "PB trop élevé. Corrigez et renvoyez."
 
-#: forms/NutritionForm.py:69
+#: forms/NutritionForm.py:71
 #, python-format
 msgid "| Oedema | must be %(choices)s."
 msgstr "| Œdème | doit être %(choices)s."
 
-#: forms/NutritionForm.py:82
+#: forms/NutritionForm.py:84
 #, python-format
 msgid "Weight can not be greater than %(max)skg."
 msgstr "Le poids ne peut pas être supérieur à %(max)skg."
 
-#: forms/NutritionForm.py:86
+#: forms/NutritionForm.py:88
 #, python-format
 msgid "Weight can not be less than %(min)skg."
 msgstr "Le poids ne peut pas être inférieur à %(min)skg."
 
-#: forms/NutritionForm.py:90
+#: forms/NutritionForm.py:92
 msgid "Unkown value. Weight should be entered as a number."
 msgstr "Valeur inconnue. Le poids doit être entré en chiffres."
 
-#: forms/NutritionForm.py:98
+#: forms/NutritionForm.py:100
 msgid "MUAC not taken, "
 msgstr "PB non mesuré,"
 
-#: forms/NutritionForm.py:100
+#: forms/NutritionForm.py:102
 #, python-format
 msgid "MUAC of %(muac)smm, "
 msgstr "PB de %(muac)smm, "
 
-#: forms/NutritionForm.py:103
+#: forms/NutritionForm.py:105
 msgid "Oedema present."
 msgstr "Œdèmes présents."
 
-#: forms/NutritionForm.py:105
+#: forms/NutritionForm.py:107
 msgid "No signs of oedema."
 msgstr "Pas de signe d'œdèmes."
 
-#: forms/NutritionForm.py:107
+#: forms/NutritionForm.py:109
 msgid "Oedema unkown."
 msgstr "Présence d'œdèmes inconnue."
 
-#: forms/NutritionForm.py:110
+#: forms/NutritionForm.py:112
 #, python-format
 msgid ", Weight %(w)skg"
 msgstr ", Poids %(w)skg"
+
+#: forms/NutritionForm.py:117
+#: models/reports.py:575
+msgid "SAM+"
+msgstr "MAS+"
+
+#: forms/NutritionForm.py:119
+#: models/reports.py:574
+msgid "SAM"
+msgstr "MAS"
+
+#: forms/NutritionForm.py:120
+#, python-format
+msgid "%(status)s>%(child)s, %(location)s has %(status)s. %(msg)s CHW no: %(mobile)s"
+msgstr "%(status)s>%(child)s, %(location)s a %(status)s. %(msg)s No. du relais: %(mobile)s"
 
 #: forms/PatientRegistrationForm.py:49
 #, python-format
@@ -1103,33 +1103,51 @@ msgstr "%(month)d mois de grossesse avec %(visits)d visites de soins prénataux"
 msgid ", last ANC visit %s"
 msgstr ", dernière visite de soins prénataux %s"
 
-#: forms/PregnancyRegistrationForm.py:41
+#: forms/PregnancyRegistrationForm.py:49
 #, python-format
-msgid "Married must be %(choices)s."
+msgid "Married must be %(choices)s or husband's health id."
 msgstr ""
 
-#: forms/PregnancyRegistrationForm.py:46
+#: forms/PregnancyRegistrationForm.py:56
 #, fuzzy
 msgid "Number of pregnancies must be entered as a number."
 msgstr "Le nombre de pillules données doit être entré en chiffres."
 
-#: forms/PregnancyRegistrationForm.py:49
+#: forms/PregnancyRegistrationForm.py:59
 #, fuzzy
 msgid "Number of children alive must be entered as a number."
 msgstr "| Nombre d'enfants | doit être entré en chiffres"
 
-#: forms/PregnancyRegistrationForm.py:55
-msgid "married"
-msgstr "marié(e)"
+#: forms/PregnancyRegistrationForm.py:66
+msgid "Is married"
+msgstr "est marié(e)"
 
-#: forms/PregnancyRegistrationForm.py:57
-msgid "not married"
-msgstr "non marié(e)"
-
-#: forms/PregnancyRegistrationForm.py:58
+#: forms/PregnancyRegistrationForm.py:68
 #, python-format
-msgid "Is %(married)s, has had %(pregnancies)s pregnancies and %(children)s alive."
-msgstr "est %(married)s, a eu %(pregnancies)s grossesses et %(children)s sont vivants."
+msgid "Is married to %(husband)s."
+msgstr "Est mariée à %(husband)s."
+
+#: forms/PregnancyRegistrationForm.py:71
+msgid "Is not married"
+msgstr "n'est pas marié(e)"
+
+#: forms/PregnancyRegistrationForm.py:73
+msgid "Married status unknown"
+msgstr "Statut de mariage inconnu"
+
+#: forms/PregnancyRegistrationForm.py:74
+#, python-format
+msgid "%(children)s children"
+msgstr "%(children)s enfants"
+
+#: forms/PregnancyRegistrationForm.py:77
+msgid "one child"
+msgstr "un enfant"
+
+#: forms/PregnancyRegistrationForm.py:78
+#, python-format
+msgid "%(married)s, has had %(pregnancies)s pregnancies and %(children)s alive."
+msgstr "%(married)s, a eu %(pregnancies)s grossesses et %(children)s sont vivants."
 
 #: forms/ReferralForm.py:30
 #, python-format
@@ -1173,7 +1191,7 @@ msgstr "| Est-ce que vous partagez les toilettes? | doit être %(choices)s."
 #: forms/SanitationForm.py:77
 #, python-format
 msgid "Primary Sanitation: %(san)s Share: %(share)s "
-msgstr ""
+msgstr "Source sanitaire principale: %(san)s Partage: %(share)s "
 
 #: forms/SauriPregnancyForm.py:64
 msgid "Only female patients can be pregnant."
@@ -1493,11 +1511,13 @@ msgstr "Cas"
 
 #: models/Case.py:38
 #: models/Referral.py:34
+#: models/reports.py:1143
 msgid "Open"
 msgstr "Ouvert"
 
 #: models/Case.py:39
 #: models/Referral.py:35
+#: models/reports.py:1144
 msgid "Closed"
 msgstr "Fermé"
 
@@ -1536,6 +1556,7 @@ msgstr "Sorte de cas"
 #: models/Referral.py:39
 #: models/ccreports.py:164
 #: models/reports.py:590
+#: models/reports.py:1153
 #: templates/childcount/data_entry.html:40
 msgid "Status"
 msgstr "Statut"
@@ -2431,7 +2452,7 @@ msgid "HHID"
 msgstr "No. de santé du ménage"
 
 #: models/ccreports.py:495
-#, fuzzy, python-format
+#, python-format
 msgid "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe Completely\", \"%(unkp)d%% Unknown\"]"
 msgstr "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe  Completely\", \"%(unkp)d%% Unknown\"]"
 
@@ -2562,10 +2583,7 @@ msgstr "Comptes-rendus de naissances"
 #: models/reports.py:495
 #: models/reports.py:503
 #: models/reports.py:582
-#: models/reports.py:1126
-#: models/reports.py:1132
-#: models/reports.py:1153
-#: models/reports.py:1192
+#: models/reports.py:1187
 msgid "Yes"
 msgstr "Oui"
 
@@ -2578,10 +2596,7 @@ msgstr "Oui"
 #: models/reports.py:496
 #: models/reports.py:504
 #: models/reports.py:583
-#: models/reports.py:1127
-#: models/reports.py:1133
-#: models/reports.py:1157
-#: models/reports.py:1193
+#: models/reports.py:1188
 msgid "No"
 msgstr "Non"
 
@@ -2590,7 +2605,7 @@ msgstr "Non"
 #: models/reports.py:584
 #: models/reports.py:664
 #: models/reports.py:971
-#: models/reports.py:1128
+#: models/reports.py:1189
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -2869,14 +2884,6 @@ msgstr "Comptes-rendus de nutrition"
 msgid "MAM"
 msgstr "MAM"
 
-#: models/reports.py:574
-msgid "SAM"
-msgstr "MAS"
-
-#: models/reports.py:575
-msgid "SAM+"
-msgstr "MAS+"
-
 #: models/reports.py:576
 msgid "Healthy"
 msgstr "En bonne santé"
@@ -3134,9 +3141,8 @@ msgid "Number of hangingBednet"
 msgstr "Nombre de patients"
 
 #: models/reports.py:981
-#, fuzzy
 msgid "Number of hanging bednet"
-msgstr "Nombre de patients"
+msgstr "Nombre de moustiquaires accrochables"
 
 #: models/reports.py:983
 msgid "Reason "
@@ -3310,54 +3316,62 @@ msgstr "Compte-rendu de la liste des patients"
 msgid "Initail Antenatal Visit Reports"
 msgstr "Compte-rendu de la liste des patients"
 
-#: models/reports.py:1135
-msgid "Weeks Pregnant"
-msgstr "Semaines de grossesse"
-
-#: models/reports.py:1136
-msgid "How many weeks into the pregnancy?"
-msgstr "Combien de semaines de grossesse?"
-
-#: models/reports.py:1138
+#: models/reports.py:1122
 msgid "Expected Date of Delivery"
 msgstr "Date prévue de l'accouchement"
 
-#: models/reports.py:1139
-msgid "HIV+?"
-msgstr "VIH positif?"
-
-#: models/reports.py:1141
-msgid "Blood drawn?"
-msgstr "sang récolté?"
-
-#: models/reports.py:1167
+#: models/reports.py:1137
 msgid "Appointment"
 msgstr "Rendez-vous"
 
-#: models/reports.py:1168
+#: models/reports.py:1138
 msgid "Appointments"
 msgstr "Rendez-vous"
 
-#: models/reports.py:1170
+#: models/reports.py:1147
 msgid "Next appointment"
 msgstr "Prochain rendez-vous"
 
-#: models/reports.py:1185
+#: models/reports.py:1148
+msgid "Date closed"
+msgstr "Date confirmée"
+
+#: models/reports.py:1150
+msgid "Notification Sent"
+msgstr "Notification envoyée"
+
+#: models/reports.py:1151
+msgid "Has the CHW been notified?"
+msgstr "Est-ce que le relais a été prévenu?"
+
+#: models/reports.py:1155
+msgid "Is the appointment still open or closed?"
+msgstr "Est-ce que le rendez-vous est encore ouvert ou confirmé?"
+
+#: models/reports.py:1180
 msgid "Pregnancy Registration"
 msgstr "Enregistrement de grossesse"
 
-#: models/reports.py:1186
+#: models/reports.py:1181
 msgid "Pregnancy Registrations"
 msgstr "Enregistrements de grossesse"
 
-#: models/reports.py:1197
+#: models/reports.py:1192
 msgid "Married?"
 msgstr "Marié(e)?"
 
-#: models/reports.py:1199
-#: models/reports.py:1200
+#: models/reports.py:1194
+#: models/reports.py:1195
 msgid "Number of Pregancies"
 msgstr "Nombre de grossesses"
+
+#: models/reports.py:1200
+msgid "Husband"
+msgstr "Epoux"
+
+#: models/reports.py:1201
+msgid "The husband to this pregnant woman"
+msgstr "L'époux de la femme enceinte"
 
 #: templates/childcount/data_entry.html:8
 msgid "ChildCount+ Data Entry"
@@ -3801,6 +3815,30 @@ msgstr "Ref"
 #: templates/childcount/forms/c.json:28
 msgid "Referral to Clinic (A-E-B-C)"
 msgstr "Référence clinique (A-E-B-C)"
+
+#, fuzzy
+#~ msgid "Length of pregnancy in weeksmust be entered as a number."
+#~ msgstr "Le nombre de pillules données doit être entré en chiffres."
+
+#, fuzzy
+#~ msgid "HIV+ must be %(choices)s."
+#~ msgstr "| Testé pour le VIH | %(choices)s"
+
+#, fuzzy
+#~ msgid "Blood drawn must be %(choices)s."
+#~ msgstr "| Œdème | doit être %(choices)s."
+
+#~ msgid "Weeks Pregnant"
+#~ msgstr "Semaines de grossesse"
+
+#~ msgid "How many weeks into the pregnancy?"
+#~ msgstr "Combien de semaines de grossesse?"
+
+#~ msgid "HIV+?"
+#~ msgstr "VIH positif?"
+
+#~ msgid "Blood drawn?"
+#~ msgstr "sang récolté?"
 
 #, fuzzy
 #~ msgid "%(patient)s has already %(nets)d bednetsfor %(site)d sites."
