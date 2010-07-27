@@ -1119,42 +1119,12 @@ class AntenatalVisitReport(CCReport):
         verbose_name = _(u"Initail Antenatal Visit Report")
         verbose_name_plural = _(u"Initail Antenatal Visit Reports")
 
-    HIV_YES = 'Y'
-    HIV_NO = 'N'
-    HIV_UNKNOWN = 'U'
-    HIV_CHOICES = (
-        (HIV_YES, _(u"Yes")),
-        (HIV_NO, _(u"No")),
-        (HIV_UNKNOWN, _(u"Unknown")))
-    BLOOD_DRAWN_YES = True
-    BLOOD_DRAWN_NO = False
-    BLOOD_DRAWN_CHOICES = (
-        (BLOOD_DRAWN_YES, _(u"Yes")),
-        (BLOOD_DRAWN_NO, _(u"No")))
-
-    pregnancy_week = models.PositiveSmallIntegerField(_(u"Weeks Pregnant"), \
-                                    help_text=_(u"How many weeks into the " \
-                                                 "pregnancy?"))
     expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
-    hiv  = models.CharField(_(u"HIV+?"), max_length=1, \
-                              choices=HIV_CHOICES)
-    blood_drawn = models.BooleanField(_(u"Blood drawn?"), \
-                                        choices=BLOOD_DRAWN_CHOICES)
 
     def summary(self):
-        string = u"%s: %d, %s: %s" % \
-            (self._meta.get_field_by_name('pregnancy_week')[0].verbose_name, \
-             self.pregnancy_week,
-             self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
              self.expected_on)
-        if self.blood_drawn:
-            string += ", %s: %s" % \
-            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
-             _(u"Yes"))
-        else:
-            string += ", %s: %s" % \
-            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
-             _(u"No"))
         return string
 reversion.register(AntenatalVisitReport, follow=['ccreport_ptr'])
 
@@ -1191,6 +1161,14 @@ class AppointmentReport(CCReport):
             (self._meta.get_field_by_name('appointment_date')[0].verbose_name,\
              self.appointment_date)
         return string
+
+    def reminder(self):
+        #three_days_b4 = timedelta(days=3)
+        #notification_day = self.appointment_date - three_days_b4 
+        pass
+
+    def save(self, *args, **kwargs):
+        super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
