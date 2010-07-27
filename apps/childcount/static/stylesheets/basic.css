@@ -16,9 +16,12 @@ float:right;
 position:relative;
 width: 50%
 }
-#ch-bd a{
-    color: #897C04
+
+#ch-bd a {
+color:#897C04;
 }
+
+
 /* block styles */
 .block .ft .first {
     width:39px;
@@ -150,4 +153,71 @@ border: 1px solid #aaaaaa/*{borderColorActive}*/; background: #ffffff/*{bgColorA
 .ui-corner-left { -moz-border-radius-topleft: 4px/*{cornerRadius}*/; -webkit-border-top-left-radius: 4px/*{cornerRadius}*/; border-top-left-radius: 4px/*{cornerRadius}*/; -moz-border-radius-bottomleft: 4px/*{cornerRadius}*/; -webkit-border-bottom-left-radius: 4px/*{cornerRadius}*/; border-bottom-left-radius: 4px/*{cornerRadius}*/; }
 .ui-corner-all { -moz-border-radius: 4px/*{cornerRadius}*/; -webkit-border-radius: 4px/*{cornerRadius}*/; border-radius: 4px/*{cornerRadius}*/; }
 
+
+/** PAGINATOR **/
+
+#paginator a {
+        color:  #2E6AB1;
+}
+.paginator { 
+        display:block;
+        float:left;
+        margin-right:0.1em;
+        padding:0.2em 0.5em;
+        }
+ 
+.paginator .prev-na,
+.paginator .next-na {
+	padding:.3em;
+	font:bold .875em arial;
+}
+ 
+.paginator .prev-na,
+.paginator .next-na {
+	border:1px solid #9AAFE5;
+	background-color:#f9f9f9;
+	color:  #2E6AB1;
+	font-weight:normal;
+}
+ 
+.paginator .prev a, .paginator .prev a:visited,
+.paginator .next a, .paginator .next a:visited {
+	border:1px solid #9AAFE5;
+	background-color:#fff;
+	color: #2E6AB1;
+	padding:.3em;
+	font:bold .875em arial;
+}
+ 
+.paginator .prev, .paginator .prev-na { margin-right:.5em; }
+.paginator .next, .paginator .next-na { margin-left:.5em; }
+ 
+.paginator .page a, .paginator .page a:visited, .paginator .curr {
+	padding:.25em;
+	font:normal .875em verdana;
+	border:1px solid #9AAFE5;
+	background-color:#fff;
+	margin:0em .25em;	
+	color:  #2E6AB1;
+}
+ 
+.paginator .curr { 
+	background-color:#2E6AB1;
+	color:#fff;
+	border:1px solid #9AAFE5;
+	font-weight:bold;
+	font-size:1em;
+	
+}
+ 
+.paginator .page a:hover,
+.paginator .curr a:hover,
+.paginator .prev a:hover,
+.paginator .next a:hover {
+	color:#000;
+	background-color:#fff;
+	font-weight:bold;
+	font-size:1em;
+        text-decoration:none;
+}
 

@@ -5,6 +5,7 @@
 
 {% block page_stylesheets %}
 {{ block.super }}
+<link type="text/css" rel="stylesheet" href="/static/childcount/stylesheets/basic.css"/>
 <style typ=text/css>
     table.display tr.odd.inc{
         background-color: #FFDDDD;
@@ -21,9 +22,7 @@
     tr.row_selected{
         background-color: #D5FFD5;
     }
-#ch-bd {
-border:1px solid brown;
-}
+
 #ch-l {
 float:left;
 width:80%;
@@ -32,7 +31,6 @@ width:80%;
 width:18%;
 float:right;
 position:relative;
-border:1px solid brown;
 }
     #content img{
         border: 0 solid white;
@@ -84,7 +82,8 @@ border:1px solid brown;
 </table>
 
 {% if is_paginated %}
-<div class="paginator">
+<hr>
+<div class="paginator" id ='paginator'>
   {% ifnotequal  page 1 %}
 <span class="next"><a href="/childcount/patients?page=1" title="First Page">First</a></span>
  {%endifnotequal%}

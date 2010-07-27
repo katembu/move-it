@@ -77,7 +77,9 @@ class Encounter(models.Model):
             return False
         now = datetime.now()
         td = timedelta(minutes=self.TIMEOUT)
-        return self.encounter_date < (now - td)
+        # Return False (the encounter is closed) if the encounter date
+        # is older than (TD[six hours] ago)
+        return False if self.encounter_date < (now - td) else True
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \
