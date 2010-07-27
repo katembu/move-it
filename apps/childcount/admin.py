@@ -56,6 +56,7 @@ admin.site.register(DrinkingWaterReport, VersionAdmin)
 admin.site.register(AntenatalVisitReport, VersionAdmin)
 admin.site.register(AppointmentReport, VersionAdmin)
 admin.site.register(PregnancyRegistrationReport, VersionAdmin)
+admin.site.register(HIVTestReport, VersionAdmin)
 #Immunization
 admin.site.register(ImmunizationSchedule, VersionAdmin)
 admin.site.register(ImmunizationNotification, VersionAdmin)

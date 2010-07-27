@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: dgelvin, ukanga
 
 '''ChildCount Models
 
@@ -1119,42 +1119,12 @@ class AntenatalVisitReport(CCReport):
         verbose_name = _(u"Initail Antenatal Visit Report")
         verbose_name_plural = _(u"Initail Antenatal Visit Reports")
 
-    HIV_YES = 'Y'
-    HIV_NO = 'N'
-    HIV_UNKNOWN = 'U'
-    HIV_CHOICES = (
-        (HIV_YES, _(u"Yes")),
-        (HIV_NO, _(u"No")),
-        (HIV_UNKNOWN, _(u"Unknown")))
-    BLOOD_DRAWN_YES = True
-    BLOOD_DRAWN_NO = False
-    BLOOD_DRAWN_CHOICES = (
-        (BLOOD_DRAWN_YES, _(u"Yes")),
-        (BLOOD_DRAWN_NO, _(u"No")))
-
-    pregnancy_week = models.PositiveSmallIntegerField(_(u"Weeks Pregnant"), \
-                                    help_text=_(u"How many weeks into the " \
-                                                 "pregnancy?"))
     expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
-    hiv  = models.CharField(_(u"HIV+?"), max_length=1, \
-                              choices=HIV_CHOICES)
-    blood_drawn = models.BooleanField(_(u"Blood drawn?"), \
-                                        choices=BLOOD_DRAWN_CHOICES)
 
     def summary(self):
-        string = u"%s: %d, %s: %s" % \
-            (self._meta.get_field_by_name('pregnancy_week')[0].verbose_name, \
-             self.pregnancy_week,
-             self._meta.get_field_by_name('expected_on')[0].verbose_name, \
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('expected_on')[0].verbose_name, \
              self.expected_on)
-        if self.blood_drawn:
-            string += ", %s: %s" % \
-            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
-             _(u"Yes"))
-        else:
-            string += ", %s: %s" % \
-            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
-             _(u"No"))
         return string
 reversion.register(AntenatalVisitReport, follow=['ccreport_ptr'])
 
@@ -1167,13 +1137,38 @@ class AppointmentReport(CCReport):
         verbose_name = _(u"Appointment")
         verbose_name_plural = _(u"Appointments")
 
+    STATUS_OPEN = 0
+    STATUS_CLOSED = 1
+    STATUS_CHOICES = (
+        (STATUS_OPEN, _("Open")),
+        (STATUS_CLOSED, _("Closed"))
+    )
+    
     appointment_date = models.DateTimeField(_(u"Next appointment"))
+    closed_date = models.DateTimeField(_(u"Date closed"), blank=True, \
+                                        null=True)
+    notification_sent = models.BooleanField(_(u"Notification Sent"), \
+                                help_text=_(u"Has the CHW been notified?"),
+                                default=False)
+    status = models.PositiveSmallIntegerField(_("Status"), \
+                                                choices=STATUS_CHOICES,
+                                help_text=_(u"Is the appointment still open" \
+                                            " or closed?"), \
+                                            default=STATUS_OPEN)
 
     def summary(self):
         string = u"%s: %s" % \
             (self._meta.get_field_by_name('appointment_date')[0].verbose_name,\
              self.appointment_date)
         return string
+
+    def reminder(self):
+        #three_days_b4 = timedelta(days=3)
+        #notification_day = self.appointment_date - three_days_b4 
+        pass
+
+    def save(self, *args, **kwargs):
+        super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
@@ -1185,22 +1180,27 @@ class PregnancyRegistrationReport(CCReport):
         verbose_name = _(u"Pregnancy Registration")
         verbose_name_plural = _(u"Pregnancy Registrations")
 
-    MARRIED_YES = True
-    MARRIED_NO = False
-    #MARRIED_UNKNOWN = 'U'
+    MARRIED_YES = 'Y'
+    MARRIED_NO = 'N'
+    MARRIED_UNKNOWN = 'U'
     MARRIED_CHOICES = (
         (MARRIED_YES, _(u"Yes")),
         (MARRIED_NO, _(u"No")),
-        #(MARRIED_UNKNOWN, _(u"Unknown"))
+        (MARRIED_UNKNOWN, _(u"Unknown"))
     )
 
-    married = models.BooleanField(_(u"Married?"), \
+    married = models.CharField(_(u"Married?"), max_length=1, \
                                         choices=MARRIED_CHOICES)
     pregnancies = models.PositiveSmallIntegerField(_("Number of Pregancies"))
     number_of_children = models.PositiveSmallIntegerField(_("Number of " \
                                                             "Pregancies"), \
                                                             default=0,
                                                         blank=True, null=True)
+    husband = models.ForeignKey('Patient', blank=True, null=True, \
+                                  verbose_name=_(u"Husband"), \
+                                  help_text=_(u"The husband to this pregnant"\
+                                            " woman"),\
+                                  related_name='husband')
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1214,3 +1214,44 @@ class PregnancyRegistrationReport(CCReport):
                 .verbose_name, self.number_of_children)
         return string
 reversion.register(PregnancyRegistrationReport, follow=['ccreport_ptr'])
+
+
+class HIVTestReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_hivtest'
+        verbose_name = _(u"HIV Test")
+        verbose_name_plural = _(u"HIV Tests")
+
+    HIV_YES = 'Y'
+    HIV_NO = 'N'
+    HIV_UNKNOWN = 'U'
+    HIV_NOCONSENT = 'NC'
+    HIV_CHOICES = (
+        (HIV_YES, _(u"Yes")),
+        (HIV_NO, _(u"No")),
+        (HIV_UNKNOWN, _(u"Unknown")),
+        (HIV_NOCONSENT, _(u"No Consent")))
+    BLOOD_DRAWN_YES = 'Y'
+    BLOOD_DRAWN_NO = 'N'
+    BLOOD_DRAWN_UNKNOWN = 'U'
+    BLOOD_DRAWN_CHOICES = (
+        (BLOOD_DRAWN_YES, _(u"Yes")),
+        (BLOOD_DRAWN_NO, _(u"No")),
+        (BLOOD_DRAWN_UNKNOWN, _(u"Unknown")))
+
+    hiv  = models.CharField(_(u"HIV+?"), max_length=2, \
+                              choices=HIV_CHOICES)
+    blood_drawn = models.CharField(_(u"Blood drawn?"), max_length=1, \
+                                        choices=BLOOD_DRAWN_CHOICES)
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('hiv')[0].verbose_name, \
+            self.hiv)
+        string += u", %s: %s" % \
+            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
+            self.blood_drawn)
+        return string
+reversion.register(HIVTestReport, follow=['ccreport_ptr'])

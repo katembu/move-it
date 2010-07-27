@@ -2,6 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
+'''
+AppointmentForm - Save appointments
+
+Generate a notification 3 week days before appointment date.
+Close previous appointment dates
+'''
 
 from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
@@ -15,8 +21,8 @@ from childcount.utils import DOBProcessor
 
 class AppointmentForm(CCForm):
     KEYWORDS = {
-        'en': ['apt'],
-        'fr': ['apt'],
+        'en': ['ap'],
+        'fr': ['ap'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
@@ -47,7 +53,22 @@ class AppointmentForm(CCForm):
                             "please use a future date of appointment." % \
                                 {'expected_on': expected_on}))
         aptr.appointment_date = expected_on
+        aptr.status = AppointmentReport.STATUS_OPEN
+        aptr.notification_sent = False
         aptr.save()
+        #close previous appointments
+        previous_apts = AppointmentReport.objects.filter(\
+                                encounter__patient=self.encounter.patient, \
+                                status=AppointmentReport.STATUS_OPEN)\
+                                .exclude(encounter=self.encounter)
+        for apt in previous_apts:
+            apt.closed_date = datetime.now()
+            apt.status = AppointmentReport.STATUS_CLOSED
+            apt.save()
  
         self.response = _(u"Next appointment is on %(expected_on)s.") % \
                             {'expected_on': aptr.appointment_date}
+        #reminder
+        msg = _(u"Please send %(patient)s to to the health center on for " \
+                "their appointment on %(apt_date)s") % \
+                {'patient': patient, 'apt_date': apt.appointment_date}
