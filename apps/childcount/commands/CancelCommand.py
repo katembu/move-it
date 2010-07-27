@@ -5,6 +5,7 @@
 from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
+from django.db import models
 
 from reversion import revision
 from reversion.models import Revision, Version
@@ -76,6 +77,20 @@ class CancelCommand(CCCommand):
                        .get_for_object(obj).order_by('-revision__date_created')
 
             if v_list.count() == 1:
+                '''
+                Fix for deleting health ids.  If this object has a related
+                manager that has objects, and those objects are under
+                version control, clear them first, before we delete the object.
+                '''
+                for attr in dir(obj):
+                    if attr.endswith('_set') and \
+                       isinstance(getattr(obj, attr), models.Manager) and \
+                       getattr(obj, attr).count() > 0 and \
+                       hasattr(getattr(obj, attr), 'clear'):
+                        manager = getattr(obj, attr)
+                        if len(Version.objects.get_for_object(manager.all()[0])) > 0:
+                            manager.clear()
+
                 obj.delete()
             else:
                 previous_version = v_list[1]
