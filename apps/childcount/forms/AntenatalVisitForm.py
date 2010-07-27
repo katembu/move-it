@@ -11,29 +11,17 @@ from childcount.models.reports import AntenatalVisitReport
 from childcount.models import Encounter
 from childcount.exceptions import ParseError, BadValue, InvalidDOB
 from childcount.utils import DOBProcessor
-from childcount.forms.utils import MultipleChoiceField
 
 
 class AntenatalVisitForm(CCForm):
     KEYWORDS = {
-        'en': ['iav'],
-        'fr': ['iav'],
+        'en': ['pf'],
+        'fr': ['pf'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
-        hiv_field = MultipleChoiceField()
-        hiv_field.add_choice('en', AntenatalVisitReport.HIV_YES, 'Y')
-        hiv_field.add_choice('en', AntenatalVisitReport.HIV_NO, 'N')
-        hiv_field.add_choice('en', AntenatalVisitReport.HIV_UNKNOWN, 'U')
-
-        blood_drawn_field = MultipleChoiceField()
-        blood_drawn_field.add_choice('en', \
-                                    AntenatalVisitReport.BLOOD_DRAWN_YES, 'Y')
-        blood_drawn_field.add_choice('en', \
-                                    AntenatalVisitReport.BLOOD_DRAWN_NO, 'N')
-
-        if len(self.params) < 5:
+        if len(self.params) < 2:
             raise ParseError(_(u"Not enough info."))
 
         try:
@@ -42,13 +30,7 @@ class AntenatalVisitForm(CCForm):
             avr = AntenatalVisitReport(encounter=self.encounter)
         avr.form_group = self.form_group
 
-        hiv_field.set_language(self.chw.language)
-        blood_drawn_field.set_language(self.chw.language)
-        if not self.params[1].isdigit():
-            raise ParseError(_(u"Length of pregnancy in weeks" \
-                                "must be entered as a number."))
-
-        expected_on_str = self.params[2]
+        expected_on_str = self.params[1]
         try:
             #need to trick DOBProcessor: use a future date for date_ref
             date_ref = datetime.today() + timedelta(375)
@@ -63,22 +45,9 @@ class AntenatalVisitForm(CCForm):
                             "the expected delivery date should be a "\
                             "future date." % \
                                 {'expected_on': expected_on}))
-
-        if not hiv_field.is_valid_choice(self.params[3]):
-            raise ParseError(_(u"HIV+ must be %(choices)s.") % \
-                              {'choices': hiv_field.choices_string()})
-        hiv = hiv_field.get_db_value(self.params[3])
-        if not blood_drawn_field.is_valid_choice(self.params[4]):
-            raise ParseError(_(u"Blood drawn must be %(choices)s.") % \
-                              {'choices': blood_drawn_field.choices_string()})
-        blood_drawn = blood_drawn_field.get_db_value(self.params[4])
-        avr.pregnancy_week = int(self.params[1])
         avr.expected_on = expected_on
-        avr.hiv = hiv
-        avr.blood_drawn = blood_drawn
         avr.save()
  
-        self.response = _(u"%(weeks)d weeks pregnant, expected date of "\
+        self.response = _(u"Expected date of "\
                             "delivery is %(expected_on)s.") % \
-                            {'weeks': avr.pregnancy_week, \
-                            'expected_on': avr.expected_on}
+                            {'expected_on': avr.expected_on}
