@@ -30,8 +30,8 @@ class BCPillForm(CCForm):
         bcpr.form_group = self.form_group
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"Number of women " \
-                                "must be a number"))
+            raise ParseError(_(u"| Number of women | " \
+                                "must be a number."))
 
         bcpr.women = int(self.params[1])
         bcpr.save()

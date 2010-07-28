@@ -77,7 +77,7 @@ class DrinkingWaterForm(CCForm):
 
         wats = self.params[1]
         if not wats_field.is_valid_choice(wats):
-            raise ParseError(_(u"|Water Source must be %(choices)s.") \
+            raise ParseError(_(u"| Water Source | must be %(choices)s.") \
                              % {'choices': wats_field.choices_string()})
 
         drnkr.water_source = wats_field.get_db_value(wats)
@@ -87,7 +87,7 @@ class DrinkingWaterForm(CCForm):
 
         if len(self.params) > 2:
             if not tmethod_field.is_valid_choice(self.params[2]):
-                raise ParseError(_(u"Which method do you use? must be " \
+                raise ParseError(_(u"| Which method do you use? | must be " \
                                 "%(choices)s.") % \
                                 {'choices': tmethod_field.choices_string()})
 

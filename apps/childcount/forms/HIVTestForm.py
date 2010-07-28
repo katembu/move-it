@@ -51,7 +51,7 @@ class HIVTestForm(CCForm):
         blood_drawn_field.set_language(self.chw.language)
 
         if not hiv_field.is_valid_choice(self.params[1]):
-            raise ParseError(_(u"HIV+ must be %(choices)s.") % \
+            raise ParseError(_(u"| HIV+ | must be %(choices)s.") % \
                               {'choices': hiv_field.choices_string()})
         hiv = hiv_field.get_db_value(self.params[1])
         
@@ -61,7 +61,7 @@ class HIVTestForm(CCForm):
 
         if(len(self.params) > 2):
             if not blood_drawn_field.is_valid_choice(self.params[2]):
-                raise ParseError(_(u"Blood drawn must be %(choices)s.") % \
+                raise ParseError(_(u"| Blood drawn | must be %(choices)s.") % \
                                   {'choices': blood_drawn_field.choices_string()})
             blood_drawn = blood_drawn_field.get_db_value(self.params[2])
             htr.blood_drawn = blood_drawn

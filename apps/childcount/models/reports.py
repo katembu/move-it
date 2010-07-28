@@ -44,7 +44,7 @@ class CCReport(PolymorphicModel):
         db_table = 'cc_ccrpt'
         verbose_name = _(u"ChildCount Report")
         verbose_name_plural = _(u"ChildCount Reports")
-        get_latest_by = _("encounter__encounter_date")
+        get_latest_by = ('encounter__encounter_date')
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
 
@@ -954,13 +954,13 @@ class BedNetReport(CCReport):
                             help_text=_(u"Number of sleeping sites"))
 
     function_nets = models.PositiveSmallIntegerField(_(u"Recent Bednets"), \
-                            help_text=_(u"Number of functioning bednets "))
+                            help_text=_(u"Number of functioning bednets"))
     earlier_nets = models.PositiveSmallIntegerField(_(u"Earlier Bednets"), \
-                            help_text=_(u"Number of bednets received " \
+                            help_text=_(u"Number of bednets received" \
                             "earlier "))
     damaged_nets = models.PositiveSmallIntegerField(_(u"Damaged Bednets"), \
                             help_text=_(u"Number of recent bednets that are" \
-                                        "damaged "))
+                                        " damaged"))
 
 
     def summary(self):
@@ -992,27 +992,27 @@ class BednetUtilization(CCReport):
     U = -1
 
     REASON_CHOICES = (
-        (DIFFICULT_BREATHE, _(u'Difficult to breathe')),
-        (NOT_EFFECTIVE, _(u'Dont think its effective')),
+        (DIFFICULT_BREATHE, _(u'Difficulty to breathe')),
+        (NOT_EFFECTIVE, _(u'Doubt about effectiveness')),
         (SMALL_ROOM, _(u'Room too small')),
-        (DIFFICULT_HUNG, _(u'Difficult to hung')),
+        (DIFFICULT_HUNG, _(u'Difficulty to hang')),
         (BEDNET_DAMAGED, _(u'Bednet damaged')),
-        (DONT_HAVE, _(u'Dont have')),
+        (DONT_HAVE, _(u'No bednet')),
         (UNKNOWN, _(u'Unknown')),
         (OTHER, _(u'Other')))
         
-    child_underfive = models.PositiveSmallIntegerField(_(u"children under " \
+    child_underfive = models.PositiveSmallIntegerField(_(u"children under" \
                             " five "), help_text=_(u"Number of children " \
                             "under five who slept here last night."))
     child_lastnite = models.PositiveSmallIntegerField(_(u"Children slept " \
                             "under bednet"), help_text=_(u"Number of children" \
                             " under five who slept under bednet last night."))
-    hanging_bednet= models.SmallIntegerField(_(u"Number of hanging" \
-                            "Bednet"), help_text=_(u"Number of hanging " \
+    hanging_bednet= models.SmallIntegerField(_(u"Number of hanging " \
+                            "bednet"), help_text=_(u"Number of hanging " \
                             "bednet"))
     reason = models.CharField(_(u"Reason "), \
                             help_text=_(u"reason why some children" \
-                            "did sleep under bednet"), null=True, blank=True, \
+                            "didnt sleep under bednet"), null=True, blank=True, \
                             max_length=2, choices=REASON_CHOICES)
 
     def summary(self):
@@ -1059,9 +1059,9 @@ class SanitationReport(CCReport):
 
     toilet_lat = models.CharField(_(u"Toilet Type"), max_length=2, \
                               choices=TOILET_LAT_CHOICES)
-    share_toilet = models.SmallIntegerField(_(u"How many do you share?"), \
+    share_toilet = models.SmallIntegerField(_(u"How many shares?"), \
                                 help_text=_(u"How many people" \
-                                "share the toilet(open to public = -1, " \
+                                " share the toilet (open to public = -1, " \
                                 "unknown = -2 )"))
 reversion.register(SanitationReport, follow=['ccreport_ptr'])
 
@@ -1116,7 +1116,7 @@ class DrinkingWaterReport(CCReport):
         (TREATMENT_METHOD_SOLARDISINFECTION, _(u"Solar disinfection")),
         (TREATMENT_METHOD_STAND_SETTLE, _(u"Let it stand and settle")),
         (TREATMENT_METHOD_OTHER, _(u"Other")),
-        (TREATMENT_METHOD_DONTKNOW, _(u"Dont know")),)
+        (TREATMENT_METHOD_DONTKNOW, _(u"Unknown")),)
 
 
     water_source = models.CharField(_(u"Water Source"), max_length=2, \
@@ -1146,8 +1146,8 @@ class AntenatalVisitReport(CCReport):
     class Meta:
         app_label = 'childcount'
         db_table = 'cc_iavrpt'
-        verbose_name = _(u"Initail Antenatal Visit Report")
-        verbose_name_plural = _(u"Initail Antenatal Visit Reports")
+        verbose_name = _(u"Initial Antenatal Visit Report")
+        verbose_name_plural = _(u"Initial Antenatal Visit Reports")
 
     expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
 

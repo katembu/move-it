@@ -29,8 +29,8 @@ class AppointmentForm(CCForm):
     def process(self, patient):
 
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected date of "\
-                            "appointment"))
+            raise ParseError(_(u"Not enough info. Expected: date of "\
+                            "appointment."))
 
         try:
             aptr = AppointmentReport.objects.get(encounter=self.encounter)

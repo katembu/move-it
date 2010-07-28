@@ -22,8 +22,7 @@ class UpdateDOBForm(CCForm):
         lang = self.message.reporter.language
 
         if len(self.params) < 2:
-            raise BadValue(_(u"Information not enough healthid: " \
-                                "New DOB"))
+            raise BadValue(_(u"Not enough info. Expected: New DOB."))
 
         dob, variance = DOBProcessor.from_age_or_dob(lang, self.params[1])
 

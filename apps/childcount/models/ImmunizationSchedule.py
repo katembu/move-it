@@ -54,7 +54,7 @@ class ImmunizationNotification(models.Model):
     notify_on = models.DateTimeField(_(u"Notify on"), blank=True, null=True, \
                                  help_text=_(u"When to notify"))
     notified_on = models.DateTimeField(_(u"Notified on"), blank=True, null=True, \
-                                 help_text=_(u"When to notified"))
+                                 help_text=_(u"Notified on"))
 
     def __unicode__(self):
         return u" %s %s " % (self.patient, self.immunization)

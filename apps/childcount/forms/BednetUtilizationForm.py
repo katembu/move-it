@@ -37,7 +37,7 @@ class BednetUtilizationForm(CCForm):
             raise ParseError(_(u"Not enough info. Expected: | number of " \
                                 "children who slept here last night | "\
                                 " how many slept under bednets | hanging " \
-                                "bednets"))
+                                "bednets |"))
 
         try:
             bnut_rpt = BednetUtilization.objects.get(encounter__patient=self.\
@@ -54,13 +54,13 @@ class BednetUtilizationForm(CCForm):
         hanging_field.set_language(self.chw.language)
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"Number of children who slept here last" \
-                                "night should be a number."))
+            raise ParseError(_(u"| Number of children who slept here last" \
+                                " night | should be a number."))
 
         bnut_rpt.child_underfive = int(self.params[1])
 
         if not self.params[2].isdigit():
-            raise ParseError(_(u"Number of children under bednet should " \
+            raise ParseError(_(u"| Number of children under bednet | should " \
                                 "be a number."))
 
         bnut_rpt.child_lastnite = int(self.params[2])
@@ -76,12 +76,12 @@ class BednetUtilizationForm(CCForm):
         elif hanging_field.is_valid_choice(hanging):
             bnut_rpt.hanging_bednet = hanging_field.get_db_value(hanging)
         else:
-            raise ParseError(_(u"How many hanging bednet must be a number" \
+            raise ParseError(_(u"| How many hanging bednet | must be a number" \
                                 " or, %(choices)s.") % \
                                 {'choices': hanging_field.choices_string()})
 
-        self.response = _(u"%(sites)d child(ren) slept here last nite " \
-                           "%(nets)d slept under bednet(s) Hanging: " \
+        self.response = _(u"%(sites)d child(ren) slept here last night. " \
+                           "%(nets)d slept under bednet(s). Hanging: " \
                            "%(han)s") % \
                            {'sites': bnut_rpt.child_underfive, \
                             'nets': bnut_rpt.child_lastnite, \
@@ -92,7 +92,7 @@ class BednetUtilizationForm(CCForm):
             if len(self.params) > 4:
                 reason = self.params[4]
                 if not reason_field.is_valid_choice(reason):
-                    raise ParseError(_(u"| Reason must be " \
+                    raise ParseError(_(u"| Reason | must be " \
                                         "%(choices)s.") % \
                                         {'choices': \
                                         reason_field.choices_string()})

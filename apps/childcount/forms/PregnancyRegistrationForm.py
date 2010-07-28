@@ -46,17 +46,17 @@ class PregnancyRegistrationForm(CCForm):
             except Patient.DoesNotExist:
                 is_husband = False
             if not is_husband:
-                raise ParseError(_(u"Married must be %(choices)s" \
+                raise ParseError(_(u"| Married | must be %(choices)s" \
                                 " or husband's health id.") % \
                               {'choices': married_field.choices_string()})
         else:
             married = married_field.get_db_value(self.params[1])
 
         if not self.params[2].isdigit():
-            raise ParseError(_(u"Number of pregnancies " \
+            raise ParseError(_(u"| Number of pregnancies | " \
                                 "must be entered as a number."))
         if not self.params[3].isdigit():
-            raise ParseError(_(u"Number of children alive " \
+            raise ParseError(_(u"| Number of children alive | " \
                                 "must be entered as a number."))
         prgr.married = married
         prgr.pregnancies = int(self.params[2])

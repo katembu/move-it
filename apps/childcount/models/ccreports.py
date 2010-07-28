@@ -149,7 +149,7 @@ class ThePatient(Patient):
     def patient_register_columns(cls):
         columns = []
         columns.append(
-            {'name': _(u"HID"), \
+            {'name': _(u"HHID"), \
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _(u"Name".upper()), \
@@ -683,7 +683,7 @@ class ClinicReport(Clinic):
             {'name': cls._meta.get_field('name').verbose_name.upper(), \
              'bit': '{{object.name}}'})
         columns.append(
-            {'name': _("#House hold".upper()), \
+            {'name': _("# of Household".upper()), \
              'bit': '{{object.househoulds}}'})
         columns.append(
             {'name': _("#House visits".upper()), \

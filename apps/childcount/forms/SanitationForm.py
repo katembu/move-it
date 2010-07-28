@@ -51,13 +51,12 @@ class SanitationForm(CCForm):
         sanit_share.set_language(self.chw.language)
 
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: | What kind of " \
-                                "toilet facility do members of your  " \
-                                "household use | how many share? |"))
+            raise ParseError(_(u"Not enough info. Expected: | kind of " \
+                                "toilet facility | how many share? |"))
 
         toilet_latrine = self.params[1]
         if not sanit_field.is_valid_choice(toilet_latrine):
-            raise ParseError(_(u"Toilet type must be %(choices)s.") \
+            raise ParseError(_(u"| Toilet type | must be %(choices)s.") \
                              % {'choices': sanit_field.choices_string()})
 
         snr.toilet_lat = sanit_field.get_db_value(toilet_latrine)
@@ -68,8 +67,8 @@ class SanitationForm(CCForm):
         elif sanit_share.is_valid_choice(share_toilet):
             snr.share_toilet = sanit_share.get_db_value(share_toilet)
         else:
-            raise ParseError(_(u"Do you share toilet? must be a number, " \
-                                "%(choices)s.") % \
+            raise ParseError(_(u"| Do you share toilet? | must be a number " \
+                                "or %(choices)s.") % \
                                 {'choices': sanit_share.choices_string()})
 
         snr.save()
