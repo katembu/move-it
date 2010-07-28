@@ -1214,3 +1214,44 @@ class PregnancyRegistrationReport(CCReport):
                 .verbose_name, self.number_of_children)
         return string
 reversion.register(PregnancyRegistrationReport, follow=['ccreport_ptr'])
+
+
+class HIVTestReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_hivtest'
+        verbose_name = _(u"HIV Test")
+        verbose_name_plural = _(u"HIV Tests")
+
+    HIV_YES = 'Y'
+    HIV_NO = 'N'
+    HIV_UNKNOWN = 'U'
+    HIV_NOCONSENT = 'NC'
+    HIV_CHOICES = (
+        (HIV_YES, _(u"Yes")),
+        (HIV_NO, _(u"No")),
+        (HIV_UNKNOWN, _(u"Unknown")),
+        (HIV_NOCONSENT, _(u"No Consent")))
+    BLOOD_DRAWN_YES = 'Y'
+    BLOOD_DRAWN_NO = 'N'
+    BLOOD_DRAWN_UNKNOWN = 'U'
+    BLOOD_DRAWN_CHOICES = (
+        (BLOOD_DRAWN_YES, _(u"Yes")),
+        (BLOOD_DRAWN_NO, _(u"No")),
+        (BLOOD_DRAWN_UNKNOWN, _(u"Unknown")))
+
+    hiv  = models.CharField(_(u"HIV+?"), max_length=2, \
+                              choices=HIV_CHOICES)
+    blood_drawn = models.CharField(_(u"Blood drawn?"), max_length=1, \
+                                        choices=BLOOD_DRAWN_CHOICES)
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('hiv')[0].verbose_name, \
+            self.hiv)
+        string += u", %s: %s" % \
+            (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
+            self.blood_drawn)
+        return string
+reversion.register(HIVTestReport, follow=['ccreport_ptr'])
