@@ -65,7 +65,11 @@
         <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ other_sick_members_on_treatment }}</value>
     </number_of_other_sick_members_of_household_receiving_antimalarials_during_visit>
-
+    <number_of_women_given_oral_contraceptives_in_household openmrs_concept="1915^Number of women given oral contraceptives in household^99DCT" openmrs_datatype="NM">
+        <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></date>
+        <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></time>
+        <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ number_of_women_given_bc_pills }}</value>
+    </number_of_women_given_oral_contraceptives_in_household>
     <total_women_15-49yo_seen_in_household openmrs_concept="1901^TOTAL WOMEN 15-49YO SEEN IN HOUSEHOLD^99DCT" openmrs_datatype="NM">
         <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
         <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>

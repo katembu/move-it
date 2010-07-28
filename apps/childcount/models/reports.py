@@ -461,7 +461,7 @@ class BCPillReport(CCReport):
 
     pills = models.PositiveSmallIntegerField(_(u"Pills given"), \
                                              null=True, blank=True)
-    women = models.PositiveSmallIntegerField(_(u"Women given pills"),
+    women = models.PositiveSmallIntegerField(_(u"Women given BC pills"),
                                              null=True, blank=True)
 
     def summary(self):
@@ -478,6 +478,10 @@ class BCPillReport(CCReport):
               pills, \
               self._meta.get_field_by_name('women')[0].verbose_name, \
               women)
+
+    def get_omrs_dict(self):
+        return {'number_of_women_given_bc_pills':
+                    self.women}
 
 reversion.register(BCPillReport, follow=['ccreport_ptr'])
 
@@ -819,8 +823,9 @@ class HouseholdVisitReport(CCReport):
             avail = OpenMRSHouseholdForm.NO
         igive = {
             'hh_member_available': avail,
-            'number_children_under_five': self.children,
         }
+        if self.children != None:
+            igive.update({'number_children_under_five': self.children})
         for ct in self.counseling.all():
             if ct.code.upper() == 'NUT':
                 igive.update({'counseling_topics__nutrition': True})
