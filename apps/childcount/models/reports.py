@@ -460,7 +460,7 @@ class BCPillReport(CCReport):
         if self.women is None:
             women = _(u"Unkown")
         else:
-            women = unicode(self.pills)
+            women = unicode(self.women)
         return u"%s: %s, %s: %s" % \
              (self._meta.get_field_by_name('pills')[0].verbose_name, \
               pills, \
