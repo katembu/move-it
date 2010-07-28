@@ -38,6 +38,7 @@ class OpenMRSHouseholdForm(OpenMRSFormInterface):
         'other_sick_members_on_treatment': (OpenMRSFormInterface.T_NM, None),
         'women_seen': (OpenMRSFormInterface.T_NM, None),
         'women_using_family_planning': (OpenMRSFormInterface.T_NM, None),
+        'number_of_women_given_bc_pills': (OpenMRSFormInterface.T_NM, None),
         'sleeping_sites': (OpenMRSFormInterface.T_NM, None),
         'bednets': (OpenMRSFormInterface.T_NM, None),
     }
