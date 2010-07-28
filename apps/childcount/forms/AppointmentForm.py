@@ -68,3 +68,7 @@ class AppointmentForm(CCForm):
  
         self.response = _(u"Next appointment is on %(expected_on)s.") % \
                             {'expected_on': aptr.appointment_date}
+        #reminder
+        msg = _(u"Please send %(patient)s to to the health center on for " \
+                "their appointment on %(apt_date)s") % \
+                {'patient': patient, 'apt_date': apt.appointment_date}
