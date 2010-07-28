@@ -361,7 +361,7 @@ class PregnancyReport(CCReport):
             'antenatal_visit_number': self.anc_visits,
             'weeks_since_last_anc': self.weeks_since_anc,
         }
-        return {}
+        return igive
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
 
@@ -447,12 +447,25 @@ class BCPillReport(CCReport):
         verbose_name = _(u"Birth Control Pill Report")
         verbose_name_plural = _(u"Birth Control Pill Reports")
 
-    pills = models.PositiveSmallIntegerField(_(u"Pills given"))
+    pills = models.PositiveSmallIntegerField(_(u"Pills given"), \
+                                             null=True, blank=True)
+    women = models.PositiveSmallIntegerField(_(u"Women given pills"),
+                                             null=True, blank=True)
 
     def summary(self):
-        return u"%s: %d" % \
+        if self.pills is None:
+            pills = _(u"Unkown")
+        else:
+            pills = unicode(self.pills)
+        if self.women is None:
+            women = _(u"Unkown")
+        else:
+            women = unicode(self.pills)
+        return u"%s: %s, %s: %s" % \
              (self._meta.get_field_by_name('pills')[0].verbose_name, \
-              self.pills)
+              pills, \
+              self._meta.get_field_by_name('women')[0].verbose_name, \
+              women)
 
 reversion.register(BCPillReport, follow=['ccreport_ptr'])
 
