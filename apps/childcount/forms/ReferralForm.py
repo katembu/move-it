@@ -3,6 +3,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.models import Encounter
 from childcount.models.reports import ReferralReport
+from childcount.models.reports import AppointmentReport
 from childcount.exceptions import ParseError
 from childcount.forms.utils import MultipleChoiceField
 
@@ -51,3 +52,14 @@ class ReferralForm(CCForm):
 
         rr.urgency = urgency
         rr.save()
+
+        if urgency == ReferralReport.URGENCY_CONVENIENT:
+            try:
+                apt = AppointmentReport.objects.filter(\
+                            encounter__patient=patient, \
+                            status=AppointmentReport.STATUS_OPEN).latest()
+            except AppointmentReport.DoesNotExist:
+                pass
+            else:
+                apt.status = AppointmentReport.STATUS_PENDING_CV
+                apt.save()
