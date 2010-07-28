@@ -1163,10 +1163,13 @@ class AppointmentReport(CCReport):
         verbose_name_plural = _(u"Appointments")
 
     STATUS_OPEN = 0
-    STATUS_CLOSED = 1
+    STATUS_CLOSED = 2
+    STATUS_PENDING_CV = 1
+    
     STATUS_CHOICES = (
         (STATUS_OPEN, _("Open")),
-        (STATUS_CLOSED, _("Closed"))
+        (STATUS_CLOSED, _("Closed")),
+        (STATUS_PENDING_CV, _("Pending Clinic Visit"))
     )
     
     appointment_date = models.DateTimeField(_(u"Next appointment"))
@@ -1196,7 +1199,8 @@ class AppointmentReport(CCReport):
         except AppointmentReport.DoesNotExist:
             pass
         else:
-            if self.status ==  AppointmentReport.STATUS_OPEN:
+            if self.status != AppointmentReport.STATUS_CLOSED and \
+                    not self.notification_sent:
                 #reminder
                 msg = _(u"Please send %(patient)s to to the health center on" \
                         " for their appointment on %(apt_date)s") % {
