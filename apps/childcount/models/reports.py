@@ -6,6 +6,11 @@
 
 
 '''
+import calendar
+from datetime import datetime
+from datetime import time
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -14,11 +19,18 @@ from reversion.models import Version
 
 from polymorphic import PolymorphicModel
 
+from celery.registry import tasks
+from celery.decorators import task
+from celery.task.control import revoke
+from djcelery.models import TaskMeta
+
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
 from childcount.models import Patient
 from childcount.models import Encounter
 from childcount.models import Vaccine
+
+from childcount.utils import send_msg
 
 
 class CCReport(PolymorphicModel):
@@ -1155,6 +1167,8 @@ class AppointmentReport(CCReport):
                                 help_text=_(u"Is the appointment still open" \
                                             " or closed?"), \
                                             default=STATUS_OPEN)
+    task_id = models.CharField('Task ID', max_length=255, 
+                                            null=True, blank=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1162,12 +1176,33 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
+    @task()
     def reminder(self):
-        #three_days_b4 = timedelta(days=3)
-        #notification_day = self.appointment_date - three_days_b4 
-        pass
+        try:
+            self = AppointmentReport.objects.get(pk=self.pk)
+        except AppointmentReport.DoesNotExist:
+            pass
+        else:
+            if self.status ==  AppointmentReport.STATUS_OPEN:
+                #reminder
+                msg = _(u"Please send %(patient)s to to the health center on" \
+                        " for their appointment on %(apt_date)s") % {
+                        'patient': self.encounter.patient, 
+                        'apt_date': self.appointment_date}
+                send_msg(self.encounter.chw, msg)
+    tasks.register(reminder)
 
     def save(self, *args, **kwargs):
+        #set up a reminder 3 week days b4 the date of appointment
+        delay = self.appointment_date + relativedelta(days=-3, hours=7)
+        if delay.weekday() > calendar.FRIDAY:
+            delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
+        #7am
+        delay = datetime.combine(delay.date(), time(7, 0))
+        if self.task_id:
+            revoke(self.task_id)
+        result = self.reminder.apply_async(eta=delay, args=(self,))
+        self.task_id = result.task_id
         super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
