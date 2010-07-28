@@ -1193,7 +1193,7 @@ class AppointmentReport(CCReport):
         return string
 
     @task()
-    def reminder(self):
+    def reminder(self, defaulter=False):
         try:
             self = AppointmentReport.objects.get(pk=self.pk)
         except AppointmentReport.DoesNotExist:
@@ -1202,25 +1202,39 @@ class AppointmentReport(CCReport):
             if self.status != AppointmentReport.STATUS_CLOSED and \
                     not self.notification_sent:
                 #reminder
-                msg = _(u"Please send %(patient)s to to the health center on" \
-                        " for their appointment on %(apt_date)s") % {
-                        'patient': self.encounter.patient, 
-                        'apt_date': self.appointment_date}
+                if not defaulter:
+                    msg = _(u"Please send %(patient)s to the health " \
+                            "center on for their appointment on" \
+                            " %(apt_date)s") % {
+                            'patient': self.encounter.patient, 
+                            'apt_date': self.appointment_date}
+                else:
+                    msg = _(u"Please refer immediately %(patient)s to health" \
+                            " center on for their missed appointment on" \
+                            " %(apt_date)s") % {
+                            'patient': self.encounter.patient, 
+                            'apt_date': self.appointment_date}
                 send_msg(self.encounter.chw, msg)
                 self.notification_sent = True
                 self.save()
     tasks.register(reminder)
 
     def save(self, *args, **kwargs):
-        #set up a reminder 3 week days b4 the date of appointment
-        delay = self.appointment_date + relativedelta(days=-3, hours=7)
-        if delay.weekday() > calendar.FRIDAY:
-            delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
+        defaulter = False
+        #this is a second reminder
+        if self.status == AppointmentReport.STATUS_PENDING_CV:
+            delay = datetime.now() + timedelta(days=2)
+            defaulter = True
+        else:
+            #set up a reminder 3 week days b4 the date of appointment
+            delay = self.appointment_date + relativedelta(days=-3, hours=7)
+            if delay.weekday() > calendar.FRIDAY:
+                delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
         #7am
         delay = datetime.combine(delay.date(), time(7, 0))
         if self.task_id:
             revoke(self.task_id)
-        result = self.reminder.apply_async(eta=delay, args=(self,))
+        result = self.reminder.apply_async(eta=delay, args=(self, defaulter))
         self.task_id = result.task_id
         super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
