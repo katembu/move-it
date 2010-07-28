@@ -1203,6 +1203,8 @@ class AppointmentReport(CCReport):
                         'patient': self.encounter.patient, 
                         'apt_date': self.appointment_date}
                 send_msg(self.encounter.chw, msg)
+                self.notification_sent = True
+                self.save()
     tasks.register(reminder)
 
     def save(self, *args, **kwargs):
