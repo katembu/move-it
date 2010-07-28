@@ -51,3 +51,8 @@ class AntenatalVisitForm(CCForm):
         self.response = _(u"Expected date of "\
                             "delivery is %(expected_on)s.") % \
                             {'expected_on': avr.expected_on}
+        #reminder to CHW 3 weeks b4 expected date of delivery to send patient
+        # to clinic
+        msg = _(u"Please send %(patient)s to the health center on for " \
+                "their appointment") % \
+                {'patient': patient}
