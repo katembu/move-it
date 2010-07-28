@@ -20,8 +20,8 @@ class BCPillForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: number of pills " \
-                                "given."))
+            raise ParseError(_(u"Not enough info. Expected: number of women " \
+                                "given BC pills."))
 
         try:
             bcpr = BCPillReport.objects.get(encounter=self.encounter)
@@ -30,11 +30,10 @@ class BCPillForm(CCForm):
         bcpr.form_group = self.form_group
 
         if not self.params[1].isdigit():
-            raise ParseError(_(u"Number of pills " \
-                                "given must be " \
-                                "entered as a number."))
+            raise ParseError(_(u"Number of women " \
+                                "must be a number"))
 
-        bcpr.pills = int(self.params[1])
+        bcpr.women = int(self.params[1])
         bcpr.save()
  
-        self.response = _(u"%(pills)d pills given.") % {'pills':bcpr.pills}
+        self.response = _(u"%(women)d women given pills.") % {'women':bcpr.women}

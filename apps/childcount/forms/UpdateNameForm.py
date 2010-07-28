@@ -12,6 +12,7 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 class UpdateNameForm(CCForm):
     KEYWORDS = {
         'en': ['uname'],
+        'fr': ['uname'],
     }
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     SURNAME_FIRST = False

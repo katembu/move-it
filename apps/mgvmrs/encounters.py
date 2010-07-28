@@ -41,8 +41,8 @@ def send_to_omrs(router, *args, **kwargs):
                                           Q(sync_omrs__in=(None, False)))
 
     for encounter in encounters:
-        # loop only on open Encounter
-        if not encounter.is_open:
+        # loop only on closed Encounters
+        if encounter.is_open:
             continue
 
         # reports contains actual data for an encounter.
@@ -50,9 +50,14 @@ def send_to_omrs(router, *args, **kwargs):
 
         #is the patient registered? if there are reports it is probably not
         #a new registration. is this really true?
+        # DG: No, it's not true.  Specifically, the +BIR report will
+        # accompany +NEW for births.  We should always send all data.
+        '''
         create = True
         if reports.count():
             create = False
+        '''
+        create = True
 
         # select OpenMRS Xform according to Encounter type
         omrsformclass = None
