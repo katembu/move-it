@@ -1328,3 +1328,21 @@ class HIVTestReport(CCReport):
             self.blood_drawn)
         return string
 reversion.register(HIVTestReport, follow=['ccreport_ptr'])
+
+
+class DBSResultReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_dbsresult'
+        verbose_name = _(u"DBS Result")
+        verbose_name_plural = _(u"DBS Results")
+
+    returned = models.BooleanField(_(u"Results Returned"))
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('returned')[0].verbose_name, \
+            self.returned)
+        return string
+reversion.register(DBSResultReport, follow=['ccreport_ptr'])
