@@ -65,7 +65,8 @@ class Migration(SchemaMigration):
         'childcount.bcpillreport': {
             'Meta': {'object_name': 'BCPillReport', 'db_table': "'cc_bcprpt'", '_ormbases': ['childcount.CCReport']},
             'ccreport_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['childcount.CCReport']", 'unique': 'True', 'primary_key': 'True'}),
-            'pills': ('django.db.models.fields.PositiveSmallIntegerField', [], {})
+            'pills': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'women': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'childcount.bednetissuedreport': {
             'Meta': {'object_name': 'BednetIssuedReport', 'db_table': "'cc_bdnstc_rpt'", '_ormbases': ['childcount.CCReport']},
