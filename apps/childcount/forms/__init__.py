@@ -51,3 +51,4 @@ from childcount.forms.AppointmentForm import AppointmentForm
 from childcount.forms.PregnancyRegistrationForm import \
                                                     PregnancyRegistrationForm
 from childcount.forms.HIVTestForm import HIVTestForm
+from childcount.forms.DBSResultForm import DBSResultForm
