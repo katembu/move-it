@@ -3,12 +3,14 @@
 # maintainer: dgelvin
 
 import re
+from datetime import timedelta
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 from childcount.models import Patient, Encounter
 from childcount.models.reports import BirthReport
+from childcount.models.reports import AppointmentReport
 from childcount.forms.utils import MultipleChoiceField
 
 
@@ -123,3 +125,16 @@ class BirthForm(CCForm):
         br.weight = weight
         br.save()
         patient.save()
+        #is mother hiv exposed?
+        if patient.mother.hiv_status:
+            #mark child as hiv exposed
+            patient.hiv_exposed = True
+            patient.save()
+
+            #create an appointment 6 weeks from DOB
+            week_six = patient.dob + timedelta(weeks=6)
+            aptr = AppointmentReport()
+            aptr.appointment_date = week_six
+            aptr.status = AppointmentReport.STATUS_OPEN
+            aptr.notification_sent = False
+            aptr.save()
