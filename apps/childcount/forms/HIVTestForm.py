@@ -69,3 +69,12 @@ class HIVTestForm(CCForm):
         htr.save()
  
         self.response = _(u"HIV Test done.")
+        #set patient hiv status
+        if htr.hiv == HIVTestReport.HIV_YES:
+            patient.hiv_status = True
+            patient.save()
+        elif htr.hiv == HIVTestReport.HIV_NO:
+            patient.hiv_status = False
+            patient.save()
+        else:
+            pass

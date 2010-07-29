@@ -8,14 +8,20 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'AppointmentReport.task_id'
-        db.add_column('cc_appointment', 'task_id', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True), keep_default=False)
+        # Adding field 'Patient.hiv_status'
+        db.add_column('cc_patient', 'hiv_status', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True), keep_default=False)
+
+        # Adding field 'Patient.hiv_exposed'
+        db.add_column('cc_patient', 'hiv_exposed', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True), keep_default=False)
 
 
     def backwards(self, orm):
         
-        # Deleting field 'AppointmentReport.task_id'
-        db.delete_column('cc_appointment', 'task_id')
+        # Deleting field 'Patient.hiv_status'
+        db.delete_column('cc_patient', 'hiv_status')
+
+        # Deleting field 'Patient.hiv_exposed'
+        db.delete_column('cc_patient', 'hiv_exposed')
 
 
     models = {
@@ -65,7 +71,8 @@ class Migration(SchemaMigration):
         'childcount.bcpillreport': {
             'Meta': {'object_name': 'BCPillReport', 'db_table': "'cc_bcprpt'", '_ormbases': ['childcount.CCReport']},
             'ccreport_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['childcount.CCReport']", 'unique': 'True', 'primary_key': 'True'}),
-            'pills': ('django.db.models.fields.PositiveSmallIntegerField', [], {})
+            'pills': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'women': ('django.db.models.fields.PositiveSmallIntegerField', [], {'null': 'True', 'blank': 'True'})
         },
         'childcount.bednetissuedreport': {
             'Meta': {'object_name': 'BednetIssuedReport', 'db_table': "'cc_bdnstc_rpt'", '_ormbases': ['childcount.CCReport']},
@@ -283,6 +290,8 @@ class Migration(SchemaMigration):
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'gender': ('django.db.models.fields.CharField', [], {'max_length': '1'}),
             'health_id': ('django.db.models.fields.CharField', [], {'db_index': 'True', 'max_length': '6', 'unique': 'True', 'null': 'True', 'blank': 'True'}),
+            'hiv_exposed': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'hiv_status': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
             'household': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'household_member'", 'null': 'True', 'to': "orm['childcount.Patient']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '50'}),

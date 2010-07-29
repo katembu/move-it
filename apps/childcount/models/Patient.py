@@ -90,6 +90,10 @@ class Patient(models.Model):
                               blank=True, null=True)
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
+    hiv_status = models.NullBooleanField(_(u"HIV Status"), 
+                                            blank=True, null=True)
+    hiv_exposed = models.NullBooleanField(_(u"HIV Exposed?"), 
+                                            blank=True, null=True)
 
     def is_head_of_household(self):
         return self.household == self
