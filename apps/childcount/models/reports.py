@@ -19,11 +19,6 @@ from reversion.models import Version
 
 from polymorphic import PolymorphicModel
 
-from celery.registry import tasks
-from celery.decorators import task
-from celery.task.control import revoke
-from djcelery.models import TaskMeta
-
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
 from childcount.models import Patient
@@ -1197,51 +1192,7 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-    @task()
-    def reminder(self, defaulter=False):
-        try:
-            self = AppointmentReport.objects.get(pk=self.pk)
-        except AppointmentReport.DoesNotExist:
-            pass
-        else:
-            if self.status != AppointmentReport.STATUS_CLOSED and \
-                    not self.notification_sent:
-                #reminder
-                if not defaulter:
-                    msg = _(u"Please send %(patient)s to the health " \
-                            "center on for their appointment on" \
-                            " %(apt_date)s") % {
-                            'patient': self.encounter.patient, 
-                            'apt_date': self.appointment_date}
-                else:
-                    msg = _(u"Please refer immediately %(patient)s to health" \
-                            " center on for their missed appointment on" \
-                            " %(apt_date)s") % {
-                            'patient': self.encounter.patient, 
-                            'apt_date': self.appointment_date}
-                send_msg(self.encounter.chw, msg)
-                self.notification_sent = True
-                self.save()
-    tasks.register(reminder)
 
-    def save(self, *args, **kwargs):
-        defaulter = False
-        #this is a second reminder
-        if self.status == AppointmentReport.STATUS_PENDING_CV:
-            delay = datetime.now() + timedelta(days=2)
-            defaulter = True
-        else:
-            #set up a reminder 3 week days b4 the date of appointment
-            delay = self.appointment_date + relativedelta(days=-3, hours=7)
-            if delay.weekday() > calendar.FRIDAY:
-                delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
-        #7am
-        delay = datetime.combine(delay.date(), time(7, 0))
-        if self.task_id:
-            revoke(self.task_id)
-        result = self.reminder.apply_async(eta=delay, args=(self, defaulter))
-        self.task_id = result.task_id
-        super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
