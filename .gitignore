@@ -46,3 +46,7 @@ settings.py
 
 #reports
 apps/childcount/rpts
+
+#celery
+celerybeat-schedule
+

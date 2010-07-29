@@ -20,31 +20,48 @@ class BednetHousehold(Patient):
     class Meta:
         verbose_name = _("Household Report")
         proxy = True
+    
+    def hi(self):
+        return u'jklop'
 
     @property
-    def active_sleepingsite(self):
+    def sleepingsite(self):
         try:
-            sleeping_site = BedNetReport.objects.get(encounter__patient \
-                                     =self.encounter.patient)
+            z = BedNetReport.objects.get(encounter__patient=self).sleeping_sites
         except BedNetReport.DoesNotExist:
-            sleeping_site = 0
-        return sleeping_site
+            z = 0
+        return z
 
     @property
-    def functioning_bednet(self):
+    def damagednets(self):
         try:
-            functioning_bednet = BedNetReport.objects.get(encounter__patient \
-                                     =self.encounter.patient).nets
+            z = BedNetReport.objects.get(encounter__patient=self).damaged_nets
         except BedNetReport.DoesNotExist:
-            functioning_bednet = 0
-        return 2
+            z = 0
+        return z
+
+    @property
+    def functioningnets(self):
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).function_nets
+        except BedNetReport.DoesNotExist:
+            z = 0
+        return z
+        
+    @property
+    def earliernets(self):
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).earlier_nets
+        except BedNetReport.DoesNotExist:
+            z = 0
+        return z
 
     @classmethod
     def return_household(cls):
         try:
-            household = Patient.objects.filter(health_id=F(\
+            household = cls.objects.filter(health_id=F(\
                                                     'household__health_id'))
-        except: 
+        except:
             pass
 
         else:
@@ -54,29 +71,40 @@ class BednetHousehold(Patient):
     def summary(cls):
         columns = []
         columns.append(
-            {'name': _("Household ".upper()), \
+            {'name': _("Household ".upper()),
             'bit': '{{object.household.health_id.upper}}'})
         columns.append(
-            {'name': _("Household Name".upper()), \
-            'bit': '{{object.last_name}} {{object.first_name}}'})
+            {'name': _("Household Name".upper()),
+            'bit': 'XXXXX'})
         columns.append(
-            {'name': "No. Sleeping site".upper(), \
-             'bit': '{{active_sleepingsite.sleeping_sites}}'})
+            {'name': _("No. Sleeping site".upper()),
+             'bit': '{{object.sleepingsite}}'})
         columns.append(
-            {'name': "Functioning Bednet".upper(), \
-             'bit': '{{object.functioning_bednet}}'})
+            {'name': _("Functioning Bednet".upper()),
+             'bit': '{{object.functioningnets}}'})
         columns.append(
-            {'name': "Bed Net needed".upper(), \
-             'bit': '2'})
+            {'name': _("Earlier Bednets".upper()),
+             'bit': '{{object.earliernets}}'})
         columns.append(
-            {'name': "ChW".upper(), \
-             'bit': '{{object.chw}}'})
+            {'name': _("Damaged Bednet".upper()),
+             'bit': '{{object.damagednets}}'})
+        columns.append(
+            {'name': _("Primary Sanitation".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Do you share".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Primary source water".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Treatment Method ".upper()),
+             'bit': '{{object.sleepingsite}}'})
 
         sub_columns = None
         return columns, sub_columns
 
-
-
+'''
 class BdntClinicReport():
 
     class Meta:
@@ -87,7 +115,7 @@ class BdntClinicReport():
         columns = []
 
 
-        '''
+        
         • Number of households that do not have any bednet coverage
         • Percentage of households that do not have any bednet coverage
         • Number of sleeping sites that have bednet coverage
@@ -95,7 +123,7 @@ class BdntClinicReport():
         • Number of sleeping sites that do not have bednet coverage
         • Percentage of sleeping sites that do not have bednet coverage
         • How many bedn
-        '''
+       
 
         columns.append(
             {'name': _(u"Number of household tied to clinic".upper()), \
@@ -122,4 +150,5 @@ class BdntClinicReport():
 
         sub_columns = None
         return columns, sub_columns
-
+        
+'''

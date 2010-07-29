@@ -335,6 +335,20 @@ def operationalreportable(title, indata=None):
     return tb
 
 
+def bednetregisterlist(request, clinic_id):
+    filename = 'registerlist.pdf'
+    try:
+        clinic = Clinic.objects.get(id=clinic_id)
+        response = HttpResponse(mimetype='application/pdf')
+        response['Cache-Control'] = ""
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        gen_patient_register_pdf(response, clinic)
+        return response
+    except Clinic.DoesNotExist:
+        return HttpResponse(_(u"The specified clinic is not known"))
+    '''except:
+        return HttpResponse(_("Error"))'''
+        
 def registerlist(request, clinic_id):
     filename = 'registerlist.pdf'
     try:
@@ -466,3 +480,4 @@ def thepatientregister(title, indata=None, boxes=None):
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
     return tb
+    

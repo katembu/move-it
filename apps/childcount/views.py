@@ -184,30 +184,19 @@ def chw(request):
     '''Community Health Worker page '''
     report_title = CHW._meta.verbose_name
     rows = []
-    columns, sub_columns = CHW.table_columns()
+    columns, sub_columns = TheCHWReport.chw_bednet_summary()
 
-    reports = CHW.objects.filter(role__code='chw')
+    reports = TheCHWReport.objects.all()
     i = 0
     for report in reports:
-        patients = Patient.objects.filter(chw=report)
-        num_patients = patients.count()
-        num_under_5 = 0
-        for person in patients:
-            if person.age_in_days_weeks_months()[2] < 60:
-                num_under_5 += 1
+       
         i += 1
         row = {}
         row["cells"] = []
         row["cells"] = [{'value': \
                         Template(col['bit']).render(Context({'object': \
                             report}))} for col in columns]
-        row["cells"][-2] = {"value": num_patients}
-        row["cells"][-1] = {"value": num_under_5}
 
-        if i == 100:
-            row['complete'] = True
-            rows.append(row)
-            break
         rows.append(row)
 
     aocolumns_js = "{ \"sType\": \"html\" },"
@@ -319,14 +308,7 @@ def bednet_summary(request):
             break
         rows.append(row)
 
-    aocolumns_js = "{ \"sType\": \"html\" },"
-    for col in columns[1:] + (sub_columns if sub_columns != None else []):
-        if not 'colspan' in col:
-            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": true },"
-    print columns[1:]
-    aocolumns_js = aocolumns_js[:-1]
-
+    
     aggregate = False
     print columns
     print sub_columns
@@ -334,7 +316,7 @@ def bednet_summary(request):
     context_dict = {'get_vars': request.META['QUERY_STRING'],
                     'columns': columns, 'sub_columns': sub_columns,
                     'rows': rows, 'report_title': report_title,
-                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
+                    'aggregate': aggregate}
 
     return render_to_response(\
                 request, 'childcount/bednet.html', context_dict)
@@ -422,7 +404,7 @@ def pagenator(getpages, reports):
             "previous": reports.previous_page_number(),
             "has_previous": reports.has_previous(),
             "next": reports.next_page_number(),
-            "has_next":  reports.has_next(),
+            "has_next": reports.has_next(),
             "page": reports.number,
             "pages": getpages.num_pages,
             "page_numbers": page_numbers,

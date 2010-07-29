@@ -14,6 +14,8 @@ from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport, FollowUpReport
 from childcount.models import ImmunizationSchedule, ImmunizationNotification
+from childcount.models import BedNetReport, BednetUtilization, \
+                                        BednetIssuedReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week, \
                                 get_median, seven_days_to_date, \
@@ -228,8 +230,8 @@ class TheCHWReport(CHW):
     def num_of_visits(self):
         '''The number of visits in the last 7 days'''
         seven = date.today() - timedelta(7)
-        num = HouseholdVisitReport.objects.filter(created_by=self).count()
-        return num
+        #num = HouseholdVisitReport.objects.filter(created_by=self).count()
+        return 2
 
     @property
     def num_muac_eligible(self):
@@ -470,6 +472,48 @@ class TheCHWReport(CHW):
 
         return p
 
+  
+    def num_of_bednetsurvey(self):
+        return BedNetReport.objects.filter(encounter__chw=self).count()
+
+    def per_bednetsurvey(self):
+        household = BedNetReport.objects.filter(encounter__chw=self).count()
+        survey = self.number_of_households()
+        ans = int(round((household / float(survey)) * 100))
+        return household
+
+    def num_sleepingsite(self):
+        survey = BedNetReport.objects.filter(encounter__chw=self)
+        total = 0
+        for s in survey:
+            total += s.sleeping_sites
+        return total
+
+    def num_damaged(self):
+        survey = BedNetReport.objects.filter(encounter__chw=self)
+        total = 0
+        for s in survey:
+            total += s.damaged_nets
+        return total
+
+    def num_earlier(self): 
+        survey = BedNetReport.objects.filter(encounter__chw=self)
+        total = 0
+        for s in survey:
+            total += s.earlier_nets
+        return total
+
+    def num_funcbednet(self): 
+        survey = BedNetReport.objects.filter(encounter__chw=self)
+        total = 0
+        for s in survey:
+            total += s.function_nets
+        return total
+
+    def required_bednet(self):
+        total = self.num_sleepingsite() - self.num_funcbednet()
+        return total
+
     @classmethod
     def muac_summary(cls):
         num_healthy = NutritionReport.objects.filter(\
@@ -545,6 +589,42 @@ class TheCHWReport(CHW):
             {'name': "No. SMS Sent".upper(), \
              'bit': '{{ object.num_of_sms }}'})
 
+        sub_columns = None
+        return columns, sub_columns
+
+    @classmethod
+    def chw_bednet_summary(cls):
+        columns = []
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': "No. of House holds".upper(), \
+             'bit': '{{ object.number_of_households}}'})
+        columns.append(
+            {'name': "Household Survey Done".upper(), \
+             'bit': '{{ object.num_of_bednetsurvey}}'})
+        columns.append(
+            {'name': "Percentage".upper(), \
+             'bit': '{{ object.per_bednetsurvey}}'})
+        columns.append(
+            {'name': "Total Sleeping site".upper(), \
+             'bit': '{{ object.num_sleepingsite}}'})
+        columns.append(
+            {'name': "Functioning Bednet".upper(), \
+             'bit': '{{ object.num_funcbednet}}'})
+        columns.append(
+            {'name': "Damaged Bednet".upper(), \
+             'bit': '{{ object.num_damaged}}'})
+        columns.append(
+            {'name': "Earlier(b4 2009)".upper(), \
+             'bit': '{{ object.num_earlier}}'})
+        columns.append(
+            {'name': "Required Bednet".upper(), \
+             'bit': '{{ object.required_bednet}}'})
         sub_columns = None
         return columns, sub_columns
 

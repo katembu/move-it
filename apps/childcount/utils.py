@@ -639,8 +639,7 @@ def send_msg(reporter, text):
    Sends a message to a reporter using the ajax app.  This goes to
    ajax_POST_send_message in findtb app.py
    '''
-   
-     
+
    conf = settings.RAPIDSMS_APPS['ajax']
    url = "http://%s:%s/childcount/send_message" % (conf["host"], conf["port"])
 
