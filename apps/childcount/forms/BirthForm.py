@@ -110,11 +110,11 @@ class BirthForm(CCForm):
                 raise ParseError(_(u"Unkown value. Weight should be a number"))
 
         if cd_db == BirthReport.CLINIC_DELIVERY_YES:
-            cd_string = _(u"Delivered in health facility.")
+            cd_string = _(u"Delivered in health facility")
         elif cd_db == BirthReport.CLINIC_DELIVERY_NO:
-            cd_string = _(u"Home delivery.")
+            cd_string = _(u"Home delivery")
         elif cd_db == BirthReport.CLINIC_DELIVERY_UNKOWN:
-            cd_string = _(u"Unkown delivery location.")
+            cd_string = _(u"Unkown delivery location")
 
         self.response = cd_string
         if weight:
@@ -133,7 +133,7 @@ class BirthForm(CCForm):
 
             #create an appointment 6 weeks from DOB
             week_six = patient.dob + timedelta(weeks=6)
-            aptr = AppointmentReport()
+            aptr = AppointmentReport(encounter=self.encounter)
             aptr.appointment_date = week_six
             aptr.status = AppointmentReport.STATUS_OPEN
             aptr.notification_sent = False
