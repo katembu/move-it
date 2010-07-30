@@ -92,7 +92,7 @@ class BednetHousehold(Patient):
             {'name': _("Primary Sanitation".upper()),
              'bit': '{{object.sleepingsite}}'})
         columns.append(
-            {'name': _("Do you share".upper()),
+            {'name': _("Shared?".upper()),
              'bit': '{{object.sleepingsite}}'})
         columns.append(
             {'name': _("Primary source water".upper()),

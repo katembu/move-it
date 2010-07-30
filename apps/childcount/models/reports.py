@@ -1006,7 +1006,7 @@ class BednetUtilization(CCReport):
                             "bednet"), help_text=_(u"Number of hanging " \
                             "bednet"))
     reason = models.CharField(_(u"Reason "), \
-                            help_text=_(u"reason why some children didnt" \
+                            help_text=_(u"reason why some children didn't" \
                             " sleep under bednet"), null=True, blank=True, \
                             max_length=2, choices=REASON_CHOICES)
 
