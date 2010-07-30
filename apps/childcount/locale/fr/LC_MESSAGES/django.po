@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-07-30 10:18+0000\n"
-"PO-Revision-Date: 2010-07-30 10:25-0000\n"
+"PO-Revision-Date: 2010-07-30 10:33-0000\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -3472,11 +3472,11 @@ msgstr "sang récolté?"
 
 #: models/reports.py:1289
 msgid "DBS Result"
-msgstr "Résultat de DBS"
+msgstr "Résultat de TSS"
 
 #: models/reports.py:1290
 msgid "DBS Results"
-msgstr "Résultats de DBS"
+msgstr "Résultats de TSS"
 
 #: models/reports.py:1292
 msgid "Results Returned"
