@@ -42,8 +42,8 @@ class BednetCoverageForm(CCForm):
         bnr.sleeping_sites = int(self.params[1])
 
         if not self.params[2].isdigit():
-            raise ParseError(_(u"| Number of functioning (recent received) |" \
-                                " bednet must be a number."))
+            raise ParseError(_(u"| Number of functioning (recent received)" \
+                                " bednet | must be a number."))
 
         bnr.function_nets = int(self.params[2])
         bnr.function_nets

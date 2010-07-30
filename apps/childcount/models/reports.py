@@ -952,7 +952,7 @@ class BedNetReport(CCReport):
                             help_text=_(u"Number of functioning bednets"))
     earlier_nets = models.PositiveSmallIntegerField(_(u"Earlier Bednets"), \
                             help_text=_(u"Number of bednets received" \
-                            "earlier "))
+                            " earlier "))
     damaged_nets = models.PositiveSmallIntegerField(_(u"Damaged Bednets"), \
                             help_text=_(u"Number of recent bednets that are" \
                                         " damaged"))
@@ -1006,8 +1006,8 @@ class BednetUtilization(CCReport):
                             "bednet"), help_text=_(u"Number of hanging " \
                             "bednet"))
     reason = models.CharField(_(u"Reason "), \
-                            help_text=_(u"reason why some children" \
-                            "didnt sleep under bednet"), null=True, blank=True, \
+                            help_text=_(u"reason why some children didnt" \
+                            " sleep under bednet"), null=True, blank=True, \
                             max_length=2, choices=REASON_CHOICES)
 
     def summary(self):
