@@ -14,6 +14,7 @@ from childcount.models import Patient, Encounter, HealthId, CHWHealthId
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
+from childcount.models.ccreports import ThePatient
 
 
 class PatientRegistrationForm(CCForm):
@@ -24,6 +25,7 @@ class PatientRegistrationForm(CCForm):
     OVERIDE_KEYWORDS = ['new!']
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
     MIN_HH_AGE = 10
+    MAX_IMM_AGE = 2
     MULTIPLE_PATIENTS = False
 
     gender_field = MultipleChoiceField()
@@ -218,6 +220,14 @@ class PatientRegistrationForm(CCForm):
         if self_hoh:
             patient.household = patient
             patient.save()
+
+        #generate immunization schedule
+        if patient.years() < self.MAX_IMM_AGE:
+            try:
+                x = ThePatient.objects.get(health_id=patient.health_id)
+                x.generate_schedule()
+            except:
+                pass
 
         health_id_obj.issued_to = patient
         health_id_obj.issued_on = datetime.now()
