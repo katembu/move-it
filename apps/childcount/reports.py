@@ -26,6 +26,7 @@ except ImportError:
 from childcount.models import Clinic
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
+from childcount.models.ccreports import TheBHSurveyReport
 from childcount.utils import RotatedParagraph
 
 from libreport.pdfreport import PDFReport, p
@@ -480,4 +481,108 @@ def thepatientregister(title, indata=None, boxes=None):
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
     return tb
+
+
+def surveyreport(request, rformat):
+    filename = 'surveyreport.pdf'
+    story = []
+    fn = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+                    './rpts/%s' % filename))
+    if not os.path.isfile(fn):
+        return HttpResponse(_(u"No Report Generated yet"))
+    else:
+        f = open(fn, 'r')
+        pdf = f.read()
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    response.write(pdf)
+    return response
+
+def gen_surveryreport():
+    '''
+    Generate the healthy survey report.
+    '''
+    reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+                                            'rpts'))
+    #check if reports folder is there
+    if not os.path.isdir(reports_folder):
+        os.mkdir(reports_folder)
+    filename = os.path.join(reports_folder, 'surveyreport.pdf')
     
+    story = []
+    buffer = StringIO()
+
+    #Sauri's CHWs were location was clinic, some locations would draw blank reports
+    if Clinic.objects.all().count():
+        locations = Clinic.objects.all()
+    else:
+        locations = Location.objects.all()
+    for location in locations:
+        if not TheBHSurveyReport.objects.filter(location=location).count():
+            continue
+        tb = surveyreportable(location, TheBHSurveyReport.objects.\
+            filter(location=location))
+        story.append(tb)
+        story.append(PageBreak())
+
+    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+                            topMargin=(0 * inch), \
+                            bottomMargin=(0 * inch))
+    doc.build(story)
+
+    # Get the value of the StringIO buffer and write it to the response.
+    pdf = buffer.getvalue()
+    buffer.close()
+    f = open(filename, 'w')
+    f.write(pdf)
+    f.close()
+
+
+def surveyreportable(title, indata=None):
+    styleH3.fontName = 'Times-Bold'
+    styleH3.alignment = TA_CENTER
+    styleN2 = copy.copy(styleN)
+    styleN2.alignment = TA_CENTER
+    styleN3 = copy.copy(styleN)
+    styleN3.alignment = TA_RIGHT
+
+    
+    
+    cols = TheBHSurveyReport.healthy_survey_columns()
+
+    hdata = [Paragraph('%s' % title, styleH3)]
+    hdata.extend((len(cols) - 1) * [''])
+    data = [hdata]
+
+    thirdrow = [Paragraph(cols[0]['name'], styleH3)]
+    thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
+                                2.3 * inch, 0.25 * inch) for col in cols[1:]])
+    data.append(thirdrow)
+
+    rowHeights = [None, 2.3 * inch]
+    colWidths = [1.5 * inch]
+    colWidths.extend((len(cols) - 1) * [0.5 * inch])
+
+    if indata:
+        for row in indata:
+            ctx = Context({"object": row})
+            values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                                styleN)]
+            values.extend([Paragraph(Template(col["bit"]).render(ctx), \
+                                styleN3) for col in cols[1:]])
+            data.append(values)
+        rowHeights.extend(len(indata) * [0.25 * inch])
+    tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
+    tb.setStyle(TableStyle([('SPAN', (0, 0), (colWidths.__len__() - 1, 0)),
+                            ('INNERGRID', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),\
+                            ('BOX', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),
+                            ('BOX', (2, 1), (7, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (7, 1), (8, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (8, 1), (9, -1), 5, \
+                            colors.lightgrey)
+                ]))
+    return tb
