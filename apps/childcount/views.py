@@ -10,6 +10,7 @@ import re
 
 from rapidsms.webui.utils import render_to_response
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.utils.translation import gettext_lazy as _, activate
@@ -38,7 +39,10 @@ def dataentry(request):
     ''' displays Data Entry U.I '''
     today = date.today().strftime("%Y-%m-%d")
     chws = CHW.objects.all()
-    chw = CHW.objects.get(id=request.user.id)
+    try:
+        chw = CHW.objects.get(id=request.user.id)
+    except CHW.DoesNotExist:
+        return redirect(index)   
     return render_to_response(request, 'childcount/data_entry.html', \
                               {'chws': chws, 'today': today, \
                                'chw': chw, 'forms': cc_forms})
