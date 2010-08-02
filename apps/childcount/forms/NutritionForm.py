@@ -89,7 +89,8 @@ class NutritionForm(CCForm):
                                       "%(min)skg.") % \
                                      {'min': self.MIN_WEIGHT})
             else:
-                raise ParseError(_(u"Unkown value. Weight should be entered as a number."))
+                raise ParseError(_(u"Unkown value. Weight should be " \
+                                    "entered as a number."))
 
         nr.oedema = oedema_db
         nr.muac = muac
