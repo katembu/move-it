@@ -14,8 +14,8 @@ from childcount.models import NutritionReport, FeverReport, ReferralReport
 from childcount.models import BirthReport, PregnancyReport
 from childcount.models import HouseholdVisitReport, FollowUpReport
 from childcount.models import ImmunizationSchedule, ImmunizationNotification
-from childcount.models import BedNetReport, BednetUtilization, \
-                                        BednetIssuedReport
+from childcount.models import BedNetReport, BednetUtilization
+from childcount.models import DrinkingWaterReport, SanitationReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week, \
                                 get_median, seven_days_to_date, \
@@ -89,6 +89,7 @@ class ThePatient(Patient):
         return ''
 
     def generate_schedule(self):
+        'Generate immunization '
         schedule = ImmunizationSchedule.objects.all()
         for period in schedule:
             patient_dob = self.dob
@@ -109,6 +110,55 @@ class ThePatient(Patient):
                     immunization.notify_on = notify_on
 
                 immunization.save()
+
+
+    def damaged_nets(self):
+        'Number of damaged bednets '
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).damaged_nets
+        except BedNetReport.DoesNotExist:
+            z = _(u'-')
+        return z
+
+    def function_nets(self):
+        'Number of functioning bednets '
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).function_nets
+        except BedNetReport.DoesNotExist:
+            z = _(u'-')
+        return z
+        
+    def earlier_nets(self):
+        'Number of earlier bednets '
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).earlier_nets
+        except BedNetReport.DoesNotExist:
+            z = _(u'-')
+        return z
+
+    def sleeping_site(self):
+        'number of sleeping sites'
+        try:
+            z = BedNetReport.objects.get(encounter__patient=self).sleeping_sites
+        except BedNetReport.DoesNotExist:
+            z = _(u'-')
+        return z
+
+    def required_bednet(self):
+        try:
+            total = self.sleeping_site() - self.function_nets()
+        except:
+            return _(u'-')
+
+        return total
+
+    def underfive_bednet(self):
+        survey = BedNetReport.objects.filter(encounter__chw=self)
+        total = 0
+        if survey:
+            total += s.function_nets
+        return total
+
 
     @classmethod
     def under_five(cls, chw=None):
@@ -170,6 +220,49 @@ class ThePatient(Patient):
             'bit': '{{object.household.health_id.upper}}'})
         return columns
 
+    @classmethod
+    def bednet_summary(cls):
+        columns = []
+        columns.append(
+            {'name': _("Household ".upper()),
+            'bit': '{{object.household.health_id.upper}}'})
+        columns.append(
+            {'name': _("Household Name".upper()),
+            'bit': 'XXXXX'})
+        columns.append(
+            {'name': _("No. Sleeping site".upper()),
+             'bit': '{{object.sleeping_site}}'})
+        columns.append(
+            {'name': _("Functioning Bednet".upper()),
+             'bit': '{{object.function_nets}}'})
+        columns.append(
+            {'name': _("Earlier Bednets".upper()),
+             'bit': '{{object.earlier_nets}}'})
+        columns.append(
+            {'name': _("Damaged Bednet".upper()),
+             'bit': '{{object.damaged_nets}}'})
+        columns.append(
+            {'name': _("Required Bednets".upper()),
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': _("Primary Sanitation".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Shared?".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Primary source water".upper()),
+             'bit': '{{object.sleepingsite}}'})
+        columns.append(
+            {'name': _("Treatment Method ".upper()),
+             'bit': '{{object.sleepingsite}}'})
+
+        sub_columns = None
+        return columns, sub_columns
+ 
+
+        sub_columns = None
+        return columns, sub_columns
 
 class TheCHWReport(CHW):
 
@@ -477,10 +570,13 @@ class TheCHWReport(CHW):
         return BedNetReport.objects.filter(encounter__chw=self).count()
 
     def per_bednetsurvey(self):
-        household = BedNetReport.objects.filter(encounter__chw=self).count()
-        survey = self.number_of_households()
-        ans = int(round((household / float(survey)) * 100))
-        return household
+        num_survey = self.num_of_bednetsurvey()
+        num_household= self.number_of_households
+        if num_household > 0:
+            ans = int(round((num_survey / float(num_household)) * 100))
+        else:
+            ans = 0
+        return ans
 
     def num_sleepingsite(self):
         survey = BedNetReport.objects.filter(encounter__chw=self)
@@ -513,6 +609,18 @@ class TheCHWReport(CHW):
     def required_bednet(self):
         total = self.num_sleepingsite() - self.num_funcbednet()
         return total
+
+    def num_sanitation(self):
+        'total survey done  on sanitation'
+        return SanitationReport.objects.filter(encounter__chw=self).count()
+
+    def num_netutilization(self):
+        'total survey done on bednet utilization'
+        return BednetUtilization.objects.filter(encounter__chw=self).count()
+
+    def num_drinkingwater(self):
+        'total survey done on drinking water '
+        return DrinkingWaterReport.objects.filter(encounter__chw=self).count()
 
     @classmethod
     def muac_summary(cls):
@@ -625,6 +733,16 @@ class TheCHWReport(CHW):
         columns.append(
             {'name': "Required Bednet".upper(), \
              'bit': '{{ object.required_bednet}}'})
+        columns.append(
+            {'name': "Bednet Utilization".upper(), \
+             'bit': '{{ object.num_netutilization}}'})
+        columns.append(
+            {'name': "#Sanitation ".upper(), \
+             'bit': '{{ object.num_sanitation}}'})
+        columns.append(
+            {'name': "#Drinking water ".upper(), \
+             'bit': '{{ object.num_drinkingwater}}'})
+
         sub_columns = None
         return columns, sub_columns
 
