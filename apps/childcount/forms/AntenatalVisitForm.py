@@ -47,7 +47,7 @@ class AntenatalVisitForm(CCForm):
                                 {'expected_on': expected_on}))
         avr.expected_on = expected_on
         avr.save()
- 
+
         self.response = _(u"Expected date of "\
                             "delivery is %(expected_on)s.") % \
                             {'expected_on': avr.expected_on}

@@ -133,7 +133,7 @@ class SauriPregnancyForm(CCForm):
         pr.tested_hiv = tested_hiv
         pr.iron_supplement = iron_supplement
         pr.folic_suppliment = folic_supplement
-        
+
         supplement_str = u''
         if pr.iron_supplement == SauriPregnancyReport.IRON_YES\
             and pr.folic_suppliment == SauriPregnancyReport.FOLIC_YES:
@@ -162,7 +162,6 @@ class SauriPregnancyForm(CCForm):
                 supplement_str += _(u"does not have folic supplement")
             else:
                 supplement_str += _(u"taking folic unkown status")
-            
 
         if tested_hiv in (SauriPregnancyReport.TESTED_YESREACTIVE, \
                             SauriPregnancyReport.TESTED_NOREACTIVE):
