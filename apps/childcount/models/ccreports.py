@@ -4,18 +4,27 @@
 
 from django.utils.translation import gettext as _
 from django.db.models import F
+from django.db.models import Avg, Count, Sum
 
 from datetime import date, timedelta, datetime
 
 from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
-from childcount.models import NutritionReport, FeverReport, ReferralReport
-from childcount.models import BirthReport, PregnancyReport
-from childcount.models import HouseholdVisitReport, FollowUpReport
-from childcount.models import ImmunizationSchedule, ImmunizationNotification
-from childcount.models import BedNetReport, BednetUtilization
-from childcount.models import DrinkingWaterReport, SanitationReport
+from childcount.models import NutritionReport
+from childcount.models import FeverReport
+from childcount.models import ReferralReport
+from childcount.models import BirthReport
+from childcount.models import PregnancyReport
+from childcount.models import HouseholdVisitReport
+from childcount.models import FollowUpReport
+from childcount.models import ImmunizationSchedule
+from childcount.models import ImmunizationNotification
+from childcount.models import BedNetReport
+from childcount.models import BednetIssuedReport
+from childcount.models import BednetUtilization
+from childcount.models import DrinkingWaterReport
+from childcount.models import SanitationReport
 
 from childcount.utils import day_end, day_start, get_dates_of_the_week, \
                                 get_median, seven_days_to_date, \
@@ -1117,3 +1126,59 @@ class GeneralSummaryReport():
                                     startDate=startDate, endDate=endDate), \
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
+
+
+class TheBHSurveyReport(TheCHWReport):
+    '''
+    The Bednet Household Healthy Survey Report
+    '''
+    class Meta:
+        verbose_name = _(u"The Bednet Household Healthy Survey Report")
+        proxy = True
+
+    def bednet_aggregates(self):
+        data = BedNetReport.objects.filter(encounter__chw=self)\
+                                    .aggregate(Avg('sleeping_sites'), 
+                                    Count('encounter'), 
+                                    Sum('sleeping_sites'),
+                                    Sum('function_nets'),
+                                    Sum('earlier_nets'),
+                                    Sum('damaged_nets'))
+        bednet_util = BednetUtilization.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'bednet_util__count': bednet_util['encounter__count']})
+        dwr = DrinkingWaterReport.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'drinking_water__count': dwr['encounter__count']})
+        sanitation = SanitationReport.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'sanitation__count': sanitation['encounter__count']})
+        for item in data:
+            if data[item] is None:
+                data[item] = '-'
+        return data
+
+    @classmethod
+    def healthy_survey_columns(cls):
+        columns = []
+        columns.append({'name': _(u"CHW"), 'bit': '{{object}}'})
+        columns.append({'name': _(u"# of Households"), \
+                'bit': '{{object.number_of_households}}'})
+        columns.append({'name': _(u"# of Households Surveyed"), \
+                'bit': '{{object.bednet_aggregates.encounter__count}}'})
+        columns.append({'name': _(u"# of Sleeping Sites"), \
+                'bit': '{{object.bednet_aggregates.sleeping_sites__sum}}'})
+        columns.append({'name': _(u"# of Functioning Bednets"), \
+                'bit': '{{object.bednet_aggregates.function_nets__sum}}'})
+        columns.append({'name': _(u"# of damaged"), \
+                'bit': '{{object.bednet_aggregates.dameged_nets__sum}}'})
+        columns.append({'name': _(u"# of Earlier Bednets"), \
+                'bit': '{{object.bednet_aggregates.earlier_nets__sum}}'})
+        columns.append({'name': _(u"# of Bednet Utilization Reports"), \
+                'bit': '{{object.bednet_aggregates.bednet_util__count}}'})
+        columns.append({'name': _(u"# of Drinking Water Reports"), \
+                'bit': '{{object.bednet_aggregates.drinking_water__count}}'})
+        columns.append({'name': _(u"# of Sanitation Reports"), \
+                'bit': '{{object.bednet_aggregates.sanitation__count}}'})
+
+        return columns
