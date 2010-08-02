@@ -65,6 +65,6 @@ class AppointmentForm(CCForm):
             apt.closed_date = datetime.now()
             apt.status = AppointmentReport.STATUS_CLOSED
             apt.save()
- 
+
         self.response = _(u"Next appointment is on %(expected_on)s.") % \
                             {'expected_on': aptr.appointment_date}

@@ -76,8 +76,8 @@ class BednetUtilizationForm(CCForm):
         elif hanging_field.is_valid_choice(hanging):
             bnut_rpt.hanging_bednet = hanging_field.get_db_value(hanging)
         else:
-            raise ParseError(_(u"| How many hanging bednet | must be a number" \
-                                " or, %(choices)s.") % \
+            raise ParseError(_(u"| How many hanging bednet | must be a" \
+                                " number or, %(choices)s.") % \
                                 {'choices': hanging_field.choices_string()})
 
         self.response = _(u"%(sites)d child(ren) slept here last night. " \

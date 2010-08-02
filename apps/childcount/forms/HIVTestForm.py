@@ -37,7 +37,6 @@ class HIVTestForm(CCForm):
                                     HIVTestReport.BLOOD_DRAWN_NO, 'N')
         blood_drawn_field.add_choice('en', \
                                     HIVTestReport.BLOOD_DRAWN_UNKNOWN, 'U')
-        
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info."))
         try:
@@ -54,7 +53,7 @@ class HIVTestForm(CCForm):
             raise ParseError(_(u"| HIV+ | must be %(choices)s.") % \
                               {'choices': hiv_field.choices_string()})
         hiv = hiv_field.get_db_value(self.params[1])
-        
+
         if hiv == HIVTestReport.HIV_YES and len(self.params) < 3:
             raise ParseError(_(u"Not enough info. You need to answer CD4 "\
                                 "question as well."))
@@ -62,12 +61,13 @@ class HIVTestForm(CCForm):
         if(len(self.params) > 2):
             if not blood_drawn_field.is_valid_choice(self.params[2]):
                 raise ParseError(_(u"| Blood drawn | must be %(choices)s.") % \
-                                  {'choices': blood_drawn_field.choices_string()})
+                                  {'choices': 
+                                    blood_drawn_field.choices_string()})
             blood_drawn = blood_drawn_field.get_db_value(self.params[2])
             htr.blood_drawn = blood_drawn
         htr.hiv = hiv
         htr.save()
- 
+
         self.response = _(u"HIV Test done.")
         #set patient hiv status
         if htr.hiv == HIVTestReport.HIV_YES:
