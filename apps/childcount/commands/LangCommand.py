@@ -24,20 +24,24 @@ class LangCommand(CCCommand):
 
         # warn if no lang specified
         if self.params.__len__() < 2:
-            self.message.respond(_(u"Lang command requires language code "), \
-                                   'error')
+            self.message.respond(_(u"Your language preference is set " \
+                                    "to: %(lang)s. Change it by sending your " \
+                                    "new language preference code.") \
+                                    % {'lang': chw.language.upper()})
             return True
 
         newlang = self.params[1].strip()
 
         if chw.language == newlang:
-            self.message.respond(_(u"Your language is already set " \
-                                   "to %(lang)s") % {'lang': chw.language})
+            self.message.respond(_(u"Your language preference is already " \
+                                    "set to: %(lang)s.") \
+                                    % {'lang': chw.language.upper()})
             return True
 
         if newlang not in self.KEYWORDS:
-            self.message.respond(_(u"The new language code (%(code)s) is " \
-                                   "not valid. ") % {'code': newlang})
+            self.message.respond(_(u"That language preference code " \
+                                    "(%(code)s) is not valid.") \
+                                    % {'code': newlang.upper()})
             return True
 
         oldlang = chw.language
@@ -47,6 +51,7 @@ class LangCommand(CCCommand):
                 
         self.message.respond(_(u"Your language preference has been changed " \
                                 "from %(old)s to %(new)s. ") % \
-                                {'old': oldlang, 'new': chw.language})
+                                {'old': oldlang.upper(), \
+                                 'new': chw.language.upper()})
 
         return True
