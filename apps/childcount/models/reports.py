@@ -824,17 +824,19 @@ class HouseholdVisitReport(CCReport):
         for ct in self.counseling.all():
             if ct.code.upper() == 'NUT':
                 igive.update({'counseling_topics__nutrition': True})
-            if ct.code.upper() in ('FP', 'BP'):
+            elif ct.code.upper() in ('FP', 'BP'):
                 igive.update({'counseling_topics__family_planning': True})
-            if ct.code.upper() == 'EC':
+            elif ct.code.upper() == 'SH':
                 igive.update({'counseling_topics__sanitation_and_hygiene': \
                             True})
-            if ct.code.upper() in ('ED', 'PH', 'IM'):
+            elif ct.code.upper() == 'BF':
+                igive.update({'counseling_topics__breastfeeding': True})
+            elif ct.code.upper() == 'BN':
+                igive.update({'counseling_topics__bednet': True})
+            elif ct.code.upper() == 'IM':
+                igive.update({'counseling_topics__immunizations': True})
+            else:
                 igive.update({'counseling_topics__other_non_coded': True})
-            # HERE not found
-            #    igive.update({'counseling_topics__bednet': True})
-            #    igive.update({'counseling_topics__alcohol': True})
-            #    igive.update({'counseling_topics__tobacco': True})
         return igive
 reversion.register(HouseholdVisitReport, follow=['ccreport_ptr'])
 

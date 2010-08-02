@@ -51,26 +51,31 @@ class CodedItem(models.Model):
     }
 
     family_planning = {
-        'c': (_('c'), _(u"Condoms")),
-        'i': (_('i'), _(u"Injectable")),
-        'n': (_('n'), _(u"Norplant")),
-        'p': (_('p'), _(u"Oral contraception")),
+        'c': (_('cd'), _(u"Condoms")),
+        'i': (_('ij'), _(u"Injectable")),
+        'n': (_('ip'), _(u"Implant")),
+        'iud': (_('iud'), _(u"Intra-uterine Device")),
+        'p': (_('pl'), _(u"Oral contraception")),
+        'st': (_('st'), _(u"Sterilisation")),
     }
 
     medecine = {
-        'act': (_('act'), _(u"Anti-malarial")),
+        'act': (_('am'), _(u"Anti-malarial")),
         'r': (_('r'), _(u"ORS")),
         'z': (_('z'), _(u"Zinc")),
     }
 
     counseling = {
         'bp': (_('bp'), _(u"Birth plan")),
+        'bf': (_('bf'), _(u"Breast-feeding")),
+        'bn': (_('bn'), _(u"Bednet")),
         'ec': (_('ec'), _(u"Environmental cleanliness")),
         'fp': (_('fp'), _(u"Family planning")),
         'nut': (_('nut'), _(u"Nutrition")),
         'ed': (_('ed'), _(u"General education")),
         'ph': (_('ph'), _(u"Public health")),
         'im': (_('im'), _(u"Immunisations")),
+        'sh': (_('sh'), _(u"Sanitation & Hygiene")),
     }
 
     ci_matrix = {

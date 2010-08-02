@@ -39,8 +39,10 @@
         <nutrition_counseling openmrs_concept="1380^NUTRITION COUNSELING^99DCT">{% if counseling_topics__nutrition %}true{% else %}false{% endif %}</nutrition_counseling>
         <bednet_counseling openmrs_concept="1381^BEDNET COUNSELING^99DCT">{% if counseling_topics__bednet %}true{% else %}false{% endif %}</bednet_counseling>
         <family_planning_counseling openmrs_concept="1382^FAMILY PLANNING COUNSELING^99DCT">{% if counseling_topics__family_planning %}true{% else %}false{% endif %}</family_planning_counseling>
+        <counseling_about_immunizations openmrs_concept="1911^Counseling about immunizations^99DCT">{% if counseling_topics__immunizations %}true{% else %}false{% endif %}</counseling_about_immunizations>
+        <counseling_about_breastfeeding openmrs_concept="1910^Counseling about breastfeeding^99DCT">{% if counseling_topics__breastfeeding %}true{% else %}false{% endif %}</counseling_about_breastfeeding>
         <other_non-coded openmrs_concept="5622^OTHER NON-CODED^99DCT">{% if counseling_topics__other_non_coded %}true{% else %}false{% endif %}</other_non-coded>
-        <sanitation_slash_hygiene_counseling openmrs_concept="1906^SANITATION/HYGIENE COUNSELING^99DCT">{% if counseling_topics__counseling_topics__sanitation_and_hygiene %}true{% else %}false{% endif %}</sanitation_slash_hygiene_counseling>
+        <sanitation_slash_hygiene_counseling openmrs_concept="1906^SANITATION/HYGIENE COUNSELING^99DCT">{% if counseling_topics__sanitation_and_hygiene %}true{% else %}false{% endif %}</sanitation_slash_hygiene_counseling>
         <alcohol_counseling openmrs_concept="1288^ALCOHOL COUNSELING^99DCT">{% if counseling_topics__alcohol %}true{% else %}false{% endif %}</alcohol_counseling>
         <tobacco_use_counseling openmrs_concept="1455^TOBACCO USE COUNSELING^99DCT">{% if counseling_topics__tobacco %}true{% else %}false{% endif %}</tobacco_use_counseling>
         <xforms_value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" />

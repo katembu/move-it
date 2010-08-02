@@ -22,11 +22,15 @@ class OpenMRSHouseholdForm(OpenMRSFormInterface):
                                            (OpenMRSFormInterface.T_BOOL, None),
         'counseling_topics__bednet': \
                                            (OpenMRSFormInterface.T_BOOL, None),
+        'counseling_topics__breastfeeding': \
+                                           (OpenMRSFormInterface.T_BOOL, None),
         'counseling_topics__family_planning': \
                                            (OpenMRSFormInterface.T_BOOL, None),
         'counseling_topics__sanitation_and_hygiene': \
                                            (OpenMRSFormInterface.T_BOOL, None),
         'counseling_topics__alcohol': \
+                                           (OpenMRSFormInterface.T_BOOL, None),
+        'counseling_topics__immunizations': \
                                            (OpenMRSFormInterface.T_BOOL, None),
         'counseling_topics__tobacco': \
                                            (OpenMRSFormInterface.T_BOOL, None),
