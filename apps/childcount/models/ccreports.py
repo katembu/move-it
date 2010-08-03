@@ -3,6 +3,7 @@
 # maintainer: ukanga
 
 from django.utils.translation import gettext as _
+
 from django.db.models import F
 from django.db.models import Avg, Count, Sum
 
@@ -590,33 +591,25 @@ class TheCHWReport(CHW):
             ans = 0
         return ans
 
-    def num_sleepingsite(self):
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.sleeping_sites
-        return total
+    def bednet_survey(self):
+        try:
+            survey = BedNetReport.objects.filter(encounter__chw=self)\
+                                            .aggregate(\
+                                                damaged=Sum('damaged_nets'),
+                                                function=Sum('function_nets'),
+                                                num_site=Sum('sleeping_sites'),
+                                                earlier=Sum('earlier_nets'))
+        except:
+            pass
+        
+        if survey is None:
+            return {'damaged': _(u'-'), 'function': _(u'-'), 
+                      'num_site': _(u'-'), 'earlier': _(u'-')}
+        else:
+            return survey                                                
 
-    def num_damaged(self):
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.damaged_nets
-        return total
 
-    def num_earlier(self): 
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.earlier_nets
-        return total
 
-    def num_funcbednet(self): 
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.function_nets
-        return total
 
     def required_bednet(self):
         total = self.num_sleepingsite() - self.num_funcbednet()
@@ -732,16 +725,16 @@ class TheCHWReport(CHW):
              'bit': '{{ object.per_bednetsurvey}}'})
         columns.append(
             {'name': "Total Sleeping site".upper(), \
-             'bit': '{{ object.num_sleepingsite}}'})
+             'bit': '{{ object.bednet_survey.num_site}}'})
         columns.append(
             {'name': "Functioning Bednet".upper(), \
-             'bit': '{{ object.num_funcbednet}}'})
+             'bit': '{{ object.bednet_survey.function}}'})
         columns.append(
             {'name': "Damaged Bednet".upper(), \
-             'bit': '{{ object.num_damaged}}'})
+             'bit': '{{ object.bednet_survey.damaged}}'})
         columns.append(
             {'name': "Earlier(b4 2009)".upper(), \
-             'bit': '{{ object.num_earlier}}'})
+             'bit': '{{ object.bednet_survey.earlier}}'})
         columns.append(
             {'name': "Required Bednet".upper(), \
              'bit': '{{ object.required_bednet}}'})
