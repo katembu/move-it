@@ -1074,7 +1074,7 @@ class TheBHSurveyReport(TheCHWReport):
         columns.append({'name': _(u"# of Functioning Bednets"), \
                 'bit': '{{object.bednet_aggregates.function_nets__sum}}'})
         columns.append({'name': _(u"# of damaged"), \
-                'bit': '{{object.bednet_aggregates.dameged_nets__sum}}'})
+                'bit': '{{object.bednet_aggregates.damaged_nets__sum}}'})
         columns.append({'name': _(u"# of Earlier Bednets"), \
                 'bit': '{{object.bednet_aggregates.earlier_nets__sum}}'})
         columns.append({'name': _(u"# of Bednet Utilization Reports"), \
