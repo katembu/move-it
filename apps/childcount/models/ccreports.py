@@ -280,6 +280,9 @@ class TheCHWReport(CHW):
         proxy = True
 
     @property
+    def mobile_phone(self):
+        return self.connection().identity
+    @property
     def num_of_patients(self):
         num = Patient.objects.filter(chw=self).count()
         return num
@@ -1161,7 +1164,7 @@ class TheBHSurveyReport(TheCHWReport):
     @classmethod
     def healthy_survey_columns(cls):
         columns = []
-        columns.append({'name': _(u"CHW"), 'bit': '{{object}}'})
+        columns.append({'name': _(u"CHW"), 'bit': '{{object}} {{object.mobile_phone}}'})
         columns.append({'name': _(u"# of Households"), \
                 'bit': '{{object.number_of_households}}'})
         columns.append({'name': _(u"# of Households Surveyed"), \

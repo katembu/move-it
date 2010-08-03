@@ -560,7 +560,7 @@ def surveyreportable(title, indata=None):
     data.append(thirdrow)
 
     rowHeights = [None, 2.3 * inch]
-    colWidths = [1.5 * inch]
+    colWidths = [3.0 * inch]
     colWidths.extend((len(cols) - 1) * [0.5 * inch])
 
     if indata:
