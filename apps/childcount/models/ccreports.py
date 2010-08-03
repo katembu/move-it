@@ -901,6 +901,36 @@ class ClinicReport(Clinic):
                                     encounter__patient__chw__location=self)
         return muac.count()
 
+    def monthly_summary(self, month=None, year=None):
+        if not month:
+            month = datetime.today().month
+        if not year:
+            year = datetime.today().year
+        onfirst = datetime(year=year, month=month, day=1)
+        rdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month)\
+                                .count()
+        prdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month, \
+                                    rdt_result=FeverReport.RDT_POSITIVE)\
+                                .count()
+        
+        nut = NutritionReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month)\
+                                .count()
+        snut = NutritionReport.objects.filter(encounter__patient__clinic=self,\
+                                encounter__encounter_date__month=month, \
+                                status__in=(NutritionReport.STATUS_SEVERE, \
+                                NutritionReport.STATUS_SEVERE_COMP, \
+                                NutritionReport.STATUS_MODERATE))\
+                                .count()
+        return {'clinic': self,
+                'month': onfirst.strftime("%B"),
+                'rdt': rdt,
+                'positive_rdt': prdt,
+                'nutrition': nut,
+                'malnutrition': snut}
+
     @classmethod
     def summary(cls):
         columns = []
