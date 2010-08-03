@@ -5,7 +5,7 @@
 import os
 
 from datetime import date, timedelta, datetime
-
+from django.db.models import F
 import re
 
 from rapidsms.webui.utils import render_to_response
@@ -18,12 +18,13 @@ from django.template import Template, Context, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, UserManager, Group
 from django import forms
+from django.db.models import F
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
 
 from childcount.models import Patient, CHW, Configuration, Clinic
-from childcount.models.ccreports import TheCHWReport, ClinicReport
+from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
@@ -294,9 +295,9 @@ def bednet_summary(request):
     '''House Patients page '''
     report_title = Patient._meta.verbose_name
     rows = []
-    columns, sub_columns = BednetHousehold.summary()
+    columns, sub_columns = ThePatient.bednet_summary()
 
-    reports = BednetHousehold.return_household()
+    reports = ThePatient.objects.filter(health_id=F('household__health_id'))
     i = 0
     for report in reports:
         i += 1
