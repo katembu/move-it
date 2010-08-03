@@ -578,11 +578,11 @@ def surveyreportable(title, indata=None):
                             colors.lightgrey),\
                             ('BOX', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),
-                            ('BOX', (2, 1), (7, -1), 5, \
-                            colors.lightgrey),
-                            ('BOX', (7, 1), (8, -1), 5, \
+                            ('BOX', (3, 1), (8, -1), 5, \
                             colors.lightgrey),
                             ('BOX', (8, 1), (9, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (9, 1), (10, -1), 5, \
                             colors.lightgrey)
                 ]))
     return tb
