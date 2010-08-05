@@ -7,7 +7,12 @@ from django.utils.translation import gettext as _
 from django.db.models import F
 from django.db.models import Avg, Count, Sum
 
-from datetime import date, timedelta, datetime
+import calendar
+from datetime import datetime
+from datetime import date
+from datetime import time
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from childcount.models import Patient
 from locations.models import Location
@@ -27,9 +32,13 @@ from childcount.models import BednetUtilization
 from childcount.models import DrinkingWaterReport
 from childcount.models import SanitationReport
 
-from childcount.utils import day_end, day_start, get_dates_of_the_week, \
-                                get_median, seven_days_to_date, \
-                                first_day_of_month, last_day_of_month
+from childcount.utils import day_end, \
+                                day_start, \
+                                get_dates_of_the_week, \
+                                get_median, \
+                                seven_days_to_date, \
+                                first_day_of_month, \
+                                last_day_of_month
 
 from logger.models import IncomingMessage, OutgoingMessage
 
@@ -334,10 +343,16 @@ class TheCHWReport(CHW):
 
     @property
     def num_of_visits(self):
-        '''The number of visits in the last 7 days'''
-        seven = date.today() - timedelta(7)
-        #num = HouseholdVisitReport.objects.filter(created_by=self).count()
-        return 2
+        num = HouseholdVisitReport.objects.filter(created_by=self).count()
+        return num
+
+    def two_weeks_visits(self):
+        two_weeks = datetime.now() + \
+            relativedelta(weekday=calendar.MONDAY, days=-13)
+        two_weeks = datetime.combine(two_weeks.date(), time(0, 0))
+        return HouseholdVisitReport.objects.filter(encounter__chw=self, \
+                            encounter__encounter_date__gte=two_weeks)\
+                            .count()
 
     @property
     def num_muac_eligible(self):
@@ -879,6 +894,36 @@ class ClinicReport(Clinic):
                                     encounter__patient__chw__location=self)
         return muac.count()
 
+    def monthly_summary(self, month=None, year=None):
+        if not month:
+            month = datetime.today().month
+        if not year:
+            year = datetime.today().year
+        onfirst = datetime(year=year, month=month, day=1)
+        rdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month)\
+                                .count()
+        prdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month, \
+                                    rdt_result=FeverReport.RDT_POSITIVE)\
+                                .count()
+        
+        nut = NutritionReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month)\
+                                .count()
+        snut = NutritionReport.objects.filter(encounter__patient__clinic=self,\
+                                encounter__encounter_date__month=month, \
+                                status__in=(NutritionReport.STATUS_SEVERE, \
+                                NutritionReport.STATUS_SEVERE_COMP, \
+                                NutritionReport.STATUS_MODERATE))\
+                                .count()
+        return {'clinic': self,
+                'month': onfirst.strftime("%B"),
+                'rdt': rdt,
+                'positive_rdt': prdt,
+                'nutrition': nut,
+                'malnutrition': snut}
+
     @classmethod
     def summary(cls):
         columns = []
@@ -1157,9 +1202,12 @@ class TheBHSurveyReport(TheCHWReport):
     @classmethod
     def healthy_survey_columns(cls):
         columns = []
-        columns.append({'name': _(u"CHW"), 'bit': '{{object}} {{object.mobile_phone}}'})
+        columns.append({'name': _(u"CHW"), 'bit': '{{object}} '\
+                                            '{{object.mobile_phone}}'})
         columns.append({'name': _(u"# of Households"), \
                 'bit': '{{object.number_of_households}}'})
+        columns.append({'name': _(u"# of HH Visits (Last two weeks)"), \
+                'bit': '{{object.two_weeks_visits}}'})
         columns.append({'name': _(u"# of Households Surveyed"), \
                 'bit': '{{object.bednet_aggregates.encounter__count}}'})
         columns.append({'name': _(u"# of Sleeping Sites"), \
@@ -1167,7 +1215,7 @@ class TheBHSurveyReport(TheCHWReport):
         columns.append({'name': _(u"# of Functioning Bednets"), \
                 'bit': '{{object.bednet_aggregates.function_nets__sum}}'})
         columns.append({'name': _(u"# of damaged"), \
-                'bit': '{{object.bednet_aggregates.dameged_nets__sum}}'})
+                'bit': '{{object.bednet_aggregates.damaged_nets__sum}}'})
         columns.append({'name': _(u"# of Earlier Bednets"), \
                 'bit': '{{object.bednet_aggregates.earlier_nets__sum}}'})
         columns.append({'name': _(u"# of Bednet Utilization Reports"), \

@@ -85,6 +85,9 @@ class PatientRegistrationForm(CCForm):
 
         patient.location = location
 
+        if self.chw.clinic:
+            patient.clinic = self.chw.clinic
+
         self.gender_field.set_language(lang)
 
         gender_indexes = []

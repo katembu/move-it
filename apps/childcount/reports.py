@@ -4,6 +4,9 @@
 
 import os
 import copy
+import csv
+
+from datetime import datetime
 
 from rapidsms.webui.utils import render_to_response
 from django.utils.translation import gettext_lazy as _
@@ -26,6 +29,8 @@ except ImportError:
 from childcount.models import Clinic
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
+from childcount.models.ccreports import OperationalReport
+from childcount.models.ccreports import ClinicReport
 from childcount.models.ccreports import TheBHSurveyReport
 from childcount.utils import RotatedParagraph
 
@@ -578,11 +583,43 @@ def surveyreportable(title, indata=None):
                             colors.lightgrey),\
                             ('BOX', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),
-                            ('BOX', (2, 1), (7, -1), 5, \
-                            colors.lightgrey),
-                            ('BOX', (7, 1), (8, -1), 5, \
+                            ('BOX', (3, 1), (8, -1), 5, \
                             colors.lightgrey),
                             ('BOX', (8, 1), (9, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (9, 1), (10, -1), 5, \
                             colors.lightgrey)
                 ]))
     return tb
+
+
+def clinic_monthly_summary_csv(request):
+    '''
+    Monthly clinic summary 
+    '''
+    filename = "monthly_summary.csv"
+    start_date = datetime(year=2010, month=1, day=1)
+    current_date = datetime.today()
+    buffer = StringIO()
+    dw = csv.DictWriter(buffer, ['clinic','month','rdt','positive_rdt', \
+                                        'nutrition', 'malnutrition'])
+    for clinic in ClinicReport.objects.all():
+        i = 1
+        header = {'clinic': _(u"Clinic/Health Facility"), \
+                    'month': _(u"Month"), \
+                    'rdt': _(u"# of Fever Report(RDT)"), \
+                    'positive_rdt': _(u"# Positive Fever Report"), \
+                    'nutrition': _(u"# Nutrition Report"), \
+                    'malnutrition': _(u"# Malnourished")}
+        dw.writerow(header)
+        while i <= 12:
+            data = clinic.monthly_summary(i, start_date.year)
+            dw.writerow(data)
+            i += 1
+    rpt = buffer.getvalue()
+    buffer.close()
+    response = HttpResponse(mimetype='application/csv')
+    response['Cache-Control'] = ""
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    response.write(rpt)
+    return response
