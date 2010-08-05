@@ -240,6 +240,44 @@ class StillbirthMiscarriageReport(CCReport):
             type = self.get_type_display()
         return _(u"%(type)s on %(date)s") % \
              {'type': type, 'date': self.incident_date}
+
+    @task()
+    def chw_followup(self):
+        '''
+        One week after still birth remindd the chw to follow on the mother.
+        '''
+        try:
+            self = StillbirthMiscarriageReport.objects.get(pk=self.pk)
+        except StillbirthMiscarriageReport.DoesNotExist:
+            pass
+        else:
+            condition = ''
+            for x, y in self.TYPE_CHOICES:
+                if x == self.type:
+                    condition = y
+            msg = _(u"Please do a followup on %(mother)s following her" \
+                    " %(condition)s a week ago. We would expect a +U" \
+                    " report.") % {
+                    'mother': self.encounter.patient,
+                    'condition': condition
+                    }
+            alert = SmsAlert(reporter=self.encounter.chw, msg=msg)
+            sms_alert = alert.send()
+            sms_alert.name = u"stillbirthmiscarriage_followup"
+            sms_alert.save()
+    tasks.register(chw_followup)
+
+    def setup_reminders(self):
+        '''
+        Setup alert/reminder to CHW one week after the event
+        '''
+
+        #One week later CHW to followup on the mother
+        delay = datetime.now() + timedelta(days=7)
+        #7am
+        delay = datetime.combine(delay.date(), time(7, 0))
+        result = self.chw_followup.apply_async(eta=delay, \
+                                                args=(self,))
 reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 
