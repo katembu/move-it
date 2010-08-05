@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-03 19:48+0000\n"
-"PO-Revision-Date: 2010-08-03 20:07-0000\n"
+"POT-Creation-Date: 2010-08-05 16:04+0000\n"
+"PO-Revision-Date: 2010-08-05 16:06-0000\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2373,7 +2373,7 @@ msgstr "Imprimé"
 
 #: models/HealthId.py:29
 msgid "Issued"
-msgstr "Issu"
+msgstr "délivré"
 
 #: models/HealthId.py:30
 msgid "Revoked"
@@ -2389,7 +2389,7 @@ msgstr "Imprimé le"
 
 #: models/HealthId.py:35
 msgid "Issued on"
-msgstr "Issu le"
+msgstr "délivré le"
 
 #: models/HealthId.py:36
 msgid "Revoked on"
@@ -2397,7 +2397,7 @@ msgstr "Révoqué le"
 
 #: models/HealthId.py:37
 msgid "Issued to"
-msgstr "Issu pour"
+msgstr "délivré pour"
 
 #: models/ImmunizationSchedule.py:17
 msgid "Immunization Schedule"
