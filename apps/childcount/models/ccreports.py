@@ -893,18 +893,22 @@ class ClinicReport(Clinic):
             year = datetime.today().year
         onfirst = datetime(year=year, month=month, day=1)
         rdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
-                                    encounter__encounter_date__month=month)\
+                                    encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year)\
                                 .count()
         prdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
                                     encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year, \
                                     rdt_result=FeverReport.RDT_POSITIVE)\
                                 .count()
 
         nut = NutritionReport.objects.filter(encounter__patient__clinic=self, \
-                                    encounter__encounter_date__month=month)\
+                                    encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year)\
                                 .count()
         snut = NutritionReport.objects.filter(encounter__patient__clinic=self,\
                                 encounter__encounter_date__month=month, \
+                                encounter__encounter_date__year=year, \
                                 status__in=(NutritionReport.STATUS_SEVERE, \
                                 NutritionReport.STATUS_SEVERE_COMP, \
                                 NutritionReport.STATUS_MODERATE))\
