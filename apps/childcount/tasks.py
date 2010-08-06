@@ -138,8 +138,8 @@ def weekly_muac_reminder():
             sms_alert.save()
 
 
-@periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
-def weekly_pregnancy_initial_visit_reminder():
+@periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
+def weekly_initial_anc_visit_reminder():
     '''
     Initial ANC Visit weekly reminder
     '''
@@ -166,11 +166,47 @@ def weekly_pregnancy_initial_visit_reminder():
         chw_list = alert_list.get(chw)
         w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
                                 for p in chw_list])
-        msg = _(u"Remind the following to do their first clinic visit" \
-                " %(list)s") % {'list': w}
+        msg = _(u"Remind the following to go for their first clinic visit" \
+                " %(list)s.") % {'list': w}
         alert = SmsAlert(reporter=chw, msg=msg)
         sms_alert = alert.send()
-        sms_alert.name = u" weekly_pregnancy_initial_visit_reminder"
+        sms_alert.name = u"weekly_initial_anc_visit_reminder"
+        sms_alert.save()
+
+
+@periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
+def weekly_anc_visit_reminder():
+    '''
+    ANC Visit weekly reminder - 6 weeks have passed since last ANC visit
+    '''
+    pregs = PregnancyReport.objects.filter(weeks_since_anc__gt=6)
+    p_list = []
+    alert_list = {}
+
+    for prpt in pregs:
+        if prpt.encounter.patient in p_list:
+            continue
+        patient = prpt.encounter.patient
+        p_list.append(patient)
+        try:
+            rpt = PregnancyReport.objects.filter(weeks_since_anc__gt=6, \
+                                        encounter__patient=patient).latest()
+        except PregnancyReport.DoesNotExist:
+            pass
+        else:
+            if not alert_list.has_key(patient.chw):
+                alert_list[patient.chw] = []
+            alert_list[patient.chw].append(patient)
+
+    for chw in  alert_list:
+        chw_list = alert_list.get(chw)
+        w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
+                                for p in chw_list])
+        msg = _(u"Remind the following to go for a clinic visit" \
+                " %(list)s.") % {'list': w}
+        alert = SmsAlert(reporter=chw, msg=msg)
+        sms_alert = alert.send()
+        sms_alert.name = u"weekly_anc_visit_reminder"
         sms_alert.save()
 
 
