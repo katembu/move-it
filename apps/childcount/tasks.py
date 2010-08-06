@@ -17,6 +17,7 @@ from childcount.models import ImmunizationSchedule, ImmunizationNotification
 from childcount.models import Patient, CHW
 from childcount.models import FeverReport
 from childcount.models import NutritionReport
+from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.utils import send_msg
 
@@ -135,6 +136,42 @@ def weekly_muac_reminder():
             sms_alert = alert.send()
             sms_alert.name = u"muac_weekly_reminder"
             sms_alert.save()
+
+
+@periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
+def weekly_pregnancy_initial_visit_reminder():
+    '''
+    Initial ANC Visit weekly reminder
+    '''
+    pregs = PregnancyReport.objects.filter(anc_visits=0)
+    p_list = []
+    alert_list = {}
+
+    for prpt in pregs:
+        if prpt.encounter.patient in p_list:
+            continue
+        patient = prpt.encounter.patient
+        p_list.append(patient)
+        try:
+            rpt = PregnancyReport.objects.filter(anc_visits=0, \
+                                        encounter__patient=patient).latest()
+        except PregnancyReport.DoesNotExist:
+            pass
+        else:
+            if not alert_list.has_key(patient.chw):
+                alert_list[patient.chw] = []
+            alert_list[patient.chw].append(patient)
+
+    for chw in  alert_list:
+        chw_list = alert_list.get(chw)
+        w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
+                                for p in chw_list])
+        msg = _(u"Remind the following to do their first clinic visit" \
+                " %(list)s") % {'list': w}
+        alert = SmsAlert(reporter=chw, msg=msg)
+        sms_alert = alert.send()
+        sms_alert.name = u" weekly_pregnancy_initial_visit_reminder"
+        sms_alert.save()
 
 
 @periodic_task(run_every=timedelta(minutes=60))
