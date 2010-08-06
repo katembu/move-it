@@ -67,7 +67,7 @@ class Command(BaseCommand):
         for msg in OutgoingMessage.objects.all():
             msg_lng = create_from_logger_msg(msg)
             msg_lng.direction = OUTGOING
-            SECONDS = 2
+            SECONDS = 5
             just_before = msg.date - timedelta(seconds=SECONDS) 
             try:
                 orig = LoggedMessage.incoming.get(identity=msg.identity,
