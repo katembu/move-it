@@ -381,8 +381,23 @@ class TheCHWReport(CHW):
         return self.households().count()
 
     def households(self):
+        '''
+        List of households belonging to this CHW
+        '''
         return Patient.objects.filter(health_id=F('household__health_id'), \
                                         chw=self)
+
+    def muac_list(self):
+        '''
+        List of patients in the muac age bracket
+            - 6 months >= patient.age < 60 months
+        '''
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        patients = ThePatient.objects.filter(chw=self, dob__gte=sixtym, \
+                                     dob__lte=sixm, \
+                                     status=Patient.STATUS_ACTIVE)
+        return patients
 
     def num_of_householdvisits(self):
         return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
