@@ -43,6 +43,7 @@ class LoggedMessage(models.Model):
         '''
         verbose_name = _(u"logged message")
         verbose_name = _(u"logged messages")
+        ordering = ['-date', 'direction']
         permissions = (
             ("can_view", _(u"Can view")),
             ("can_respond", _(u"Can respond")),
