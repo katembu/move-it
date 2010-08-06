@@ -20,6 +20,9 @@ from childcount.models import NutritionReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.utils import send_msg
 
+from childcount.reports import gen_operationalreport
+from childcount.reports import gen_surveryreport
+
 from alerts.utils import SmsAlert
 
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
@@ -64,12 +67,16 @@ def weekly_immunization_reminder():
 
 @periodic_task(run_every=crontab(hour=7, minute=0))
 def daily_fever_reminder():
+    '''
+    Daily reminder of Fever followup cases after 48 hours.
+    '''
     sdate = datetime.now() + relativedelta.relativedelta(days=-3)
     #sdate = datetime.combine(sdate.date(), time(7, 0))
     edate = datetime.now() + relativedelta.relativedelta(days=-2)
     #edate = datetime.combine(edate.date(), time(7, 0))
     frs = FeverReport.objects.filter(encounter__encounter_date__gte=sdate, \
-                                encounter__encounter_date__lte=edate)\
+                                encounter__encounter_date__lte=edate, \
+                                rdt_result=FeverReport.RDT_POSITIVE)\
                                 .order_by('encounter__chw')
     current_reporter = None
     data = {}
@@ -89,6 +96,9 @@ def daily_fever_reminder():
 
 @periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=0))
 def weekly_muac_reminder():
+    '''
+    Weekly reminder of due Muac cases, 75 days or over since last chw visit
+    '''
     data = {}
     for chw in TheCHWReport.objects.all():
         reminder_list = []
@@ -125,3 +135,13 @@ def weekly_muac_reminder():
             sms_alert = alert.send()
             sms_alert.name = u"muac_weekly_reminder"
             sms_alert.save()
+
+
+@periodic_task(run_every=timedelta(minutes=60))
+def hourly_operationalreport():
+    gen_operationalreport()
+
+
+@periodic_task(run_every=timedelta(minutes=60))
+def hourly_surveyreport():
+    gen_surveryreport()
