@@ -130,54 +130,29 @@ class ThePatient(Patient):
 
                 immunization.save()
 
+    def survey(self):
+        #Get aggregate of bednets survey questions per chw
+        survey = BedNetReport.objects.filter(encounter__patient=self)\
+                                            .aggregate(\
+                                                damaged=Sum('damaged_nets'),
+                                                function=Sum('function_nets'),
+                                                num_site=Sum('sleeping_sites'),
+                                                earlier=Sum('earlier_nets'))
+        for item in survey:
+                if survey[item] is None:
+                    survey[item] = '-'
 
-    def damaged_nets(self):
-        'Number of damaged bednets '
-        try:
-            z = BedNetReport.objects.get(encounter__patient=self).damaged_nets
-        except BedNetReport.DoesNotExist:
-            z = _(u'-')
-        return z
 
-    def function_nets(self):
-        'Number of functioning bednets '
-        try:
-            z = BedNetReport.objects.get(encounter__patient=self).function_nets
-        except BedNetReport.DoesNotExist:
-            z = _(u'-')
-        return z
         
-    def earlier_nets(self):
-        'Number of earlier bednets '
-        try:
-            z = BedNetReport.objects.get(encounter__patient=self).earlier_nets
-        except BedNetReport.DoesNotExist:
-            z = _(u'-')
-        return z
-
-    def sleeping_site(self):
-        'number of sleeping sites'
-        try:
-            z = BedNetReport.objects.get(encounter__patient=self).sleeping_sites
-        except BedNetReport.DoesNotExist:
-            z = _(u'-')
-        return z
+        return survey
 
     def required_bednet(self):
         try:
-            total = self.sleeping_site() - self.function_nets()
+            total = self.survey()['num_site'] - self.survey()['function']
         except:
-            return _(u'-')
+            total = '-'
 
         return total
-
-    def underfive_bednet(self):
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        if survey:
-            total += s.function_nets
-        return total
-
 
     @classmethod
     def under_five(cls, chw=None):
@@ -247,19 +222,19 @@ class ThePatient(Patient):
             'bit': '{{object.household.health_id.upper}}'})
         columns.append(
             {'name': _("Household Name".upper()),
-            'bit': 'XXXXX'})
+            'bit': 'XXXXX'}) 
         columns.append(
             {'name': _("No. Sleeping site".upper()),
-             'bit': '{{object.sleeping_site}}'})
+             'bit': '{{object.survey.num_site}}'})
         columns.append(
             {'name': _("Functioning Bednet".upper()),
-             'bit': '{{object.function_nets}}'})
+             'bit': '{{object.survey.function}}'})
         columns.append(
             {'name': _("Earlier Bednets".upper()),
-             'bit': '{{object.earlier_nets}}'})
+             'bit': '{{object.survey.earlier}}'})
         columns.append(
             {'name': _("Damaged Bednet".upper()),
-             'bit': '{{object.damaged_nets}}'})
+             'bit': '{{object.survey.damaged}}'})
         columns.append(
             {'name': _("Required Bednets".upper()),
              'bit': '{{object.required_bednet}}'})
@@ -278,10 +253,7 @@ class ThePatient(Patient):
 
         sub_columns = None
         return columns, sub_columns
- 
 
-        sub_columns = None
-        return columns, sub_columns
 
 class TheCHWReport(CHW):
 
@@ -292,6 +264,7 @@ class TheCHWReport(CHW):
     @property
     def mobile_phone(self):
         return self.connection().identity
+
     @property
     def num_of_patients(self):
         num = Patient.objects.filter(chw=self).count()
@@ -608,13 +581,13 @@ class TheCHWReport(CHW):
 
         return p
 
-  
     def num_of_bednetsurvey(self):
         return BedNetReport.objects.filter(encounter__chw=self).count()
 
     def per_bednetsurvey(self):
+        #Percentage survey done
         num_survey = self.num_of_bednetsurvey()
-        num_household= self.number_of_households
+        num_household = self.number_of_households
         if num_household > 0:
             ans = int(round((num_survey / float(num_household)) * 100))
         else:
@@ -622,24 +595,18 @@ class TheCHWReport(CHW):
         return ans
 
     def bednet_survey(self):
-        try:
-            survey = BedNetReport.objects.filter(encounter__chw=self)\
-                                            .aggregate(\
-                                                damaged=Sum('damaged_nets'),
-                                                function=Sum('function_nets'),
-                                                num_site=Sum('sleeping_sites'),
-                                                earlier=Sum('earlier_nets'))
-        except:
-            pass
-        
-        if survey is None:
-            return {'damaged': _(u'-'), 'function': _(u'-'), 
-                      'num_site': _(u'-'), 'earlier': _(u'-')}
-        else:
-            return survey                                                
-
-
-
+        #Get aggregate of bednets survey questions per chw
+        survey = BedNetReport.objects.filter(encounter__chw=self)\
+                                     .aggregate(\
+                                            total=Count('encounter'),
+                                            damaged=Sum('damaged_nets'),
+                                            function=Sum('function_nets'),
+                                            num_site=Sum('sleeping_sites'),
+                                            earlier=Sum('earlier_nets'))
+        for item in survey:
+            if survey[item] is None:
+                survey[item] = '-'
+        return survey
 
     def required_bednet(self):
         total = self.num_sleepingsite() - self.num_funcbednet()
@@ -659,13 +626,23 @@ class TheCHWReport(CHW):
 
     @classmethod
     def muac_summary(cls):
-        num_healthy = NutritionReport.objects.filter(\
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        order = '-encounter__encounter_date'
+        muac = NutritionReport.objects.filter(\
+                                        encounter__patient__dob__gte=sixtym,
+                                        encounter__patient__dob__lte=sixm)\
+                                        .order_by(order)\
+                                        .values('encounter__patient')\
+                                        .distinct()
+
+        num_healthy = muac.filter(\
                         status=NutritionReport.STATUS_HEALTHY).count()
-        num_mam = NutritionReport.objects.filter(\
+        num_mam = muac.filter(\
                         status=NutritionReport.STATUS_MODERATE).count()
-        num_sam = NutritionReport.objects.filter(\
+        num_sam = muac.filter(\
                         status=NutritionReport.STATUS_SEVERE).count()
-        num_comp = NutritionReport.objects.filter(\
+        num_comp = muac.filter(\
                         status=NutritionReport.STATUS_SEVERE_COMP).count()
         num_eligible = TheCHWReport.total_muac_eligible()
 
@@ -740,43 +717,43 @@ class TheCHWReport(CHW):
         columns = []
         columns.append(
             {'name': cls._meta.get_field('location').verbose_name.upper(), \
-             'bit': '{{ object.location }}'})
+             'bit': '{{object.location }}'})
         columns.append(
             {'name': _("Name".upper()), \
-             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+             'bit': '{{object.first_name }} {{ object.last_name }}'})
         columns.append(
             {'name': "No. of House holds".upper(), \
-             'bit': '{{ object.number_of_households}}'})
+             'bit': '{{object.number_of_households}}'})
         columns.append(
             {'name': "Household Survey Done".upper(), \
-             'bit': '{{ object.num_of_bednetsurvey}}'})
+             'bit': '{{object.bednet_survey.total}}'})
         columns.append(
             {'name': "Percentage".upper(), \
-             'bit': '{{ object.per_bednetsurvey}}'})
+             'bit': '{{object.per_bednetsurvey}}'})
         columns.append(
             {'name': "Total Sleeping site".upper(), \
-             'bit': '{{ object.bednet_survey.num_site}}'})
+             'bit': '{{object.bednet_survey.num_site}}'})
         columns.append(
             {'name': "Functioning Bednet".upper(), \
              'bit': '{{ object.bednet_survey.function}}'})
         columns.append(
             {'name': "Damaged Bednet".upper(), \
-             'bit': '{{ object.bednet_survey.damaged}}'})
+             'bit': '{{object.bednet_survey.damaged}}'})
         columns.append(
             {'name': "Earlier(b4 2009)".upper(), \
-             'bit': '{{ object.bednet_survey.earlier}}'})
+             'bit': '{{object.bednet_survey.earlier}}'})
         columns.append(
             {'name': "Required Bednet".upper(), \
-             'bit': '{{ object.required_bednet}}'})
+             'bit': '{{object.required_bednet}}'})
         columns.append(
             {'name': "Bednet Utilization".upper(), \
-             'bit': '{{ object.num_netutilization}}'})
+             'bit': '{{object.num_netutilization}}'})
         columns.append(
             {'name': "#Sanitation ".upper(), \
-             'bit': '{{ object.num_sanitation}}'})
+             'bit': '{{object.num_sanitation}}'})
         columns.append(
             {'name': "#Drinking water ".upper(), \
-             'bit': '{{ object.num_drinkingwater}}'})
+             'bit': '{{object.num_drinkingwater}}'})
 
         sub_columns = None
         return columns, sub_columns
@@ -922,7 +899,7 @@ class ClinicReport(Clinic):
                                     encounter__encounter_date__month=month, \
                                     rdt_result=FeverReport.RDT_POSITIVE)\
                                 .count()
-        
+
         nut = NutritionReport.objects.filter(encounter__patient__clinic=self, \
                                     encounter__encounter_date__month=month)\
                                 .count()
@@ -1194,8 +1171,8 @@ class TheBHSurveyReport(TheCHWReport):
 
     def bednet_aggregates(self):
         data = BedNetReport.objects.filter(encounter__chw=self)\
-                                    .aggregate(Avg('sleeping_sites'), 
-                                    Count('encounter'), 
+                                    .aggregate(Avg('sleeping_sites'),
+                                    Count('encounter'),
                                     Sum('sleeping_sites'),
                                     Sum('function_nets'),
                                     Sum('earlier_nets'),
