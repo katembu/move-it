@@ -12,6 +12,9 @@ from datetime import time
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
+from celery.decorators import task
+from celery.registry import tasks
+
 from django.db import models
 from django.utils.translation import ugettext as _
 import reversion
@@ -20,6 +23,8 @@ from reversion.models import Version
 from polymorphic import PolymorphicModel
 
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
+
+from alerts.utils import SmsAlert
 
 from childcount.models import Patient
 from childcount.models import Encounter
@@ -135,6 +140,61 @@ class BirthReport(CCReport):
             'weight': self.weight,
         }
         return igive
+
+    @task()
+    def initial_neonatal_visit_reminder(self):
+        '''
+        Six days after a birth report remind the CHW to do an initial neonatal
+        visit if it has not been done yet.
+        '''
+        try:
+            self = BirthReport.objects.get(pk=self.pk)
+        except BirthReport.DoesNotExist:
+            pass
+        else:
+            nr = NeonatalReport.objects.filter(\
+                                encounter__patient=self.encounter.patient)
+            nr_msg = _(u"+N")
+            if nr:
+                nr_msg = u""
+            ur = UnderOneReport.objects.filter(\
+                                encounter__patient=self.encounter.patient)
+            ur_msg = _(u"+T")
+            if ur:
+                ur_msg = u""
+
+            if not ur or not nr:
+                msg = _(u"Please make sure %(child)s gets their Initial"\
+                        " Neonatal Visit [%(forms)s]") % {
+                        'child': self.encounter.patient,
+                        'forms': ' ' . join([nr_msg, ur_msg])
+                        }
+                alert = SmsAlert(reporter=self.encounter.chw, msg=msg)
+                sms_alert = alert.send()
+                sms_alert.name = u"initial_neonatal_visits_6"
+                sms_alert.save()
+    tasks.register(initial_neonatal_visit_reminder)
+
+    def setup_reminders(self):
+        '''
+        Setup reminders for neonatal visit
+            - immediate
+            - 6 days later
+        '''
+        #immediate reminder
+        msg = _(u"Please make sure %(child)s gets their initial neonatal" \
+                " visit [+N and +T]") % {'child': self.encounter.patient}
+        immediate_alert = SmsAlert(reporter=self.encounter.chw, \
+                            msg=msg)
+        delay = datetime.now() + timedelta(seconds=10)
+        sms_alert = immediate_alert.send(send_at=delay)
+        sms_alert.name = u"initial_neonatal_visits"
+        sms_alert.save()
+
+        #six days later check if neonatal visit occured
+        delay = datetime.now() + timedelta(days=6)
+        result = self.initial_neonatal_visit_reminder.apply_async(eta=delay, \
+                                                args=(self,))
 reversion.register(BirthReport, follow=['ccreport_ptr'])
 
 
@@ -180,6 +240,44 @@ class StillbirthMiscarriageReport(CCReport):
             type = self.get_type_display()
         return _(u"%(type)s on %(date)s") % \
              {'type': type, 'date': self.incident_date}
+
+    @task()
+    def chw_followup(self):
+        '''
+        One week after still birth remindd the chw to follow on the mother.
+        '''
+        try:
+            self = StillbirthMiscarriageReport.objects.get(pk=self.pk)
+        except StillbirthMiscarriageReport.DoesNotExist:
+            pass
+        else:
+            condition = ''
+            for x, y in self.TYPE_CHOICES:
+                if x == self.type:
+                    condition = y
+            msg = _(u"Please do a followup on %(mother)s following her" \
+                    " %(condition)s a week ago. We would expect a +U" \
+                    " report.") % {
+                    'mother': self.encounter.patient,
+                    'condition': condition
+                    }
+            alert = SmsAlert(reporter=self.encounter.chw, msg=msg)
+            sms_alert = alert.send()
+            sms_alert.name = u"stillbirthmiscarriage_followup"
+            sms_alert.save()
+    tasks.register(chw_followup)
+
+    def setup_reminders(self):
+        '''
+        Setup alert/reminder to CHW one week after the event
+        '''
+
+        #One week later CHW to followup on the mother
+        delay = datetime.now() + timedelta(days=7)
+        #7am
+        delay = datetime.combine(delay.date(), time(7, 0))
+        result = self.chw_followup.apply_async(eta=delay, \
+                                                args=(self,))
 reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 

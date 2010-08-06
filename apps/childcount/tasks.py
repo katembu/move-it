@@ -8,15 +8,19 @@ from itertools import groupby
 from django.utils.translation import gettext_lazy as _, activate
 
 from dateutil import relativedelta
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, time
 
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 
 from childcount.models import ImmunizationSchedule, ImmunizationNotification
 from childcount.models import Patient, CHW
+from childcount.models import FeverReport
+from childcount.models import NutritionReport
+from childcount.models.ccreports import TheCHWReport
 from childcount.utils import send_msg
 
+from alerts.utils import SmsAlert
 
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
 def weekly_immunization_reminder():
@@ -56,3 +60,68 @@ def weekly_immunization_reminder():
             msg.append((imm, ' | '.join(schedules)))
 
         send_msg(chw, ' '.join('[%s] %s' % (imm, dates) for imm, dates in msg))
+
+
+@periodic_task(run_every=crontab(hour=7, minute=0))
+def daily_fever_reminder():
+    sdate = datetime.now() + relativedelta.relativedelta(days=-3)
+    #sdate = datetime.combine(sdate.date(), time(7, 0))
+    edate = datetime.now() + relativedelta.relativedelta(days=-2)
+    #edate = datetime.combine(edate.date(), time(7, 0))
+    frs = FeverReport.objects.filter(encounter__encounter_date__gte=sdate, \
+                                encounter__encounter_date__lte=edate)\
+                                .order_by('encounter__chw')
+    current_reporter = None
+    data = {}
+    for report in frs:
+        if not current_reporter or current_reporter != report.encounter.chw:
+            current_reporter = report.encounter.chw
+            data[current_reporter] = []
+        data[current_reporter].append("%s +U F" % report.encounter.patient)
+
+    for key in data:
+        msg = ', ' . join(data.get(key))
+        alert = SmsAlert(reporter=key, msg=msg)
+        sms_alert = alert.send()
+        sms_alert.name = u"fever_daily_reminder"
+        sms_alert.save()
+
+
+@periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=0))
+def weekly_muac_reminder():
+    data = {}
+    for chw in TheCHWReport.objects.all():
+        reminder_list = []
+        for patient in chw.muac_list():
+            try:
+                nr = NutritionReport.objects.filter(encounter__chw=chw, \
+                            encounter__patient=patient).latest()
+            except NutritionReport.DoesNotExist:
+                reminder_list.append(patient)
+            else:
+                today = datetime.today()
+                delta_diff = today - nr.encounter.encounter_date
+                days_since_last_muac = delta_diff.days
+                if days_since_last_muac >= 75:
+                    reminder_list.append(patient)
+        data[chw] = reminder_list
+
+    for chw in data:
+        p_list = data.get(chw)
+        x = 0
+        y = 20
+        done = False
+        while not done:
+            current_list = p_list[x:y]
+            if not current_list:
+                done = True
+                break
+            healthids = u' ' . join([i.health_id for i in current_list])
+            msg = _(u"The following clients are due for +M: %(ids)s") % {
+                    'ids': healthids}
+            x += 20
+            y += 20
+            alert = SmsAlert(reporter=chw, msg=msg)
+            sms_alert = alert.send()
+            sms_alert.name = u"muac_weekly_reminder"
+            sms_alert.save()
