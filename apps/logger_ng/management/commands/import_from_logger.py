@@ -84,4 +84,4 @@ class Command(BaseCommand):
         print u"%d outgoing messages successfully paired with their " \
               u"incoming messages." % count
 
-        print "Importing complete"
+        print u"Importing complete."
