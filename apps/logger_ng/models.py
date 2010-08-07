@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
+# maintainer: dgelvin
+
+'''
+Defines the LoggedMessage model and two custom managers, (OutgoingManager and
+IncomingManager
+'''
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -31,7 +37,22 @@ class IncomingManager(models.Manager):
 
 class LoggedMessage(models.Model):
     '''
-    TODO
+    LoggedMessage model with the following fields:
+        date        - date of the message
+        direction   - DIRECTION_INCOMING or DIRECTION_OUTGOING
+        text        - text of the message
+        backend     - the backend slug of the message backend (a string)
+        identity    - identity (ie. phone number) of the message (a string)
+        reporter    - foreign key to Reporter from the reporters app
+        status      - stores message status, (success, error, parse_error, etc)
+        response_to - recursive foreignkey to self. Only used for outgoing
+                      messages. Points to the LoggedMessage to which the
+                      outgoing message is a response.
+
+    Besides the default manager (objects) this model has to custom managers
+    for your convenience:
+        LoggedMessage.incoming.all()
+        LoggedMessage.outgoing.all()
     '''
 
     class Meta:
@@ -118,14 +139,34 @@ class LoggedMessage(models.Model):
     outgoing = OutgoingManager()
 
     def ident_string(self):
+        '''
+        Returns a string for the message identity.
+        If there is no reporter, it will just return something like:
+            dataentry 1234
+
+        If there is a reporter, but no location it will return:
+            dataentry 1234 (John Doe)
+
+        If there is a reporter and a location it will return:
+            dataentry 1234 (John Doe from New York)
+        '''
         string = u"%(backend)s %(identity)s" % \
                  {'backend': self.backend, 'identity': self.identity}
+
         if self.reporter:
+            reporter_string = self.reporter.full_name()
+            if self.reporter.location:
+                reporter_string = _(u"%(reporter)s from %(location)s") % \
+                                  {'reporter': reporter_string,
+                                   'location': self.reporter.location.name}
             string = u"%(current)s (%(reporter)s)" % \
-                     {'current': string, 'reporter': self.reporter.full_name()}
+                     {'current': string, 'reporter': reporter_string}
         return string
 
     def is_incoming(self):
+        '''
+        Returns true if this is the log of an incoming message, else false
+        '''
         return self.direction == self.DIRECTION_INCOMING
 
     def __unicode__(self):
@@ -139,7 +180,14 @@ class LoggedMessage(models.Model):
         '''
         Takes a rapidsms.message object and returns a new LoggedMessage
         object from it.  You _must_ set the direction of the LoggedMessage, as
-        we can't tell from the message object if it is incoming or outgoing
+        we can't tell from the message object if it is incoming or outgoing.
+
+        It will try to check to see if a reporter exists for this message,
+        and if one does, it will set the reporter foreign key of the
+        LoggedMessage object to that reporter. We can't just use
+        message.connection.reporter because that doesn't exist until the
+        reporters app has handled the message, and we assume we want the
+        logger_ng app to be the _first_ app in our local.ini.
         '''
         backend_slug = message.connection.backend.slug
         identity = message.connection.identity
@@ -159,11 +207,31 @@ class LoggedMessage(models.Model):
 
     @classmethod
     def tag_message(cls, message, status):
+        '''
+        This allows apps to easily tag _incoming_ messages they receive
+        with a status.  Tagging outgoing messages is easy, you just do
+        message.respond(string, status), but tagging _incoming_ messages is
+        more tricky.  This classmethod does it for you.
+
+        From your app, once you have handled the incoming message, simply call
+        LoggedMessage.tag_message(message, <status>)
+
+        i.e.
+        LoggedMessage.tag_message(message, LoggedMessage.STATUS_SYSTEM_ERROR)
+            or
+        LoggedMessage.tag_message(message, LoggedMessage.STATUS_SUCCESS)
+
+        This will use the logger_id watermark in the Message object to
+        lookup the corresponding LoggedMessage object and set its status
+        accordingly.
+        '''
         if not hasattr(message, 'logger_id'):
             return
         try:
             msg = cls.objects.get(pk=message.logger_id)
         except cls.DoesNotExist:
+            # If a LoggedMessage doesn't exist, we can't tag it. We'll just
+            # fail silently.
             return
 
         msg.status = status
