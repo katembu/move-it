@@ -234,8 +234,25 @@ def operationalreport(request, rformat):
         pdf = f.read()
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    response.write(pdf)
+    return response
+
+
+def gen_operationalreport():
     '''
+    Generate OperationalReport and write it to file
+    '''
+    reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+                                        'rpts'))
+    #check if reports folder is there
+    if not os.path.isdir(reports_folder):
+        os.mkdir(reports_folder)
+    filename = os.path.join(reports_folder, 'operationalreport.pdf')
+
+    story = []
     buffer = StringIO()
+
+    #Sauri's CHWs were location was clinic, some locations would draw blank reports
     if Clinic.objects.all().count():
         locations = Clinic.objects.all()
     else:
@@ -252,13 +269,12 @@ def operationalreport(request, rformat):
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
-
     # Get the value of the StringIO buffer and write it to the response.
     pdf = buffer.getvalue()
-    buffer.close()'''
-    
-    response.write(pdf)
-    return response
+    buffer.close()
+    f = open(filename, 'w')
+    f.write(pdf)
+    f.close()
 
 
 def operationalreportable(title, indata=None):
