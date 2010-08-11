@@ -23,15 +23,19 @@ class PregnancyRegistrationForm(CCForm):
 
     def process(self, patient):
         married_field = MultipleChoiceField()
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_YES, 'Y')
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_NO, 'N')
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
+        married_field.add_choice('en', \
+                            PregnancyRegistrationReport.MARRIED_YES, 'Y')
+        married_field.add_choice('en', \
+                            PregnancyRegistrationReport.MARRIED_NO, 'N')
+        married_field.add_choice('en', \
+                            PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
 
         if len(self.params) < 4:
             raise ParseError(_(u"Not enough info."))
 
         try:
-            prgr = PregnancyRegistrationReport.objects.get(encounter=self.encounter)
+            prgr = PregnancyRegistrationReport.objects.get(\
+                        encounter=self.encounter)
         except PregnancyRegistrationReport.DoesNotExist:
             prgr = PregnancyRegistrationReport(encounter=self.encounter)
         prgr.form_group = self.form_group
@@ -66,7 +70,7 @@ class PregnancyRegistrationForm(CCForm):
             married_str = _(u"Is married")
             if prgr.husband is not None:
                 married_str = _("Is married to %(husband)s.") % \
-                                {'husband': prgr.husband} 
+                                {'husband': prgr.husband}
         elif prgr.married == PregnancyRegistrationReport.MARRIED_NO:
             married_str = _(u"Is not married")
         else:
