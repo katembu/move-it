@@ -34,8 +34,8 @@ class PregnancyRegistrationForm(CCForm):
             raise ParseError(_(u"Not enough info."))
 
         try:
-            prgr = PregnancyRegistrationReport.objects.get(\
-                        encounter=self.encounter)
+            prgr = PregnancyRegistrationReport.objects\
+                            .get(encounter=self.encounter)
         except PregnancyRegistrationReport.DoesNotExist:
             prgr = PregnancyRegistrationReport(encounter=self.encounter)
         prgr.form_group = self.form_group
