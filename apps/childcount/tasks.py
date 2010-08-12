@@ -19,14 +19,14 @@ from childcount.models import FeverReport
 from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
-from childcount.utils import send_msg
 
 from childcount.reports import gen_operationalreport
 from childcount.reports import gen_surveryreport
 
 from alerts.utils import SmsAlert
 
-@periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
+
+@periodic_task(run_every=crontab(hour=15, minute=43, day_of_week=4))
 def weekly_immunization_reminder():
     '''
     Send SMS to CHW to remind them their immunization appointments, using
@@ -60,10 +60,14 @@ def weekly_immunization_reminder():
                 ids = ', '.join(str(n.patient.health_id) for n in ids)
                 schedules.append('%s: %s' % (date.strftime('%d-%m-%y'), ids))
 
-       # join dates together, then immunizations together ans send the SMS
+       #join dates together, then immunizations together ans send the SMS
             msg.append((imm, ' | '.join(schedules)))
 
-        send_msg(chw, ' '.join('[%s] %s' % (imm, dates) for imm, dates in msg))
+        msg_to = ' '.join('[%s] %s' % (imm, dates) for imm, dates in msg)
+        alert = SmsAlert(reporter=chw, msg=msg_to)
+        sms_alert = alert.send()
+        sms_alert.name = u"Immunization_reminder"
+        sms_alert.save()
 
 
 @periodic_task(run_every=crontab(hour=7, minute=0))
