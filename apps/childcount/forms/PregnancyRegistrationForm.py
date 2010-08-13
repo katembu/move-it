@@ -60,7 +60,7 @@ class PregnancyRegistrationForm(CCForm):
             raise ParseError(_(u"| Number of pregnancies | " \
                                 "must be entered as a number."))
         if not self.params[3].isdigit():
-            raise ParseError(_(u"| Number of children alive | " \
+            raise ParseError(_(u"| Number of children living with her | " \
                                 "must be entered as a number."))
         prgr.married = married
         prgr.pregnancies = int(self.params[2])
@@ -79,8 +79,8 @@ class PregnancyRegistrationForm(CCForm):
                             {'children': prgr.number_of_children}
         if prgr.number_of_children == 1:
             children_str = _("one child")
-        self.response = _(u"%(married)s, has had %(pregnancies)s "\
-                            "pregnancies and %(children)s alive.") % \
+        self.response = _(u"%(married)s, has had %(pregnancies)s pregnancies"\
+                            " and %(children)s living with her.") % \
                             {'married': married_str, \
                             'pregnancies': prgr.pregnancies, \
                             'children': children_str}

@@ -48,11 +48,10 @@ class DBSResultForm(CCForm):
         else:
             aptr.reset()
             overwrite = True
-        #alert should happen tomorrow morning hence 4 days
+        #alert should happen morning hence 4 days
         delay = datetime.today() + relativedelta(days=4, hours=7)
         if delay.weekday() > calendar.FRIDAY:
             delay = datetime.today() + relativedelta(weekday=calendar.MONDAY)
         aptr.appointment_date = delay
         aptr.status = AppointmentReport.STATUS_OPEN
-        aptr.notification_sent = False
         aptr.save()

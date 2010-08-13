@@ -14,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 
 from celery.decorators import task
 from celery.registry import tasks
+from celery.task.control import revoke
 
 from django.db import models
 from django.utils.translation import ugettext as _
@@ -25,6 +26,7 @@ from polymorphic import PolymorphicModel
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
 from alerts.utils import SmsAlert
+from alerts.models import SmsAlertModel
 
 from childcount.models import Patient
 from childcount.models import Encounter
@@ -167,9 +169,8 @@ class BirthReport(CCReport):
                 msg = _(u"Please make sure %(child)s gets their Initial"\
                         " Neonatal Visit [%(forms)s]") % {
                         'child': self.encounter.patient,
-                        'forms': ' ' . join([nr_msg, ur_msg])
-                        }
-                alert = SmsAlert(reporter=self.encounter.chw, msg=msg)
+                        'forms': ' ' . join([nr_msg, ur_msg])}
+                alert = SmsAlert(reporter=self.encounter.patient.chw, msg=msg)
                 sms_alert = alert.send()
                 sms_alert.name = u"initial_neonatal_visits_6"
                 sms_alert.save()
@@ -184,7 +185,7 @@ class BirthReport(CCReport):
         #immediate reminder
         msg = _(u"Please make sure %(child)s gets their initial neonatal" \
                 " visit [+N and +T]") % {'child': self.encounter.patient}
-        immediate_alert = SmsAlert(reporter=self.encounter.chw, \
+        immediate_alert = SmsAlert(reporter=self.encounter.patient.chw, \
                             msg=msg)
         delay = datetime.now() + timedelta(seconds=10)
         sms_alert = immediate_alert.send(send_at=delay)
@@ -259,8 +260,7 @@ class StillbirthMiscarriageReport(CCReport):
                     " %(condition)s a week ago. We would expect a +U" \
                     " report.") % {
                     'mother': self.encounter.patient,
-                    'condition': condition
-                    }
+                    'condition': condition}
             alert = SmsAlert(reporter=self.encounter.chw, msg=msg)
             sms_alert = alert.send()
             sms_alert.name = u"stillbirthmiscarriage_followup"
@@ -519,14 +519,14 @@ class SPregnancy(PregnancyReport):
         (CD4_NO, _(u"No")),
         (CD4_UNKNOWN, _(u"Unkown")))
 
-    iron_supplement = models.CharField(_(u"Taking Iron supplements"), max_length=1, \
-                                   choices=IRON_CHOICES, \
-                              help_text=_(u"Is the mother taking iron "\
+    iron_supplement = models.CharField(_(u"Taking Iron supplements"), \
+                            max_length=1, choices=IRON_CHOICES, \
+                            help_text=_(u"Is the mother taking iron "\
                                             "supplement?"))
 
-    folic_suppliment = models.CharField(_(u"Taking Folic Acid supplements"), max_length=1,\
-                                   choices=FOLIC_CHOICES,\
-                              help_text=_(u"Is the mother taking folic acid "\
+    folic_suppliment = models.CharField(_(u"Taking Folic Acid supplements"), \
+                            max_length=1, choices=FOLIC_CHOICES,\
+                            help_text=_(u"Is the mother taking folic acid "\
                                             "supplement?"))
 
     tested_hiv = models.CharField(_(u"Tested for HIV"), max_length=2, \
@@ -1057,7 +1057,6 @@ class BedNetReport(CCReport):
                             help_text=_(u"Number of recent bednets that are" \
                                         " damaged"))
 
-
     def summary(self):
         return u"%s: %d, %s: %d" % \
             (self._meta.get_field_by_name('sleeping_sites')[0].verbose_name, \
@@ -1095,16 +1094,16 @@ class BednetUtilization(CCReport):
         (DONT_HAVE, _(u'No bednet')),
         (UNKNOWN, _(u'Unknown')),
         (OTHER, _(u'Other')))
-        
+
     child_underfive = models.PositiveSmallIntegerField(_(u"children under" \
                             " five "), help_text=_(u"Number of children " \
                             "under five who slept here last night."))
     child_lastnite = models.PositiveSmallIntegerField(_(u"Children slept " \
-                            "under bednet"), help_text=_(u"Number of children" \
+                            "under bednet"), \
+                            help_text=_(u"Number of children" \
                             " under five who slept under bednet last night."))
-    hanging_bednet= models.SmallIntegerField(_(u"Number of hanging " \
-                            "bednet"), help_text=_(u"Number of hanging " \
-                            "bednet"))
+    hanging_bednet = models.SmallIntegerField(_(u"Number of hanging bednet"), \
+                            help_text=_(u"Number of hanging bednet"))
     reason = models.CharField(_(u"Reason "), \
                             help_text=_(u"reason why some children didn't" \
                             " sleep under bednet"), null=True, blank=True, \
@@ -1192,7 +1191,6 @@ class DrinkingWaterReport(CCReport):
         (SURFACE_WATER, _(u'Surface water (river, dam, lake, pond, stream')),
         (OTHER, _(u'Other')))
 
- 
     TREATMENT_METHOD_BOIL = 'BW'
     TREATMENT_METHOD_DONATED_CHLORINE = 'DC'
     TREATMENT_METHOD_BOUGHT_CHLORINE = 'BC'
@@ -1213,7 +1211,6 @@ class DrinkingWaterReport(CCReport):
         (TREATMENT_METHOD_OTHER, _(u"Other")),
         (TREATMENT_METHOD_DONTKNOW, _(u"Unknown")),)
 
-
     water_source = models.CharField(_(u"Water Source"), max_length=2, \
                               choices=DRNKWATER_CHOICES)
     treatment_method = models.CharField(_(u"Treatment method"), max_length=2, \
@@ -1229,7 +1226,7 @@ class BednetIssuedReport(CCReport):
         app_label = 'childcount'
         db_table = 'cc_bdnstc_rpt'
         verbose_name = _(u"Bednet Distribution Report")
-        verbose_name_plural= _(u"Betnet Distribution Reports")
+        verbose_name_plural = _(u"Betnet Distribution Reports")
 
     bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"))
 
@@ -1245,6 +1242,7 @@ class AntenatalVisitReport(CCReport):
         verbose_name_plural = _(u"Initial Antenatal Visit Reports")
 
     expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
+    sms_alert = models.ForeignKey(SmsAlertModel, null=True, blank=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1265,26 +1263,23 @@ class AppointmentReport(CCReport):
     STATUS_OPEN = 0
     STATUS_CLOSED = 2
     STATUS_PENDING_CV = 1
-    
+
     STATUS_CHOICES = (
-        (STATUS_OPEN, _("Open")),
-        (STATUS_CLOSED, _("Closed")),
-        (STATUS_PENDING_CV, _("Pending Clinic Visit"))
-    )
-    
+        (STATUS_OPEN, _(u"Open")),
+        (STATUS_CLOSED, _(u"Closed")),
+        (STATUS_PENDING_CV, _(u"Pending Clinic Visit")))
+
     appointment_date = models.DateTimeField(_(u"Next appointment"))
     closed_date = models.DateTimeField(_(u"Date closed"), blank=True, \
                                         null=True)
-    notification_sent = models.BooleanField(_(u"Notification Sent"), \
-                                help_text=_(u"Has the CHW been notified?"),
-                                default=False)
     status = models.PositiveSmallIntegerField(_("Status"), \
                                                 choices=STATUS_CHOICES,
                                 help_text=_(u"Is the appointment still open" \
                                             " or closed?"), \
                                             default=STATUS_OPEN)
-    task_id = models.CharField('Task ID', max_length=255, 
+    task_id = models.CharField('Task ID', max_length=255, \
                                             null=True, blank=True)
+    sms_alert = models.ForeignKey(SmsAlertModel, null=True, blank=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1292,7 +1287,25 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-
+    def save(self, *args, **kwargs):
+        delay = self.appointment_date + relativedelta(days=-3)
+        if delay.weekday() > calendar.FRIDAY:
+            delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
+        #7am
+        delay = datetime.combine(delay, time(7, 0))
+        #delay = datetime.now() + timedelta(seconds=20)
+        if self.sms_alert:
+            revoke(self.sms_alert.task_meta.task_id)
+        msg = _(u"Please send %(patient)s to the health center on for their" \
+                " appointment on %(apt_date)s") % {
+                'patient': self.encounter.patient, \
+                'apt_date': self.appointment_date.strftime('%d-%m-%Y')}
+        alert = SmsAlert(reporter=self.encounter.patient.chw, msg=msg)
+        sms_alert = alert.send(send_at=delay)
+        sms_alert.name = u'appointment_report_reminder'
+        sms_alert.save()
+        self.sms_alert = sms_alert
+        super(AppointmentReport, self).save(*args, **kwargs)
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
@@ -1310,8 +1323,7 @@ class PregnancyRegistrationReport(CCReport):
     MARRIED_CHOICES = (
         (MARRIED_YES, _(u"Yes")),
         (MARRIED_NO, _(u"No")),
-        (MARRIED_UNKNOWN, _(u"Unknown"))
-    )
+        (MARRIED_UNKNOWN, _(u"Unknown")))
 
     married = models.CharField(_(u"Married?"), max_length=1, \
                                         choices=MARRIED_CHOICES)
@@ -1365,7 +1377,7 @@ class HIVTestReport(CCReport):
         (BLOOD_DRAWN_NO, _(u"No")),
         (BLOOD_DRAWN_UNKNOWN, _(u"Unknown")))
 
-    hiv  = models.CharField(_(u"HIV+?"), max_length=2, \
+    hiv = models.CharField(_(u"HIV+?"), max_length=2, \
                               choices=HIV_CHOICES)
     blood_drawn = models.CharField(_(u"Blood drawn?"), max_length=1, \
                                         choices=BLOOD_DRAWN_CHOICES)

@@ -26,6 +26,7 @@ from childcount.reports import gen_surveryreport
 
 from alerts.utils import SmsAlert
 
+
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
 def weekly_immunization_reminder():
     '''
@@ -158,7 +159,7 @@ def weekly_initial_anc_visit_reminder():
         except PregnancyReport.DoesNotExist:
             pass
         else:
-            if not alert_list.has_key(patient.chw):
+            if not patient.chw in alert_list:
                 alert_list[patient.chw] = []
             alert_list[patient.chw].append(patient)
 
@@ -194,7 +195,7 @@ def weekly_anc_visit_reminder():
         except PregnancyReport.DoesNotExist:
             pass
         else:
-            if not alert_list.has_key(patient.chw):
+            if not patient.chw in alert_list:
                 alert_list[patient.chw] = []
             alert_list[patient.chw].append(patient)
 
@@ -210,11 +211,11 @@ def weekly_anc_visit_reminder():
         sms_alert.save()
 
 
-@periodic_task(run_every=timedelta(minutes=60))
+#@periodic_task(run_every=timedelta(minutes=60))
 def hourly_operationalreport():
     gen_operationalreport()
 
 
-@periodic_task(run_every=timedelta(minutes=60))
+#@periodic_task(run_every=timedelta(minutes=60))
 def hourly_surveyreport():
     gen_surveryreport()
