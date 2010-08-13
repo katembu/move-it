@@ -50,7 +50,7 @@ class SanitationForm(CCForm):
         sanit_field.set_language(self.chw.language)
         sanit_share.set_language(self.chw.language)
 
-        if len(self.params) < 2:
+        if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: | kind of " \
                                 "toilet facility | how many share? |"))
 
