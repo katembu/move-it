@@ -28,7 +28,6 @@ from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
-from childcount.models.bdntreports import BednetHousehold
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
