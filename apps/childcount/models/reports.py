@@ -1401,11 +1401,17 @@ class DBSResultReport(CCReport):
         verbose_name = _(u"DBS Result")
         verbose_name_plural = _(u"DBS Results")
 
-    returned = models.BooleanField(_(u"Results Returned"))
+    RESULT_POSITIVE = True
+    RESULT_NEGATIVE = False
+    RESULT_CHOICES = (
+        (RESULT_POSITIVE, _(u"Yes")),
+        (RESULT_NEGATIVE, _(u"No")))
+    test_result = models.BooleanField(_(u"Test Result"), \
+                                        choices=RESULT_CHOICES)
 
     def summary(self):
         string = u"%s: %s" % \
-            (self._meta.get_field_by_name('returned')[0].verbose_name, \
-            self.returned)
+            (self._meta.get_field_by_name('test_result')[0].verbose_name, \
+            self.test_result)
         return string
 reversion.register(DBSResultReport, follow=['ccreport_ptr'])
