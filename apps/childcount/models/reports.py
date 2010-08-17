@@ -1415,3 +1415,21 @@ class DBSResultReport(CCReport):
             self.test_result)
         return string
 reversion.register(DBSResultReport, follow=['ccreport_ptr'])
+
+
+class CD4ResultReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_cd4result'
+        verbose_name = _(u"CD4 Result")
+        verbose_name_plural = _(u"CD4 Results")
+
+    cd4_count = models.PositiveIntegerField(_(u"CD4 Count"))
+
+    def summary(self):
+        string = u"%s: %s" % \
+            (self._meta.get_field_by_name('cd4_count')[0].verbose_name, \
+            self.cd4_count)
+        return string
+reversion.register(CD4ResultReport, follow=['ccreport_ptr'])
