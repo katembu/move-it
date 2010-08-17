@@ -33,7 +33,7 @@ class DBSResultForm(CCForm):
                             DBSResultReport.RESULT_NEGATIVE, 'N')
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: | Positive | " \
-                            "must be %(choices)s.")% \
+                            "must be %(choices)s.") % \
                               {'choices': result_field.choices_string()})
         result_field.set_language(self.chw.language)
         if not result_field.is_valid_choice(self.params[1]):
@@ -52,6 +52,9 @@ class DBSResultForm(CCForm):
 
         dbsr.test_result = test_result
         dbsr.save()
+        #save current hiv status for the patient
+        patient.hiv_status = test_result
+        patient.save()
         self.response = _(u"Results received")
         #an appointment in 3/4 days from today
         try:
