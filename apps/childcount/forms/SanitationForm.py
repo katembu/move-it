@@ -24,9 +24,9 @@ class SanitationForm(CCForm):
         sanit_field.add_choice('en', SanitationReport.FLUSH, 'FL')
         sanit_field.add_choice('en', \
                                 SanitationReport.VENTILATED_IMPROVED_PIT, 'VP')
-        sanit_field.add_choice('en', SanitationReport.PITLAT_WITH_SLAB, 'PN')
+        sanit_field.add_choice('en', SanitationReport.PITLAT_WITH_SLAB, 'PY')
         sanit_field.add_choice('en', SanitationReport.PITLAT_WITHOUT_SLAB, \
-                                    'PY')
+                                    'PN')
         sanit_field.add_choice('en', SanitationReport.COMPOSTING_TOILET, 'CT')
         sanit_field.add_choice('en', SanitationReport.BUCKET, 'BT')
         sanit_field.add_choice('en', SanitationReport.HANGING_TOILET_LAT, 'HT')
