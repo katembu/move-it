@@ -130,6 +130,13 @@ class NutritionForm(CCForm):
                     send_msg(user.reporter, msg)
             except Group.DoesNotExist:
                 pass
+            #alert nutritionists
+            try:
+                g = Group.objects.get(name='Nutritionist')
+                for user in g.user_set.all():
+                    send_msg(user.reporter, msg)
+            except Group.DoesNotExist:
+                pass
         #TODO Referral / Case
         '''
         if mr.status == NutritionReport.STATUS_SEVERE:
