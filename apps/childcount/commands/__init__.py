@@ -12,3 +12,4 @@ from childcount.commands.DeathCommand import DeathCommand
 from childcount.commands.LangCommand import LangCommand
 from childcount.commands.ActivityCommand import ActivityCommand
 from childcount.commands.CheckHealthIdCommand import CheckHealthIdCommand
+from childcount.commands.TestAlertsCommand import TestAlertsCommand
