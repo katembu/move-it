@@ -29,7 +29,7 @@ class IssueHealthIdCommand(CCCommand):
         #Need to check if the CHW has health ids that he has not used
         if CHWHealthId.objects.filter(chw=chw, used=False):
             self.message.respond(_(u"You still have: %(health_id)s") %
-                                {'health_id': ', '.join([h.health_id.health_id \
+                            {'health_id': ', '.join([h.health_id.health_id \
                                 for h in CHWHealthId.objects.filter(chw=chw,\
                                                                 used=False)])})
         else:
@@ -40,7 +40,7 @@ class IssueHealthIdCommand(CCCommand):
             else:
                 #get a random list of 5
                 if list.count() > 5:
-                    ids  = random.sample(list, 5)
+                    ids = random.sample(list, 5)
                 else:
                     ids = random.sample(list, list.count())
                 for id in ids:
