@@ -66,7 +66,8 @@ class TestAlertsCommand(CCCommand):
                     send_at = send_at + timedelta(hours=delay)
                 else:
                     send_at = send_at + timedelta(seconds=delay)
-                msg = u"%s> %s" % (self.message.reporter, self.params[3])
+                msg = u"%s> %s" % (self.message.reporter, \
+                                    ' '. join(self.params[3:]))
                 alert = SmsAlert(reporter=chw, msg=msg)
                 am = alert.send(send_at=send_at)
                 self.message.respond(_(u"%(chw)s will be notified at" \
