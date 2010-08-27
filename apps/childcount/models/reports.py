@@ -1433,3 +1433,24 @@ class CD4ResultReport(CCReport):
             self.cd4_count)
         return string
 reversion.register(CD4ResultReport, follow=['ccreport_ptr'])
+
+
+class PatientStatusReport(CCReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_patientstatus'
+        verbose_name = _(u"Patient status Report")
+        verbose_name_plural = _(u"Patients status Report")
+
+    STATUS_ACTIVE = 1
+    STATUS_INACTIVE = 0
+
+    STATUS_CHOICES = (
+        (STATUS_ACTIVE, _(u"Alive")),
+        (STATUS_INACTIVE, _(u"Relocated")))
+
+    status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES)
+    reason = models.CharField(_(u"Reason"), max_length=100, blank=True, null=True)
+
+reversion.register(PatientStatusReport, follow=['ccreport_ptr'])
