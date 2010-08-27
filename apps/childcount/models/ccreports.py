@@ -132,18 +132,50 @@ class ThePatient(Patient):
 
     def survey(self):
         #Get aggregate of bednets survey questions per chw
-        survey = BedNetReport.objects.filter(encounter__patient=self)\
-                                            .aggregate(\
-                                                damaged=Sum('damaged_nets'),
-                                                function=Sum('function_nets'),
-                                                num_site=Sum('sleeping_sites'),
-                                                earlier=Sum('earlier_nets'))
+        survey = []
+        try:
+            bednet = BedNetReport.objects.get(encounter__patient=self)
+            survey = ({'damaged': bednet.damaged_nets,
+                       'function': bednet.function_nets,
+                       'num_site': bednet.sleeping_sites,
+                       'earlier': bednet.earlier_nets})
+        except:
+            pass
+
+        #Get sanitation report
+        try:
+            san = SanitationReport.objects.get(encounter__patient=self)
+            survey.update({'toilet_type': san.toilet_lat})
+            if san.share_toilet is SanitationReport.U:
+                survey.update({'share': 'U'})
+            elif san.share_toilet is SanitationReport.PB:
+                survey.update({'share': 'PB'})
+            else:
+                survey.update({'share': san.share_toilet})
+        except:
+            pass
+
+        #Get drinking water report
+        try:
+            dwr = DrinkingWaterReport.objects.get(encounter__patient=self)
+            survey.update({'water_source': dwr.water_source,
+                           'treat_method': dwr.treatment_method})
+        except:
+            pass
+
+        #get bednet utilization
+        try:
+            bedutil = BednetUtilization.objects.get(encounter__patient=self)
+            survey.update({'under_five': bedutil.child_underfive,
+                           'slept_bednet': bedutil.child_lastnite,
+                           'hanging': bedutil.hanging_bednet,
+                           'reason': bedutil.reason})
+        except:
+            pass
+
         for item in survey:
-                if survey[item] is None:
-                    survey[item] = '-'
-
-
-        
+            if survey[item] is None:
+                survey[item] = '-'
         return survey
 
     def required_bednet(self):
@@ -221,8 +253,11 @@ class ThePatient(Patient):
             {'name': _("Household ".upper()),
             'bit': '{{object.household.health_id.upper}}'})
         columns.append(
-            {'name': _("Household Name".upper()),
-            'bit': 'XXXXX'}) 
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("Household Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
         columns.append(
             {'name': _("No. Sleeping site".upper()),
              'bit': '{{object.survey.num_site}}'})
@@ -239,17 +274,29 @@ class ThePatient(Patient):
             {'name': _("Required Bednets".upper()),
              'bit': '{{object.required_bednet}}'})
         columns.append(
+            {'name': _("#under five last night".upper()),
+             'bit': '{{object.survey.under_five}}'})
+        columns.append(
+            {'name': _("#slept on Bednet".upper()),
+             'bit': '{{object.survey.slept_bednet}}'})
+        columns.append(
+            {'name': _("Hanging Bednet".upper()),
+             'bit': '{{object.survey.hanging}}'})
+        columns.append(
+            {'name': _("Reason ".upper()),
+             'bit': '{{object.survey.reason}}'})
+        columns.append(
             {'name': _("Primary Sanitation".upper()),
-             'bit': '{{object.sleepingsite}}'})
+             'bit': '{{object.survey.toilet_type}}'})
         columns.append(
             {'name': _("Shared?".upper()),
-             'bit': '{{object.sleepingsite}}'})
+             'bit': '{{object.survey.share}}'})
         columns.append(
-            {'name': _("Primary source water".upper()),
-             'bit': '{{object.sleepingsite}}'})
+            {'name': _("Primary source of water".upper()),
+             'bit': '{{object.survey.water_source}}'})
         columns.append(
             {'name': _("Treatment Method ".upper()),
-             'bit': '{{object.sleepingsite}}'})
+             'bit': '{{object.survey.treat_method}}'})
 
         sub_columns = None
         return columns, sub_columns
