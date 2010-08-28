@@ -26,7 +26,6 @@ class TestAlertsCommand(CCCommand):
         'en': ['alert'],
         'fr': ['alert'],
     }
-    
 
     @authenticated
     def process(self):
@@ -40,8 +39,8 @@ class TestAlertsCommand(CCCommand):
         try:
             chw = CHW.objects.get(username__iexact=username)
         except Reporter.DoesNotExist:
-            raise BadValue(_(u"No patient with health id %(health_id)s" \
-                                    % {'health_id': health_id}))
+            raise BadValue(_(u"No patient with health id %(health_id)s") \
+                                    % {'health_id': health_id})
         else:
             delay = self.params[2]
             t = 's'
@@ -49,13 +48,14 @@ class TestAlertsCommand(CCCommand):
                 t = delay[len(delay) - 1]
                 delay = delay[: len(delay) - 1]
                 if not delay.isdigit() or t.lower() not in ('s', 'm', 'h'):
-                    raise ParseError(u"Could not understand %(error)s" \
-                        " delay." % {'error': self.params[2]})
+                    raise ParseError(_(u"Could not understand %(error)s" \
+                        " delay.") % {'error': self.params[2]})
                     return True
             try:
                 delay = int(delay)
             except ValueError:
-                raise 
+                raise  BadValue(_(u"Could not understand %(error)s delay" \
+                                    % {'error': self.params[2]}))
             else:
                 send_at = datetime.now()
                 if t == 's':
@@ -64,11 +64,14 @@ class TestAlertsCommand(CCCommand):
                     send_at = send_at + timedelta(minutes=delay)
                 elif t == 'h':
                     send_at = send_at + timedelta(hours=delay)
-                msg = u"%s> %s" % (self.message.reporter, self.params[3])
+                else:
+                    send_at = send_at + timedelta(seconds=delay)
+                msg = u"%s> %s" % (self.message.reporter, \
+                                    ' '. join(self.params[3:]))
                 alert = SmsAlert(reporter=chw, msg=msg)
                 am = alert.send(send_at=send_at)
                 self.message.respond(_(u"%(chw)s will be notified at" \
-                                        " %(time)s" % \
+                                        " %(time)s") % \
                                 {'chw': chw, \
-                                'time': send_at}))
+                                'time': send_at})
         return True

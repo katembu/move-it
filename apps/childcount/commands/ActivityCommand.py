@@ -30,7 +30,7 @@ class ActivityCommand(CCCommand):
         summary = thechw.activity_summary()
         self.message.respond(_(u"This week(%(sdate)s -%(edate)s): " \
                                 "%(numhvisit)d household visit, %(muac)d " \
-                                "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT. You " \
-                                "have %(household)d households, %(ufive)d " \
-                                "under five, %(tclient)d total registerd " \
-                                "clients") % summary)
+                                "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT." \
+                                " You have %(household)d households" \
+                                ", %(ufive)d under five, %(tclient)d total" \
+                                " registerd clients") % summary)

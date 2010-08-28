@@ -147,7 +147,7 @@ def add_chw(request):
 
             # create dataentry connection
             c = PersistantConnection(backend=PersistantBackend.objects.get(\
-                                                   slug__iexact='dataentry'), \
+                                                   slug__iexact='debackend'), \
                                      identity=chw.username, \
                                      reporter=chw, \
                                      last_seen=datetime.now())

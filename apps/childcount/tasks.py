@@ -38,7 +38,8 @@ def weekly_immunization_reminder():
     today = datetime.today()
     in_one_week = today + relativedelta.relativedelta(weeks=1)
     imms = ImmunizationNotification.objects.filter(notify_on__gte=today,
-                                                  notify_on__lte=in_one_week)\
+                                        notify_on__lte=in_one_week, \
+                                        patient__status=Patient.STATUS_ACTIVE)\
                                            .order_by('patient__chw')
     chws = groupby(imms, attrgetter('patient.chw'))
 
@@ -81,7 +82,8 @@ def daily_fever_reminder():
     #edate = datetime.combine(edate.date(), time(7, 0))
     frs = FeverReport.objects.filter(encounter__encounter_date__gte=sdate, \
                                 encounter__encounter_date__lte=edate, \
-                                rdt_result=FeverReport.RDT_POSITIVE)\
+                                rdt_result=FeverReport.RDT_POSITIVE, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)\
                                 .order_by('encounter__chw')
     current_reporter = None
     data = {}
@@ -110,7 +112,9 @@ def weekly_muac_reminder():
         for patient in chw.muac_list():
             try:
                 nr = NutritionReport.objects.filter(encounter__chw=chw, \
-                            encounter__patient=patient).latest()
+                            encounter__patient=patient, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)\
+                            .latest()
             except NutritionReport.DoesNotExist:
                 reminder_list.append(patient)
             else:
@@ -147,7 +151,8 @@ def weekly_initial_anc_visit_reminder():
     '''
     Initial ANC Visit weekly reminder
     '''
-    pregs = PregnancyReport.objects.filter(anc_visits=0)
+    pregs = PregnancyReport.objects.filter(anc_visits=0, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
     p_list = []
     alert_list = {}
 
@@ -183,7 +188,8 @@ def weekly_anc_visit_reminder():
     '''
     ANC Visit weekly reminder - 6 weeks have passed since last ANC visit
     '''
-    pregs = PregnancyReport.objects.filter(weeks_since_anc__gt=6)
+    pregs = PregnancyReport.objects.filter(weeks_since_anc__gt=6, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
     p_list = []
     alert_list = {}
 
@@ -214,11 +220,11 @@ def weekly_anc_visit_reminder():
         sms_alert.save()
 
 
-#@periodic_task(run_every=timedelta(minutes=60))
+@periodic_task(run_every=timedelta(minutes=60))
 def hourly_operationalreport():
     gen_operationalreport()
 
 
-#@periodic_task(run_every=timedelta(minutes=60))
+@periodic_task(run_every=timedelta(minutes=60))
 def hourly_surveyreport():
     gen_surveryreport()

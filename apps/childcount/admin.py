@@ -26,6 +26,7 @@ admin.site.register(HealthId, HealthIdAdmin)
 
 class EncounterAdmin(VersionAdmin):
     list_filter = ['sync_omrs', 'type']
+    search_fields = ['patient__health_id']
 admin.site.register(Encounter, EncounterAdmin)
 
 #Reports
