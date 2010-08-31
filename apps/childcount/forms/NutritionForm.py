@@ -111,7 +111,15 @@ class NutritionForm(CCForm):
 
         if weight is not None:
             self.response += _(u", Weight %(w)skg") % {'w': weight}
-
+        if nr.status == NutritionReport.STATUS_SEVERE_COMP:
+            status_msg = _(u"SAM+")
+        elif nr.status == NutritionReport.STATUS_MODERATE:
+            status_msg = _(u"MAM")
+        elif nr.status == NutritionReport.STATUS_SEVERE:
+            status_msg = _(u"SAM")
+        else:
+            status_msg = _(u"HEALTHY")
+        self.response = status_msg + "> " + self.response
         if nr.status in (NutritionReport.STATUS_SEVERE, \
                             NutritionReport.STATUS_SEVERE_COMP):
             if nr.status == NutritionReport.STATUS_SEVERE_COMP:
