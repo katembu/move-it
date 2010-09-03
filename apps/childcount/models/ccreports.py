@@ -323,7 +323,7 @@ class TheCHWReport(CHW):
 
     def patients_under_five(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        return Patient.objects.filter(chw=self, dob__lte=sixtym)
+        return Patient.objects.filter(chw=self, dob__gte=sixtym)
 
     @property
     def num_of_sam(self):
