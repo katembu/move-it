@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _, activate
 from django.utils.translation import ungettext
+from django.contrib.auth.models import Group
 from django.db import models
 from reversion import revision
 
@@ -21,6 +22,7 @@ from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
 from childcount.utils import respond_exceptions, KeywordMapper
+from childcount.utils import send_msg
 
 
 class App (rapidsms.app.App):
@@ -378,7 +380,15 @@ class App (rapidsms.app.App):
 
     def outgoing(self, message):
         """Handle outgoing message notifications."""
-        pass
+        if message.text.find(' is marked as crashed') != -1:
+            msg = _(u"Database Error: please notify the system administrator")
+            #alert facilitators
+            try:
+                g = Group.objects.get(name='Facilitator')
+                for user in g.user_set.all():
+                    send_msg(user.reporter, msg)
+            except Group.DoesNotExist:
+                pass
 
     def stop(self):
         """Perform global app cleanup when the application is stopped."""
