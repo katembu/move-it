@@ -402,8 +402,7 @@ def gen_patient_register_pdf(filename, location):
         for household in households:
             trow = len(patients)
             patients.append(household)
-            hs = ThePatient.objects.filter(household=household, \
-                                            status=ThePatient.STATUS_ACTIVE)\
+            hs = ThePatient.objects.filter(household=household)\
                             .exclude(health_id=household.health_id)\
                             .order_by('household')
             patients.extend(hs)
@@ -417,8 +416,7 @@ def gen_patient_register_pdf(filename, location):
             dh = ThePatient.objects.get(health_id='XXXXX')
             patients.append(dh)
             hs = ThePatient.objects.filter(household=dh, \
-                                            chw=chw, \
-                                            status=ThePatient.STATUS_ACTIVE)\
+                                            chw=chw)\
                                     .exclude(health_id=dh.health_id)
             patients.extend(hs)
             brow = len(patients) - 1
