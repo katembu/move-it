@@ -125,8 +125,8 @@ class ThePatient(Patient):
                     notify_on = patient_dob + timedelta(period.period * 7)
                     immunization.notify_on = notify_on
                 if period.period_type == ImmunizationSchedule.PERIOD_MONTHS:
-                    notify_on = patient_dob + timedelta(30.4375 * period.period)
-                    immunization.notify_on = notify_on
+                    notifyon = patient_dob + timedelta(30.4375 * period.period)
+                    immunization.notify_on = notifyon
 
                 immunization.save()
 
@@ -456,7 +456,7 @@ class TheCHWReport(CHW):
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
-                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
+                    clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def percentage_clinic_deliveries(self):
         num_of_clinic_delivery = self.num_of_clinic_delivery()
@@ -1269,3 +1269,9 @@ class TheBHSurveyReport(TheCHWReport):
                 'bit': '{{object.bednet_aggregates.sanitation__count}}'})
 
         return columns
+
+    def households_not_surveyed(self):
+        surveyed = BedNetReport.objects.filter(encounter__chw=self)\
+                                        .values('encounter__patient')
+        not_surveyed = self.households().exclude(id__in=surveyed)
+        return not_surveyed
