@@ -16,7 +16,7 @@ try:
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import letter, landscape, A4
     from reportlab.platypus import Paragraph, SimpleDocTemplate, PageBreak
-    from reportlab.platypus import Table, TableStyle, NextPageTemplate
+    from reportlab.platypus import TableStyle, NextPageTemplate
     from reportlab.lib import colors
     from reportlab.lib.units import inch
     from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
@@ -32,6 +32,16 @@ from libreport.pdfreport import PDFReport, p
 from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
 
+from ccdoc.document import Document
+from ccdoc.paragraph import Paragraph
+from ccdoc.section import Section
+from ccdoc.text import Text
+from ccdoc.table import Table
+
+from ccdoc.html import HTMLGenerator
+from ccdoc.excel import ExcelGenerator
+from ccdoc.pdf import PDFGenerator
+
 from locations.models import Location
 
 styles = getSampleStyleSheet()
@@ -39,6 +49,66 @@ styles = getSampleStyleSheet()
 styleN = styles['Normal']
 styleH = styles['Heading1']
 styleH3 = styles['Heading3']
+
+
+def html_report(request, rformat='html'):
+    all_patients = ThePatient.objects.all().order_by('chw','household')
+    
+    doc = Document(ThePatient._meta.verbose_name, \
+        subtitle = u'Sorted by CHW and Household')
+    
+    t = Table(7)
+    t.add_header_row([
+        Text(_('Household')),
+        Text(_('Health ID')),
+        Text(_('Name')),
+        Text(_('Gender')),
+        Text(_('Age')),
+        Text(_('Last MUAC')),
+        Text(_('CHW'))])
+    for p in all_patients:
+        t.add_row([
+            Text(p.household.health_id.upper()),
+            Text(p.health_id.upper()),
+            Text(p.last_name + ' '+ p.first_name),
+            Text(p.gender),
+            Text(p.humanised_age()),
+            Text(p.latest_muac()),
+            Text(p.chw)])
+
+    doc.add_element(t)
+
+    doc.add_element(Section(u'Next section'))
+    doc.add_element(Paragraph(u' This is a very long \
+    paragraph with a lot of text about \
+    some random stuff and more text about \
+    other random stuff and some more lines \
+    here they are the rest of the lines.'))
+
+    doc.add_element(Section(u'Third section'))
+    doc.add_element(t)
+    h = None
+    response = HttpResponse()
+    response['Cache-Control'] = ''
+    if rformat == 'html':
+        h = HTMLGenerator(doc)
+        response['Content-Type'] = 'text/html'
+    elif rformat == 'xls':
+        h = ExcelGenerator(doc)
+        response['Content-Disposition'] = "attachment; " \
+              "filename=\"%s\"" % 'report.xls'
+        response['Content-Type'] = 'application/vnd.ms-excel'
+    elif rformat == 'pdf':
+        h = PDFGenerator(doc)
+        response['Content-Disposition'] = "attachment; " \
+              "filename=\"%s\"" % 'report.pdf'
+        response['Content-Type'] = 'application/pdf'
+    else:
+        raise ValueError('Invalid report format')
+
+    h.render_document()
+    response.write(h.get_contents())
+    return response
 
 
 def all_patient_list_pdf(request, rfilter=u'all', rformat="html"):
