@@ -10,13 +10,6 @@ class Document(object):
         self.subtitle = subtitle
         self.contents = []
 
-    def add_section(self, name):
-        self.contents.append(Section(name))
-
-    def add_paragraph(self, ptext):
-        self.contents.append(Paragraph(ptext))
-
-    def add_hline(self):
-        self.contents.append(HLine())
-
+    def add_element(self, element):
+        self.contents.append(element)
 

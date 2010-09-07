@@ -4,6 +4,7 @@ from paragraph import Paragraph
 from hline import HLine
 from section import Section
 from table import Table
+from text import Text
 
 class NotRenderedError(Exception):
     pass
@@ -11,6 +12,7 @@ class NotRenderedError(Exception):
 class Generator(object):
     def __init__(self, document):
         self._handle = tempfile.NamedTemporaryFile()
+        self._filename = self._handle.name
 
         self.title = document.title
         self.subtitle = document.subtitle
@@ -25,14 +27,18 @@ class Generator(object):
 
     def _render_contents(self):
         obj = {}
-        obj[type(Section)] = self._render_section
-        obj[type(Paragraph)] = self._render_paragraph
-        obj[type(HLine)] = self._render_hline
-        obj[type(Table)] = self._render_table
+        obj[Section] = self._render_section
+        obj[Paragraph] = self._render_paragraph
+        obj[HLine] = self._render_hline
+        obj[Table] = self._render_table
 
         for c in self.contents:
-            object[type(c)]()
-
+            try:
+                render_func = obj[type(c)]
+            except KeyError:
+                raise NotImplementedError("Cannot handle type: %s" % str(type(c)),) 
+            render_func(c)
+            
     def get_filename(self):
         if not self._rendered:
             raise NotRenderedError("Document not yet rendered")
@@ -73,4 +79,5 @@ class Generator(object):
     def _render_table(self, table):
         raise NotImplementedError("Not implemented")
     
-        
+    def _render_text(self, text):
+        raise NotImplementedError("Not implemented")

@@ -57,7 +57,7 @@ def html_report(request, rformat='html'):
     doc = Document(ThePatient._meta.verbose_name, \
         subtitle = u'Sorted by CHW and Household')
     
-    t = Table(7)
+    t = Table(7, title=Text('Test'))
     t.add_header_row([
         Text(_('Household')),
         Text(_('Health ID')),

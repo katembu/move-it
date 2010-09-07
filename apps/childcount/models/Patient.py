@@ -16,9 +16,8 @@ import reversion
 from reporters.models import Reporter
 from locations.models import Location
 
-from childcount.models import Clinic
-from childcount.models import CHW
-
+import childcount.models.Clinic
+import childcount.models.CHW
 
 class Patient(models.Model):
 
