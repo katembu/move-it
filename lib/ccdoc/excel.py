@@ -80,8 +80,10 @@ class ExcelGenerator(Generator):
         style = XFStyle()
         
         if table.title != None: 
+            bold_style = XFStyle()
+            bold_style.bold = True
             self.cur_sheet.write(self.row, self.col, \
-                table.title, bold_style)
+                unicode(table.title.text), bold_style)
             self.row += 1
        
         oldcol = self.col
