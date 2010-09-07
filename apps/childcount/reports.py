@@ -57,7 +57,7 @@ def html_report(request, rformat='html'):
     doc = Document(ThePatient._meta.verbose_name, \
         subtitle = u'Sorted by CHW and Household')
     
-    t = Table(7, title=Text('Test'))
+    t = Table(7, title=Text('Table Title .......................', italic=True))
     t.add_header_row([
         Text(_('Household')),
         Text(_('Health ID')),
@@ -79,13 +79,17 @@ def html_report(request, rformat='html'):
     doc.add_element(t)
 
     doc.add_element(Section(u'Next section'))
-    doc.add_element(Paragraph(u' This is a very long \
+    p= Paragraph([Text(u' This is a very long \
     paragraph with a lot of text about \
     some random stuff and more text about \
     other random stuff and some more lines \
-    here they are the rest of the lines.'))
+    here they are the rest of the lines.'),
+    Text(u' Bold text.', bold=True)])
+    doc.add_element(p)
+    doc.add_element(p)
+    doc.add_element(p)
 
-    doc.add_element(Section(u'Third section'))
+    doc.add_element(Section(u'Third <b>section'))
     doc.add_element(t)
     h = None
     response = HttpResponse()
