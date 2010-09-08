@@ -36,7 +36,8 @@ class Generator(object):
             try:
                 render_func = obj[type(c)]
             except KeyError:
-                raise NotImplementedError("Cannot handle type: %s" % str(type(c)),) 
+                raise NotImplementedError("Cannot handle type: %s" % \
+                    str(type(c)),) 
             render_func(c)
             
     def get_filename(self):

@@ -5,6 +5,17 @@ from paragraph import Paragraph
 from hline import HLine
 
 class Document(object):
+    '''
+        Document holds the entire report to be
+        generated and is what you pass to a
+        Generator object.
+
+        Besides setting the title and subtitle
+        the only thing you need to do is add
+        elements (Paragraph, Section, Table) to
+        it.
+    '''
+
     def __init__(self, title, subtitle=''):
         self.title = title
         self.subtitle = subtitle

@@ -3,7 +3,9 @@
 # maintainer: ukanga
 
 import os
+from time import time
 import copy
+import cProfile
 
 from rapidsms.webui.utils import render_to_response
 from django.utils.translation import gettext_lazy as _
@@ -66,6 +68,7 @@ def html_report(request, rformat='html'):
         Text(_('Age')),
         Text(_('Last MUAC')),
         Text(_('CHW'))])
+    tstart = time()
     for p in all_patients:
         t.add_row([
             Text(p.household.health_id.upper()),
@@ -112,6 +115,7 @@ def html_report(request, rformat='html'):
 
     h.render_document()
     response.write(h.get_contents())
+    print "=== FINISHED IN %d SECONDS ===" % (time() - tstart)
     return response
 
 
