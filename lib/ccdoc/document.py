@@ -16,7 +16,7 @@ class Document(object):
         it.
     '''
 
-    def __init__(self, title, subtitle=''):
+    def __init__(self, title, subtitle=None):
         self.title = title
         self.subtitle = subtitle
         self.contents = []
