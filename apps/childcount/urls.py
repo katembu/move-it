@@ -31,7 +31,6 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
-    url(r'^childcount/html_report/(?P<rformat>[a-z]*)$', reports.html_report),
     url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', \
                 reports.operationalreport),
     url(r'^childcount/registerlist/(?P<clinic_id>\d+)$', reports.registerlist),
