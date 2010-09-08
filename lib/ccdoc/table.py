@@ -31,12 +31,14 @@ class Table(object):
     def add_header_row(self, values):
         if len(values) != self.ncols:
             raise InvalidRowError
-        self.rows.append(map(self._text_or_error,(False, values)))
+        values = map(self._text_or_error, values)
+        self.rows.append((False, values))
 
     def add_row(self, values):
         if len(values) != self.ncols:
             raise InvalidRowError
-        self.rows.append(map(self._text_or_error,(False, values)))
+        values = map(self._text_or_error, values)
+        self.rows.append((False, values))
 
     def _text_or_error(self, obj):
         if not isinstance(obj, Text):

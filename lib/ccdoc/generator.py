@@ -54,7 +54,6 @@ class Generator(object):
     def destroy_file(self):
         return self._handle.close()
 
-
     ''' Rest of these must be implemented
         by generator inheritor classes
     '''
