@@ -1,5 +1,5 @@
 {% load i18n %}{
-'id': 'B+E', 
+'id': 'B', 
 'fields': [
         {'id': 'healthid', 'type': 'f', 'name': "{% trans "ID" %}",
             'title': "{% trans "Head of Household HEALTH ID" %}"},
