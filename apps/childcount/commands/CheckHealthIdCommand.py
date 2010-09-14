@@ -37,7 +37,7 @@ class CheckHealthIdCommand(CCCommand):
             patient = Patient.objects.get(health_id__iexact=health_id)
             self.message.respond(_(u"SUCCESS: %(patient)s; Household: %(household)s" % \
                                 {'patient': patient, \
-                                'household': patient.household}))
+                                'household': patient.household}), 'success')
             return True
         except Patient.DoesNotExist:
             pass
@@ -51,7 +51,7 @@ class CheckHealthIdCommand(CCCommand):
                 resp += _(u" but IS a valid identifier.  Check to make sure the database is current.")
             else:
                 resp += _(u" and is NOT a valid identifier.  You might have entered the ID incorrectly.")
-            self.message.respond(resp)
+            self.message.respond(resp, 'error')
             return True
 
         resp = _(u"Health ID %(id)s ") % {'id': health_id.upper()}
@@ -63,9 +63,9 @@ class CheckHealthIdCommand(CCCommand):
             resp += _(u" is marked as belonging to a patient, but that \
                         patient is unknown.")
         elif health_id_obj.status == HealthId.STATUS_REVOKED:
-            resp += _(u" is in the database but is marked as UNUSABLE.")
+            resp += _(u" is in the database but is marked as UNUSABLE.", 'error')
         else:
-            raise BadValue("Health ID is marked with an invalid status.")
+            raise BadValue("Health ID is marked with an invalid status.", 'error')
 
         self.message.respond(resp)
         return True
