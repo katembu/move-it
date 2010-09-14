@@ -8,6 +8,7 @@ from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
+from childcount.models import HealthId
 
 from childcount.commands import CCCommand
 from childcount.models import Patient
@@ -35,8 +36,29 @@ class CheckHealthIdCommand(CCCommand):
             self.message.respond(_(u"%(patient)s; Household: %(household)s" % \
                                 {'patient': patient, \
                                 'household': patient.household}))
+            return True
         except Patient.DoesNotExist:
-            self.message.respond(_(u"No patient with health id %(health_id)s" \
-                                    % {'health_id': health_id}), 'error')
+            pass
+
+        try:
+            health_id_obj = HealthId.objects.get(health_id__iexact=health_id)
+        except HealthId.DoesNotExist:
+            self.message.respond(_(u"Health ID %(id)s has not been assigned to a patient \
+                                    and does not exist as a valid health ID in the database.") % \
+                                    {'id': health_id.upper()})
+            return True
+
+        resp = _(u"Health ID %(id)s ") % {'id': health_id.upper()}
+        if health_id_obj.status == HealthId.STATUS_GENERATED:
+            resp += _(u" is valid but is not assigned to a patient.")
+        elif health_id_obj.status == HealthId.STATUS_PRINTED:
+            resp += _(u" is valid and has been printed out.")
+        elif health_id_obj.status == HealthId.STATUS_ISSUED:
+            resp += _(u" is marked as belonging to a patient, but that \
+                        patient is unknown.")
+        elif health_id_obj.status == HealthId.STATUS_REVOKED:
+            resp += _(u" is in the database but is marked as UNUSABLE.")
+        else:
+            raise BadValue("Health ID is marked with an invalid status.")
 
         return True
