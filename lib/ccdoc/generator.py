@@ -1,3 +1,4 @@
+import time
 import tempfile
 
 from paragraph import Paragraph
@@ -14,8 +15,10 @@ class Generator(object):
         self._handle = tempfile.NamedTemporaryFile()
         self._filename = self._handle.name
 
+        self.document = document
         self.title = document.title
         self.subtitle = document.subtitle
+        self.datestring = time.strftime(document.datestring)
         self.contents = document.contents
         self._rendered = False
 

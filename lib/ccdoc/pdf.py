@@ -59,6 +59,13 @@ class PDFGenerator(Generator):
         title_style.leading = 28
         self.elements.append(Paragraph(unicode(self.title), title_style))
 
+        ''' Date string '''
+        date_style = copy.copy(self.styles['Normal'])
+        date_style.fontSize = 12 
+        date_style.leading = 13
+        self.elements.append(Paragraph(unicode(self.datestring), date_style))
+
+
         ''' Subtitle '''
         if self.subtitle != None and self.subtitle != '':
             subtitle_style = copy.copy(self.styles['Normal'])

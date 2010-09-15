@@ -15,7 +15,10 @@ class Table(object):
         ''' Optional: Text object -- title of table to be
             printed as a header over the table
         '''
-        self.title = self._text_or_error(title)
+        if title is not None:
+            self.title = self._text_or_error(title)
+        else:
+            self.title = None
 
         ''' Number of columns in the table '''
         self.ncols = ncols

@@ -7,6 +7,7 @@ from django.contrib import admin
 
 import childcount.views as views
 import childcount.reports as reports
+import childcount.statistics as statistics
 
 admin.autodiscover()
 
@@ -34,6 +35,9 @@ urlpatterns = patterns('',
     url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', \
                 reports.operationalreport),
     url(r'^childcount/registerlist/(?P<clinic_id>\d+)$', reports.registerlist),
+    
+    url(r'^childcount/incoming_msg_stats/(?P<rformat>[a-z]*)$',
+        statistics.incoming_msg_stats),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),

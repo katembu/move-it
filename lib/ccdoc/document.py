@@ -1,4 +1,6 @@
 
+from django.utils.translation import gettext_lazy as _
+
 from text import Text
 from section import Section
 from paragraph import Paragraph
@@ -19,10 +21,11 @@ class Document(object):
     def __init__(self,
             title,
             subtitle=None,
-            datestring=_(u'Created on %d-%m-%Y at %H:%M')):
+            datestring=u'Created on %d-%m-%Y at %H:%M'):
 
         self.title = title
         self.subtitle = subtitle
+        self.datestring = datestring
         self.contents = []
 
     def add_element(self, element):
