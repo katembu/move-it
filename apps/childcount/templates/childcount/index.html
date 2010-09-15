@@ -71,14 +71,38 @@
     <p>General Options:
     <a href='{% url add_chw %}' class='html'>Create CHW Account</a>
             | <a href='{% url list_chw %}' class='html'>View List</a>
+            | <a href='{% url dataentry %}' class='html'>CC+ Data Entry</a>
     </p>
 <div class='block'>
     <div class="block_child">
         <div class="hd">
             <h2>ChildCount Reports</h2>
         </div>
+
         <div class="bd">
+        <table>
+            <tr>
+                <th>Report Name</th>
+                <th>HTML</th>
+                <th>PDF</th>
+                <th>Excel</th>
+            </tr>
+            {% for r in reports %}
+            <tr>
+                <td>{{ r.title }}</td>
+                <td class="icon">
+                    <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a></td>
+                <td class="icon">
+                    <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a></td>
+                <td class="icon">
+                    <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+            <!--
             <ul>
+
                 <li>Operational Report <a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
                 </li>
                 <li>Patient Register
@@ -98,6 +122,7 @@
                 <li>Under five list per community health worker <a href='/childcount/under_five' class='pdf'>pdf</a>
                 </li>
             </ul>
+            -->
         </div>
 
     </div>

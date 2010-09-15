@@ -21,6 +21,17 @@ width: 50%
 color:#897C04;
 }
 
+table th {
+    font-weight: bold;
+}
+
+a img {
+    border: 0;
+}
+
+table td.icon {
+    text-align:center;
+}
 
 /* block styles */
 .block .ft .first {
