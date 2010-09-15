@@ -14,7 +14,7 @@ from rapidsms.webui.utils import render_to_response
 from ccdoc import Document, Table, Paragraph, Text
 from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
-from childcount.models import Clinic
+from reporters.models import Reporter
 
 def incoming_msg_stats(request, rformat="html"):
     report_title = ('Messages Sent Per Day')
@@ -31,10 +31,18 @@ def incoming_msg_stats(request, rformat="html"):
     report_data = _incoming_msg_stats()
 
     for row in report_data:
-        print row
+        username = row[3]
+        full_name = u"[%s]" % username
+        try:
+            rep = Reporter.objects.get(username=username)
+        except Reporter.DoesNotExist:
+            pass
+        else:
+            full_name = u"%s %s [%s]" % (rep.first_name, rep.last_name, username)
+
         t.add_row([
             Text(datetime.date(row[0], row[1], row[2]).strftime('%Y-%m-%d')),
-            Text(row[3]),
+            Text(full_name),
             Text(row[4])])
     doc.add_element(t)
     
