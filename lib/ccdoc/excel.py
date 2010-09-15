@@ -1,4 +1,4 @@
-from pyExcelerator import Workbook, XFStyle, Font
+from xlwt import Workbook, XFStyle, Font
 
 from generator import Generator
 
@@ -11,7 +11,7 @@ class ExcelGenerator(Generator):
         '''
         self.has_section = False
 
-        self.workbook = Workbook()
+        self.workbook = Workbook(encoding='utf-8')
 
         ''' All worksheets '''
         self.sheets = [self.workbook.add_sheet(self.title)]

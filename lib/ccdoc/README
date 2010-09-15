@@ -17,7 +17,7 @@ rapidsms/django site directory.  That is:
 
 Requires:
 - reportlab for PDFs
-- pyExcelerator for Excel files
+- xlwt for Excel files
 
 
 AN EXAMPLE
