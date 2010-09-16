@@ -84,7 +84,10 @@
                 <li>Patient Register
                     <ul>
                     {% for clinic in clinics %}
-                        <li><a href='/childcount/registerlist/{{ clinic.id }}'>{{ clinic }}</a></li>
+                        <li><a href='/childcount/registerlist/{{ clinic.id }}' title='All Patients'>All</a> |  
+                            <a href='/childcount/registerlist/{{ clinic.id }}/active' title='Patients with status active only'>Active</a> : 
+                            {{ clinic }}
+                        </li>
                     {% endfor %}
                     </ul>
                 </li>
