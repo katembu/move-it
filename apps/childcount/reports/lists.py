@@ -7,26 +7,33 @@ import datetime
 
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponse
-from django.db import connection
 
 from rapidsms.webui.utils import render_to_response
 
 from ccdoc import Document, Table, Paragraph, Text
 from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
-from reporters.models import Reporter
+from childcount.models import Patient
 
-def incoming_msg_stats(request, rformat="html"):
-    report_title = ('Messages Sent Per Day')
-    report_subtitle = ('Includes all messages -- including rejected and invalid forms.')
+def patient_list_geo(request, rformat="html"):
+    report_title = (u'Patient List by Location')
+    doc = Document(report_title)
 
-    doc = Document(report_title, report_subtitle)
+
+def _patient_list_geo_recurse(loc, doc):
+
+
+
+    top = Location.objects.filter(parent__isnull=True).order_by('name')
+    for t in top:
+
 
     t = Table(3)
     t.add_header_row([
-        Text(_('Date')),
-        Text(_('User')),
-        Text(_('Number Entered'))])
+        Text(_(u'Date')),
+
+        Text(_(u'User')),
+        Text(_(u'Number Entered'))])
 
     report_data = _incoming_msg_stats()
 
@@ -46,11 +53,11 @@ def incoming_msg_stats(request, rformat="html"):
             Text(row[4])])
     doc.add_element(t)
     
-    fname = _('forms-per-day-') + unicode(time.strftime('%Y-%m-%d'))
+    fname = u'forms-per-day-' + time.strftime('%Y-%m-%d')
     return _render_doc_to_response(request, rformat, doc, fname)
 
 
-def _render_doc_to_response(request, rformat, doc, filebasename = _('report')):
+def _render_doc_to_response(request, rformat, doc, filebasename = _(u'report')):
     tstart = time.time()
     h = None
     response = HttpResponse()
