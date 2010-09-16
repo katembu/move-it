@@ -51,9 +51,13 @@ class HTMLGenerator(Generator):
                     border-bottom: 1px solid #000;
                 }
 
-                table td, table th {
+                table th {
                     min-width:100px;
                     text-align: center;
+                }
+
+                table td {
+                    text-align: left;
                 }
 
                 table tr.odd td {

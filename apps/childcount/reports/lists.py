@@ -2,119 +2,71 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
-import time
-import datetime
-
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponse
 
-from rapidsms.webui.utils import render_to_response
-
-from ccdoc import Document, Table, Paragraph, Text
-from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
+from ccdoc import Document, Table, Paragraph, Text, Section
 
 from childcount.models import Patient
+from locations.models import Location
+
+from childcount.reports.utils import render_doc_to_response
+
+def chw_list(request, format="html"):
+    pass
 
 def patient_list_geo(request, rformat="html"):
     report_title = (u'Patient List by Location')
     doc = Document(report_title)
+    doc.add_element(Paragraph( \
+        u'Sorted by location and HH first name. \
+        HH names are in bold.'))
+    
+    table = Table(4)
+    table.add_header_row([
+        Text(_(u'Location')),
+        Text(_(u'HH Health ID')),
+        Text(_(u'Health ID')),
+        Text(_(u'Name'))
+        ])
 
-
-def _patient_list_geo_recurse(loc, doc):
-
-
-
+    # Get all top-level locations (those without parents)
     top = Location.objects.filter(parent__isnull=True).order_by('name')
     for t in top:
+        # Process children
+        _patient_list_geo_recurse(t, [], table)
 
+    doc.add_element(table)
+    fname = u'patients-by-location-'
+    return render_doc_to_response(request, rformat, doc, fname)
 
-    t = Table(3)
-    t.add_header_row([
-        Text(_(u'Date')),
+def _patient_list_geo_recurse(loc, parents, table):
+    parents.append(loc)
+    locstr = u''
+    for i, p in enumerate(parents):
+        locstr += unicode(p) + u' [' + unicode(p.type) + u']'
+        if i+1 != len(parents):
+            locstr += u' > '
 
-        Text(_(u'User')),
-        Text(_(u'Number Entered'))])
+    hhs = Patient.objects.filter(chw__clinic__location_ptr = loc).order_by('first_name')
+    for hh in hhs:
+        if not hh.is_head_of_household():
+            continue
 
-    report_data = _incoming_msg_stats()
+        _add_patient_to_table(table, locstr, hh)
+        for p in Patient.objects.filter(household = hh):
+            if not p.is_head_of_household():
+                _add_patient_to_table(table, locstr, p)
 
-    for row in report_data:
-        username = row[3]
-        full_name = u"[%s]" % username
-        try:
-            rep = Reporter.objects.get(username=username)
-        except Reporter.DoesNotExist:
-            pass
-        else:
-            full_name = u"%s %s [%s]" % (rep.first_name, rep.last_name, username)
+    # Recursively run on all children locations
+    for c in loc.children.all().order_by('name'):
+        _patient_list_geo_recurse(c, parents, table)
+    parents.pop()
 
-        t.add_row([
-            Text(datetime.date(row[0], row[1], row[2]).strftime('%Y-%m-%d')),
-            Text(full_name),
-            Text(row[4])])
-    doc.add_element(t)
-    
-    fname = u'forms-per-day-' + time.strftime('%Y-%m-%d')
-    return _render_doc_to_response(request, rformat, doc, fname)
-
-
-def _render_doc_to_response(request, rformat, doc, filebasename = _(u'report')):
-    tstart = time.time()
-    h = None
-    response = HttpResponse()
-
-    # Don't cache the report
-    response['Cache-Control'] = ''
-
-    if rformat == 'html':
-        h = HTMLGenerator(doc)
-        response['Content-Type'] = 'text/html'
-    elif rformat == 'xls':
-        h = ExcelGenerator(doc)
-        response['Content-Disposition'] = "attachment; " \
-              "filename=\"%s.xls\"" % filebasename
-        response['Content-Type'] = 'application/vnd.ms-excel'
-    elif rformat == 'pdf':
-        h = PDFGenerator(doc)
-        response['Content-Disposition'] = "attachment; " \
-              "filename=\"%s.pdf\"" % filebasename
-        response['Content-Type'] = 'application/pdf'
-    else:
-        raise ValueError('Invalid report format')
-
-    h.render_document()
-    response.write(h.get_contents())
-    print "=== FINISHED IN %lg SECONDS ===" % (time.time() - tstart)
-    return response
-
-def _incoming_msg_stats():
-    '''
-    Custom SQL to do a GROUP BY day
-
-    Returns an iterable...each item has 
-    methods year, month, day, identity, and count,
-    describing the number of msgs received from
-    the user with username "identity" on the
-    given date.
-
-    '''
-
-    conn = connection.cursor()
-    stats = conn.execute(
-        '''
-        SELECT 	
-            YEAR(`received`) as `year`,
-            MONTH(`received`) as `month`,
-            DAY(`received`) as `day`,
-            identity,
-            COUNT(*) as `count`
-        FROM `logger_incomingmessage`
-        GROUP BY
-            YEAR(`received`),
-            MONTH(`received`),
-            DAY(`received`),
-            `identity`
-        ORDER BY `received` ASC;
-        ''')
-
-    return conn.fetchall()
-
+def _add_patient_to_table(table, locstr, patient):
+    b = patient.is_head_of_household()
+    table.add_row([
+        Text(locstr),
+        Text(patient.household.health_id.upper(), bold=b),
+        Text(patient.health_id.upper(), bold=b),
+        Text(patient.full_name(), bold=b)
+    ])

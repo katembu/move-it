@@ -8,6 +8,7 @@ from django.contrib import admin
 import childcount.views as views
 import childcount.reports.old_reports as old_reports
 import childcount.reports.statistics as statistics
+import childcount.reports.lists as lists
 
 admin.autodiscover()
 
@@ -39,8 +40,10 @@ urlpatterns = patterns('',
     url(r'^childcount/registerlist/(?P<clinic_id>\d+)$',
         old_reports.registerlist),
     
-    url(r'^childcount/incoming_msg_stats/(?P<rformat>[a-z]*)$',
+    url(r'^childcount/reports/incoming_msg_stats/(?P<rformat>[a-z]*)$',
        statistics.incoming_msg_stats, name='incoming_msg_stats'),
+    url(r'^childcount/reports/patient_list_geo/(?P<rformat>[a-z]*)$',
+       lists.patient_list_geo, name='patient_list_geo'),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),

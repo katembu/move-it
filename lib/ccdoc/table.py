@@ -35,7 +35,7 @@ class Table(object):
         if len(values) != self.ncols:
             raise InvalidRowError
         values = map(self._text_or_error, values)
-        self.rows.append((False, values))
+        self.rows.append((True, values))
 
     def add_row(self, values):
         if len(values) != self.ncols:

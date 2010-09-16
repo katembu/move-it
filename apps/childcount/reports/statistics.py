@@ -6,15 +6,12 @@ import time
 import datetime
 
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponse
 from django.db import connection
 
-from rapidsms.webui.utils import render_to_response
-
 from ccdoc import Document, Table, Paragraph, Text
-from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
 from reporters.models import Reporter
+from childcount.reports.utils import render_doc_to_response
 
 def incoming_msg_stats(request, rformat="html"):
     report_title = (u'Messages Sent Per Day')
@@ -48,37 +45,8 @@ def incoming_msg_stats(request, rformat="html"):
     doc.add_element(t)
     
     fname = u'forms-per-day-' + time.strftime('%Y-%m-%d')
-    return _render_doc_to_response(request, rformat, doc, fname)
+    return render_doc_to_response(request, rformat, doc, fname)
 
-
-def _render_doc_to_response(request, rformat, doc, filebasename = _(u'report')):
-    tstart = time.time()
-    h = None
-    response = HttpResponse()
-
-    # Don't cache the report
-    response['Cache-Control'] = ''
-
-    if rformat == 'html':
-        h = HTMLGenerator(doc)
-        response['Content-Type'] = 'text/html'
-    elif rformat == 'xls':
-        h = ExcelGenerator(doc)
-        response['Content-Disposition'] = "attachment; " \
-              "filename=\"%s.xls\"" % filebasename
-        response['Content-Type'] = 'application/vnd.ms-excel'
-    elif rformat == 'pdf':
-        h = PDFGenerator(doc)
-        response['Content-Disposition'] = "attachment; " \
-              "filename=\"%s.pdf\"" % filebasename
-        response['Content-Type'] = 'application/pdf'
-    else:
-        raise ValueError('Invalid report format')
-
-    h.render_document()
-    response.write(h.get_contents())
-    print "=== FINISHED IN %lg SECONDS ===" % (time.time() - tstart)
-    return response
 
 def _incoming_msg_stats():
     '''

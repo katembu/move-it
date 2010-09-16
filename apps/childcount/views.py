@@ -92,7 +92,10 @@ def index(request):
     reports = []
     reports.append({
         'title': 'Incoming Messages by Day and User',
-        'url': '/childcount/incoming_msg_stats'})
+        'url': '/childcount/reports/incoming_msg_stats'})
+    reports.append({
+        'title': 'Patient List by Location',
+        'url': '/childcount/reports/patient_list_geo'})
     info.update({'reports': reports})
 
     return render_to_response(request, template_name, info)
