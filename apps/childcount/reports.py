@@ -430,12 +430,12 @@ def gen_patient_register_pdf(filename, location):
         story.append(PageBreak())
         # 74 is the number of rows per page, should probably put this in a
         # variable
-        if (((len(patients) / 74) + 1) % 2) == 1:
+        if (((len(patients) / 108) + 1) % 2) == 1:
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize=landscape(A4), \
+    doc = MultiColDocTemplate(filename, 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
     return filename
@@ -466,7 +466,7 @@ def thepatientregister(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, 0.2 * inch]
-    colWidths = [0.5 * inch, 1.5 * inch]
+    colWidths = [0.5 * inch, 1.3 * inch]
     colWidths.extend((len(cols) - 2) * [0.5 * inch])
 
     ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
