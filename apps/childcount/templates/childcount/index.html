@@ -12,11 +12,34 @@
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/raphael-min.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.raphael.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.line.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function() {
 		$("#accordion").accordion();
 	});
 
+    window.onload = function() {
+        var x = [
+            {% for day in registrations.0 %}
+            {{day}}{% if not forloop.last %},{% endif %}
+            {% endfor %}];
+        var y1 = [
+            {% for count in registrations.1 %}
+            {{count}}{% if not forloop.last %},{% endif %}
+            {% endfor %}];
+
+        var r = Raphael('deline', width=450, height=300);
+        r.g.txtattr.font = "12px 'Helvetica', sans-serif";
+        //r.g.text(100, 10, "Form A Registrations");
+        var lchart = r.g.linechart(
+            0, 0, 
+            380, 250,
+            x,
+            [y1],
+            {shade: true, axis: '0 1 1 0'});
+
+    };
+    /*
      // Run the script on DOM ready:
      window.onload = function () {
                 var r = Raphael("muacpie", width=400, height=250);
@@ -42,7 +65,7 @@
 
 
   };
-
+*/
 </script>
 {% endblock javascripts %}
 
@@ -134,6 +157,22 @@
 </div>
 </div>
 <div id='ch-r'>
+<div class='block'>
+    <div class="block_child">
+        <div class="hd">
+            <h2>Form A Registrations</h2>
+        </div>
+        <div class="bd" >
+            <div id='deline'>
+        </div>
+    <div id='visualizeline'>
+    </div>
+</div>
+
+    <div class="ft">
+        <div class="first"></div>
+        <div class="last"></div>
+    </div>
 
 <div class='block'>
     <div class="block_child">
@@ -171,30 +210,24 @@
 
     </div>
 
-    <div class="ft">
-        <div class="first"></div>
-        <div class="last"></div>
-    </div>
 </div>
 
-    <div class='block'>
+<!--
+<div class='block'>
     <div class="block_child">
-<div class="hd">
-<h2>Nutrition Graph
-</h2>
-</div>
-<div class="bd" >
-<div id='muacpie'>
-</div>
-
-<div id='visualize'></div>
-</div>
-
+        <div class="hd">
+            <h2>Nutrition Graph</h2>
+        </div>
+        <div class="bd" >
+            <div id='muacpie'>
+        </div>
+    <div id='visualize'>
     </div>
+</div>
+-->
 
     <div class="ft">
 <div class="first"></div>
-<div class="last"></div>
     </div>
 </div>
 </div>

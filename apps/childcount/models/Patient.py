@@ -10,6 +10,8 @@ Patient - Patient model
 from datetime import date
 
 from django.db import models
+from django.db.models import Count
+from django.db import connection
 from django.utils.translation import ugettext as _
 import reversion
 
@@ -170,6 +172,24 @@ class Patient(models.Model):
 
         return True
 
+    @classmethod
+    def registrations_by_date(cls):
+        conn = connection.cursor()
+        by_date = conn.execute(
+            'SELECT DATE(`created_on`), COUNT(*) FROM `cc_patient` \
+                GROUP BY DATE(`created_on`) ORDER BY DATE(`created_on`) ASC;')
+
+        # Data comes back in an iterable of (date, count) tuples
+        raw_data = conn.fetchall()
+        dates = []
+        counts = []
+        agg = 0
+        for pair in raw_data:
+            dates.append((pair[0] - date.today()).days)
+            agg += pair[1]
+            counts.append(agg)
+        return (dates, counts)
+    
     @classmethod
     def table_columns(cls):
         columns = []

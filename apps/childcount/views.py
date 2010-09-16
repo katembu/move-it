@@ -74,6 +74,8 @@ def index(request):
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
 
+    info['registrations'] = Patient.registrations_by_date()
+
     #Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
