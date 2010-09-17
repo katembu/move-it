@@ -18,7 +18,7 @@ def form_a_entered(request, rformat="html"):
         request,
         rformat,
         report_title = (u'Form A Registrations Per Day'),
-        report_data = _matching_message_stats("You successfuly registered "),
+        report_data = _matching_message_stats(['You successfuly registered ']),
         report_filename = u'form-a-entered')
 
 def form_b_entered(request, rformat="html"):
@@ -26,7 +26,7 @@ def form_b_entered(request, rformat="html"):
         request,
         rformat,
         report_title = (u'Form Bs Entered Per Day'),
-        report_data = _matching_message_stats("Household member "),
+        report_data = _matching_message_stats(['Household member '], [' failed: ']),
         report_filename = u'form-b-entered')
 
 def _form_reporting(request,
@@ -63,7 +63,7 @@ def _form_reporting(request,
     return render_doc_to_response(request, rformat, doc, report_filename)
 
 
-def _matching_message_stats(msg_string):
+def _matching_message_stats(like_strings, unlike_strings = []):
     '''
     Custom SQL to do a GROUP BY date
 
@@ -75,19 +75,43 @@ def _matching_message_stats(msg_string):
     '''
 
     conn = connection.cursor()
-    stats = conn.execute(
+    q = \
     '''
         SELECT 
             DATE(`sent`) as `date`, 
             `identity`, 
             COUNT(*) as `count` 
         FROM `logger_outgoingmessage` 
-        WHERE 
-            LOCATE(%s, `text`)
+    '''
+    
+    if len(like_strings) + len(unlike_strings) > 0:
+        q += ' WHERE '
+
+    andstr = ' AND '
+    locstr = ' LOCATE(%s, `text`) '
+
+    for i in xrange(len(like_strings)):
+        q += locstr
+        if i+1 != len(like_strings):
+            q += andstr
+           
+    if len(unlike_strings) > 0:
+        q += andstr
+
+    for i in xrange(len(unlike_strings)):
+        q += ' NOT ' + locstr
+        if i+1 != len(unlike_strings):
+            q += andstr
+
+    q += \
+    '''
         GROUP BY 
             DATE(`sent`), 
             `identity` 
         ORDER BY `sent` ASC;
-    ''', [msg_string])
+    '''
+   
+    print q
+    stats = conn.execute(q, like_strings + unlike_strings)
     return conn.fetchall()
 
