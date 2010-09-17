@@ -14,22 +14,19 @@ from reporters.models import Reporter
 from childcount.reports.utils import render_doc_to_response
 
 def incoming_msg_stats(request, rformat="html"):
-    report_title = (u'Messages Sent Per Day')
-    report_subtitle = (u'Includes all messages -- including rejected and invalid forms.')
-
-    doc = Document(report_title, report_subtitle)
+    report_title = (u'Form A Registrations Per Day')
+    doc = Document(report_title, '')
 
     t = Table(3)
     t.add_header_row([
         Text(_(u'Date')),
-
         Text(_(u'User')),
         Text(_(u'Number Entered'))])
 
     report_data = _incoming_msg_stats()
 
     for row in report_data:
-        username = row[3]
+        username = row[1]
         full_name = u"[%s]" % username
         try:
             rep = Reporter.objects.get(username=username)
@@ -39,9 +36,9 @@ def incoming_msg_stats(request, rformat="html"):
             full_name = u"%s %s [%s]" % (rep.first_name, rep.last_name, username)
 
         t.add_row([
-            Text(datetime.date(row[0], row[1], row[2]).strftime('%Y-%m-%d')),
+            Text(row[0]),
             Text(full_name),
-            Text(row[4])])
+            Text(row[2])])
     doc.add_element(t)
     
     fname = u'forms-per-day-' + time.strftime('%Y-%m-%d')
@@ -52,9 +49,8 @@ def _incoming_msg_stats():
     '''
     Custom SQL to do a GROUP BY day
 
-    Returns an iterable...each item has 
-    methods year, month, day, identity, and count,
-    describing the number of msgs received from
+    Returns an iterable of (date, identity, count)
+    tuples describing the number of msgs received from
     the user with username "identity" on the
     given date.
 
@@ -62,21 +58,18 @@ def _incoming_msg_stats():
 
     conn = connection.cursor()
     stats = conn.execute(
-        '''
-        SELECT 	
-            YEAR(`received`) as `year`,
-            MONTH(`received`) as `month`,
-            DAY(`received`) as `day`,
-            identity,
-            COUNT(*) as `count`
-        FROM `logger_incomingmessage`
-        GROUP BY
-            YEAR(`received`),
-            MONTH(`received`),
-            DAY(`received`),
-            `identity`
-        ORDER BY `received` ASC;
-        ''')
-
+    '''
+        SELECT 
+            DATE(`sent`) as `date`, 
+            `identity`, 
+            COUNT(*) as `count` 
+        FROM `logger_outgoingmessage` 
+        WHERE 
+            LOCATE("You successfuly registered ", `text`)
+        GROUP BY 
+            DATE(`sent`), 
+            `identity` 
+        ORDER BY `sent` ASC;
+    ''')
     return conn.fetchall()
 
