@@ -12,11 +12,34 @@
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/raphael-min.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.raphael.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.line.js"></script>
 <script type="text/javascript" charset="utf-8">
 	$(function() {
 		$("#accordion").accordion();
 	});
 
+    window.onload = function() {
+        var x = [
+            {% for day in registrations.0 %}
+            {{day}}{% if not forloop.last %},{% endif %}
+            {% endfor %}];
+        var y1 = [
+            {% for count in registrations.1 %}
+            {{count}}{% if not forloop.last %},{% endif %}
+            {% endfor %}];
+
+        var r = Raphael('deline', width=450, height=300);
+        r.g.txtattr.font = "12px 'Helvetica', sans-serif";
+        //r.g.text(100, 10, "Form A Registrations");
+        var lchart = r.g.linechart(
+            0, 0, 
+            380, 250,
+            x,
+            [y1],
+            {shade: true, axis: '0 1 1 0'});
+
+    };
+    /*
      // Run the script on DOM ready:
      window.onload = function () {
                 var r = Raphael("muacpie", width=400, height=250);
@@ -42,7 +65,7 @@
 
 
   };
-
+*/
 </script>
 {% endblock javascripts %}
 
@@ -71,14 +94,38 @@
     <p>General Options:
     <a href='{% url add_chw %}' class='html'>Create CHW Account</a>
             | <a href='{% url list_chw %}' class='html'>View List</a>
+            | <a href='{% url dataentry %}' class='html'>CC+ Data Entry</a>
     </p>
 <div class='block'>
     <div class="block_child">
         <div class="hd">
             <h2>ChildCount Reports</h2>
         </div>
+
         <div class="bd">
+        <table>
+            <tr>
+                <th>Report Name</th>
+                <th>HTML</th>
+                <th>PDF</th>
+                <th>Excel</th>
+            </tr>
+            {% for r in reports %}
+            <tr>
+                <td>{{ r.title }}</td>
+                <td class="icon">
+                    <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a></td>
+                <td class="icon">
+                    <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a></td>
+                <td class="icon">
+                    <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+            <!--
             <ul>
+
                 <li>Operational Report <a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
                 </li>
                 <li>Patient Register
@@ -98,6 +145,7 @@
                 <li>Under five list per community health worker <a href='/childcount/under_five' class='pdf'>pdf</a>
                 </li>
             </ul>
+            -->
         </div>
 
     </div>
@@ -109,6 +157,22 @@
 </div>
 </div>
 <div id='ch-r'>
+<div class='block'>
+    <div class="block_child">
+        <div class="hd">
+            <h2>Form A Registrations</h2>
+        </div>
+        <div class="bd" >
+            <div id='deline'>
+        </div>
+    <div id='visualizeline'>
+    </div>
+</div>
+
+    <div class="ft">
+        <div class="first"></div>
+        <div class="last"></div>
+    </div>
 
 <div class='block'>
     <div class="block_child">
@@ -146,30 +210,24 @@
 
     </div>
 
-    <div class="ft">
-        <div class="first"></div>
-        <div class="last"></div>
-    </div>
 </div>
 
-    <div class='block'>
+<!--
+<div class='block'>
     <div class="block_child">
-<div class="hd">
-<h2>Nutrition Graph
-</h2>
-</div>
-<div class="bd" >
-<div id='muacpie'>
-</div>
-
-<div id='visualize'></div>
-</div>
-
+        <div class="hd">
+            <h2>Nutrition Graph</h2>
+        </div>
+        <div class="bd" >
+            <div id='muacpie'>
+        </div>
+    <div id='visualize'>
     </div>
+</div>
+-->
 
     <div class="ft">
 <div class="first"></div>
-<div class="last"></div>
     </div>
 </div>
 </div>

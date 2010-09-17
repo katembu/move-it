@@ -5,7 +5,8 @@
 import os
 import copy
 import csv
-
+import cProfile
+from time import time
 from datetime import datetime
 
 from rapidsms.webui.utils import render_to_response
@@ -271,6 +272,7 @@ def gen_operationalreport():
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
+
     # Get the value of the StringIO buffer and write it to the response.
     pdf = buffer.getvalue()
     buffer.close()

@@ -74,6 +74,8 @@ def index(request):
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
 
+    info['registrations'] = Patient.registrations_by_date()
+
     #Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
@@ -86,6 +88,19 @@ def index(request):
     #General Summary report -  all
     gsr = GeneralSummaryReport.summary()
     info.update(gsr)
+
+    reports = []
+    reports.append({
+        'title': 'Form A Registrations by Day and User',
+        'url': '/childcount/reports/form_a_entered'})
+    reports.append({
+        'title': 'Form B Count by Day and User',
+        'url': '/childcount/reports/form_b_entered'})
+    # Kills the CPU so comment out for now...
+    #reports.append({
+    #    'title': 'Patient List by Location',
+    #    'url': '/childcount/reports/patient_list_geo'})
+    info.update({'reports': reports})
 
     return render_to_response(request, template_name, info)
 

@@ -227,7 +227,7 @@ class ThePatient(Patient):
     def patient_register_columns(cls):
         columns = []
         columns.append(
-            {'name': _(u"HHID"), \
+            {'name': _(u"HID"), \
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _(u"Name".upper()), \
