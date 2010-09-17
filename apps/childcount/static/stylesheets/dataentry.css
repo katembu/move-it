@@ -184,6 +184,7 @@ table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td, table.rsmsList
 }
 
 #user_input {
+    z-index:100;
     position: absolute;
     bottom:0;
     background-color: yellow;
