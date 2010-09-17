@@ -42,4 +42,5 @@ urlpatterns = patterns('',
     url(r'^childcount/dataentry/?$', views.dataentry),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
+    url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', views.site_summary),
 )

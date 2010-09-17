@@ -3,22 +3,23 @@
 # maintainer: ukanga
 
 import os
-
 from datetime import date, timedelta, datetime
-from django.db.models import F
 import re
 
 from rapidsms.webui.utils import render_to_response
+
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.utils.translation import gettext_lazy as _, activate
+from django.utils import simplejson
 from django.template import Template, Context, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, UserManager, Group
 from django import forms
 from django.db.models import F
+
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
@@ -64,7 +65,9 @@ def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
     title = "ChildCount-2.0"
+    
     info = {}
+    '''
     info.update({"title": title})
     info.update({'risk': nutrition_png(request)})
     info.update(clinic_report(request))
@@ -73,10 +76,11 @@ def index(request):
     info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
-
+    
     #Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
+    
     #This Week Summary Report
     wsr = WeekSummaryReport.summary()
     info.update(wsr)
@@ -86,8 +90,35 @@ def index(request):
     #General Summary report -  all
     gsr = GeneralSummaryReport.summary()
     info.update(gsr)
-
+    '''
     return render_to_response(request, template_name, info)
+
+
+def site_summary(request, report='site', format='json'):
+    if request.is_ajax() and format == 'json':
+        rpt = None
+        if report == 'site':
+            #Summary Report
+            rpt = SummaryReport.summary()
+        elif report == 'general_summary':
+            #General Summary report -  all
+            rpt = GeneralSummaryReport.summary()
+        elif report == 'month':
+            #This month summary report
+            rpt = MonthSummaryReport.summary()
+        elif report == 'week':
+            #This Week Summary Report
+            rpt = WeekSummaryReport.summary()
+        else:
+            print report
+            return HttpResponse(status=400)
+        if format == 'json':
+            mimetype = 'application/javascript'
+        data = simplejson.dumps(rpt)
+        return HttpResponse(data,mimetype)
+    # If you want to prevent non XHR calls
+    else:
+        return HttpResponse(status=400)
 
 
 class CHWForm(forms.Form):
