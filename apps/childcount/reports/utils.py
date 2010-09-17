@@ -14,7 +14,7 @@ def render_doc_to_response(request, rformat, doc,
     response = HttpResponse()
 
     if append_date:
-        filebasename += time.strftime('%Y-%m-%d')
+        filebasename += '-' + time.strftime('%Y-%m-%d')
 
     # Don't cache the report
     response['Cache-Control'] = ''

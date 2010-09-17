@@ -103,7 +103,9 @@ class ExcelGenerator(Generator):
                 if col.italic: style.font.italic = True
 
                 self.cur_sheet.write(
-                    self.row, self.col, unicode(col.text), style)
+                    self.row, self.col,
+                    col.castfunc(col.text),
+                    style)
                
                 self.col += 1
             self.row += 1

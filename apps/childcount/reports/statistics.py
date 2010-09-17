@@ -43,7 +43,8 @@ def _form_reporting(request,
         Text(_(u'User')),
         Text(_(u'Count'))])
 
-    for row in report_data:
+    for row in report_data: 
+        rowdate = time.strptime(unicode(row[0]), "%Y-%m-%d")
         username = row[1]
         full_name = u"[%s]" % username
         try:
@@ -54,13 +55,11 @@ def _form_reporting(request,
             full_name = u"%s %s [%s]" % (rep.first_name, rep.last_name, username)
 
         t.add_row([
-            Text(row[0]),
+            Text(row[0], castfunc = lambda a: a),
             Text(full_name),
-            Text(row[2])])
+            Text(row[2], castfunc = int)])
     doc.add_element(t)
 
-    report_filename += '-' + time.strftime('%Y-%m-%d')
-    
     return render_doc_to_response(request, rformat, doc, report_filename)
 
 

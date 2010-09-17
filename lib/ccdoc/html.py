@@ -120,7 +120,7 @@ class HTMLGenerator(Generator):
             self._render_text(table.title)
             self.tlines += u"</th>"
        
-        i=0
+        i=1
         ''' Iterate through each table row '''
         for row in table.rows:
             i += 1
