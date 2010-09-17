@@ -91,7 +91,7 @@ def index(request):
 
     reports = []
     reports.append({
-        'title': 'Incoming Messages by Day and User',
+        'title': 'Form A Registrations by Day and User',
         'url': '/childcount/reports/incoming_msg_stats'})
     # Kills the CPU so comment out for now...
     #reports.append({
