@@ -92,7 +92,10 @@ def index(request):
     reports = []
     reports.append({
         'title': 'Form A Registrations by Day and User',
-        'url': '/childcount/reports/incoming_msg_stats'})
+        'url': '/childcount/reports/form_a_entered'})
+    reports.append({
+        'title': 'Form B Count by Day and User',
+        'url': '/childcount/reports/form_b_entered'})
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',

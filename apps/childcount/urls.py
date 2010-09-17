@@ -40,8 +40,11 @@ urlpatterns = patterns('',
     url(r'^childcount/registerlist/(?P<clinic_id>\d+)$',
         old_reports.registerlist),
     
-    url(r'^childcount/reports/incoming_msg_stats/(?P<rformat>[a-z]*)$',
-       statistics.incoming_msg_stats, name='incoming_msg_stats'),
+    url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
+       statistics.form_a_entered, name='form_a_entered'),
+    url(r'^childcount/reports/form_b_entered/(?P<rformat>[a-z]*)$',
+       statistics.form_b_entered, name='form_b_entered'),
+
     url(r'^childcount/reports/patient_list_geo/(?P<rformat>[a-z]*)$',
        lists.patient_list_geo, name='patient_list_geo'),
 

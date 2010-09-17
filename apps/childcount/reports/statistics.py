@@ -13,17 +13,35 @@ from ccdoc import Document, Table, Paragraph, Text
 from reporters.models import Reporter
 from childcount.reports.utils import render_doc_to_response
 
-def incoming_msg_stats(request, rformat="html"):
-    report_title = (u'Form A Registrations Per Day')
+def form_a_entered(request, rformat="html"):
+    return _form_reporting(
+        request,
+        rformat,
+        report_title = (u'Form A Registrations Per Day'),
+        report_data = _matching_message_stats("You successfuly registered "),
+        report_filename = u'form-a-entered')
+
+def form_b_entered(request, rformat="html"):
+    return _form_reporting(
+        request,
+        rformat,
+        report_title = (u'Form Bs Entered Per Day'),
+        report_data = _matching_message_stats("Household member "),
+        report_filename = u'form-b-entered')
+
+def _form_reporting(request,
+        rformat,
+        report_title,
+        report_data,
+        report_filename):
+
     doc = Document(report_title, '')
 
     t = Table(3)
     t.add_header_row([
         Text(_(u'Date')),
         Text(_(u'User')),
-        Text(_(u'Number Entered'))])
-
-    report_data = _incoming_msg_stats()
+        Text(_(u'Count'))])
 
     for row in report_data:
         username = row[1]
@@ -40,19 +58,20 @@ def incoming_msg_stats(request, rformat="html"):
             Text(full_name),
             Text(row[2])])
     doc.add_element(t)
+
+    report_filename += '-' + time.strftime('%Y-%m-%d')
     
-    fname = u'forms-per-day-' + time.strftime('%Y-%m-%d')
-    return render_doc_to_response(request, rformat, doc, fname)
+    return render_doc_to_response(request, rformat, doc, report_filename)
 
 
-def _incoming_msg_stats():
+def _matching_message_stats(msg_string):
     '''
-    Custom SQL to do a GROUP BY day
+    Custom SQL to do a GROUP BY date
 
     Returns an iterable of (date, identity, count)
-    tuples describing the number of msgs received from
+    tuples describing the number of msgs sent
     the user with username "identity" on the
-    given date.
+    given date that contain msg_string
 
     '''
 
@@ -65,11 +84,11 @@ def _incoming_msg_stats():
             COUNT(*) as `count` 
         FROM `logger_outgoingmessage` 
         WHERE 
-            LOCATE("You successfuly registered ", `text`)
+            LOCATE(%s, `text`)
         GROUP BY 
             DATE(`sent`), 
             `identity` 
         ORDER BY `sent` ASC;
-    ''')
+    ''', [msg_string])
     return conn.fetchall()
 
