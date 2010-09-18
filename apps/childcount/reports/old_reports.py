@@ -10,6 +10,8 @@ from time import time
 from datetime import datetime
 
 from rapidsms.webui.utils import render_to_response
+
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.http import HttpResponse
@@ -361,6 +363,7 @@ def operationalreportable(title, indata=None):
     return tb
 
 
+@login_required
 def bednetregisterlist(request, clinic_id):
     filename = 'registerlist.pdf'
     try:
@@ -374,11 +377,21 @@ def bednetregisterlist(request, clinic_id):
         return HttpResponse(_(u"The specified clinic is not known"))
     '''except:
         return HttpResponse(_("Error"))'''
-        
+
+@login_required
 def registerlist(request, clinic_id, active=None):
     filename = 'registerlist.pdf'
+    location = None
     try:
-        clinic = Clinic.objects.get(id=clinic_id)
+        location = Clinic.objects.get(id=clinic_id)
+    except Clinic.DoesNotExist:
+        pass
+    if not location:
+        try:
+            location = Location.objects.get(id=clinic_id)
+        except Location.DoesNotExist:
+            pass
+    if location:
         response = HttpResponse(mimetype='application/pdf')
         response['Cache-Control'] = ""
         response['Content-Disposition'] = "attachment; filename=%s" % filename
@@ -387,10 +400,10 @@ def registerlist(request, clinic_id, active=None):
             active = True
         else:
             active = False
-        gen_patient_register_pdf(response, clinic, active)
+        gen_patient_register_pdf(response, location, active)
         return response
-    except Clinic.DoesNotExist:
-        return HttpResponse(_(u"The specified clinic is not known"))
+    else:
+        return HttpResponse(_(u"The specified clinic/locations is not known"))
     '''except:
         return HttpResponse(_("Error"))'''
 

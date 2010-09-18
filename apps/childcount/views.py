@@ -73,12 +73,13 @@ def index(request):
     info.update(clinic_report(request))
     clinics = Location.objects.all()
     info.update({'sms': sms_png(request)})
-    info.update({'clinics': clinics})
+    #info.update({'clinics': clinics})
     info.update({'atrisk': TheCHWReport.total_at_risk(), \
                            'eligible': TheCHWReport.total_muac_eligible()})
 
     info['registrations'] = Patient.registrations_by_date()
 
+    
     '''#Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
@@ -107,6 +108,13 @@ def index(request):
         'title': _(u"Operational Report"),
         'url': '/childcount/operationalreport'
     })
+    locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
+                                                    .distinct('location'))
+    for loc in locs:
+        reports.append({
+            'title': _(u"Register List: %(location)s" % {'location': loc}),
+            'url': '/childcount/registerlist/%d' % loc.pk
+        })
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',
