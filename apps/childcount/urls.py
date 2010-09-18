@@ -5,8 +5,9 @@
 from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
 
-import childcount.views as views
-import childcount.reports as reports
+from childcount import views
+from childcount.reports import old_reports as reports
+
 
 admin.autodiscover()
 
@@ -25,7 +26,7 @@ urlpatterns = patterns('',
     url(r'^childcount/patients/(?P<page>\d+)/?$',views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
     url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
-        old_reports.all_patient_list_pdf),
+        reports.all_patient_list_pdf),
     url(r'^childcount/patients_per_chw/pdf/?$', \
                                     reports.all_patient_list_per_chw_pdf),
     url(r'^childcount/chw/?$', views.chw),
@@ -33,7 +34,7 @@ urlpatterns = patterns('',
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', \
                 reports.operationalreport),
-    url(r'^childcount/registerlist/(?P<clinic_id>\d+)$', reports.registerlist),
+    url(r'^childcount/registerlist/(?P<clinic_id>\d+)/(?P<active>[a-z]+)?$', reports.registerlist),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
@@ -42,4 +43,5 @@ urlpatterns = patterns('',
     url(r'^childcount/dataentry/?$', views.dataentry, name='dataentry'),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
+    url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', views.site_summary),
 )

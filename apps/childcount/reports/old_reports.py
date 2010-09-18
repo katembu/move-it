@@ -375,14 +375,19 @@ def bednetregisterlist(request, clinic_id):
     '''except:
         return HttpResponse(_("Error"))'''
         
-def registerlist(request, clinic_id):
+def registerlist(request, clinic_id, active=None):
     filename = 'registerlist.pdf'
     try:
         clinic = Clinic.objects.get(id=clinic_id)
         response = HttpResponse(mimetype='application/pdf')
         response['Cache-Control'] = ""
         response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_patient_register_pdf(response, clinic)
+        print active
+        if active == "active":
+            active = True
+        else:
+            active = False
+        gen_patient_register_pdf(response, clinic, active)
         return response
     except Clinic.DoesNotExist:
         return HttpResponse(_(u"The specified clinic is not known"))
@@ -390,7 +395,7 @@ def registerlist(request, clinic_id):
         return HttpResponse(_("Error"))'''
 
 
-def gen_patient_register_pdf(filename, location):
+def gen_patient_register_pdf(filename, location, active=False):
     story = []
     chws = TheCHWReport.objects.filter(location=location)
     if not chws.count():
@@ -407,6 +412,8 @@ def gen_patient_register_pdf(filename, location):
             hs = ThePatient.objects.filter(household=household)\
                             .exclude(health_id=household.health_id)\
                             .order_by('household')
+            if active:
+                hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
             patients.append(ThePatient())
             brow = len(patients) - 1
@@ -420,6 +427,8 @@ def gen_patient_register_pdf(filename, location):
             hs = ThePatient.objects.filter(household=dh, \
                                             chw=chw)\
                                     .exclude(health_id=dh.health_id)
+            if active:
+                hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
@@ -430,14 +439,14 @@ def gen_patient_register_pdf(filename, location):
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
-        # 74 is the number of rows per page, should probably put this in a
+        # 108 is the number of rows per page, should probably put this in a
         # variable
-        if (((len(patients) / 74) + 1) % 2) == 1:
+        if (((len(patients) / 108) + 1) % 2) == 1 and not (len(patients) / 108) * 108 == len(patients):
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize=landscape(A4), \
+    doc = MultiColDocTemplate(filename, 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
     return filename
@@ -468,7 +477,7 @@ def thepatientregister(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, 0.2 * inch]
-    colWidths = [0.5 * inch, 1.5 * inch]
+    colWidths = [0.5 * inch, 1.3 * inch]
     colWidths.extend((len(cols) - 2) * [0.5 * inch])
 
     ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),

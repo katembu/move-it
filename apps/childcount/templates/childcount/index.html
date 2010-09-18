@@ -18,7 +18,7 @@
 		$("#accordion").accordion();
 	});
 
-    window.onload = function() {
+    RegistrationsLineChart = function() {
         var x = [
             {% for day in registrations.0 %}
             {{day}}{% if not forloop.last %},{% endif %}
@@ -39,14 +39,51 @@
             {shade: true, axis: '0 1 1 0'});
 
     };
-    /*
-     // Run the script on DOM ready:
-     window.onload = function () {
-                var r = Raphael("muacpie", width=400, height=250);
+    var k;
+	$(document).ready(function(){
+	    //Get Site summary
+	    $('#tblsite_summary td').addClass('loading')
+	    $.getJSON('/childcount/site_summary/site/json', function(data){
+	        $('#tblsite_summary td.num_patients').html(data.summary.num_patients);
+	        $('#tblsite_summary td.num_households').html(data.summary.num_households);
+	        $('#tblsite_summary td.num_underfive').html(data.summary.num_underfive);
+	        $('#tblsite_summary td.num_pregnant').html(data.summary.num_pregnant);
+	        $('#tblsite_summary td').removeClass('loading')
+	    });
 
-                r.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
+	    //Load summary data for ['week', 'month', 'general']
+	    reports = ['week', 'month', 'general_summary']
+	    for (i in reports){
+	        (function(){
+                var report = reports[i]
+                $('ul.' + report + '_report li span').addClass('loading')
+                url = '/childcount/site_summary/' + report + '/json'
+                $.getJSON(url,function(data){
+                    k = data
+                    $('ul.' + report + '_report li span.num_pregnant')
+                        .html(eval('data.' + report + '_report.num_pregnant'))
+                    $('ul.' + report + '_report li span.num_rdt')
+                        .html(eval('data.' + report + '_report.num_rdt'))
+                    $('ul.' + report + '_report li span.num_mam_sam')
+                        .html(eval('data.' + report + '_report.num_mam_sam'));
+                    $('ul.' + report + '_report li span').removeClass('loading');
+                });
+            })();
+	    }
+
+	    //RegistrationsLineChart
+	    RegistrationsLineChart();
+	    //Nutrition Pie Chart
+	    NutritionPieChart();
+	});
+	
+     // Run the script on DOM ready:
+     NutritionPieChart = function (){
+                var mr = Raphael("muacpie", width=400, height=250);
+
+                mr.g.txtattr.font = "12px 'Fontin Sans', Fontin-Sans, sans-serif";
                 
-                var pie = r.g.piechart(280, 120, 100, {{risk|safe}}, legendpos: "west"});
+                var pie = mr.g.piechart(280, 120, 100, {{risk|safe}}, legendpos: "west"});
                 pie.hover(function () {
                     this.sector.stop();
                     this.sector.scale(1.1, 1.1, this.cx, this.cy);
@@ -61,11 +98,9 @@
                         this.label[0].animate({scale: 0.5}, 500, "bounce");
                         this.label[1].attr({"font-weight": 400});
                     }
-                });
+                }); 
+    };
 
-
-  };
-*/
 </script>
 {% endblock javascripts %}
 
@@ -76,7 +111,7 @@
 {% block content %}
 
 
-<table width="100%" class='summary'>
+<table width="100%" class='summary' id="tblsite_summary">
     <tr>
         <th>No. Of Households</th>
         <th>No. Of Patients</th>
@@ -84,10 +119,10 @@
         <th>No. Of Pregnant Women</th>
     </tr>
     <tr>
-        <td>{{summary.num_households}}</td>
-        <td>{{summary.num_patients}}</td>
-        <td>{{summary.num_underfive}}</td>
-        <td>{{summary.num_pregnant}}</td>
+        <td class="num_households">&nbsp;</td>
+        <td class="num_patients">&nbsp;</td>
+        <td class="num_underfive">&nbsp;</td>
+        <td class="num_pregnant">&nbsp;</td>
     </tr>
 </table>
 <div id='ch-bd'><div id='ch-l'>
@@ -131,7 +166,10 @@
                 <li>Patient Register
                     <ul>
                     {% for clinic in clinics %}
-                        <li><a href='/childcount/registerlist/{{ clinic.id }}'>{{ clinic }}</a></li>
+                        <li><a href='/childcount/registerlist/{{ clinic.id }}' title='All Patients'>All</a> |  
+                            <a href='/childcount/registerlist/{{ clinic.id }}/active' title='Patients with status active only'>Active</a> : 
+                            {{ clinic }}
+                        </li>
                     {% endfor %}
                     </ul>
                 </li>
@@ -184,26 +222,26 @@
     <div id="accordion">
     
     <h2>This Week </h2>
-    <ul class="system_messages">
-    <li><span>{{week_report.num_mam_sam}}</span> +SAM / MAM</li>
-    <li><span>{{week_report.num_rdt}}</span> MALARIA</li>
-    <li><span>{{week_report.num_pregnant}}</span> PREGNANCY</li>
+    <ul class="system_messages week_report">
+    <li><span class="num_mam_sam">{{week_report.num_mam_sam}}</span> +SAM / MAM</li>
+    <li><span class="num_rdt">{{week_report.num_rdt}}</span> MALARIA</li>
+    <li><span class="num_pregnant">{{week_report.num_pregnant}}</span> PREGNANCY</li>
     
     
     </ul>
     
      <h2>This Month </h2>      
-     <ul class="system_messages">
-     <li ><span>{{month_report.num_mam_sam}}</span> +SAM / MAM</li>
-     <li ><span>{{month_report.num_rdt}}</span> MALARIA</li>
-     <li ><span>{{month_report.num_pregnant}}</span> PREGNANCY</li>
+     <ul class="system_messages month_report">
+     <li ><span class="num_mam_sam">{{month_report.num_mam_sam}}</span> +SAM / MAM</li>
+     <li ><span class="num_rdt">{{month_report.num_rdt}}</span> MALARIA</li>
+     <li ><span class="num_pregnant">{{month_report.num_pregnant}}</span> PREGNANCY</li>
      </ul>
      
      <h2>General </h2>
-     <ul class="system_messages">
-     <li ><span>{{general_summary_report.num_mam_sam}}</span> +SAM / MAM</li>
-     <li ><span>{{general_summary_report.num_rdt}}</span> MALARIA</li>
-     <li ><span>{{general_summary_report.num_pregnant}}</span> PREGNANCY</li>
+     <ul class="system_messages general_summary_report">
+     <li ><span class="num_mam_sam">{{general_summary_report.num_mam_sam}}</span> +SAM / MAM</li>
+     <li ><span class="num_rdt">{{general_summary_report.num_rdt}}</span> MALARIA</li>
+     <li ><span class="num_pregnant">{{general_summary_report.num_pregnant}}</span> PREGNANCY</li>
      </ul>
    </div>
     </div>
@@ -212,7 +250,7 @@
 
 </div>
 
-<!--
+
 <div class='block'>
     <div class="block_child">
         <div class="hd">
@@ -224,7 +262,6 @@
     <div id='visualize'>
     </div>
 </div>
--->
 
     <div class="ft">
 <div class="first"></div>

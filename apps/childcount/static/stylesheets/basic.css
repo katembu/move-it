@@ -89,7 +89,7 @@ table td.icon {
     -moz-border-radius:4px;
 }
 .summary td {
-    background: #999999;
+    background: no-repeat #999999;
     border-color: #FFFFFF;
     border-style: dotted solid double;
     border-width: 0 1px 3px;
@@ -99,7 +99,11 @@ table td.icon {
     font-weight: 900;
     -moz-border-radius: 10px;
 }
-
+.summary td.loading, .system_messages li span.loading {
+    background-image: url(/static/childcount/images/loading.gif);
+    background-position: center;
+    background-repeat: no-repeat;
+}
 .system_messages{
     padding: 0em;
     margin: 0;
@@ -113,7 +117,7 @@ table td.icon {
     margin: 0.425em
 }
 .system_messages li span{
-    width: 2em;
+    width: 5em;
     display: inline-block;
     text-align: center;
     border-right: 1px solid #cce;
@@ -231,4 +235,3 @@ border: 1px solid #aaaaaa/*{borderColorActive}*/; background: #ffffff/*{bgColorA
 	font-size:1em;
         text-decoration:none;
 }
-

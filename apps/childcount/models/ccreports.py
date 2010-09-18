@@ -186,6 +186,9 @@ class ThePatient(Patient):
 
         return total
 
+    def household_members(self):
+        return ThePatient.objects.filter(household=self.household)
+
     @classmethod
     def under_five(cls, chw=None):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
