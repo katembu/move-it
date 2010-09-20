@@ -31,6 +31,7 @@ a img {
 
 table td.icon {
     text-align:center;
+    padding-right: 0.5em;
 }
 
 /* block styles */

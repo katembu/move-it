@@ -117,7 +117,12 @@ def index(request):
         reports.append({
             'title': _(u"Register List: %(location)s" % {'location': loc}),
             'url': '/childcount/registerlist/%d' % loc.pk,
-            'types': ('pdf',)
+            'types': ('pdf',),
+            'otherlinks': [{'title': _(u"All Patients(including inactive and dead)"),
+                            'url': '/childcount/registerlist/%d' % loc.pk},
+                            {'title': _("Active Patients Only"),
+                            'url': '/childcount/registerlist/%d/active'\
+                             % loc.pk}]
         })
     # Kills the CPU so comment out for now...
     #reports.append({
