@@ -149,25 +149,31 @@
             <tr>
                 <td>{{ r.title }}</td>
                 <td class="icon">
-                    {% if 'html' in r.types %}
+                    {% for t in r.types %}
+                        {% ifequal t 'html' %}
                     <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a>
-                    {% endif %}
+                        {% endifequal %}
+                    {% endfor %}
                 </td>
                 <td class="icon">
-                    {% if 'pdf' in r.types %}
-                        {% if r.otherlinks %}
-                            {% for l in r.otherlinks %}
-                    <a href="{{ l.url }}" title="{{ l.title }}"><img src="/static/childcount/icons/pdf.png" /></a> 
-                            {% endfor %}
-                        {% else %}
+                    {% for t in r.types %}
+                        {% ifequal t 'pdf' %}
+                            {% if r.otherlinks %}
+                                {% for l in r.otherlinks %}
+                    <a href="{{ l.url }}/" title="{{ l.title }}"><img src="/static/childcount/icons/pdf.png" /></a> 
+                                {% endfor %}
+                            {% else %}
                     <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a>
-                        {% endif %}
-                    {% endif %}
+                            {% endif %}
+                        {% endifequal %}
+                    {% endfor %}
                 </td>
                 <td class="icon">
-                    {% if 'xls' in r.types %}
+                    {% for t in r.types %}
+                        {% ifequal t 'xls' %}
                     <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a>
-                    {% endif %}
+                        {% endifequal %}
+                    {% endfor %}
                 </td>
             </tr>
             {% endfor %}
