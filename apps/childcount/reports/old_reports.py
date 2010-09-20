@@ -432,7 +432,9 @@ def gen_patient_register_pdf(filename, location, active=False):
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
-        #Sauri specific start
+        '''Sauri specific start: include default household id generated
+        when migrating patients from old core ChildCount to the new core of
+        ChildCount+'''
         if ThePatient.objects.filter(health_id='XXXXX'):
             #default_household -> dh
             dh = ThePatient.objects.get(health_id='XXXXX')
