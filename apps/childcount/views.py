@@ -100,20 +100,24 @@ def index(request):
     reports = []
     reports.append({
         'title': 'Form A Registrations by Day and User',
-        'url': '/childcount/reports/form_a_entered'})
+        'url': '/childcount/reports/form_a_entered',
+        'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': 'Form B Count by Day and User',
-        'url': '/childcount/reports/form_b_entered'})
+        'url': '/childcount/reports/form_b_entered',
+        'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Operational Report"),
-        'url': '/childcount/operationalreport'
+        'url': '/childcount/operationalreport',
+        'types': ('pdf',)
     })
     locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                     .distinct('location'))
     for loc in locs:
         reports.append({
             'title': _(u"Register List: %(location)s" % {'location': loc}),
-            'url': '/childcount/registerlist/%d' % loc.pk
+            'url': '/childcount/registerlist/%d' % loc.pk,
+            'types': ('pdf',)
         })
     # Kills the CPU so comment out for now...
     #reports.append({

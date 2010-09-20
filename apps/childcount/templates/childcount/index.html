@@ -149,11 +149,20 @@
             <tr>
                 <td>{{ r.title }}</td>
                 <td class="icon">
-                    <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a></td>
+                    {% if 'html' in r.types %}
+                    <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a>
+                    {% endif %}
+                </td>
                 <td class="icon">
-                    <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a></td>
+                    {% if 'pdf' in r.types %}
+                    <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a>
+                    {% endif %}
+                </td>
                 <td class="icon">
-                    <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a></td>
+                    {% if 'xls' in r.types %}
+                    <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </table>
