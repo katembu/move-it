@@ -23,7 +23,7 @@ urlpatterns = patterns('',
     admin_urls,
     url(r'^childcount/?$', views.index),
     url(r'^childcount/patients/?$', views.patient),
-    url(r'^childcount/patients/(?P<page>\d+)/?$',views.patient),
+    url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
     url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
         reports.all_patient_list_pdf),
@@ -46,5 +46,6 @@ urlpatterns = patterns('',
     url(r'^childcount/dataentry/?$', views.dataentry, name='dataentry'),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
-    url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', views.site_summary),
+    url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
+        views.site_summary),
 )
