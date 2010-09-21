@@ -6,7 +6,7 @@ from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
 
 from childcount import views
-from childcount.reports import old_reports as reports
+from childcount.reports import custom_reports as reports
 
 
 admin.autodiscover()
