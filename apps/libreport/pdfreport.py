@@ -244,7 +244,7 @@ class PDFReport():
                     hStyle.borderWidth = 0
                     hStyle.alignment = TA_LEFT
                     hStyle.borderPadding = 5
-                    value = [RotatedParagraph( Paragraph('<b>' + f["name"] + \
+                    value = [RotatedParagraph(Paragraph('<b>' + f["name"] + \
                                                     '</b>', hStyle), \
                                             self.getFirstRowHeight() * inch, \
                                             0.25 * inch) \
@@ -478,16 +478,16 @@ class RotatedText(Flowable):
 
     '''Rotates text in a table cell.'''
 
-    def __init__(self, text ):
+    def __init__(self, text):
         Flowable.__init__(self)
-        self.text=text
+        self.text = text
 
     def draw(self):
         canv = self.canv
         canv.rotate(90)
-        canv.drawString( 0, -1, self.text)
+        canv.drawString(0, -1, self.text)
 
-    def wrap(self, aW, aH) :
+    def wrap(self, aW, aH):
         canv = self.canv
         return canv._leading, canv.stringWidth(self.text)
 
@@ -498,7 +498,7 @@ class RotatedParagraph(Flowable):
         self.paragraph = paragraph
         self.width = aW
         self.height = aH
-        print 'W: ', self.width, ' H: ', self.height
+
     def draw(self):
         canv = self.canv
         canv.rotate(90)
