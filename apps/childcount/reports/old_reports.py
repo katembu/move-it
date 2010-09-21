@@ -695,12 +695,12 @@ def gen_household_surveyreport(filename, location=None):
     chws = None
     if location:
         try:
-            chws = TheCHWReport.objects.filter(location=location)[:3]
+            chws = TheCHWReport.objects.filter(location=location)
         except TheCHWReport.DoesNotExist:
             raise BadValue(_(u"Unknown Location: %(location)s specified." % \
                                 {'location': location}))
     if chws is None and  TheCHWReport.objects.all().count():
-        chws = TheCHWReport.objects.all()[:3]
+        chws = TheCHWReport.objects.all()
 
     for chw in chws:
         if not ThePatient.objects.filter( chw=chw, \
