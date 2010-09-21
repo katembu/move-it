@@ -6,6 +6,7 @@ from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
 
 from childcount import views
+from childcount.reports import statistics
 from childcount.reports import custom_reports as reports
 
 
@@ -36,6 +37,11 @@ urlpatterns = patterns('',
                 reports.operationalreport),
     url(r'^childcount/registerlist/(?P<clinic_id>\d+)/(?P<active>[a-z]+)?$', reports.registerlist),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
+
+    url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
+        statistics.form_a_entered),
+    url(r'^childcount/reports/form_b_entered/(?P<rformat>[a-z]*)$', 
+        statistics.form_b_entered),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),
