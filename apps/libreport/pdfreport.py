@@ -15,7 +15,7 @@ try:
     from reportlab.platypus import BaseDocTemplate, PageTemplate, \
         Paragraph, PageBreak, Frame, FrameBreak, NextPageTemplate, Spacer, \
         Preformatted
-    from reportlab.platypus import Table as PDFTable
+    from reportlab.platypus import Table as PDFTable, Table
     from reportlab.platypus import TableStyle
     from reportlab.lib.enums import TA_LEFT, TA_CENTER
     from reportlab.lib import colors
@@ -506,3 +506,20 @@ class RotatedParagraph(Flowable):
         #drawOn(canvas, x, y)
         self.paragraph.drawOn(canv, -(self.width / 2) + 15, -(self.height))
 
+
+class ScaledTable(Table):
+    '''Scales a Table'''
+    def __init__(self, *args, **kwargs):
+        Table.__init__(self, *args, **kwargs)
+        self.xscale = 0.8
+        self.yscale = 0.8
+
+    def scale(self, x, y):
+        self.xscale = x
+        self.yscale = y
+
+    def draw(self):
+        canv = self.canv
+        canv.scale(self.xscale, self.yscale)
+        canv.translate(1 * inch, (self._height - (self._height * self.yscale)))
+        Table.draw(self)
