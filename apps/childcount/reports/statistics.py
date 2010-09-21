@@ -36,7 +36,7 @@ def form_b_entered(request, rformat="html"):
         Text(_(u'Count'))])
     for row in h:
         t.add_row([
-            Text(row['encounter__encounter_date'].date(), 
+            Text(row['encounter__encounter_date'].strftime('%Y-%m-%d'), 
                 castfunc = lambda a: a),
             Text(row['encounter__encounter_date__count'],
                 castfunc = int)])
