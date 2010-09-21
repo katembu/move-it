@@ -377,6 +377,7 @@ def bednetregisterlist(request, clinic_id):
     '''except:
         return HttpResponse(_("Error"))'''
 
+
 @login_required
 def registerlist(request, clinic_id, active=None):
     filename = 'registerlist.pdf'
@@ -449,13 +450,14 @@ def gen_patient_register_pdf(filename, location, active=False):
         #End Sauri specific
 
         tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % \
-                                {'loc': location, 'chw':chw}, \
+                                {'loc': location, 'chw': chw}, \
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
         # 108 is the number of rows per page, should probably put this in a
         # variable
-        if (((len(patients) / 108) + 1) % 2) == 1 and not (len(patients) / 108) * 108 == len(patients):
+        if (((len(patients) / 108) + 1) % 2) == 1 \
+            and not (len(patients) / 108) * 108 == len(patients):
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
@@ -546,6 +548,7 @@ def surveyreport(request, rformat):
     response.write(pdf)
     return response
 
+
 def gen_surveryreport():
     '''
     Generate the healthy survey report.
@@ -556,7 +559,7 @@ def gen_surveryreport():
     if not os.path.isdir(reports_folder):
         os.mkdir(reports_folder)
     filename = os.path.join(reports_folder, 'surveyreport.pdf')
-    
+
     story = []
     buffer = StringIO()
 
@@ -591,8 +594,6 @@ def surveyreportable(title, indata=None):
     styleN3 = copy.copy(styleN)
     styleN3.alignment = TA_RIGHT
 
-    
-    
     cols = TheBHSurveyReport.healthy_survey_columns()
 
     hdata = [Paragraph('%s' % title, styleH3)]
@@ -628,20 +629,19 @@ def surveyreportable(title, indata=None):
                             ('BOX', (8, 1), (9, -1), 5, \
                             colors.lightgrey),
                             ('BOX', (9, 1), (10, -1), 5, \
-                            colors.lightgrey)
-                ]))
+                            colors.lightgrey)]))
     return tb
 
 
 def clinic_monthly_summary_csv(request):
     '''
-    Monthly clinic summary 
+    Monthly clinic summary
     '''
     filename = "monthly_summary.csv"
     start_date = datetime(year=2010, month=1, day=1)
     current_date = datetime.today()
     buffer = StringIO()
-    dw = csv.DictWriter(buffer, ['clinic','month','rdt','positive_rdt', \
+    dw = csv.DictWriter(buffer, ['clinic', 'month', 'rdt', 'positive_rdt', \
                                         'nutrition', 'malnutrition'])
     for clinic in ClinicReport.objects.all():
         i = 1
@@ -703,7 +703,7 @@ def gen_household_surveyreport(filename, location=None):
         chws = TheCHWReport.objects.all()
 
     for chw in chws:
-        if not ThePatient.objects.filter( chw=chw, \
+        if not ThePatient.objects.filter(chw=chw, \
                             health_id=F('household__health_id')).count():
             continue
         patients = ThePatient.objects.filter(\
@@ -735,7 +735,7 @@ def household_surveyreport(location=None):
     if not os.path.isdir(reports_folder):
         os.mkdir(reports_folder)
     filename = os.path.join(reports_folder, 'HouseholdSurveyReport.pdf')
-    
+
     story = []
     buffer = StringIO()
 
@@ -794,13 +794,15 @@ def household_surveyreportable(title, indata=None):
         for row in indata:
             c = c + 1
             ctx = Context({"object": row})
-            values = ["%d" % c, Paragraph(Template(cols[0]["bit"]).render(ctx), \
-                                styleN)]
+            values = ["%d" % c, \
+                        Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                        styleN)]
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
                                 styleN3) for col in cols[1:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.25 * inch])
-    tb = ScaledTable(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
+    tb = ScaledTable(data, colWidths=colWidths, rowHeights=rowHeights, \
+            repeatRows=2)
     tb.setStyle(TableStyle([('SPAN', (0, 0), (colWidths.__len__() - 1, 0)),
                             ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),\
@@ -813,6 +815,5 @@ def household_surveyreportable(title, indata=None):
                             ('BOX', (13, 1), (14, -1), 5, \
                             colors.lightgrey),
                             ('BOX', (15, 1), (16, -1), 5, \
-                            colors.lightgrey)
-                            ]))
+                            colors.lightgrey)]))
     return tb
