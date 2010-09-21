@@ -8,6 +8,7 @@ import csv
 import cProfile
 from time import time
 from datetime import datetime
+from types import StringType
 
 from rapidsms.webui.utils import render_to_response
 
@@ -42,6 +43,7 @@ from childcount.utils import RotatedParagraph
 from libreport.pdfreport import PDFReport, p
 from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
+from libreport.pdfreport import ScaledTable
 
 from locations.models import Location
 
@@ -669,7 +671,67 @@ def clinic_monthly_summary_csv(request):
     return response
 
 
-def household_surveyreport():
+@login_required
+def household_surveyreport_list(request, clinic_id, rformat='pdf'):
+    location = None
+    try:
+        location = Clinic.objects.get(id=clinic_id)
+    except Clinic.DoesNotExist:
+        pass
+    if not location:
+        try:
+            location = Location.objects.get(id=clinic_id)
+        except Location.DoesNotExist:
+            pass
+    if location:
+        filename = '%s-HHSurveyReport.pdf' % location.code
+        response = HttpResponse(mimetype='application/pdf')
+        response['Cache-Control'] = ""
+        response['Content-Disposition'] = "attachment; filename=%s" % filename
+        gen_household_surveyreport(response, location)
+        return response
+    else:
+        return HttpResponse(_(u"The specified clinic/location is not known"))
+
+
+def gen_household_surveyreport(filename, location=None):
+    story = []
+    if StringType == type(filename):
+        filename = StringIO()
+    chws = None
+    if location:
+        try:
+            chws = TheCHWReport.objects.filter(location=location)[:3]
+        except TheCHWReport.DoesNotExist:
+            raise BadValue(_(u"Unknown Location: %(location)s specified." % \
+                                {'location': location}))
+    if chws is None and  TheCHWReport.objects.all().count():
+        chws = TheCHWReport.objects.all()[:3]
+
+    for chw in chws:
+        if not ThePatient.objects.filter( chw=chw, \
+                            health_id=F('household__health_id')).count():
+            continue
+        patients = ThePatient.objects.filter(\
+                health_id=F('household__health_id'), chw=chw).\
+                order_by('location')
+        tb = household_surveyreportable(chw, patients)
+        story.append(tb)
+        story.append(PageBreak())
+
+        # 40 is the number of rows per page, should probably put this in a
+        # variable
+        if (((len(patients) / 47) + 1) % 2) == 1 \
+            and not (len(patients) / 47) * 47 == len(patients):
+            story.append(PageBreak())
+
+    doc = SimpleDocTemplate(filename, pagesize=(8.5 * inch, 13.5 * inch), \
+                            topMargin=(0 * inch), \
+                            bottomMargin=(0 * inch), showBoundary=0)
+    doc.build(story)
+
+
+def household_surveyreport(location=None):
     '''
     Generate the healthy survey report.
     '''
@@ -715,46 +777,48 @@ def household_surveyreportable(title, indata=None):
     styleN3 = copy.copy(styleN)
     styleN3.alignment = TA_RIGHT
 
-    cols, subcol = ThePatient.bednet_summary()
+    cols, subcol = ThePatient.bednet_summary_minimal()
 
     hdata = [Paragraph('%s' % title, styleH3)]
     hdata.extend((len(cols) - 1) * [''])
     data = [hdata]
 
-    thirdrow = [RotatedParagraph(Paragraph(cols[0]['name'], styleH3), \
-                                2.3 * inch, 0.25 * inch)]
-    thirdrow.extend([Paragraph(cols[1]['name'], styleH3)])
-    thirdrow.extend([Paragraph(cols[2]['name'], styleH3)])
+    thirdrow = ['#', RotatedParagraph(Paragraph(cols[0]['name'], styleH3), \
+                                1.3 * inch, 0.25 * inch)]
+    thirdrow.extend([Paragraph(cols[1]['name'], styleN)])
+    thirdrow.extend([Paragraph(cols[2]['name'], styleN)])
     thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
-                                2.3 * inch, 0.25 * inch) for col in cols[3:]])
+                                1.3 * inch, 0.25 * inch) for col in cols[3:]])
     data.append(thirdrow)
 
-    rowHeights = [None, 2.3 * inch]
-    colWidths = [0.5 * inch, 1.0 * inch, 2.0 * inch]
+    rowHeights = [None, 1.3 * inch]
+    colWidths = [0.3 * inch, 0.6 * inch, 0.8 * inch, 1.5 * inch]
     colWidths.extend((len(cols) - 3) * [0.5 * inch])
 
     if indata:
+        c = 0
         for row in indata:
+            c = c + 1
             ctx = Context({"object": row})
-            values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
+            values = ["%d" % c, Paragraph(Template(cols[0]["bit"]).render(ctx), \
                                 styleN)]
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
                                 styleN3) for col in cols[1:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.25 * inch])
-    tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=1)
+    tb = ScaledTable(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle([('SPAN', (0, 0), (colWidths.__len__() - 1, 0)),
                             ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),\
                             ('BOX', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),
-                            ('BOX', (3, 1), (7, -1), 5, \
+                            ('BOX', (4, 1), (8, -1), 5, \
                             colors.lightgrey),
-                            ('BOX', (8, 1), (11, -1), 5, \
+                            ('BOX', (9, 1), (12, -1), 5, \
                             colors.lightgrey),
-                            ('BOX', (12, 1), (13, -1), 5, \
+                            ('BOX', (13, 1), (14, -1), 5, \
                             colors.lightgrey),
-                            ('BOX', (14, 1), (15, -1), 5, \
+                            ('BOX', (15, 1), (16, -1), 5, \
                             colors.lightgrey)
                             ]))
     return tb

@@ -124,6 +124,12 @@ def index(request):
                             'url': '/childcount/registerlist/%d/active'\
                              % loc.pk}]
         })
+    for loc in locs:
+        reports.append({
+            'title': _(u"HH Survey: %(location)s" % {'location': loc}),
+            'url': '/childcount/hhsurveylist/%d' % loc.pk,
+            'types': ('pdf',)
+        })
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',
