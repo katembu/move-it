@@ -32,6 +32,7 @@ except ImportError:
     pass
 
 from childcount.models import Clinic
+from childcount.models import CHW
 from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
@@ -258,12 +259,8 @@ def gen_operationalreport():
 
     story = []
     buffer = StringIO()
-
-    #Sauri's CHWs were location was clinic, some locations would draw blank reports
-    if Clinic.objects.all().count():
-        locations = Clinic.objects.all()
-    else:
-        locations = Location.objects.all()
+    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
+                                                    .distinct('location'))
     for location in locations:
         if not TheCHWReport.objects.filter(location=location).count():
             continue
@@ -563,11 +560,8 @@ def gen_surveryreport():
     story = []
     buffer = StringIO()
 
-    #Sauri's CHWs were location was clinic, some locations would draw blank reports
-    if Clinic.objects.all().count():
-        locations = Clinic.objects.all()
-    else:
-        locations = Location.objects.all()
+    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
+                                                    .distinct('location'))
     for location in locations:
         if not TheBHSurveyReport.objects.filter(location=location).count():
             continue
