@@ -24,7 +24,7 @@ def form_a_entered(request, rformat="html"):
         report_filename = u'form-a-entered')
 
 def form_b_entered(request, rformat="html"):
-    doc = Document(u'Household Visit Reports Entered Per Day')
+    doc = Document(u'Form B Reports Entered Per Day')
 
     h = HouseholdVisitReport.objects.all()
     h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))
@@ -36,8 +36,10 @@ def form_b_entered(request, rformat="html"):
         Text(_(u'Count'))])
     for row in h:
         t.add_row([
-            Text(row['encounter__encounter_date'], castfunc = lambda a: a),
-            Text(row['encounter__encounter_date__count'], castfunc = int)])
+            Text(row['encounter__encounter_date'].date(), 
+                castfunc = lambda a: a),
+            Text(row['encounter__encounter_date__count'],
+                castfunc = int)])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, 
