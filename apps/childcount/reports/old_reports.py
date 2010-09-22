@@ -709,7 +709,9 @@ def gen_household_surveyreport(filename, location=None):
         patients = ThePatient.objects.filter(\
                 health_id=F('household__health_id'), chw=chw).\
                 order_by('location')
-        tb = household_surveyreportable(chw, patients)
+        tb = household_surveyreportable(_(u"Bednet Report - %(loc)s: %(chw)s" \
+                                        % {'chw': chw, 'loc': chw.location}), \
+                                        patients)
         story.append(tb)
         story.append(PageBreak())
 
