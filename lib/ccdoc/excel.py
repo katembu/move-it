@@ -1,4 +1,8 @@
-from xlwt import Workbook, XFStyle, Font
+try:
+    from xlwt import Workbook, XFStyle, Font
+except ImportError:
+    pass
+
 
 from generator import Generator
 
