@@ -9,7 +9,6 @@ from childcount import views
 from childcount.reports import statistics
 from childcount.reports import custom_reports as reports
 
-
 admin.autodiscover()
 
 # an issue between Django version 1.0 and later?
