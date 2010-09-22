@@ -35,13 +35,13 @@ urlpatterns = patterns('',
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', \
                 reports.operationalreport),
-    url(r'^childcount/registerlist/(?P<clinic_id>\d+)/(?P<active>[a-z]+)?$', reports.registerlist),
+    url(r'^childcount/registerlist/(?P<clinic_id>\d+)/(?P<active>[a-z]+/)?$', reports.registerlist),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
     url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
         statistics.form_a_entered),
-    url(r'^childcount/reports/form_b_entered/(?P<rformat>[a-z]*)$', 
-        statistics.form_b_entered),
+    url(r'^childcount/reports/encounters_per_day/(?P<rformat>[a-z]*)$', 
+        statistics.encounters_per_day),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),

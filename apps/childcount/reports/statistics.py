@@ -23,8 +23,8 @@ def form_a_entered(request, rformat="html"):
         report_data = _matching_message_stats(['You successfuly registered ']),
         report_filename = u'form-a-entered')
 
-def form_b_entered(request, rformat="html"):
-    doc = Document(u'Form B Reports Entered Per Day')
+def encounters_per_day(request, rformat="html"):
+    doc = Document(u'Encounters Per Day')
 
     h = HouseholdVisitReport.objects.all()
     h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))

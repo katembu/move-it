@@ -103,8 +103,8 @@ def index(request):
         'url': '/childcount/reports/form_a_entered',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
-        'title': 'Form B Entered by Day',
-        'url': '/childcount/reports/form_b_entered',
+        'title': 'Encounters by Day',
+        'url': '/childcount/reports/encounters_per_day',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Operational Report"),
