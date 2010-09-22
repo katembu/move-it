@@ -7,10 +7,12 @@ import datetime
 
 from django.utils.translation import gettext_lazy as _
 from django.db import connection
+from django.db.models import Count
 
 from ccdoc import Document, Table, Paragraph, Text
 
 from reporters.models import Reporter
+from childcount.models import HouseholdVisitReport
 from childcount.reports.utils import render_doc_to_response
 
 def form_a_entered(request, rformat="html"):
@@ -21,13 +23,27 @@ def form_a_entered(request, rformat="html"):
         report_data = _matching_message_stats(['You successfuly registered ']),
         report_filename = u'form-a-entered')
 
-def form_b_entered(request, rformat="html"):
-    return _form_reporting(
-        request,
-        rformat,
-        report_title = (u'Form Bs Entered Per Day'),
-        report_data = _matching_message_stats(['Household member '], [' failed: ']),
-        report_filename = u'form-b-entered')
+def encounters_per_day(request, rformat="html"):
+    doc = Document(u'Encounters Per Day')
+
+    h = HouseholdVisitReport.objects.all()
+    h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))
+    h = h.order_by('encounter__encounter_date')
+
+    t = Table(2)
+    t.add_header_row([
+        Text(_(u'Date')),
+        Text(_(u'Count'))])
+    for row in h:
+        t.add_row([
+            Text(row['encounter__encounter_date'].date(), 
+                castfunc = lambda a: a),
+            Text(row['encounter__encounter_date__count'],
+                castfunc = int)])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, 
+        doc, 'encounters-by-date')
 
 def _form_reporting(request,
         rformat,
@@ -60,7 +76,8 @@ def _form_reporting(request,
             Text(row[2], castfunc = int)])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, report_filename)
+    return render_doc_to_response(request, rformat,
+        doc, report_filename)
 
 
 def _matching_message_stats(like_strings, unlike_strings = []):

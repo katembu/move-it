@@ -30,13 +30,17 @@
 
         var r = Raphael('deline', width=450, height=300);
         r.g.txtattr.font = "12px 'Helvetica', sans-serif";
-        //r.g.text(100, 10, "Form A Registrations");
         var lchart = r.g.linechart(
             0, 0, 
             380, 250,
             x,
             [y1],
             {shade: true, axis: '0 1 1 0'});
+        var xlabel = r.text(200, 270, "Number of days ago");
+        xlabel.attr('font-size',12);
+        var ylabel = r.text(10, 120, "Total number of patients");
+        ylabel.rotate(90);
+        ylabel.attr('font-size',12);
 
     };
     var k;
