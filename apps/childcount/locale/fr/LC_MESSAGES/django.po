@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-05 16:04+0000\n"
-"PO-Revision-Date: 2010-08-05 16:06-0000\n"
+"POT-Creation-Date: 2010-09-24 18:00-0400\n"
+"PO-Revision-Date: 2010-09-24 18:06-0500\n"
 "Last-Translator: Delphia Polle <dp2418@columbia.edu>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -120,25 +120,6 @@ msgstr "ECHEC. Mauvaise valeur. "
 msgid "FAILED. Not applicable."
 msgstr "ECHEC. Non valide."
 
-#: reports.py:60
-msgid "All Patients"
-msgstr "Tout patient"
-
-#: reports.py:348
-#: reports.py:362
-msgid "The specified clinic is not known"
-msgstr "Le centre de santé spécifié est inconnu"
-
-#: reports.py:371
-#, python-format
-msgid "No report for %s."
-msgstr "Pas de compte-rendu pour %s."
-
-#: reports.py:402
-#, python-format
-msgid "CHW: %(loc)s: %(chw)s"
-msgstr "ASC: %(loc)s: %(chw)s"
-
 #: utils.py:456
 #, python-format
 msgid "%(number)s is not a registered number."
@@ -181,27 +162,49 @@ msgstr "Echec de l'annulation. Un autre utilisateur a déjà modifié un ou plus
 msgid "Previous message successfully canceled."
 msgstr "Réussite de l'annulation du message précédent."
 
-#: commands/CheckHealthIdCommand.py:29
+#: commands/CheckHealthIdCommand.py:32
 msgid "checkid command requires a health id"
 msgstr "La commande checkid nécessite un NO. de santé"
 
-#: commands/CheckHealthIdCommand.py:35
+#: commands/CheckHealthIdCommand.py:38
 #, python-format
-msgid "%(patient)s; Household: %(household)s"
-msgstr "%(patient)s; Ménage: %(household)s"
+msgid "SUCCESS: %(patient)s; Household: %(household)s"
+msgstr "Réussi: %(patient)s; Ménage: %(household)s"
 
-#: commands/CheckHealthIdCommand.py:36
+#: commands/CheckHealthIdCommand.py:39
 msgid "patient"
 msgstr "patient"
 
-#: commands/CheckHealthIdCommand.py:39
+#: commands/CheckHealthIdCommand.py:48
 #, python-format
-msgid "No patient with health id %(health_id)s"
-msgstr "Pas de patient avec no. de santé %(health_id)s"
+msgid "Health ID %(id)s does NOT exist in the database "
+msgstr "Le No. de santé %(id)s n'existe pas dans la base de donnée"
 
-#: commands/CheckHealthIdCommand.py:40
-msgid "health_id"
-msgstr "No. de santé"
+#: commands/CheckHealthIdCommand.py:51
+msgid " but IS a valid identifier.  Check to make sure the database is current."
+msgstr " mais EST un identifiant valide. Vérifier que la base de donnée est à jour"
+
+#: commands/CheckHealthIdCommand.py:53
+msgid " and is NOT a valid identifier.  You might have entered the ID incorrectly."
+msgstr " et n'est pas un identifiant valide. Vous n'avez peut être pas entrer le numéro correctement."
+
+#: commands/CheckHealthIdCommand.py:57
+#, python-format
+msgid "Health ID %(id)s "
+msgstr "No. de santé %(id)s "
+
+#: commands/CheckHealthIdCommand.py:59
+#: commands/CheckHealthIdCommand.py:61
+msgid " is valid but no patient has been registered with this ID."
+msgstr " est valide mais il n'y a pas de patient enregistré sous ce numéro."
+
+#: commands/CheckHealthIdCommand.py:63
+msgid " is marked as belonging to a patient, but that                         patient is unknown."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:66
+msgid " is in the database but is marked as UNUSABLE."
+msgstr " est dans la base de donnée mais est marqué comme NON UTILISABLE."
 
 #: commands/DeathCommand.py:43
 msgid "dead person names | gender | age or DOB | date_of_death | [head_of_household]"
@@ -1499,7 +1502,7 @@ msgstr "Comptes-rendus de distribution des moustiquaires"
 
 #: models/CHW.py:27
 #: models/DeadPerson.py:62
-#: models/Patient.py:78
+#: models/Patient.py:79
 msgid "Community Health Worker"
 msgstr "Agent de Santé Communautaire"
 
@@ -1547,7 +1550,7 @@ msgstr "Agent de santé communautaire"
 #: models/CHWHealthId.py:25
 #: models/Case.py:62
 #: models/DeadPerson.py:43
-#: models/Patient.py:53
+#: models/Patient.py:54
 #: models/Referral.py:41
 msgid "Created on"
 msgstr "Créé le"
@@ -1604,7 +1607,7 @@ msgstr "Diarrhée"
 #: models/Case.py:52
 #: models/Encounter.py:33
 #: models/Encounter.py:42
-#: models/Patient.py:30
+#: models/Patient.py:31
 #: models/Referral.py:38
 msgid "Patient"
 msgstr "Patient"
@@ -1615,7 +1618,7 @@ msgstr "Sorte de cas"
 
 #: models/Case.py:57
 #: models/HealthId.py:39
-#: models/Patient.py:91
+#: models/Patient.py:92
 #: models/Referral.py:39
 #: models/ccreports.py:166
 #: models/reports.py:614
@@ -2150,42 +2153,42 @@ msgid "Dead Persons"
 msgstr "Personnes décédées"
 
 #: models/DeadPerson.py:40
-#: models/Patient.py:38
+#: models/Patient.py:39
 msgid "Male"
 msgstr "Homme"
 
 #: models/DeadPerson.py:41
-#: models/Patient.py:39
+#: models/Patient.py:40
 msgid "Female"
 msgstr "Femme"
 
 #: models/DeadPerson.py:44
-#: models/Patient.py:54
+#: models/Patient.py:55
 msgid "When the patient record was created"
 msgstr "Quand le registre du patient a été créé"
 
 #: models/DeadPerson.py:48
-#: models/Patient.py:58
+#: models/Patient.py:59
 msgid "First name"
 msgstr "Prénom"
 
 #: models/DeadPerson.py:49
-#: models/Patient.py:59
+#: models/Patient.py:60
 msgid "Last name"
 msgstr "Nom de famille"
 
 #: models/DeadPerson.py:50
-#: models/Patient.py:60
+#: models/Patient.py:61
 msgid "Family name or surname"
 msgstr "Nom de famille ou prénom"
 
 #: models/DeadPerson.py:51
-#: models/Patient.py:61
+#: models/Patient.py:62
 msgid "Gender"
 msgstr "Genre"
 
 #: models/DeadPerson.py:53
-#: models/Patient.py:63
+#: models/Patient.py:64
 msgid "Date of Birth"
 msgstr "Date de naissance"
 
@@ -2194,75 +2197,77 @@ msgid "Date of Death"
 msgstr "Date du décès"
 
 #: models/DeadPerson.py:56
-#: models/Patient.py:72
+#: models/Patient.py:73
 msgid "Head of House"
 msgstr "Chef de ménage"
 
 #: models/DeadPerson.py:57
-#: models/Patient.py:73
+#: models/Patient.py:74
 msgid "The primary caregiver in this person's household (self if primary caregiver)"
 msgstr "Le principal dispensateur de soins dans le ménage de cette personne (lui-même si dispensateur de soins principal)"
 
 #: models/DeadPerson.py:65
-#: models/Patient.py:81
+#: models/Patient.py:82
+#: reports/lists.py:26
 msgid "Location"
 msgstr "Lieu"
 
 #: models/DeadPerson.py:66
-#: models/Patient.py:82
+#: models/Patient.py:83
 msgid "The location this person lives within"
 msgstr "Le lieu au sein duquel cette personne vit"
 
 #: models/DeadPerson.py:69
-#: models/Patient.py:85
+#: models/Patient.py:86
 msgid "Health facility"
 msgstr "établissement médical"
 
 #: models/DeadPerson.py:70
-#: models/Patient.py:86
+#: models/Patient.py:87
 msgid "The primary health facility that this patient visits"
 msgstr "L'établissement médical principal où cette personne se rend"
 
 #: models/DeadPerson.py:73
-#: models/Patient.py:89
+#: models/Patient.py:90
 msgid "Mobile phone number"
 msgstr "Numéro de téléphone portable"
 
 #: models/DeadPerson.py:105
-#: models/Patient.py:128
+#: models/Patient.py:129
 #, python-format
 msgid "%(days)sd"
 msgstr "%(days)sd"
 
 #: models/DeadPerson.py:107
-#: models/Patient.py:130
+#: models/Patient.py:131
 #, python-format
 msgid "%(weeks)sw"
 msgstr "%(weeks)sw"
 
 #: models/DeadPerson.py:109
-#: models/Patient.py:132
+#: models/Patient.py:133
 #, python-format
 msgid "%(months)sm"
 msgstr "%(months)sm"
 
 #: models/DeadPerson.py:112
-#: models/Patient.py:135
+#: models/Patient.py:136
 #, python-format
 msgid "%(years)sy"
 msgstr "%(years)sy"
 
 #: models/DeadPerson.py:128
-#: models/Patient.py:184
+#: models/Patient.py:203
 #: models/ccreports.py:133
 #: models/ccreports.py:157
 #: models/ccreports.py:565
 #: models/ccreports.py:602
+#: reports/lists.py:29
 msgid "Name"
 msgstr "Nom"
 
 #: models/DeadPerson.py:134
-#: models/Patient.py:190
+#: models/Patient.py:209
 #: models/ccreports.py:139
 #: models/ccreports.py:163
 #: templates/childcount/forms/a.json:10
@@ -2322,6 +2327,7 @@ msgid "Method"
 msgstr "Méthode"
 
 #: models/FamilyPlanningUsage.py:21
+#: reports/statistics.py:44
 msgid "Count"
 msgstr "Comte"
 
@@ -2355,7 +2361,8 @@ msgstr "Backend"
 
 #: models/HealthId.py:18
 #: models/HealthId.py:32
-#: models/Patient.py:50
+#: models/Patient.py:51
+#: reports/lists.py:28
 msgid "Health ID"
 msgstr "No. de santé"
 
@@ -2461,43 +2468,43 @@ msgstr "Quand signaler"
 msgid "Notified on"
 msgstr "Signalé le"
 
-#: models/Patient.py:31
+#: models/Patient.py:32
 msgid "Patients"
 msgstr "Patients"
 
-#: models/Patient.py:46
+#: models/Patient.py:47
 msgid "Alive"
 msgstr "Vivant"
 
-#: models/Patient.py:47
+#: models/Patient.py:48
 msgid "Relocated"
 msgstr "Déménagé"
 
-#: models/Patient.py:48
+#: models/Patient.py:49
 msgid "Dead"
 msgstr "Décédé"
 
-#: models/Patient.py:52
+#: models/Patient.py:53
 msgid "Unique Health ID"
 msgstr "No. de santé unique"
 
-#: models/Patient.py:64
+#: models/Patient.py:65
 msgid "Estimated DOB"
 msgstr "Date de naissance estimée"
 
-#: models/Patient.py:65
+#: models/Patient.py:66
 msgid "True or false: the date of birth is only an approximation."
 msgstr "Vrai ou faux: la date de naissance est approximative"
 
-#: models/Patient.py:69
+#: models/Patient.py:70
 msgid "Mother or Guardian."
 msgstr "Mère ou tuteur"
 
-#: models/Patient.py:93
+#: models/Patient.py:94
 msgid "HIV Status"
 msgstr "Statut du VIH"
 
-#: models/Patient.py:95
+#: models/Patient.py:96
 msgid "HIV Exposed?"
 msgstr "Exposé au VIH?"
 
@@ -2568,6 +2575,10 @@ msgid "Last MUAC"
 msgstr "Dernier PB"
 
 #: models/ccreports.py:154
+#, fuzzy
+msgid "HID"
+msgstr "No. de santé du ménage"
+
 #: models/ccreports.py:169
 msgid "HHID"
 msgstr "No. de santé du ménage"
@@ -3523,6 +3534,41 @@ msgstr "Résultats de TSS"
 msgid "Results Returned"
 msgstr "Résultats renvoyés"
 
+#: reports/lists.py:27
+msgid "HH Health ID"
+msgstr "No. de santé du ménage"
+
+#: reports/old_reports.py:61
+msgid "All Patients"
+msgstr "Tout patient"
+
+#: reports/old_reports.py:349
+#: reports/old_reports.py:363
+msgid "The specified clinic is not known"
+msgstr "Le centre de santé spécifié est inconnu"
+
+#: reports/old_reports.py:372
+#, python-format
+msgid "No report for %s."
+msgstr "Pas de compte-rendu pour %s."
+
+#: reports/old_reports.py:403
+#, python-format
+msgid "CHW: %(loc)s: %(chw)s"
+msgstr "ASC: %(loc)s: %(chw)s"
+
+#: reports/statistics.py:42
+msgid "Date"
+msgstr "Date"
+
+#: reports/statistics.py:43
+msgid "User"
+msgstr "Utilisateur"
+
+#: reports/utils.py:11
+msgid "report"
+msgstr "Compte-rendu"
+
 #: templates/childcount/data_entry.html:8
 msgid "ChildCount+ Data Entry"
 msgstr "Saisie des données ChildCount+"
@@ -3583,6 +3629,7 @@ msgstr "Messages reçus"
 #: templates/childcount/forms/a.json:4
 #: templates/childcount/forms/b.json:4
 #: templates/childcount/forms/c.json:4
+#: templates/childcount/forms/ruhiira-b.json:4
 msgid "ID"
 msgstr "No"
 
@@ -3693,34 +3740,42 @@ msgid "Mobile Phone Number"
 msgstr "No de téléphone :"
 
 #: templates/childcount/forms/b.json:4
+#: templates/childcount/forms/ruhiira-b.json:5
 msgid "Head of Household HEALTH ID"
 msgstr "No de santé du chef de ménage"
 
 #: templates/childcount/forms/b.json:5
+#: templates/childcount/forms/ruhiira-b.json:7
 msgid "V"
 msgstr "V"
 
 #: templates/childcount/forms/b.json:5
+#: templates/childcount/forms/ruhiira-b.json:8
 msgid "HH Visit - All households"
 msgstr "VAD - Pour tout ménage"
 
 #: templates/childcount/forms/b.json:6
+#: templates/childcount/forms/ruhiira-b.json:9
 msgid "Avai"
 msgstr "Disp"
 
 #: templates/childcount/forms/b.json:6
+#: templates/childcount/forms/ruhiira-b.json:10
 msgid "HH Member Available (Y-N)"
 msgstr "Membre du ménage disponible (O-N)"
 
 #: templates/childcount/forms/b.json:7
+#: templates/childcount/forms/ruhiira-b.json:11
 msgid "Child"
 msgstr "Enf"
 
 #: templates/childcount/forms/b.json:7
+#: templates/childcount/forms/ruhiira-b.json:12
 msgid "Number of Children Under-5 seen"
 msgstr "Nombre d'enfants de moins de 5 ans visités"
 
 #: templates/childcount/forms/b.json:8
+#: templates/childcount/forms/ruhiira-b.json:13
 msgid "Adv"
 msgstr "Edu"
 
@@ -3729,58 +3784,72 @@ msgid "Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH)"
 msgstr "Éducation et conseils (AL, MI, PF, VA, NUT, SH)"
 
 #: templates/childcount/forms/b.json:9
+#: templates/childcount/forms/ruhiira-b.json:27
 msgid "FP"
 msgstr "FP"
 
 #: templates/childcount/forms/b.json:9
+#: templates/childcount/forms/ruhiira-b.json:28
 msgid "Family Planning Section"
 msgstr "Planning familial"
 
 #: templates/childcount/forms/b.json:10
+#: templates/childcount/forms/ruhiira-b.json:29
 msgid "♀"
 msgstr "♀"
 
 #: templates/childcount/forms/b.json:10
+#: templates/childcount/forms/ruhiira-b.json:30
 msgid "Number of Women Aged 15-49 seen during this visit"
 msgstr "Nombre de femmes agés de 15 à 49 ans visités"
 
 #: templates/childcount/forms/b.json:11
+#: templates/childcount/forms/ruhiira-b.json:31
 msgid "♀+P"
 msgstr "♀+P"
 
 #: templates/childcount/forms/b.json:11
+#: templates/childcount/forms/ruhiira-b.json:32
 msgid "Number of these Women currently using modern family planning"
 msgstr "Nombre parmis ces femmes qui utilisent la contraception moderne"
 
 #: templates/childcount/forms/b.json:12
+#: templates/childcount/forms/ruhiira-b.json:34
 msgid "meth"
 msgstr "meth"
 
 #: templates/childcount/forms/b.json:12
+#: templates/childcount/forms/ruhiira-b.json:35
 msgid "Primary Family Planning Method used [Record primary method for each woman] (C, I, N, P)"
 msgstr "Principal méthode de contraception utilisée (CD, IUD, IJ, IP, PL, ST) [indiquer pour chaque femme]"
 
 #: templates/childcount/forms/b.json:13
+#: templates/childcount/forms/ruhiira-b.json:36
 msgid "BN"
 msgstr "BN"
 
 #: templates/childcount/forms/b.json:13
+#: templates/childcount/forms/ruhiira-b.json:37
 msgid "Bednet Section"
 msgstr "Moustiquaire imprégnée"
 
 #: templates/childcount/forms/b.json:14
+#: templates/childcount/forms/ruhiira-b.json:38
 msgid "#net"
 msgstr "#mou"
 
 #: templates/childcount/forms/b.json:14
+#: templates/childcount/forms/ruhiira-b.json:39
 msgid "Number of Functioning Bednets in the households"
 msgstr "Nombre de moustiquaires imprégnées fonctionnelles dans le ménage"
 
 #: templates/childcount/forms/b.json:15
+#: templates/childcount/forms/ruhiira-b.json:40
 msgid "#bed"
 msgstr "#lit"
 
 #: templates/childcount/forms/b.json:15
+#: templates/childcount/forms/ruhiira-b.json:41
 msgid "Number of Sleeping Sites"
 msgstr "Nombre de places pour moustiquaires"
 
@@ -3965,6 +4034,57 @@ msgstr "Ref"
 #: templates/childcount/forms/c.json:28
 msgid "Referral to Clinic (A-E-B-C)"
 msgstr "Référence clinique (A-E-B-C)"
+
+#: templates/childcount/forms/ruhiira-b.json:14
+msgid "Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH, SH)"
+msgstr "Éducation et conseils (BP, ED, EC, FP, IM, NUT, PH, SH)"
+
+#: templates/childcount/forms/ruhiira-b.json:16
+msgid "E"
+msgstr "E"
+
+#: templates/childcount/forms/ruhiira-b.json:17
+msgid "Other Sick Members Section"
+msgstr "Section autres membres de la famille malade"
+
+#: templates/childcount/forms/ruhiira-b.json:18
+msgid "#sick"
+msgstr "#malade"
+
+#: templates/childcount/forms/ruhiira-b.json:19
+msgid "Number of Other Sick Members Seen During Visit"
+msgstr "Nombre d'autres membres du ménage malades vus lors de la visite"
+
+#: templates/childcount/forms/ruhiira-b.json:20
+msgid "#rdt"
+msgstr "#tdr"
+
+#: templates/childcount/forms/ruhiira-b.json:21
+msgid "Number of RDTs Used on Other Sick Members"
+msgstr "Nombre de TDR utilisés sur d'autres membres du ménage malades"
+
+#: templates/childcount/forms/ruhiira-b.json:22
+msgid "#pos"
+msgstr ""
+
+#: templates/childcount/forms/ruhiira-b.json:23
+msgid "Number of of RDT Positive Cases for Other Sick Members"
+msgstr "Nombre de cas de TDR positifs pour d'autres membres du ménage malades"
+
+#: templates/childcount/forms/ruhiira-b.json:24
+#, fuzzy
+msgid "#antm"
+msgstr "#mou"
+
+#: templates/childcount/forms/ruhiira-b.json:25
+msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
+msgstr "Nombre d'autres membres du ménage malades sous traitement anti-paludique"
+
+#~ msgid "No patient with health id %(health_id)s"
+#~ msgstr "Pas de patient avec no. de santé %(health_id)s"
+
+#~ msgid "health_id"
+#~ msgstr "No. de santé"
 
 #~ msgid "Lang command requires language code "
 #~ msgstr "La commande de langue nécessite un code de langue"
