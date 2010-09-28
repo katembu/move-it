@@ -178,7 +178,6 @@ class DOBProcessor:
                 raise InvalidDOB
             return dob, variance
 
-
         if not hit:
             # Check if it is four digits 1901 (1 sep 2001 or 9 jan 2001)
             regex = r'(?P<a>\d{1})(?P<b>\d{1})(?P<c>\d{2})$'
@@ -287,7 +286,6 @@ class DOBProcessor:
 
         if string.isdigit():
             string = '%s%s' % (string, cls.UNITS[lang][cls.YEARS][0])
-
 
         # Reverse the lists so that we have the long unit
         # descriptions first
@@ -598,13 +596,16 @@ def day_end(date):
     t = date.time().replace(hour=23, minute=59)
     return datetime.combine(date.date(), t)
 
+
 def last_day_of_month(date):
     if date.month == 12:
         return date.replace(day=31)
-    return date.replace(month=date.month+1, day=1) - timedelta(days=1)
+    return date.replace(month=date.month + 1, day=1) - timedelta(days=1)
+
 
 def first_day_of_month(date):
     return date.replace(day=1)
+
 
 def get_median(listOfNumericValues):
     ''' get the median of a list of numeric values '''
@@ -613,7 +614,7 @@ def get_median(listOfNumericValues):
         return ls[((len(ls) + 1) / 2) - 1]
     else:
         lowerv = ls[(len(ls) / 2) - 1]
-        upperv = ls[len(ls)/2]
+        upperv = ls[len(ls) / 2]
     return float(lowerv + upperv) / 2
 
 
@@ -626,7 +627,7 @@ class RotatedParagraph(Flowable):
         self.paragraph = paragraph
         self.width = aW
         self.height = aH
-        print 'W: ', self.width, ' H: ', self.height
+
     def draw(self):
         canv = self.canv
         canv.rotate(90)
@@ -634,17 +635,18 @@ class RotatedParagraph(Flowable):
         #drawOn(canvas, x, y)
         self.paragraph.drawOn(canv, 0, -(self.height))
 
+
 def send_msg(reporter, text):
-   '''
-   Sends a message to a reporter using the ajax app.  This goes to
-   ajax_POST_send_message in findtb app.py
-   '''
+    '''
+    Sends a message to a reporter using the ajax app.  This goes to
+    ajax_POST_send_message in findtb app.py
+    '''
 
-   conf = settings.RAPIDSMS_APPS['ajax']
-   url = "http://%s:%s/childcount/send_message" % (conf["host"], conf["port"])
+    conf = settings.RAPIDSMS_APPS['ajax']
+    url = "http://%s:%s/childcount/send_message" % (conf["host"], conf["port"])
 
-   data = {'reporter': reporter.pk, \
+    data = {'reporter': reporter.pk, \
            'text': text}
-   req = urllib2.Request(url, urlencode(data))
-   stream = urllib2.urlopen(req)
-   stream.close()
+    req = urllib2.Request(url, urlencode(data))
+    stream = urllib2.urlopen(req)
+    stream.close()

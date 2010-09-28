@@ -39,11 +39,11 @@ cc_forms = re.split(r'\s*,*\s*', form_config)
 def dataentry(request):
     ''' displays Data Entry U.I '''
     today = date.today().strftime("%Y-%m-%d")
-    chws = CHW.objects.all()
+    chws = CHW.objects.filter(is_active=True)
     try:
         chw = CHW.objects.get(id=request.user.id)
     except CHW.DoesNotExist:
-        return redirect(index)   
+        return redirect(index)
     return render_to_response(request, 'childcount/data_entry.html', \
                               {'chws': chws, 'today': today, \
                                'chw': chw, 'forms': cc_forms})
@@ -65,9 +65,9 @@ def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
     title = "ChildCount-2.0"
-    
+
     info = {}
-    
+
     info.update({"title": title})
     info.update({'risk': nutrition_png(request)})
     info.update(clinic_report(request))
@@ -79,11 +79,9 @@ def index(request):
 
     info['registrations'] = Patient.registrations_by_date()
 
-    
     '''#Summary Report
     sr = SummaryReport.summary()
     info.update(sr)
-    
     #This Week Summary Report
     wsr = WeekSummaryReport.summary()
     info.update(wsr)
@@ -93,8 +91,6 @@ def index(request):
     #General Summary report -  all
     gsr = GeneralSummaryReport.summary()
     info.update(gsr)
-
-
     '''
 
     reports = []
@@ -109,8 +105,7 @@ def index(request):
     reports.append({
         'title': _(u"Operational Report"),
         'url': '/childcount/operationalreport',
-        'types': ('pdf',)
-    })
+        'types': ('pdf',)})
     locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                     .distinct('location'))
     for loc in locs:
@@ -118,12 +113,17 @@ def index(request):
             'title': _(u"Register List: %(location)s" % {'location': loc}),
             'url': '/childcount/registerlist/%d' % loc.pk,
             'types': ('pdf',),
-            'otherlinks': [{'title': _(u"All Patients(including inactive and dead)"),
+            'otherlinks': [{'title': \
+                            _(u"All Patients(including inactive and dead)"),
                             'url': '/childcount/registerlist/%d' % loc.pk},
                             {'title': _("Active Patients Only"),
                             'url': '/childcount/registerlist/%d/active'\
-                             % loc.pk}]
-        })
+                             % loc.pk}]})
+    for loc in locs:
+        reports.append({
+            'title': _(u"HH Survey: %(location)s" % {'location': loc}),
+            'url': '/childcount/hhsurveylist/%d' % loc.pk,
+            'types': ('pdf',)})
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',
@@ -153,7 +153,7 @@ def site_summary(request, report='site', format='json'):
         if format == 'json':
             mimetype = 'application/javascript'
         data = simplejson.dumps(rpt)
-        return HttpResponse(data,mimetype)
+        return HttpResponse(data, mimetype)
     # If you want to prevent non XHR calls
     else:
         return HttpResponse(status=400)
@@ -262,7 +262,6 @@ def chw(request):
     reports = TheCHWReport.objects.all()
     i = 0
     for report in reports:
-       
         i += 1
         row = {}
         row["cells"] = []
@@ -381,7 +380,6 @@ def bednet_summary(request):
             break
         rows.append(row)
 
-    
     aggregate = False
     print columns
     print sub_columns
