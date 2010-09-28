@@ -25,25 +25,25 @@ def form_a_entered(request, rformat="html"):
 
 def encounters_per_day(request, rformat="html"):
     doc = Document(u'Encounters Per Day')
-
-    h = HouseholdVisitReport.objects.all()
-    h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))
-    h = h.order_by('encounter__encounter_date')
+    h = encounters_annotated()
 
     t = Table(2)
     t.add_header_row([
-        Text(_(u'Date')),
-        Text(_(u'Count'))])
+        Text(u'Date'),
+        Text(u'Count')])
     for row in h:
         t.add_row([
-            Text(row['encounter__encounter_date'].date(), 
-                castfunc = lambda a: a),
-            Text(row['encounter__encounter_date__count'],
-                castfunc = int)])
+            Text(unicode(row['encounter__encounter_date'].date())), 
+            Text(int(row['encounter__encounter_date__count']))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, 
         doc, 'encounters-by-date')
+
+def encounters_annotated():
+    h = HouseholdVisitReport.objects.all()
+    h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))
+    return h.order_by('encounter__encounter_date')
 
 def _form_reporting(request,
         rformat,
@@ -51,16 +51,15 @@ def _form_reporting(request,
         report_data,
         report_filename):
 
-    doc = Document(report_title, '')
+    doc = Document(unicode(report_title), '')
 
     t = Table(3)
     t.add_header_row([
-        Text(_(u'Date')),
-        Text(_(u'User')),
-        Text(_(u'Count'))])
+        Text(u'Date'),
+        Text(u'User'),
+        Text(u'Count')])
 
     for row in report_data: 
-        rowdate = time.strptime(unicode(row[0]), "%Y-%m-%d")
         username = row[1]
         full_name = u"[%s]" % username
         try:
@@ -71,9 +70,9 @@ def _form_reporting(request,
             full_name = u"%s %s [%s]" % (rep.first_name, rep.last_name, username)
 
         t.add_row([
-            Text(row[0], castfunc = lambda a: a),
+            Text(unicode(row[0])),
             Text(full_name),
-            Text(row[2], castfunc = int)])
+            Text(int(row[2]))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat,
