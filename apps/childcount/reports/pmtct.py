@@ -1,3 +1,4 @@
+import calendar
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -101,3 +102,30 @@ def summary():
                         'defaulters': c['num_defaulters']})
     data = {'total': total_defaulters, 'clinics': clinics}
     return data
+
+
+def new_registrations(request, rformat="html"):
+    '''Weekly, the number of new mother/infant pairs registered into the
+    system - Based solely on First Visit report i.e +PF'''
+    # TODO: Need to include under five as well
+    doc = Document(_(u'New Registration: Last one week to date'))
+    today = datetime.today()
+    start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
+    r = AntenatalVisitReport.objects
+    r = r.filter(encounter__encounter_date__gte=start, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
+
+    t = Table(3)
+    t.add_header_row([
+        Text(_(u'Patient')),
+        Text(_(u'CHW')),
+        Text(_(u'Location'))])
+    for row in r:
+        t.add_row([
+            Text(row.encounter.patient, \
+                castfunc=lambda a: a),
+            Text(row.encounter.patient.chw),
+            Text(row.encounter.patient.chw.location)])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'new-registrations')
