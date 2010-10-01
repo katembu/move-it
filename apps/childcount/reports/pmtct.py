@@ -39,16 +39,14 @@ def defaulters(request, rformat="html"):
         else:
             statustxt = _("Not Reminded")
         t.add_row([
-            Text(row.encounter.patient, 
-                castfunc = lambda a: a),
+            Text(row.encounter.patient, \
+                castfunc=lambda a:a),
             Text(statustxt),
             Text(row.encounter.patient.chw),
             Text(row.encounter.patient.chw.location)])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, 
-        doc, 'defaulters-list')
-
+    return render_doc_to_response(request, rformat, doc, 'defaulters-list')
 
 
 def upcoming_deliveries(request, rformat="html"):
@@ -67,14 +65,13 @@ def upcoming_deliveries(request, rformat="html"):
         Text(_(u'Location'))])
     for row in ud:
         t.add_row([
-            Text(row.encounter.patient, 
-                castfunc = lambda a: a),
+            Text(row.encounter.patient, \
+                castfunc=lambda a: a),
             Text(row.encounter.patient.chw),
             Text(row.encounter.patient.chw.location)])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, 
-        doc, 'upcoming-deliveries')
+    return render_doc_to_response(request, rformat, doc, 'upcoming-deliveries')
 
 
 def statistics(request, rformat="html"):
