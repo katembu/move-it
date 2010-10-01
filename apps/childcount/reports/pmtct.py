@@ -82,6 +82,7 @@ def statistics(request, rformat="html"):
 
 
 def summary():
+    '''Calculates Total Defaulters and Total Defaulters Per Location'''
     today = datetime.today()
     df = AppointmentReport.objects.filter(status__in=open_status, \
                                             appointment_date__lt=today, \
