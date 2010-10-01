@@ -686,6 +686,23 @@ class TheCHWReport(CHW):
 
         return p
 
+    def chw_activities_summary(self, startDate, endDate=datetime.today()):
+        p = {}
+
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = endDate.strftime('%d %b')
+        p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
+                            endDate=endDate)
+        p['numhvisit'] = self.household_visit(startDate=startDate, \
+                            endDate=endDate)
+        p['muac'] = self.mam_cases(startDate=startDate, endDate=endDate)
+        p['rdt'] = self.rdt_cases(startDate=startDate, endDate=endDate)
+        p['household'] = self.number_of_households
+        p['tclient'] = self.num_of_patients
+        p['ufive'] = self.num_of_underfive
+
+        return p
+
     def num_of_bednetsurvey(self):
         return BedNetReport.objects.filter(encounter__chw=self).count()
 

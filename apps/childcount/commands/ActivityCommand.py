@@ -3,6 +3,7 @@
 # maintainer: katembu
 
 from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from django.utils.translation import ugettext as _
 
@@ -25,10 +26,21 @@ class ActivityCommand(CCCommand):
     @authenticated
     def process(self):
         chw = self.message.persistant_connection.reporter.chw
-
         thechw = TheCHWReport.objects.get(id=chw.id)
-        summary = thechw.activity_summary()
-        self.message.respond(_(u"This week(%(sdate)s -%(edate)s): " \
+        period = "week"
+        summary = None
+        if self.params.__len__() > 1:
+            period = self.params[1]
+
+            if period == "month":
+                today = datetime.today()
+                if today.day < 10:
+                    last_month = today + relativedelta(months=-1, day=1, \
+                                    hour=0, minute=0, second=0, microsecond=0)
+                summary = thechw.chw_activities_summary(last_month, today)
+        if not summary:
+            summary = thechw.activity_summary()
+        self.message.respond(_(u"(%(sdate)s -%(edate)s): " \
                                 "%(numhvisit)d household visit, %(muac)d " \
                                 "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT." \
                                 " You have %(household)d households" \
