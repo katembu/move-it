@@ -62,6 +62,8 @@ urlpatterns = patterns('',
         pmtct.upcoming_deliveries),
     url(r'^childcount/reports/pmtct-newregs/(?P<rformat>[a-z]*)$', 
         pmtct.new_registrations),
+    url(r'^childcount/reports/pmtct-mothers-onfollowup/(?P<rformat>[a-z]*)$', 
+        pmtct.active_mothers),
     url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
         pmtct.statistics),
 )
