@@ -114,6 +114,7 @@ def new_registrations(request, rformat="html"):
     r = AntenatalVisitReport.objects
     r = r.filter(encounter__encounter_date__gte=start, \
                             encounter__patient__status=Patient.STATUS_ACTIVE)
+    r = r.order_by('encounter__patient__chw__location')
 
     t = Table(3)
     t.add_header_row([
@@ -129,3 +130,35 @@ def new_registrations(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'new-registrations')
+
+
+def active_mothers(request, rformat="html"):
+    '''Total number of mothers followed currently, overall and broken down
+    by location - dob is atleast 10 yrs ago'''
+    # TODO: Need to include under five as well
+    doc = Document(_(u'Mothers Being followed'))
+    today = datetime.today()
+    ten_years_ago = today + relativedelta(years=-10)
+    start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
+    r = AppointmentReport.objects.filter(encounter__patient__dob__lt=start, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            encounter__patient__gender=Patient.GENDER_FEMALE, \
+                            status__in=open_status)
+    r = r.values('encounter__patient').distinct()
+    r = r.order_by('encounter__patient__chw__location')
+
+    t = Table(3)
+    t.add_header_row([
+        Text(_(u'Patient')),
+        Text(_(u'CHW')),
+        Text(_(u'Location'))])
+    for row in r:
+        patient = Patient.objects.get(pk=row['encounter__patient'])
+        t.add_row([
+            Text(patient, \
+                castfunc=lambda a: a),
+            Text(patient.chw),
+            Text(patient.chw.location)])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'mothers-on-followup')
