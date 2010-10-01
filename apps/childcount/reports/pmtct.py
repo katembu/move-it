@@ -12,7 +12,7 @@ from childcount.reports.utils import render_doc_to_response
 
 
 def defaulters(request, rformat="html"):
-    doc = Document(u'Defaulters Report')
+    doc = Document(_(u'Defaulters Report'))
     today = datetime.today()
     open_status = (AppointmentReport.STATUS_OPEN, \
                     AppointmentReport.STATUS_PENDING_CV)
