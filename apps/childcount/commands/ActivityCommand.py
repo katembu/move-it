@@ -34,10 +34,15 @@ class ActivityCommand(CCCommand):
 
             if period == "month":
                 today = datetime.today()
+                # include last months summary if we are less than 10 days into
+                # this month
                 if today.day < 10:
-                    last_month = today + relativedelta(months=-1, day=1, \
+                    start_date = today + relativedelta(months=-1, day=1, \
                                     hour=0, minute=0, second=0, microsecond=0)
-                summary = thechw.chw_activities_summary(last_month, today)
+                else:
+                    start_date = today + relativedelta( day=1, \
+                                    hour=0, minute=0, second=0, microsecond=0)
+                summary = thechw.chw_activities_summary(start_date, today)
         if not summary:
             summary = thechw.activity_summary()
         self.message.respond(_(u"(%(sdate)s->%(edate)s): " \
