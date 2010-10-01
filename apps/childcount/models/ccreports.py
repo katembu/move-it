@@ -672,8 +672,8 @@ class TheCHWReport(CHW):
         startDate = today - timedelta(today.weekday())
         p = {}
 
-        p['sdate'] = startDate.day
-        p['edate'] = today.day
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = today.strftime('%d %b')
         p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
                             endDate=today)
         p['numhvisit'] = self.household_visit(startDate=startDate, \

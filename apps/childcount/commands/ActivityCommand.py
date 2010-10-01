@@ -40,7 +40,7 @@ class ActivityCommand(CCCommand):
                 summary = thechw.chw_activities_summary(last_month, today)
         if not summary:
             summary = thechw.activity_summary()
-        self.message.respond(_(u"(%(sdate)s -%(edate)s): " \
+        self.message.respond(_(u"(%(sdate)s->%(edate)s): " \
                                 "%(numhvisit)d household visit, %(muac)d " \
                                 "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT." \
                                 " You have %(household)d households" \
