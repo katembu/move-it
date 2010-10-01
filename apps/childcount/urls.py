@@ -60,4 +60,6 @@ urlpatterns = patterns('',
         pmtct.defaulters),
     url(r'^childcount/reports/pmtct-deliveries/(?P<rformat>[a-z]*)$', 
         pmtct.upcoming_deliveries),
+    url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
+        pmtct.statistics),
 )

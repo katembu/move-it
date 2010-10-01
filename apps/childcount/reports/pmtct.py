@@ -2,6 +2,11 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Count
+from django.utils import simplejson
+from django.http import HttpResponse
+
+from locations.models import Location
 
 from childcount.models import AppointmentReport
 from childcount.models import AntenatalVisitReport
@@ -10,14 +15,16 @@ from childcount.models import Patient
 from ccdoc import Document, Table, Paragraph, Text
 from childcount.reports.utils import render_doc_to_response
 
+open_status = (AppointmentReport.STATUS_OPEN, \
+                    AppointmentReport.STATUS_PENDING_CV)
+
 
 def defaulters(request, rformat="html"):
     doc = Document(_(u'Defaulters Report'))
     today = datetime.today()
-    open_status = (AppointmentReport.STATUS_OPEN, \
-                    AppointmentReport.STATUS_PENDING_CV)
     df = AppointmentReport.objects.filter(status__in=open_status, \
-                                            appointment_date__lt=today)
+                                            appointment_date__lt=today, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
     df = df.order_by('encounter__patient__chw__location')
 
     t = Table(4)
@@ -68,3 +75,31 @@ def upcoming_deliveries(request, rformat="html"):
 
     return render_doc_to_response(request, rformat, 
         doc, 'upcoming-deliveries')
+
+
+def statistics(request, rformat="html"):
+    # TODO: html and pdf formats
+    mimetype = 'application/javascript'
+    data = simplejson.dumps(summary())
+    return HttpResponse(data, mimetype)
+
+
+def summary():
+    today = datetime.today()
+    df = AppointmentReport.objects.filter(status__in=open_status, \
+                                            appointment_date__lt=today, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
+    total_defaulters = df.count()
+    # summary per clinic
+    dfl = AppointmentReport.objects.filter(status__in=open_status, \
+                            appointment_date__lt=today, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)
+    dfl = dfl.values('encounter__patient__chw__location')
+    dfl = dfl.annotate(num_defaulters=Count('encounter'))
+    clinics = []
+    for c in dfl:
+        loc = Location.objects.get(pk=c['encounter__patient__chw__location'])
+        clinics.append({'location': loc.name, \
+                        'defaulters': c['num_defaulters']})
+    data = {'total': total_defaulters, 'clinics': clinics}
+    return data
