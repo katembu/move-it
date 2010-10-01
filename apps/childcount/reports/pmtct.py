@@ -114,6 +114,7 @@ def new_registrations(request, rformat="html"):
     r = AntenatalVisitReport.objects
     r = r.filter(encounter__encounter_date__gte=start, \
                             encounter__patient__status=Patient.STATUS_ACTIVE)
+    r = r.order_by('encounter__patient__chw__location')
 
     t = Table(3)
     t.add_header_row([
