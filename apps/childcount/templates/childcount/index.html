@@ -164,7 +164,7 @@
                         {% ifequal t 'pdf' %}
                             {% if r.otherlinks %}
                                 {% for l in r.otherlinks %}
-                    <a href="{{ l.url }}/" title="{{ l.title }}"><img src="/static/childcount/icons/pdf.png" /></a> 
+                    <a href="{{ l.url }}" title="{{ l.title }}"><img src="/static/childcount/icons/pdf.png" /></a> 
                                 {% endfor %}
                             {% else %}
                     <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a>
