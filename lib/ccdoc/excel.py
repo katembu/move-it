@@ -108,7 +108,7 @@ class ExcelGenerator(Generator):
 
                 self.cur_sheet.write(
                     self.row, self.col,
-                    col.castfunc(col.text),
+                    col.text,
                     style)
                
                 self.col += 1

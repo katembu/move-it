@@ -39,7 +39,7 @@ cc_forms = re.split(r'\s*,*\s*', form_config)
 def dataentry(request):
     ''' displays Data Entry U.I '''
     today = date.today().strftime("%Y-%m-%d")
-    chws = CHW.objects.all()
+    chws = CHW.objects.filter(is_active=True)
     try:
         chw = CHW.objects.get(id=request.user.id)
     except CHW.DoesNotExist:
