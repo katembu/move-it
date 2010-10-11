@@ -758,13 +758,15 @@ class NutritionReport(CCReport):
             self.OEDEMA_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
         }
 
-        return {
+        igive =  {
             'mid_upper_arm_circumference': self.muac,
-            'oedema': oedema_map[self.oedema],
-            'weight': self.weight,
+            'oedema': oedema_map[self.oedema]
         }
-        if self.oedema == OEDEMA_YES:
+        if self.weight:
+            igive.update({'weight': self.weight})
+        if self.oedema == self.OEDEMA_YES:
             igive.update({'reasons_for_referral__oedema': True})
+        return igive
 reversion.register(NutritionReport, follow=['ccreport_ptr'])
 
 
