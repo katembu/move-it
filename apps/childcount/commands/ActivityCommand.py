@@ -49,5 +49,6 @@ class ActivityCommand(CCCommand):
                                 "%(numhvisit)d household visit, %(muac)d " \
                                 "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT." \
                                 " You have %(household)d households" \
-                                ", %(ufive)d under five, %(tclient)d total" \
+                                ", %(ufive)d under five, %(unine)d under 9m, "\
+                                "%(tclient)d total" \
                                 " registerd clients") % summary)

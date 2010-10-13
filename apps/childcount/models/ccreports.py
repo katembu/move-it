@@ -701,6 +701,7 @@ class TheCHWReport(CHW):
         p['household'] = self.number_of_households
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
 
         return p
 
@@ -718,6 +719,7 @@ class TheCHWReport(CHW):
         p['household'] = self.number_of_households
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
 
         return p
 
