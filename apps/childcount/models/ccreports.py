@@ -386,6 +386,15 @@ class TheCHWReport(CHW):
                             status=Patient.STATUS_ACTIVE)
 
     @property
+    def num_of_under_nine(self):
+        return self.patients_under_nine().count()
+
+    def patients_under_nine(self):
+        ninem = date.today() - timedelta(int(30.4375 * 9))
+        return Patient.objects.filter(chw=self, dob__gte=ninem, \
+                            status=Patient.STATUS_ACTIVE)
+
+    @property
     def num_of_sam(self):
         num = NutritionReport.objects.filter(created_by=self, \
                             status=NutritionReport.STATUS_SEVERE_COMP).count()
