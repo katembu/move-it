@@ -372,7 +372,8 @@ class TheCHWReport(CHW):
 
     @property
     def num_of_patients(self):
-        num = Patient.objects.filter(chw=self).count()
+        num = Patient.objects.filter(chw=self, \
+                            status=Patient.STATUS_ACTIVE).count()
         return num
 
     @property
@@ -381,7 +382,17 @@ class TheCHWReport(CHW):
 
     def patients_under_five(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        return Patient.objects.filter(chw=self, dob__gte=sixtym)
+        return Patient.objects.filter(chw=self, dob__gte=sixtym, \
+                            status=Patient.STATUS_ACTIVE)
+
+    @property
+    def num_of_under_nine(self):
+        return self.patients_under_nine().count()
+
+    def patients_under_nine(self):
+        ninem = date.today() - timedelta(int(30.4375 * 9))
+        return Patient.objects.filter(chw=self, dob__gte=ninem, \
+                            status=Patient.STATUS_ACTIVE)
 
     @property
     def num_of_sam(self):
@@ -394,20 +405,24 @@ class TheCHWReport(CHW):
     @property
     def num_of_mam(self):
         num = NutritionReport.objects.filter(created_by=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_MODERATE).count()
         return num
 
     def mam_cases(self, startDate=None, endDate=None):
         return NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
 
     def severe_mam_cases(self, startDate=None, endDate=None):
         num = NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                             status=NutritionReport.STATUS_SEVERE_COMP, \
                             encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
         num += NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_SEVERE, \
                             encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
@@ -416,6 +431,7 @@ class TheCHWReport(CHW):
     @property
     def num_of_healthy(self):
         num = NutritionReport.objects.filter(created_by=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_HEALTHY).count()
         return num
 
@@ -437,7 +453,8 @@ class TheCHWReport(CHW):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
         num = Patient.objects.filter(chw=self, dob__gte=sixtym, \
-                                     dob__lte=sixm).count()
+                                    status=Patient.STATUS_ACTIVE, \
+                                    dob__lte=sixm).count()
         return num
 
     @classmethod
@@ -445,6 +462,7 @@ class TheCHWReport(CHW):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
         num = Patient.objects.filter(dob__gte=sixtym, \
+                                    status=Patient.STATUS_ACTIVE, \
                                      dob__lte=sixm).count()
         return num
 
@@ -672,8 +690,8 @@ class TheCHWReport(CHW):
         startDate = today - timedelta(today.weekday())
         p = {}
 
-        p['sdate'] = startDate.day
-        p['edate'] = today.day
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = today.strftime('%d %b')
         p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
                             endDate=today)
         p['numhvisit'] = self.household_visit(startDate=startDate, \
@@ -683,6 +701,25 @@ class TheCHWReport(CHW):
         p['household'] = self.number_of_households
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
+
+        return p
+
+    def chw_activities_summary(self, startDate, endDate=datetime.today()):
+        p = {}
+
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = endDate.strftime('%d %b')
+        p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
+                            endDate=endDate)
+        p['numhvisit'] = self.household_visit(startDate=startDate, \
+                            endDate=endDate)
+        p['muac'] = self.mam_cases(startDate=startDate, endDate=endDate)
+        p['rdt'] = self.rdt_cases(startDate=startDate, endDate=endDate)
+        p['household'] = self.number_of_households
+        p['tclient'] = self.num_of_patients
+        p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
 
         return p
 

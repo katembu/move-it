@@ -220,11 +220,11 @@ def weekly_anc_visit_reminder():
         sms_alert.save()
 
 
-@periodic_task(run_every=timedelta(minutes=60))
+# once a day: generating them every hour caused database to crash
+@periodic_task(run_every=crontab(minute=0, hour=0))
 def hourly_operationalreport():
     gen_operationalreport()
 
-
-@periodic_task(run_every=timedelta(minutes=60))
+@periodic_task(run_every=crontab(minute=30, hour=0))
 def hourly_surveyreport():
     gen_surveryreport()

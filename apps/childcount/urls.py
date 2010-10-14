@@ -7,6 +7,7 @@ from django.contrib import admin
 
 from childcount import views
 from childcount.reports import statistics
+from childcount.reports import pmtct
 from childcount.reports import custom_reports as reports
 
 admin.autodiscover()
@@ -53,4 +54,15 @@ urlpatterns = patterns('',
                         views.form, name='form'),
     url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
         views.site_summary),
+    # PMTCT links
+    url(r'^childcount/reports/pmtct-defaulters/(?P<rformat>[a-z]*)$', 
+        pmtct.defaulters),
+    url(r'^childcount/reports/pmtct-deliveries/(?P<rformat>[a-z]*)$', 
+        pmtct.upcoming_deliveries),
+    url(r'^childcount/reports/pmtct-newregs/(?P<rformat>[a-z]*)$', 
+        pmtct.new_registrations),
+    url(r'^childcount/reports/pmtct-mothers-onfollowup/(?P<rformat>[a-z]*)$', 
+        pmtct.active_mothers),
+    url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
+        pmtct.statistics),
 )
