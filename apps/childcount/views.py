@@ -47,7 +47,6 @@ def dataentry(request):
                               {'chws': chws, 'today': today, \
                                'chw': chw, 'forms': cc_forms})
 
-
 @login_required
 def form(request, formid):
     ''' sends form_id according to user's language '''
@@ -59,7 +58,7 @@ def form(request, formid):
 
     return HttpResponse(form, mimetype="application/json")
 
-
+@login_required
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
