@@ -336,22 +336,6 @@ def operationalreportable(title, indata=None):
                 ]))
     return tb
 
-
-@login_required
-def bednetregisterlist(request, clinic_id):
-    filename = 'registerlist.pdf'
-    try:
-        clinic = Clinic.objects.get(id=clinic_id)
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_patient_register_pdf(response, clinic)
-        return response
-    except Clinic.DoesNotExist:
-        return HttpResponse(_(u"The specified clinic is not known"))
-    '''except:
-        return HttpResponse(_("Error"))'''
-
 def gen_registerlist():
     clinics = Clinic.objects.all()
     for c in clinics:
@@ -590,7 +574,6 @@ def clinic_monthly_summary_csv(request):
     response.write(rpt)
     return response
 
-
 def gen_all_household_surveyreports():
     clinics = Clinic.objects.all()
     for clinic in clinics:
@@ -643,9 +626,9 @@ def household_surveyreport(location=None):
     Generate the healthy survey report.
     '''
     filename = report_filename('HouseholdSurveyReport.pdf')
+    f = open(filename, 'w')
 
     story = []
-    buffer = StringIO()
 
     if TheCHWReport.objects.all().count():
         for chw in TheCHWReport.objects.all():
@@ -658,16 +641,11 @@ def household_surveyreport(location=None):
             story.append(tb)
             story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
 
-    # Get the value of the StringIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()
-    f = open(filename, 'w')
-    f.write(pdf)
     f.close()
 
 
