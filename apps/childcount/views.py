@@ -23,7 +23,6 @@ from django.db.models import F
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
-
 from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
@@ -104,26 +103,38 @@ def index(request):
         'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Operational Report"),
-        'url': '/childcount/operationalreport',
-        'types': ('pdf',)})
-    locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                    .distinct('location'))
-    for loc in locs:
+        'url': '/static/childcount/reports/operationalreport.pdf',
+        'types': ('pdf',),
+        'otherlinks': [{'title':u'Operational Report',
+                        'url':'/static/childcount/reports/operationalreport.pdf'}]})
+    reports.append({
+        'title': _(u"Survey Report"),
+        'url': '/static/childcount/reports/surveyreport.pdf',
+        'types': ('pdf',),
+        'otherlinks': [{'title':u'Survey Report',
+                        'url':'/static/childcount/reports/surveyreport.pdf'}]})
+    clinics = Clinic.objects.all()
+
+    for clinic in clinics:
         reports.append({
-            'title': _(u"Register List: %(location)s" % {'location': loc}),
-            'url': '/childcount/registerlist/%d' % loc.pk,
+            'title': _(u"Register List: %(location)s" % {'location': clinic}),
+            'url': '/static/childcount/reports/registerlist-%s.pdf' % clinic.code,
             'types': ('pdf',),
             'otherlinks': [{'title': \
                             _(u"All Patients(including inactive and dead)"),
-                            'url': '/childcount/registerlist/%d' % loc.pk},
+                            'url': "/static/childcount/reports/registerlist-%s.pdf" % clinic.code},
                             {'title': _("Active Patients Only"),
-                            'url': '/childcount/registerlist/%d/active'\
-                             % loc.pk}]})
-    for loc in locs:
+                            'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
+                             % clinic.code}]})
+    for clinic in clinics: 
         reports.append({
-            'title': _(u"HH Survey: %(location)s" % {'location': loc}),
-            'url': '/childcount/hhsurveylist/%d' % loc.pk,
-            'types': ('pdf',)})
+            'title': _(u"HH Survey: %(location)s" % {'location': clinic}),
+            'url': '/childcount/hhsurvey-%s' % clinic.code,
+            'types': ('pdf',),
+            'otherlinks': [
+                {'title': clinic.name,
+                'url': "/static/childcount/reports/hhsurvey-%s.pdf" % clinic.code}
+            ]})
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',

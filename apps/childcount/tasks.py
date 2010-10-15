@@ -21,7 +21,9 @@ from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 
 from childcount.reports import gen_operationalreport
-from childcount.reports import gen_surveryreport
+from childcount.reports import gen_surveyreport
+from childcount.reports import gen_registerlist
+from childcount.reports import gen_all_household_surveyreports
 
 from alerts.utils import SmsAlert
 
@@ -222,9 +224,18 @@ def weekly_anc_visit_reminder():
 
 # once a day: generating them every hour caused database to crash
 @periodic_task(run_every=crontab(minute=0, hour=0))
-def hourly_operationalreport():
+def daily_operationalreport():
     gen_operationalreport()
 
 @periodic_task(run_every=crontab(minute=30, hour=0))
-def hourly_surveyreport():
-    gen_surveryreport()
+def daily_surveyreport():
+    gen_surveyreport()
+
+@periodic_task(run_every=crontab(minute=0, hour=1))
+def daily_registerlist():
+    gen_registerlist()
+
+@periodic_task(run_every=crontab(minute=30, hour=1))
+def daily_all_surveyreports():
+    gen_all_household_surveyreports()
+
