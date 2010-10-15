@@ -211,6 +211,9 @@ class App (rapidsms.app.App):
                                    {'id': health_id}, 'error')
                 return handled
 
+            # Set the CHW for this household to the person sending the text message.
+            Patient.objects.filter(household=patient.household).update(chw=chw)
+
             # If all of the forms are household forms and the patient is not
             # head of household, don't proceed to process.  If there is one
             # or more household forms mixed with one or more individual forms
