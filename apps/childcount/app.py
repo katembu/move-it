@@ -4,7 +4,7 @@
 
 import re
 import time
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from django.utils.translation import ugettext as _, activate
 from django.utils.translation import ungettext
@@ -74,12 +74,14 @@ class App (rapidsms.app.App):
         # message.encounter_date.  Otherwise, the reporter is the chw,
         # and the encounter date is from the backend
         if 'chw' in message.__dict__:
+
             try:
                 chw = CHW.objects.get(pk=message.chw)
             except CHW.DoesNotExist:
                 message.respond(_(u"Problem getting CHW from backend."), \
                                 'error')
                 return handled
+
             reporter = chw.reporter
             message.reporter = reporter
         else:
@@ -103,6 +105,40 @@ class App (rapidsms.app.App):
         # for locations with DST.
         message.date = message.date - timedelta(seconds=time.timezone)
 
+        # If coming from debackend...
+        if 'chw' in message.__dict__:
+            try: 
+                rep = Reporter.objects.get(username=message.identity)
+            except Reporter.DoesNotExist:
+                message.respond(_(u"Invalid user logged in."), 'error')
+                return handled
+    
+            # Data entry clerk forgot to set the CHW
+            if chw.pk == rep.pk:
+                message.respond(_(u"%(fname)s, "
+                                "you must select a CHW other than yourself "
+                                "at the bottom of the data entry screen.") % \
+                                {'fname': rep.first_name}, \
+                    'error')
+                return handled
+
+        # Validate debackend encounter date
+        if 'encounter_date' in message.__dict__:
+            try:
+                edate = datetime.strptime(message.encounter_date, \
+                                         "%Y-%m-%d")
+            except ValueError:
+                message.respond(_(u"Problem getting encounter_date from "\
+                                   "backend."), 'error')
+                return handled
+
+            # Don't allow future dates
+            if edate.date() > date.today():
+                message.respond(_(u"You cannot select an encounter date that is "
+                    "in the future."),
+                    'error')
+                return handled
+ 
         # Set the user of revision, equal to the user object of the reporter
         if reporter:
             revision.user = reporter.user_ptr
@@ -124,16 +160,18 @@ class App (rapidsms.app.App):
                 return handled
 
             chw = reporter.chw
+
             if 'encounter_date' in message.__dict__:
                 try:
-                    date = datetime.strptime(message.encounter_date, \
+                    edate = datetime.strptime(message.encounter_date, \
                                              "%Y-%m-%d")
                     # set it to midday on that day...
-                    message.date = date + timedelta(hours=12)
+                    message.date = edate + timedelta(hours=12)
                 except ValueError:
                     message.respond(_(u"Problem getting encounter_date from "\
                                        "backend."), 'error')
                     return handled
+
             encounter_date = message.date
 
             health_ids_text = forms_match.groupdict()['health_ids']
@@ -414,3 +452,5 @@ class App (rapidsms.app.App):
        # TODO: what could go wrong here?
        be = self.router.get_backend(pconn.backend.slug)
        return be.message(pconn.identity, post["text"]).send()
+
+

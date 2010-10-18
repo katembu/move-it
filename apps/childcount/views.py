@@ -36,8 +36,11 @@ cc_forms = re.split(r'\s*,*\s*', form_config)
 
 @login_required
 def dataentry(request):
-    ''' displays Data Entry U.I '''
-    today = date.today().strftime("%Y-%m-%d")
+    ''' displays Data Entry U.I. '''
+
+    ''' Make default date in the future so that DE clerk is forced
+    to manually select a date. '''
+    today = (date.today() + timedelta(1)).strftime("%Y-%m-%d")
     chws = CHW.objects.filter(is_active=True)
     try:
         chw = CHW.objects.get(id=request.user.id)
