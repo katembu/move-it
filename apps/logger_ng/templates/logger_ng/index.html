@@ -2,11 +2,16 @@
 {% block title %}Message Log{% endblock %}
 
 {% block javascripts %}
+<script type="text/javascript" src="/static/logger_ng/js/jquery-1.4.2.js"></script><!-- needs ability to parseJSON -->
+<script type="text/javascript" src="/static/logger_ng/js/jquery.buildin.js"></script>
+<script type="text/javascript" src="/static/logger_ng/js/logger_reply.js"></script>
+<script type="text/javascript" src="/static/logger_ng/js/jquery.buildin.templates.js"></script>
 {% endblock %}
 
 
 {% block page_stylesheets %}
-<link rel="stylesheet" type="text/css" href="/static/logger_ng/style.css" />
+<link rel="stylesheet" type="text/css" href="/static/logger_ng/css/sms-replies.css" />
+<link rel="stylesheet" type="text/css" href="/static/logger_ng/css/style.css" />
 {% endblock %}
 
 {% block content %}
@@ -17,6 +22,7 @@
     <div class="details">
         <span class="date">{{msg.date|date:"d-M-Y @ H:m:s"}}</span>
         <span class="from">{{msg.ident_string}}</span>
+		<span class="status" title="{{'good'}}"></span>
     </div>
     <div class="msg {% if msg.is_incoming %}text{% else %}response{% endif %}">{{msg.text}}</div>
     {% for response in msg.response.all %}
@@ -31,6 +37,63 @@
 </div>
 {% endfor %}
 
+<script type="text/javascript">
+	var CurrentLang = (window.navigator.language.toLowerCase()=="en-us") ? "en" : "fr",
+		ExchangeSettings = {
+		'token' : "qwertyuiopasdfghjklzxcvbnm",
+		'msgPOSTurl' : "/logger_ng/post_message"
+		},
+		Translations;
+
+	// window.navigator.language is not reliable in all browsers, but
+	// might be good for surprising kevin+renaud with a french ui
+	CurrentLang = (window.navigator.language.toLowerCase()=="en-us") ? "en" : "fr";
+	
+	Translations = {
+		'en': {
+			'response': "Response",
+			'responses': "Responses",
+			'reply': 'Respond',
+			'status': {
+				'good': "Status: Good",
+				'warning': "Status: Warning",
+				'pending': "Status: Pending",
+				'error': "Status: Error",
+				'info': "Status: Info"
+			},
+			'sendMessage': "Send",
+			'tooManyCharacters': "Too many characters"
+		},
+		'fr': {
+			'response': "Réponse",
+			'responses': "Réponses",
+			'reply': "Répondre",
+			'status': {
+				'good': "Statut: Bon",
+				'pending': "Statut: Pending",
+				'warning': "Statut: Warning",
+				'error': "Statut: Error",
+				'info' : "Statut: Info"
+			},
+			'sendMessage': "Envoyer",
+			'tooManyCharacters': "Too many characters (in French)"
+		}
+	};
+	
+	(function(){
+		//creates the wrapping table with class msgs
+		var tableWrap = $("<table class='msgs'></table>");
+		
+		//creates exchange object and inserts it into tableWrap
+		$('.lng_msg').enableSmsExchangeIn(tableWrap, ExchangeSettings);
+		
+		//inserts tableWrap just before the first '.lng_msg'
+		$($('.lng_msg').get(0)).before(tableWrap);
+		
+		//updates list every 5 minutes, must be called after table is populated
+//		$.listenForMessages("/logger_ng/latest_messages/", 5 * (1000*60)); 
+	})();
+</script>
 <table class="lng_page">
 <tr><td>
         {% if msgs.has_previous %}
