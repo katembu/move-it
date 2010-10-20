@@ -20,8 +20,28 @@ def form_a_entered(request, rformat="html"):
         request,
         rformat,
         report_title = (u'Form A Registrations Per Day'),
-        report_data = _matching_message_stats(['You successfuly registered ']),
+        report_data = _matching_message_stats(\
+            ['You successfuly registered ']),
         report_filename = u'form-a-entered')
+
+def form_b_entered(request, rformat="html"):
+    return _form_reporting(
+        request,
+        rformat,
+        report_title = (u'Form B Registrations Per Day'),
+        report_data = _matching_message_stats(\
+            '+V%% Successfully processed: [Household member %%'),
+        report_filename = u'form-b-entered')
+
+def form_c_entered(request, rformat="html"):
+    return _form_reporting(
+        request,
+        rformat,
+        report_title = (u'Form C Registrations Per Day'),
+        report_data = _matching_message_stats(\
+            '+U%% Successfully processed: [%%'),
+        report_filename = u'form-b-entered')
+
 
 def encounters_per_day(request, rformat="html"):
     doc = Document(u'Encounters Per Day')
@@ -91,7 +111,7 @@ def _matching_message_stats(like_strings, unlike_strings = []):
     '''
 
     conn = connection.cursor()
-    q = \
+    prefix = \
     '''
         SELECT 
             DATE(`sent`) as `date`, 
@@ -99,27 +119,7 @@ def _matching_message_stats(like_strings, unlike_strings = []):
             COUNT(*) as `count` 
         FROM `logger_outgoingmessage` 
     '''
-    
-    if len(like_strings) + len(unlike_strings) > 0:
-        q += ' WHERE '
-
-    andstr = ' AND '
-    locstr = ' LOCATE(%s, `text`) '
-
-    for i in xrange(len(like_strings)):
-        q += locstr
-        if i+1 != len(like_strings):
-            q += andstr
-           
-    if len(unlike_strings) > 0:
-        q += andstr
-
-    for i in xrange(len(unlike_strings)):
-        q += ' NOT ' + locstr
-        if i+1 != len(unlike_strings):
-            q += andstr
-
-    q += \
+    postfix = \
     '''
         GROUP BY 
             DATE(`sent`), 
@@ -127,7 +127,34 @@ def _matching_message_stats(like_strings, unlike_strings = []):
         ORDER BY `sent` ASC;
     '''
    
-    print q
-    stats = conn.execute(q, like_strings + unlike_strings)
+    if type(like_strings) == list:
+        q = prefix
+        if len(like_strings) + len(unlike_strings) > 0:
+            q += ' WHERE '
+
+        andstr = ' AND '
+        locstr = ' LOCATE(%s, `text`) '
+
+        for i in xrange(len(like_strings)):
+            q += locstr
+            if i+1 != len(like_strings):
+                q += andstr
+               
+        if len(unlike_strings) > 0:
+            q += andstr
+
+        for i in xrange(len(unlike_strings)):
+            q += ' NOT ' + locstr
+            if i+1 != len(unlike_strings):
+                q += andstr
+        q += postfix
+        stats = conn.execute(q, like_strings + unlike_strings)
+    else:
+        stats = conn.execute(prefix + \
+            ' WHERE `text` LIKE "' + \
+            like_strings + \
+            '" ' + \
+            postfix)
+
     return conn.fetchall()
 

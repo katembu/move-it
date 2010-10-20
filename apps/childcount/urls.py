@@ -37,6 +37,10 @@ urlpatterns = patterns('',
 
     url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
         statistics.form_a_entered),
+    url(r'^childcount/reports/form_b_entered/(?P<rformat>[a-z]*)$',
+        statistics.form_b_entered),
+    url(r'^childcount/reports/form_c_entered/(?P<rformat>[a-z]*)$',
+        statistics.form_c_entered),
     url(r'^childcount/reports/encounters_per_day/(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
