@@ -230,13 +230,22 @@ class ThePatient(Patient):
     def patient_register_columns(cls):
         columns = []
         columns.append(
+            {'name': _(u"LOC"), \
+            'bit': 
+                '{% if object.is_head_of_household %}<strong>' \
+                '{{ object.household.location.code }}' \
+                '</strong>{% endif %}'})
+        columns.append(
             {'name': _(u"HID"), \
-            'bit': '{{object.health_id.upper}}'})
+            'bit': 
+                '{% if object.is_head_of_household %}<strong>{% endif %}' \
+                '{{object.health_id.upper}}' \
+                '{% if object.is_head_of_household %}</strong>{% endif %}'})
         columns.append(
             {'name': _(u"Name".upper()), \
             'bit': '{{object.last_name}} {{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('gender').verbose_name.upper(), \
+            {'name': _(u"Gen."), \
             'bit': '{{object.gender}}'})
         columns.append(
             {'name': _(u"Age".upper()), \
@@ -244,9 +253,9 @@ class ThePatient(Patient):
         columns.append(
             {'name': _(u"Status".upper()), \
             'bit': '{{object.status_text}}'})
-        columns.append(
-            {'name': _(u"HHID".upper()), \
-            'bit': '{{object.household.health_id.upper}}'})
+        #columns.append(
+        #    {'name': _(u"HHID".upper()), \
+        #    'bit': '{{object.household.health_id.upper}}'})
         return columns
 
     @classmethod

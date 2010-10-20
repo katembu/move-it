@@ -352,7 +352,7 @@ def gen_patient_register_pdf(f, clinic, active=False):
     if not chws.count():
         story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households()
+        households = chw.households().order_by('location')
         if not households:
             continue
         patients = []
@@ -366,7 +366,7 @@ def gen_patient_register_pdf(f, clinic, active=False):
             if active:
                 hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
-            patients.append(ThePatient())
+            #patients.append(ThePatient())
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
@@ -431,8 +431,9 @@ def thepatientregister(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, 0.2 * inch]
-    colWidths = [0.5 * inch, 1.3 * inch]
-    colWidths.extend((len(cols) - 2) * [0.5 * inch])
+    # Loc, HID, Name
+    colWidths = [0.5 * inch, 0.5 * inch, 1.3 * inch]
+    colWidths.extend((len(cols) - 3) * [0.4 * inch])
 
     ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
                             ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
@@ -450,8 +451,10 @@ def thepatientregister(title, indata=None, boxes=None):
                                 styleN)]
             values.extend([Paragraph(Template(cols[1]["bit"]).render(ctx), \
                                 styleN)])
+            values.extend([Paragraph(Template(cols[2]["bit"]).render(ctx), \
+                                styleN)])
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
-                                styleN2) for col in cols[2:]])
+                                styleN2) for col in cols[3:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.2 * inch])
 
@@ -464,7 +467,7 @@ def thepatientregister(title, indata=None, boxes=None):
                 ts.append((('BOX', (0, box['top'] + 2), \
                         (-1, box['bottom'] + 2), 0.5, colors.black)))
             ts.append((('BACKGROUND', (0, box['top'] + 2), \
-                        (1, box['top'] + 2), colors.lightgrey)))
+                        (2, box['top'] + 2), colors.lightgrey)))
             tscount += 1
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
