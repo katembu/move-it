@@ -28,19 +28,30 @@ def form_b_entered(request, rformat="html"):
     return _form_reporting(
         request,
         rformat,
-        report_title = (u'Form B Registrations Per Day'),
+        report_title = (u'Form B (HH Visit) Per Day'),
         report_data = _matching_message_stats(\
-            '+V%% Successfully processed: [Household member %%'),
-        report_filename = u'form-b-entered')
+            ' `text` LIKE "%%+V%% Successfully processed: [%%" \
+            AND `backend` = "debackend" '),
+                report_filename = u'form-b-entered')
 
 def form_c_entered(request, rformat="html"):
     return _form_reporting(
         request,
         rformat,
-        report_title = (u'Form C Registrations Per Day'),
         report_data = _matching_message_stats(\
-            '+U%% Successfully processed: [%%'),
-        report_filename = u'form-b-entered')
+            ' `text` LIKE "%%+U %%" OR \
+              `text` LIKE "%%+S %%" OR \
+              `text` LIKE "%%+P %%" OR \
+              `text` LIKE "%%+N %%" OR \
+              `text` LIKE "%%+T %%" OR \
+              `text` LIKE "%%+M %%" OR \
+              `text` LIKE "%%+F %%" OR \
+              `text` LIKE "%%+G %%" OR \
+              `text` LIKE "%%+R %%" AND \
+            `text` LIKE "%%Successfully processed: [%%%%" AND \
+            `backend` = "debackend" '),
+        report_title = (u'Form C (Follow-Up) Per Day'),
+        report_filename = u'form-c-entered')
 
 
 def encounters_per_day(request, rformat="html"):
@@ -151,9 +162,9 @@ def _matching_message_stats(like_strings, unlike_strings = []):
         stats = conn.execute(q, like_strings + unlike_strings)
     else:
         stats = conn.execute(prefix + \
-            ' WHERE `text` LIKE "' + \
+            ' WHERE ' + \
             like_strings + \
-            '" ' + \
+            ' ' + \
             postfix)
 
     return conn.fetchall()
