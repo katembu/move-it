@@ -106,6 +106,10 @@ def index(request):
         'title': _(u"Operational Report"),
         'url': '/childcount/operationalreport',
         'types': ('pdf',)})
+    reports.append({
+        'title': _(u"Household Healthy Survey Report"),
+        'url': '/childcount/reports/hhsurveyrpt',
+        'types': ('xls','pdf', 'html')})
     locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                     .distinct('location'))
     for loc in locs:
