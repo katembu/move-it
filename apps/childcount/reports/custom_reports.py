@@ -239,13 +239,13 @@ def gen_operationalreport():
     f = open(filename, 'w')
 
     story = []
-    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                    .distinct('location'))
-    for location in locations:
-        if not TheCHWReport.objects.filter(location=location).count():
+    clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
+                                                    .distinct('clinic'))
+    for clinic in clinics:
+        if not TheCHWReport.objects.filter(clinic=clinic).count():
             continue
-        tb = operationalreportable(location, TheCHWReport.objects.\
-            filter(location=location))
+        tb = operationalreportable(clinic, TheCHWReport.objects.\
+            filter(clinic=clinic))
         story.append(tb)
         story.append(PageBreak())
 
