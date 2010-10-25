@@ -26,6 +26,7 @@ class CHW(Reporter):
         db_table = 'cc_chw'
         verbose_name = _(u"Community Health Worker")
         verbose_name_plural = _(u"Community Health Workers")
+        ordering = ('first_name','last_name')
 
     manager = models.ForeignKey('self', verbose_name=_(u"Manager"), \
                                blank=True, null=True)
