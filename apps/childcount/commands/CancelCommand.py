@@ -34,7 +34,14 @@ class CancelCommand(CCCommand):
         # we are in revision control.
         revision.invalidate()
 
-        user = self.message.persistant_connection.reporter.user_ptr
+
+        # If we're in the debackend, use the CHW that this user is pretending
+        # to be.
+        user = None
+        if 'chw' in self.message.__dict__:
+            user = self.message.chw
+        else:
+            user = self.message.persistant_connection.reporter.user_ptr
 
         if not Revision.objects.filter(user=user).count():
             raise Inapplicable(_(u"Cancel failed. There is nothing to " \

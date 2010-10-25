@@ -48,10 +48,9 @@ def create_from_logger_msg(msg):
     msg_lng = LoggedMessage(identity=msg.identity, backend=msg.backend,
                             text=msg.text, reporter=reporter,
                             direction=direction)
-    msg_lng.save()
     msg_lng.date = msg.date
     msg_lng.save()
-    return msg_lng
+    return msg_lng.pk
 
 
 class Command(BaseCommand):
@@ -107,15 +106,18 @@ class Command(BaseCommand):
 
         print _(u"Importing %d incoming messages...") % \
               IncomingMessage.objects.count()
+        i = 0 
         for msg in IncomingMessage.objects.all():
-            msg_lng = create_from_logger_msg(msg)
-            msg_lng.save()
+            create_from_logger_msg(msg)
+            if (i%100) == 0: print i 
+            i = i + 1
 
         print _(u"Importing %d outgoing messages...") % \
               OutgoingMessage.objects.count()
         count = 0
+        i=0
         for msg in OutgoingMessage.objects.all():
-            msg_lng = create_from_logger_msg(msg)
+            msg_pk = create_from_logger_msg(msg)
             if SECONDS_BEFORE_MATCH > 0:
                 just_before = msg.date - \
                               timedelta(seconds=SECONDS_BEFORE_MATCH)
@@ -129,8 +131,11 @@ class Command(BaseCommand):
                     pass
                 else:
                     count += 1
+                    msg_lng = LoggedMessage.objects.get(pk=msg_pk)
                     msg_lng.response_to = orig
-            msg_lng.save()
+                    msg_lng.save()
+            if (i%100) == 0: print i 
+            i = i + 1
 
         print _(u"%d outgoing messages paired with " \
                 u"their incoming messages.") % count

@@ -142,6 +142,9 @@
         </div>
 
         <div class="bd">
+        <em>Note: Reports are generated every evening
+        so new registrations and form data will not
+        appear in reports until the following day.</em>
         <table>
             <tr>
                 <th>Report Name</th>
@@ -155,7 +158,7 @@
                 <td class="icon">
                     {% for t in r.types %}
                         {% ifequal t 'html' %}
-                    <a href="{{ r.url }}/html"><img src="/static/childcount/icons/html.png" /></a>
+                    <a href="{{ r.url }}.html"><img src="/static/childcount/icons/html.png" /></a>
                         {% endifequal %}
                     {% endfor %}
                 </td>
@@ -167,7 +170,7 @@
                     <a href="{{ l.url }}" title="{{ l.title }}"><img src="/static/childcount/icons/pdf.png" /></a> 
                                 {% endfor %}
                             {% else %}
-                    <a href="{{ r.url }}/pdf"><img src="/static/childcount/icons/pdf.png" /></a>
+                    <a href="{{ r.url }}.pdf"><img src="/static/childcount/icons/pdf.png" /></a>
                             {% endif %}
                         {% endifequal %}
                     {% endfor %}
@@ -175,7 +178,7 @@
                 <td class="icon">
                     {% for t in r.types %}
                         {% ifequal t 'xls' %}
-                    <a href="{{ r.url }}/xls"><img src="/static/childcount/icons/xls.png" /></a>
+                    <a href="{{ r.url }}.xls"><img src="/static/childcount/icons/xls.png" /></a>
                         {% endifequal %}
                     {% endfor %}
                 </td>

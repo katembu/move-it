@@ -2,10 +2,12 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
+import datetime
+
 from django.utils.translation import ugettext as _
 
 from childcount.commands import CCCommand
-from childcount.models import Patient
+from childcount.models import Patient, CHW
 from childcount.utils import authenticated
 
 class ChownCommand(CCCommand):
@@ -25,6 +27,11 @@ class ChownCommand(CCCommand):
 
     @authenticated
     def process(self):
+        if 'encounter_date' not in self.message.__dict__:
+            self.message.respond(_(u'Cannot run chown command from '
+                                    'cell phone. Use the computer interface '
+                                    'instead.'), 'error')
+            return True
 
         # warn if no search criteria
         if self.params.__len__() < 3:
@@ -88,13 +95,38 @@ class ChownCommand(CCCommand):
 
             return True
 
-        nrows = matches.update(chw = \
-            self.message.persistant_connection.reporter.chw)
+        try:
+            new_chw = CHW.objects.get(pk = self.message.chw)
+        except CHW.DoesNotExist:
+            self.message.respond(_(u"CHW with ID %(id)d does not exist") % \
+                {'id': self.message.chw})
+            return True
+
+        nrows = matches.update(chw = new_chw)
+
+        ''' Get current encounter date '''
+        parts = self.message.encounter_date.split('-')
+        parts = map(int, parts)
+
+        ''' Set encounter dates to current date '''
+        for p in matches:
+            e = p.encounter_set.order_by('encounter_date')[0]
+            if len(parts) != 3:
+                self.message.respond(\
+                _(u"Encounter date %(date)s is not valid") % \
+                    {'date': self.message.encounter_date})
+                return True
+            e.encounter_date = datetime.datetime(*parts)
+            e.save()
 
         self.message.respond(\
-            _(u"Changed CHW for %(n)d patients to %(chw)s") \
+            _(u"Changed CHW for %(n)d patients to %(chw)s" 
+                u" with encounter date %(y)d-%(m)d-%(d)d.") \
                 % {'n': nrows, 
-                    'chw': unicode(self.message.\
-                    persistant_connection.reporter.chw)},
+                    'chw': unicode(new_chw),
+                    'y': parts[0],
+                    'm': parts[1],
+                    'd': parts[2]},
             'success')
+
         return True

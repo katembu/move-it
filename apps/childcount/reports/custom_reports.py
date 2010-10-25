@@ -51,6 +51,8 @@ from childcount.reports.utils import render_doc_to_response
 
 from locations.models import Location
 
+REPORTS_DIR = 'reports'
+
 styles = getSampleStyleSheet()
 
 styleN = styles['Normal']
@@ -232,56 +234,29 @@ def chw(request, rformat='html'):
             return render_to_response(request, 'childcount/chw.html', \
                                             context_dict)
 
-
-def operationalreport(request, rformat):
-    filename = 'operationalreport.pdf'
-    story = []
-    fn = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                    './rpts/%s' % filename))
-    if not os.path.isfile(fn):
-        return HttpResponse("No Report Generated yet")
-    else:
-        f = open(fn, 'r')
-        pdf = f.read()
-    response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
-    response.write(pdf)
-    return response
-
-
 def gen_operationalreport():
     '''
     Generate OperationalReport and write it to file
     '''
-    reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                                        'rpts'))
-    #check if reports folder is there
-    if not os.path.isdir(reports_folder):
-        os.mkdir(reports_folder)
-    filename = os.path.join(reports_folder, 'operationalreport.pdf')
+    filename = report_filename('operationalreport.pdf')
+    f = open(filename, 'w')
 
     story = []
-    buffer = StringIO()
-    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                    .distinct('location'))
-    for location in locations:
-        if not TheCHWReport.objects.filter(location=location).count():
+    clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
+                                                    .distinct('clinic'))
+    for clinic in clinics:
+        if not TheCHWReport.objects.filter(clinic=clinic).count():
             continue
-        tb = operationalreportable(location, TheCHWReport.objects.\
-            filter(location=location))
+        tb = operationalreportable(clinic, TheCHWReport.objects.\
+            filter(clinic=clinic))
         story.append(tb)
         story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
 
-    # Get the value of the StringIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()
-    f = open(filename, 'w')
-    f.write(pdf)
     f.close()
 
 
@@ -364,60 +339,23 @@ def operationalreportable(title, indata=None):
                 ]))
     return tb
 
+def gen_registerlist():
+    clinics = Clinic.objects.all()
+    for c in clinics:
+        for active in ['','-active']:
+            filename = report_filename("registerlist-%s%s.pdf" % (c.code, active))
+            f = open(filename, 'w')
 
-@login_required
-def bednetregisterlist(request, clinic_id):
-    filename = 'registerlist.pdf'
-    try:
-        clinic = Clinic.objects.get(id=clinic_id)
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_patient_register_pdf(response, clinic)
-        return response
-    except Clinic.DoesNotExist:
-        return HttpResponse(_(u"The specified clinic is not known"))
-    '''except:
-        return HttpResponse(_("Error"))'''
+            gen_patient_register_pdf(f, c, (active == '-active'))
+            f.close()
 
-
-@login_required
-def registerlist(request, clinic_id, active=None):
-    filename = 'registerlist.pdf'
-    location = None
-    try:
-        location = Clinic.objects.get(id=clinic_id)
-    except Clinic.DoesNotExist:
-        pass
-    if not location:
-        try:
-            location = Location.objects.get(id=clinic_id)
-        except Location.DoesNotExist:
-            pass
-    if location:
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        print active
-        if active == "active":
-            active = True
-        else:
-            active = False
-        gen_patient_register_pdf(response, location, active)
-        return response
-    else:
-        return HttpResponse(_(u"The specified clinic/locations is not known"))
-    '''except:
-        return HttpResponse(_("Error"))'''
-
-
-def gen_patient_register_pdf(filename, location, active=False):
+def gen_patient_register_pdf(f, clinic, active=False):
     story = []
-    chws = TheCHWReport.objects.filter(location=location)
+    chws = TheCHWReport.objects.filter(clinic=clinic)
     if not chws.count():
-        story.append(Paragraph(_("No report for %s.") % location, styleN))
+        story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households()
+        households = chw.households().order_by('location')
         if not households:
             continue
         patients = []
@@ -431,7 +369,7 @@ def gen_patient_register_pdf(filename, location, active=False):
             if active:
                 hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
-            patients.append(ThePatient())
+            #patients.append(ThePatient())
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
@@ -453,7 +391,7 @@ def gen_patient_register_pdf(filename, location, active=False):
         #End Sauri specific
 
         tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % \
-                                {'loc': location, 'chw': chw}, \
+                                {'loc': clinic, 'chw': chw}, \
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
@@ -465,10 +403,10 @@ def gen_patient_register_pdf(filename, location, active=False):
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize=A4, \
+    doc = MultiColDocTemplate(f, 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
-    return filename
+    return f
 
 
 def thepatientregister(title, indata=None, boxes=None):
@@ -496,8 +434,9 @@ def thepatientregister(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, 0.2 * inch]
-    colWidths = [0.5 * inch, 1.3 * inch]
-    colWidths.extend((len(cols) - 2) * [0.5 * inch])
+    # Loc, HID, Name
+    colWidths = [0.5 * inch, 0.5 * inch, 1.3 * inch]
+    colWidths.extend((len(cols) - 3) * [0.4 * inch])
 
     ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
                             ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
@@ -515,8 +454,10 @@ def thepatientregister(title, indata=None, boxes=None):
                                 styleN)]
             values.extend([Paragraph(Template(cols[1]["bit"]).render(ctx), \
                                 styleN)])
+            values.extend([Paragraph(Template(cols[2]["bit"]).render(ctx), \
+                                styleN)])
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
-                                styleN2) for col in cols[2:]])
+                                styleN2) for col in cols[3:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.2 * inch])
 
@@ -529,7 +470,7 @@ def thepatientregister(title, indata=None, boxes=None):
                 ts.append((('BOX', (0, box['top'] + 2), \
                         (-1, box['bottom'] + 2), 0.5, colors.black)))
             ts.append((('BACKGROUND', (0, box['top'] + 2), \
-                        (1, box['top'] + 2), colors.lightgrey)))
+                        (2, box['top'] + 2), colors.lightgrey)))
             tscount += 1
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
@@ -584,36 +525,25 @@ def gen_surveryreport():
     '''
     Generate the healthy survey report.
     '''
-    reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                                            'rpts'))
-    #check if reports folder is there
-    if not os.path.isdir(reports_folder):
-        os.mkdir(reports_folder)
-    filename = os.path.join(reports_folder, 'surveyreport.pdf')
+    filename = report_filename('surveyreport.pdf')
+    f = open(filename, 'w')
 
     story = []
-    buffer = StringIO()
 
-    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                    .distinct('location'))
-    for location in locations:
-        if not TheBHSurveyReport.objects.filter(location=location).count():
+    clinics = Clinic.objects.all()
+    for clinic in clinics:
+        if not TheBHSurveyReport.objects.filter(clinic=clinic).count():
             continue
-        tb = surveyreportable(location, TheBHSurveyReport.objects.\
-            filter(location=location))
+        tb = surveyreportable(clinic, TheBHSurveyReport.objects.\
+            filter(clinic=clinic))
         story.append(tb)
         story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
 
-    # Get the value of the StringIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()
-    f = open(filename, 'w')
-    f.write(pdf)
     f.close()
 
 
@@ -695,29 +625,13 @@ def clinic_monthly_summary_csv(request):
     response.write(rpt)
     return response
 
-
-@login_required
-def household_surveyreport_list(request, clinic_id, rformat='pdf'):
-    location = None
-    try:
-        location = Clinic.objects.get(id=clinic_id)
-    except Clinic.DoesNotExist:
-        pass
-    if not location:
-        try:
-            location = Location.objects.get(id=clinic_id)
-        except Location.DoesNotExist:
-            pass
-    if location:
-        filename = '%s-HHSurveyReport.pdf' % location.code
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_household_surveyreport(response, location)
-        return response
-    else:
-        return HttpResponse(_(u"The specified clinic/location is not known"))
-
+def gen_all_household_surveyreports():
+    clinics = Clinic.objects.all()
+    for clinic in clinics:
+        filename = report_filename('hhsurvey-%s.pdf' % clinic.code)
+        f = open(filename, 'w')
+        gen_household_surveyreport(f, clinic)
+        f.close()
 
 def gen_household_surveyreport(filename, location=None):
     story = []
@@ -726,7 +640,7 @@ def gen_household_surveyreport(filename, location=None):
     chws = None
     if location:
         try:
-            chws = TheCHWReport.objects.filter(location=location)
+            chws = TheCHWReport.objects.filter(clinic=location)
         except TheCHWReport.DoesNotExist:
             raise BadValue(_(u"Unknown Location: %(location)s specified." % \
                                 {'location': location}))
@@ -741,7 +655,7 @@ def gen_household_surveyreport(filename, location=None):
                 health_id=F('household__health_id'), chw=chw).\
                 order_by('location')
         tb = household_surveyreportable(_(u"Bednet Report - %(loc)s: %(chw)s" \
-                                        % {'chw': chw, 'loc': chw.location}), \
+                                        % {'chw': chw, 'loc': chw.clinic}), \
                                         patients)
         story.append(tb)
         story.append(PageBreak())
@@ -762,15 +676,10 @@ def household_surveyreport(location=None):
     '''
     Generate the healthy survey report.
     '''
-    reports_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                                            'rpts'))
-    #check if reports folder is there
-    if not os.path.isdir(reports_folder):
-        os.mkdir(reports_folder)
-    filename = os.path.join(reports_folder, 'HouseholdSurveyReport.pdf')
+    filename = report_filename('HouseholdSurveyReport.pdf')
+    f = open(filename, 'w')
 
     story = []
-    buffer = StringIO()
 
     if TheCHWReport.objects.all().count():
         for chw in TheCHWReport.objects.all():
@@ -783,16 +692,11 @@ def household_surveyreport(location=None):
             story.append(tb)
             story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
 
-    # Get the value of the StringIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()
-    f = open(filename, 'w')
-    f.write(pdf)
     f.close()
 
 
@@ -850,3 +754,13 @@ def household_surveyreportable(title, indata=None):
                             ('BOX', (15, 1), (16, -1), 5, \
                             colors.lightgrey)]))
     return tb
+
+def report_filename(report_name):
+    return os.path.abspath(\
+        os.path.join(
+                    os.path.dirname(__file__), \
+                    '..',
+                    'static',
+                    REPORTS_DIR,
+                    report_name))
+

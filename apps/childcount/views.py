@@ -23,7 +23,6 @@ from django.db.models import F
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
-
 from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
@@ -37,8 +36,11 @@ cc_forms = re.split(r'\s*,*\s*', form_config)
 
 @login_required
 def dataentry(request):
-    ''' displays Data Entry U.I '''
-    today = date.today().strftime("%Y-%m-%d")
+    ''' displays Data Entry U.I. '''
+
+    ''' Make default date in the future so that DE clerk is forced
+    to manually select a date. '''
+    today = (date.today() + timedelta(1)).strftime("%Y-%m-%d")
     chws = CHW.objects.filter(is_active=True)
     try:
         chw = CHW.objects.get(id=request.user.id)
@@ -47,7 +49,6 @@ def dataentry(request):
     return render_to_response(request, 'childcount/data_entry.html', \
                               {'chws': chws, 'today': today, \
                                'chw': chw, 'forms': cc_forms})
-
 
 @login_required
 def form(request, formid):
@@ -60,7 +61,7 @@ def form(request, formid):
 
     return HttpResponse(form, mimetype="application/json")
 
-
+@login_required
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
@@ -99,35 +100,53 @@ def index(request):
         'url': '/childcount/reports/form_a_entered',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
+        'title': 'Form B (HH Visit) by Day and User',
+        'url': '/childcount/reports/form_b_entered',
+        'types': ('pdf', 'xls', 'html')})
+    reports.append({
+        'title': 'Form C (Follow-up) by Day and User',
+        'url': '/childcount/reports/form_c_entered',
+        'types': ('pdf', 'xls', 'html')})
+    reports.append({
         'title': 'Encounters by Day',
         'url': '/childcount/reports/encounters_per_day',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
-        'title': _(u"Operational Report"),
-        'url': '/childcount/operationalreport',
-        'types': ('pdf',)})
+        'title': 'Operational Report',
+        'url': '/childcount/reports/operational_report',
+        'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Household Healthy Survey Report"),
         'url': '/childcount/reports/hhsurveyrpt',
         'types': ('xls','pdf', 'html')})
-    locs = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                    .distinct('location'))
-    for loc in locs:
+    reports.append({
+        'title': _(u"Survey Report"),
+        'url': '/static/childcount/reports/surveyreport.pdf',
+        'types': ('pdf',),
+        'otherlinks': [{'title':u'Survey Report',
+                        'url':'/static/childcount/reports/surveyreport.pdf'}]})
+    clinics = Clinic.objects.all()
+
+    for clinic in clinics:
         reports.append({
-            'title': _(u"Register List: %(location)s" % {'location': loc}),
-            'url': '/childcount/registerlist/%d' % loc.pk,
+            'title': _(u"Register List: %(location)s" % {'location': clinic}),
+            'url': '/static/childcount/reports/registerlist-%s.pdf' % clinic.code,
             'types': ('pdf',),
             'otherlinks': [{'title': \
                             _(u"All Patients(including inactive and dead)"),
-                            'url': '/childcount/registerlist/%d' % loc.pk},
+                            'url': "/static/childcount/reports/registerlist-%s.pdf" % clinic.code},
                             {'title': _("Active Patients Only"),
-                            'url': '/childcount/registerlist/%d/active'\
-                             % loc.pk}]})
-    for loc in locs:
+                            'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
+                             % clinic.code}]})
+    for clinic in clinics: 
         reports.append({
-            'title': _(u"HH Survey: %(location)s" % {'location': loc}),
-            'url': '/childcount/hhsurveylist/%d' % loc.pk,
-            'types': ('pdf',)})
+            'title': _(u"HH Survey: %(location)s" % {'location': clinic}),
+            'url': '/childcount/hhsurvey-%s' % clinic.code,
+            'types': ('pdf',),
+            'otherlinks': [
+                {'title': clinic.name,
+                'url': "/static/childcount/reports/hhsurvey-%s.pdf" % clinic.code}
+            ]})
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',

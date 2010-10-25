@@ -114,13 +114,14 @@ class LoggedMessage(models.Model):
 
     date = models.DateTimeField(_(u"date"), auto_now_add=True)
     direction = models.CharField(_(u"type"), max_length=1,
-                                 choices=DIRECTION_CHOICES)
+                                 choices=DIRECTION_CHOICES,
+                                 default=DIRECTION_OUTGOING)
     text = models.TextField(_(u"text"))
     backend = models.CharField(_(u"backend"), max_length=75)
     identity = models.CharField(_(u"identity"), max_length=100)
     reporter = models.ForeignKey(Reporter, verbose_name=_(u"reporter"),
                                  blank=True, null=True)
-    status = models.CharField(_(u"status"), max_length=12,
+    status = models.CharField(_(u"status"), max_length=32,
                               choices=STATUS_CHOICES, blank=True, null=True)
 
     response_to = models.ForeignKey('self', verbose_name=_(u"response to"),
@@ -137,6 +138,7 @@ class LoggedMessage(models.Model):
     #    LoggedMessage.outgoing.all()
     incoming = IncomingManager()
     outgoing = OutgoingManager()
+
 
     def ident_string(self):
         '''
@@ -163,17 +165,20 @@ class LoggedMessage(models.Model):
                      {'current': string, 'reporter': reporter_string}
         return string
 
+
     def is_incoming(self):
         '''
         Returns true if this is the log of an incoming message, else false
         '''
         return self.direction == self.DIRECTION_INCOMING
 
+
     def __unicode__(self):
         return  u"%(direction)s - %(ident)s - %(text)s" % \
                  {'direction': self.get_direction_display(),
                   'ident': self.ident_string(),
                   'text': self.text}
+
 
     @classmethod
     def create_from_message(cls, message):
@@ -204,6 +209,7 @@ class LoggedMessage(models.Model):
                             reporter=reporter,
                             status=message.status)
         return msg
+
 
     @classmethod
     def tag_message(cls, message, status):
@@ -236,3 +242,4 @@ class LoggedMessage(models.Model):
 
         msg.status = status
         msg.save()
+        

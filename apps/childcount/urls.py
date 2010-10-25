@@ -7,9 +7,9 @@ from django.contrib import admin
 
 from childcount import views
 from childcount.reports import statistics
+from childcount.reports import operational
 from childcount.reports import pmtct
 from childcount.reports import custom_reports as reports
-
 
 admin.autodiscover()
 
@@ -34,17 +34,17 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
-    url(r'^childcount/operationalreport/(?P<rformat>[a-z]*)$', \
-                reports.operationalreport),
-    url(r'^childcount/registerlist/(?P<clinic_id>\d+)/(?P<active>[a-z]+)?$', \
-        reports.registerlist),
-    url(r'^childcount/hhsurveylist/(?P<clinic_id>\d+)/(?P<rformat>[a-z]+)?$', \
-        reports.household_surveyreport_list),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
-    url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
+    url(r'^childcount/reports/form_a_entered.(?P<rformat>[a-z]*)$',
         statistics.form_a_entered),
-    url(r'^childcount/reports/encounters_per_day/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/form_b_entered.(?P<rformat>[a-z]*)$',
+        statistics.form_b_entered),
+    url(r'^childcount/reports/form_c_entered.(?P<rformat>[a-z]*)$',
+        statistics.form_c_entered),
+    url(r'^childcount/reports/operational_report.(?P<rformat>[a-z]*)$',
+        operational.operational_report),
+    url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
