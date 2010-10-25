@@ -7,6 +7,7 @@ from django.contrib import admin
 
 from childcount import views
 from childcount.reports import statistics
+from childcount.reports import operational
 from childcount.reports import pmtct
 from childcount.reports import custom_reports as reports
 
@@ -35,13 +36,15 @@ urlpatterns = patterns('',
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
-    url(r'^childcount/reports/form_a_entered/(?P<rformat>[a-z]*)$',
+    url(r'^childcount/reports/form_a_entered.(?P<rformat>[a-z]*)$',
         statistics.form_a_entered),
-    url(r'^childcount/reports/form_b_entered/(?P<rformat>[a-z]*)$',
+    url(r'^childcount/reports/form_b_entered.(?P<rformat>[a-z]*)$',
         statistics.form_b_entered),
-    url(r'^childcount/reports/form_c_entered/(?P<rformat>[a-z]*)$',
+    url(r'^childcount/reports/form_c_entered.(?P<rformat>[a-z]*)$',
         statistics.form_c_entered),
-    url(r'^childcount/reports/encounters_per_day/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/operational_report.(?P<rformat>[a-z]*)$',
+        operational.operational_report),
+    url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),

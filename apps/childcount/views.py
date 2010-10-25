@@ -112,11 +112,9 @@ def index(request):
         'url': '/childcount/reports/encounters_per_day',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
-        'title': _(u"Operational Report"),
-        'url': '/static/childcount/reports/operationalreport.pdf',
-        'types': ('pdf',),
-        'otherlinks': [{'title':u'Operational Report',
-                        'url':'/static/childcount/reports/operationalreport.pdf'}]})
+        'title': 'Operational Report',
+        'url': '/childcount/reports/operational_report',
+        'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Survey Report"),
         'url': '/static/childcount/reports/surveyreport.pdf',

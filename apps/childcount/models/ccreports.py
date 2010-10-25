@@ -961,66 +961,107 @@ class OperationalReport():
 
     def __init__(self):
         columns = []
-        columns.append({'name': _("CHW"), 'bit': '{{object}}'})
-        columns.append({'name': _("# of Households"), \
-                'bit': '{{object.number_of_households}}'})
-        columns.append({'name': _("# of Household Visits"), \
-                'bit': '{{object.num_of_householdvisits}}'})
-        columns.append({'name': _("% of HHs receiving on-time routine visit "\
+        columns.append({ \
+            'name': _("CHW"),
+            'abbr': _("CHW"),
+            'bit': '{{object}}'})
+        columns.append({ \
+            'name': _("# of Households"), \
+            'abbr': _("#HH"), \
+            'bit': '{{object.number_of_households}}'})
+        columns.append({ \
+            'name': _("# of Household Visits"), \
+            'abbr': _("#HH-V"), \
+            'bit': '{{object.num_of_householdvisits}}'})
+        columns.append({
+            'name': _("% of HHs receiving on-time routine visit "\
                                     "(within 90 days) [S23]"), \
-                'bit': '{% if object.percentage_ontime_visits %}' \
-                       '{{ object.percentage_ontime_visits }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("# of Births"), \
-                'bit': '{{object.num_of_births}}'})
-        columns.append({'name': _("% Births delivered in "\
-                                    "Health Facility [S4]"),
-                'bit': '{% if object.percentage_clinic_deliveries %}' \
-                       '{{ object.percentage_clinic_deliveries }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("% Newborns checked within 7 days of birth "\
+            'abbr': _("%OTV"), \
+            'bit': '{% if object.percentage_ontime_visits %}' \
+                   '{{ object.percentage_ontime_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Births"), \
+            'abbr': _('#Bir'), \
+            'bit': '{{object.num_of_births}}'})
+        columns.append({ \
+            'name': _("% Births delivered in "\
+                                "Health Facility [S4]"),
+            'abbr': _('%BHF'), \
+            'bit': '{% if object.percentage_clinic_deliveries %}' \
+                   '{{ object.percentage_clinic_deliveries }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
-                'bit': '{% if object.percentage_ontime_birth_visits %}' \
-                       '{{ object.percentage_ontime_birth_visits }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("# of Under-5s"), \
-                'bit': '{{object.num_of_underfive}}'})
-        columns.append({'name': _("# Under-5 Referred for Danger Signs"), \
-                'bit': '{{object.num_underfive_refferred}}'})
-        columns.append({'name': _("# Under-5 Treated for Malarias"), \
-                'bit': '{{object.num_underfive_malaria}}'})
-        columns.append({'name': _("# Under-5 Treated for Diarrhea"), \
-                'bit': '{{object.num_underfive_diarrhea}}'})
-        columns.append({'name': _("% Under-5 receiving on-time MUAC "\
+            'abbr': _('%NNV'), \
+            'bit': '{% if object.percentage_ontime_birth_visits %}' \
+                   '{{ object.percentage_ontime_birth_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Under-5s"), \
+            'abbr': _('#U5'), \
+            'bit': '{{object.num_of_underfive}}'})
+        columns.append({
+            'name': _("# Under-5 Referred for Danger Signs"), \
+            'abbr': _('#U5-DS'), \
+            'bit': '{{object.num_underfive_refferred}}'})
+        columns.append({ \
+            'name': _("# Under-5 Treated for Malarias"), \
+            'abbr': _('#U5-Mal'), \
+            'bit': '{{object.num_underfive_malaria}}'})
+        columns.append({ \
+            'name': _("# Under-5 Treated for Diarrhea"), \
+            'abbr': _('#U5-Dia'), \
+            'bit': '{{object.num_underfive_diarrhea}}'})
+        columns.append({ \
+            'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
-                'bit': '{% if object.percentage_ontime_muac %}' \
-                       '{{ object.percentage_ontime_muac }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("# of Active SAM cases"), \
-                'bit': '{{object.num_of_active_sam_cases}}'})
-        columns.append({'name': _("# of Pregnant Women"), \
-                'bit': '{{object.num_of_pregnant_women}}'})
-        columns.append({'name': _("# Pregnant Women Referred for "\
+            'abbr': _('#U5-MUAC'), \
+            'bit': '{% if object.percentage_ontime_muac %}' \
+                   '{{ object.percentage_ontime_muac }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Active SAM cases"), \
+            'abbr': _('#U5-SAM'), \
+            'bit': '{{object.num_of_active_sam_cases}}'})
+        columns.append({ \
+            'name': _("# of Pregnant Women"), \
+            'abbr': _('#PW'), \
+            'bit': '{{object.num_of_pregnant_women}}'})
+        columns.append({ \
+            'name': _("# Pregnant Women Referred for "\
                                     "Danger Signs"),
-                'bit': '{{object.num_pregnant_refferred}}'})
-        columns.append({'name': _("% Pregnant receiving on-time visit"\
+            'abbr': _('#PW-DS'), \
+            'bit': '{{object.num_pregnant_refferred}}'})
+        columns.append({ \
+            'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
-                'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
-                       '{{ object.percentage_pregnant_ontime_visits }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("% Referred / Treated receiving on-time "\
-                                    "follow-up (within 2 days) [S13]"),
-                'bit': '{% if object.percentage_ontime_followup %}' \
-                       '{{ object.percentage_ontime_followup }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("Median # of days for follow-up [S25]"), \
-                'bit': '{{object.median_number_of_followup_days}}'})
-        columns.append({'name': _("SMS Error Rate %"),
-                'bit': '{% if object.sms_error_rate %}' \
-                       '{{ object.sms_error_rate }}%'\
-                       '{% else %}-{% endif %}'})
-        columns.append({'name': _("Days since last SMS transmission"), \
-                'bit': '{{object.days_since_last_sms}}'})
+            'abbr': _('%PW-OTV'), \
+            'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
+                   '{{ object.percentage_pregnant_ontime_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("% Referred / Treated receiving on-time "\
+                            "follow-up (within 2 days) [S13]"),
+            'abbr': _('%Ref'), \
+            'bit': '{% if object.percentage_ontime_followup %}' \
+                   '{{ object.percentage_ontime_followup }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("Median # of days for follow-up [S25]"), \
+            'abbr': _('#Fol'), \
+            'bit': '{{object.median_number_of_followup_days}}'})
+        columns.append({ \
+            'name': _("SMS Error Rate %"), \
+            'abbr': _('%Err'), \
+            'bit': '{% if object.sms_error_rate %}' \
+                   '{{ object.sms_error_rate }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("Days since last SMS transmission"), \
+            'abbr': _('#Days'), \
+            'bit': '{{object.days_since_last_sms}}'})
         self.columns = columns
 
     def get_columns(self):
