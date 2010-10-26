@@ -2,7 +2,6 @@
 'id': 'D', 
 'fields': [
         {'id': 'ddb_code', 'type': 'f', 'name': "{% trans "DDB" %}", 'title': "{% trans "DDB" %}"},
-        {'id': 'health_id', 'type': 'f', 'name': "{% trans "ID" %}", 'title': "{% trans "Health ID" %}"},
         {'id': 'first_name', 'type': 'f', 'name': "{% trans "Fir" %}", 'title': "{% trans "First Name" %}"},
         {'id': 'family_name', 'type': 'f', 'name': "{% trans "Sur" %}", 'title': "{% trans "Family Name (surname)" %}"},
         {'id': 'sex', 'type': 'f', 'name': "{% trans "Sex" %}", 'title': "{% trans "Sex (M-F)" %}"},
