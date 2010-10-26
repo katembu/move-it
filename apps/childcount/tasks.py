@@ -21,7 +21,6 @@ from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 
 from childcount.reports import gen_operationalreport
-from childcount.reports import gen_surveyreport
 from childcount.reports import gen_registerlist
 from childcount.reports import gen_all_household_surveyreports
 
@@ -226,10 +225,6 @@ def weekly_anc_visit_reminder():
 @periodic_task(run_every=crontab(minute=0, hour=0))
 def daily_operationalreport():
     gen_operationalreport()
-
-@periodic_task(run_every=crontab(minute=30, hour=0))
-def daily_surveyreport():
-    gen_surveyreport()
 
 @periodic_task(run_every=crontab(minute=0, hour=1))
 def daily_registerlist():
