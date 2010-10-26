@@ -116,6 +116,10 @@ def index(request):
         'url': '/childcount/reports/operational_report',
         'types': ('pdf', 'xls', 'html')})
     reports.append({
+        'title': _(u"Household Healthy Survey Report"),
+        'url': '/childcount/reports/hhsurveyrpt',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
         'title': _(u"Survey Report"),
         'url': '/static/childcount/reports/surveyreport.pdf',
         'types': ('pdf',),
