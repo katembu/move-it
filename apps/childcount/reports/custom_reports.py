@@ -355,21 +355,27 @@ def gen_patient_register_pdf(f, clinic, active=False):
     if not chws.count():
         story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households().order_by('location')
+        households = chw.households().order_by('location','last_name')
         if not households:
             continue
         patients = []
         boxes = []
+        last_loc = None
         for household in households:
+            # Put blank line between cells
+            if last_loc != None and last_loc != household.location.code:
+                patients.append(ThePatient())
+
             trow = len(patients)
             patients.append(household)
             hs = ThePatient.objects.filter(household=household)\
                             .exclude(health_id=household.health_id)\
-                            .order_by('household')
+                            .order_by('last_name')
             if active:
                 hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
-            #patients.append(ThePatient())
+
+            last_loc = household.location.code
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
