@@ -46,7 +46,7 @@ from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
 from libreport.pdfreport import ScaledTable
 
-from ccdoc import Document, Table, Paragraph, Text, Section
+import ccdoc 
 from childcount.reports.utils import render_doc_to_response
 
 from locations.models import Location
@@ -494,7 +494,7 @@ def surveyreport(request, rformat):
 
 
 def a_surveyreport(request, rformat="html"):
-    doc = Document(u'Household Healthy Survey Report')
+    doc = ccdoc.Document(u'Household Healthy Survey Report')
     today = datetime.today()
     locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                     .distinct('location'))
@@ -503,7 +503,7 @@ def a_surveyreport(request, rformat="html"):
         brpts = BedNetReport.objects.filter(encounter__chw__location=location)
         if not brpts.count():
             continue
-        t = Table(headings.__len__())
+        t = ccdoc.Table(headings.__len__())
         t.add_header_row([
                     Text(c['name']) for c in headings])
         for row in TheBHSurveyReport.objects.filter(location=location):
@@ -513,15 +513,15 @@ def a_surveyreport(request, rformat="html"):
                 cellItem = Template(cell['bit']).render(ctx)
                 if cellItem.isdigit():
                     cellItem = int(cellItem)
-                cellItem = Text(cellItem)
+                cellItem = ccdoc.Text(cellItem)
                 row.append(cellItem)
             t.add_row(row)
-        doc.add_element(Section(u"%s" % location))
+        doc.add_element(ccdoc.Section(u"%s" % location))
         doc.add_element(t)
     return render_doc_to_response(request, rformat, doc, 'hhsurveyrpt')
 
 
-def gen_surveryreport():
+def gen_surveyreport():
     '''
     Generate the healthy survey report.
     '''
