@@ -355,7 +355,7 @@ def gen_patient_register_pdf(f, clinic, active=False):
     if not chws.count():
         story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households().order_by('location','last_name')
+        households = chw.households().order_by('location__code','last_name')
         if not households:
             continue
         patients = []
