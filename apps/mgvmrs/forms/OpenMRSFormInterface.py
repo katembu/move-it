@@ -127,6 +127,7 @@ class OpenMRSFormInterface(object):
         self.patient___given_name = given_name
         self.patient___middle_name = middle_name
         self.patient___sex = sex
+        self.values = {}
 
     def load_template(self):
         fp = open('apps/mgvmrs/templates/%(template)s' \
