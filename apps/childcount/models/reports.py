@@ -138,9 +138,9 @@ class BirthReport(CCReport):
         return string
 
     def get_omrs_dict(self):
-        igive = {
-            'weight': self.weight,
-        }
+        igive = {}
+        if self.weight:
+            igive.update({'weight': self.weight})
         return igive
 
     @task()
