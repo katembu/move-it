@@ -464,8 +464,9 @@ class PregnancyReport(CCReport):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
             'antenatal_visit_number': self.anc_visits,
-            'weeks_since_last_anc': self.weeks_since_anc,
         }
+        if self.weeks_since_anc:
+            igive.update({'weeks_since_last_anc': self.weeks_since_anc})
         return igive
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
