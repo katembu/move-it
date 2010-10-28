@@ -22,6 +22,10 @@ class ReferralForm(CCForm):
         urgency_field.add_choice('en', ReferralReport.URGENCY_EMERGENCY, 'E')
         urgency_field.add_choice('en', ReferralReport.URGENCY_BASIC, 'B')
         urgency_field.add_choice('en', ReferralReport.URGENCY_CONVENIENT, 'C')
+        urgency_field.add_choice('fr', ReferralReport.URGENCY_AMBULANCE, 'A')
+        urgency_field.add_choice('fr', ReferralReport.URGENCY_EMERGENCY, 'E')
+        urgency_field.add_choice('fr', ReferralReport.URGENCY_BASIC, 'B')
+        urgency_field.add_choice('fr', ReferralReport.URGENCY_CONVENIENT, 'C')
         urgency_field.set_language(self.chw.language)
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: %s") % \

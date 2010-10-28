@@ -27,6 +27,10 @@ class HIVTestForm(CCForm):
         hiv_field.add_choice('en', HIVTestReport.HIV_NO, 'N')
         hiv_field.add_choice('en', HIVTestReport.HIV_UNKNOWN, 'U')
         hiv_field.add_choice('en', HIVTestReport.HIV_NOCONSENT, 'NC')
+        hiv_field.add_choice('fr', HIVTestReport.HIV_YES, 'O')
+        hiv_field.add_choice('fr', HIVTestReport.HIV_NO, 'N')
+        hiv_field.add_choice('fr', HIVTestReport.HIV_UNKNOWN, 'I')
+        hiv_field.add_choice('fr', HIVTestReport.HIV_NOCONSENT, 'NC')
 
         keyword = self.params[0]
 
@@ -37,6 +41,12 @@ class HIVTestForm(CCForm):
                                     HIVTestReport.BLOOD_DRAWN_NO, 'N')
         blood_drawn_field.add_choice('en', \
                                     HIVTestReport.BLOOD_DRAWN_UNKNOWN, 'U')
+        blood_drawn_field.add_choice('fr', \
+                                    HIVTestReport.BLOOD_DRAWN_YES, 'O')
+        blood_drawn_field.add_choice('fr', \
+                                    HIVTestReport.BLOOD_DRAWN_NO, 'N')
+        blood_drawn_field.add_choice('fr', \
+                                    HIVTestReport.BLOOD_DRAWN_UNKNOWN, 'I')
         
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info."))

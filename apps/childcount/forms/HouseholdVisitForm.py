@@ -23,6 +23,8 @@ class HouseholdVisitForm(CCForm):
         available_field = MultipleChoiceField()
         available_field.add_choice('en', True, 'Y')
         available_field.add_choice('en', False, 'N')
+        available_field.add_choice('fr', True, 'O')
+        available_field.add_choice('fr', False, 'N')
 
         try:
             hhvr = HouseholdVisitReport.objects.get(encounter=self.encounter)

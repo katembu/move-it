@@ -31,6 +31,9 @@ class BirthForm(CCForm):
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_YES, 'Y')
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_NO, 'N')
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_UNKOWN, 'U')
+        cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_YES, 'O')
+        cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_NO, 'N')
+        cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_UNKOWN, 'I')
 
         try:
             br = BirthReport.objects.get(encounter=self.encounter)

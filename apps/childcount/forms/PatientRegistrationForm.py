@@ -19,7 +19,7 @@ from childcount.forms.utils import MultipleChoiceField
 class PatientRegistrationForm(CCForm):
     KEYWORDS = {
         'en': ['new', 'new!'],
-        'fr': ['new'],
+        'fr': ['new', 'new!'],
     }
     OVERIDE_KEYWORDS = ['new!']
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT

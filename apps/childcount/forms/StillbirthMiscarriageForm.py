@@ -33,6 +33,12 @@ class StillbirthMiscarriageForm(CCForm):
         type_field.add_choice('en', \
                               StillbirthMiscarriageReport.TYPE_MISCARRIAGE, \
                               'MC')
+        type_field.add_choice('fr', \
+                              StillbirthMiscarriageReport.TYPE_STILL_BIRTH, \
+                              'SB')
+        type_field.add_choice('fr', \
+                              StillbirthMiscarriageReport.TYPE_MISCARRIAGE, \
+                              'MC')
 
         type_field.set_language(self.chw.language)
         if len(self.params) < 3:

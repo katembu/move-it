@@ -27,6 +27,9 @@ class FeverForm(CCForm):
         rdt_field.add_choice('en', FeverReport.RDT_POSITIVE, 'Y')
         rdt_field.add_choice('en', FeverReport.RDT_NEGATIVE, 'N')
         rdt_field.add_choice('en', FeverReport.RDT_UNKOWN, 'U')
+        rdt_field.add_choice('fr', FeverReport.RDT_POSITIVE, 'O')
+        rdt_field.add_choice('fr', FeverReport.RDT_NEGATIVE, 'N')
+        rdt_field.add_choice('fr', FeverReport.RDT_UNKOWN, 'I')
 
         try:
             fr = FeverReport.objects.get(encounter=self.encounter)

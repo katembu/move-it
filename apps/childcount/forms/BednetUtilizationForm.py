@@ -29,9 +29,19 @@ class BednetUtilizationForm(CCForm):
         reason_field.add_choice('en', BednetUtilization.NOT_EFFECTIVE, 'NE')
         reason_field.add_choice('en', BednetUtilization.OTHER, 'Z')
         reason_field.add_choice('en', BednetUtilization.UNKNOWN, 'U')
+        reason_field.add_choice('fr', BednetUtilization.DONT_HAVE, 'NH')
+        reason_field.add_choice('fr', BednetUtilization.BEDNET_DAMAGED, 'BD')
+        reason_field.add_choice('fr', BednetUtilization.DIFFICULT_HUNG, 'DH')
+        reason_field.add_choice('fr', BednetUtilization.SMALL_ROOM, 'SR')
+        reason_field.add_choice('fr', BednetUtilization.DIFFICULT_BREATHE, \
+                                'DB')
+        reason_field.add_choice('fr', BednetUtilization.NOT_EFFECTIVE, 'NE')
+        reason_field.add_choice('fr', BednetUtilization.OTHER, 'Z')
+        reason_field.add_choice('fr', BednetUtilization.UNKNOWN, 'U')
 
         hanging_field = MultipleChoiceField()
         hanging_field.add_choice('en', BednetUtilization.U, 'U')
+        hanging_field.add_choice('fr', BednetUtilization.U, 'U')
 
         if len(self.params) < 4:
             raise ParseError(_(u"Not enough info. Expected: | number of " \

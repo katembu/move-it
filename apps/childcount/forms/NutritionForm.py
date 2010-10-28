@@ -31,6 +31,9 @@ class NutritionForm(CCForm):
         oedema_field.add_choice('en', NutritionReport.OEDEMA_YES, 'Y')
         oedema_field.add_choice('en', NutritionReport.OEDEMA_NO, 'N')
         oedema_field.add_choice('en', NutritionReport.OEDEMA_UNKOWN, 'U')
+        oedema_field.add_choice('fr', NutritionReport.OEDEMA_YES, 'O')
+        oedema_field.add_choice('fr', NutritionReport.OEDEMA_NO, 'N')
+        oedema_field.add_choice('fr', NutritionReport.OEDEMA_UNKOWN, 'I')
         keyword = self.params[0]
 
         try:
