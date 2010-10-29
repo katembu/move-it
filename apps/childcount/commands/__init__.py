@@ -15,4 +15,5 @@ from childcount.commands.CheckHealthIdCommand import CheckHealthIdCommand
 from childcount.commands.TestAlertsCommand import TestAlertsCommand
 from childcount.commands.HHSurveySummaryCommand import HHSurveySummaryCommand
 from childcount.commands.ChownCommand import ChownCommand
+from childcount.commands.LocationCommand import LocationCommand
 
