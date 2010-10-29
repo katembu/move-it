@@ -35,8 +35,6 @@ from childcount.models import HealthId
 ###
 
 
-from reversion import revision
-from childcount.models import CHW
 
 locations = {
     'KR01': [132],
@@ -131,31 +129,68 @@ locations = {
     'RH14': [59],
 }
 
+from django.db.models import Q
+
+from reversion import revision
+
+from locations.models import Location
+
+from childcount.models import CHW
+from childcount.models import Patient
+from childcount.models import FormGroup
+from childcount.models import Encounter
 
 # For each location
+for key in locations:
+    code = key
+    cids = locations[key]
+
+    print "Trying location %s" % code
+
+    loc = None
+    try:
+        loc = Location.objects.get(code=code)
+    except Location.DoesNotExist:
+        print "No location with code [%s]" % code
+        continue
 
     # Get patients in that location
-
-    # Check that patients are assigned to one of 
+    # who are not assigned to one of 
     # proper CHWs for that location
+    patients = Patient\
+        .objects\
+        .filter(location=loc)\
+        .filter(~Q(chw__pk__in=cids))
 
-    # If not, set patient_set to first CHW in list
+    for p in patients:
+        print "\t%s\t\t%s" % (p, p.chw)
 
-    # For each patient
+    revision.start()
+    patients.update(chw=cids[0])
+    revision.end()
+
+    # For each patient set lookup forms that have
+    # patient in that encounter
+    grps = FormGroup\
+        .objects\
+        .filter(encounter__patient__in=patients)
+
+    for g in grps:
+        print "\t%s" % g
+
+    # Get encounters for these form groups
+    encs = map(lambda e: e['encounter'], grps.values('encounter'))
     
-        # Set encounter_set to first 
-        # CHW in list
+    # Set form_group and encounter entered_by to this patient's CHW
+    revision.start()
+    Encounter\
+        .objects\
+        .filter(pk__in=encs)\
+        .update(chw=cids[0])
+    revision.end()
 
-        # For each patient set lookup forms that have
-        # patient in that encounter
+    revision.start()
+    grps.update(entered_by=cids[0])
+    revision.end()
 
-        # Set form_group entered_by to this patient's CHW
-
-
-
-revision.start()
-for p in patients:
-    old = CHW.objects.get(pk=t[0])
-    .patient_set.update(chw__pk=t[1])
-revision.end()
-
+print "Done!"
