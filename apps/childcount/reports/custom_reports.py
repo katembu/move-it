@@ -46,7 +46,7 @@ from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
 from libreport.pdfreport import ScaledTable
 
-from ccdoc import Document, Table, Paragraph, Text, Section
+import ccdoc 
 from childcount.reports.utils import render_doc_to_response
 
 from locations.models import Location
@@ -355,21 +355,27 @@ def gen_patient_register_pdf(f, clinic, active=False):
     if not chws.count():
         story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households().order_by('location')
+        households = chw.households().order_by('location__code','last_name')
         if not households:
             continue
         patients = []
         boxes = []
+        last_loc = None
         for household in households:
+            # Put blank line between cells
+            if last_loc != None and last_loc != household.location.code:
+                patients.append(ThePatient())
+
             trow = len(patients)
             patients.append(household)
             hs = ThePatient.objects.filter(household=household)\
                             .exclude(health_id=household.health_id)\
-                            .order_by('household')
+                            .order_by('last_name')
             if active:
                 hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
-            #patients.append(ThePatient())
+
+            last_loc = household.location.code
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
@@ -494,7 +500,7 @@ def surveyreport(request, rformat):
 
 
 def a_surveyreport(request, rformat="html"):
-    doc = Document(u'Household Healthy Survey Report')
+    doc = ccdoc.Document(u'Household Healthy Survey Report')
     today = datetime.today()
     locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                     .distinct('location'))
@@ -503,7 +509,7 @@ def a_surveyreport(request, rformat="html"):
         brpts = BedNetReport.objects.filter(encounter__chw__location=location)
         if not brpts.count():
             continue
-        t = Table(headings.__len__())
+        t = ccdoc.Table(headings.__len__())
         t.add_header_row([
                     Text(c['name']) for c in headings])
         for row in TheBHSurveyReport.objects.filter(location=location):
@@ -513,15 +519,15 @@ def a_surveyreport(request, rformat="html"):
                 cellItem = Template(cell['bit']).render(ctx)
                 if cellItem.isdigit():
                     cellItem = int(cellItem)
-                cellItem = Text(cellItem)
+                cellItem = ccdoc.Text(cellItem)
                 row.append(cellItem)
             t.add_row(row)
-        doc.add_element(Section(u"%s" % location))
+        doc.add_element(ccdoc.Section(u"%s" % location))
         doc.add_element(t)
     return render_doc_to_response(request, rformat, doc, 'hhsurveyrpt')
 
 
-def gen_surveryreport():
+def gen_surveyreport():
     '''
     Generate the healthy survey report.
     '''

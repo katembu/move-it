@@ -8,6 +8,7 @@
 <table>
 <thead>
 <tr>
+<td>ID</td>
 <td>Username</td><td>First Name</td><td>Last Name</td>
 <td>Language</td><td>Location</td><td>Clinic</td><td>Active?</td>
 </tr>
@@ -15,6 +16,7 @@
 <tbody>
 {% for chw in chews %}
 <tr>
+    <td>{{ chw.pk }}</td>
     <td>{{ chw.username }}</td>
     <td>{{ chw.first_name }}</td>
     <td>{{ chw.last_name }}</td>

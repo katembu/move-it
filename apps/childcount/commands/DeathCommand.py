@@ -170,5 +170,5 @@ class DeathCommand(CCCommand):
         death.save()
 
         self.message.respond(_("You successfuly reported the death of "\
-                                "%(death)s.") % {'death': death})
+                                "%(death)s.") % {'death': death}, 'success')
         return True

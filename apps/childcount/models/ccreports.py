@@ -210,7 +210,7 @@ class ThePatient(Patient):
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _("Name".upper()), \
-            'bit': '{{object.last_name}} {{object.first_name}}'})
+            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
         columns.append(
             {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
@@ -243,7 +243,7 @@ class ThePatient(Patient):
                 '{% if object.is_head_of_household %}</strong>{% endif %}'})
         columns.append(
             {'name': _(u"Name".upper()), \
-            'bit': '{{object.last_name}} {{object.first_name}}'})
+            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
         columns.append(
             {'name': _(u"Gen."), \
             'bit': '{{object.gender}}'})
@@ -673,7 +673,7 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__lte=day2later)
             if fur:
                 ontimefollowup += 1
-        return '%s%%' % int(round((ontimefollowup / \
+        return '%s' % int(round((ontimefollowup / \
                         float(num_referrals)) * 100))
 
     def median_number_of_followup_days(self):
