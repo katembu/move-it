@@ -47,7 +47,7 @@ urlpatterns = patterns('',
     url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
-    url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
+    #url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),
 
     url(r'^childcount/dataentry/?$', views.dataentry, name='dataentry'),
