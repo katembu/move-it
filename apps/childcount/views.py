@@ -271,7 +271,7 @@ def add_chw(request):
 def list_chw(request):
 
     info = {}
-    chews = CHW.objects.all().order_by('-id')
+    chews = CHW.objects.all().order_by('first_name')
     info.update({'chews': chews})
     return render_to_response(request, 'childcount/list_chw.html', info)
 
