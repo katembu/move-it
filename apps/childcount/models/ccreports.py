@@ -673,7 +673,7 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__lte=day2later)
             if fur:
                 ontimefollowup += 1
-        return '%s%%' % int(round((ontimefollowup / \
+        return '%s' % int(round((ontimefollowup / \
                         float(num_referrals)) * 100))
 
     def median_number_of_followup_days(self):
