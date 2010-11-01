@@ -192,6 +192,9 @@ class CHWForm(forms.Form):
                                        for location in Location.objects.all()])
     mobile = forms.CharField(required=False)
 
+'''
+Commented out by Henry since data clerks
+should not be able to add CHWs
 
 def add_chw(request):
 
@@ -266,7 +269,7 @@ def add_chw(request):
     info.update({'form': form})
 
     return render_to_response(request, 'childcount/add_chw.html', info)
-
+'''
 
 def list_chw(request):
 
