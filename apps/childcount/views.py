@@ -9,6 +9,7 @@ import re
 from rapidsms.webui.utils import render_to_response
 
 from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
@@ -24,6 +25,7 @@ from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
+from childcount.models.Patient import PatientForm
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
@@ -510,3 +512,28 @@ def pagenator(getpages, reports):
             "in_trailing_range": in_trailing_range,
             "pages_outside_leading_range": pages_outside_leading_range,
             "pages_outside_trailing_range": pages_outside_trailing_range}
+
+@login_required
+def edit_patient(request, healthid):
+    try:
+        patient = Patient.objects.get(health_id=healthid)
+    except Patient.DoesNotExist:
+        return HttpResponseNotFound()
+
+    if request.method == 'POST':
+        # Don't change health_id
+        if 'health_id' in request.POST:
+            del request.POST['health_id']
+
+        form = PatientForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+            return HttpResponseRedirect( \
+                "/childcount/patients/edit/%s/" % (healthid))
+    else:
+        form = PatientForm(instance=patient)
+    return render_to_response(request, 
+        'childcount/edit_patient.html', { \
+        'form': form,
+        'health_id': healthid.upper()
+    })

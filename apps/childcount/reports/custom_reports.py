@@ -48,10 +48,9 @@ from libreport.pdfreport import ScaledTable
 
 import ccdoc 
 from childcount.reports.utils import render_doc_to_response
+from childcount.reports.utils import report_filename 
 
 from locations.models import Location
-
-REPORTS_DIR = 'reports'
 
 styles = getSampleStyleSheet()
 
@@ -760,13 +759,4 @@ def household_surveyreportable(title, indata=None):
                             ('BOX', (15, 1), (16, -1), 5, \
                             colors.lightgrey)]))
     return tb
-
-def report_filename(report_name):
-    return os.path.abspath(\
-        os.path.join(
-                    os.path.dirname(__file__), \
-                    '..',
-                    'static',
-                    REPORTS_DIR,
-                    report_name))
 
