@@ -5,7 +5,12 @@
 }
 .dashboard h2{
     font-size: 20px;
-} 
+}
+
+.success {
+    color: green;
+    font-weight: bold;
+}
 
 #ch-l {
 float:left;

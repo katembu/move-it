@@ -8,6 +8,7 @@ import re
 
 from rapidsms.webui.utils import render_to_response
 
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
@@ -25,7 +26,7 @@ from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
-from childcount.models.Patient import PatientForm
+from childcount.fields import PatientForm
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
@@ -515,25 +516,62 @@ def pagenator(getpages, reports):
 
 @login_required
 def edit_patient(request, healthid):
-    try:
-        patient = Patient.objects.get(health_id=healthid)
-    except Patient.DoesNotExist:
-        return HttpResponseNotFound()
-
-    if request.method == 'POST':
-        # Don't change health_id
-        if 'health_id' in request.POST:
-            del request.POST['health_id']
-
-        form = PatientForm(request.POST, instance=patient)
-        if form.is_valid():
-            form.save()
+    if healthid is None:
+        if 'hid' in request.GET:
             return HttpResponseRedirect( \
-                "/childcount/patients/edit/%s/" % (healthid))
-    else:
-        form = PatientForm(instance=patient)
-    return render_to_response(request, 
-        'childcount/edit_patient.html', { \
-        'form': form,
-        'health_id': healthid.upper()
-    })
+                "/childcount/patients/edit/%s/" % \
+                    (request.GET['hid'].upper()))
+        else:
+            return render_to_response(request,
+                'childcount/edit_patient.html', {})
+    else: 
+        try:
+            patient = Patient.objects.get(health_id=healthid)
+        except Patient.DoesNotExist:
+            return render_to_response(request,
+                'childcount/edit_patient.html', { \
+                'health_id': healthid.upper(),
+                'failed': True})
+
+        if request.method == 'POST':
+            form = PatientForm(request.POST, instance=patient)
+            if form.is_valid():
+                print 'saving'
+                print form.save(commit=True)
+                print patient.household
+                return render_to_response(request,
+                    'childcount/edit_patient.html', { \
+                    'health_id': healthid.upper(),
+                    'patient': patient,
+                    'success': True})
+        else:
+            form = PatientForm(instance=patient)
+        return render_to_response(request, 
+            'childcount/edit_patient.html', { \
+            'form': form,
+            'patient': patient,
+            'health_id': patient.health_id.upper()
+        })
+'''
+@login_required
+def autocomplete(request):
+    def iter_results(results):
+        if results:
+            for r in results:
+                yield '%s|%s\n' % (r.health_id.upper(), r.id)
+    
+    if not request.GET.get('q'):
+        return HttpResponse(mimetype='text/plain')
+    
+    q = request.GET.get('q')
+    limit = request.GET.get('limit', 15)
+    try:
+        limit = int(limit)
+    except ValueError:
+        return HttpResponseBadRequest() 
+
+    patients = Patient.objects.filter(health_id__startswith=q)[:limit]
+    return HttpResponse(iter_results(patients), mimetype='text/plain')
+'''
+
+
