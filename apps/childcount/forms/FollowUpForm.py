@@ -25,12 +25,20 @@ class FollowUpForm(CCForm):
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_NO, 'N')
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_UNKOWN, 'U')
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_UNAVAILABLE, 'L')
+        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_YES, 'O')
+        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_NO, 'N')
+        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_UNKOWN, 'I')
+        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_UNAVAILABLE, 'L')
 
         v_field = MultipleChoiceField()
         v_field.add_choice('en', FollowUpReport.VISITED_YES, 'Y')
         v_field.add_choice('en', FollowUpReport.VISITED_NO, 'N')
         v_field.add_choice('en', FollowUpReport.VISITED_UNKOWN, 'U')
         v_field.add_choice('en', FollowUpReport.VISITED_INPATIENT, 'P')
+        v_field.add_choice('fr', FollowUpReport.VISITED_YES, 'O')
+        v_field.add_choice('fr', FollowUpReport.VISITED_NO, 'N')
+        v_field.add_choice('fr', FollowUpReport.VISITED_UNKOWN, 'I')
+        v_field.add_choice('fr', FollowUpReport.VISITED_INPATIENT, 'P')
 
         try:
             fur = FollowUpReport.objects.get(encounter=self.encounter)

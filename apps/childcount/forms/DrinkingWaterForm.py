@@ -36,6 +36,21 @@ class DrinkingWaterForm(CCForm):
         wats_field.add_choice('en', DrinkingWaterReport.RAIN_COLLECTION, 'RW')
         wats_field.add_choice('en', DrinkingWaterReport.SURFACE_WATER, 'SU')
         wats_field.add_choice('en', DrinkingWaterReport.OTHER, 'Z')
+        wats_field.add_choice('fr', DrinkingWaterReport.PIPED_WATER, 'PP')
+        wats_field.add_choice('fr', DrinkingWaterReport.PUBLIC_TAP_STANDPIPE, \
+                                    'PT')
+        wats_field.add_choice('fr', DrinkingWaterReport.TUBEWELL_BOREHOLE, \
+                                    'TB')
+        wats_field.add_choice('fr', DrinkingWaterReport.PROTECTED_DUG_WELL, \
+                                    'PW')
+        wats_field.add_choice('fr', DrinkingWaterReport.UNPROTECTED_DUG_WELL, \
+                                    'UW')
+        wats_field.add_choice('fr', DrinkingWaterReport.PROTECTED_SPRING, 'PS')
+        wats_field.add_choice('fr', DrinkingWaterReport.UNPROTECTED_SPRING, \
+                                    'UP')
+        wats_field.add_choice('fr', DrinkingWaterReport.RAIN_COLLECTION, 'RW')
+        wats_field.add_choice('fr', DrinkingWaterReport.SURFACE_WATER, 'SU')
+        wats_field.add_choice('fr', DrinkingWaterReport.OTHER, 'Z')
 
         #method used
         tmethod_field = MultipleChoiceField()
@@ -56,6 +71,24 @@ class DrinkingWaterForm(CCForm):
         tmethod_field.add_choice('en', DrinkingWaterReport. \
                                     TREATMENT_METHOD_OTHER, 'Z')
         tmethod_field.add_choice('en', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_DONTKNOW, 'U')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                        TREATMENT_METHOD_BOIL, 'BW')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_BOUGHT_CHLORINE, 'BC')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_DONATED_CHLORINE, 'DC')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_CLOTH, 'SC')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_WATERFILTER, 'WF')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_SOLARDISINFECTION, 'SR')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_STAND_SETTLE, 'LS')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
+                                    TREATMENT_METHOD_OTHER, 'Z')
+        tmethod_field.add_choice('fr', DrinkingWaterReport. \
                                     TREATMENT_METHOD_DONTKNOW, 'U')
 
         try:
