@@ -2,8 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+import os
+
 from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
+import webapp
 
 from childcount import views
 from childcount.reports import statistics
@@ -23,6 +26,15 @@ except AttributeError:
 
 urlpatterns = patterns('',
     admin_urls,
+
+    # webapp URLS
+    (r'^accounts/login/$', "webapp.views.login"),
+    (r'^accounts/logout/$', "webapp.views.logout"),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url('^static/webapp/(?P<path>.*)$', 'django.views.static.serve', \
+        {'document_root': '%s/static' % os.path.dirname(webapp.__file__)}),
+
+    url(r'^$', views.index, name='dashboard'),
     url(r'^childcount/?$', views.index, name='cc-dashboard'),
     url(r'^childcount/patients/?$', views.patient, name='cc-patients'),
     url(r'^childcount/patients/edit/(?P<healthid>[A-Z0-9]+)/$',
