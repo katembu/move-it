@@ -23,8 +23,8 @@ except AttributeError:
 
 urlpatterns = patterns('',
     admin_urls,
-    url(r'^childcount/?$', views.index),
-    url(r'^childcount/patients/?$', views.patient),
+    url(r'^childcount/?$', views.index, name='cc-dashboard'),
+    url(r'^childcount/patients/?$', views.patient, name='cc-patients'),
     url(r'^childcount/patients/edit/(?P<healthid>[A-Z0-9]+)/$',
         views.edit_patient),
     url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
@@ -49,10 +49,10 @@ urlpatterns = patterns('',
     url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
-    #url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
-    url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),
+    url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
+    url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
 
-    url(r'^childcount/dataentry/?$', views.dataentry, name='dataentry'),
+    url(r'^childcount/dataentry/?$', views.dataentry, name='cc-dataentry'),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
     url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
