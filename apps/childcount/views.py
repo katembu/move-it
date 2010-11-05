@@ -68,7 +68,7 @@ def form(request, formid):
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
-    title = "ChildCount-2.0"
+    title = "ChildCount+"
 
     info = {}
 
