@@ -6,7 +6,7 @@ var debug = false;
 if(typeof(console)!=='undefined' && debug) {clog = console.log; cerr = console.error; }
 
 dataentry_forms = [];
-dataentry_form = null;f
+dataentry_form = null;
 
 function load_json_forms()
 {
@@ -178,11 +178,28 @@ function form_focus(event)
     switch_forms(parseInt(target) - 1); 
 }
 
+function get_sms_history(delta) {
+    if(old_current != current) {
+        offset = 0;
+        old_current = current;
+    }
+
+    if((offset + delta) < 0) return;
+    if((offset + delta) >= current) return;
+    
+    offset += delta;
+    if(offset == 0) {
+        $('#message').val('');
+    } else {
+        duplicate_sms(current - offset);
+    }
+}
 
 function loadUI() {
 
     // load forms
     load_json_forms();
+
 
     // add UI shortcuts
     shortcut.add("Ctrl+Enter", focus_entry);
@@ -196,6 +213,18 @@ function loadUI() {
 
     // launch first form
     current = 1;
+
+    // Shortcuts to get command history
+    shortcut.add('up', function() { return get_sms_history(1); } );
+    shortcut.add('down', function() { return get_sms_history(-1); } );
+
+    // Number of msgs back users is looking at
+    offset = 0;
+    // Use this value to detect when a message has
+    // been sent
+    old_current = 1;
+
+
     switch_forms(0);
 
 }

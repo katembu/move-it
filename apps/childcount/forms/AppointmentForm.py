@@ -39,23 +39,36 @@ class AppointmentForm(CCForm):
         aptr.form_group = self.form_group
 
         expected_on_str = ''.join(self.params[1:])
+        close_appointment = False
         try:
             #need to trick DOBProcessor: use a future date for date_ref
             date_ref = datetime.today() + timedelta(375)
             expected_on, variance = DOBProcessor.from_dob(self.chw.language, \
                                             expected_on_str, date_ref.date())
         except InvalidDOB:
-            raise BadValue(_(u"Could not understand the date of "\
+            if expected_on_str == '000000':
+                close_appointment = True
+            else:
+                raise BadValue(_(u"Could not understand the date of "\
                                 "appointment %(expected_on)s" % \
                                 {'expected_on': expected_on_str}))
-        if expected_on < self.date.date():
-            raise BadValue(_(u"%(expected_on)s is already in the past, " \
-                            "please use a future date of appointment." % \
-                                {'expected_on': expected_on}))
-        aptr.appointment_date = expected_on
-        aptr.status = AppointmentReport.STATUS_OPEN
-        aptr.notification_sent = False
-        aptr.save()
+        #+APT != 000000: create an next appointment
+        if not close_appointment:
+            if expected_on < self.date.date():
+                raise BadValue(_(u"%(expected_on)s is already in the past, " \
+                                "please use a future date of appointment." % \
+                                    {'expected_on': expected_on}))
+            aptr.appointment_date = expected_on
+            aptr.status = AppointmentReport.STATUS_OPEN
+            aptr.notification_sent = False
+            aptr.save()
+            self.response = _(u"Next appointment is on %(expected_on)s.") % \
+                            {'expected_on': aptr.appointment_date}
+        else:
+            #+APT = 000000:no next apt child has completed the program
+            self.response = _(u"No next appointment: %(patient)s has "\
+                                "completed the program." % \
+                                {'patient': self.encounter.patient})
         #close previous appointments
         previous_apts = AppointmentReport.objects.filter(\
                                 encounter__patient=self.encounter.patient, \
@@ -65,6 +78,3 @@ class AppointmentForm(CCForm):
             apt.closed_date = datetime.now()
             apt.status = AppointmentReport.STATUS_CLOSED
             apt.save()
- 
-        self.response = _(u"Next appointment is on %(expected_on)s.") % \
-                            {'expected_on': aptr.appointment_date}

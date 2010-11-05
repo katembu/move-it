@@ -88,7 +88,7 @@ class DeathCommand(CCCommand):
         death.last_name, death.first_name, alias = \
                              clean_names(' '.join(tokens[:i]), \
                              surname_first=self.SURNAME_FIRST)
- 
+
         # remove the name tokens
         tokens = tokens[i:]
 
@@ -125,7 +125,7 @@ class DeathCommand(CCCommand):
 
         if len(tokens) > 0:
             household = tokens.pop(0)
-            
+
             # Patient is not a head of household
             try:
                 death.household = Patient.objects.get( \
@@ -146,9 +146,8 @@ class DeathCommand(CCCommand):
             if death.household.household != death.household:
                 raise BadValue(_(u"The head of household you specified " \
                                   "(%(hh)s) is not a head of household. " \
-                                  "Their head of household is (%(hhhh)s). " \
-                                  ) % \
-                                  {'hh': death.household, \
+                                  "Their head of household is (%(hhhh)s). ") \
+                                  % {'hh': death.household, \
                                    'hhhh': death.household.household})
 
         death_check = DeadPerson.objects.filter( \
@@ -171,6 +170,5 @@ class DeathCommand(CCCommand):
         death.save()
 
         self.message.respond(_("You successfuly reported the death of "\
-                                "%(death)s.") % {'death': death})
+                                "%(death)s.") % {'death': death}, 'success')
         return True
-

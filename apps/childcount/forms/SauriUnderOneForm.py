@@ -54,12 +54,13 @@ class SauriUnderOneForm(CCForm):
             raise Inapplicable(_(u"Child is too old for this report."))
 
         if len(self.params) < 3:
-            raise ParseError(_(u"Not enough info. Expected: | breast feeding " \
-                                "only | up-to-date immunisations |"))
+            raise ParseError(_(u"Not enough info. Expected: | breast" \
+                                " feeding only | up-to-date immunisations |"))
 
         breast = self.params[1]
         if not breast_field.is_valid_choice(breast):
-            raise ParseError(_(u"| Breast feeding only? | must be %(choices)s.") \
+            raise ParseError(_(u"| Breast feeding only? | "\
+                                "must be %(choices)s.") \
                              % {'choices': breast_field.choices_string()})
         breast_db = breast_field.get_db_value(breast)
 

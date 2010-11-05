@@ -82,8 +82,8 @@ table.rsmsList tbody tr {
 
 
     width: 90%;
-    font-size: 2em;
-
+    font-size: 1.5em;
+    height: 2.0em;
     font-family: Lekton;
 }
 
@@ -184,6 +184,7 @@ table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td, table.rsmsList
 }
 
 #user_input {
+    z-index:100;
     position: absolute;
     bottom:0;
     background-color: yellow;

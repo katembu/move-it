@@ -24,7 +24,7 @@ from childcount.forms.HouseholdVisitForm import HouseholdVisitForm
 from childcount.forms.FamilyPlanningForm import FamilyPlanningForm
 from childcount.forms.BedNetForm import BedNetForm
 from childcount.forms.SickMembersForm import SickMembersForm
-
+from childcount.forms.InactivatePatientForm import InactivatePatientForm
 from childcount.forms.VerbalAutopsyForm import VerbalAutopsyForm
 
 from childcount.forms import utils
@@ -52,3 +52,4 @@ from childcount.forms.PregnancyRegistrationForm import \
                                                     PregnancyRegistrationForm
 from childcount.forms.HIVTestForm import HIVTestForm
 from childcount.forms.DBSResultForm import DBSResultForm
+from childcount.forms.CD4ResultForm import CD4ResultForm

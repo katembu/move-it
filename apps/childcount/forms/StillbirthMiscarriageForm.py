@@ -74,3 +74,4 @@ class StillbirthMiscarriageForm(CCForm):
 
         self.response = _("Stillbirth or miscarriage on %(doi)s.") % \
                          {'doi': doi}
+        sbmr.setup_reminders()

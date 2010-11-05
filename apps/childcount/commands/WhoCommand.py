@@ -18,7 +18,7 @@ class WhoCommand(CCCommand):
 
     KEYWORDS = {
         'en': ['who'],
-        'fr': ['who','qui'],
+        'fr': ['who', 'qui'],
     }
 
     @authenticated

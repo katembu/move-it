@@ -4,10 +4,11 @@
 
 import re
 import time
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from django.utils.translation import ugettext as _, activate
 from django.utils.translation import ungettext
+from django.contrib.auth.models import Group
 from django.db import models
 from reversion import revision
 
@@ -21,6 +22,7 @@ from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
 from childcount.utils import respond_exceptions, KeywordMapper
+from childcount.utils import send_msg
 
 
 class App (rapidsms.app.App):
@@ -72,12 +74,14 @@ class App (rapidsms.app.App):
         # message.encounter_date.  Otherwise, the reporter is the chw,
         # and the encounter date is from the backend
         if 'chw' in message.__dict__:
+
             try:
                 chw = CHW.objects.get(pk=message.chw)
             except CHW.DoesNotExist:
                 message.respond(_(u"Problem getting CHW from backend."), \
                                 'error')
                 return handled
+
             reporter = chw.reporter
             message.reporter = reporter
         else:
@@ -101,6 +105,40 @@ class App (rapidsms.app.App):
         # for locations with DST.
         message.date = message.date - timedelta(seconds=time.timezone)
 
+        # If coming from debackend...
+        if 'chw' in message.__dict__:
+            try: 
+                rep = Reporter.objects.get(username=message.identity)
+            except Reporter.DoesNotExist:
+                message.respond(_(u"Invalid user logged in."), 'error')
+                return handled
+    
+            # Data entry clerk forgot to set the CHW
+            if chw.pk == rep.pk:
+                message.respond(_(u"%(fname)s, "
+                                "you must select a CHW other than yourself "
+                                "at the bottom of the data entry screen.") % \
+                                {'fname': rep.first_name}, \
+                    'error')
+                return handled
+
+        # Validate debackend encounter date
+        if 'encounter_date' in message.__dict__:
+            try:
+                edate = datetime.strptime(message.encounter_date, \
+                                         "%Y-%m-%d")
+            except ValueError:
+                message.respond(_(u"Problem getting encounter_date from "\
+                                   "backend."), 'error')
+                return handled
+
+            # Don't allow future dates
+            if edate.date() > date.today():
+                message.respond(_(u"You cannot select an encounter date that is "
+                    "in the future."),
+                    'error')
+                return handled
+ 
         # Set the user of revision, equal to the user object of the reporter
         if reporter:
             revision.user = reporter.user_ptr
@@ -122,16 +160,18 @@ class App (rapidsms.app.App):
                 return handled
 
             chw = reporter.chw
+
             if 'encounter_date' in message.__dict__:
                 try:
-                    date = datetime.strptime(message.encounter_date, \
+                    edate = datetime.strptime(message.encounter_date, \
                                              "%Y-%m-%d")
                     # set it to midday on that day...
-                    message.date = date + timedelta(hours=12)
+                    message.date = edate + timedelta(hours=12)
                 except ValueError:
                     message.respond(_(u"Problem getting encounter_date from "\
                                        "backend."), 'error')
                     return handled
+
             encounter_date = message.date
 
             health_ids_text = forms_match.groupdict()['health_ids']
@@ -208,6 +248,11 @@ class App (rapidsms.app.App):
                                    "Please correct and try again.") % \
                                    {'id': health_id}, 'error')
                 return handled
+
+            # Set the CHW for this household to the person sending the text message.
+            # (Commented out 29/10/2010 by Henry since this might cause more
+            # problems than it's worth right now...)
+            #Patient.objects.filter(household=patient.household).update(chw=chw)
 
             # If all of the forms are household forms and the patient is not
             # head of household, don't proceed to process.  If there is one
@@ -378,7 +423,15 @@ class App (rapidsms.app.App):
 
     def outgoing(self, message):
         """Handle outgoing message notifications."""
-        pass
+        if message.text.find(' is marked as crashed') != -1:
+            msg = _(u"Database Error: please notify the system administrator")
+            #alert facilitators
+            try:
+                g = Group.objects.get(name='Facilitator')
+                for user in g.user_set.all():
+                    send_msg(user.reporter, msg)
+            except Group.DoesNotExist:
+                pass
 
     def stop(self):
         """Perform global app cleanup when the application is stopped."""
@@ -401,3 +454,5 @@ class App (rapidsms.app.App):
        # TODO: what could go wrong here?
        be = self.router.get_backend(pconn.backend.slug)
        return be.message(pconn.identity, post["text"]).send()
+
+

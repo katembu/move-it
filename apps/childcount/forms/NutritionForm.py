@@ -92,7 +92,8 @@ class NutritionForm(CCForm):
                                       "%(min)skg.") % \
                                      {'min': self.MIN_WEIGHT})
             else:
-                raise ParseError(_(u"Unkown value. Weight should be entered as a number."))
+                raise ParseError(_(u"Unkown value. Weight should be " \
+                                    "entered as a number."))
 
         nr.oedema = oedema_db
         nr.muac = muac
@@ -113,7 +114,15 @@ class NutritionForm(CCForm):
 
         if weight is not None:
             self.response += _(u", Weight %(w)skg") % {'w': weight}
-
+        if nr.status == NutritionReport.STATUS_SEVERE_COMP:
+            status_msg = _(u"SAM+")
+        elif nr.status == NutritionReport.STATUS_MODERATE:
+            status_msg = _(u"MAM")
+        elif nr.status == NutritionReport.STATUS_SEVERE:
+            status_msg = _(u"SAM")
+        else:
+            status_msg = _(u"HEALTHY")
+        self.response = status_msg + "> " + self.response
         if nr.status in (NutritionReport.STATUS_SEVERE, \
                             NutritionReport.STATUS_SEVERE_COMP):
             if nr.status == NutritionReport.STATUS_SEVERE_COMP:
@@ -128,6 +137,13 @@ class NutritionForm(CCForm):
             #alert facilitators
             try:
                 g = Group.objects.get(name='Facilitator')
+                for user in g.user_set.all():
+                    send_msg(user.reporter, msg)
+            except Group.DoesNotExist:
+                pass
+            #alert nutritionists
+            try:
+                g = Group.objects.get(name='Nutritionist')
                 for user in g.user_set.all():
                     send_msg(user.reporter, msg)
             except Group.DoesNotExist:

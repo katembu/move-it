@@ -4,11 +4,19 @@
 
 import os
 import copy
+import csv
+import cProfile
+from time import time
+from datetime import datetime
+from types import StringType
 
 from rapidsms.webui.utils import render_to_response
+
+from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.http import HttpResponse
+from django.db.models import F
 
 from cStringIO import StringIO
 
@@ -24,13 +32,23 @@ except ImportError:
     pass
 
 from childcount.models import Clinic
+from childcount.models import CHW
+from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
+from childcount.models.ccreports import OperationalReport
+from childcount.models.ccreports import ClinicReport
+from childcount.models.ccreports import TheBHSurveyReport
 from childcount.utils import RotatedParagraph
 
 from libreport.pdfreport import PDFReport, p
 from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
+from libreport.pdfreport import ScaledTable
+
+import ccdoc 
+from childcount.reports.utils import render_doc_to_response
+from childcount.reports.utils import report_filename 
 
 from locations.models import Location
 
@@ -215,44 +233,30 @@ def chw(request, rformat='html'):
             return render_to_response(request, 'childcount/chw.html', \
                                             context_dict)
 
-
-def operationalreport(request, rformat):
-    filename = 'operationalreport.pdf'
-    story = []
-    fn = os.path.abspath(os.path.join(os.path.dirname(__file__), \
-                    './rpts/%s' % filename))
-    if not os.path.isfile(fn):
-        return HttpResponse("No Report Generated yet")
-    else:
-        f = open(fn, 'r')
-        pdf = f.read()
-    response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+def gen_operationalreport():
     '''
-    buffer = StringIO()
-    if Clinic.objects.all().count():
-        locations = Clinic.objects.all()
-    else:
-        locations = Location.objects.all()
-    for location in locations:
-        if not TheCHWReport.objects.filter(location=location).count():
+    Generate OperationalReport and write it to file
+    '''
+    filename = report_filename('operationalreport.pdf')
+    f = open(filename, 'w')
+
+    story = []
+    clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
+                                                    .distinct('clinic'))
+    for clinic in clinics:
+        if not TheCHWReport.objects.filter(clinic=clinic).count():
             continue
-        tb = operationalreportable(location, TheCHWReport.objects.\
-            filter(location=location))
+        tb = operationalreportable(clinic, TheCHWReport.objects.\
+            filter(clinic=clinic))
         story.append(tb)
         story.append(PageBreak())
 
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), \
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                             topMargin=(0 * inch), \
                             bottomMargin=(0 * inch))
     doc.build(story)
 
-    # Get the value of the StringIO buffer and write it to the response.
-    pdf = buffer.getvalue()
-    buffer.close()'''
-    
-    response.write(pdf)
-    return response
+    f.close()
 
 
 def operationalreportable(title, indata=None):
@@ -334,59 +338,49 @@ def operationalreportable(title, indata=None):
                 ]))
     return tb
 
+def gen_registerlist():
+    clinics = Clinic.objects.all()
+    for c in clinics:
+        for active in ['','-active']:
+            filename = report_filename("registerlist-%s%s.pdf" % (c.code, active))
+            f = open(filename, 'w')
 
-def bednetregisterlist(request, clinic_id):
-    filename = 'registerlist.pdf'
-    try:
-        clinic = Clinic.objects.get(id=clinic_id)
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_patient_register_pdf(response, clinic)
-        return response
-    except Clinic.DoesNotExist:
-        return HttpResponse(_(u"The specified clinic is not known"))
-    '''except:
-        return HttpResponse(_("Error"))'''
-        
-def registerlist(request, clinic_id):
-    filename = 'registerlist.pdf'
-    try:
-        clinic = Clinic.objects.get(id=clinic_id)
-        response = HttpResponse(mimetype='application/pdf')
-        response['Cache-Control'] = ""
-        response['Content-Disposition'] = "attachment; filename=%s" % filename
-        gen_patient_register_pdf(response, clinic)
-        return response
-    except Clinic.DoesNotExist:
-        return HttpResponse(_(u"The specified clinic is not known"))
-    '''except:
-        return HttpResponse(_("Error"))'''
+            gen_patient_register_pdf(f, c, (active == '-active'))
+            f.close()
 
-
-def gen_patient_register_pdf(filename, location):
+def gen_patient_register_pdf(f, clinic, active=False):
     story = []
-    chws = TheCHWReport.objects.filter(location=location)
+    chws = TheCHWReport.objects.filter(clinic=clinic)
     if not chws.count():
-        story.append(Paragraph(_("No report for %s.") % location, styleN))
+        story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households()
+        households = chw.households().order_by('location__code','last_name')
         if not households:
             continue
         patients = []
         boxes = []
+        last_loc = None
         for household in households:
+            # Put blank line between cells
+            if last_loc != None and last_loc != household.location.code:
+                patients.append(ThePatient())
+
             trow = len(patients)
             patients.append(household)
             hs = ThePatient.objects.filter(household=household)\
                             .exclude(health_id=household.health_id)\
-                            .order_by('household')
+                            .order_by('last_name')
+            if active:
+                hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
-            patients.append(ThePatient())
+
+            last_loc = household.location.code
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
 
-        #Sauri specific start
+        '''Sauri specific start: include default household id generated
+        when migrating patients from old core ChildCount to the new core of
+        ChildCount+'''
         if ThePatient.objects.filter(health_id='XXXXX'):
             #default_household -> dh
             dh = ThePatient.objects.get(health_id='XXXXX')
@@ -394,27 +388,30 @@ def gen_patient_register_pdf(filename, location):
             hs = ThePatient.objects.filter(household=dh, \
                                             chw=chw)\
                                     .exclude(health_id=dh.health_id)
+            if active:
+                hs = hs.filter(status=ThePatient.STATUS_ACTIVE)
             patients.extend(hs)
             brow = len(patients) - 1
             boxes.append({"top": trow, "bottom": brow})
         #End Sauri specific
 
         tb = thepatientregister(_(u"CHW: %(loc)s: %(chw)s") % \
-                                {'loc': location, 'chw':chw}, \
+                                {'loc': clinic, 'chw': chw}, \
                                 patients, boxes)
         story.append(tb)
         story.append(PageBreak())
-        # 74 is the number of rows per page, should probably put this in a
+        # 108 is the number of rows per page, should probably put this in a
         # variable
-        if (((len(patients) / 74) + 1) % 2) == 1:
+        if (((len(patients) / 108) + 1) % 2) == 1 \
+            and not (len(patients) / 108) * 108 == len(patients):
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize=landscape(A4), \
+    doc = MultiColDocTemplate(f, 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
-    return filename
+    return f
 
 
 def thepatientregister(title, indata=None, boxes=None):
@@ -442,8 +439,9 @@ def thepatientregister(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, 0.2 * inch]
-    colWidths = [0.5 * inch, 1.5 * inch]
-    colWidths.extend((len(cols) - 2) * [0.5 * inch])
+    # Loc, HID, Name
+    colWidths = [0.5 * inch, 0.5 * inch, 1.3 * inch]
+    colWidths.extend((len(cols) - 3) * [0.4 * inch])
 
     ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
                             ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
@@ -461,8 +459,10 @@ def thepatientregister(title, indata=None, boxes=None):
                                 styleN)]
             values.extend([Paragraph(Template(cols[1]["bit"]).render(ctx), \
                                 styleN)])
+            values.extend([Paragraph(Template(cols[2]["bit"]).render(ctx), \
+                                styleN)])
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
-                                styleN2) for col in cols[2:]])
+                                styleN2) for col in cols[3:]])
             data.append(values)
         rowHeights.extend(len(indata) * [0.2 * inch])
 
@@ -475,9 +475,288 @@ def thepatientregister(title, indata=None, boxes=None):
                 ts.append((('BOX', (0, box['top'] + 2), \
                         (-1, box['bottom'] + 2), 0.5, colors.black)))
             ts.append((('BACKGROUND', (0, box['top'] + 2), \
-                        (1, box['top'] + 2), colors.lightgrey)))
+                        (2, box['top'] + 2), colors.lightgrey)))
             tscount += 1
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
     tb.setStyle(TableStyle(ts))
     return tb
-    
+
+
+def surveyreport(request, rformat):
+    filename = 'surveyreport.pdf'
+    story = []
+    fn = os.path.abspath(os.path.join(os.path.dirname(__file__), \
+                    './rpts/%s' % filename))
+    if not os.path.isfile(fn):
+        return HttpResponse(_(u"No Report Generated yet"))
+    else:
+        f = open(fn, 'r')
+        pdf = f.read()
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=%s' % filename
+    response.write(pdf)
+    return response
+
+
+def a_surveyreport(request, rformat="html"):
+    doc = ccdoc.Document(u'Household Healthy Survey Report')
+    today = datetime.today()
+    locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
+                                                    .distinct('location'))
+    headings = TheBHSurveyReport.healthy_survey_columns()
+    for location in locations:
+        brpts = BedNetReport.objects.filter(encounter__chw__location=location)
+        if not brpts.count():
+            continue
+        t = ccdoc.Table(headings.__len__())
+        t.add_header_row([
+                    Text(c['name']) for c in headings])
+        for row in TheBHSurveyReport.objects.filter(location=location):
+            ctx = Context({"object": row})
+            row = []
+            for cell in headings:
+                cellItem = Template(cell['bit']).render(ctx)
+                if cellItem.isdigit():
+                    cellItem = int(cellItem)
+                cellItem = ccdoc.Text(cellItem)
+                row.append(cellItem)
+            t.add_row(row)
+        doc.add_element(ccdoc.Section(u"%s" % location))
+        doc.add_element(t)
+    return render_doc_to_response(request, rformat, doc, 'hhsurveyrpt')
+
+
+def gen_surveyreport():
+    '''
+    Generate the healthy survey report.
+    '''
+    filename = report_filename('surveyreport.pdf')
+    f = open(filename, 'w')
+
+    story = []
+
+    clinics = Clinic.objects.all()
+    for clinic in clinics:
+        if not TheBHSurveyReport.objects.filter(clinic=clinic).count():
+            continue
+        tb = surveyreportable(clinic, TheBHSurveyReport.objects.\
+            filter(clinic=clinic))
+        story.append(tb)
+        story.append(PageBreak())
+
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
+                            topMargin=(0 * inch), \
+                            bottomMargin=(0 * inch))
+    doc.build(story)
+
+    f.close()
+
+
+def surveyreportable(title, indata=None):
+    styleH3.fontName = 'Times-Bold'
+    styleH3.alignment = TA_CENTER
+    styleN2 = copy.copy(styleN)
+    styleN2.alignment = TA_CENTER
+    styleN3 = copy.copy(styleN)
+    styleN3.alignment = TA_RIGHT
+
+    cols = TheBHSurveyReport.healthy_survey_columns()
+
+    hdata = [Paragraph('%s' % title, styleH3)]
+    hdata.extend((len(cols) - 1) * [''])
+    data = [hdata]
+
+    thirdrow = [Paragraph(cols[0]['name'], styleH3)]
+    thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
+                                2.3 * inch, 0.25 * inch) for col in cols[1:]])
+    data.append(thirdrow)
+
+    rowHeights = [None, 2.3 * inch]
+    colWidths = [3.0 * inch]
+    colWidths.extend((len(cols) - 1) * [0.5 * inch])
+
+    if indata:
+        for row in indata:
+            ctx = Context({"object": row})
+            values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                                styleN)]
+            values.extend([Paragraph(Template(col["bit"]).render(ctx), \
+                                styleN3) for col in cols[1:]])
+            data.append(values)
+        rowHeights.extend(len(indata) * [0.25 * inch])
+    tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
+    tb.setStyle(TableStyle([('SPAN', (0, 0), (colWidths.__len__() - 1, 0)),
+                            ('INNERGRID', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),\
+                            ('BOX', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),
+                            ('BOX', (3, 1), (8, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (8, 1), (9, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (9, 1), (10, -1), 5, \
+                            colors.lightgrey)]))
+    return tb
+
+
+def clinic_monthly_summary_csv(request):
+    '''
+    Monthly clinic summary
+    '''
+    filename = "monthly_summary.csv"
+    start_date = datetime(year=2010, month=1, day=1)
+    current_date = datetime.today()
+    buffer = StringIO()
+    dw = csv.DictWriter(buffer, ['clinic', 'month', 'rdt', 'positive_rdt', \
+                                        'nutrition', 'malnutrition'])
+    for clinic in ClinicReport.objects.all():
+        i = 1
+        header = {'clinic': _(u"Clinic/Health Facility"), \
+                    'month': _(u"Month"), \
+                    'rdt': _(u"# of Fever Report(RDT)"), \
+                    'positive_rdt': _(u"# Positive Fever Report"), \
+                    'nutrition': _(u"# Nutrition Report"), \
+                    'malnutrition': _(u"# Malnourished")}
+        dw.writerow(header)
+        while i <= 12:
+            data = clinic.monthly_summary(i, start_date.year)
+            dw.writerow(data)
+            i += 1
+    rpt = buffer.getvalue()
+    buffer.close()
+    response = HttpResponse(mimetype='application/csv')
+    response['Cache-Control'] = ""
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    response.write(rpt)
+    return response
+
+def gen_all_household_surveyreports():
+    clinics = Clinic.objects.all()
+    for clinic in clinics:
+        filename = report_filename('hhsurvey-%s.pdf' % clinic.code)
+        f = open(filename, 'w')
+        gen_household_surveyreport(f, clinic)
+        f.close()
+
+def gen_household_surveyreport(filename, location=None):
+    story = []
+    if StringType == type(filename):
+        filename = StringIO()
+    chws = None
+    if location:
+        try:
+            chws = TheCHWReport.objects.filter(clinic=location)
+        except TheCHWReport.DoesNotExist:
+            raise BadValue(_(u"Unknown Location: %(location)s specified." % \
+                                {'location': location}))
+    if chws is None and  TheCHWReport.objects.all().count():
+        chws = TheCHWReport.objects.all()
+
+    for chw in chws:
+        if not ThePatient.objects.filter(chw=chw, \
+                            health_id=F('household__health_id')).count():
+            continue
+        patients = ThePatient.objects.filter(\
+                health_id=F('household__health_id'), chw=chw).\
+                order_by('location')
+        tb = household_surveyreportable(_(u"Bednet Report - %(loc)s: %(chw)s" \
+                                        % {'chw': chw, 'loc': chw.clinic}), \
+                                        patients)
+        story.append(tb)
+        story.append(PageBreak())
+
+        # 40 is the number of rows per page, should probably put this in a
+        # variable
+        if (((len(patients) / 47) + 1) % 2) == 1 \
+            and not (len(patients) / 47) * 47 == len(patients):
+            story.append(PageBreak())
+
+    doc = SimpleDocTemplate(filename, pagesize=(8.5 * inch, 13.5 * inch), \
+                            topMargin=(0 * inch), \
+                            bottomMargin=(0 * inch), showBoundary=0)
+    doc.build(story)
+
+
+def household_surveyreport(location=None):
+    '''
+    Generate the healthy survey report.
+    '''
+    filename = report_filename('HouseholdSurveyReport.pdf')
+    f = open(filename, 'w')
+
+    story = []
+
+    if TheCHWReport.objects.all().count():
+        for chw in TheCHWReport.objects.all():
+            if not ThePatient.objects.filter(\
+                                health_id=F('household__health_id')).count():
+                continue
+            tb = household_surveyreportable(chw, ThePatient.objects.filter(\
+                    health_id=F('household__health_id'), chw=chw).\
+                    order_by('location'))
+            story.append(tb)
+            story.append(PageBreak())
+
+    doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
+                            topMargin=(0 * inch), \
+                            bottomMargin=(0 * inch))
+    doc.build(story)
+
+    f.close()
+
+
+def household_surveyreportable(title, indata=None):
+    styleH3.fontName = 'Times-Bold'
+    styleH3.alignment = TA_CENTER
+    styleN2 = copy.copy(styleN)
+    styleN2.alignment = TA_CENTER
+    styleN3 = copy.copy(styleN)
+    styleN3.alignment = TA_RIGHT
+
+    cols, subcol = ThePatient.bednet_summary_minimal()
+
+    hdata = [Paragraph('%s' % title, styleH3)]
+    hdata.extend((len(cols) - 1) * [''])
+    data = [hdata]
+
+    thirdrow = ['#', RotatedParagraph(Paragraph(cols[0]['name'], styleH3), \
+                                1.3 * inch, 0.25 * inch)]
+    thirdrow.extend([Paragraph(cols[1]['name'], styleN)])
+    thirdrow.extend([Paragraph(cols[2]['name'], styleN)])
+    thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
+                                1.3 * inch, 0.25 * inch) for col in cols[3:]])
+    data.append(thirdrow)
+
+    rowHeights = [None, 1.3 * inch]
+    colWidths = [0.3 * inch, 0.6 * inch, 0.8 * inch, 1.5 * inch]
+    colWidths.extend((len(cols) - 3) * [0.5 * inch])
+
+    if indata:
+        c = 0
+        for row in indata:
+            c = c + 1
+            ctx = Context({"object": row})
+            values = ["%d" % c, \
+                        Paragraph(Template(cols[0]["bit"]).render(ctx), \
+                        styleN)]
+            values.extend([Paragraph(Template(col["bit"]).render(ctx), \
+                                styleN3) for col in cols[1:]])
+            data.append(values)
+        rowHeights.extend(len(indata) * [0.25 * inch])
+    tb = ScaledTable(data, colWidths=colWidths, rowHeights=rowHeights, \
+            repeatRows=2)
+    tb.setStyle(TableStyle([('SPAN', (0, 0), (colWidths.__len__() - 1, 0)),
+                            ('INNERGRID', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),\
+                            ('BOX', (0, 0), (-1, -1), 0.1, \
+                            colors.lightgrey),
+                            ('BOX', (4, 1), (8, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (9, 1), (12, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (13, 1), (14, -1), 5, \
+                            colors.lightgrey),
+                            ('BOX', (15, 1), (16, -1), 5, \
+                            colors.lightgrey)]))
+    return tb
+

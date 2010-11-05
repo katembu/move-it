@@ -128,6 +128,7 @@ class BirthForm(CCForm):
         br.weight = weight
         br.save()
         patient.save()
+
         #is mother hiv exposed?
         if patient.mother.hiv_status:
             #mark child as hiv exposed
@@ -141,3 +142,6 @@ class BirthForm(CCForm):
             aptr.status = AppointmentReport.STATUS_OPEN
             aptr.notification_sent = False
             aptr.save()
+
+        #setup reminders
+        br.setup_reminders()

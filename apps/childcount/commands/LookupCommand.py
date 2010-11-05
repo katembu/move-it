@@ -41,17 +41,40 @@ class LookupCommand(CCCommand):
         results = []
 
         exact = True
-
-        for term in terms:
-            # try first names
-            patients = Patient.objects.filter(first_name__iexact=term)
+        if terms.__len__() > 1:
+            # exact matches for both names
+            fterm = terms[0] # first term
+            lterm = terms[1] # last term
+            patients = Patient.objects.filter(first_name__iexact=fterm, \
+                                                last_name__iexact=lterm)
             if patients.__len__() > 0:
                 results.extend(patients)
-
-            # try last names
-            patients = Patient.objects.filter(last_name__iexact=term)
+            if results.__len__() == 0:
+                ps = Patient.objects.filter(first_name__icontains=fterm,\
+                                                last_name__icontains=lterm)
+                if ps.__len__() > 0:
+                    results.extend(patients)
+            # reverse terms
+            patients = Patient.objects.filter(first_name__iexact=lterm, \
+                                                last_name__iexact=fterm)
             if patients.__len__() > 0:
                 results.extend(patients)
+            if results.__len__() == 0:
+                ps = Patient.objects.filter(first_name__icontains=lterm,\
+                                                last_name__icontains=fterm)
+                if ps.__len__() > 0:
+                    results.extend(patients)
+        if results.__len__() == 0:
+            for term in terms:
+                # try first names
+                patients = Patient.objects.filter(first_name__iexact=term)
+                if patients.__len__() > 0:
+                    results.extend(patients)
+
+                # try last names
+                patients = Patient.objects.filter(last_name__iexact=term)
+                if patients.__len__() > 0:
+                    results.extend(patients)
 
         if results.__len__() == 0:
 
@@ -88,8 +111,9 @@ class LookupCommand(CCCommand):
             return True
 
         # multiple results
-        names = [u"%(name)s/%(id)s" % {'name': patient.full_name(), \
-                                         'id': patient.health_id} \
+        names = [u"%(name)s/%(id)s/%(loc)s" % {'name': patient.full_name(), \
+                                         'id': patient.health_id, \
+                                         'loc': patient.location.code} \
                  for patient in results]
 
         # advise on quality of answers

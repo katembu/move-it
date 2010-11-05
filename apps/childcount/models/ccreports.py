@@ -3,23 +3,42 @@
 # maintainer: ukanga
 
 from django.utils.translation import gettext as _
-from django.db.models import F
 
-from datetime import date, timedelta, datetime
+from django.db.models import F
+from django.db.models import Avg, Count, Sum
+
+import calendar
+from datetime import datetime
+from datetime import date
+from datetime import time
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 
 from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
-from childcount.models import NutritionReport, FeverReport, ReferralReport
-from childcount.models import BirthReport, PregnancyReport
-from childcount.models import HouseholdVisitReport, FollowUpReport
-from childcount.models import ImmunizationSchedule, ImmunizationNotification
-from childcount.models import BedNetReport, BednetUtilization, \
-                                        BednetIssuedReport
+from childcount.models import NutritionReport
+from childcount.models import FeverReport
+from childcount.models import ReferralReport
+from childcount.models import BirthReport
+from childcount.models import PregnancyReport
+from childcount.models import HouseholdVisitReport
+from childcount.models import FollowUpReport
+from childcount.models import ImmunizationSchedule
+from childcount.models import ImmunizationNotification
+from childcount.models import BedNetReport
+from childcount.models import BednetIssuedReport
+from childcount.models import BednetUtilization
+from childcount.models import DrinkingWaterReport
+from childcount.models import SanitationReport
 
-from childcount.utils import day_end, day_start, get_dates_of_the_week, \
-                                get_median, seven_days_to_date, \
-                                first_day_of_month, last_day_of_month
+from childcount.utils import day_end, \
+                                day_start, \
+                                get_dates_of_the_week, \
+                                get_median, \
+                                seven_days_to_date, \
+                                first_day_of_month, \
+                                last_day_of_month
 
 from logger.models import IncomingMessage, OutgoingMessage
 
@@ -89,6 +108,7 @@ class ThePatient(Patient):
         return ''
 
     def generate_schedule(self):
+        'Generate immunization '
         schedule = ImmunizationSchedule.objects.all()
         for period in schedule:
             patient_dob = self.dob
@@ -105,10 +125,69 @@ class ThePatient(Patient):
                     notify_on = patient_dob + timedelta(period.period * 7)
                     immunization.notify_on = notify_on
                 if period.period_type == ImmunizationSchedule.PERIOD_MONTHS:
-                    notify_on = patient_dob + timedelta(30.4375 * period.period)
-                    immunization.notify_on = notify_on
+                    notifyon = patient_dob + timedelta(30.4375 * period.period)
+                    immunization.notify_on = notifyon
 
                 immunization.save()
+
+    def survey(self):
+        #Get aggregate of bednets survey questions per chw
+        survey = []
+        try:
+            bednet = BedNetReport.objects.get(encounter__patient=self)
+            survey = ({'damaged': bednet.damaged_nets,
+                       'function': bednet.function_nets,
+                       'num_site': bednet.sleeping_sites,
+                       'earlier': bednet.earlier_nets})
+        except:
+            pass
+
+        #Get sanitation report
+        try:
+            san = SanitationReport.objects.get(encounter__patient=self)
+            survey.update({'toilet_type': san.toilet_lat})
+            if san.share_toilet is SanitationReport.U:
+                survey.update({'share': 'U'})
+            elif san.share_toilet is SanitationReport.PB:
+                survey.update({'share': 'PB'})
+            else:
+                survey.update({'share': san.share_toilet})
+        except:
+            pass
+
+        #Get drinking water report
+        try:
+            dwr = DrinkingWaterReport.objects.get(encounter__patient=self)
+            survey.update({'water_source': dwr.water_source,
+                           'treat_method': dwr.treatment_method})
+        except:
+            pass
+
+        #get bednet utilization
+        try:
+            bedutil = BednetUtilization.objects.get(encounter__patient=self)
+            survey.update({'under_five': bedutil.child_underfive,
+                           'slept_bednet': bedutil.child_lastnite,
+                           'hanging': bedutil.hanging_bednet,
+                           'reason': bedutil.reason})
+        except:
+            pass
+
+        for item in survey:
+            if survey[item] is None:
+                survey[item] = '-'
+        return survey
+
+    def required_bednet(self):
+        try:
+            total = self.survey()['num_site'] - self.survey()['function']
+        except:
+            total = '-'
+
+        return total
+
+    def household_members(self):
+        return ThePatient.objects.filter(household=self.household)
 
     @classmethod
     def under_five(cls, chw=None):
@@ -131,7 +210,7 @@ class ThePatient(Patient):
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _("Name".upper()), \
-            'bit': '{{object.last_name}} {{object.first_name}}'})
+            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
         columns.append(
             {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
@@ -151,13 +230,22 @@ class ThePatient(Patient):
     def patient_register_columns(cls):
         columns = []
         columns.append(
-            {'name': _(u"HHID"), \
-            'bit': '{{object.health_id.upper}}'})
+            {'name': _(u"LOC"), \
+            'bit': 
+                '{% if object.is_head_of_household %}<strong>' \
+                '{{ object.household.location.code }}' \
+                '</strong>{% endif %}'})
+        columns.append(
+            {'name': _(u"HID"), \
+            'bit': 
+                '{% if object.is_head_of_household %}<strong>{% endif %}' \
+                '{{object.health_id.upper}}' \
+                '{% if object.is_head_of_household %}</strong>{% endif %}'})
         columns.append(
             {'name': _(u"Name".upper()), \
-            'bit': '{{object.last_name}} {{object.first_name}}'})
+            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
         columns.append(
-            {'name': cls._meta.get_field('gender').verbose_name.upper(), \
+            {'name': _(u"Gen."), \
             'bit': '{{object.gender}}'})
         columns.append(
             {'name': _(u"Age".upper()), \
@@ -165,10 +253,120 @@ class ThePatient(Patient):
         columns.append(
             {'name': _(u"Status".upper()), \
             'bit': '{{object.status_text}}'})
-        columns.append(
-            {'name': _(u"HHID".upper()), \
-            'bit': '{{object.household.health_id.upper}}'})
+        #columns.append(
+        #    {'name': _(u"HHID".upper()), \
+        #    'bit': '{{object.household.health_id.upper}}'})
         return columns
+
+    @classmethod
+    def bednet_summary(cls):
+        columns = []
+        columns.append(
+            {'name': _("Household ".upper()),
+            'bit': '{{object.household.health_id.upper}}'})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("Household Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': _("No. Sleeping site".upper()),
+             'bit': '{{object.survey.num_site}}'})
+        columns.append(
+            {'name': _("Functioning Bednet".upper()),
+             'bit': '{{object.survey.function}}'})
+        columns.append(
+            {'name': _("Earlier Bednets".upper()),
+             'bit': '{{object.survey.earlier}}'})
+        columns.append(
+            {'name': _("Damaged Bednet".upper()),
+             'bit': '{{object.survey.damaged}}'})
+        columns.append(
+            {'name': _("Required Bednets".upper()),
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': _("#under five last night".upper()),
+             'bit': '{{object.survey.under_five}}'})
+        columns.append(
+            {'name': _("#slept on Bednet".upper()),
+             'bit': '{{object.survey.slept_bednet}}'})
+        columns.append(
+            {'name': _("Hanging Bednet".upper()),
+             'bit': '{{object.survey.hanging}}'})
+        columns.append(
+            {'name': _("Reason ".upper()),
+             'bit': '{{object.survey.reason}}'})
+        columns.append(
+            {'name': _("Primary Sanitation".upper()),
+             'bit': '{{object.survey.toilet_type}}'})
+        columns.append(
+            {'name': _("Shared?".upper()),
+             'bit': '{{object.survey.share}}'})
+        columns.append(
+            {'name': _("Primary source of water".upper()),
+             'bit': '{{object.survey.water_source}}'})
+        columns.append(
+            {'name': _("Treatment Method ".upper()),
+             'bit': '{{object.survey.treat_method}}'})
+
+        sub_columns = None
+        return columns, sub_columns
+
+    @classmethod
+    def bednet_summary_minimal(cls):
+        columns = []
+        columns.append(
+            {'name': _("HH".upper()),
+            'bit': '{{object.household.health_id.upper}}'})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("HH Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': _("# SSs".upper()),
+             'bit': '{{object.survey.num_site}}'})
+        columns.append(
+            {'name': _("# Func. Nets".upper()),
+             'bit': '{{object.survey.function}}'})
+        columns.append(
+            {'name': _("# Elr. Nets".upper()),
+             'bit': '{{object.survey.earlier}}'})
+        columns.append(
+            {'name': _("# Dmgd. Nets".upper()),
+             'bit': '{{object.survey.damaged}}'})
+        columns.append(
+            {'name': _("# Rqrd. Nets".upper()),
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': _("# U5 LN".upper()),
+             'bit': '{{object.survey.under_five}}'})
+        columns.append(
+            {'name': _("# Slept on Net".upper()),
+             'bit': '{{object.survey.slept_bednet}}'})
+        columns.append(
+            {'name': _("# Hanging Nets".upper()),
+             'bit': '{{object.survey.hanging}}'})
+        columns.append(
+            {'name': _("Reason".upper()),
+             'bit': '{{object.survey.reason}}'})
+        columns.append(
+            {'name': _("Primary SAN".upper()),
+             'bit': '{{object.survey.toilet_type}}'})
+        columns.append(
+            {'name': _("Shared?".upper()),
+             'bit': '{{object.survey.share}}'})
+        columns.append(
+            {'name': _("P. Water Source".upper()),
+             'bit': '{{object.survey.water_source}}'})
+        columns.append(
+            {'name': _("Treatment".upper()),
+             'bit': '{{object.survey.treat_method}}'})
+
+        sub_columns = None
+        return columns, sub_columns
 
 
 class TheCHWReport(CHW):
@@ -178,8 +376,13 @@ class TheCHWReport(CHW):
         proxy = True
 
     @property
+    def mobile_phone(self):
+        return self.connection().identity
+
+    @property
     def num_of_patients(self):
-        num = Patient.objects.filter(chw=self).count()
+        num = Patient.objects.filter(chw=self, \
+                            status=Patient.STATUS_ACTIVE).count()
         return num
 
     @property
@@ -188,7 +391,17 @@ class TheCHWReport(CHW):
 
     def patients_under_five(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
-        return Patient.objects.filter(chw=self, dob__lte=sixtym)
+        return Patient.objects.filter(chw=self, dob__gte=sixtym, \
+                            status=Patient.STATUS_ACTIVE)
+
+    @property
+    def num_of_under_nine(self):
+        return self.patients_under_nine().count()
+
+    def patients_under_nine(self):
+        ninem = date.today() - timedelta(int(30.4375 * 9))
+        return Patient.objects.filter(chw=self, dob__gte=ninem, \
+                            status=Patient.STATUS_ACTIVE)
 
     @property
     def num_of_sam(self):
@@ -201,20 +414,24 @@ class TheCHWReport(CHW):
     @property
     def num_of_mam(self):
         num = NutritionReport.objects.filter(created_by=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_MODERATE).count()
         return num
 
     def mam_cases(self, startDate=None, endDate=None):
         return NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
 
     def severe_mam_cases(self, startDate=None, endDate=None):
         num = NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                             status=NutritionReport.STATUS_SEVERE_COMP, \
                             encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
         num += NutritionReport.objects.filter(encounter__chw=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_SEVERE, \
                             encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
@@ -223,22 +440,30 @@ class TheCHWReport(CHW):
     @property
     def num_of_healthy(self):
         num = NutritionReport.objects.filter(created_by=self, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
                                 status=NutritionReport.STATUS_HEALTHY).count()
         return num
 
     @property
     def num_of_visits(self):
-        '''The number of visits in the last 7 days'''
-        seven = date.today() - timedelta(7)
-        #num = HouseholdVisitReport.objects.filter(created_by=self).count()
-        return 2
+        num = HouseholdVisitReport.objects.filter(created_by=self).count()
+        return num
+
+    def two_weeks_visits(self):
+        two_weeks = datetime.now() + \
+            relativedelta(weekday=calendar.MONDAY, days=-13)
+        two_weeks = datetime.combine(two_weeks.date(), time(0, 0))
+        return HouseholdVisitReport.objects.filter(encounter__chw=self, \
+                            encounter__encounter_date__gte=two_weeks)\
+                            .count()
 
     @property
     def num_muac_eligible(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
         num = Patient.objects.filter(chw=self, dob__gte=sixtym, \
-                                     dob__lte=sixm).count()
+                                    status=Patient.STATUS_ACTIVE, \
+                                    dob__lte=sixm).count()
         return num
 
     @classmethod
@@ -246,6 +471,7 @@ class TheCHWReport(CHW):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
         num = Patient.objects.filter(dob__gte=sixtym, \
+                                    status=Patient.STATUS_ACTIVE, \
                                      dob__lte=sixm).count()
         return num
 
@@ -260,8 +486,23 @@ class TheCHWReport(CHW):
         return self.households().count()
 
     def households(self):
+        '''
+        List of households belonging to this CHW
+        '''
         return Patient.objects.filter(health_id=F('household__health_id'), \
                                         chw=self)
+
+    def muac_list(self):
+        '''
+        List of patients in the muac age bracket
+            - 6 months >= patient.age < 60 months
+        '''
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        patients = ThePatient.objects.filter(chw=self, dob__gte=sixtym, \
+                                     dob__lte=sixm, \
+                                     status=Patient.STATUS_ACTIVE)
+        return patients
 
     def num_of_householdvisits(self):
         return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
@@ -278,6 +519,8 @@ class TheCHWReport(CHW):
             thepatient = ThePatient.objects.get(health_id=household.health_id)
             if thepatient.visit_within_90_days_of_last_visit():
                 num_on_time += 1
+        if households.count() == 0:
+            return None
         if num_on_time is 0:
             return 0
         else:
@@ -294,20 +537,24 @@ class TheCHWReport(CHW):
             thepatient = ThePatient.objects.get(id=birth.encounter.patient)
             if thepatient.check_visit_within_seven_days_of_birth():
                 count += 1
-        if not count:
+        if births.count() == 0:
+            return None
+        elif not count:
             return count
-        return int(round(100 * (count / float(births.count()))))
+        else:
+            return int(round(100 * (count / float(births.count()))))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
-                        clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
+                    clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def percentage_clinic_deliveries(self):
         num_of_clinic_delivery = self.num_of_clinic_delivery()
         num_of_births = self.num_of_births()
         if num_of_births == 0:
-            return 0
-        return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
+            return None
+        else:
+            return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -332,11 +579,16 @@ class TheCHWReport(CHW):
 
     def percentage_ontime_muac(self):
         underfives = self.patients_under_five()
+        if underfives.count() == 0:
+            return None
+
         count = 0
         for achild in underfives:
             thepatient = ThePatient.objects.get(id=achild.id)
             if thepatient.ontime_muac():
                 count += 1
+            return 
+
         if not count:
             return count
         else:
@@ -383,6 +635,9 @@ class TheCHWReport(CHW):
 
     def percentage_pregnant_ontime_visits(self):
         pwomen = self.pregnant_women()
+        if len(pwomen) == 0:
+            return None
+
         count = 0
         for patient in pwomen:
             pr = PregnancyReport.objects.filter(encounter__patient=patient)\
@@ -403,8 +658,11 @@ class TheCHWReport(CHW):
     def percentage_ontime_followup(self):
         referrals = ReferralReport.objects.filter(encounter__chw=self)
         if not referrals:
-            return ''
+            return None
         num_referrals = referrals.count()
+        if num_referrals == 0:
+            return None
+
         ontimefollowup = 0
         for referral in referrals:
             rdate = referral.encounter.encounter_date
@@ -415,7 +673,7 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__lte=day2later)
             if fur:
                 ontimefollowup += 1
-        return '%s%%' % int(round((ontimefollowup / \
+        return '%s' % int(round((ontimefollowup / \
                         float(num_referrals)) * 100))
 
     def median_number_of_followup_days(self):
@@ -438,7 +696,7 @@ class TheCHWReport(CHW):
         total_sms = IncomingMessage.objects.filter(identity=self.connection()\
                                     .identity).count()
         if total_sms == 0:
-            return 0
+            return None
         total_error_sms = OutgoingMessage.objects.filter(identity=self\
                                     .connection().identity, \
                                     text__icontains='error').count()
@@ -458,8 +716,8 @@ class TheCHWReport(CHW):
         startDate = today - timedelta(today.weekday())
         p = {}
 
-        p['sdate'] = startDate.day
-        p['edate'] = today.day
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = today.strftime('%d %b')
         p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
                             endDate=today)
         p['numhvisit'] = self.household_visit(startDate=startDate, \
@@ -469,60 +727,90 @@ class TheCHWReport(CHW):
         p['household'] = self.number_of_households
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
 
         return p
 
-  
+    def chw_activities_summary(self, startDate, endDate=datetime.today()):
+        p = {}
+
+        p['sdate'] = startDate.strftime('%d %b')
+        p['edate'] = endDate.strftime('%d %b')
+        p['severemuac'] = self.severe_mam_cases(startDate=startDate, \
+                            endDate=endDate)
+        p['numhvisit'] = self.household_visit(startDate=startDate, \
+                            endDate=endDate)
+        p['muac'] = self.mam_cases(startDate=startDate, endDate=endDate)
+        p['rdt'] = self.rdt_cases(startDate=startDate, endDate=endDate)
+        p['household'] = self.number_of_households
+        p['tclient'] = self.num_of_patients
+        p['ufive'] = self.num_of_underfive
+        p['unine'] = self.num_of_under_nine
+
+        return p
+
     def num_of_bednetsurvey(self):
         return BedNetReport.objects.filter(encounter__chw=self).count()
 
     def per_bednetsurvey(self):
-        household = BedNetReport.objects.filter(encounter__chw=self).count()
-        survey = self.number_of_households()
-        ans = int(round((household / float(survey)) * 100))
-        return household
+        #Percentage survey done
+        num_survey = self.num_of_bednetsurvey()
+        num_household = self.number_of_households
+        if num_household > 0:
+            ans = int(round((num_survey / float(num_household)) * 100))
+        else:
+            ans = 0
+        return ans
 
-    def num_sleepingsite(self):
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.sleeping_sites
-        return total
-
-    def num_damaged(self):
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.damaged_nets
-        return total
-
-    def num_earlier(self): 
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.earlier_nets
-        return total
-
-    def num_funcbednet(self): 
-        survey = BedNetReport.objects.filter(encounter__chw=self)
-        total = 0
-        for s in survey:
-            total += s.function_nets
-        return total
+    def bednet_survey(self):
+        #Get aggregate of bednets survey questions per chw
+        survey = BedNetReport.objects.filter(encounter__chw=self)\
+                                     .aggregate(\
+                                            total=Count('encounter'),
+                                            damaged=Sum('damaged_nets'),
+                                            function=Sum('function_nets'),
+                                            num_site=Sum('sleeping_sites'),
+                                            earlier=Sum('earlier_nets'))
+        for item in survey:
+            if survey[item] is None:
+                survey[item] = '-'
+        return survey
 
     def required_bednet(self):
         total = self.num_sleepingsite() - self.num_funcbednet()
         return total
 
+    def num_sanitation(self):
+        'total survey done  on sanitation'
+        return SanitationReport.objects.filter(encounter__chw=self).count()
+
+    def num_netutilization(self):
+        'total survey done on bednet utilization'
+        return BednetUtilization.objects.filter(encounter__chw=self).count()
+
+    def num_drinkingwater(self):
+        'total survey done on drinking water '
+        return DrinkingWaterReport.objects.filter(encounter__chw=self).count()
+
     @classmethod
     def muac_summary(cls):
-        num_healthy = NutritionReport.objects.filter(\
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        order = '-encounter__encounter_date'
+        muac = NutritionReport.objects.filter(\
+                                        encounter__patient__dob__gte=sixtym,
+                                        encounter__patient__dob__lte=sixm)\
+                                        .order_by(order)\
+                                        .values('encounter__patient')\
+                                        .distinct()
+
+        num_healthy = muac.filter(\
                         status=NutritionReport.STATUS_HEALTHY).count()
-        num_mam = NutritionReport.objects.filter(\
+        num_mam = muac.filter(\
                         status=NutritionReport.STATUS_MODERATE).count()
-        num_sam = NutritionReport.objects.filter(\
+        num_sam = muac.filter(\
                         status=NutritionReport.STATUS_SEVERE).count()
-        num_comp = NutritionReport.objects.filter(\
+        num_comp = muac.filter(\
                         status=NutritionReport.STATUS_SEVERE_COMP).count()
         num_eligible = TheCHWReport.total_muac_eligible()
 
@@ -597,34 +885,44 @@ class TheCHWReport(CHW):
         columns = []
         columns.append(
             {'name': cls._meta.get_field('location').verbose_name.upper(), \
-             'bit': '{{ object.location }}'})
+             'bit': '{{object.location }}'})
         columns.append(
             {'name': _("Name".upper()), \
-             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+             'bit': '{{object.first_name }} {{ object.last_name }}'})
         columns.append(
             {'name': "No. of House holds".upper(), \
-             'bit': '{{ object.number_of_households}}'})
+             'bit': '{{object.number_of_households}}'})
         columns.append(
             {'name': "Household Survey Done".upper(), \
-             'bit': '{{ object.num_of_bednetsurvey}}'})
+             'bit': '{{object.bednet_survey.total}}'})
         columns.append(
             {'name': "Percentage".upper(), \
-             'bit': '{{ object.per_bednetsurvey}}'})
+             'bit': '{{object.per_bednetsurvey}}'})
         columns.append(
             {'name': "Total Sleeping site".upper(), \
-             'bit': '{{ object.num_sleepingsite}}'})
+             'bit': '{{object.bednet_survey.num_site}}'})
         columns.append(
             {'name': "Functioning Bednet".upper(), \
-             'bit': '{{ object.num_funcbednet}}'})
+             'bit': '{{ object.bednet_survey.function}}'})
         columns.append(
             {'name': "Damaged Bednet".upper(), \
-             'bit': '{{ object.num_damaged}}'})
+             'bit': '{{object.bednet_survey.damaged}}'})
         columns.append(
             {'name': "Earlier(b4 2009)".upper(), \
-             'bit': '{{ object.num_earlier}}'})
+             'bit': '{{object.bednet_survey.earlier}}'})
         columns.append(
             {'name': "Required Bednet".upper(), \
-             'bit': '{{ object.required_bednet}}'})
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': "Bednet Utilization".upper(), \
+             'bit': '{{object.num_netutilization}}'})
+        columns.append(
+            {'name': "#Sanitation ".upper(), \
+             'bit': '{{object.num_sanitation}}'})
+        columns.append(
+            {'name': "#Drinking water ".upper(), \
+             'bit': '{{object.num_drinkingwater}}'})
+
         sub_columns = None
         return columns, sub_columns
 
@@ -663,52 +961,107 @@ class OperationalReport():
 
     def __init__(self):
         columns = []
-        columns.append({'name': _("CHW"), 'bit': '{{object}}'})
-        columns.append({'name': _("# of Households"), \
-                'bit': '{{object.number_of_households}}'})
-        columns.append({'name': _("# of Household Visits"), \
-                'bit': '{{object.num_of_householdvisits}}'})
-        columns.append({'name': _("% of HHs receiving on-time routine visit "\
+        columns.append({ \
+            'name': _("CHW"),
+            'abbr': _("CHW"),
+            'bit': '{{object}}'})
+        columns.append({ \
+            'name': _("# of Households"), \
+            'abbr': _("#HH"), \
+            'bit': '{{object.number_of_households}}'})
+        columns.append({ \
+            'name': _("# of Household Visits"), \
+            'abbr': _("#HH-V"), \
+            'bit': '{{object.num_of_householdvisits}}'})
+        columns.append({
+            'name': _("% of HHs receiving on-time routine visit "\
                                     "(within 90 days) [S23]"), \
-                'bit': '{{object.percentage_ontime_visits}}%'})
-        columns.append({'name': _("# of Births"), \
-                'bit': '{{object.num_of_births}}'})
-        columns.append({'name': _("% Births delivered in "\
-                                    "Health Facility [S4]"),
-                'bit': '{{object.percentage_clinic_deliveries}}%'})
-        columns.append({'name': _("% Newborns checked within 7 days of birth "\
+            'abbr': _("%OTV"), \
+            'bit': '{% if object.percentage_ontime_visits %}' \
+                   '{{ object.percentage_ontime_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Births"), \
+            'abbr': _('#Bir'), \
+            'bit': '{{object.num_of_births}}'})
+        columns.append({ \
+            'name': _("% Births delivered in "\
+                                "Health Facility [S4]"),
+            'abbr': _('%BHF'), \
+            'bit': '{% if object.percentage_clinic_deliveries %}' \
+                   '{{ object.percentage_clinic_deliveries }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
-                'bit': '{{object.percentage_ontime_birth_visits}}%'})
-        columns.append({'name': _("# of Under-5s"), \
-                'bit': '{{object.num_of_underfive}}'})
-        columns.append({'name': _("# Under-5 Referred for Danger Signs"), \
-                'bit': '{{object.num_underfive_refferred}}'})
-        columns.append({'name': _("# Under-5 Treated for Malarias"), \
-                'bit': '{{object.num_underfive_malaria}}'})
-        columns.append({'name': _("# Under-5 Treated for Diarrhea"), \
-                'bit': '{{object.num_underfive_diarrhea}}'})
-        columns.append({'name': _("% Under-5 receiving on-time MUAC "\
+            'abbr': _('%NNV'), \
+            'bit': '{% if object.percentage_ontime_birth_visits %}' \
+                   '{{ object.percentage_ontime_birth_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Under-5s"), \
+            'abbr': _('#U5'), \
+            'bit': '{{object.num_of_underfive}}'})
+        columns.append({
+            'name': _("# Under-5 Referred for Danger Signs"), \
+            'abbr': _('#U5-DS'), \
+            'bit': '{{object.num_underfive_refferred}}'})
+        columns.append({ \
+            'name': _("# Under-5 Treated for Malarias"), \
+            'abbr': _('#U5-Mal'), \
+            'bit': '{{object.num_underfive_malaria}}'})
+        columns.append({ \
+            'name': _("# Under-5 Treated for Diarrhea"), \
+            'abbr': _('#U5-Dia'), \
+            'bit': '{{object.num_underfive_diarrhea}}'})
+        columns.append({ \
+            'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
-                'bit': '{{object.percentage_ontime_muac}}%'})
-        columns.append({'name': _("# of Active SAM cases"), \
-                'bit': '{{object.num_of_active_sam_cases}}'})
-        columns.append({'name': _("# of Pregnant Women"), \
-                'bit': '{{object.num_of_pregnant_women}}'})
-        columns.append({'name': _("# Pregnant Women Referred for "\
+            'abbr': _('#U5-MUAC'), \
+            'bit': '{% if object.percentage_ontime_muac %}' \
+                   '{{ object.percentage_ontime_muac }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("# of Active SAM cases"), \
+            'abbr': _('#U5-SAM'), \
+            'bit': '{{object.num_of_active_sam_cases}}'})
+        columns.append({ \
+            'name': _("# of Pregnant Women"), \
+            'abbr': _('#PW'), \
+            'bit': '{{object.num_of_pregnant_women}}'})
+        columns.append({ \
+            'name': _("# Pregnant Women Referred for "\
                                     "Danger Signs"),
-                'bit': '{{object.num_pregnant_refferred}}'})
-        columns.append({'name': _("% Pregnant receiving on-time visit"\
+            'abbr': _('#PW-DS'), \
+            'bit': '{{object.num_pregnant_refferred}}'})
+        columns.append({ \
+            'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
-                'bit': '{{object.percentage_pregnant_ontime_visits}}'})
-        columns.append({'name': _("% Referred / Treated receiving on-time "\
-                                    "follow-up (within 2 days) [S13]"),
-                'bit': '{{object.percentage_ontime_followup}}'})
-        columns.append({'name': _("Median # of days for follow-up [S25]"), \
-                'bit': '{{object.median_number_of_followup_days}}'})
-        columns.append({'name': _("SMS Error Rate %"),
-                'bit': '{{object.sms_error_rate}}%'})
-        columns.append({'name': _("Days since last SMS transmission"), \
-                'bit': '{{object.days_since_last_sms}}'})
+            'abbr': _('%PW-OTV'), \
+            'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
+                   '{{ object.percentage_pregnant_ontime_visits }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("% Referred / Treated receiving on-time "\
+                            "follow-up (within 2 days) [S13]"),
+            'abbr': _('%Ref'), \
+            'bit': '{% if object.percentage_ontime_followup %}' \
+                   '{{ object.percentage_ontime_followup }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("Median # of days for follow-up [S25]"), \
+            'abbr': _('#Fol'), \
+            'bit': '{{object.median_number_of_followup_days}}'})
+        columns.append({ \
+            'name': _("SMS Error Rate %"), \
+            'abbr': _('%Err'), \
+            'bit': '{% if object.sms_error_rate %}' \
+                   '{{ object.sms_error_rate }}%'\
+                   '{% else %}-{% endif %}'})
+        columns.append({ \
+            'name': _("Days since last SMS transmission"), \
+            'abbr': _('#Days'), \
+            'bit': '{{object.days_since_last_sms}}'})
         self.columns = columns
 
     def get_columns(self):
@@ -755,6 +1108,40 @@ class ClinicReport(Clinic):
         muac = NutritionReport.objects.filter(\
                                     encounter__patient__chw__location=self)
         return muac.count()
+
+    def monthly_summary(self, month=None, year=None):
+        if not month:
+            month = datetime.today().month
+        if not year:
+            year = datetime.today().year
+        onfirst = datetime(year=year, month=month, day=1)
+        rdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year)\
+                                .count()
+        prdt = FeverReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year, \
+                                    rdt_result=FeverReport.RDT_POSITIVE)\
+                                .count()
+
+        nut = NutritionReport.objects.filter(encounter__patient__clinic=self, \
+                                    encounter__encounter_date__month=month, \
+                                    encounter__encounter_date__year=year)\
+                                .count()
+        snut = NutritionReport.objects.filter(encounter__patient__clinic=self,\
+                                encounter__encounter_date__month=month, \
+                                encounter__encounter_date__year=year, \
+                                status__in=(NutritionReport.STATUS_SEVERE, \
+                                NutritionReport.STATUS_SEVERE_COMP, \
+                                NutritionReport.STATUS_MODERATE))\
+                                .count()
+        return {'clinic': self,
+                'month': onfirst.strftime("%B"),
+                'rdt': rdt,
+                'positive_rdt': prdt,
+                'nutrition': nut,
+                'malnutrition': snut}
 
     @classmethod
     def summary(cls):
@@ -999,3 +1386,68 @@ class GeneralSummaryReport():
                                     startDate=startDate, endDate=endDate), \
                             "num_pregnant": sr.num_pregnant( \
                                     startDate=startDate, endDate=endDate)}}
+
+
+class TheBHSurveyReport(TheCHWReport):
+    '''
+    The Bednet Household Healthy Survey Report
+    '''
+    class Meta:
+        verbose_name = _(u"The Bednet Household Healthy Survey Report")
+        proxy = True
+
+    def bednet_aggregates(self):
+        data = BedNetReport.objects.filter(encounter__chw=self)\
+                                    .aggregate(Avg('sleeping_sites'),
+                                    Count('encounter'),
+                                    Sum('sleeping_sites'),
+                                    Sum('function_nets'),
+                                    Sum('earlier_nets'),
+                                    Sum('damaged_nets'))
+        bednet_util = BednetUtilization.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'bednet_util__count': bednet_util['encounter__count']})
+        dwr = DrinkingWaterReport.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'drinking_water__count': dwr['encounter__count']})
+        sanitation = SanitationReport.objects.filter(encounter__chw=self)\
+                                                .aggregate(Count('encounter'))
+        data.update({'sanitation__count': sanitation['encounter__count']})
+        for item in data:
+            if data[item] is None:
+                data[item] = '-'
+        return data
+
+    @classmethod
+    def healthy_survey_columns(cls):
+        columns = []
+        columns.append({'name': _(u"CHW"), 'bit': '{{object}} '\
+                                            '{{object.mobile_phone}}'})
+        columns.append({'name': _(u"# of Households"), \
+                'bit': '{{object.number_of_households}}'})
+        columns.append({'name': _(u"# of HH Visits (Last two weeks)"), \
+                'bit': '{{object.two_weeks_visits}}'})
+        columns.append({'name': _(u"# of Households Surveyed"), \
+                'bit': '{{object.bednet_aggregates.encounter__count}}'})
+        columns.append({'name': _(u"# of Sleeping Sites"), \
+                'bit': '{{object.bednet_aggregates.sleeping_sites__sum}}'})
+        columns.append({'name': _(u"# of Functioning Bednets"), \
+                'bit': '{{object.bednet_aggregates.function_nets__sum}}'})
+        columns.append({'name': _(u"# of damaged"), \
+                'bit': '{{object.bednet_aggregates.damaged_nets__sum}}'})
+        columns.append({'name': _(u"# of Earlier Bednets"), \
+                'bit': '{{object.bednet_aggregates.earlier_nets__sum}}'})
+        columns.append({'name': _(u"# of Bednet Utilization Reports"), \
+                'bit': '{{object.bednet_aggregates.bednet_util__count}}'})
+        columns.append({'name': _(u"# of Drinking Water Reports"), \
+                'bit': '{{object.bednet_aggregates.drinking_water__count}}'})
+        columns.append({'name': _(u"# of Sanitation Reports"), \
+                'bit': '{{object.bednet_aggregates.sanitation__count}}'})
+
+        return columns
+
+    def households_not_surveyed(self):
+        surveyed = BedNetReport.objects.filter(encounter__chw=self)\
+                                        .values('encounter__patient')
+        not_surveyed = self.households().exclude(id__in=surveyed)
+        return not_surveyed

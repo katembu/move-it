@@ -54,8 +54,8 @@ class HouseholdVisitForm(CCForm):
                                 "counseling / advice given (optional) |"))
 
             if not self.params[2].isdigit():
-                raise ParseError(_("| Number of children | must be entered as " \
-                                   "a number."))
+                raise ParseError(_("| Number of children | must be entered" \
+                                   " as a number."))
 
             children = int(self.params[2])
             hhvr.children = children

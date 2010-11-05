@@ -1,0 +1,15 @@
+{% extends base_template %}
+
+{% block title %}Edit Patient{% endblock %}
+
+{% block content %}
+
+<form action="/childcount/patients/edit/{{ health_id }}/" method="POST">
+<table>
+{{ form }}
+</table>
+<input type="submit">
+</form>
+
+
+{% endblock %}

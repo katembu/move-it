@@ -35,5 +35,6 @@ class BCPillForm(CCForm):
 
         bcpr.women = int(self.params[1])
         bcpr.save()
- 
-        self.response = _(u"%(women)d women given pills.") % {'women':bcpr.women}
+
+        self.response = _(u"%(women)d women given pills.") % {'women':
+                                                                bcpr.women}

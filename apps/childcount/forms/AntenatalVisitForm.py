@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: ukanga
 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
@@ -11,6 +11,8 @@ from childcount.models.reports import AntenatalVisitReport
 from childcount.models import Encounter
 from childcount.exceptions import ParseError, BadValue, InvalidDOB
 from childcount.utils import DOBProcessor
+
+from alerts.utils import SmsAlert
 
 
 class AntenatalVisitForm(CCForm):
@@ -47,12 +49,27 @@ class AntenatalVisitForm(CCForm):
                                 {'expected_on': expected_on}))
         avr.expected_on = expected_on
         avr.save()
- 
+
         self.response = _(u"Expected date of "\
                             "delivery is %(expected_on)s.") % \
                             {'expected_on': avr.expected_on}
+
         #reminder to CHW 3 weeks b4 expected date of delivery to send patient
         # to clinic
-        msg = _(u"Please send %(patient)s to the health center on for " \
+        reminder_date = expected_on - timedelta(weeks=3)
+        if reminder_date < self.date.date():
+            msg = _(u"Please send %(patient)s to the health center if  " \
+                "they have not visited the clinic in the last 2 weeks.") % \
+                {'patient': patient}
+            send_at = None
+        else:
+            msg = _(u"Please send %(patient)s to the health center for " \
                 "their appointment") % \
                 {'patient': patient}
+            send_at = datetime.combine(reminder_date, time(7, 0))
+        alert = SmsAlert(reporter=self.chw, msg=msg)
+        sms_alert = alert.send(send_at=send_at)
+        sms_alert.name = u"three_weeks_before_delivery"
+        sms_alert.save()
+        avr.sms_alert = sms_alert
+        avr.save()

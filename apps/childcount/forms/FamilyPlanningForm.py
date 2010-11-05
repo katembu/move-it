@@ -20,9 +20,9 @@ class FamilyPlanningForm(CCForm):
 
     def process(self, patient):
         if len(self.params) < 2:
-            raise ParseError(_(u"Not enough info. Expected: | number of women " \
-                                "aged 15 - 49 | number using FP | methods " \
-                                "being used |"))
+            raise ParseError(_(u"Not enough info. Expected:" \
+                                " | number of women aged 15 - 49" \
+                                " | number using FP | methods being used |"))
 
         try:
             fpr = FamilyPlanningReport.objects.get(encounter=self.encounter)

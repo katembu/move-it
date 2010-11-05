@@ -23,18 +23,25 @@ class PregnancyRegistrationForm(CCForm):
 
     def process(self, patient):
         married_field = MultipleChoiceField()
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_YES, 'Y')
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_NO, 'N')
-        married_field.add_choice('en', PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
-        married_field.add_choice('fr', PregnancyRegistrationReport.MARRIED_YES, 'O')
-        married_field.add_choice('fr', PregnancyRegistrationReport.MARRIED_NO, 'N')
-        married_field.add_choice('fr', PregnancyRegistrationReport.MARRIED_UNKNOWN, 'I')
+        married_field.add_choice('en', \
+							PregnancyRegistrationReport.MARRIED_YES, 'Y')
+        married_field.add_choice('en', \
+							PregnancyRegistrationReport.MARRIED_NO, 'N')
+        married_field.add_choice('en', \
+							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_YES, 'O')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_NO, 'N')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'I')
 
         if len(self.params) < 4:
             raise ParseError(_(u"Not enough info."))
 
         try:
-            prgr = PregnancyRegistrationReport.objects.get(encounter=self.encounter)
+            prgr = PregnancyRegistrationReport.objects\
+                            .get(encounter=self.encounter)
         except PregnancyRegistrationReport.DoesNotExist:
             prgr = PregnancyRegistrationReport(encounter=self.encounter)
         prgr.form_group = self.form_group
@@ -59,7 +66,7 @@ class PregnancyRegistrationForm(CCForm):
             raise ParseError(_(u"| Number of pregnancies | " \
                                 "must be entered as a number."))
         if not self.params[3].isdigit():
-            raise ParseError(_(u"| Number of children alive | " \
+            raise ParseError(_(u"| Number of children living with her | " \
                                 "must be entered as a number."))
         prgr.married = married
         prgr.pregnancies = int(self.params[2])
@@ -69,7 +76,7 @@ class PregnancyRegistrationForm(CCForm):
             married_str = _(u"Is married")
             if prgr.husband is not None:
                 married_str = _("Is married to %(husband)s.") % \
-                                {'husband': prgr.husband} 
+                                {'husband': prgr.husband}
         elif prgr.married == PregnancyRegistrationReport.MARRIED_NO:
             married_str = _(u"Is not married")
         else:
@@ -78,8 +85,8 @@ class PregnancyRegistrationForm(CCForm):
                             {'children': prgr.number_of_children}
         if prgr.number_of_children == 1:
             children_str = _("one child")
-        self.response = _(u"%(married)s, has had %(pregnancies)s "\
-                            "pregnancies and %(children)s alive.") % \
+        self.response = _(u"%(married)s, has had %(pregnancies)s pregnancies"\
+                            " and %(children)s living with her.") % \
                             {'married': married_str, \
                             'pregnancies': prgr.pregnancies, \
                             'children': children_str}
