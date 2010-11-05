@@ -10,7 +10,7 @@ from django.conf.urls.defaults import *
 import logger_ng.views as views
 
 urlpatterns = patterns('',
-    url(r'^logger_ng/?$', views.index),
+    url(r'^logger_ng/?$', views.index, name='loggerng-index'),
     url(r'^logger_ng/post_message/?$', views.post_message),
 #    url(r'^logger_ng/latest_messages/(?P<recent_id>.+)?.*', views.latest_messages)
 )
