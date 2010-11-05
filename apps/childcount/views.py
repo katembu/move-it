@@ -195,11 +195,11 @@ class CHWForm(forms.Form):
                                        for location in Location.objects.all()])
     mobile = forms.CharField(required=False)
 
-'''
-Commented out by Henry since data clerks
-should not be able to add CHWs
-
+@login_required
 def add_chw(request):
+
+    if not (request.user.is_staff + request.user.is_superuser):
+        redirect(list_chw)
 
     info = {}
 
@@ -272,7 +272,6 @@ def add_chw(request):
     info.update({'form': form})
 
     return render_to_response(request, 'childcount/add_chw.html', info)
-'''
 
 def list_chw(request):
 
@@ -517,14 +516,17 @@ def pagenator(getpages, reports):
 @login_required
 def edit_patient(request, healthid):
     if healthid is None:
+        # Patient to edit was submitted 
         if 'hid' in request.GET:
             return HttpResponseRedirect( \
                 "/childcount/patients/edit/%s/" % \
                     (request.GET['hid'].upper()))
+        # Need to show patient select form
         else:
             return render_to_response(request,
                 'childcount/edit_patient.html', {})
     else: 
+        # Handle invalid health IDs
         try:
             patient = Patient.objects.get(health_id=healthid)
         except Patient.DoesNotExist:
@@ -533,6 +535,7 @@ def edit_patient(request, healthid):
                 'health_id': healthid.upper(),
                 'failed': True})
 
+        # Save POSTed data
         if request.method == 'POST':
             form = PatientForm(request.POST, instance=patient)
             if form.is_valid():
@@ -544,6 +547,7 @@ def edit_patient(request, healthid):
                     'health_id': healthid.upper(),
                     'patient': patient,
                     'success': True})
+        # Show patient edit form (nothing saved yet)
         else:
             form = PatientForm(instance=patient)
         return render_to_response(request, 
