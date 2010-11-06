@@ -24,11 +24,17 @@ class PregnancyRegistrationForm(CCForm):
     def process(self, patient):
         married_field = MultipleChoiceField()
         married_field.add_choice('en', \
-                            PregnancyRegistrationReport.MARRIED_YES, 'Y')
+							PregnancyRegistrationReport.MARRIED_YES, 'Y')
         married_field.add_choice('en', \
-                            PregnancyRegistrationReport.MARRIED_NO, 'N')
+							PregnancyRegistrationReport.MARRIED_NO, 'N')
         married_field.add_choice('en', \
-                            PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
+							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_YES, 'O')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_NO, 'N')
+        married_field.add_choice('fr', \
+							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'I')
 
         if len(self.params) < 4:
             raise ParseError(_(u"Not enough info."))

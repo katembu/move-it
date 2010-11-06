@@ -2,8 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+import os
+
 from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
+import webapp
 
 from childcount import views
 from childcount.reports import statistics
@@ -23,8 +26,21 @@ except AttributeError:
 
 urlpatterns = patterns('',
     admin_urls,
-    url(r'^childcount/?$', views.index),
-    url(r'^childcount/patients/?$', views.patient),
+
+    # webapp URLS
+    (r'^accounts/login/$', "webapp.views.login"),
+    (r'^accounts/logout/$', "webapp.views.logout"),
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+    url('^static/webapp/(?P<path>.*)$', 'django.views.static.serve', \
+        {'document_root': '%s/static' % os.path.dirname(webapp.__file__)}),
+
+    url(r'^$', views.index, name='dashboard'),
+    url(r'^childcount/?$', views.index, name='cc-dashboard'),
+    url(r'^childcount/patients/?$', views.patient, name='cc-patients'),
+    url(r'^childcount/patients/edit/((?P<healthid>[A-Z0-9]+)/)?$',
+        views.edit_patient, name='cc-edit_patient'),
+    #url(r'^childcount/patients/autocomplete/$',
+    #    views.autocomplete),
     url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
     url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
@@ -47,10 +63,10 @@ urlpatterns = patterns('',
     url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
         statistics.encounters_per_day),
 
-    #url(r'^childcount/add_chw/?$', views.add_chw, name='add_chw'),
-    url(r'^childcount/list_chw/?$', views.list_chw, name='list_chw'),
+    url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
+    url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
 
-    url(r'^childcount/dataentry/?$', views.dataentry, name='dataentry'),
+    url(r'^childcount/dataentry/?$', views.dataentry, name='cc-dataentry'),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
     url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \

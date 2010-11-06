@@ -8,7 +8,9 @@ import re
 
 from rapidsms.webui.utils import render_to_response
 
+from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
@@ -24,6 +26,7 @@ from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
+from childcount.fields import PatientForm
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
@@ -65,7 +68,7 @@ def form(request, formid):
 def index(request):
     '''Index page '''
     template_name = "childcount/index.html"
-    title = "ChildCount-2.0"
+    title = "ChildCount+"
 
     info = {}
 
@@ -192,11 +195,11 @@ class CHWForm(forms.Form):
                                        for location in Location.objects.all()])
     mobile = forms.CharField(required=False)
 
-'''
-Commented out by Henry since data clerks
-should not be able to add CHWs
-
+@login_required
 def add_chw(request):
+
+    if not (request.user.is_staff + request.user.is_superuser):
+        redirect(list_chw)
 
     info = {}
 
@@ -269,7 +272,6 @@ def add_chw(request):
     info.update({'form': form})
 
     return render_to_response(request, 'childcount/add_chw.html', info)
-'''
 
 def list_chw(request):
 
@@ -510,3 +512,70 @@ def pagenator(getpages, reports):
             "in_trailing_range": in_trailing_range,
             "pages_outside_leading_range": pages_outside_leading_range,
             "pages_outside_trailing_range": pages_outside_trailing_range}
+
+@login_required
+def edit_patient(request, healthid):
+    if healthid is None:
+        # Patient to edit was submitted 
+        if 'hid' in request.GET:
+            return HttpResponseRedirect( \
+                "/childcount/patients/edit/%s/" % \
+                    (request.GET['hid'].upper()))
+        # Need to show patient select form
+        else:
+            return render_to_response(request,
+                'childcount/edit_patient.html', {})
+    else: 
+        # Handle invalid health IDs
+        try:
+            patient = Patient.objects.get(health_id=healthid)
+        except Patient.DoesNotExist:
+            return render_to_response(request,
+                'childcount/edit_patient.html', { \
+                'health_id': healthid.upper(),
+                'failed': True})
+
+        # Save POSTed data
+        if request.method == 'POST':
+            form = PatientForm(request.POST, instance=patient)
+            if form.is_valid():
+                print 'saving'
+                print form.save(commit=True)
+                print patient.household
+                return render_to_response(request,
+                    'childcount/edit_patient.html', { \
+                    'health_id': healthid.upper(),
+                    'patient': patient,
+                    'success': True})
+        # Show patient edit form (nothing saved yet)
+        else:
+            form = PatientForm(instance=patient)
+        return render_to_response(request, 
+            'childcount/edit_patient.html', { \
+            'form': form,
+            'patient': patient,
+            'health_id': patient.health_id.upper()
+        })
+'''
+@login_required
+def autocomplete(request):
+    def iter_results(results):
+        if results:
+            for r in results:
+                yield '%s|%s\n' % (r.health_id.upper(), r.id)
+    
+    if not request.GET.get('q'):
+        return HttpResponse(mimetype='text/plain')
+    
+    q = request.GET.get('q')
+    limit = request.GET.get('limit', 15)
+    try:
+        limit = int(limit)
+    except ValueError:
+        return HttpResponseBadRequest() 
+
+    patients = Patient.objects.filter(health_id__startswith=q)[:limit]
+    return HttpResponse(iter_results(patients), mimetype='text/plain')
+'''
+
+

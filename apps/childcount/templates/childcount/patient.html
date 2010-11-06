@@ -42,6 +42,13 @@ position:relative;
 
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
+
+<h2>Patient Lookup</h2>
+<form id='editform' action='/childcount/patients/edit/' method='GET'>
+    Health ID: <input name='hid' type='text'></input>
+    <input type="submit" value="Edit"></input>
+</form>
+
 <h2>{{report_title}}{% if scope %}: {{scope}}{% endif %}</h2>
 <div id='ch-bd'><div id='ch-l'>
 

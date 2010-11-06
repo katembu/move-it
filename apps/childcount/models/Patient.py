@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Count
 from django.db import connection
 from django.utils.translation import ugettext as _
+from django.forms import CharField
 import reversion
 
 from reporters.models import Reporter
@@ -215,3 +216,5 @@ class Patient(models.Model):
         sub_columns = None
         return columns, sub_columns
 reversion.register(Patient)
+
+
