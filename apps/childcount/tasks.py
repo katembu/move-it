@@ -276,10 +276,12 @@ def appointment_reminders():
         saturday = apt_date + relativedelta.relativedelta(days=-2)
         apts = AppointmentReport.objects.filter(appointment_date__lte=apt_date,\
                             appointment_date__gte=saturday,\
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
     else:
         apts = AppointmentReport.objects.filter(appointment_date=apt_date, \
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
     for apt in apts:
         msg = _(u"Please send %(patient)s to the health center for their" \
                     " appointment on %(apt_date)s") % {
@@ -331,12 +333,13 @@ def appointment_defaulter_reminders():
     if apt_date.weekday() == 4:
         # just in case there were appointments on saturday or sunday
         sunday = apt_date + relativedelta.relativedelta(days=2)
-        apts = AppointmentReport.objects.filter(appointment_date__gte=apt_date,\
-                            appointment_date__lte=sunday,\
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
+        apts = AppointmentReport.objects.filter(appointment_date__lte=sunday,\
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
     else:
-        apts = AppointmentReport.objects.filter(appointment_date=apt_date, \
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
+        apts = AppointmentReport.objects.filter(appointment_date__lte=apt_date, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
     for apt in apts:
         msg = _(u"Please send %(patient)s to the health center on for their" \
                     " failed appointment on %(apt_date)s") % {
