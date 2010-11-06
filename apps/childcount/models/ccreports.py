@@ -490,7 +490,7 @@ class TheCHWReport(CHW):
         List of households belonging to this CHW
         '''
         return Patient.objects.filter(health_id=F('household__health_id'), \
-                                        chw=self)
+                                        chw=self, status=Patient.STATUS_ACTIVE)
 
     def muac_list(self):
         '''
