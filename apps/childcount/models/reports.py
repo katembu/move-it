@@ -1290,7 +1290,7 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-    def save(self, *args, **kwargs):
+'''    def save(self, *args, **kwargs):
         delay = self.appointment_date + relativedelta(days=-3)
         if delay.weekday() > calendar.FRIDAY:
             delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
@@ -1308,7 +1308,7 @@ class AppointmentReport(CCReport):
         sms_alert.name = u'appointment_report_reminder'
         sms_alert.save()
         self.sms_alert = sms_alert
-        super(AppointmentReport, self).save(*args, **kwargs)
+        super(AppointmentReport, self).save(*args, **kwargs)'''
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
