@@ -28,8 +28,10 @@ urlpatterns = patterns('',
     admin_urls,
 
     # webapp URLS
-    (r'^accounts/login/$', "webapp.views.login"),
-    (r'^accounts/logout/$', "webapp.views.logout"),
+    url(r'^accounts/login/$', "webapp.views.login", \
+                     {'template_name': 'childcount/login.html'}, name='login'),
+    url(r'^accounts/logout/$', "webapp.views.logout", \
+                {'template_name': 'childcount/loggedout.html'}, name='logout'),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url('^static/webapp/(?P<path>.*)$', 'django.views.static.serve', \
         {'document_root': '%s/static' % os.path.dirname(webapp.__file__)}),
