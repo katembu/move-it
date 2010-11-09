@@ -3,7 +3,7 @@
 
 import rapidsms
 from reporters.models import Reporter
-from logger.models import OutgoingMessage
+from logger_ng.models import LoggedMessage
 from alerts.models import SmsAlertModel
 
 class App (rapidsms.app.App):
@@ -34,7 +34,7 @@ class App (rapidsms.app.App):
        be = self.router.get_backend(pconn.backend.slug)
        outgoing_message = be.message(pconn.identity, post["text"])
        sent = outgoing_message.send()
-       message = OutgoingMessage.objects.get(pk=outgoing_message.logger_id)
+       message = LoggedMessage.objects.get(pk=outgoing_message.logger_id)
        alert.outgoing_message = message
        alert.save()
        
