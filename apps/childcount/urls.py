@@ -12,6 +12,7 @@ from childcount import views
 from childcount.reports import statistics
 from childcount.reports import operational
 from childcount.reports import pmtct
+from childcount.reports import performance
 from childcount.reports import custom_reports as reports
 
 admin.autodiscover()
@@ -87,4 +88,6 @@ urlpatterns = patterns('',
     # survey rpts
     url(r'^childcount/reports/hhsurveyrpt/(?P<rformat>[a-z]*)$', 
         reports.a_surveyreport),
+    url(r'^childcount/reports/performance.html$', 
+        performance.chw_performance),
 )
