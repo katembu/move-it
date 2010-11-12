@@ -88,6 +88,6 @@ urlpatterns = patterns('',
     # survey rpts
     url(r'^childcount/reports/hhsurveyrpt/(?P<rformat>[a-z]*)$', 
         reports.a_surveyreport),
-    url(r'^childcount/reports/performance.html$', 
+    url(r'^childcount/reports/performance.pdf$', 
         performance.chw_performance),
 )
