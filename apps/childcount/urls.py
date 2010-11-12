@@ -86,7 +86,7 @@ urlpatterns = patterns('',
     url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
         pmtct.statistics),
     # survey rpts
-    url(r'^childcount/reports/hhsurveyrpt/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/hhsurveyrpt.(?P<rformat>[a-z]*)$', 
         reports.a_surveyreport),
     url(r'^childcount/reports/performance.pdf$', 
         performance.chw_performance),
