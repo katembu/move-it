@@ -380,6 +380,15 @@ class App (rapidsms.app.App):
             elif send_again and len(failed_forms) > 1:
                 failed_string += _(" You must resend the forms.")
 
+            for form in successful_forms:
+                try:
+                    form['obj'].post_process(successful_forms)
+                except:
+                    # any exceptions here should not prevent feedback
+                    # fail silently
+                    # TODO: Log the exception, notify
+                    pass
+
             if successful_forms and not failed_forms:
                 message.respond(successful_string, 'success')
                 return handled
