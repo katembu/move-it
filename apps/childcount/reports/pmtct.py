@@ -49,6 +49,38 @@ def defaulters(request, rformat="html"):
     return render_doc_to_response(request, rformat, doc, 'defaulters-list')
 
 
+def appointments(request, rformat="html"):
+    doc = Document(unicode(_(u'Defaulters Report')))
+    today = datetime.today()
+    last_30_days = today + relativedelta(days=-30)
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
+    df = df.order_by('encounter__chw__location', 'appointment_date')
+    print df.count()
+    t = Table(5)
+    t.add_header_row([
+        Text(unicode(_(u'Date'))),
+        Text(unicode(_(u'Reminded?'))),
+        Text(unicode(_(u'Patient'))),
+        Text(unicode(_(u'CHW'))),
+        Text(unicode(_(u'Location')))])
+    for row in df:
+        if row.status == AppointmentReport.STATUS_PENDING_CV:
+            statustxt = _("Y")
+        elif row.status == AppointmentReport.STATUS_CLOSED:
+            statustxt = _("NC")
+        else:
+            statustxt = _("N")
+        t.add_row([
+            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
+            Text(unicode(statustxt)),
+            Text(unicode(row.encounter.patient)),
+            Text(unicode(row.encounter.patient.chw)),
+            Text(unicode(row.encounter.patient.chw.location))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'appointment-list')
+
+
 def upcoming_deliveries(request, rformat="html"):
     doc = Document(unicode(_(u'Upcoming Deliveries')))
     today = datetime.today()
