@@ -50,7 +50,7 @@ def defaulters(request, rformat="html"):
 
 
 def appointments(request, rformat="html"):
-    doc = Document(unicode(_(u'Defaulters Report')))
+    doc = Document(unicode(_(u'Appointments Report')))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
     df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
@@ -75,10 +75,53 @@ def appointments(request, rformat="html"):
             Text(unicode(statustxt)),
             Text(unicode(row.encounter.patient)),
             Text(unicode(row.encounter.patient.chw)),
-            Text(unicode(row.encounter.patient.chw.location))])
+            Text(unicode(row.encounter.chw.location))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'appointment-list')
+
+
+def appointments_aggregates(request, rformat="html"):
+    doc = Document(unicode(_(u'Appointments Aggregates Report')))
+    today = datetime.today()
+    last_30_days = today + relativedelta(days=-30)
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
+    # df = df.order_by('encounter__chw__location', 'appointment_date')
+    df = df.values('encounter__chw__location__name', 'status')
+    df = df.annotate(count=Count('encounter'))
+
+    t = Table(3)
+    t.add_header_row([
+        Text(unicode(_(u'Location'))),
+        Text(unicode(_(u'Reminded?'))),
+        Text(unicode(_(u'Count')))])
+
+    count = {AppointmentReport.STATUS_PENDING_CV: 0,
+            AppointmentReport.STATUS_CLOSED: 0,
+            AppointmentReport.STATUS_OPEN: 0}    
+    for row in df:
+        if row['status'] == AppointmentReport.STATUS_PENDING_CV:
+            statustxt = _("Y")
+        elif row['status'] == AppointmentReport.STATUS_CLOSED:
+            statustxt = _("NC")
+        else:
+            statustxt = _("N")
+        count[row['status']] += row['count']
+        t.add_row([
+            Text(unicode(row['encounter__chw__location__name'])),
+            Text(unicode(statustxt)),
+            Text(unicode(row['count']))])
+
+    t.add_row([Text(u""), Text(u""), Text(u"")])
+    t.add_row([Text(u"Total"), Text(u"Y"),
+                Text(unicode(count[AppointmentReport.STATUS_PENDING_CV]))])
+    t.add_row([Text(u"Total"), Text(u"N"),
+                Text(unicode(count[AppointmentReport.STATUS_OPEN]))])
+    t.add_row([Text(u"Total"), Text(u"NC"),
+                Text(unicode(count[AppointmentReport.STATUS_CLOSED]))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'appointment-aggregate')
 
 
 def upcoming_deliveries(request, rformat="html"):
