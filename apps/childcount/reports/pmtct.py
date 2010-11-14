@@ -21,7 +21,7 @@ open_status = (AppointmentReport.STATUS_OPEN, \
 
 
 def defaulters(request, rformat="html"):
-    doc = Document(unicode(_(u'Defaulters Report')))
+    doc = Document(unicode(_(u"Defaulters Report")))
     today = datetime.today()
     df = AppointmentReport.objects.filter(status__in=open_status, \
                                             appointment_date__lt=today, \
@@ -30,10 +30,10 @@ def defaulters(request, rformat="html"):
 
     t = Table(4)
     t.add_header_row([
-        Text(unicode(_(u'Patient'))),
-        Text(unicode(_(u'Status'))),
-        Text(unicode(_(u'CHW'))),
-        Text(unicode(_(u'Location')))])
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"Status"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
     for row in df:
         if row.status == AppointmentReport.STATUS_PENDING_CV:
             statustxt = _("Reminded")
@@ -50,7 +50,7 @@ def defaulters(request, rformat="html"):
 
 
 def appointments(request, rformat="html"):
-    doc = Document(unicode(_(u'Appointments Report')))
+    doc = Document(unicode(_(u"Appointments Report")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
     df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
@@ -58,11 +58,11 @@ def appointments(request, rformat="html"):
     print df.count()
     t = Table(5)
     t.add_header_row([
-        Text(unicode(_(u'Date'))),
-        Text(unicode(_(u'Reminded?'))),
-        Text(unicode(_(u'Patient'))),
-        Text(unicode(_(u'CHW'))),
-        Text(unicode(_(u'Location')))])
+        Text(unicode(_(u"Date"))),
+        Text(unicode(_(u"Reminded?"))),
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
     for row in df:
         if row.status == AppointmentReport.STATUS_PENDING_CV:
             statustxt = _("Y")
@@ -71,7 +71,7 @@ def appointments(request, rformat="html"):
         else:
             statustxt = _("N")
         t.add_row([
-            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
+            Text(unicode(row.appointment_date.strftime('%d-%m-%Y"))),
             Text(unicode(statustxt)),
             Text(unicode(row.encounter.patient)),
             Text(unicode(row.encounter.patient.chw)),
@@ -82,7 +82,7 @@ def appointments(request, rformat="html"):
 
 
 def appointments_aggregates(request, rformat="html"):
-    doc = Document(unicode(_(u'Appointments Aggregates Report')))
+    doc = Document(unicode(_(u"Appointments Aggregates Report")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
     df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
@@ -92,9 +92,9 @@ def appointments_aggregates(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(unicode(_(u'Location'))),
-        Text(unicode(_(u'Reminded?'))),
-        Text(unicode(_(u'Count')))])
+        Text(unicode(_(u"Location"))),
+        Text(unicode(_(u"Reminded?"))),
+        Text(unicode(_(u"Count")))])
 
     count = {AppointmentReport.STATUS_PENDING_CV: 0,
             AppointmentReport.STATUS_CLOSED: 0,
@@ -126,7 +126,7 @@ def appointments_aggregates(request, rformat="html"):
 
 
 def appointments_by_clinic(request, rformat="html"):
-    doc = Document(unicode(_(u'Apointments by Clinic')))
+    doc = Document(unicode(_(u"Apointments by Clinic")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
     df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
@@ -184,7 +184,7 @@ def appointments_by_clinic(request, rformat="html"):
 
 
 def upcoming_deliveries(request, rformat="html"):
-    doc = Document(unicode(_(u'Upcoming Deliveries')))
+    doc = Document(unicode(_(u"Upcoming Deliveries")))
     today = datetime.today()
     two_weeks_time = today + relativedelta(weeks=2)
     ud = AntenatalVisitReport.objects.filter(expected_on__gte=today, \
@@ -194,9 +194,9 @@ def upcoming_deliveries(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(unicode(_(u'Patient'))),
-        Text(unicode(_(u'CHW'))),
-        Text(unicode(_(u'Location')))])
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
     for row in ud:
         t.add_row([
             Text(unicode(row.encounter.patient)),
@@ -240,7 +240,7 @@ def new_registrations(request, rformat="html"):
     '''Weekly, the number of new mother/infant pairs registered into the
     system - Based solely on First Visit report i.e +PF'''
     # TODO: Need to include under five as well
-    doc = Document(unicode(_(u'New Registrations')))
+    doc = Document(unicode(_(u"New Registrations")))
     today = datetime.today()
     start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
     r = AntenatalVisitReport.objects
@@ -250,9 +250,9 @@ def new_registrations(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(unicode(_(u'Patient'))),
-        Text(unicode(_(u'CHW'))),
-        Text(unicode(_(u'Location')))])
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
     for row in r:
         t.add_row([
             Text(unicode(row.encounter.patient)),
@@ -267,7 +267,7 @@ def active_mothers(request, rformat="html"):
     '''Total number of mothers followed currently, overall and broken down
     by location - dob is atleast 10 yrs ago'''
     # TODO: Need to include under five as well
-    doc = Document(unicode(_(u'Mothers Being followed')))
+    doc = Document(unicode(_(u"Mothers Being followed")))
     today = datetime.today()
     ten_years_ago = today + relativedelta(years=-10)
     start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
@@ -280,9 +280,9 @@ def active_mothers(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(unicode(_(u'Patient'))),
-        Text(unicode(_(u'CHW'))),
-        Text(unicode(_(u'Location')))])
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
     for row in r:
         patient = Patient.objects.get(pk=row['encounter__patient'])
         t.add_row([
