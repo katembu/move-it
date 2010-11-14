@@ -64,10 +64,9 @@ def appointments(request, rformat="html"):
         Text(unicode(_(u"CHW"))),
         Text(unicode(_(u"Location")))])
     for row in df:
-        if row.status == AppointmentReport.STATUS_PENDING_CV:
+        if row.status in (AppointmentReport.STATUS_PENDING_CV,
+                            AppointmentReport.STATUS_CLOSED):
             statustxt = _("Y")
-        elif row.status == AppointmentReport.STATUS_CLOSED:
-            statustxt = _("NC")
         else:
             statustxt = _("N")
         t.add_row([
@@ -139,10 +138,9 @@ def appointments_aggregates(request, rformat="html"):
             AppointmentReport.STATUS_CLOSED: 0,
             AppointmentReport.STATUS_OPEN: 0}
     for row in df:
-        if row['status'] == AppointmentReport.STATUS_PENDING_CV:
+        if row['status'] in (AppointmentReport.STATUS_PENDING_CV,
+                            AppointmentReport.STATUS_CLOSED):
             statustxt = _("Y")
-        elif row['status'] == AppointmentReport.STATUS_CLOSED:
-            statustxt = _("NC")
         else:
             statustxt = _("N")
         count[row['status']] += row['count']
@@ -152,12 +150,12 @@ def appointments_aggregates(request, rformat="html"):
             Text(unicode(row['count']))])
 
     t.add_row([Text(u""), Text(u""), Text(u"")])
+    total_yes = count[AppointmentReport.STATUS_CLOSED] + \
+                                count[AppointmentReport.STATUS_PENDING_CV]
     t.add_row([Text(u"Total"), Text(u"Y"),
-                Text(unicode(count[AppointmentReport.STATUS_PENDING_CV]))])
+                Text(unicode(total_yes))])
     t.add_row([Text(u"Total"), Text(u"N"),
                 Text(unicode(count[AppointmentReport.STATUS_OPEN]))])
-    t.add_row([Text(u"Total"), Text(u"NC"),
-                Text(unicode(count[AppointmentReport.STATUS_CLOSED]))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc,
