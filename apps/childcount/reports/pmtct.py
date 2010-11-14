@@ -71,7 +71,7 @@ def appointments(request, rformat="html"):
         else:
             statustxt = _("N")
         t.add_row([
-            Text(unicode(row.appointment_date.strftime('%d-%m-%Y"))),
+            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
             Text(unicode(statustxt)),
             Text(unicode(row.encounter.patient)),
             Text(unicode(row.encounter.patient.chw)),
@@ -79,6 +79,45 @@ def appointments(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'appointment-list')
+
+
+def appointments_error_report(request, rformat="html"):
+    doc = Document(unicode(_(u"Error Report")))
+    today = datetime.today()
+    eigteen_months_ago = today + relativedelta(months=-18)
+    twelve_years_ago = today + relativedelta(years=-12)
+    df = AppointmentReport.objects.filter()
+    df = df.filter(encounter__patient__dob__lt=eigteen_months_ago)
+    males = df.filter(encounter__patient__gender=Patient.GENDER_MALE)
+    females = df.filter(encounter__patient__gender=Patient.GENDER_FEMALE)
+    females = females.filter(encounter__patient__dob__gte=twelve_years_ago)
+    males = males.order_by('encounter__chw__location', 'appointment_date')
+    females = females.order_by('encounter__chw__location', 'appointment_date')
+    t = Table(5)
+    t.add_header_row([
+        Text(unicode(_(u"Date"))),
+        Text(unicode(_(u"Status"))),
+        Text(unicode(_(u"Patient"))),
+        Text(unicode(_(u"CHW"))),
+        Text(unicode(_(u"Location")))])
+    for df in [females, males]:
+        for row in df:
+            if row.status == AppointmentReport.STATUS_PENDING_CV:
+                statustxt = _("Open")
+            elif row.status == AppointmentReport.STATUS_CLOSED:
+                statustxt = _("Closed")
+            else:
+                statustxt = _("Open")
+            t.add_row([
+                Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
+                Text(unicode(statustxt)),
+                Text(unicode(row.encounter.patient)),
+                Text(unicode(row.encounter.patient.chw)),
+                Text(unicode(row.encounter.chw.location))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                    'appointment-error-list')
 
 
 def appointments_aggregates(request, rformat="html"):
