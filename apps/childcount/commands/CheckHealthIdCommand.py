@@ -35,9 +35,11 @@ class CheckHealthIdCommand(CCCommand):
         health_id = self.params[1].upper()
         try:
             patient = Patient.objects.get(health_id__iexact=health_id)
-            self.message.respond(_(u"SUCCESS: %(patient)s; Household: %(household)s" % \
+            self.message.respond(_(u"SUCCESS: %(patient)s; Household: "
+                                    "%(household)s; CHW: %(chw)s" % \
                                 {'patient': patient, \
-                                'household': patient.household}), 'success')
+                                'household': patient.household,
+                                'chw': patient.chw}), 'success')
             return True
         except Patient.DoesNotExist:
             pass
