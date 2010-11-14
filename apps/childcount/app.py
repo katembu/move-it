@@ -69,6 +69,8 @@ class App (rapidsms.app.App):
     def handle(self, message):
         handled = False
 
+        if message.text is None:
+            return False
 
         # If this is coming from debackend, it will have message.chw and
         # message.encounter_date.  Otherwise, the reporter is the chw,

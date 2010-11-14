@@ -512,6 +512,17 @@ class TheCHWReport(CHW):
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
 
+    def household_visits_for_month(self, offset=0):
+        # This list comprehension deserves some explanation.
+        # First, we get a list of days from 30+offset days ago up
+        # to today.
+        # Then, we get (day, count) tuples for each of those
+        # days, where count contains the number of
+        # HH visits for that day by this CHW
+        return [(i, self.household_visit(date.today() + timedelta(i), \
+            date.today() + timedelta(i+1))) \
+                for i in xrange(-30-offset,-offset)]
+
     def percentage_ontime_visits(self):
         households = self.households()
         num_on_time = 0
