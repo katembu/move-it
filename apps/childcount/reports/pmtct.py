@@ -11,7 +11,7 @@ from locations.models import Location
 
 from childcount.models import AppointmentReport
 from childcount.models import AntenatalVisitReport
-from childcount.models import Patient
+from childcount.models import Patient, Clinic
 
 from ccdoc import Document, Table, Paragraph, Text
 from childcount.reports.utils import render_doc_to_response
@@ -98,7 +98,7 @@ def appointments_aggregates(request, rformat="html"):
 
     count = {AppointmentReport.STATUS_PENDING_CV: 0,
             AppointmentReport.STATUS_CLOSED: 0,
-            AppointmentReport.STATUS_OPEN: 0}    
+            AppointmentReport.STATUS_OPEN: 0}
     for row in df:
         if row['status'] == AppointmentReport.STATUS_PENDING_CV:
             statustxt = _("Y")
@@ -121,7 +121,66 @@ def appointments_aggregates(request, rformat="html"):
                 Text(unicode(count[AppointmentReport.STATUS_CLOSED]))])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, 'appointment-aggregate')
+    return render_doc_to_response(request, rformat, doc,
+                                    'appointment-aggregate')
+
+
+def appointments_by_clinic(request, rformat="html"):
+    doc = Document(unicode(_(u'Apointments by Clinic')))
+    today = datetime.today()
+    last_30_days = today + relativedelta(days=-30)
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
+
+    t = Table(5)
+    t.add_header_row([
+        Text(unicode(_(u"Location"))),
+        Text(unicode(_(u"Total number of appointments made"))),
+        Text(unicode(_(u"Number of defaulters"))),
+        Text(unicode(_(u"Percentage defaulting (defaulters/total "
+                        "appointments)"))),
+        Text(unicode(_(u"Percentage reminded (reminders over total # of "
+                        "appointments.")))])
+    total = 0
+    total_defaulters = 0
+    total_reminded = 0
+    for clinic in Clinic.objects.all():
+        apts = df.filter(encounter__chw__clinic=clinic)
+        defaulters = apts.exclude(status=AppointmentReport.STATUS_CLOSED)
+        reminded = apts.filter(status__in=(AppointmentReport.STATUS_PENDING_CV,
+                                AppointmentReport.STATUS_CLOSED))
+        total += apts.count()
+        total_defaulters += defaulters.count()
+        total_reminded += reminded.count()
+        if apts.count() == 0:
+            percentage_default = u""
+            percentage_reminded = u""
+        else:
+            percentage_default = u"%s%%" % round((defaulters.count() /  \
+                                    float(apts.count())) * 100, 2)
+            percentage_reminded = u"%s%%" % round((reminded.count() /  \
+                                    float(apts.count())) * 100, 2)
+        t.add_row([
+            Text(unicode(clinic)),
+            Text(unicode(apts.count())),
+            Text(defaulters.count()),
+            Text(percentage_default),
+            Text(percentage_reminded)])
+    percentage_default = u""
+    percentage_reminded = u""
+    if total != 0:
+        percentage_default = u"%s%%" % round((total_defaulters /  \
+                                    float(total)) * 100, 2)
+        percentage_reminded = u"%s%%" % round((total_reminded /  \
+                                    float(total)) * 100, 2)
+    t.add_row([Text(u"Total"),
+        Text(unicode(total)),
+        Text(unicode(total_defaulters)),
+        Text(percentage_default),
+        Text(percentage_reminded)])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                    'appointment-by-clinic')
 
 
 def upcoming_deliveries(request, rformat="html"):
