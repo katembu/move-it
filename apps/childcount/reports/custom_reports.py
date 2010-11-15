@@ -537,7 +537,8 @@ def gen_surveyreport():
     '''
     filename = report_filename('surveyreport.pdf')
     f = open(filename, 'w')
-
+    styleNC = copy.copy(styleN)
+    styleNC.alignment = TA_CENTER
     story = []
 
     clinics = Clinic.objects.all()
@@ -546,6 +547,8 @@ def gen_surveyreport():
             continue
         tb = surveyreportable(clinic, TheBHSurveyReport.objects.\
             filter(clinic=clinic))
+        story.append(Paragraph('Generated at %s' % \
+                        datetime.now().strftime('%Y-%m-%d %H:%M:%S'), styleNC))
         story.append(tb)
         story.append(PageBreak())
 
