@@ -32,13 +32,13 @@ from libreport.pdfreport import PDFReport, p, pheader
 from libreport.pdfreport import MultiColDocTemplate
 from libreport.pdfreport import ScaledTable
 
+styles = getSampleStyleSheet()
+styleN = styles['Normal']
+styleH = styles['Heading1']
+styleH3 = styles['Heading3']
+
 @login_required
 def chw_performance(request):
-    styles = getSampleStyleSheet()
-
-    styleN = styles['Normal']
-    styleH = styles['Heading1']
-    styleH3 = styles['Heading3']
 
     rpt = PDFReport()
     rpt.landscape = False
@@ -56,9 +56,12 @@ def chw_performance(request):
         for (day,count) in chw.household_visits_for_month(30):
             rpt.setElements(p("%s - %d" % (day, count)))
         '''
-        drawing = _hhvisit_graph(chw)
-        rpt.setElements([drawing])
 
+        rpt.setElements(pheader(_(u'HH Visits Per Day (last month)'),style=styleH3))
+        drawing = _hhvisit_graph(chw)
+        rpt.setElements(drawing)
+
+        rpt.setElements(pheader(_(u'Active Pregnancies (less than 10 months)'),style=styleH3))
         preg_tab = _pregnancy_table(chw)
         rpt.setElements(preg_tab)
 
@@ -118,18 +121,11 @@ def _pregnancy_table(chw):
 
 
 def _hhvisit_graph(chw):
-    # Modify these
-    title = _(u'HH Visits per Day')
-
     height = 3 * inch
     width  = 6 * inch
     margin = 0.5 * inch
 
     drawing = Drawing(margin, 3 * inch)
-
-    drawing.add( \
-        String((width/2) - (1 * inch), height - margin, title, fontSize=14)
-    )
 
     lp = HorizontalLineChart()
 
@@ -140,6 +136,10 @@ def _hhvisit_graph(chw):
     lp.joinedLines = 1
 
     [dates, counts] = zip(*chw.household_visits_for_month(30))
+    if sum(counts) == 0:
+        return p(_(u"No HH visits reported by %(chwname)s last month") % \
+            {'chwname': chw.full_name()})
+
     lp.data = [counts]
 
     # Show date labels for every 4th day
@@ -149,6 +149,6 @@ def _hhvisit_graph(chw):
         else '', dates)
 
     drawing.add(lp)
-    return drawing
+    return [drawing]
 
 
