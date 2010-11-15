@@ -98,4 +98,6 @@ urlpatterns = patterns('',
         reports.a_surveyreport),
     url(r'^childcount/reports/performance.pdf$', 
         performance.chw_performance),
+    url(r'^childcount/reports/num-under-five-per-clinic.(?P<rformat>[a-z]*)$', 
+        reports.num_under_five_per_clinic),
 )

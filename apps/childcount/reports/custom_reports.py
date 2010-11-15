@@ -8,6 +8,7 @@ import csv
 import cProfile
 from time import time
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from types import StringType
 
 from rapidsms.webui.utils import render_to_response
@@ -17,6 +18,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
 from django.http import HttpResponse
 from django.db.models import F
+from django.db.models import Count
 
 from cStringIO import StringIO
 
@@ -32,7 +34,7 @@ except ImportError:
     pass
 
 from childcount.models import Clinic
-from childcount.models import CHW
+from childcount.models import CHW, Patient
 from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
@@ -760,3 +762,43 @@ def household_surveyreportable(title, indata=None):
                             colors.lightgrey)]))
     return tb
 
+
+def num_under_five_per_clinic(request, rformat="html"):
+    '''Number of Under Five Per Clinic'''
+    doc = ccdoc.Document(unicode(_(u"Number of Under Five Per Clinic")))
+    today = datetime.today()
+    max_dob = today + relativedelta(months=-59)
+    ps = Patient.objects.filter(dob__gt=max_dob, status=Patient.STATUS_ACTIVE)
+    ps = ps.exclude(chw__clinic=None)
+    ps = ps.values('chw__clinic__name', 'gender')
+    ps = ps.annotate(Count('id'), Count('gender'))
+    data = {}
+    for p in ps:
+        if data.has_key(p['chw__clinic__name']):
+            data[p['chw__clinic__name']].update({p['gender']:
+                                                            p['id__count']})
+        else:
+            data.update({p['chw__clinic__name']: {p['gender']:
+                                                        p['id__count']}})
+    t = ccdoc.Table(4)
+    t.add_header_row([
+        ccdoc.Text(unicode(_(u"CLinic"))),
+        ccdoc.Text(unicode(_(u"Number of Under Five"))),
+        ccdoc.Text(unicode(_(u"Female"))),
+        ccdoc.Text(unicode(_(u"Male")))])
+    for row in data:
+        if not data[row].has_key(Patient.GENDER_FEMALE):
+            data[row][Patient.GENDER_FEMALE] = 0
+        if not data[row].has_key(Patient.GENDER_MALE):
+            data[row][Patient.GENDER_MALE] = 0
+        total = data[row][Patient.GENDER_FEMALE] + \
+                                    data[row][Patient.GENDER_MALE]
+        t.add_row([
+            ccdoc.Text(unicode(row)),
+            ccdoc.Text(unicode(total)),
+            ccdoc.Text(unicode(data[row][Patient.GENDER_FEMALE])),
+            ccdoc.Text(unicode(data[row][Patient.GENDER_MALE]))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                    'num-under-five-per-clinic')
