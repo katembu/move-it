@@ -515,7 +515,7 @@ def a_surveyreport(request, rformat="html"):
             continue
         t = ccdoc.Table(headings.__len__())
         t.add_header_row([
-                    Text(c['name']) for c in headings])
+                    ccdoc.Text(c['name']) for c in headings])
         for row in TheBHSurveyReport.objects.filter(location=location):
             ctx = Context({"object": row})
             row = []
