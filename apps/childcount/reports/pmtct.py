@@ -53,9 +53,13 @@ def appointments(request, rformat="html"):
     doc = Document(unicode(_(u"Appointments Report")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
-    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days,
+                                            appointment_date__lte=today)
     df = df.order_by('encounter__chw__location', 'appointment_date')
-    print df.count()
+    doc.subtitle = unicode(_(u"Appointments Report: Last 30 Days - %(from)s"
+                            " to %(to)s" % {"from":
+                                        last_30_days.strftime('%d %B, %Y'),
+                                        "to": today.strftime('%d %B, %Y')}))
     t = Table(5)
     t.add_header_row([
         Text(unicode(_(u"Date"))),
@@ -120,14 +124,18 @@ def appointments_error_report(request, rformat="html"):
 
 
 def appointments_aggregates(request, rformat="html"):
-    doc = Document(unicode(_(u"Appointments Aggregates Report")))
+    doc = Document(unicode(_(u"Appointments Aggregates Report ")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
-    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days,
+                                            appointment_date__lte=today)
     # df = df.order_by('encounter__chw__location', 'appointment_date')
     df = df.values('encounter__chw__location__name', 'status')
     df = df.annotate(count=Count('encounter'))
-
+    doc.subtitle = unicode(_(u"Apointments Aggregates Report: Last 30 Days"
+                            " - %(from)s to %(to)s" % {"from":
+                                        last_30_days.strftime('%d %B, %Y'),
+                                        "to": today.strftime('%d %B, %Y')}))
     t = Table(3)
     t.add_header_row([
         Text(unicode(_(u"Location"))),
@@ -166,8 +174,12 @@ def appointments_by_clinic(request, rformat="html"):
     doc = Document(unicode(_(u"Apointments by Clinic")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
-    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days)
-
+    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days,
+                                            appointment_date__lte=today)
+    doc.subtitle = unicode(_(u"Apointments by Clinic Report: Last 30 Days"
+                            " - %(from)s to %(to)s" % {"from":
+                                        last_30_days.strftime('%d %B, %Y'),
+                                        "to": today.strftime('%d %B, %Y')}))
     t = Table(5)
     t.add_header_row([
         Text(unicode(_(u"Location"))),
