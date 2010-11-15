@@ -241,7 +241,8 @@ def gen_operationalreport():
     '''
     filename = report_filename('operationalreport.pdf')
     f = open(filename, 'w')
-
+    styleNC = copy.copy(styleN)
+    styleNC.alignment = TA_CENTER
     story = []
     clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
                                                     .distinct('clinic'))
@@ -250,6 +251,8 @@ def gen_operationalreport():
             continue
         tb = operationalreportable(clinic, TheCHWReport.objects.\
             filter(clinic=clinic))
+        story.append(Paragraph('Generated at %s' % \
+                        datetime.now().strftime('%Y-%m-%d %H:%M:%S'), styleNC))
         story.append(tb)
         story.append(PageBreak())
 
