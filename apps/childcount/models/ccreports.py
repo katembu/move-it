@@ -227,6 +227,23 @@ class ThePatient(Patient):
         sub_columns = None
         return columns, sub_columns
 
+    @classmethod
+    def underfive_summary_list(cls):
+        columns = []
+        columns.append(
+            {'name': _("HID".upper()), \
+            'bit': '{{object.health_id.upper}}'})
+        columns.append(
+            {'name': _("Name".upper()), \
+            'bit': '{{object.full_name}} {{object.gender}} / '
+                    '{{object.humanised_age}}'})
+        columns.append(
+            {'name': _("Last MUAC".upper()), \
+            'bit': '{{object.latest_muac}}'})
+
+        sub_columns = None
+        return columns, sub_columns
+
     def patient_register_columns(cls):
         columns = []
         columns.append(
