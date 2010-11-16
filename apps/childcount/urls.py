@@ -53,6 +53,7 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
+    url(r'^childcount/reports/underfive-(?P<clinic>[a-z]*).(?P<rformat>[a-z]*)$', reports.gen_underfive_register_pdf),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
     url(r'^childcount/reports/form_a_entered.(?P<rformat>[a-z]*)$',
