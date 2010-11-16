@@ -128,19 +128,55 @@ def index(request):
         'types': ('pdf',),
         'otherlinks': [{'title':u'Survey Report',
                         'url':'/static/childcount/reports/surveyreport.pdf'}]})
+    reports.append({
+        'title': _(u"Appointments Report"),
+        'url': '/childcount/reports/pmtct-appointments',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Appointment Defaulters Report"),
+        'url': '/childcount/reports/pmtct-defaulters',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Appointment Aggregates Report"),
+        'url': '/childcount/reports/pmtct-apts-aggregate',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Appointments by Clinic Report"),
+        'url': '/childcount/reports/pmtct-apts-by-clinic',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Appointments Error Report"),
+        'url': '/childcount/reports/pmtct-apts-error',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Upcoming Deliveries Report"),
+        'url': '/childcount/reports/pmtct-deliveries',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"New Registrations on PMTCT Report"),
+        'url': '/childcount/reports/pmtct-newregs',
+        'types': ('xls','pdf', 'html')})
+    reports.append({
+        'title': _(u"Mothers on PMTCT Follow-Up Report"),
+        'url': '/childcount/reports/pmtct-mothers-onfollowup',
+        'types': ('xls','pdf', 'html')})
     clinics = Clinic.objects.all()
 
     for clinic in clinics:
         reports.append({
             'title': _(u"Register List: %(location)s" % {'location': clinic}),
-            'url': '/static/childcount/reports/registerlist-%s.pdf' % clinic.code,
+            'url': '/static/childcount/reports/registerlist-%s.pdf' % \
+                clinic.code,
             'types': ('pdf',),
             'otherlinks': [{'title': \
-                            _(u"All Patients(including inactive and dead)"),
-                            'url': "/static/childcount/reports/registerlist-%s.pdf" % clinic.code},
-                            {'title': _("Active Patients Only"),
-                            'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
-                             % clinic.code}]})
+                _(u"All Patients(including inactive and dead)"),
+                'url': "/static/childcount/reports/registerlist-%s.pdf" % \
+                            clinic.code},
+                {'title': _("Active Patients Only"),
+                'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
+                            % clinic.code},
+                {'title': _("Under FIve"),
+                'url': '/childcount/reports/underfive-%s.pdf' % clinic.code}]})
     for clinic in clinics: 
         reports.append({
             'title': _(u"HH Survey: %(location)s" % {'location': clinic}),
