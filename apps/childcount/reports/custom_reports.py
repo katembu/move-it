@@ -16,7 +16,7 @@ from rapidsms.webui.utils import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.db.models import F
 from django.db.models import Count
 
@@ -50,7 +50,7 @@ from libreport.pdfreport import ScaledTable
 
 import ccdoc 
 from childcount.reports.utils import render_doc_to_response
-from childcount.reports.utils import report_filename 
+from childcount.reports.utils import report_filename, REPORTS_DIR
 
 from locations.models import Location
 
@@ -175,7 +175,7 @@ def under_five(request):
 
 def gen_underfive_register_pdf(f, clinic, rformat):
     story = []
-    filename = report_filename("underfive-%s.%s" % (clinic, rformat))
+    filename = "underfive-%s.%s" % (clinic, rformat)
     clinic = Clinic.objects.get(code=clinic)
     chws = TheCHWReport.objects.filter(clinic=clinic)
     if not chws.count():
@@ -190,16 +190,17 @@ def gen_underfive_register_pdf(f, clinic, rformat):
         # 108 is the number of rows per page, should probably put this in a
         # variable
         pcount = plist.count()
-        if (((pcount/ 106) + 1) % 2) == 1 \
-            and not (pcount / 106) * 106 == pcount:
+        if (((pcount/ 108) + 1) % 2) == 1 \
+            and not (pcount / 108) * 108 == pcount:
             story.append(PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, PageBreak())
     story.insert(0, NextPageTemplate("laterPages"))
-    doc = MultiColDocTemplate(filename, 2, pagesize=A4, \
+    doc = MultiColDocTemplate(report_filename(filename), 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
-    return f
+    return HttpResponseRedirect( \
+        '/static/childcount/' + REPORTS_DIR + '/' + filename)
 
 
 def under_five_table(title, indata=None, boxes=None):
