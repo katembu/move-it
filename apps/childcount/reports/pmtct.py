@@ -22,14 +22,15 @@ open_status = (AppointmentReport.STATUS_OPEN, \
 
 def defaulters(request, rformat="html"):
     doc = Document(unicode(_(u"Defaulters Report")))
-    today = datetime.today()
+    today = datetime.today() + relativedelta(days=-3)
     df = AppointmentReport.objects.filter(status__in=open_status, \
                                             appointment_date__lt=today, \
                             encounter__patient__status=Patient.STATUS_ACTIVE)
-    df = df.order_by('encounter__patient__chw__location')
+    df = df.order_by('encounter__chw__clinic', 'appointment_date')
 
-    t = Table(4)
+    t = Table(5)
     t.add_header_row([
+        Text(unicode(_(u"Date"))),
         Text(unicode(_(u"Patient"))),
         Text(unicode(_(u"Status"))),
         Text(unicode(_(u"CHW"))),
@@ -40,13 +41,14 @@ def defaulters(request, rformat="html"):
         else:
             statustxt = _("Not Reminded")
         t.add_row([
+            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
             Text(unicode(row.encounter.patient)),
             Text(unicode(statustxt)),
             Text(unicode(row.encounter.patient.chw)),
             Text(unicode(row.encounter.patient.chw.location))])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, 'defaulters-list')
+    return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
 
 
 def appointments(request, rformat="html"):
@@ -81,7 +83,7 @@ def appointments(request, rformat="html"):
             Text(unicode(row.encounter.chw.location))])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, 'appointment-list')
+    return render_doc_to_response(request, rformat, doc, 'pmtct-appointments')
 
 
 def appointments_error_report(request, rformat="html"):
@@ -120,7 +122,7 @@ def appointments_error_report(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc,
-                                    'appointment-error-list')
+                                    'pmtct-apts-error')
 
 
 def appointments_aggregates(request, rformat="html"):
@@ -132,6 +134,7 @@ def appointments_aggregates(request, rformat="html"):
     # df = df.order_by('encounter__chw__location', 'appointment_date')
     df = df.values('encounter__chw__location__name', 'status')
     df = df.annotate(count=Count('encounter'))
+    df = df.order_by('encounter__chw__location__name')
     doc.subtitle = unicode(_(u"Apointments Aggregates Report: Last 30 Days"
                             " - %(from)s to %(to)s" % {"from":
                                         last_30_days.strftime('%d %B, %Y'),
@@ -167,7 +170,7 @@ def appointments_aggregates(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc,
-                                    'appointment-aggregate')
+                                    'pmtct-apts-aggregate')
 
 
 def appointments_by_clinic(request, rformat="html"):
@@ -229,7 +232,7 @@ def appointments_by_clinic(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc,
-                                    'appointment-by-clinic')
+                                    'pmtct-apts-by-clinic')
 
 
 def upcoming_deliveries(request, rformat="html"):
@@ -253,7 +256,7 @@ def upcoming_deliveries(request, rformat="html"):
             Text(unicode(row.encounter.patient.chw.location))])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, 'upcoming-deliveries')
+    return render_doc_to_response(request, rformat, doc, 'pmtct-deliveries')
 
 
 def statistics(request, rformat="html"):
@@ -319,7 +322,7 @@ def active_mothers(request, rformat="html"):
     doc = Document(unicode(_(u"Mothers Being followed")))
     today = datetime.today()
     ten_years_ago = today + relativedelta(years=-10)
-    start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
+    start = ten_years_ago
     r = AppointmentReport.objects.filter(encounter__patient__dob__lt=start, \
                             encounter__patient__status=Patient.STATUS_ACTIVE, \
                             encounter__patient__gender=Patient.GENDER_FEMALE, \
@@ -340,4 +343,5 @@ def active_mothers(request, rformat="html"):
             Text(unicode(patient.chw.location))])
     doc.add_element(t)
 
-    return render_doc_to_response(request, rformat, doc, 'mothers-on-followup')
+    return render_doc_to_response(request, rformat, doc,
+                                    'pmtct-mothers-onfollowup')
