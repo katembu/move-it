@@ -15,7 +15,8 @@ admin.site.register(Clinic)
 
 
 class PatientAdmin(VersionAdmin):
-    list_display = ('__unicode__', 'location', 'chw')
+    list_display = ('__unicode__', 'location', 'chw', 'status')
+    list_filter = ['status', 'dob']
     search_fields = ['health_id', 'first_name', 'last_name']
 admin.site.register(Patient, PatientAdmin)
 
@@ -38,7 +39,10 @@ admin.site.register(FollowUpReport, VersionAdmin)
 admin.site.register(PregnancyReport, VersionAdmin)
 admin.site.register(NeonatalReport, VersionAdmin)
 admin.site.register(UnderOneReport, VersionAdmin)
-admin.site.register(NutritionReport, VersionAdmin)
+class NutritionReportAdmin(VersionAdmin):
+    list_filter = ['status', ]
+    search_fields = ['encounter__patient__chw__username',]
+admin.site.register(NutritionReport, NutritionReportAdmin)
 admin.site.register(FeverReport, VersionAdmin)
 admin.site.register(ReferralReport, VersionAdmin)
 admin.site.register(HouseholdVisitReport, VersionAdmin)
