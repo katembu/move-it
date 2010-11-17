@@ -125,17 +125,18 @@ def _matching_message_stats(like_strings, unlike_strings = []):
     prefix = \
     '''
         SELECT 
-            DATE(`sent`) as `date`, 
+            DATE(`date`) as `date`, 
             `identity`, 
             COUNT(*) as `count` 
-        FROM `logger_outgoingmessage` 
+        FROM `logger_ng_loggedmessage` 
     '''
     postfix = \
     '''
+        AND `direction`="O" 
         GROUP BY 
-            DATE(`sent`), 
+            DATE(`date`), 
             `identity` 
-        ORDER BY `sent` ASC;
+        ORDER BY `date` ASC;
     '''
    
     if type(like_strings) == list:
