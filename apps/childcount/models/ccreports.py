@@ -40,7 +40,7 @@ from childcount.utils import day_end, \
                                 first_day_of_month, \
                                 last_day_of_month
 
-from logger.models import IncomingMessage, OutgoingMessage
+from logger_ng.models import LoggedMessage
 
 
 class ThePatient(Patient):
@@ -495,7 +495,7 @@ class TheCHWReport(CHW):
     @property
     def num_of_sms(self):
         identity = self.connection().identity
-        num = IncomingMessage.objects.filter(identity=identity).count()
+        num = LoggedMessage.incoming.filter(identity=identity).count()
         return num
 
     @property
@@ -721,23 +721,23 @@ class TheCHWReport(CHW):
         return int(get_median(lsdays))
 
     def sms_error_rate(self):
-        total_sms = IncomingMessage.objects.filter(identity=self.connection()\
+        total_sms = LoggedMessage.incoming.filter(identity=self.connection()\
                                     .identity).count()
         if total_sms == 0:
             return None
-        total_error_sms = OutgoingMessage.objects.filter(identity=self\
+        total_error_sms = LoggedMessage.outgoing.filter(identity=self\
                                     .connection().identity, \
                                     text__icontains='error').count()
         return int(round((total_error_sms / float(total_sms)) * 100))
 
     def days_since_last_sms(self):
         now = datetime.now()
-        last_sms = IncomingMessage.objects.filter(identity=self.connection()\
-                                    .identity, received__lte=now)\
-                                    .order_by('-received')
+        last_sms = LoggedMessage.incoming.filter(identity=self.connection()\
+                                    .identity, date__lte=now)\
+                                    .order_by('-date')
         if not last_sms:
             return None
-        return (now - last_sms[0].received).days
+        return (now - last_sms[0].date).days
 
     def activity_summary(self):
         today = datetime.today()
@@ -961,10 +961,10 @@ class TheCHWReport(CHW):
         for day in days_of_the_week:
             start = day_start(day['date'])
             end = day_end(day['date'])
-            num = IncomingMessage.objects.filter(received__gte=start, \
-                                           received__lte=end).count()
-            total_error_sms = OutgoingMessage.objects.filter(sent__gte=start, \
-                                           sent__lte=end, \
+            num = LoggedMessage.incoming.filter(date__gte=start, \
+                                           date__lte=end).count()
+            total_error_sms = LoggedMessage.outgoing.filter(date__gte=start, \
+                                           date__lte=end, \
                                     text__icontains='error').count()
             csms = num - total_error_sms
 
