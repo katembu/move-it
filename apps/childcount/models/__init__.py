@@ -24,3 +24,5 @@ from reports import *
 
 from ImmunizationSchedule import ImmunizationSchedule
 from ImmunizationSchedule import ImmunizationNotification
+
+from PolioCampaignReport import PolioCampaignReport

@@ -17,4 +17,5 @@ from childcount.commands.HHSurveySummaryCommand import HHSurveySummaryCommand
 from childcount.commands.ChownCommand import ChownCommand
 from childcount.commands.LocationCommand import LocationCommand
 from childcount.commands.RelocateCommand import RelocateCommand
+from childcount.commands.nids.NIDSCommand import NIDSCommand
 
