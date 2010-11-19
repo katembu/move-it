@@ -222,7 +222,7 @@ def under_five_table(title, indata=None, boxes=None):
 
     hdata = [Paragraph('%s' % title, styleH3)]
     hdata.extend((len(cols)) * [''])
-    cmd = [Paragraph(u"<b>NIDS</b> <i>HID1 HID2 HID3 ...<i>", styleN)]
+    cmd = [Paragraph(u"Polio Campaign Command: <b>NIDS <i>HID1 HID2 HID3 ...<i></b>", styleN)]
     cmd.extend((len(cols)) * [''])
     data = [hdata, cmd]
 
