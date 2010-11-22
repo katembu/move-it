@@ -35,8 +35,9 @@ class FamilyCommand(CCCommand):
 
         out_str = _("Family of %(hid)s: ") % \
             {'hid': patient.health_id.upper()}
-        out_str += ''.join(["(%(hid)s: %(name)s/%(gen)s/%(age)s) " \
-            % {'hid': p.health_id.upper(),\
+        out_str += ''.join(["(%(hh)s%(hid)s: %(name)s/%(gen)s/%(age)s) " \
+            % {'hid': p.health_id.upper(),
+                'hh': '[HH]' if p.is_head_of_household() else '',
                 'name': p.full_name(),
                 'gen': p.gender.upper(),
                 'age': p.humanised_age()} \
