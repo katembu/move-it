@@ -26,7 +26,7 @@ class FamilyCommand(CCCommand):
             patient = Patient.objects.get(health_id = self.params[1])
         except Patient.DoesNotExist:
             raise BadValue(_("No patient with health id %(hid)s") \
-                % {'hid': patient.health_id.upper()})
+                % {'hid': self.params[1].upper()})
 
         household = Patient\
             .objects\
