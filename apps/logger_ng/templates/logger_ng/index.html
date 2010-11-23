@@ -28,7 +28,7 @@
     {% for response in msg.response.all %}
         <div class="msg response">{{response.text}}</div>
     {% endfor %}
-    {% if perms.logger_ng.respond and msg.is_incoming %}
+    {% if perms.logger_ng.can_respond and msg.is_incoming %}
         <div class="respond"><form action="" method="post">
             <input class="resp_box" name="respond_{{msg.id}}" type="text" />
             <input type="submit" value="Respond" />
