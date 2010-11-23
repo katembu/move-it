@@ -43,13 +43,13 @@ position:relative;
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 
-<h2>Patient Lookup</h2>
+<h2>{% trans "Patient Lookup" %}</h2>
 <form id='editform' action='/childcount/patients/edit/' method='GET'>
     Health ID: <input name='hid' type='text'></input>
     <input type="submit" value="Edit"></input>
 </form>
 
-<h2>{{report_title}}{% if scope %}: {{scope}}{% endif %}</h2>
+<h2> {{report_title}}{% if scope %}: {{scope}} {% endif %}</h2>
 <div id='ch-bd'><div id='ch-l'>
 
 <table  cellpadding="0" cellspacing="0" border="0" id="report" class="display">
@@ -98,25 +98,25 @@ position:relative;
 {% if has_previous %}<span class="prev"><a href="/childcount/patients?page={{previous}}" title="Previous Page">&laquo; Previous</a></span>{% else %}<span class="prev-na">&laquo; Previous</span>{% endif %}
  
 {% if not in_leading_range %}
-	{% for num in pages_outside_trailing_range %}
-		<span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
-	{% endfor %}
-	...
+    {% for num in pages_outside_trailing_range %}
+        <span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
+    ...
 {% endif %}
  
 {% for num in page_numbers %}
   {% ifequal num page %}
     <span class="curr" title="Current Page">{{ num }}</span>
   {% else %}
-  	<span class="page"><a href="/childcount/patients?page={{ num }}" title="Page {{ num }}">{{ num }}</a></span>
+    <span class="page"><a href="/childcount/patients?page={{ num }}" title="Page {{ num }}">{{ num }}</a></span>
   {% endifequal %}
 {% endfor %}
  
 {% if not in_trailing_range %}
-	...
-	{% for num in pages_outside_leading_range reversed %}
-		<span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
-	{% endfor %}
+    ...
+    {% for num in pages_outside_leading_range reversed %}
+        <span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
 
 {% endif %}
  
