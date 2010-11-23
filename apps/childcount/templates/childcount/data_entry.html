@@ -67,7 +67,7 @@
 <form id="form" name="form">
 <div id="user_input">
 {% if user.is_authenticated %}
-{% blocktrans %}{% trans "Logged in as {{ user }}" %}{% endblocktrans %} (<a href="/accounts/logout/">{% trans "Change" %}</a>).
+{% blocktrans %} Logged in as {{ user }} {% endblocktrans %} (<a href="/accounts/logout/">{% trans "Change" %}</a>).
 <input type="hidden" id="phone" name="phone" value="{{ user.username }}" />
 {% else %}
 <label for="phone">{% trans "Phone Number:" %}</label>

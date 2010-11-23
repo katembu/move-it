@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-11 11:18+0000\n"
+"POT-Creation-Date: 2010-11-23 16:30+0000\n"
 "PO-Revision-Date: 2010-11-10 16:20-0000\n"
 "Last-Translator: aboubacar <diarra.aboubacar@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
@@ -2018,7 +2018,7 @@ msgstr "Agents de Santé Communautaire"
 msgid "Manager"
 msgstr "Manager"
 
-#: models/CHW.py:34 models/Clinic.py:22
+#: models/CHW.py:34 models/Clinic.py:22 templates/childcount/list_chw.html:14
 msgid "Clinic"
 msgstr "Centre de Santé"
 
@@ -2583,6 +2583,7 @@ msgid "French"
 msgstr "Français"
 
 #: models/CodedItemTranslation.py:24 models/DangerSignTranslation.py:24
+#: templates/childcount/list_chw.html:14
 msgid "Language"
 msgstr "Langue"
 
@@ -2669,7 +2670,7 @@ msgstr ""
 
 #: models/DeadPerson.py:65 models/Patient.py:83 reports/lists.py:26
 #: reports/pmtct.py:36 reports/pmtct.py:65 reports/pmtct.py:121
-#: reports/pmtct.py:151
+#: reports/pmtct.py:151 templates/childcount/list_chw.html:14
 msgid "Location"
 msgstr "Lieu"
 
@@ -3353,7 +3354,7 @@ msgstr "Comptes-rendus de conditions sanitaires"
 msgid "ChildCount Report"
 msgstr "Compte-rendu ChildCount"
 
-#: models/reports.py:48
+#: models/reports.py:48 templates/childcount/index.html:136
 msgid "ChildCount Reports"
 msgstr "Comptes-rendus ChildCount"
 
@@ -4311,6 +4312,16 @@ msgstr "Mères suivies"
 msgid "report"
 msgstr "Compte-rendu"
 
+#: templates/childcount/add_chw.html:3
+#, fuzzy
+msgid "Add CHW"
+msgstr "ASC"
+
+#: templates/childcount/add_chw.html:7
+#, fuzzy
+msgid "Create a CHW Account"
+msgstr "Créé le"
+
 #: templates/childcount/base.html:24
 msgid "Log out"
 msgstr "Deconnexion"
@@ -4318,6 +4329,10 @@ msgstr "Deconnexion"
 #: templates/childcount/base.html:26
 msgid "Log in"
 msgstr "Connexion"
+
+#: templates/childcount/bednet.html:85 templates/childcount/chw.html:86
+msgid "Some stuff"
+msgstr ""
 
 #: templates/childcount/data_entry.html:8
 msgid "ChildCount+ Data Entry"
@@ -4348,8 +4363,8 @@ msgid "SMS Log"
 msgstr "Messages envoyés"
 
 #: templates/childcount/data_entry.html:70
-#, python-format
-msgid "Logged in as %(user)s"
+#, fuzzy, python-format
+msgid " Logged in as %(user)s "
 msgstr "Identifié en tant que %(user)s"
 
 #: templates/childcount/data_entry.html:70
@@ -4375,6 +4390,117 @@ msgstr "Message :"
 #: templates/childcount/data_entry.html:85
 msgid "Response Log"
 msgstr "Messages reçus"
+
+#: templates/childcount/edit_patient.html:30
+msgid "Enter a health ID to edit a patient."
+msgstr ""
+
+#: templates/childcount/edit_patient.html:37
+#, fuzzy
+msgid "A patient with health ID"
+msgstr "Pas de patient avec no. de santé %(health_id)s"
+
+#: templates/childcount/edit_patient.html:38
+msgid "{{ health_id }} was not found."
+msgstr ""
+
+#: templates/childcount/edit_patient.html:45
+#, fuzzy
+msgid "Patient information for"
+msgstr "Compte-rendu de la liste des patients"
+
+#: templates/childcount/edit_patient.html:46
+msgid "{{ patient.full_name }} saved."
+msgstr ""
+
+#: templates/childcount/edit_patient.html:47
+msgid "Edit {{ patient.full_name}} again."
+msgstr ""
+
+#: templates/childcount/index.html:120
+#, fuzzy
+msgid "No. Of Households"
+msgstr "# de ménages"
+
+#: templates/childcount/index.html:121
+#, fuzzy
+msgid "No. Of Patients"
+msgstr "Nombre de patients"
+
+#: templates/childcount/index.html:122
+#, fuzzy
+msgid "No. Of Underfives"
+msgstr "# de moins de 5 ans"
+
+#: templates/childcount/index.html:123
+#, fuzzy
+msgid "No. Of Pregnant Women"
+msgstr "# de femmes enceintes"
+
+#: templates/childcount/index.html:145
+#, fuzzy
+msgid "Report Name"
+msgstr "Comptes-rendus"
+
+#: templates/childcount/index.html:224
+#, fuzzy
+msgid "Form A Registrations"
+msgstr "Enregistrement"
+
+#: templates/childcount/index.html:247
+msgid "This Week"
+msgstr ""
+
+#: templates/childcount/index.html:256
+#, fuzzy
+msgid "This Month"
+msgstr "Mois"
+
+#: templates/childcount/index.html:263
+#, fuzzy
+msgid "Genera"
+msgstr "Genre"
+
+#: templates/childcount/index.html:280
+#, fuzzy
+msgid "Nutrition Graph"
+msgstr "Nutrition"
+
+#: templates/childcount/list_chw.html:3
+msgid "CHW List"
+msgstr ""
+
+#: templates/childcount/list_chw.html:8
+#, fuzzy
+msgid "All Community Health Workers"
+msgstr "Agents de Santé Communautaire"
+
+#: templates/childcount/list_chw.html:12 templates/childcount/forms/a.json:4
+#: templates/childcount/forms/b.json:4 templates/childcount/forms/b21.json:4
+#: templates/childcount/forms/c.json:4
+#: templates/childcount/forms/ruhiira-b.json:4
+msgid "ID"
+msgstr "No"
+
+#: templates/childcount/list_chw.html:13
+#, fuzzy
+msgid "Username"
+msgstr "Utilisateur"
+
+#: templates/childcount/list_chw.html:13 templates/childcount/forms/a.json:7
+#: templates/childcount/forms/d.json:5
+msgid "First Name"
+msgstr "Prénom"
+
+#: templates/childcount/list_chw.html:13
+#, fuzzy
+msgid "Last Name"
+msgstr "Nom de famille"
+
+#: templates/childcount/list_chw.html:14
+#, fuzzy
+msgid "Active?"
+msgstr "Vivant"
 
 #: templates/childcount/loggedout.html:3
 msgid "Goodbye"
@@ -4411,11 +4537,10 @@ msgstr "Oops. Vous n'êtes pas autorisés à consulter cette section"
 msgid "Please log in to ChildCount+"
 msgstr "Veiullez vous connecter à ChildCount+"
 
-#: templates/childcount/forms/a.json:4 templates/childcount/forms/b.json:4
-#: templates/childcount/forms/b21.json:4 templates/childcount/forms/c.json:4
-#: templates/childcount/forms/ruhiira-b.json:4
-msgid "ID"
-msgstr "No"
+#: templates/childcount/patient.html:46
+#, fuzzy
+msgid "Patient Lookup"
+msgstr "Patient"
 
 #: templates/childcount/forms/a.json:4 templates/childcount/forms/c.json:4
 msgid "HEALTH ID"
@@ -4440,10 +4565,6 @@ msgstr "Code de lieu"
 #: templates/childcount/forms/a.json:7 templates/childcount/forms/d.json:5
 msgid "Fir"
 msgstr "Pré"
-
-#: templates/childcount/forms/a.json:7 templates/childcount/forms/d.json:5
-msgid "First Name"
-msgstr "Prénom"
 
 #: templates/childcount/forms/a.json:8 templates/childcount/forms/d.json:6
 msgid "Sur"
@@ -4979,9 +5100,6 @@ msgstr ""
 
 #~ msgid "Date"
 #~ msgstr "Date"
-
-#~ msgid "User"
-#~ msgstr "Utilisateur"
 
 #~ msgid "health_id"
 #~ msgstr "No. de santé"
