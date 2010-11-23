@@ -75,3 +75,9 @@ admin.site.register(Version)
 admin.site.register(Revision)
 admin.site.register(Vaccine)
 admin.site.register(DeadPerson)
+
+
+class PolioCampaignReportAdmin(admin.ModelAdmin):
+    list_filter = ('chw', )
+    list_display = ('patient', 'chw', 'created_on')
+admin.site.register(PolioCampaignReport, PolioCampaignReportAdmin)
