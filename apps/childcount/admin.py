@@ -80,4 +80,5 @@ admin.site.register(DeadPerson)
 class PolioCampaignReportAdmin(admin.ModelAdmin):
     list_filter = ('chw', )
     list_display = ('patient', 'chw', 'created_on')
+    search_fields = ['patient__health_id', 'chw__clinic__code']
 admin.site.register(PolioCampaignReport, PolioCampaignReportAdmin)
