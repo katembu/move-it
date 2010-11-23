@@ -13,7 +13,7 @@ from childcount.models import AppointmentReport
 from childcount.models import AntenatalVisitReport
 from childcount.models import Patient, Clinic
 
-from ccdoc import Document, Table, Paragraph, Text
+from ccdoc import Document, Table, Paragraph, Text, Section
 from childcount.reports.utils import render_doc_to_response
 
 open_status = (AppointmentReport.STATUS_OPEN, \
@@ -23,30 +23,34 @@ open_status = (AppointmentReport.STATUS_OPEN, \
 def defaulters(request, rformat="html"):
     doc = Document(unicode(_(u"Defaulters Report")))
     today = datetime.today() + relativedelta(days=-3)
-    df = AppointmentReport.objects.filter(status__in=open_status, \
-                                            appointment_date__lt=today, \
+    for clinic in Clinic.objects.all():
+        df = AppointmentReport.objects.filter(status__in=open_status,
+                                appointment_date__lt=today,
+                                encounter__patient__chw__clinic=clinic,
                             encounter__patient__status=Patient.STATUS_ACTIVE)
-    df = df.order_by('encounter__chw__clinic', 'appointment_date')
+        df = df.order_by('encounter__chw__location', 'appointment_date')
 
-    t = Table(5)
-    t.add_header_row([
-        Text(unicode(_(u"Date"))),
-        Text(unicode(_(u"Patient"))),
-        Text(unicode(_(u"Status"))),
-        Text(unicode(_(u"CHW"))),
-        Text(unicode(_(u"Location")))])
-    for row in df:
-        if row.status == AppointmentReport.STATUS_PENDING_CV:
-            statustxt = _("Reminded")
-        else:
-            statustxt = _("Not Reminded")
-        t.add_row([
-            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
-            Text(unicode(row.encounter.patient)),
-            Text(unicode(statustxt)),
-            Text(unicode(row.encounter.patient.chw)),
-            Text(unicode(row.encounter.patient.chw.location))])
-    doc.add_element(t)
+        t = Table(5)
+        t.add_header_row([
+            Text(unicode(_(u"Date"))),
+            Text(unicode(_(u"Patient"))),
+            Text(unicode(_(u"Status"))),
+            Text(unicode(_(u"CHW"))),
+            Text(unicode(_(u"Location")))])
+        for row in df:
+            if row.status == AppointmentReport.STATUS_PENDING_CV:
+                statustxt = _("Reminded")
+            else:
+                statustxt = _("Not Reminded")
+            t.add_row([
+                Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
+                Text(unicode(row.encounter.patient)),
+                Text(unicode(statustxt)),
+                Text(unicode(row.encounter.patient.chw)),
+                Text(unicode(row.encounter.patient.chw.location))])
+        doc.add_element(Section(u"%s" % clinic))
+        doc.add_element(t)
+        
 
     return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
 
