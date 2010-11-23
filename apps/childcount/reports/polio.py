@@ -11,7 +11,7 @@ from locations.models import Location
 
 from ccdoc import Document, Section, Table, Paragraph, Text
 
-from childcount.models import PolioCampaignReport, Patient
+from childcount.models import PolioCampaignReport, Patient, CHW
 from childcount.reports.utils import render_doc_to_response
 
 
@@ -68,10 +68,10 @@ def polio_summary_by_location(request, rformat="html"):
         percentage = round((total / float(loc_underfive.count())) * 100, 2)
         resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
                 {'total': total, 'percentage': percentage})
-        loc_rpts = loc_rpts.values('chw__first_name',
+        """loc_rpts = loc_rpts.values('chw__first_name',
                                     'chw__last_name',
                                     'chw')
-        loc_rpts = loc_rpts.annotate(Count('chw'))
+        loc_rpts = loc_rpts.annotate(Count('chw'))"""
         tail = [
                 Text(unicode("Total")),
                 Text(unicode(total)),
@@ -83,17 +83,17 @@ def polio_summary_by_location(request, rformat="html"):
             Text(unicode(_(u"Number of Polio Vaccination"))),
             Text(unicode(_(u"# Target"))),
             Text(unicode(_(u"Percentage (%)")))])
-        for row in loc_rpts:
-            uf = loc_underfive.filter(chw__pk=row['chw'])
+        for chw in CHW.objects.filter(location=location).exclude(clinic=None):
+            uf = loc_underfive.filter(chw=chw)
+            lrpts = loc_rpts.filter(chw=chw)
             try:
-                percentage = round((row['chw__count'] / float(uf.count())) * \
+                percentage = round((lrpts.count() / float(uf.count())) * \
                                                                         100, 2)
             except ZeroDivisionError:
                 percentage = 0
             t.add_row([
-                Text(unicode("%s %s" % (row['chw__first_name'],
-                                        row['chw__last_name']))),
-                Text(unicode(row['chw__count'])),
+                Text(unicode("%s" % chw.full_name())),
+                Text(unicode(lrpts.count())),
                 Text(unicode(uf.count())),
                 Text(unicode("%s%%" % percentage))])
         t.add_row(tail)
