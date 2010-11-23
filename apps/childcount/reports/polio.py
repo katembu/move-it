@@ -23,7 +23,7 @@ def polio_summary(request, rformat="html"):
                                 status=Patient.STATUS_ACTIVE)
     rpts = PolioCampaignReport.objects.filter()
     total = rpts.count()
-    percentage = round((total/float(underfive.count()))*100, 2)
+    percentage = round((total / float(underfive.count())) * 100, 2)
     resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
             {'total': total, 'percentage': percentage})
     rpts = rpts.values('chw__location__name', 'chw__location')
@@ -32,7 +32,7 @@ def polio_summary(request, rformat="html"):
             Text(unicode("Total")),
             Text(unicode(total)),
             Text(unicode(underfive.count())),
-            Text(unicode("%s%%"%percentage))]
+            Text(unicode("%s%%" % percentage))]
     t = Table(4)
     t.add_header_row([
         Text(unicode(_(u"Sub Location"))),
@@ -41,12 +41,12 @@ def polio_summary(request, rformat="html"):
         Text(unicode(_(u"Percentage (%)")))])
     for row in rpts:
         uf = underfive.filter(chw__location__pk=row['chw__location'])
-        percentage = round((row['chw__count']/float(uf.count()))*100, 2)
+        percentage = round((row['chw__count'] / float(uf.count())) * 100, 2)
         t.add_row([
             Text(unicode(row['chw__location__name'])),
             Text(unicode(row['chw__count'])),
             Text(unicode(uf.count())),
-            Text(unicode("%s%%"%percentage))])
+            Text(unicode("%s%%" % percentage))])
     t.add_row(tail)
     doc.add_element(t)
 
@@ -65,7 +65,7 @@ def polio_summary_by_location(request, rformat="html"):
         loc_underfive = underfive.filter(chw__location=location)
         loc_rpts = rpts.filter(chw__location=location)
         total = loc_rpts.count()
-        percentage = round((total/float(loc_underfive.count()))*100, 2)
+        percentage = round((total / float(loc_underfive.count())) * 100, 2)
         resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
                 {'total': total, 'percentage': percentage})
         loc_rpts = loc_rpts.values('chw__first_name',
@@ -86,7 +86,8 @@ def polio_summary_by_location(request, rformat="html"):
         for row in loc_rpts:
             uf = loc_underfive.filter(chw__pk=row['chw'])
             try:
-                percentage = round((row['chw__count']/float(uf.count()))*100, 2)
+                percentage = round((row['chw__count'] / float(uf.count())) * \
+                                                                        100, 2)
             except ZeroDivisionError:
                 percentage = 0
             t.add_row([
