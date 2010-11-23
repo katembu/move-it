@@ -17,7 +17,7 @@ from locations.models import Location
 from childcount.models import HealthId
 
 from childcount.commands import CCCommand
-from childcount.models import Patient
+from childcount.models import Patient, CHW
 from childcount.models.PolioCampaignReport import PolioCampaignReport
 from childcount.utils import authenticated, send_msg
 
@@ -59,7 +59,7 @@ class PolioSummaryCommand(CCCommand):
         for loc in rpts:
             resp += u"%s: %s. " % (loc['chw__location__name'], loc['chw__count'])
         self.message.respond(resp)
-        if self.params.__len__() > 1 and self.params[1] == 'all':
+        if self.params.__len__() > 1 and self.params[1].lower() == 'all':
             for chw in CHW.objects.all():
                 try:
                     send_msg(chw, resp)
