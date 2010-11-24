@@ -27,6 +27,7 @@ from childcount.models import Clinic
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.utils import RotatedParagraph
+from childcount.reports.report_framework import PrintedReport
 
 from libreport.pdfreport import PDFReport, p, pheader
 from libreport.pdfreport import MultiColDocTemplate
@@ -37,7 +38,15 @@ styleN = styles['Normal']
 styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
-@login_required
+class Report(PrintedReport):
+    title = 'Operational Report'
+    filename = 'operational_report'
+    formats = ['pdf']
+    argvs = []
+    order = 0
+
+    def generate(self, rformat, **kwargs):
+ 
 def chw_performance(request):
 
     rpt = PDFReport()
