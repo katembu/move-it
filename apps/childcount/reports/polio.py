@@ -63,9 +63,11 @@ def polio_summary_by_location(request, rformat="html"):
     locations = Location.objects.filter(type__name="Sub Location")
     for location in locations:
         loc_underfive = underfive.filter(chw__location=location)
-        loc_rpts = rpts.filter(chw__location=location)
+        loc_rpts = rpts.filter(chw__location=location,
+                        patient__status=Patient.STATUS_ACTIVE)
         total = loc_rpts.count()
-        inactive = loc_rpts.exclude(patient__status=Patient.STATUS_ACTIVE)
+        inactive = rpts.filter(chw__location=location)
+        inactive = inactive.exclude(patient__status=Patient.STATUS_ACTIVE)
         overage = PolioCampaignReport.objects.filter(patient__dob__lt=dob,
                                             chw__location=location)
         percentage = round((total / float(loc_underfive.count())) * 100, 2)
@@ -93,7 +95,7 @@ def polio_summary_by_location(request, rformat="html"):
         for chw in CHW.objects.filter(location=location).exclude(clinic=None):
             uf = loc_underfive.filter(chw=chw)
             lrpts = loc_rpts.filter(patient__chw=chw)
-            inactive = lrpts.exclude(patient__status=Patient.STATUS_ACTIVE)
+            linactive = inactive.filter(patient__chw=chw)
             overage = PolioCampaignReport.objects.filter(patient__dob__lt=dob,
                         patient__chw=chw)
             try:
@@ -104,7 +106,7 @@ def polio_summary_by_location(request, rformat="html"):
             t.add_row([
                 Text(unicode("%s" % chw.full_name())),
                 Text(unicode(lrpts.count())),
-                Text(unicode(inactive.count())),
+                Text(unicode(linactive.count())),
                 Text(unicode(overage.count())),
                 Text(unicode(uf.count())),
                 Text(unicode("%s%%" % percentage))])
