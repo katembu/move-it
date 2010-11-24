@@ -131,3 +131,34 @@ def polio_not_covered(request, username, rformat="html"):
 
     return render_doc_to_response(request, rformat, doc,
                                 'polio-not-covered-%s' % username)
+
+
+def polio_inactive_reports(request, username, rformat="html"):
+    doc = Document(unicode(_(u"Polio Campaign Inactive Report")))
+    today = datetime.today()
+    dob = datetime.today() + relativedelta(months=-59)
+    try:
+        chw = CHW.objects.get(username=username)
+    except CHW.DoesNotExist:
+        ps = PolioCampaignReport.objects.filter()
+    else:
+        ps = PolioCampaignReport.objects.filter(patient__chw=chw)
+    ps = ps.exclude(patient__status=Patient.STATUS_ACTIVE)
+    ps = ps.order_by('patient__chw')
+    t = Table(4)
+    t.add_header_row([
+        Text(unicode(_(u"Name"))),
+        Text(unicode(_(u"Sub Location"))),
+        Text(unicode(_(u"Clinic"))),
+        Text(unicode(_(u"CHW")))])
+    for row in ps:
+        patient = row.patient
+        t.add_row([
+            Text(unicode(patient)),
+            Text(unicode(patient.chw.location)),
+            Text(unicode(patient.chw.clinic)),
+            Text(unicode(patient.chw))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                'polio-inactive-%s' % username)
