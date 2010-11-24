@@ -59,12 +59,15 @@ def polio_summary_by_location(request, rformat="html"):
     dob = datetime.today() + relativedelta(months=-59)
     underfive = Patient.objects.filter(dob__gte=dob,
                                 status=Patient.STATUS_ACTIVE)
-    rpts = PolioCampaignReport.objects.filter()
+    rpts = PolioCampaignReport.objects.filter(patient__dob__gte=dob)
     locations = Location.objects.filter(type__name="Sub Location")
     for location in locations:
         loc_underfive = underfive.filter(chw__location=location)
         loc_rpts = rpts.filter(chw__location=location)
         total = loc_rpts.count()
+        inactive = loc_rpts.exclude(patient__status=Patient.STATUS_ACTIVE)
+        overage = PolioCampaignReport.objects.filter(patient__dob__lt=dob,
+                                            chw__location=location)
         percentage = round((total / float(loc_underfive.count())) * 100, 2)
         resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
                 {'total': total, 'percentage': percentage})
@@ -75,17 +78,24 @@ def polio_summary_by_location(request, rformat="html"):
         tail = [
                 Text(unicode("Total")),
                 Text(unicode(total)),
+                Text(unicode(inactive.count())),
+                Text(unicode(overage.count())),
                 Text(unicode(loc_underfive.count())),
                 Text(unicode("%s%%" % percentage))]
-        t = Table(4)
+        t = Table(6)
         t.add_header_row([
             Text(unicode(_(u"Name"))),
-            Text(unicode(_(u"Number of Polio Vaccination"))),
+            Text(unicode(_(u"# Vaccinated"))),
+            Text(unicode(_(u"# INACTIVE"))),
+            Text(unicode(_(u"# OVERAGE"))),
             Text(unicode(_(u"# Target"))),
             Text(unicode(_(u"Percentage (%)")))])
         for chw in CHW.objects.filter(location=location).exclude(clinic=None):
             uf = loc_underfive.filter(chw=chw)
             lrpts = loc_rpts.filter(patient__chw=chw)
+            inactive = lrpts.exclude(patient__status=Patient.STATUS_ACTIVE)
+            overage = PolioCampaignReport.objects.filter(patient__dob__lt=dob,
+                        patient__chw=chw)
             try:
                 percentage = round((lrpts.count() / float(uf.count())) * \
                                                                         100, 2)
@@ -94,6 +104,8 @@ def polio_summary_by_location(request, rformat="html"):
             t.add_row([
                 Text(unicode("%s" % chw.full_name())),
                 Text(unicode(lrpts.count())),
+                Text(unicode(inactive.count())),
+                Text(unicode(overage.count())),
                 Text(unicode(uf.count())),
                 Text(unicode("%s%%" % percentage))])
         t.add_row(tail)
