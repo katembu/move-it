@@ -38,7 +38,12 @@ admin.site.register(FollowUpReport, VersionAdmin)
 admin.site.register(PregnancyReport, VersionAdmin)
 admin.site.register(NeonatalReport, VersionAdmin)
 admin.site.register(UnderOneReport, VersionAdmin)
-admin.site.register(NutritionReport, VersionAdmin)
+
+
+class NutritionReportAdmin(VersionAdmin):
+    search_fields = ['encounter__patient__health_id']
+admin.site.register(NutritionReport, NutritionReportAdmin)
+
 admin.site.register(FeverReport, VersionAdmin)
 admin.site.register(ReferralReport, VersionAdmin)
 admin.site.register(HouseholdVisitReport, VersionAdmin)
@@ -77,7 +82,7 @@ admin.site.register(Vaccine)
 admin.site.register(DeadPerson)
 
 
-class PolioCampaignReportAdmin(admin.ModelAdmin):
+class PolioCampaignReportAdmin(VersionAdmin):
     list_filter = ('chw', )
     list_display = ('patient', 'chw', 'created_on')
     search_fields = ['patient__health_id', 'chw__clinic__code']
