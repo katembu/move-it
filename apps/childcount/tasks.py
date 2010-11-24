@@ -367,9 +367,9 @@ def gen_framework_nightly_reports():
         # in every available format
         for rformat in thereport.formats:
 
-            print "[%s] apply_async(rformat=%s)" % \
+            print "[%s] delay(rformat=%s)" % \
                 (thereport.title, rformat)
-            rep = thereport.apply_async(rformat=rformat)
+            rep = thereport.apply(kwargs={'rformat':rformat})
  
                 #task_args = [],
                 #task_kwargs={'rformat':rformat})

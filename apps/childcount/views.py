@@ -98,30 +98,29 @@ def index(request):
     info.update(gsr)
     '''
 
-    reports = []
+    report_sets = []
 
+
+    on_demand = []
     for r in report_framework.report_objects('ondemand'):
-       reports.append({
+       on_demand.append({
             'title': r.title,
             'url': ''.join(['/childcount/reports/ondemand/',r.filename]),
             'types': r.formats})
-    '''
-    reports.append({
-        'title': 'Form A Registrations by Day and User',
-        'url': '/childcount/reports/form_a_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Form B (HH Visit) by Day and User',
-        'url': '/childcount/reports/form_b_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Form C (Follow-up) by Day and User',
-        'url': '/childcount/reports/form_c_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Encounters by Day',
-        'url': '/childcount/reports/encounters_per_day',
-        'types': ('pdf', 'xls', 'html')})
+
+    report_sets.append(('On Demand Reports',on_demand))
+
+    nightly = []
+    for r in report_framework.report_objects('nightly'):
+       nightly.append({
+            'title': r.title,
+            'url': ''.join(['/static/childcount/reports/',r.filename]),
+            'types': r.formats})
+
+    report_sets.append(('Nightly Reports',nightly))
+
+
+    reports = []
     reports.append({
         'title': 'Operational Report',
         'url': '/childcount/reports/operational_report',
@@ -136,7 +135,7 @@ def index(request):
         'types': ('pdf',),
         'otherlinks': [{'title':u'Survey Report',
                         'url':'/static/childcount/reports/surveyreport.pdf'}]})
-    '''
+    
     clinics = Clinic.objects.all()
 
     for clinic in clinics:
@@ -159,11 +158,14 @@ def index(request):
                 {'title': clinic.name,
                 'url': "/static/childcount/reports/hhsurvey-%s.pdf" % clinic.code}
             ]})
+    
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',
     #    'url': '/childcount/reports/patient_list_geo'})
-    info.update({'reports': reports})
+
+    report_sets.append(('Other Reports',reports))
+    info.update({'report_sets': report_sets})
     return render_to_response(request, template_name, info)
 
 

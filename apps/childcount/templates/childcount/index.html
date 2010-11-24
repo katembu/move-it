@@ -130,24 +130,22 @@
     </tr>
 </table>
 <div id='ch-bd'><div id='ch-l'>
+{% for reports in report_sets %}
 <div class='block'>
     <div class="block_child">
         <div class="hd">
-            <h2>ChildCount Reports</h2>
+            <h2>{{ reports.0 }}</h2>
         </div>
 
         <div class="bd">
-        <em>Note: Reports are generated every evening
-        so new registrations and form data will not
-        appear in reports until the following day.</em>
-        <table>
+        <table width=100%>
             <tr>
                 <th>Report Name</th>
                 <th>HTML</th>
                 <th>PDF</th>
                 <th>Excel</th>
             </tr>
-            {% for r in reports %}
+            {% for r in reports.1 %}
             <tr>
                 <td>{{ r.title }}</td>
                 <td class="icon">
@@ -181,32 +179,6 @@
             {% endfor %}
         </table>
 
-            <!--
-            <ul>
-
-                <li>Operational Report <a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Patient Register
-                    <ul>
-                    {% for clinic in clinics %}
-                        <li><a href='/childcount/registerlist/{{ clinic.id }}' title='All Patients'>All</a> |  
-                            <a href='/childcount/registerlist/{{ clinic.id }}/active' title='Patients with status active only'>Active</a> : 
-                            {{ clinic }}
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </li>
-                <li>Patient List <a href='/childcount/patients' class='html'>html</a>
-                </li>
-                <li>Under five Patient List <a href='/childcount/patients/underfive/html' class='html'>html</a>
-                    | <a href='/childcount/patients/underfive/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Patient list per community health worker <a href='/childcount/patients_per_chw/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Under five list per community health worker <a href='/childcount/under_five' class='pdf'>pdf</a>
-                </li>
-            </ul>
-            -->
         </div>
 
     </div>
@@ -216,6 +188,7 @@
         <div class="last"></div>
     </div>
 </div>
+{% endfor %}
 </div>
 <div id='ch-r'>
 <div class='block'>

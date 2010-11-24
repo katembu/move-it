@@ -15,46 +15,8 @@ from reporters.models import Reporter
 from childcount.models import HouseholdVisitReport
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import report_filepath
-'''
-def form_a_entered(request, rformat="html"):
-    return _form_reporting(
-        request,
-        rformat,
-        report_title = (u'Form A Registrations Per Day'),
-        report_data = _matching_message_stats(\
-            ['You successfuly registered ']),
-        report_filename = u'form-a-entered')
 
-def form_b_entered(request, rformat="html"):
-    return _form_reporting(
-        request,
-        rformat,
-        report_title = (u'Form B (HH Visit) Per Day'),
-        report_data = _matching_message_stats(\
-            ' `text` LIKE "%%+V%% Successfully processed: [%%" \
-            AND `backend` = "debackend" '),
-                report_filename = u'form-b-entered')
-
-def form_c_entered(request, rformat="html"):
-    return _form_reporting(
-        request,
-        rformat,
-        report_data = _matching_message_stats(\
-            ' `text` LIKE "%%+U %%" OR \
-              `text` LIKE "%%+S %%" OR \
-              `text` LIKE "%%+P %%" OR \
-              `text` LIKE "%%+N %%" OR \
-              `text` LIKE "%%+T %%" OR \
-              `text` LIKE "%%+M %%" OR \
-              `text` LIKE "%%+F %%" OR \
-              `text` LIKE "%%+G %%" OR \
-              `text` LIKE "%%+R %%" AND \
-            `text` LIKE "%%Successfully processed: [%%%%" AND \
-            `backend` = "debackend" '),
-        report_title = (u'Form C (Follow-Up) Per Day'),
-        report_filename = u'form-c-entered')
-'''
-
+"""
 def encounters_per_day(request, rformat="html"):
     doc = Document(u'Encounters Per Day')
     h = encounters_annotated()
@@ -76,6 +38,8 @@ def encounters_annotated():
     h = HouseholdVisitReport.objects.all()
     h = h.values('encounter__encounter_date').annotate(Count('encounter__encounter_date'))
     return h.order_by('encounter__encounter_date')
+"""
+
 
 def form_reporting(\
         rformat,

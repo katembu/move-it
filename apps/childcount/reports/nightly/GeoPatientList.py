@@ -41,7 +41,7 @@ class Report(PrintedReport):
             self._patient_list_geo_recurse(t, [], table)
 
         doc.add_element(table)
-        return render_doc_to_file(self.get_filename(), rformat, doc)
+        return render_doc_to_file(self.get_filepath(rformat), rformat, doc)
 
     def _patient_list_geo_recurse(self, loc, parents, table):
         parents.append(loc)
@@ -56,17 +56,17 @@ class Report(PrintedReport):
             if not hh.is_head_of_household():
                 continue
 
-            _add_patient_to_table(table, locstr, hh)
+            self._add_patient_to_table(table, locstr, hh)
             for p in Patient.objects.filter(household = hh):
                 if not p.is_head_of_household():
-                    _add_patient_to_table(table, locstr, p)
+                    self._add_patient_to_table(table, locstr, p)
 
         # Recursively run on all children locations
         for c in loc.children.all().order_by('name'):
-            _patient_list_geo_recurse(c, parents, table)
+            self._patient_list_geo_recurse(c, parents, table)
         parents.pop()
 
-    def _add_patient_to_table(table, locstr, patient):
+    def _add_patient_to_table(self, table, locstr, patient):
         b = patient.is_head_of_household()
         table.add_row([
             Text(locstr),

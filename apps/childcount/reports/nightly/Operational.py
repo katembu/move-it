@@ -48,7 +48,7 @@ from libreport.pdfreport import ScaledTable
 
 import ccdoc 
 from childcount.reports.utils import render_doc_to_response
-from childcount.reports.utils import report_filename 
+from childcount.reports.utils import report_filepath
 from childcount.reports.report_framework import PrintedReport
 
 from locations.models import Location
@@ -73,7 +73,7 @@ class Report(PrintedReport):
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
 
-        filename = self.get_filename(rformat) 
+        filename = self.get_filepath(rformat) 
         f = open(filename, 'w')
 
         story = []
