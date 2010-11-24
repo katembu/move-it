@@ -85,7 +85,7 @@ def polio_summary_by_location(request, rformat="html"):
             Text(unicode(_(u"Percentage (%)")))])
         for chw in CHW.objects.filter(location=location).exclude(clinic=None):
             uf = loc_underfive.filter(chw=chw)
-            lrpts = loc_rpts.filter(chw=chw)
+            lrpts = loc_rpts.filter(patient__chw=chw)
             try:
                 percentage = round((lrpts.count() / float(uf.count())) * \
                                                                         100, 2)
