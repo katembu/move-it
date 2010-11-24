@@ -18,13 +18,13 @@ from childcount.models import Patient, CHW
 from childcount.models import FeverReport
 from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
-from childcount.models import Configuration as Cfg
 from childcount.models.ccreports import TheCHWReport
 
 from childcount.reports import gen_operationalreport
 from childcount.reports import gen_surveyreport
 from childcount.reports import gen_registerlist
 from childcount.reports import gen_all_household_surveyreports
+from childcount.reports.report_framework import report_objects
 
 from alerts.utils import SmsAlert
 
@@ -362,29 +362,13 @@ def appointment_defaulter_reminders():
 # to somehow split it up
 @periodic_task(run_every=crontab(hour=0, minute=0))
 def gen_framework_nightly_reports():
-    # Don't catch exception
-    rvalues = Cfg.objects.get(key='nightly_reports').value
-    rnames = rvalues.split()
-  
-    print "Starting"
-    for reporttype in rnames:
-        print "Looking for module %s" % reporttype
-
-        # Get childcount.reports.nightly.report_name.Report
-        rmod = __import__('childcount.reports.nightly.' + \
-            reporttype, \
-            globals(), locals(), \
-            ['Report'], -1)
-        print "Found module %s" % reporttype
-
-        thereport = rmod.Report
-
+    for thereport in report_objects('nightly'):
         # Spawn tasks to generate each report
         # in every available format
         for rformat in thereport.formats:
 
-            print "%s.apply_async(rformat=%s)" % \
-                (reporttype, rformat)
+            print "[%s] apply_async(rformat=%s)" % \
+                (thereport.title, rformat)
             rep = thereport.apply_async(rformat=rformat)
  
                 #task_args = [],

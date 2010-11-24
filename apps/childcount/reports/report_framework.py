@@ -7,7 +7,37 @@ from celery.task.schedules import crontab
 
 from django.utils.translation import gettext as _
 
+from childcount.models import Configuration as Cfg
 from childcount.reports.utils import report_filename
+
+def report_objects(folder):
+    if folder not in ['nightly','ondemand']:
+        raise ValueError('Folder specified must be "nightly" or "ondemand"')
+
+    reports = []
+    
+    # Don't catch exception
+    rvalues = Cfg.objects.get(key=folder+'_reports').value
+    rnames = rvalues.split()
+  
+    print "Starting"
+    for reporttype in rnames:
+        print "Looking for module %s" % reporttype
+        # Get childcount.reports.folder.report_name.Report
+        try:
+            rmod = __import__(\
+                ''.join(['childcount.reports.',folder,'.',reporttype]),
+                globals(), \
+                locals(), \
+                ['Report'], \
+                -1)
+        except ImportError:
+            print "COULD NOT FIND MODULE %s" % reporttype
+        else:
+            print "Found module %s" % reporttype
+
+        reports.append(rmod.Report)
+    return reports
 
 class PrintedReport(Task):
     abstract = True
