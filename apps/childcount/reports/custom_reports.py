@@ -48,7 +48,7 @@ from libreport.pdfreport import ScaledTable
 
 import ccdoc 
 from childcount.reports.utils import render_doc_to_response
-from childcount.reports.utils import report_filename 
+from childcount.reports.utils import report_filepath
 
 from locations.models import Location
 
@@ -237,7 +237,7 @@ def gen_operationalreport():
     '''
     Generate OperationalReport and write it to file
     '''
-    filename = report_filename('operationalreport.pdf')
+    filename = report_filepath('operationalreport.pdf')
     f = open(filename, 'w')
 
     story = []
@@ -342,7 +342,7 @@ def gen_registerlist():
     clinics = Clinic.objects.all()
     for c in clinics:
         for active in ['','-active']:
-            filename = report_filename("registerlist-%s%s.pdf" % (c.code, active))
+            filename = report_filepath("registerlist-%s%s.pdf" % (c.code, active))
             f = open(filename, 'w')
 
             gen_patient_register_pdf(f, c, (active == '-active'))
@@ -530,7 +530,7 @@ def gen_surveyreport():
     '''
     Generate the healthy survey report.
     '''
-    filename = report_filename('surveyreport.pdf')
+    filename = report_filepath('surveyreport.pdf')
     f = open(filename, 'w')
 
     story = []
@@ -633,7 +633,7 @@ def clinic_monthly_summary_csv(request):
 def gen_all_household_surveyreports():
     clinics = Clinic.objects.all()
     for clinic in clinics:
-        filename = report_filename('hhsurvey-%s.pdf' % clinic.code)
+        filename = report_filepath('hhsurvey-%s.pdf' % clinic.code)
         f = open(filename, 'w')
         gen_household_surveyreport(f, clinic)
         f.close()
@@ -681,7 +681,7 @@ def household_surveyreport(location=None):
     '''
     Generate the healthy survey report.
     '''
-    filename = report_filename('HouseholdSurveyReport.pdf')
+    filename = report_filepath('HouseholdSurveyReport.pdf')
     f = open(filename, 'w')
 
     story = []

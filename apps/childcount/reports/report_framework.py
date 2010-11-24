@@ -2,13 +2,42 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
+import shutil
+
 from celery.task import Task
 from celery.task.schedules import crontab
 
 from django.utils.translation import gettext as _
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 
 from childcount.models import Configuration as Cfg
-from childcount.reports.utils import report_filename
+from childcount.reports.utils import report_filepath, report_url
+
+REPORTS_DIR = 'reports'
+
+def serve_ondemand_report(request, rname, rformat):
+    repts = report_objects('ondemand')
+
+    # Find reports matching requests
+    matches = filter(lambda rep: \
+        rep.filename == rname and rformat in rep.formats,
+        repts)
+
+    if len(matches) == 0:
+        return HttpResponseNotFound(request)
+
+    # If found, generate the report
+    report = matches[0]
+    result = report().apply(kwargs={'rformat':rformat})
+    result.wait()
+
+    if result.successful():
+        # Redirect to static report
+        return HttpResponseRedirect(report_url(rname, rformat))
+    else:
+        print result.traceback
+        raise RuntimeError('Report generation failed')
+
 
 def report_objects(folder):
     if folder not in ['nightly','ondemand']:
@@ -35,8 +64,7 @@ def report_objects(folder):
             print "COULD NOT FIND MODULE %s" % reporttype
         else:
             print "Found module %s" % reporttype
-
-        reports.append(rmod.Report)
+            reports.append(rmod.Report)
     return reports
 
 class PrintedReport(Task):
@@ -46,7 +74,6 @@ class PrintedReport(Task):
     filename = None
     formats = []
     argvs = [] # Not used yet
-    order = 0
 
     def __init__(self):
         pass
@@ -77,10 +104,9 @@ class PrintedReport(Task):
         raise NotImplementedError(\
             _(u'Generate function not implemented.'))
 
-    def get_filename(self, rformat):
+    def get_filepath(self, rformat):
         if self.filename is None:
             raise ValueError(\
                 _(u'Report filename is unset.'))
-        return report_filename(\
-            ''.join([self.filename,'.',rformat]))
+        return report_filepath(self.filename, rformat)
 

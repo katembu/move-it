@@ -18,7 +18,6 @@ class Report(PrintedReport):
     filename = 'geo_patient_list'
     formats = ['html','pdf','xls']
     argvs = []
-    order = 1
 
     def generate(self, rformat, **kwargs):
         report_title = (u'Patient List by Location')

@@ -31,6 +31,7 @@ from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
+from childcount.reports import report_framework
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
@@ -98,6 +99,13 @@ def index(request):
     '''
 
     reports = []
+
+    for r in report_framework.report_objects('ondemand'):
+       reports.append({
+            'title': r.title,
+            'url': ''.join(['/childcount/reports/ondemand/',r.filename]),
+            'types': r.formats})
+    '''
     reports.append({
         'title': 'Form A Registrations by Day and User',
         'url': '/childcount/reports/form_a_entered',
@@ -128,6 +136,7 @@ def index(request):
         'types': ('pdf',),
         'otherlinks': [{'title':u'Survey Report',
                         'url':'/static/childcount/reports/surveyreport.pdf'}]})
+    '''
     clinics = Clinic.objects.all()
 
     for clinic in clinics:

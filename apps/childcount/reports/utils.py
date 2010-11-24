@@ -16,16 +16,18 @@ def render_doc_to_file(filename, rformat, doc):
     h = None 
 
     if rformat == 'html':
-        h = HTMLGenerator(doc)
+        h = HTMLGenerator(doc, filename)
     elif rformat == 'xls':
-        h = ExcelGenerator(doc)
+        h = ExcelGenerator(doc, filename)
     elif rformat == 'pdf':
-        h = PDFGenerator(doc)
+        h = PDFGenerator(doc, filename)
     else:
         raise ValueError('Invalid report format')
 
+    print 'Rendering doc'
     h.render_document()
-    return shutil.move(h.get_filename(), filename)
+    print 'Done rendering'
+    print filename
  
 def render_doc_to_response(request, rformat, doc,
         filebasename = _(u'report')):
@@ -42,20 +44,23 @@ def render_doc_to_response(request, rformat, doc,
         raise ValueError('Invalid report format')
 
     h.render_document()
-    filename = filebasename + '.' + rformat
     print h.get_filename()
 
-    shutil.move(h.get_filename(), report_filename(filename))
+    shutil.move(h.get_filename(), report_filepath(filebasename, rformat))
     print "=== FINISHED IN %lg SECONDS ===" % (time.time() - tstart)
-    return HttpResponseRedirect( \
-        '/static/childcount/' + REPORTS_DIR + '/' + filename)
+    return HttpResponseRedirect(report_url(filename, rformat))
 
-def report_filename(report_name):
-    return os.path.abspath(\
-        os.path.join(
+def report_filepath(rname, rformat):
+    return os.path.join(\
                     os.path.dirname(__file__), \
                     '..',
                     'static',
                     REPORTS_DIR,
-                    report_name))
+                    rname+'.'+rformat)
 
+def report_url(rname, rformat):
+    return ''.join([\
+        '/static/childcount/',
+        REPORTS_DIR,'/',
+        rname,'.',rformat
+    ])
