@@ -110,4 +110,6 @@ urlpatterns = patterns('',
         polio.polio_not_covered),
     url(r'^childcount/reports/polio-inactive-(?P<username>[a-z]*).(?P<rformat>[a-z]*)$', 
         polio.polio_inactive_reports),
+    url(r'^childcount/reports/polio-overage-(?P<username>[a-z]*).(?P<rformat>[a-z]*)$', 
+        polio.polio_overage_reports),
 )
