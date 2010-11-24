@@ -102,3 +102,32 @@ def polio_summary_by_location(request, rformat="html"):
 
     return render_doc_to_response(request, rformat, doc,
                                     'polio-summary-by-location')
+
+
+def polio_not_covered(request, username, rformat="html"):
+    doc = Document(unicode(_(u"Polio Campaign Summary Report")))
+    today = datetime.today()
+    dob = datetime.today() + relativedelta(months=-59)
+    try:
+        chw = CHW.objects.get(username=username)
+    except CHW.DoesNotExist:
+        return HttpResponse(_(u"No CHW with username %s" % username))
+    ps = PolioCampaignReport.objects.filter(patient__chw=chw).values('patient')
+    underfive = Patient.objects.filter(dob__gte=dob, chw=chw,
+                                status=Patient.STATUS_ACTIVE)
+    underfive = underfive.exclude(pk__in=ps)
+    
+    t = Table(3)
+    t.add_header_row([
+        Text(unicode(_(u"Name"))),
+        Text(unicode(_(u"Sub Location"))),
+        Text(unicode(_(u"Clinic")))])
+    for patient in underfive:
+        t.add_row([
+            Text(unicode(patient)),
+            Text(unicode(patient.chw.location)),
+            Text(unicode(patient.chw.clinic))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                'polio-not-covered-%s' % username)
