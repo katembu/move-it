@@ -51,7 +51,7 @@ class ThePatient(Patient):
 
     def latest_muac(self):
         muac = NutritionReport.objects.filter(encounter__patient=self).latest()
-        if not None:
+        if muac:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
 
@@ -189,6 +189,15 @@ class ThePatient(Patient):
     def household_members(self):
         return ThePatient.objects.filter(household=self.household)
 
+    def polio(self):
+        from childcount.models.PolioCampaignReport import PolioCampaignReport
+        try:
+            pl = PolioCampaignReport.objects.get(patient=self)
+        except PolioCampaignReport.DoesNotExist:
+            return u""
+        else:
+            return _(u"Yes")
+
     @classmethod
     def under_five(cls, chw=None):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -240,6 +249,9 @@ class ThePatient(Patient):
         columns.append(
             {'name': _("Last MUAC".upper()), \
             'bit': '{{object.latest_muac}}'})
+        columns.append(
+            {'name': _("Polio".upper()), \
+            'bit': '{{object.polio}}'})
 
         sub_columns = None
         return columns, sub_columns
