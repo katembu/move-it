@@ -6,7 +6,6 @@ class Report(PrintedReport):
     title = 'Form A Entered by Day'
     filename = 'form_a_entered'
     formats = ['pdf','xls','html']
-    argvs = []
 
     def generate(self, rformat, **kwargs):
         return form_reporting(

@@ -102,33 +102,12 @@ def index(request):
 
     reports = []
     reports.append({
-        'title': 'Operational Report',
-        'url': '/childcount/reports/operational_report',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
         'title': _(u"Household Healthy Survey Report"),
         'url': '/childcount/reports/hhsurveyrpt',
         'types': ('xls','pdf', 'html')})
-    reports.append({
-        'title': _(u"Survey Report"),
-        'url': '/static/childcount/reports/surveyreport.pdf',
-        'types': ('pdf',),
-        'otherlinks': [{'title':u'Survey Report',
-                        'url':'/static/childcount/reports/surveyreport.pdf'}]})
     
     clinics = Clinic.objects.all()
 
-    for clinic in clinics:
-        reports.append({
-            'title': _(u"Register List: %(location)s" % {'location': clinic}),
-            'url': '/static/childcount/reports/registerlist-%s.pdf' % clinic.code,
-            'types': ('pdf',),
-            'otherlinks': [{'title': \
-                            _(u"All Patients(including inactive and dead)"),
-                            'url': "/static/childcount/reports/registerlist-%s.pdf" % clinic.code},
-                            {'title': _("Active Patients Only"),
-                            'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
-                             % clinic.code}]})
     for clinic in clinics: 
         reports.append({
             'title': _(u"HH Survey: %(location)s" % {'location': clinic}),

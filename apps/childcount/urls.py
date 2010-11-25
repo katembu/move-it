@@ -44,6 +44,7 @@ urlpatterns = patterns('',
     #    views.autocomplete),
     url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
+
     url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
         reports.all_patient_list_pdf),
     url(r'^childcount/patients_per_chw/pdf/?$', \
@@ -51,7 +52,6 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
-    url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
     url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
@@ -61,6 +61,7 @@ urlpatterns = patterns('',
                         views.form, name='form'),
     url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
         views.site_summary),
+
     # PMTCT links
     url(r'^childcount/reports/pmtct-defaulters/(?P<rformat>[a-z]*)$', 
         pmtct.defaulters),
@@ -72,9 +73,8 @@ urlpatterns = patterns('',
         pmtct.active_mothers),
     url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
         pmtct.statistics),
-    # survey rpts
-    url(r'^childcount/reports/hhsurveyrpt.(?P<rformat>[a-z]*)$', 
-        reports.a_surveyreport),
+
+    # On-Demand Reports for Reporting Framework
     url(r'^childcount/reports/ondemand/(?P<rname>[a-zA-Z0-9\-\_]*).(?P<rformat>[a-z]*)$', 
         report_framework.serve_ondemand_report),
 )

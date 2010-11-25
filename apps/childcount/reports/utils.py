@@ -48,7 +48,7 @@ def render_doc_to_response(request, rformat, doc,
 
     shutil.move(h.get_filename(), report_filepath(filebasename, rformat))
     print "=== FINISHED IN %lg SECONDS ===" % (time.time() - tstart)
-    return HttpResponseRedirect(report_url(filename, rformat))
+    return HttpResponseRedirect(report_url(filebasename, rformat))
 
 def report_filepath(rname, rformat):
     return os.path.join(\

@@ -2,27 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-import os
 import copy
-import csv
-import cProfile
-from time import time
-from datetime import datetime
-from types import StringType
 
-from rapidsms.webui.utils import render_to_response
-
-from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
-from django.http import HttpResponse
-from django.db.models import F
-
-from cStringIO import StringIO
 
 try:
     from reportlab.lib.styles import getSampleStyleSheet
-    from reportlab.lib.pagesizes import letter, landscape, A4
+    from reportlab.lib.pagesizes import landscape, A4
     from reportlab.platypus import Paragraph, SimpleDocTemplate, PageBreak
     from reportlab.platypus import Table, TableStyle, NextPageTemplate
     from reportlab.lib import colors
@@ -33,25 +20,13 @@ except ImportError:
 
 from childcount.models import Clinic
 from childcount.models import CHW
-from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
-from childcount.models.ccreports import ThePatient, OperationalReport
 from childcount.models.ccreports import OperationalReport
-from childcount.models.ccreports import ClinicReport
-from childcount.models.ccreports import TheBHSurveyReport
 from childcount.utils import RotatedParagraph
 
-from libreport.pdfreport import PDFReport, p
-from libreport.csvreport import CSVReport
-from libreport.pdfreport import MultiColDocTemplate
-from libreport.pdfreport import ScaledTable
+from libreport.pdfreport import p
 
-import ccdoc 
-from childcount.reports.utils import render_doc_to_response
-from childcount.reports.utils import report_filepath
 from childcount.reports.report_framework import PrintedReport
-
-from locations.models import Location
 
 styles = getSampleStyleSheet()
 styleN = styles['Normal']
@@ -62,8 +37,6 @@ class Report(PrintedReport):
     title = 'Operational Report'
     filename = 'operational_report'
     formats = ['pdf']
-    argvs = []
-    order = 0
 
     def generate(self, rformat, **kwargs):
         '''

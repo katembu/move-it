@@ -144,6 +144,7 @@
                 <th>HTML</th>
                 <th>PDF</th>
                 <th>Excel</th>
+                <th>Other</th>
             </tr>
             {% for r in reports.1 %}
             <tr>
@@ -173,6 +174,17 @@
                         {% ifequal t 'xls' %}
                     <a href="{{ r.url }}.xls"><img src="/static/childcount/icons/xls.png" /></a>
                         {% endifequal %}
+                    {% endfor %}
+                </td>
+                <td class="icon">
+                    {% for t in r.types %}
+                        {% ifnotequal t 'pdf' %}
+                        {% ifnotequal t 'xls' %}
+                        {% ifnotequal t 'html' %}
+                        <a href="{{ r.url }}.{{ t }}">{{ t.upper }}</a>
+                        {% endifnotequal %}
+                        {% endifnotequal %}
+                        {% endifnotequal %}
                     {% endfor %}
                 </td>
             </tr>

@@ -189,7 +189,7 @@ def report_sets():
     for item in tmp:
         on_demand.extend(item)
 
-    report_sets.append(('On Demand Reports', on_demand))
+    report_sets.append(('On-Demand Reports', on_demand))
 
     tmp = map(
         lambda rep: rep().report_view_data('nightly'),
