@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-25 08:37+0000\n"
+"POT-Creation-Date: 2010-11-25 09:05+0000\n"
 "PO-Revision-Date: 2010-11-10 16:20-0000\n"
 "Last-Translator: aboubacar <diarra.aboubacar@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
@@ -168,23 +168,23 @@ msgstr "ECHEC. Non valide."
 msgid "There is no patient with                 health ID %(hid)s"
 msgstr "Pas de patient avec no. de santé %(hid)s"
 
-#: tasks.py:141
+#: tasks.py:138
 #, python-format
 msgid "The following clients are due for +M: %(ids)s"
 msgstr ""
 
-#: tasks.py:180
+#: tasks.py:177
 #, python-format
 msgid "Remind the following to go for their first clinic visit %(list)s."
 msgstr ""
 "Rappeler ceux qui suit d'aller faire leur première consultation %(list)s."
 
-#: tasks.py:217
+#: tasks.py:214
 #, python-format
 msgid "Remind the following to go for a clinic visit %(list)s."
 msgstr "Rappeler ceux qui suit d'aller faire leur consultation %(list)s."
 
-#: tasks.py:286
+#: tasks.py:261
 #, python-format
 msgid ""
 "Please send %(patient)s to the health center for their appointment on %"
@@ -193,7 +193,7 @@ msgstr ""
 "Veuillez envoyer %(patient)s vers un centre médical pour son rendez-vous du %"
 "(apt_date)s"
 
-#: tasks.py:344
+#: tasks.py:319
 #, python-format
 msgid ""
 "Please send %(patient)s to the health center on for their failed appointment "
@@ -222,28 +222,11 @@ msgstr "Vous avez tenté de charger %(cls)s sans définir %(k)s."
 msgid "%(k)s must be a dictionary in %(cls)s."
 msgstr "Une erreur s'est produite: %(k)s must be a dictionary in %(cls)s."
 
-#: views.py:122
+#: views.py:105
 msgid "Household Healthy Survey Report"
 msgstr "Compte-rendu de l'enquête sur la santé des ménages"
 
-#: views.py:126
-msgid "Survey Report"
-msgstr "Compte-rendu de de l'enquête"
-
-#: views.py:135
-#, python-format
-msgid "Register List: %(location)s"
-msgstr "Liste d'inscrit: %(location)s"
-
-#: views.py:139
-msgid "All Patients(including inactive and dead)"
-msgstr "Tous les patients(y compris les inactifs et les morts)"
-
-#: views.py:141
-msgid "Active Patients Only"
-msgstr "Patients actifs seulement"
-
-#: views.py:146
+#: views.py:113
 #, python-format
 msgid "HH Survey: %(location)s"
 msgstr "Enquête sur les ménages: %(location)s"
@@ -2711,9 +2694,9 @@ msgstr ""
 "Le principal dispensateur de soins dans le ménage de cette personne (lui-"
 "même si dispensateur de soins principal)"
 
-#: models/DeadPerson.py:65 models/Patient.py:83 reports/lists.py:26
-#: reports/pmtct.py:36 reports/pmtct.py:65 reports/pmtct.py:121
-#: reports/pmtct.py:151 templates/childcount/list_chw.html:14
+#: models/DeadPerson.py:65 models/Patient.py:83 reports/pmtct.py:36
+#: reports/pmtct.py:65 reports/pmtct.py:121 reports/pmtct.py:151
+#: reports/nightly/GeoPatientList.py:31 templates/childcount/list_chw.html:14
 msgid "Location"
 msgstr "Lieu"
 
@@ -2755,7 +2738,7 @@ msgstr "%(years)sy"
 
 #: models/DeadPerson.py:128 models/Patient.py:204 models/ccreports.py:212
 #: models/ccreports.py:245 models/ccreports.py:864 models/ccreports.py:901
-#: reports/lists.py:29 reports/performance.py:78
+#: reports/performance.py:87 reports/nightly/GeoPatientList.py:34
 msgid "Name"
 msgstr "Nom"
 
@@ -2850,7 +2833,7 @@ msgid "Backend"
 msgstr "Backend"
 
 #: models/HealthId.py:18 models/HealthId.py:32 models/Patient.py:52
-#: reports/lists.py:28
+#: reports/nightly/GeoPatientList.py:33
 msgid "Health ID"
 msgstr "No. de santé"
 
@@ -3397,7 +3380,7 @@ msgstr "Comptes-rendus de conditions sanitaires"
 msgid "ChildCount Report"
 msgstr "Compte-rendu ChildCount"
 
-#: models/reports.py:48 templates/childcount/index.html:136
+#: models/reports.py:48
 msgid "ChildCount Reports"
 msgstr "Comptes-rendus ChildCount"
 
@@ -4268,102 +4251,50 @@ msgstr "Compte-rendu de la liste du patients"
 msgid "Patients status Report"
 msgstr "Compte-rendu de la liste des patients"
 
-#: reports/custom_reports.py:78
+#: reports/custom_reports.py:77
 msgid "All Patients"
 msgstr "Tout patient"
 
-#: reports/custom_reports.py:355
-#, python-format
-msgid "No report for %s."
-msgstr "Pas de compte-rendu pour %s."
-
-#: reports/custom_reports.py:398
-#, python-format
-msgid "CHW: %(loc)s: %(chw)s"
-msgstr "ASC: %(loc)s: %(chw)s"
-
-#: reports/custom_reports.py:491
-msgid "No Report Generated yet"
-msgstr "Aucun Rapport Généré"
-
-#: reports/custom_reports.py:614
-msgid "Clinic/Health Facility"
-msgstr "établissement médical"
-
-#: reports/custom_reports.py:615
-msgid "Month"
-msgstr "Mois"
-
-#: reports/custom_reports.py:616
-msgid "# of Fever Report(RDT)"
-msgstr "Compte-rendu de fièvre positif(ve)"
-
-#: reports/custom_reports.py:617
-msgid "# Positive Fever Report"
-msgstr "Compte-rendu de fièvre"
-
-#: reports/custom_reports.py:618
-msgid "# Nutrition Report"
-msgstr "Compte-rendu de nutrition"
-
-#: reports/custom_reports.py:619
-msgid "# Malnourished"
-msgstr "#Mal nourri"
-
-#: reports/custom_reports.py:650
-#, fuzzy, python-format
-msgid "Unknown Location: %(location)s specified."
-msgstr "Lieu %(location)s n'existe pas."
-
-#: reports/custom_reports.py:662
-#, fuzzy, python-format
-msgid "Bednet Report - %(loc)s: %(chw)s"
-msgstr "ASC: %(loc)s: %(chw)s"
-
-#: reports/lists.py:27
-msgid "HH Health ID"
-msgstr "No. de santé du ménage"
-
-#: reports/performance.py:45
+#: reports/performance.py:54
 #, fuzzy
 msgid "CHW Performance Report"
 msgstr "Compte-rendu de grossesse"
 
-#: reports/performance.py:60
+#: reports/performance.py:69
 msgid "HH Visits Per Day (last month)"
 msgstr ""
 
-#: reports/performance.py:64
+#: reports/performance.py:73
 msgid "Active Pregnancies (less than 10 months)"
 msgstr ""
 
-#: reports/performance.py:73
+#: reports/performance.py:82
 #, python-format
 msgid "No active pregnancies reported for %(chwname)s"
 msgstr ""
 
-#: reports/performance.py:79
+#: reports/performance.py:88
 #, fuzzy
 msgid "Latest Report"
 msgstr "Compte-rendu de la liste des patients"
 
-#: reports/performance.py:80
+#: reports/performance.py:89
 msgid ""
 "Current\n"
 "Month of Preg."
 msgstr ""
 
-#: reports/performance.py:81
+#: reports/performance.py:90
 #, fuzzy
 msgid "# ANC Visits"
 msgstr "Visites de soins prénataux"
 
-#: reports/performance.py:82
+#: reports/performance.py:91
 #, fuzzy
 msgid "Weeks since ANC"
 msgstr "Semaines passées depuis la denière visite de soins prénataux"
 
-#: reports/performance.py:140
+#: reports/performance.py:149
 #, python-format
 msgid "No HH visits reported by %(chwname)s last month"
 msgstr ""
@@ -4395,9 +4326,78 @@ msgstr "Enregistrement"
 msgid "Mothers Being followed"
 msgstr "Mères suivies"
 
-#: reports/utils.py:31
+#: reports/report_framework.py:50
+msgid "Generate function not implemented."
+msgstr ""
+
+#: reports/report_framework.py:64
+msgid "This report has no formats specified."
+msgstr ""
+
+#: reports/report_framework.py:68
+#, fuzzy
+msgid "You must specify a report format."
+msgstr " Vous devez renvoyer le terme."
+
+#: reports/report_framework.py:73
+msgid "Report title or filename is unset."
+msgstr ""
+
+#: reports/report_framework.py:86
+msgid "Report filename is unset."
+msgstr ""
+
+#: reports/utils.py:33
 msgid "report"
 msgstr "Compte-rendu"
+
+#: reports/nightly/BednetSurvey.py:77
+#, fuzzy, python-format
+msgid "Unknown clinic: %(location)s specified."
+msgstr "Lieu %(location)s n'existe pas."
+
+#: reports/nightly/BednetSurvey.py:89
+#, fuzzy, python-format
+msgid "Bednet Report - %(loc)s: %(chw)s"
+msgstr "ASC: %(loc)s: %(chw)s"
+
+#: reports/nightly/GeoPatientList.py:32
+msgid "HH Health ID"
+msgstr "No. de santé du ménage"
+
+#: reports/nightly/PatientList.py:70
+#, python-format
+msgid "No report for %s."
+msgstr "Pas de compte-rendu pour %s."
+
+#: reports/nightly/PatientList.py:113
+#, python-format
+msgid "CHW: %(loc)s: %(chw)s"
+msgstr "ASC: %(loc)s: %(chw)s"
+
+#: reports/ondemand/MonthlyClinicSummary.py:34
+msgid "Clinic/Health Facility"
+msgstr "établissement médical"
+
+#: reports/ondemand/MonthlyClinicSummary.py:35
+msgid "Month"
+msgstr "Mois"
+
+#: reports/ondemand/MonthlyClinicSummary.py:36
+msgid "# of Fever Report(RDT)"
+msgstr "Compte-rendu de fièvre positif(ve)"
+
+#: reports/ondemand/MonthlyClinicSummary.py:37
+msgid "# Positive Fever Report"
+msgstr "Compte-rendu de fièvre"
+
+#: reports/ondemand/MonthlyClinicSummary.py:38
+msgid "# Nutrition Report"
+msgstr "Compte-rendu de nutrition"
+
+#: reports/ondemand/MonthlyClinicSummary.py:39
+msgid "# Malnourished"
+msgstr "#Mal nourri"
 
 #: templates/childcount/add_chw.html:3
 #, fuzzy
@@ -4504,51 +4504,51 @@ msgstr ""
 msgid "Edit {{ patient.full_name}} again."
 msgstr ""
 
-#: templates/childcount/index.html:120
+#: templates/childcount/index.html:121
 #, fuzzy
 msgid "No. Of Households"
 msgstr "# de ménages"
 
-#: templates/childcount/index.html:121
+#: templates/childcount/index.html:122
 #, fuzzy
 msgid "No. Of Patients"
 msgstr "Nombre de patients"
 
-#: templates/childcount/index.html:122
+#: templates/childcount/index.html:123
 #, fuzzy
 msgid "No. Of Underfives"
 msgstr "# de moins de 5 ans"
 
-#: templates/childcount/index.html:123
+#: templates/childcount/index.html:124
 #, fuzzy
 msgid "No. Of Pregnant Women"
 msgstr "# de femmes enceintes"
 
-#: templates/childcount/index.html:145
+#: templates/childcount/index.html:144
 #, fuzzy
 msgid "Report Name"
 msgstr "Comptes-rendus"
 
-#: templates/childcount/index.html:224
+#: templates/childcount/index.html:210
 #, fuzzy
 msgid "Form A Registrations"
 msgstr "Enregistrement"
 
-#: templates/childcount/index.html:247
+#: templates/childcount/index.html:233
 msgid "This Week"
 msgstr ""
 
-#: templates/childcount/index.html:256
+#: templates/childcount/index.html:242
 #, fuzzy
 msgid "This Month"
 msgstr "Mois"
 
-#: templates/childcount/index.html:263
+#: templates/childcount/index.html:249
 #, fuzzy
 msgid "Genera"
 msgstr "Genre"
 
-#: templates/childcount/index.html:280
+#: templates/childcount/index.html:266
 #, fuzzy
 msgid "Nutrition Graph"
 msgstr "Nutrition"
@@ -5157,6 +5157,21 @@ msgstr "#mou"
 msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
 msgstr ""
 "Nombre d'autres membres du ménage malades sous traitement anti-paludique"
+
+#~ msgid "Survey Report"
+#~ msgstr "Compte-rendu de de l'enquête"
+
+#~ msgid "Register List: %(location)s"
+#~ msgstr "Liste d'inscrit: %(location)s"
+
+#~ msgid "All Patients(including inactive and dead)"
+#~ msgstr "Tous les patients(y compris les inactifs et les morts)"
+
+#~ msgid "Active Patients Only"
+#~ msgstr "Patients actifs seulement"
+
+#~ msgid "No Report Generated yet"
+#~ msgstr "Aucun Rapport Généré"
 
 #~ msgid "patient"
 #~ msgstr "patient"
