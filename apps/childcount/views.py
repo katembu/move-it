@@ -84,46 +84,7 @@ def index(request):
 
     info['registrations'] = Patient.registrations_by_date()
 
-    '''#Summary Report
-    sr = SummaryReport.summary()
-    info.update(sr)
-    #This Week Summary Report
-    wsr = WeekSummaryReport.summary()
-    info.update(wsr)
-    #This month summary report
-    msr = MonthSummaryReport.summary()
-    info.update(msr)
-    #General Summary report -  all
-    gsr = GeneralSummaryReport.summary()
-    info.update(gsr)
-    '''
-
     report_sets = report_framework.report_sets()
-
-    reports = []
-    reports.append({
-        'title': _(u"Household Healthy Survey Report"),
-        'url': '/childcount/reports/hhsurveyrpt',
-        'types': ('xls','pdf', 'html')})
-    
-    clinics = Clinic.objects.all()
-
-    for clinic in clinics: 
-        reports.append({
-            'title': _(u"HH Survey: %(location)s" % {'location': clinic}),
-            'url': '/childcount/hhsurvey-%s' % clinic.code,
-            'types': ('pdf',),
-            'otherlinks': [
-                {'title': clinic.name,
-                'url': "/static/childcount/reports/hhsurvey-%s.pdf" % clinic.code}
-            ]})
-    
-    # Kills the CPU so comment out for now...
-    #reports.append({
-    #    'title': 'Patient List by Location',
-    #    'url': '/childcount/reports/patient_list_geo'})
-
-    report_sets.append(('Other Reports',reports))
     info.update({'report_sets': report_sets})
     return render_to_response(request, template_name, info)
 
