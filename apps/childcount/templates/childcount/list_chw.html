@@ -1,17 +1,17 @@
 {% extends base_template %}
 
-{% block title %}CHW List{% endblock %}
+{% block title %}{% trans "CHW List" %}{% endblock %}
 
 {% block content %}
 
 <p><a href="{% url cc-add_chw %}">Create CHW Account</a></p>
-<h1>All Community Health Workers</h1>
+<h1>{% trans "All Community Health Workers" %}</h1>
 <table>
 <thead>
 <tr>
-<td>ID</td>
-<td>Username</td><td>First Name</td><td>Last Name</td>
-<td>Language</td><td>Location</td><td>Clinic</td><td>Active?</td>
+<td>{% trans "ID" %}</td>
+<td>{% trans "Username" %}</td><td>{% trans "First Name" %}</td><td>{% trans "Last Name" %}</td>
+<td>{% trans "Language" %}</td><td>{% trans "Location" %}</td><td>{% trans "Clinic" %}</td><td>{% trans "Active?" %}</td>
 </tr>
 </thead>
 <tbody>

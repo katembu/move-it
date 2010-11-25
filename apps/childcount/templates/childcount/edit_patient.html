@@ -13,38 +13,38 @@
 {% endblock %}
 
 {% block title %}
-    Edit Patient{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]
+    {% trans "Edit Patient{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]" %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
 
-<h1>Edit Patient{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]
+<h1>{% trans "Edit Patient{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]" %}
     {% endif %}
 </h1>
 
 {% if form %}
-<a href="/childcount/patients/edit/">&larr: Edit Another Patient (Make sure to save before clicking here)</a>
+<a href="/childcount/patients/edit/">&larr: {% trans"Edit Another Patient (Make sure to save before clicking here)"%}</a>
 {% else %}
 
-Enter a health ID to edit a patient.
+{% trans "Enter a health ID to edit a patient." %}
 
 {% endif %}
 
 {% if failed %}
 <div class='module'>
 <label class='error'>
-A patient with health ID
-{{ health_id }} was not found.
+{% trans "A patient with health ID" %}
+ {% trans "{{ health_id }} was not found." %}
 </label>
 </div>
 {% endif %}
 
 {% if success %}
 <div style='color:green;font-size:larger;font-weight:bold;'>
-    Patient information for 
-    {{ patient.full_name }} saved.
-    <a href="/childcount/patients/edit/{{ patient.health_id.upper }}/">Edit {{ patient.full_name}} again.</a>
+    {% trans "Patient information for" %} 
+    {% trans "{{ patient.full_name }} saved." %}
+    <a href="/childcount/patients/edit/{{ patient.health_id.upper }}/">{% trans "Edit {{ patient.full_name}} again." %}</a>
 </div>
 {% endif %}
 
