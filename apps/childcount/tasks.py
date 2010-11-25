@@ -20,7 +20,6 @@ from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 
-from childcount.reports import gen_all_household_surveyreports
 from childcount.reports.report_framework import report_objects
 
 from alerts.utils import SmsAlert
