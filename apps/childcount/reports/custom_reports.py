@@ -183,7 +183,7 @@ def gen_underfive_register_pdf(f, clinic, rformat):
     for chw in chws:
         plist = ThePatient.under_five(chw).filter(status=Patient.STATUS_ACTIVE)
 
-        tb = under_five_table(_(u"CHW: %(loc)s: %(chw)s") % \
+        tb = under_five_table(_(u"Under 5: %(loc)s: %(chw)s") % \
                                 {'loc': clinic, 'chw': chw}, plist)
         story.append(tb)
         story.append(PageBreak())
@@ -222,7 +222,8 @@ def under_five_table(title, indata=None, boxes=None):
 
     hdata = [Paragraph('%s' % title, styleH3)]
     hdata.extend((len(cols)) * [''])
-    cmd = [Paragraph(u"Polio Campaign Command: <b>NIDS <i>HID1 HID2 HID3 ...<i></b>", styleN)]
+    cmd = [Paragraph(u"Generated at %s" % \
+                    datetime.now().strftime('%Y-%d-%m %H:%M:%S'), styleN)]
     cmd.extend((len(cols)) * [''])
     data = [hdata, cmd]
 
@@ -232,7 +233,7 @@ def under_five_table(title, indata=None, boxes=None):
 
     rowHeights = [None, None, 0.2 * inch]
     # Loc, HID, Name
-    colWidths = [0.5 * inch, 0.5 * inch, 2.0 * inch, 1.0 *inch]
+    colWidths = [0.5 * inch, 0.5 * inch, 1.6 * inch, 1.0 *inch, 0.5 * inch]
 
     ts = [('SPAN', (0, 0), (len(cols), 0)), ('SPAN', (0, 1), (len(cols), 1)),
                             ('LINEABOVE', (0, 2), (len(cols), 2), 1, \
