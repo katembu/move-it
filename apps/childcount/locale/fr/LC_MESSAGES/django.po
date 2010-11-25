@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-11-25 09:05+0000\n"
+"POT-Creation-Date: 2010-11-25 15:15+0000\n"
 "PO-Revision-Date: 2010-11-10 16:20-0000\n"
 "Last-Translator: aboubacar <diarra.aboubacar@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
@@ -221,15 +221,6 @@ msgstr "Vous avez tenté de charger %(cls)s sans définir %(k)s."
 #, python-format
 msgid "%(k)s must be a dictionary in %(cls)s."
 msgstr "Une erreur s'est produite: %(k)s must be a dictionary in %(cls)s."
-
-#: views.py:105
-msgid "Household Healthy Survey Report"
-msgstr "Compte-rendu de l'enquête sur la santé des ménages"
-
-#: views.py:113
-#, python-format
-msgid "HH Survey: %(location)s"
-msgstr "Enquête sur les ménages: %(location)s"
 
 #: commands/ActivityCommand.py:48
 #, fuzzy, python-format
@@ -4365,12 +4356,12 @@ msgstr "ASC: %(loc)s: %(chw)s"
 msgid "HH Health ID"
 msgstr "No. de santé du ménage"
 
-#: reports/nightly/PatientList.py:70
+#: reports/nightly/PatientList.py:71
 #, python-format
 msgid "No report for %s."
 msgstr "Pas de compte-rendu pour %s."
 
-#: reports/nightly/PatientList.py:113
+#: reports/nightly/PatientList.py:114
 #, python-format
 msgid "CHW: %(loc)s: %(chw)s"
 msgstr "ASC: %(loc)s: %(chw)s"
@@ -5157,6 +5148,12 @@ msgstr "#mou"
 msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
 msgstr ""
 "Nombre d'autres membres du ménage malades sous traitement anti-paludique"
+
+#~ msgid "Household Healthy Survey Report"
+#~ msgstr "Compte-rendu de l'enquête sur la santé des ménages"
+
+#~ msgid "HH Survey: %(location)s"
+#~ msgstr "Enquête sur les ménages: %(location)s"
 
 #~ msgid "Survey Report"
 #~ msgstr "Compte-rendu de de l'enquête"
