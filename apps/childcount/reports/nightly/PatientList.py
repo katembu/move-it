@@ -22,6 +22,7 @@ from libreport.pdfreport import p
 from libreport.pdfreport import MultiColDocTemplate
 
 from childcount.models import Clinic
+from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient
 from childcount.reports.utils import report_filepath
 from childcount.reports.report_framework import PrintedReport
@@ -33,11 +34,11 @@ styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
 class Report(PrintedReport):
-    title = u'Patient Registry: '
-    filename = 'patient_registry_'
+    title = u'Patient List: '
+    filename = 'patient_list'
     formats = ['pdf']
     variants = map(lambda c: \
-        (unicode(c), '_'+c.code+'_active', {'clinic_pk': c.pk, 'active': True}),
+        (unicode(c), c.code+'_active', {'clinic_pk': c.pk, 'active': True}),
         Clinic.objects.all())
     
     def generate(self, rformat, **kwargs):

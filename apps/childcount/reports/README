@@ -1,0 +1,52 @@
+=========================
+== ChildCount+ Reports ==
+=========================
+
+25 November 2010
+
+|| Intro ||
+This describes the ChildCount+ reports framework.
+The purpose of the framework is to make it quick
+and easy to add new reports to a ChildCount+ 
+installation though it's still not as quick and
+easy as it might be.
+
+There are two types of reports:
+1) Nightly reports -- generated every night at midnight
+   using a Celery task.  You DO NOT need to create a 
+   task yourself, this is handled by the reports
+   framework.
+2) On-demand reports -- generated when a user visits
+   the URL for that report.  You DO NOT need to 
+   create a urls.py entry or a view for your report.
+   That is handled by the reports framework.
+
+The code for creating either type of report is the
+same so that it's easy to change a report from one
+type to another.
+
+|| Todo ||
+- i18n on all reports
+- transition last reports to the framework
+
+|| Installing Reports ||
+For starters, you need to add two Configurations
+to your ChildCount+ database with keys:
+"ondemand_reports" and "nightly_reports" (no quotes)
+
+Each of these should contains a whitespace-separated
+list of modules that are in the folders:
+    apps/childcount/reports/ondemand
+        * and *
+    apps/childcount/reports/nightly
+
+For example if you have a nightly report in a file
+called DeathAuditReport.py, you would put that
+file in:
+    apps/childcount/reports/nightly/DeathAuditReport.py
+and add "DeathAuditReport" to the value of the
+Configuration entry that has key "nightly_reports."
+
+|| Creating Reports ||
+
+
