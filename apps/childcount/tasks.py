@@ -20,10 +20,7 @@ from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 
-from childcount.reports import gen_operationalreport
-from childcount.reports import gen_surveyreport
-from childcount.reports import gen_registerlist
-from childcount.reports import gen_all_household_surveyreports
+from childcount.reports.report_framework import report_objects
 
 from alerts.utils import SmsAlert
 
@@ -221,28 +218,6 @@ def weekly_anc_visit_reminder():
         sms_alert.name = u"weekly_anc_visit_reminder"
         sms_alert.save()
 
-
-# once a day: generating them every hour caused database to crash
-@periodic_task(run_every=crontab(minute=0, hour=0))
-def daily_operationalreport():
-    gen_operationalreport()
-
-
-@periodic_task(run_every=crontab(minute=30, hour=0))
-def daily_surveyreport():
-    gen_surveyreport()
-
-
-@periodic_task(run_every=crontab(minute=0, hour=1))
-def daily_registerlist():
-    gen_registerlist()
-
-
-@periodic_task(run_every=crontab(minute=30, hour=1))
-def daily_all_surveyreports():
-    gen_all_household_surveyreports()
-
-
 def appointment_calendar(weekday):
     '''----------- 3 days b4 apt
     monday 0      wednesday 2
@@ -355,3 +330,24 @@ def appointment_defaulter_reminders():
             sms_alert.save()
             apt.sms_alert = sms_alert
             apt.save()
+
+
+# This is one big task now... we need
+# to somehow split it up
+@periodic_task(run_every=crontab(hour=0, minute=0))
+def gen_framework_nightly_reports():
+    for thereport in report_objects('nightly'):
+        # Spawn tasks to generate each report
+        # in every available format
+        for rformat in thereport.formats:
+
+            print "[%s] delay(rformat=%s)" % \
+                (thereport.title, rformat)
+            rep = thereport.apply_async(kwargs={'rformat':rformat})
+ 
+                #task_args = [],
+                #task_kwargs={'rformat':rformat})
+
+    print "Done"
+
+

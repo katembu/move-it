@@ -32,7 +32,7 @@ class PDFGenerator(Generator):
         self.elements = []
 
         ''' Overall document object describing PDF '''
-        self.doc = BaseDocTemplate(self._handle,
+        self.doc = BaseDocTemplate(self._filename,
             showBoundary=0,
             title = unicode(self.title))
 
@@ -168,5 +168,4 @@ class PDFGenerator(Generator):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
         self.doc.build(self.elements)
-
 

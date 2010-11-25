@@ -31,6 +31,7 @@ from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
+from childcount.reports import report_framework
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
@@ -97,50 +98,16 @@ def index(request):
     info.update(gsr)
     '''
 
+    report_sets = report_framework.report_sets()
+
     reports = []
-    reports.append({
-        'title': 'Form A Registrations by Day and User',
-        'url': '/childcount/reports/form_a_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Form B (HH Visit) by Day and User',
-        'url': '/childcount/reports/form_b_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Form C (Follow-up) by Day and User',
-        'url': '/childcount/reports/form_c_entered',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Encounters by Day',
-        'url': '/childcount/reports/encounters_per_day',
-        'types': ('pdf', 'xls', 'html')})
-    reports.append({
-        'title': 'Operational Report',
-        'url': '/childcount/reports/operational_report',
-        'types': ('pdf', 'xls', 'html')})
     reports.append({
         'title': _(u"Household Healthy Survey Report"),
         'url': '/childcount/reports/hhsurveyrpt',
         'types': ('xls','pdf', 'html')})
-    reports.append({
-        'title': _(u"Survey Report"),
-        'url': '/static/childcount/reports/surveyreport.pdf',
-        'types': ('pdf',),
-        'otherlinks': [{'title':u'Survey Report',
-                        'url':'/static/childcount/reports/surveyreport.pdf'}]})
+    
     clinics = Clinic.objects.all()
 
-    for clinic in clinics:
-        reports.append({
-            'title': _(u"Register List: %(location)s" % {'location': clinic}),
-            'url': '/static/childcount/reports/registerlist-%s.pdf' % clinic.code,
-            'types': ('pdf',),
-            'otherlinks': [{'title': \
-                            _(u"All Patients(including inactive and dead)"),
-                            'url': "/static/childcount/reports/registerlist-%s.pdf" % clinic.code},
-                            {'title': _("Active Patients Only"),
-                            'url': "/static/childcount/reports/registerlist-%s-active.pdf"\
-                             % clinic.code}]})
     for clinic in clinics: 
         reports.append({
             'title': _(u"HH Survey: %(location)s" % {'location': clinic}),
@@ -150,11 +117,14 @@ def index(request):
                 {'title': clinic.name,
                 'url': "/static/childcount/reports/hhsurvey-%s.pdf" % clinic.code}
             ]})
+    
     # Kills the CPU so comment out for now...
     #reports.append({
     #    'title': 'Patient List by Location',
     #    'url': '/childcount/reports/patient_list_geo'})
-    info.update({'reports': reports})
+
+    report_sets.append(('Other Reports',reports))
+    info.update({'report_sets': report_sets})
     return render_to_response(request, template_name, info)
 
 

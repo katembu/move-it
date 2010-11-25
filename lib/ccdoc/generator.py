@@ -1,3 +1,4 @@
+import os
 import time
 import tempfile
 
@@ -11,10 +12,15 @@ class NotRenderedError(Exception):
     pass
 
 class Generator(object):
-    def __init__(self, document):
-        self._handle = tempfile.NamedTemporaryFile()
-        self._filename = self._handle.name
-
+    def __init__(self, document, filename = None):
+        self.user_file = filename is not None
+        if filename is not None:
+            self._handle = open(filename, 'w')
+            self._filename = filename
+        else:
+            self._handle = tempfile.NamedTemporaryFile(delete=False)
+            self._filename = self._handle.name
+        
         self.document = document
         self.title = document.title
         self.subtitle = document.subtitle
@@ -54,8 +60,13 @@ class Generator(object):
         self._handle.seek(0)
         return self._handle.read()
 
+    def close_file(self):
+        self._handle.close()
+
     def destroy_file(self):
-        return self._handle.close()
+        self._handle.close()
+        os.unlink(self._handle.name)
+
 
     ''' Rest of these must be implemented
         by generator inheritor classes
