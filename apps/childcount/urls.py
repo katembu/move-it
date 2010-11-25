@@ -9,7 +9,6 @@ from django.contrib import admin
 import webapp
 
 from childcount import views
-from childcount.reports import operational
 from childcount.reports import pmtct
 from childcount.reports import custom_reports as reports
 from childcount.reports import report_framework  

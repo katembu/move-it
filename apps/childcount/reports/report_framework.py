@@ -86,6 +86,31 @@ class PrintedReport(Task):
                 _(u'Report filename is unset.'))
         return report_filepath(self.filename, rformat)
 
+    def report_view_data(self, rtype):
+        if len(self.variants) == 0:
+            return [self.one_report_view_data(rtype)]
+        else:
+            return map( \
+                lambda v: \
+                    self.one_report_view_data(rtype, v[0], v[1]),
+                self.variants)
+
+
+    def one_report_view_data(self, rtype, \
+        tsuffix='', usuffix=''):
+        if rtype not in ['nightly','ondemand']:
+            raise ValueError("%s is invalid report type" \
+                % rtype)
+        return {
+            'title': self.title+tsuffix,
+            'url': ''.join([\
+                '/childcount/reports/ondemand/'
+                if rtype == 'ondemand' else
+                '/static/childcount/reports/',\
+                self.filename,\
+                usuffix]),
+            'types': self.formats
+        }
 
 
 #
@@ -148,3 +173,34 @@ def report_objects(folder):
             print "Found module %s" % reporttype
             reports.append(rmod.Report)
     return reports
+
+#
+# View logic
+#
+
+def report_sets():
+    report_sets = []
+
+    print report_objects('ondemand')
+    tmp = map(
+        lambda rep: rep().report_view_data('ondemand'),
+        report_objects('ondemand'))
+    on_demand = []
+    for item in tmp:
+        on_demand.extend(item)
+
+    report_sets.append(('On Demand Reports', on_demand))
+
+    tmp = map(
+        lambda rep: rep().report_view_data('nightly'),
+        report_objects('nightly'))
+    nightly = []
+    for item in tmp:
+        nightly.extend(item)
+    report_sets.append(('Nightly Reports', nightly))
+
+    print report_sets
+    return report_sets
+
+
+

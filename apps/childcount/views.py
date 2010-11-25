@@ -98,27 +98,7 @@ def index(request):
     info.update(gsr)
     '''
 
-    report_sets = []
-
-
-    on_demand = []
-    for r in report_framework.report_objects('ondemand'):
-       on_demand.append({
-            'title': r.title,
-            'url': ''.join(['/childcount/reports/ondemand/',r.filename]),
-            'types': r.formats})
-
-    report_sets.append(('On Demand Reports',on_demand))
-
-    nightly = []
-    for r in report_framework.report_objects('nightly'):
-       nightly.append({
-            'title': r.title,
-            'url': ''.join(['/static/childcount/reports/',r.filename]),
-            'types': r.formats})
-
-    report_sets.append(('Nightly Reports',nightly))
-
+    report_sets = report_framework.report_sets()
 
     reports = []
     reports.append({
