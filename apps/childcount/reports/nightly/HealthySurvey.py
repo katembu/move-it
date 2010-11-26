@@ -39,14 +39,14 @@ class Report(PrintedReport):
     filename = 'healthy_survey'
     formats = ['pdf']
 
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         '''
         Generate the healthy survey report.
         '''
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for survey report')
 
-        f = open(self.get_filepath(rformat), 'w')
+        f = open(filepath, 'w')
 
         story = []
 

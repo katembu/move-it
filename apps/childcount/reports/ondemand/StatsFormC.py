@@ -3,15 +3,15 @@ from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form C Entered by Day'
+    title = 'Form C (Consultation) Entered by Day'
     filename = 'form_c_entered'
     formats = ['pdf','xls','html']
     argvs = []
 
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         return form_reporting(
             rformat,
-            u'Form C (Follow-Up) Per Day',
+            title,
             matching_message_stats(\
                 ' `text` LIKE "%%+U %%" OR \
                   `text` LIKE "%%+S %%" OR \
@@ -24,4 +24,4 @@ class Report(PrintedReport):
                   `text` LIKE "%%+R %%" AND \
                 `text` LIKE "%%Successfully processed: [%%%%" AND \
                 `backend` = "debackend" '),
-            self.get_filepath(rformat))
+                filepath)

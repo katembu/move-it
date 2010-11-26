@@ -19,9 +19,8 @@ class Report(PrintedReport):
     formats = ['html','pdf','xls']
     argvs = []
 
-    def generate(self, rformat, **kwargs):
-        report_title = (u'Patient List by Location')
-        doc = Document(report_title)
+    def generate(self, rformat, title, filepath, data):
+        doc = Document(title)
         doc.add_element(Paragraph( \
             u'Sorted by location and HH first name. \
             HH names are in bold.'))
@@ -41,7 +40,7 @@ class Report(PrintedReport):
             self._patient_list_geo_recurse(t, [], table)
 
         doc.add_element(table)
-        return render_doc_to_file(self.get_filepath(rformat), rformat, doc)
+        return render_doc_to_file(filepath, rformat, doc)
 
     def _patient_list_geo_recurse(self, loc, parents, table):
         parents.append(loc)

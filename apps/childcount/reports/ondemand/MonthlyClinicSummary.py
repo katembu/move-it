@@ -15,7 +15,7 @@ class Report(PrintedReport):
     filename = 'monthly_clinic_summary'
     formats = ['csv']
 
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         '''
         Monthly clinic summary
         '''
@@ -25,7 +25,7 @@ class Report(PrintedReport):
         start_date = datetime(year=2010, month=1, day=1)
         current_date = datetime.today()
 
-        f = open(self.get_filepath(rformat), 'w')
+        f = open(filepath, 'w')
 
         dw = csv.DictWriter(f, ['clinic', 'month', 'rdt', 'positive_rdt', \
                                             'nutrition', 'malnutrition'])

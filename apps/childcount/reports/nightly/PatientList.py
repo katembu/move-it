@@ -41,25 +41,22 @@ class Report(PrintedReport):
         (unicode(c), c.code+'_active', {'clinic_pk': c.pk, 'active': True}),
         Clinic.objects.all())
     
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for patient list')
 
         # Make sure that user passed in a clinic 
-        var_index = kwargs.get('var_index')
-        if var_index is None:
-            return False
-
-        var_data = self.variants[var_index]
-        clinic_pk = var_data[2]['clinic_pk']
+        if 'clinic_pk' not in data:
+            raise ValueError('You must pass a clinic PK as data')
+        if 'active' not in data:
+            raise ValueError('You must pass parameter "active" as data')
+        clinic_pk = data['clinic_pk']
+        active = data['active']
 
         # Get title and filename for this version of the report
-        title = self.title + var_data[0]
-        filename = report_filepath(self.filename + var_data[1], rformat)
-        active = var_data[2]['active']
 
         # Produce the report
-        f = open(filename, 'w')
+        f = open(filepath, 'w')
         clinic = Clinic.objects.get(pk=clinic_pk)
         self.gen_patient_register_pdf(f, clinic, active)
         f.close()

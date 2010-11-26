@@ -337,17 +337,8 @@ def appointment_defaulter_reminders():
 @periodic_task(run_every=crontab(hour=0, minute=0))
 def gen_framework_nightly_reports():
     for thereport in report_objects('nightly'):
-        # Spawn tasks to generate each report
-        # in every available format
-        for rformat in thereport.formats:
-
-            print "[%s] delay(rformat=%s)" % \
-                (thereport.title, rformat)
-            rep = thereport.apply(kwargs={'rformat':rformat})
- 
-                #task_args = [],
-                #task_kwargs={'rformat':rformat})
-
+        print "[%s]" % thereport.title 
+        rep = thereport.apply()
     print "Done"
 
 

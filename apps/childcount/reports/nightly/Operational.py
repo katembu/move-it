@@ -38,7 +38,7 @@ class Report(PrintedReport):
     filename = 'operational_report'
     formats = ['pdf']
 
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         '''
         Generate OperationalReport and write it to file
         '''
@@ -46,8 +46,7 @@ class Report(PrintedReport):
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
 
-        filename = self.get_filepath(rformat) 
-        f = open(filename, 'w')
+        f = open(filepath, 'w')
 
         story = []
         clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\

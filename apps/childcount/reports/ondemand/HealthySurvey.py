@@ -21,8 +21,8 @@ class Report(PrintedReport):
     filename = 'healthy_survey'
     formats = ['pdf','xls','html']
 
-    def generate(self, rformat, **kwargs):
-        doc = ccdoc.Document(u'Household Healthy Survey Report')
+    def generate(self, rformat, title, filepath, data):
+        doc = ccdoc.Document(title)
         today = datetime.today()
         locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
                                                         .distinct('location'))
@@ -46,6 +46,5 @@ class Report(PrintedReport):
                 t.add_row(row)
             doc.add_element(ccdoc.Section(u"%s" % location))
             doc.add_element(t)
-        return render_doc_to_file(\
-            self.get_filepath(rformat), rformat, doc)
+        return render_doc_to_file(filepath, rformat, doc)
 

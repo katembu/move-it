@@ -3,17 +3,16 @@ from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form A Entered by Day'
+    title = 'Form A Registrations per Day'
     filename = 'form_a_entered'
     formats = ['pdf','xls','html']
 
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         return form_reporting(
             rformat,
-            u'Form A Registrations Per Day',
+            title,
             matching_message_stats(\
                 ['You successfuly registered ']),
-            self.get_filepath(rformat))
-            
+            filepath) 
 
 

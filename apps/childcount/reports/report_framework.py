@@ -33,7 +33,7 @@ class PrintedReport(Task):
     formats = []
 
     variants = [
-        #(title_suffix, fn_suffix, kwargs)
+        #(title_suffix, fn_suffix, variant_data)
 
         # For example, you might have a patient register
         # for Bugongi and Ruhiira health centers: 
@@ -45,7 +45,7 @@ class PrintedReport(Task):
     # subclass.  This method creates the report and saves it
     # to the right place (probably static/reports/filename.format).
     # The return value is ignored.
-    def generate(self, rformat, **kwargs):
+    def generate(self, rformat, title, filepath, data):
         raise NotImplementedError(\
             _(u'Generate function not implemented.'))
 
@@ -63,28 +63,30 @@ class PrintedReport(Task):
             raise ValueError(\
                 _(u'This report has no formats specified.'))
 
-        if 'rformat' not in kwargs:
-            raise ValueError(\
-                _(u'You must specify a report format.'))
-        rformat = kwargs['rformat']
-
         if self.title is None or self.filename is None:
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
        
-        if len(self.variants) == 0:
-            self.generate(rformat)
-            return True
+        for rformat in self.formats:
+            if len(self.variants) == 0:
+                self.generate(rformat, \
+                    self.title,
+                    self.get_filepath(rformat),
+                    {})
+                return True
 
-        for i in enumerate(self.variants):
-            print self.variants[i[0]]
-            self.generate(rformat, var_index = i[0])
-        
-    def get_filepath(self, rformat):
+            for variant in self.variants:
+                print variant
+                self.generate(rformat, \
+                    self.title + variant[0],
+                    self.get_filepath(rformat, variant[1]),
+                    variant[2])
+    
+    def get_filepath(self, rformat, file_suffix = ''):
         if self.filename is None:
             raise ValueError(\
                 _(u'Report filename is unset.'))
-        return report_filepath(self.filename, rformat)
+        return report_filepath(self.filename + file_suffix, rformat)
 
     def report_view_data(self, rtype):
         if len(self.variants) == 0:
@@ -201,6 +203,4 @@ def report_sets():
 
     print report_sets
     return report_sets
-
-
 
