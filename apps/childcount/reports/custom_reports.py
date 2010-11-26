@@ -242,8 +242,8 @@ def under_five_table(title, indata=None, boxes=None):
                             colors.black),
                             ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),\
-                            ('BOX', (0, 0), (-1, -1), 0.1, \
-                            colors.lightgrey)]
+                            ('BOX', (0, 0), (-1, -1), 0.1, colors.lightgrey),
+                            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')]
     if indata:
         counter = 0
         for row in indata:
