@@ -45,8 +45,6 @@ urlpatterns = patterns('',
     url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
 
-    url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
-        reports.all_patient_list_pdf),
     url(r'^childcount/patients_per_chw/pdf/?$', \
                                     reports.all_patient_list_per_chw_pdf),
     url(r'^childcount/chw/?$', views.chw),

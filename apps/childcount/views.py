@@ -286,7 +286,7 @@ def patient(request):
     for report in reports.object_list:
         row = {}
         row["cells"] = []
-        row["cells"] = [{'value': \
+        row["cells"] = [{'link':'/childcount/patients/edit/'+report.health_id.upper(),'value': \
                         Template(col['bit']).render(Context({'object': \
                             report}))} for col in columns]
         rows.append(row)
