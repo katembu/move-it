@@ -194,7 +194,7 @@ class ThePatient(Patient):
         try:
             pl = PolioCampaignReport.objects.get(patient=self)
         except PolioCampaignReport.DoesNotExist:
-            return u""
+            return _(u"No")
         else:
             return _(u"Yes")
 
