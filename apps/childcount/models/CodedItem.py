@@ -27,6 +27,7 @@ class CodedItem(models.Model):
         'cv': (_('cv'), _(u"Convulsions")),
         'cw': (_('cw'), _(u"Cough > 3 weeks")),
         'dh': (_('dh'), _(u"Dehydration")),
+        'dr': (_('dr'), _(u"Diarrhea")),
         'fp': (_('fp'), _(u"Fever in first trimester")),
         'fv': (_('fv'), _(u"Fever")),
         'ir': (_('ir'), _(u"Irritable / inconsolable")),
