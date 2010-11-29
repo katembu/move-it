@@ -21,7 +21,8 @@ from django.utils.translation import ugettext as _
 import reversion
 from reversion.models import Version
 
-from polymorphic import PolymorphicModel
+from polymorphic import PolymorphicModel, PolymorphicManager
+from polymorphic import PolymorphicQuerySet
 
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
@@ -32,14 +33,51 @@ from childcount.models import Patient
 from childcount.models import Encounter
 from childcount.models import Vaccine
 
-from childcount.utils import send_msg
+from childcount.utils import send_msg, first_date_of_week
 
+class IndicatorQuerySet(PolymorphicQuerySet):
+    # Only consider active patients
+    def patient_encounters(self):
+        return self.filter(\
+            encounter__type=Encounter.TYPE_PATIENT,
+            encounter__patient__status=Patient.STATUS_ACTIVE)
+
+    def household_encounters(self):
+        return self.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
+
+    def between_dates(self, startDate, endDate):
+        return self.filter(encounter__encounter_date__gte=startDate,\
+            encounter__encounter_date__lte=endDate)
+
+    def for_reporting_week(self, weekNum):
+        first_mon = first_date_of_week(datetime.today() - timedelta(60))
+        this_mon = first_mon + (weekNum * timedelta(7))
+        this_sun = this_mon + timedelta(6)
+        
+        return self.between_dates(this_mon, this_sun)
+
+    def for_reporting_month(self):
+        first_mon = first_date_of_week(datetime.today() - timedelta(60))
+        last_sun = first_mon + timedelta(27)
+        return self.between_dates(first_mon, last_sun)
+
+    def for_clinic(self, clinic):
+        return self.filter(encounter__chw__clinic=clinic)
+
+    def for_chw(self, chw):
+        return self.filter(encounter__chw=chw)
+ 
+class IndicatorManager(PolymorphicManager):
+    pass
 
 class CCReport(PolymorphicModel):
 
     '''
     The highest level superclass to be inhereted by all other report classes
     '''
+
+    objects = PolymorphicManager()
+    indicators = IndicatorManager(IndicatorQuerySet)
 
     class Meta:
         app_label = 'childcount'
@@ -49,6 +87,7 @@ class CCReport(PolymorphicModel):
         get_latest_by = ('encounter__encounter_date')
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
+
 
     def reset(self):
         self.__init__(pk=self.pk, encounter=self.encounter)

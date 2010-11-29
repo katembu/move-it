@@ -66,8 +66,17 @@ class PrintedReport(Task):
         if self.title is None or self.filename is None:
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
-       
-        for rformat in self.formats:
+     
+        # Check if a format was passed in
+        rformat = kwargs.get('rformat')
+        if rformat is None:
+            formats = self.formats
+        else:
+            if rformat not in self.formats:
+                raise ValueError('Invalid report format requested.')
+            formats = [rformat]
+
+        for rformat in formats:
             if len(self.variants) == 0:
                 self.generate(rformat, \
                     self.title,
@@ -120,6 +129,7 @@ class PrintedReport(Task):
 #
 
 def serve_ondemand_report(request, rname, rformat):
+    print ">>%s" % rformat
     repts = report_objects('ondemand')
 
     # Find reports matching requests

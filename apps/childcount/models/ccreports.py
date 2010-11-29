@@ -18,7 +18,10 @@ from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport
+from childcount.models import DangerSignsReport
+from childcount.models import FamilyPlanningReport
 from childcount.models import FeverReport
+from childcount.models import CodedItem
 from childcount.models import ReferralReport
 from childcount.models import BirthReport
 from childcount.models import PregnancyReport
@@ -368,9 +371,7 @@ class ThePatient(Patient):
         sub_columns = None
         return columns, sub_columns
 
-
 class TheCHWReport(CHW):
-
     class Meta:
         verbose_name = _("Community Health Worker Report")
         proxy = True
@@ -1269,7 +1270,7 @@ class WeekSummaryReport():
         return c
 
     @classmethod
-    def summary(cls):
+    def savgummary(cls):
         sr = cls()
         endDate = datetime.today()
         startDate = endDate - timedelta(endDate.weekday())
@@ -1462,3 +1463,212 @@ class TheBHSurveyReport(TheCHWReport):
                                         .values('encounter__patient')
         not_surveyed = self.households().exclude(id__in=surveyed)
         return not_surveyed
+
+class CHWMonthlyReport(TheCHWReport):
+    class Meta:
+        proxy = True
+
+    def avg(self, lst):
+        lst = filter(lambda a: a is not None, lst)
+        return sum(lst, 0.0) / len(lst)
+
+    def sum(self, lst):
+        lst = filter(lambda a: a is not None, lst)
+        return sum(lst) 
+
+    def report_rows(self):
+        return [
+            ('HH Visits',\
+                self.num_of_hh_visits, self.sum),
+            ('Num of Women 15-49 Seen',\
+                self.num_of_women_under50_seen, self.sum),
+            ('Num of Women using FP',\
+                self.num_of_women_under50_using_fp, self.sum),
+            ('% of Women using FP',\
+                self.perc_of_women_under50_using_fp, self.sum, \
+                    lambda n: '--' if n is None else "%2.2f%%" % (100.0*n)),
+            ('Num of Women using FP: Condom',\
+                self.num_fp_usage_condom, self.sum),
+            ('Num of Women using FP: Injectable',\
+                self.num_fp_usage_injectable, self.sum),
+            ('Num of Women using FP: IUD',\
+                self.num_fp_usage_iud, self.sum),
+            ('Num of Women using FP: Implant',\
+                self.num_fp_usage_implant, self.sum),
+            ('Num of Women using FP: Pill',\
+                self.num_fp_usage_pill, self.sum),
+            ('Num of Women using FP: Ster.',\
+                self.num_fp_usage_sterilization, self.sum),
+            ('Num of Women Starting FP or Never Registered',\
+                self.num_starting_fp, self.sum),
+            ('Num of Women Remaining on FP',\
+                self.num_still_on_fp, self.sum),
+            ('Num of Women Stopping FP',\
+                self.num_ending_fp, self.sum),
+            ('People with DSs',\
+                self.num_danger_signs, self.sum),
+            ('People with DSs Referred',\
+                self.num_ds_referred, self.sum),
+            ('Num On-Time Follow Up',\
+                self.num_ontime_follow_up, self.sum),
+        ]
+
+    def num_of_hh_visits(self, weekNum):
+        return HouseholdVisitReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(weekNum)\
+            .count()
+
+    def num_of_women_under50_seen(self, week_num):
+        return self._num_of_women_count('women', week_num)
+    
+    def num_of_women_under50_using_fp(self, week_num):
+        return self._num_of_women_count('women_using', week_num)
+
+    def perc_of_women_under50_using_fp(self, week_num):
+        u50 = self.num_of_women_under50_seen(week_num)
+        if u50 == 0: return None 
+
+        return float(self.num_of_women_under50_using_fp(week_num)) / \
+            float(u50)
+
+    def _num_of_women_count(self, count_str, week_num):
+        if count_str not in ['women','women_using']:
+            raise ValueError('Invalid aggregation string.')
+
+        count = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .aggregate(Sum(count_str))[count_str+'__sum']
+        return 0 if count is None else count
+    
+    def num_fp_usage_condom(self, week_num):
+        return self._fp_usage_count('c', week_num)
+
+    def num_fp_usage_injectable(self, week_num):
+        return self._fp_usage_count('i', week_num)
+
+    def num_fp_usage_iud(self, week_num):
+        return self._fp_usage_count('iud', week_num)
+
+    def num_fp_usage_implant(self, week_num):
+        return self._fp_usage_count('n', week_num)
+
+    def num_fp_usage_pill(self, week_num):
+        return self._fp_usage_count('p', week_num)
+
+    def num_fp_usage_sterilization(self, week_num):
+        return self._fp_usage_count('st', week_num)
+
+    def _fp_usage_count(self, code, week_num):
+        fp = CodedItem\
+            .objects\
+            .filter(type=CodedItem.TYPE_FAMILY_PLANNING)\
+            .get(code=code)
+
+        count = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .filter(familyplanningusage__method__code=fp.code)\
+            .aggregate(Sum('familyplanningusage__count'))\
+            ['familyplanningusage__count__sum']
+        return 0 if count is None else count
+
+    def num_starting_fp(self, week_num):
+        return self._fp_change_stats(week_num)[0]
+
+    def num_still_on_fp(self, week_num):
+        return self._fp_change_stats(week_num)[1]
+
+    def num_ending_fp(self, week_num):
+        return self._fp_change_stats(week_num)[2]
+
+    def _fp_change_stats(self, week_num):
+        reps = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .order_by('-encounter__encounter_date')
+
+        start_count = 0
+        same_count = 0
+        end_count = 0
+
+        seen = []
+
+        # Get all FP reports in this week
+        for r in reps:
+            # Count each household only once
+            if r.encounter.patient.pk in seen:
+                continue
+            else:
+                seen.append(r.encounter.patient.pk)
+
+            try:
+                # Check if there's an FP report for this HH
+                old_rep = FamilyPlanningReport\
+                    .indicators\
+                    .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                        encounter__encounter_date__lte=r.encounter.encounter_date)\
+                    .exclude(pk=r.pk)\
+                    .latest('encounter__encounter_date')
+            except FamilyPlanningReport.DoesNotExist:
+                # If not, count all women as new to FP
+                start_count += r.women_using
+            else:
+                # Otherwise calculate change from last FP report
+                if r.women_using > old_rep.women_using:
+                    start_count += (r.women_using - old_rep.women_using)
+                elif r.women_using < old_rep.women_using:
+                    end_count += (old_rep.women_using - r.women_using)
+                    print r
+                else:
+                    same_count += r.women_using
+
+        return (start_count, same_count, end_count)
+
+    def num_danger_signs(self, week_num):
+        count = DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .count()
+        return 0 if count is None else count
+
+    def num_ds_referred(self, week_num):
+        count = 0
+        for d in DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num):
+
+            try:
+                ReferralReport.indicators.get(encounter__pk=d.encounter.pk)
+            except ReferralReport.DoesNotExist:
+                continue
+            else:
+                count += 1
+        return count
+
+    def num_ontime_follow_up(self, week_num):
+        count = 0
+        for r in ReferralReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num):
+
+            due_by = r.encounter.encounter_date + timedelta(2)
+            try:
+                FollowUpReport\
+                    .indicators\
+                    .get(encounter__patient__pk=r.encounter.patient.pk,\
+                        encounter__encounter_date__lte=due_by)
+            except FollowUpReport.DoesNotExit:
+                continue
+            else:
+                count += 1
+
+            return count
