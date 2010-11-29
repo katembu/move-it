@@ -88,3 +88,8 @@ div#footer .fwidth div a {
     color: #666;
     font-size: smaller;
 }
+
+a, a:link, a:active, a:focus, a:visited, a:hover {
+    color: #953d27;
+text-decoration: underline;
+}
