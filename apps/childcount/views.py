@@ -206,9 +206,14 @@ def add_chw(request):
 
 def list_chw(request):
 
+    CHWS_PER_PAGE = 50
     info = {}
     chews = CHW.objects.all().order_by('first_name')
     info.update({'chews': chews})
+    paginator = Paginator(chews, CHWS_PER_PAGE)
+    page = int(request.GET.get('page', 1))
+    info.update({'paginator':paginator.page(page)})
+
     return render_to_response(request, 'childcount/list_chw.html', info)
 
 
