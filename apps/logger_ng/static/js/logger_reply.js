@@ -3,7 +3,9 @@
 -*    creates a new exchange with the JS object
 -**/
 
-(function($){
+var max = 0;
+
+var Sms = (function($){
 	var wrap, SmsExchange,
 		Messages,
 		maxId = 0,
@@ -32,8 +34,9 @@
 				twrap = $("<tbody />");
 
 			table.addClass('msgs').html(
-				"<col class='status'>" +
-				"<col class='name'>" +
+				"<col class='newbar'>" +
+                "<col class='status'>" +
+                "<col class='name'>" +
 				"<col class='subj'>" +
 				"<col class='date'>" +
 				"<col class='l'>");
@@ -41,29 +44,41 @@
 			table.append(twrap);
 			exchangeWrap = twrap;
 		}
+		/*--
+		{"id":100,"message":"Bob","status":"good","dateStr":"123","name":"Name","responses":[]}
+		--*/
 		
 		function exchange(opts, placement) {
 			if(!exchangeWrap) {throw("Wrap element must be defined");}
 			this.id			=	opts.id.match(/\d+/)[0];
-			if(parseInt(this.id)>maxId) {maxId=this.id}
 			this.status		=	opts.status;
 			this.details	=	opts.details;
 			this.message	=	opts.message;
 			this.responses	=	opts.responses instanceof Array ? opts.responses : [];
 			this.name		=	opts.name;
 			this.dateStr	=	opts.dateStr;
+			this.newId      =   parseInt(opts.newId);
+			this.fromName   =   opts.chwName || opts.fromName;
+            console.log(this);
+			if(this.fromName=="" || this.fromName==null) {
+			    this.fromName="XForm";
+			}
+//			if(this.newId<=maxId) {return null;}
+			if(parseInt(this.newId)>maxId) {maxId=this.newId; max=maxId}
+
 			this.respMessage=	"";
 			if(placement=="prepend") {
 //				exchangeWrap.find('tr').get(-1).smsExchange.remove();
 				this.createTr();
 				this.tr.css({'display':'none'});
+				this.tr.addClass('unread');
 				exchangeWrap.prepend(this.tr);
 				this.tr.fadeIn();
 			} else {
 				exchangeWrap.append(this.createTr());
 			}
 		}
-
+		
 		//UI specific messages
 		exchange.prototype.msgs = function(){
 			return Translations[CurrentLang];
@@ -96,8 +111,9 @@
 			var _r = this;
 			this.tr = $("<tr></tr>");
 			this.tr.buildIn(
-					["td", {}, ["div",{'class':'status'}]],
-					["td", {}, this.name],
+			        ["td", {'class':'newbar'}, ["div",{'class':'newbar'},"&nbsp;"]],				
+				    ["td", {}, ["div",{'class':'status'}]],
+					["td", {}, this.fromName],
 					["td", {}, this.message],
 					["td", {}, this.dateString()],
 					["td", {}, ["span", {'class':'replycount'},
@@ -245,6 +261,7 @@
 		}
 		exchange.prototype.clickOpen = function() {
 			var focused = ($('table.msgs').find('.hidden-open').length > 0);
+			this.tr.removeClass('unread');
 			if(focused) {
 				unfocusMessageTable(this, this.populateTrAndOpen)
 			} else {
@@ -278,8 +295,10 @@
 				details: $.map($.trim($(elems.details).text()).split("\n"), $.trim).join("\n"), //traverses each line and trims whitespace
 				message: $.trim($(elems.originalMessage).text()),
 				responses: $.map($(elems.responses), function(e){return $(e).text()}),
-				id: $(elem).find('input.resp_box').attr('name'),
+				id: $(elem).attr('title').match(/ID:(.*)/)[0],
+				newId: $(elem).attr('title').match(/(\d+)/)[0],
 				dateStr: $(elems.details).find('.date').text(),
+				chwName: $(elems.details).find('.from').text(),
 				name: $(elem).find('.details').text().trim().split("\n")[1].trim().split(" ")[1] //it would be much nicer if we could get a "name" field...
 			});
 		}
@@ -302,7 +321,9 @@
 			$(results).each(function(){
 				var nm = new SmsExchange.constructor(this, "prepend");
 			});
+			window.setTimeout(checkForMessages, freq);
 		});
-		window.setTimeout(checkForMessages, freq);
 	}
+	return SmsExchange;
 })(jQuery)
+

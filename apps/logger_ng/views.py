@@ -8,19 +8,17 @@ Views for logger_ng
 
 import re
 
+from django.core import serializers
+from django.http import HttpResponse
+from django.utils import simplejson
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth.decorators import login_required, permission_required
-
 from rapidsms.webui.utils import render_to_response
 
 from logger_ng.models import LoggedMessage
 from logger_ng.utils import respond_to_msg
-
-from django.core import serializers
-
-
 
 
 @login_required
@@ -94,22 +92,44 @@ def post_message(request):
         return HttpResponse('{"status":"good"}', mimetype="text/json")
 
 
-# I started to auto-pull the latest message via ajax. it's ready in JS, but the back end needs some work
-    #@permission_required('logger_ng.can_view')
-    #def latest_messages(request, recent_id):
-    #    latest_message_id = int(request.GET['id'])
-    #    msgs = LoggedMessage.objects.filter(id__gt=latest_message_id)
-    # message_json should look like this:
-    #  [{
-    #    "id": 999,
-    #    "status": "good",
-    #    "message": "message",
-    #    "responses": [
-    #        {
-    #            "msg": "Response message" 
-    #        } 
-    #    ],
-    #    "name": "name",
-    #    "dateStr": "date string"
-    #  }]
-    #    return HttpResponse('[]', mimetype="text/plain")
+def latest_messages(request, recent_id):
+    """ returns new messages from passed id parameter """
+
+    try:
+        since_message_id = int(recent_id)
+    except:
+        since_message_id = LoggedMessage.objects.all().order_by('-id')[0].id
+
+    if since_message_id > 0:
+        try:
+            messages = LoggedMessage.objects.filter(id__gt=since_message_id, \
+                               direction=LoggedMessage.DIRECTION_INCOMING)[:5]
+        except:
+            messages = []
+    else:
+        messages = []
+    
+    msgs = []
+    
+    for message in messages:
+        curmsg = {}
+        curmsg['newId'] = int(message.id)
+        curmsg['id']="ID: %s" % int(message.id)
+        curmsg['message'] = message.text
+        curmsg['status'] = "good"
+        curmsg['dateStr'] = message.date.strftime("%d-%b-%Y @ %H:%M:%S")
+        try:
+            curmsg['fromName'] = message.reporter.__unicode__()
+        except:
+            curmsg['fromName'] = message.identity
+
+        curmsg['name'] = message.identity
+        
+        responses = message.response.all()
+        r_text = []
+        for rr in responses:
+            r_text.append(rr.text)
+
+        curmsg['responses'] = r_text
+        msgs.append(curmsg)
+    return HttpResponse("%s" % simplejson.dumps(msgs))
