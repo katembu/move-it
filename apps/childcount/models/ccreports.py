@@ -41,7 +41,8 @@ from childcount.utils import day_end, \
                                 get_median, \
                                 seven_days_to_date, \
                                 first_day_of_month, \
-                                last_day_of_month
+                                last_day_of_month, \
+                                first_date_of_week
 
 from logger_ng.models import LoggedMessage
 
@@ -625,15 +626,23 @@ class TheCHWReport(CHW):
     def num_of_pregnant_women(self):
         return len(self.pregnant_women())
 
-    def pregnant_women(self):
+    def pregnant_women(self, today=datetime.now()):
         c = []
-        pregs = PregnancyReport.objects.filter(encounter__chw=self)\
-                                .values('encounter__patient').distinct()
+        pregs = PregnancyReport\
+            .objects\
+            .filter(encounter__chw=self,\
+                encounter__encounter_date__lte=today)\
+            .values('encounter__patient')\
+            .distinct()
+
         for preg in pregs:
             patient = Patient.objects.get(id=preg['encounter__patient'])
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
-                                        .latest()
-            days = (pr.encounter.encounter_date - datetime.now()).days
+            pr = PregnancyReport\
+                .objects\
+                .filter(encounter__patient=patient,
+                    encounter__encounter_date__lte=today)\
+                .latest()
+            days = (pr.encounter.encounter_date - today).days
             months = round(days / 30.4375)
             if pr.pregnancy_month + months < 9:
                 c.append(patient)
@@ -1509,7 +1518,7 @@ class CHWMonthlyReport(TheCHWReport):
                 self.num_danger_signs, self.sum),
             ('People with DSs Referred',\
                 self.num_ds_referred, self.sum),
-            ('Num On-Time Follow Up',\
+            ('Num Follow Up Within 2 Days',\
                 self.num_ontime_follow_up, self.sum),
         ]
 
@@ -1670,5 +1679,5 @@ class CHWMonthlyReport(TheCHWReport):
                 continue
             else:
                 count += 1
+        return count
 
-            return count

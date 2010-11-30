@@ -33,9 +33,12 @@ from childcount.models import Patient
 from childcount.models import Encounter
 from childcount.models import Vaccine
 
-from childcount.utils import send_msg, first_date_of_week
+from childcount.utils import send_msg
+from childcount.utils import first_date_of_week
 
 class IndicatorQuerySet(PolymorphicQuerySet):
+    REPORTING_DELAY = 60
+
     # Only consider active patients
     def patient_encounters(self):
         return self.filter(\
@@ -50,14 +53,16 @@ class IndicatorQuerySet(PolymorphicQuerySet):
             encounter__encounter_date__lte=endDate)
 
     def for_reporting_week(self, weekNum):
-        first_mon = first_date_of_week(datetime.today() - timedelta(60))
+        first_mon = first_date_of_week(\
+            datetime.today() - timedelta(self.REPORTING_DELAY))
         this_mon = first_mon + (weekNum * timedelta(7))
         this_sun = this_mon + timedelta(6)
         
         return self.between_dates(this_mon, this_sun)
 
     def for_reporting_month(self):
-        first_mon = first_date_of_week(datetime.today() - timedelta(60))
+        first_mon = first_date_of_week(\
+            datetime.today() - timedelta(self.REPORTING_DELAY))
         last_sun = first_mon + timedelta(27)
         return self.between_dates(first_mon, last_sun)
 
