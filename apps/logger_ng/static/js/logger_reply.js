@@ -5,20 +5,12 @@
 
 var max = 0;
 
-var Sms = (function($){
+var SmsExchange = (function($){
 	var wrap, SmsExchange,
 		Messages,
 		maxId = 0,
 		exchangeVersion = "0.1";
 	
-	$.fn.enableSmsExchangeIn = function(_wrap){
-		SmsExchange.placeIn(_wrap);
-		wrap = $(_wrap);
-		this.each(function(){
-			wrap.append(SmsExchange.fromHTML(this));
-			$(this).hide();
-		})
-	}
 	SmsExchange = (function(){
 	   /*!  The "exchange" object is what stores the details of a conversation in the DOM and inserts them into 
 	   -*   See "importHTML" to edit the import function.  
@@ -44,31 +36,22 @@ var Sms = (function($){
 			table.append(twrap);
 			exchangeWrap = twrap;
 		}
-		/*--
-		{"id":100,"message":"Bob","status":"good","dateStr":"123","name":"Name","responses":[]}
-		--*/
-		
-		function exchange(opts, placement) {
-			if(!exchangeWrap) {throw("Wrap element must be defined");}
-			this.id			=	opts.id.match(/\d+/)[0];
-			this.status		=	opts.status;
-			this.details	=	opts.details;
-			this.message	=	opts.message;
-			this.responses	=	opts.responses instanceof Array ? opts.responses : [];
-			this.name		=	opts.name;
-			this.dateStr	=	opts.dateStr;
-			this.newId      =   parseInt(opts.newId);
-			this.fromName   =   opts.chwName || opts.fromName;
-            console.log(this);
-			if(this.fromName=="" || this.fromName==null) {
-			    this.fromName="XForm";
-			}
-//			if(this.newId<=maxId) {return null;}
-			if(parseInt(this.newId)>maxId) {maxId=this.newId; max=maxId}
+
+		function exchange(msgJson, opts) {
+		    if(!opts){opts={}}
+			if(!exchangeWrap) {return "Wrap element must be defined"}
+
+			this.id			=	msgJson.id;
+			this.status		=	msgJson.status;
+			this.details	=	msgJson.details;
+			this.message	=	msgJson.message;
+			this.responses	=	msgJson.responses instanceof Array ? msgJson.responses : [];
+			this.name		=	msgJson.name;
+			this.dateStr	=	msgJson.dateStr;
 
 			this.respMessage=	"";
-			if(placement=="prepend") {
-//				exchangeWrap.find('tr').get(-1).smsExchange.remove();
+			
+			if(opts.placement=="prepend") {
 				this.createTr();
 				this.tr.css({'display':'none'});
 				this.tr.addClass('unread');
@@ -76,6 +59,9 @@ var Sms = (function($){
 				this.tr.fadeIn();
 			} else {
 				exchangeWrap.append(this.createTr());
+			}
+			if(opts.replace) {
+			    $('tr:last-child', exchangeWrap).remove();
 			}
 		}
 		
@@ -113,7 +99,7 @@ var Sms = (function($){
 			this.tr.buildIn(
 			        ["td", {'class':'newbar'}, ["div",{'class':'newbar'},"&nbsp;"]],				
 				    ["td", {}, ["div",{'class':'status'}]],
-					["td", {}, this.fromName],
+					["td", {}, this.name],
 					["td", {}, this.message],
 					["td", {}, this.dateString()],
 					["td", {}, ["span", {'class':'replycount'},
@@ -279,33 +265,8 @@ var Sms = (function($){
 			}
 			return count;
 		}
-
-		/*! importHTML will have to be updated whenever html input changes
-		-*    this function essentially extracts the important information from the html element and
-		-*    creates a new exchange with the JS object
-		-**/
-		function importHTML(elem){
-			var elems = {
-				details: $(elem).find('.details').get(0),
-				originalMessage: $(elem).find('.msg.text').get(0),
-				responses: $(elem).find('.msg.response')
-			}
-			return new exchange({
-				status: $(elems.details).find('.status').attr('title'),
-				details: $.map($.trim($(elems.details).text()).split("\n"), $.trim).join("\n"), //traverses each line and trims whitespace
-				message: $.trim($(elems.originalMessage).text()),
-				responses: $.map($(elems.responses), function(e){return $(e).text()}),
-				id: $(elem).attr('title').match(/ID:(.*)/)[0],
-				newId: $(elem).attr('title').match(/(\d+)/)[0],
-				dateStr: $(elems.details).find('.date').text(),
-				chwName: $(elems.details).find('.from').text(),
-				name: $(elem).find('.details').text().trim().split("\n")[1].trim().split(" ")[1] //it would be much nicer if we could get a "name" field...
-			});
-		}
-		function importJSON(json) {return new exchange(json)}
+		
 		return {
-			fromHTML: importHTML,
-			fromJSON: importJSON,
 			placeIn: setWrapElement,
 			constructor: exchange
 		}
@@ -319,11 +280,10 @@ var Sms = (function($){
 	function checkForMessages() {
 		$.getJSON(reqUrl, "id="+maxId, function(results){
 			$(results).each(function(){
-				var nm = new SmsExchange.constructor(this, "prepend");
+				var nm = new SmsExchange.constructor(this, {'placement':'prepend'});
 			});
 			window.setTimeout(checkForMessages, freq);
 		});
 	}
 	return SmsExchange;
 })(jQuery)
-
