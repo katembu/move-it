@@ -9,7 +9,7 @@ from ccdoc import Document, Table, Paragraph, Text, Section
 from childcount.models import CHW
 from childcount.models.reports import HouseholdVisitReport
 from childcount.models.reports import FamilyPlanningReport
-from childcount.models.ccreports import CHWMonthlyReport
+from childcount.models.ccreports import MonthlyCHWReport
 
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import reporting_week_monday
@@ -29,7 +29,7 @@ class Report(PrintedReport):
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
 
-        for chw in CHWMonthlyReport.objects.filter(is_active=True, pk=74):
+        for chw in MonthlyCHWReport.objects.filter(is_active=True, pk=74):
             doc.add_element(Section(chw.full_name())) 
             doc.add_element(Paragraph("For days %(start)s - %(end)s" %\
                 {'start': reporting_week_monday(0).strftime('%e %B %Y'),\
@@ -51,6 +51,23 @@ class Report(PrintedReport):
                     ind.for_week(2), ind.for_week(3), ind.for_month()]))
 
             doc.add_element(table)
+
+            table2 = Table(4, \
+                Text('Children 1-2 years old needing immunizations'))
+            table2.add_header_row([
+                Text('Loc Code'),
+                Text('Health ID'),
+                Text('Name / Age'),
+                Text('Household Head'),
+            ])
+            for kid in chw.needing_immunizations():
+                table2.add_row([
+                    Text(kid.location.code),
+                    Text(kid.health_id.upper()),
+                    Text(kid.full_name() + ' / ' + kid.humanised_age()),
+                    Text(kid.household.full_name())])
+                    
+            doc.add_element(table2)
         return render_doc_to_file(filepath, rformat, doc)
 
 

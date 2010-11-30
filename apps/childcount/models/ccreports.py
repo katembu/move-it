@@ -18,6 +18,7 @@ from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport
+from childcount.models import MedicineGivenReport
 from childcount.models import DangerSignsReport
 from childcount.models import NeonatalReport
 from childcount.models import FamilyPlanningReport
@@ -1486,7 +1487,7 @@ class TheBHSurveyReport(TheCHWReport):
     but I don't have any good ideas for
     how to shrink the size.
 '''
-class CHWMonthlyReport(TheCHWReport):
+class MonthlyCHWReport(TheCHWReport):
     class Meta:
         proxy = True
 
@@ -1578,6 +1579,18 @@ class CHWMonthlyReport(TheCHWReport):
                 self.num_underfive_imm, self.avg),
             ('Num MUACs Taken',\
                 self.num_muacs_taken, self.sum),
+            ('Num active SAM Cases',\
+                self.num_active_sam_cases, self.avg),
+            ('Num Tested RDTs',\
+                self.num_tested_rdts, self.sum),
+            ('Num Positive RDTs',\
+                self.num_positive_rdts, self.sum),
+            ('Num Anti-Malarials Given',\
+                self.num_antimalarials_given, self.sum),
+            ('Num Diarrhea Cases',\
+                self.num_diarrhea, self.sum),
+            ('Num ORS Given',\
+                self.num_ors_given, self.sum),
         ]
 
     #
@@ -1913,25 +1926,16 @@ class CHWMonthlyReport(TheCHWReport):
             reporting_week_sunday(week_num)).count()
 
     def num_underfive_imm(self, week_num):
-        u5 = self.num_underfive(week_num)
-        imm = UnderOneReport\
+        return self._num_underfive_imm_pks(week_num).count()
+
+    def _num_underfive_imm_pks(self, week_num):
+        return UnderOneReport\
             .indicators\
             .for_chw(self)\
             .before_reporting_week(week_num)\
-            .order_by('-encounter__encounter_date')
-       
-        known = []
-        count = 0
-        for rpt in imm:
-            kid = rpt.encounter.patient.pk
-            if kid in known:
-                continue
-            if rpt.immunized != UnderOneReport.IMMUNIZED_YES:
-                continue
-            else:
-                count += 1
-
-        return count
+            .filter(immunized=UnderOneReport.IMMUNIZED_YES)\
+            .values('encounter__patient__pk')\
+            .distinct()
 
     def num_muacs_taken(self, week_num):
         return NutritionReport\
@@ -1940,3 +1944,64 @@ class CHWMonthlyReport(TheCHWReport):
             .for_reporting_week(week_num)\
             .count()
 
+    def num_active_sam_cases(self, week_num):
+        return self.num_of_active_sam_cases(\
+            reporting_week_sunday(week_num))
+
+    def num_tested_rdts(self, week_num):
+        return FeverReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .exclude(rdt_result=FeverReport.RDT_UNKNOWN)\
+            .count()
+
+    def num_positive_rdts(self, week_num):
+        return FeverReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .filter(rdt_result=FeverReport.RDT_POSITIVE)\
+            .count()
+
+    def num_antimalarials_given(self, week_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .filter(medicines__code='act')\
+            .count()
+
+    def num_diarrhea(self, week_num):
+        return DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .filter(danger_signs__code='dr')\
+            .count()
+
+    def num_ors_given(self, week_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_chw(self)\
+            .for_reporting_week(week_num)\
+            .filter(medicines__code='r')\
+            .count()
+
+    #
+    # Lists
+    #
+
+    # Kids 1-2 yrs needing immunizations
+    def needing_immunizations(self):
+        imm_pks = map(lambda i: i['encounter__patient__pk'],\
+            self._num_underfive_imm_pks(3))
+
+        return Patient\
+            .objects\
+            .exclude(pk__in=imm_pks)\
+            .filter(dob__gte=date.today()-timedelta(2*365.25),\
+                dob__lte=date.today()-timedelta(365.25),\
+                chw=self)\
+            .order_by('location__code')
+       
