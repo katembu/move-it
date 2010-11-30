@@ -165,6 +165,10 @@ class LoggedMessage(models.Model):
                      {'current': string, 'reporter': reporter_string}
         return string
 
+    def ident_strings(self):
+        """ returns a tuple containing a name and backend """
+        return self.ident_string.partition(' ')[2:], self.backend
+
 
     def is_incoming(self):
         '''

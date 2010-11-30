@@ -3,6 +3,13 @@ table.full {
 
 table.msgs {
   width: 100%; }
+  table.msgs col.newbar, table.msgs td.newbar {
+    width: 5px; }
+  table.msgs tr.unread td.newbar {
+      background-image: url('../icons/msg_highlight_grad.png');
+      background-position: left center;
+      background-repeat: repeat-y;
+  }
   table.msgs col.status, table.msgs td.status {
     width: 20px; }
   table.msgs col.l, table.msgs td.l {
@@ -11,12 +18,15 @@ table.msgs {
     width: 120px; }
   table.msgs col.date, table.msgs td.date {
     text-align: right;
-    width: 120px; }
+    width: 220px; }
   table.msgs span.replycount {
     font-size: smaller; }
   table.msgs tr td, table.msgs tr.expanded-msg tr.bold td {
     cursor: pointer;
     -moz-user-select: none;
+    height: 28px;
+    border: 1px solid #efefef;
+    border-width: 0 0 1px;
     -webkit-user-select: none; }
   table.msgs tr.expanded-msg td {
     cursor: default;

@@ -16,9 +16,10 @@
 
 {% block content %}
 
+<h2>Incoming Message Log</h2>
 
 {% for msg in msgs.object_list %}
-<div class="lng_msg">
+<div class="lng_msg" title="ID:{{msg.id}}">
     <div class="details">
         <span class="date">{{msg.date|date:"d-M-Y @ H:m:s"}}</span>
         <span class="from">{{msg.ident_string}}</span>
@@ -90,8 +91,10 @@
 		//inserts tableWrap just before the first '.lng_msg'
 		$($('.lng_msg').get(0)).before(tableWrap);
 		
-		//updates list every 5 minutes, must be called after table is populated
-//		$.listenForMessages("/logger_ng/latest_messages/", 5 * (1000*60)); 
+		//updates list every 5 seconds, must be called after table is populated
+        if(Number($('#page_number').html())==1) {
+            $.listenForMessages("/logger_ng/latest_messages/", 5000); 
+        }
 	})();
 </script>
 <table class="lng_page">
@@ -100,7 +103,7 @@
             <a href="?page={{ msgs.previous_page_number }}">Previous</a>
         {% endif %}
 </td><td>
-            Page {{ msgs.number }} of {{ msgs.paginator.num_pages }}
+            Page <span id="page_number">{{ msgs.number }}</span> of {{ msgs.paginator.num_pages }}
 </td><td>
         {% if msgs.has_next %}
             <a href="?page={{ msgs.next_page_number }}">Next</a>

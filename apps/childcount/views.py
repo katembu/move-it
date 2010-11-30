@@ -3,11 +3,11 @@
 # maintainer: ukanga
 
 import os
-from datetime import date, timedelta, datetime
 import re
+from datetime import date, timedelta, datetime
+from urllib import urlencode
 
 from rapidsms.webui.utils import render_to_response
-
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
@@ -20,8 +20,7 @@ from django.template import Template, Context, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, UserManager, Group
 from django import forms
-from django.db.models import F
-
+from django.db.models import F, Q
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
@@ -206,9 +205,14 @@ def add_chw(request):
 
 def list_chw(request):
 
+    CHWS_PER_PAGE = 50
     info = {}
     chews = CHW.objects.all().order_by('first_name')
     info.update({'chews': chews})
+    paginator = Paginator(chews, CHWS_PER_PAGE)
+    page = int(request.GET.get('page', 1))
+    info.update({'paginator':paginator.page(page)})
+
     return render_to_response(request, 'childcount/list_chw.html', info)
 
 
@@ -265,46 +269,61 @@ def patient(request):
     '''Patients page '''
     MAX_PAGE_PER_PAGE = 30
     DEFAULT_PAGE = 1
-    report_title = Patient._meta.verbose_name
-    rows = []
 
-    columns, sub_columns = Patient.table_columns()
-    getpages = Paginator(Patient.objects.all(), MAX_PAGE_PER_PAGE)
 
-    #get the requested page, else if it wrong display page 1
+    info = {}
+    patients = Patient.objects.all()
+    try:
+        search = request.GET.get('patient_search','')
+    except:
+        search = ''
+    
+    if search:
+        patients = patients.filter(Q(first_name__icontains=search) | \
+                           Q(last_name__icontains=search) | \
+                           Q(health_id__icontains=search))
+
+    paginator = Paginator(patients, MAX_PAGE_PER_PAGE)
+
     try:
         page = int(request.GET.get('page', DEFAULT_PAGE))
-    except ValueError:
+    except:
         page = DEFAULT_PAGE
+    
+    info['rcount'] = patients.count()
+    info['rstart'] = paginator.per_page * page
+    info['rend'] = (page + 1 * paginator.per_page) - 1
+    
+    
+    try:
+        info['patients'] = paginator.page(page)
+    except:
+        info['patients'] = paginator.page(paginator.num_pages)
 
     #get the requested page, if its out of range display last page
     try:
-        reports = getpages.page(page)
+        current_page = paginator.page(page)
     except (EmptyPage, InvalidPage):
-        reports = getpages.page(getpages.num_pages)
+        current_page = paginator.page(paginator.num_pages)
 
-    for report in reports.object_list:
-        row = {}
-        row["cells"] = []
-        row["cells"] = [{'link':'/childcount/patients/edit/'+report.health_id.upper(),'value': \
-                        Template(col['bit']).render(Context({'object': \
-                            report}))} for col in columns]
-        rows.append(row)
+    nextlink, prevlink = {}, {}
 
-    print columns[1:]
+    if paginator.num_pages > 1:
+        nextlink['page'] = info['patients'].next_page_number()
+        prevlink['page'] = info['patients'].previous_page_number()
 
-    print columns
-    print sub_columns
-    print len(rows)
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title}
+        info.update(pagenator(paginator, current_page))
 
-    if getpages.num_pages > 1:
-        context_dict.update(pagenator(getpages, reports))
+    if search != '':
+        info['search'] = search
+        nextlink['search'] = search
+        prevlink['search'] = search
+    
+    info['prevlink'] = urlencode(prevlink)
+    info['nextlink'] = urlencode(nextlink)
 
     return render_to_response(\
-                request, 'childcount/patient.html', context_dict)
+                request, 'childcount/patient.html', info)
 
 
 def nutrition_png(request):

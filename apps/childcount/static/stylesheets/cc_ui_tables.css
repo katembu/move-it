@@ -1,0 +1,191 @@
+div.list-header h2 {
+    width: 400px;
+    padding: 0 0 0 6px;
+}
+table.cclist {
+  width: 100%;
+  border-spacing: 0px
+}
+table.cclist td {
+  padding: 2px 8px
+}
+table.cclist th {
+    text-align: left;
+    border: 1px solid #bbb;
+    border-width: 0 0 1px 0;
+    padding: 3px 3px 3px 6px;
+}
+div.list-header {
+    position: relative;
+    height:78px;
+}
+div.searchbox {
+    width: 278px;
+}
+div.searchbox input {
+    width: 300px;
+    border: 0 none;
+    background-color: transparent;
+    color: #444;
+    font-size: 16px;
+    padding: 2px 0 0 0;
+}
+div.searchbox {
+    background-color: #eee;
+    border: 1px solid #bbb;
+    height: 24px;
+    float: left;
+}
+div.list-header a.send {
+    margin: 1px 0 0 11px;
+    width: 100px;
+    float: left;
+}
+.cclist a {
+    text-decoration: none;
+    color: #000;
+}
+.cclist.on tbody td {
+    cursor: pointer;
+    border: 1px solid #eee;
+    border-width: 0 0 1px;
+}
+td.hh1 {
+    text-indent: -999em;
+}
+table.pagnav {
+    padding: 14px 0 0 0;
+}
+table.pagnav td {
+    padding: 4px;
+}
+table.pagnav td.visited {
+/*--    background-color: #dedede; --*/
+}
+table.pagnav a {
+    text-decoration: none;
+    color: #33a7d2;
+    padding: 4px 9px;
+}
+table.pagnav a:visited {
+    color: #33a7d2;
+}
+table.cclist.patient-list tr:hover td, table.cclist.chw-list tr:hover td {
+    background-color: #eee;
+}
+
+
+table.full {
+  width: 100%; }
+
+table.cclist {
+  width: 100%; }
+  table.cclist col.status, table.cclist td.status {
+    width: 20px; }
+  table.cclist col.l, table.cclist td.l {
+    width: 100px; }
+  table.cclist col.name, table.cclist td.name {
+    width: 120px; }
+  table.cclist col.date, table.cclist td.date {
+    text-align: right;
+    width: 240px; }
+  table.cclist span.replycount {
+    font-size: smaller; }
+  table.cclist tr td, table.cclist tr.expanded-msg tr.bold td {
+      padding: 5px 4px;
+    cursor: pointer;
+    -moz-user-select: none;
+    -webkit-user-select: none; }
+  table.cclist tr.expanded-msg td {
+    cursor: default;
+    -moz-user-select: text;
+    -webkit-user-select: text; }
+  table.cclist div.status {
+    width: 18px;
+    height: 18px;
+    background-image: url("../icons/dots.png");
+    background-position: center top; }
+    table.cclist div.status.good {
+      background-position: 0 54px; }
+    table.cclist div.status.pending {
+	  background-repeat: no-repeat;
+	background-position: center;
+      background-image:url('../icons/pending.gif'); }
+    table.cclist div.status.warning {
+      background-position: 0 18px; }
+    table.cclist div.status.info {
+      background-position: 0 36px; }
+    table.cclist div.status.error {
+      background-position: 0 18px; }
+  table.cclist tr.hidden, table.cclist tr.hidden-open {
+    display: none; }
+  table.cclist td.featured_message {
+    padding: 0; }
+    table.cclist td.featured_message div.w, table.cclist td.featured_message div.response_box {
+      -moz-border-radius-bottomleft: 4px;
+      -moz-border-radius-bottomright: 4px;
+      -webkit-border-bottom-left-radius: 4px;
+      -webkit-border-bottom-right-radius: 4px; }
+    table.cclist td.featured_message div.w {
+      border: 1px solid #dddddd;
+      border-width: 0 1px 1px 1px; }
+    table.cclist td.featured_message div.w {
+      margin: 0 0 5px 0; }
+      table.cclist td.featured_message div.w div.response_box {
+        background-color: #efefef;
+        padding: 4px;
+        position: relative; }
+        table.cclist td.featured_message div.w div.response_box textarea {
+          color: #666666;
+          font-size: 14px;
+          font-family: Arial;
+          padding: 2px 4px; }
+        table.cclist td.featured_message div.w div.response_box table {
+          margin-left: 36px; }
+          table.cclist td.featured_message div.w div.response_box table td {
+            border: 0 none; }
+        table.cclist td.featured_message div.w div.response_box .chars, table.cclist td.featured_message div.w div.response_box a.send, a.send {
+          display: block;
+          text-align: center;
+          -moz-user-select: none;
+          -webkit-user-select: none; }
+        table.cclist td.featured_message div.w div.response_box .chars {
+          height: 16px;
+          font-weight: bold;
+          font-size: 16px;
+          color: #888888; }
+          table.cclist td.featured_message div.w div.response_box .chars.negative {
+            color: #af5656; }
+        a.send {
+          margin: 2px;
+          -moz-border-radius: 3px;
+          background-color: white;
+          border: 1px solid #999999;
+          padding: 5px 12px;
+          text-decoration: none;
+          border-color: #dddddd #cccccc #cccccc #dddddd;
+          color: #333333;
+          display: block;
+          text-align: center; }
+      table.cclist td.featured_message div.w ul.response_list {
+        list-style-position: outside;
+        margin: 0;
+        padding: 0 0 0 80px; }
+        table.cclist td.featured_message div.w ul.response_list li {
+          list-style-image: url("../icons/larrow.png");
+          padding: 6px 218px 6px 87px; }
+        table.cclist td.featured_message div.w ul.response_list li.pending {
+          list-style-image: url("../icons/alert.png"); }
+  table.cclist table.original {
+    margin: 0 0 0 -1px;
+    width: 100%; }
+    table.cclist table.original tr.bold td {
+      font-weight: bold; }
+    table.cclist table.original div.response_box {
+      background-color: #efefef;
+      padding: 4px; }
+
+br.cb {
+  clear: both; }
+table.lng_page td {
+	border:0 none; }
