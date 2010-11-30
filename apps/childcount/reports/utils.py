@@ -1,4 +1,5 @@
 import time
+from datetime import datetime, timedelta
 import os
 import shutil
 
@@ -8,9 +9,21 @@ from django.http import HttpResponse
 
 from rapidsms.webui.utils import render_to_response
 
+from childcount.utils import first_date_of_week
+
 from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
 REPORTS_DIR = 'reports'
+REPORTING_DELAY = 60
+
+def reporting_week_monday(week_num):
+    return first_date_of_week(\
+        datetime.today() - timedelta(REPORTING_DELAY)) + \
+        (week_num * timedelta(7))
+
+def reporting_week_sunday(week_num):
+    return reporting_week_monday(week_num) + \
+        timedelta(6)
 
 def render_doc_to_file(filename, rformat, doc):
     h = None 
