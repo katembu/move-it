@@ -1769,7 +1769,7 @@ class MonthlyCHWReport(TheCHWReport):
                     .indicators\
                     .get(encounter__patient__pk=r.encounter.patient.pk,\
                         encounter__encounter_date__lte=due_by)
-            except FollowUpReport.DoesNotExit:
+            except FollowUpReport.DoesNotExist:
                 continue
             else:
                 count += 1
