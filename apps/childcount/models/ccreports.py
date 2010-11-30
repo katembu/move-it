@@ -1764,14 +1764,12 @@ class MonthlyCHWReport(TheCHWReport):
             .for_reporting_week(week_num):
 
             due_by = r.encounter.encounter_date + timedelta(2)
-            try:
-                FollowUpReport\
+            if bool(FollowUpReport\
                     .indicators\
-                    .get(encounter__patient__pk=r.encounter.patient.pk,\
-                        encounter__encounter_date__lte=due_by)
-            except FollowUpReport.DoesNotExist:
-                continue
-            else:
+                    .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                        encounter__encounter_date__lte=due_by,
+                        encounter__encounter_date__gt=\
+                            r.encounter.encounter_date)):
                 count += 1
         return count 
 
@@ -1779,7 +1777,7 @@ class MonthlyCHWReport(TheCHWReport):
         den = self.num_ds_referred(week_num)
         if den == 0: return None
 
-        return float(den)/float(self.num_ontime_follow_up(week_num))
+        return float(self.num_ontime_follow_up(week_num))/float(den)
 
     def perc_ontime_follow_up_monthly(self, lst):
         return self._aggregate_perc(\
