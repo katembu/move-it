@@ -179,16 +179,20 @@ class LoggedMessage(models.Model):
         '''
         return self.direction == self.DIRECTION_INCOMING
 
-    def to_json(self):
+
+    def to_dict(self):
         '''
-        returns json version of the message and all its responses
+        returns dict version of the message and all its responses
         '''
-        json_dump = {'id': self.id, 'message': self.text, \
+        return {'id': self.id, 'message': self.text, \
                      'status': self.status, \
                      'dateStr': self.date.strftime("%d-%b-%Y @ %H:%M:%S"), \
                      'name': self.identity, \
                      'responses': [r.text for r in self.response.all()]}
-        return simplejson.dumps(json_dump)
+
+    def to_json(self):
+        return simplejson.dumps(self.to_dict())
+    
 
     def __unicode__(self):
         return  u"%(direction)s - %(ident)s - %(text)s" % \

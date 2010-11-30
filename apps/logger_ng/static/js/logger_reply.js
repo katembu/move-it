@@ -1,20 +1,40 @@
-/*! I wrapped this in a jquery plugin
--*    this function essentially extracts the important information from the html element and
--*    creates a new exchange with the JS object
+/*! SmsExchange is the object that converts json records of message&responses into a table view.
+-*  if $.listenForMessages(timeoutTime) is called, it will autoupdate with newer messages
+-*  Requires-- jquery "buildIn" plugin to generate HTML from json
+-*     see: https://github.com/dorey/jquery-JsonML-plugin/blob/master/jquery.buildin.js
+-*  if you have questions, please email me: 
+-*  - Alex Dorey: dorey415@gmail.com
 -**/
-
-var max = 0;
 
 var SmsExchange = (function($){
 	var wrap, SmsExchange,
 		Messages,
 		maxId = 0,
-		exchangeVersion = "0.1";
+		exchangeVersion = "0.2",
+		options = {
+		    msgPostUrl: "/logger_ng/post_message",
+		    latestMessagesUrl: "/logger_ng/latest_messages/",
+		    currentLang: 'en',
+		    translations: {
+        		'en': {
+        			'response': "Response",
+        			'responses': "Responses",
+        			'reply': 'Respond',
+        			'status': {
+        				'good': "Status: Good",
+        				'warning': "Status: Warning",
+        				'pending': "Status: Pending",
+        				'error': "Status: Error",
+        				'info': "Status: Info"
+        			},
+        			'sendMessage': "Send",
+        			'tooManyCharacters': "Too many characters"
+        		}
+    	    }
+	    };
 	
 	SmsExchange = (function(){
 	   /*!  The "exchange" object is what stores the details of a conversation in the DOM and inserts them into 
-	   -*   See "importHTML" to edit the import function.  
-	   -*   You can also use json
 	   -*/
 		var exchangeWrap,
 			unfocusMessageTable,
@@ -42,6 +62,8 @@ var SmsExchange = (function($){
 			if(!exchangeWrap) {return "Wrap element must be defined"}
 
 			this.id			=	msgJson.id;
+			if(this.id>maxId) {maxId=this.id}
+			
 			this.status		=	msgJson.status;
 			this.details	=	msgJson.details;
 			this.message	=	msgJson.message;
@@ -65,9 +87,9 @@ var SmsExchange = (function($){
 			}
 		}
 		
-		//UI specific messages
+		//UI specific messages (can be translated)
 		exchange.prototype.msgs = function(){
-			return Translations[CurrentLang];
+			return options.translations[options.currentLang];
 		}
 		exchange.prototype.responsesSummary = function() { var rc = this.responses.length; return (rc==1) ? ("1 "+this.msgs().response) : (rc + " " + this.msgs().responses) }
 		exchange.prototype.statusSummary = function() { return this.msgs().status[this.statusCode()] }
@@ -83,12 +105,6 @@ var SmsExchange = (function($){
 			$(this.tr).find('div.status').get(0).title = this.msgs().status[str];
 		}
 		exchange.prototype.remove = function(){this.tr.fadeOut();}
-		exchange.prototype.submitMessage = function(obj){
-			var _exch = this;
-			$.post('sample_json/sms_received.json', obj, function(data){
-				_exch.setStatus(data['status'])
-			})
-		}
 		exchange.prototype.updateResponses = function() {
 			$(this.tr).find('.replycount').text(this.responsesSummary())
 			if(typeof(this.responseRow)!=='undefined'){$(this.responseRow).find('.replycount').text(this.responsesSummary())}
@@ -98,7 +114,7 @@ var SmsExchange = (function($){
 			this.tr = $("<tr></tr>");
 			this.tr.buildIn(
 			        ["td", {'class':'newbar'}, ["div",{'class':'newbar'},"&nbsp;"]],				
-				    ["td", {}, ["div",{'class':'status'}]],
+				    ["td", {}, ["div",{'class':'status', 'title': this.statusSummary()}]],
 					["td", {}, this.name],
 					["td", {}, this.message],
 					["td", {}, this.dateString()],
@@ -122,7 +138,6 @@ var SmsExchange = (function($){
 		}
 	
         /*!  The populateTrAndOpen function loads the expanded message and adds listeners, etc.
-        -*
 	    -*/
 		exchange.prototype.populateTrAndOpen = function() {
 			var b_form, b_wdiv, b_rrow,
@@ -217,7 +232,7 @@ var SmsExchange = (function($){
 				};
 				_r.respMessage = "";
 				_r.responses.push(postMsg.msg);
-				$.post(ExchangeSettings.msgPOSTurl, postMsg, function(data){
+				$.post(options.msgPostUrl, postMsg, function(data){
 					$($(_r.responseRow.find('li.pending')).get(-1)).text(data.sms);
 					_r.setStatus(data.status)
 				});
@@ -266,19 +281,23 @@ var SmsExchange = (function($){
 			return count;
 		}
 		
+		function setOption(optionName, optionValue) {
+		    options[optionName]=optionValue;
+		}
 		return {
 			placeIn: setWrapElement,
-			constructor: exchange
+			constructor: exchange,
+			setOption: setOption
 		}
 	})();
-	var reqUrl, freq = 4 * (1000 * 60);
-	$.listenForMessages = function(url, frequency) {
-		reqUrl = url;
+	
+	var reqUrl, freq;
+	$.listenForMessages = function(frequency) {
 		freq = (frequency < 1000) ? (frequency*1000) : frequency;
 		window.setTimeout(checkForMessages, freq);
 	}
 	function checkForMessages() {
-		$.getJSON(reqUrl, "id="+maxId, function(results){
+		$.getJSON(options.latestMessagesUrl+maxId, function(results){
 			$(results).each(function(){
 				var nm = new SmsExchange.constructor(this, {'placement':'prepend'});
 			});

@@ -89,7 +89,7 @@ def post_message(request):
         msg = get_object_or_404(LoggedMessage, pk=pk)
         value = request.POST['msg']
         respond_to_msg(msg, value)
-        return HttpResponse('{"status":"good"}', mimetype="text/json")
+        return HttpResponse('{"status":"none"}', mimetype="text/json")
 
 
 def latest_messages(request, recent_id):
@@ -106,6 +106,6 @@ def latest_messages(request, recent_id):
     except:
         messages = []
     
-    msgs = [message.to_json() for message in messages]
+    msgs = [message.to_dict() for message in messages]
     
-    return HttpResponse("%s" % simplejson.dumps(msgs))
+    return HttpResponse(simplejson.dumps(msgs), mimetype="text/json")

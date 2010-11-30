@@ -59,48 +59,7 @@ messageBuffer.push({{msg.to_json|safe}})
 </div>
 
 <script type="text/javascript">
-	var CurrentLang = "en",
-		ExchangeSettings = {
-		'token' : "qwertyuiopasdfghjklzxcvbnm",
-		'msgPOSTurl' : "/logger_ng/post_message"
-		},
-		Translations;
 
-	// window.navigator.language is not reliable in all browsers, but
-	// might be good for surprising kevin+renaud with a french ui
-	CurrentLang = (window.navigator.language.toLowerCase()=="en-us") ? "en" : "fr";
-	
-	Translations = {
-		'en': {
-			'response': "Response",
-			'responses': "Responses",
-			'reply': 'Respond',
-			'status': {
-				'good': "Status: Good",
-				'warning': "Status: Warning",
-				'pending': "Status: Pending",
-				'error': "Status: Error",
-				'info': "Status: Info"
-			},
-			'sendMessage': "Send",
-			'tooManyCharacters': "Too many characters"
-		},
-		'fr': {
-			'response': "Réponse",
-			'responses': "Réponses",
-			'reply': "Répondre",
-			'status': {
-				'good': "Statut: Bon",
-				'pending': "Statut: Pending",
-				'warning': "Statut: Warning",
-				'error': "Statut: Error",
-				'info' : "Statut: Info"
-			},
-			'sendMessage': "Envoyer",
-			'tooManyCharacters': "Too many characters (in French)"
-		}
-	};
-	
 	(function(){
 		//creates the wrapping table with class msgs
 		var tableWrap = $('#ajax-logger table.msgs'),
@@ -115,8 +74,8 @@ messageBuffer.push({{msg.to_json|safe}})
 		$('#ajax-logger').show();
 
 		if(pageNumber=="1") {
-			//updates list every 5 seconds, must be called after table is populated and only on the first page (when paginated)
-	        $.listenForMessages("/logger_ng/latest_messages/", 5000);
+			//must be called after table is populated and only on the first page (when paginated)
+	        $.listenForMessages(5000); //updates every 5 seconds
 		}
 	})();
 	
