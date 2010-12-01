@@ -76,15 +76,22 @@ class PrintedReport(Task):
                 raise ValueError('Invalid report format requested.')
             formats = [rformat]
 
+        # Check if a variant was passed in
+        variant = kwargs.get('variant')
+        if variant is None:
+            variants = self.variants
+        else:
+            variants = [variant]
+
         for rformat in formats:
-            if len(self.variants) == 0:
+            if len(variants) == 0:
                 self.generate(rformat, \
                     self.title,
                     self.get_filepath(rformat),
                     {})
                 return True
 
-            for variant in self.variants:
+            for variant in variants:
                 print variant
                 self.generate(rformat, \
                     self.title + variant[0],
@@ -134,15 +141,28 @@ def serve_ondemand_report(request, rname, rformat):
 
     # Find reports matching requests
     matches = filter(lambda rep: \
-        rep.filename == rname and rformat in rep.formats,
+            (rname == rep.filename or \
+                rname.startswith(rep.filename))
+            and rformat in rep.formats,
         repts)
 
     if len(matches) == 0:
         return HttpResponseNotFound(request)
 
-    # If found, generate the report
     report = matches[0]
-    result = report().apply(kwargs={'rformat':rformat})
+
+    # If found, generate the report
+    if rname == report.filename:
+        result = report().apply(kwargs={'rformat':rformat})
+    else:
+        suffix = rname[len(report.filename):]
+
+        variants = filter(lambda v: v[1] == suffix, report.variants)
+        print variants
+        if len(variants) == 0:
+            return HttpResponseNotFound(request)
+        result = report().apply(kwargs={\
+            'rformat':rformat, 'variant': variants[0]})
     
     try:
         result.wait()

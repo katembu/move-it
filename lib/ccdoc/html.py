@@ -82,6 +82,11 @@ class HTMLGenerator(Generator):
         self._render_text(section)
         self.tlines += u"</h2>\n" 
 
+    def _render_pagebreak(self, pagebreak):
+        self.tlines += u"<div style='page-break-after:always;'>\n"
+        self.tlines += u"<br />&nbsp;"
+        self.tlines += u"</div'>\n"
+
     def _render_text(self, text):
         self.context["text_%d" % self.var_counter] = text.text
         if text.bold:

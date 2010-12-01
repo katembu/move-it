@@ -10,7 +10,8 @@ from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Table, Paragraph, Frame, BaseDocTemplate
+from reportlab.platypus import Table, Paragraph, Frame, \
+    BaseDocTemplate, PageBreak
 from reportlab.platypus import PageTemplate, Spacer
 
 from ccdoc.generator import Generator
@@ -79,6 +80,10 @@ class PDFGenerator(Generator):
             Paragraph(
                 u'<strong>' + unicode(section.text) + u'</strong>',
                 self.section_style))
+
+    def _render_pagebreak(self, pagebreak):
+        self.elements.append(PageBreak())
+
 
     def _render_text(self, text):
         output = u''

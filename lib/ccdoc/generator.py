@@ -4,7 +4,7 @@ import tempfile
 
 from paragraph import Paragraph
 from hline import HLine
-from section import Section
+from section import Section, PageBreak
 from table import Table
 from text import Text
 
@@ -40,6 +40,7 @@ class Generator(object):
         obj[Paragraph] = self._render_paragraph
         obj[HLine] = self._render_hline
         obj[Table] = self._render_table
+        obj[PageBreak] = self._render_pagebreak
 
         for c in self.contents:
             try:
@@ -88,6 +89,9 @@ class Generator(object):
         raise NotImplementedError("Not implemented")
 
     def _render_hline(self, hline):
+        raise NotImplementedError("Not implemented")
+
+    def _render_pagebreak(self, pagebreak):
         raise NotImplementedError("Not implemented")
 
     def _render_table(self, table):
