@@ -825,12 +825,12 @@ class FeverReport(CCReport):
 
     RDT_POSITIVE = 'P'
     RDT_NEGATIVE = 'N'
-    RDT_UNKNOWN = 'U'
+    RDT_UNKOWN = 'U'
 
     RDT_CHOICES = (
         (RDT_POSITIVE, _(u"Positive")),
         (RDT_NEGATIVE, _(u"Negative")),
-        (RDT_UNKNOWN, _(u"Unknown")))
+        (RDT_UNKOWN, _(u"Unknown")))
 
     rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
                                   choices=RDT_CHOICES)

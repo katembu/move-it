@@ -47,6 +47,7 @@ from childcount.utils import day_end, \
                                 last_day_of_month, \
                                 first_date_of_week
 from childcount.reports.utils import reporting_week_sunday
+from childcount.reports.utils import reporting_week_monday
 
 from logger_ng.models import LoggedMessage
 
@@ -1491,7 +1492,6 @@ class MonthlyCHWReport(TheCHWReport):
     class Meta:
         proxy = True
 
-
     ''' Aggregation functions
         (for giving a total/average at the end of a row)
     '''
@@ -1507,7 +1507,15 @@ class MonthlyCHWReport(TheCHWReport):
     def perc_print(self, val):
         if val is None: return '--'
         else: return "%2.1f%%" % (100.0 * val) 
-    
+ 
+    def _aggregate_perc(self, num_func, den_func):
+        weeks = xrange(0,3)
+        num = sum([num_func(w) for w in weeks]) 
+        den = sum([den_func(w) for w in weeks])
+
+        return None if den == 0 else (float(num)/float(den))
+
+   
     # The report rows.  Returns a list of tuples
     # that can be used to instantiate Indicator objects
     def report_rows(self):
@@ -1621,13 +1629,6 @@ class MonthlyCHWReport(TheCHWReport):
         return float(self.num_of_women_under50_using_fp(week_num)) / \
             float(u50)
 
-    def _aggregate_perc(self, num_func, den_func):
-        weeks = xrange(0,3)
-        num = sum([num_func(w) for w in weeks]) 
-        den = sum([den_func(w) for w in weeks])
-
-        return None if den == 0 else (float(num)/float(den))
-
     def perc_of_women_using_fp_monthly(self, lst):
         return self._aggregate_perc( \
             self.num_of_women_under50_using_fp,
@@ -1708,11 +1709,11 @@ class MonthlyCHWReport(TheCHWReport):
                 seen.append(r.encounter.patient.pk)
 
             try:
-                # Check if there's an FP report for this HH
+                # Check if there's a previous FP report for this HH
                 old_rep = FamilyPlanningReport\
                     .indicators\
                     .filter(encounter__patient__pk=r.encounter.patient.pk,\
-                        encounter__encounter_date__lte=r.encounter.encounter_date)\
+                        encounter__encounter_date__lt=r.encounter.encounter_date)\
                     .exclude(pk=r.pk)\
                     .latest('encounter__encounter_date')
             except FamilyPlanningReport.DoesNotExist:
@@ -1749,9 +1750,11 @@ class MonthlyCHWReport(TheCHWReport):
             .for_reporting_week(week_num):
 
             try:
-                ReferralReport.indicators.get(encounter__pk=d.encounter.pk)
+                r = ReferralReport\
+                .indicators\
+                .get(encounter__pk=d.encounter.pk)
             except ReferralReport.DoesNotExist:
-                continue
+                pass
             else:
                 count += 1
         return count
@@ -1764,12 +1767,16 @@ class MonthlyCHWReport(TheCHWReport):
             .for_reporting_week(week_num):
 
             due_by = r.encounter.encounter_date + timedelta(2)
-            if bool(FollowUpReport\
+            try:
+                f = FollowUpReport\
                     .indicators\
                     .filter(encounter__patient__pk=r.encounter.patient.pk,\
                         encounter__encounter_date__lte=due_by,
                         encounter__encounter_date__gt=\
-                            r.encounter.encounter_date)):
+                            r.encounter.encounter_date)
+            except FollowUpReport.DoesNotExist:
+                pass
+            else:
                 count += 1
         return count 
 
@@ -1794,16 +1801,19 @@ class MonthlyCHWReport(TheCHWReport):
     def num_pregnant_by_week(self, week_num):
         return len(self.pregnant_by_week(week_num))
 
+    # % of women getting at least 1 ANC visit by 1st trimester
     def perc_with_anc_first(self, week_num):
         return self._women_getting_n_anc_by(1, 1, week_num)
     def perc_with_anc_first_tot(self, lst):
         return self._women_getting_n_anc_by_tot(1, 1)
 
+    # % of women getting at least 3 ANC visits by 2nd trimester
     def perc_with_anc_second(self, week_num):
         return self._women_getting_n_anc_by(3, 2, week_num)
     def perc_with_anc_second_tot(self, lst):
         return self._women_getting_n_anc_by_tot(3, 2)
 
+    # % of women getting at least 4 ANC visits by 3rd trimester
     def perc_with_anc_third(self, week_num):
         return self._women_getting_n_anc_by(4, 3, week_num)
     def perc_with_anc_third_tot(self, lst):
@@ -1837,7 +1847,7 @@ class MonthlyCHWReport(TheCHWReport):
         if len(women) == 0:
             return '--'
 
-        have_anc = filter(lambda w: w.anc_visits > n_anc, women)
+        have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
        
         num = len(have_anc)
         den = len(women)
@@ -1856,7 +1866,6 @@ class MonthlyCHWReport(TheCHWReport):
         start_mo = end_mo - 3
         month_range = xrange(start_mo, end_mo)
 
-        women = []
         women = self.pregnant_by_week(week_num)
 
         # Get latest pregnancy report for woman
@@ -1865,12 +1874,15 @@ class MonthlyCHWReport(TheCHWReport):
                 .objects\
                 .filter(encounter__patient=w, \
                     encounter__encounter_date__gte=\
-                        datetime.today() - timedelta(30.4375 * 30))\
+                        reporting_week_monday(week_num) - \
+                            timedelta(30.4375 * 10))
                 .latest('encounter__encounter_date'), women)
 
+        # See how many women fall in this trimester
         targets = []
         for p in preggers:
-            days_ago = (datetime.today() - p.encounter.encounter_date).days
+            days_ago = (reporting_week_sunday(week_num) - \
+                p.encounter.encounter_date).days
             months_ago = days_ago / 30.4375
             months_of_preg = p.pregnancy_month + months_ago
 
@@ -1951,7 +1963,7 @@ class MonthlyCHWReport(TheCHWReport):
             .indicators\
             .for_chw(self)\
             .for_reporting_week(week_num)\
-            .exclude(rdt_result=FeverReport.RDT_UNKNOWN)\
+            .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
             .count()
 
     def num_positive_rdts(self, week_num):
@@ -2002,4 +2014,44 @@ class MonthlyCHWReport(TheCHWReport):
                 dob__lte=date.today()-timedelta(365.25),\
                 chw=self)\
             .order_by('location__code')
-       
+      
+    # Pregnant women in 2nd or 3rd trimester who haven't had 
+    # ANC visits in last 5 five weeks
+    def pregnant_needing_anc(self):
+        women = []
+        pregs = PregnancyReport\
+            .indicators\
+            .for_chw(self)\
+            .filter(encounter__encounter_date__gt = \
+                date.today() - timedelta(10 * 30.4375))\
+            .order_by('-encounter__encounter_date')
+        
+        for p in pregs:
+            if p.encounter.patient in women:
+                continue
+
+            days_ago = (datetime.today() - p.encounter.encounter_date).days
+            weeks_ago = days_ago / 7.0
+            months_ago = days_ago / 30.4375
+           
+            # Current month of pregnancy
+            preg_month = p.pregnancy_month + months_ago
+            if preg_month > 9.0 or preg_month < 3.0:
+                continue
+         
+            print preg_month
+            months_left = preg_month - 9
+            days_left = months_left * 30.475
+            due_date = date.today() + timedelta(days_left)
+            
+            # Current weeks since ANC
+            if p.weeks_since_anc is None \
+                or (p.weeks_since_anc + weeks_ago) > 5:
+                women.append((p.encounter.patient, due_date))
+        
+        return women
+            
+        
+
+
+
