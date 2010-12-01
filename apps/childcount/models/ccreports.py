@@ -48,6 +48,7 @@ from childcount.utils import day_end, \
                                 first_date_of_week
 from childcount.reports.utils import reporting_week_sunday
 from childcount.reports.utils import reporting_week_monday
+from childcount.reports.indicator import Indicator
 
 from logger_ng.models import LoggedMessage
 
@@ -1519,12 +1520,10 @@ class MonthlyCHWReport(TheCHWReport):
     # The report rows.  Returns a list of tuples
     # that can be used to instantiate Indicator objects
     def report_rows(self):
-        empty = ('_____', lambda n: '', lambda a: '')
-        
         return [
             ('HH Visits',\
                 self.num_of_hh_visits, self.sum),
-            empty,
+            Indicator.EMPTY,
             ('Num of Women 15-49 Seen',\
                 self.num_of_women_under50_seen, self.sum),
             ('Num of Women using FP',\
@@ -1551,7 +1550,7 @@ class MonthlyCHWReport(TheCHWReport):
                 self.num_still_on_fp, self.sum),
             ('Num of Women Stopping FP',\
                 self.num_ending_fp, self.sum),
-            empty,
+            Indicator.EMPTY,
             ('People with DSs',\
                 self.num_danger_signs, self.sum),
             ('People with Referred',\
@@ -1562,7 +1561,7 @@ class MonthlyCHWReport(TheCHWReport):
                 self.perc_ontime_follow_up, 
                 self.perc_ontime_follow_up_monthly,
                 self.perc_print),
-            empty,
+            Indicator.EMPTY,
             ('Num Pregnant Women',\
                 self.num_pregnant_by_week, self.avg),
             ('% Getting 1 ANC by 1st Trim.',\
@@ -1580,7 +1579,7 @@ class MonthlyCHWReport(TheCHWReport):
                 self.num_births_with_anc, self.sum),
             ('Num Neonatal Rpts (<28 days)',\
                 self.num_neonatal, self.sum),
-            empty,
+            Indicator.EMPTY,
             ('Num Children U5',\
                 self.num_underfive, self.avg),
             ('Num U5 Known Immunized',\
@@ -1720,13 +1719,20 @@ class MonthlyCHWReport(TheCHWReport):
                 # If not, count all women as new to FP
                 start_count += r.women_using
             else:
-                # Otherwise calculate change from last FP report
-                if r.women_using > old_rep.women_using:
-                    start_count += (r.women_using - old_rep.women_using)
-                elif r.women_using < old_rep.women_using:
-                    end_count += (old_rep.women_using - r.women_using)
+                if r.women_using is None:
+                    if old_rep.women_using is None: continue
+                    end_count += old_rep.women_using
+                elif old_rep.women_using is None:
+                    if r.women_using is None: continue
+                    start_count += r.women_using
                 else:
-                    same_count += r.women_using
+                    # Otherwise calculate change from last FP report
+                    if r.women_using > old_rep.women_using:
+                        start_count += (r.women_using - old_rep.women_using)
+                    elif r.women_using < old_rep.women_using:
+                        end_count += (old_rep.women_using - r.women_using)
+                    else:
+                        same_count += r.women_using
 
         return (start_count, same_count, end_count)
 
@@ -1906,7 +1912,7 @@ class MonthlyCHWReport(TheCHWReport):
                     .filter(encounter__patient=mother)\
                     .filter(encounter__encounter_date__gte=\
                         datetime.today() - timedelta(30.4375 * 10))\
-                    .latest(encounter__encounter_date)
+                    .latest('encounter__encounter_date')
             except PregnancyReport.DoesNotExist:
                 continue
 
