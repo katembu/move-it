@@ -8,6 +8,7 @@ IncomingManager
 '''
 
 from django.db import models
+from django.utils import simplejson
 from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter, PersistantConnection
@@ -166,7 +167,9 @@ class LoggedMessage(models.Model):
         return string
 
     def ident_strings(self):
-        """ returns a tuple containing a name and backend """
+        '''
+        returns a tuple containing a name and backend
+        '''
         return self.ident_string.partition(' ')[2:], self.backend
 
 
@@ -176,6 +179,20 @@ class LoggedMessage(models.Model):
         '''
         return self.direction == self.DIRECTION_INCOMING
 
+
+    def to_dict(self):
+        '''
+        returns dict version of the message and all its responses
+        '''
+        return {'id': self.id, 'message': self.text, \
+                     'status': self.status, \
+                     'dateStr': self.date.strftime("%d-%b-%Y @ %H:%M:%S"), \
+                     'name': self.identity, \
+                     'responses': [r.text for r in self.response.all()]}
+
+    def to_json(self):
+        return simplejson.dumps(self.to_dict())
+    
 
     def __unicode__(self):
         return  u"%(direction)s - %(ident)s - %(text)s" % \

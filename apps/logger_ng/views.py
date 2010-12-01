@@ -89,47 +89,23 @@ def post_message(request):
         msg = get_object_or_404(LoggedMessage, pk=pk)
         value = request.POST['msg']
         respond_to_msg(msg, value)
-        return HttpResponse('{"status":"good"}', mimetype="text/json")
+        return HttpResponse('{"status":"none"}', mimetype="text/json")
 
 
 def latest_messages(request, recent_id):
-    """ returns new messages from passed id parameter """
+    """ returns a json list with the messages received since recent_id from passed id parameter """
 
     try:
         since_message_id = int(recent_id)
     except:
-        since_message_id = LoggedMessage.objects.all().order_by('-id')[0].id
+        return HttpResponse("[]")
 
-    if since_message_id > 0:
-        try:
-            messages = LoggedMessage.objects.filter(id__gt=since_message_id, \
-                               direction=LoggedMessage.DIRECTION_INCOMING)[:5]
-        except:
-            messages = []
-    else:
+    try:
+        messages = LoggedMessage.objects.filter(id__gt=since_message_id, \
+                           direction=LoggedMessage.DIRECTION_INCOMING)[:5]
+    except:
         messages = []
     
-    msgs = []
+    msgs = [message.to_dict() for message in messages]
     
-    for message in messages:
-        curmsg = {}
-        curmsg['newId'] = int(message.id)
-        curmsg['id']="ID: %s" % int(message.id)
-        curmsg['message'] = message.text
-        curmsg['status'] = "good"
-        curmsg['dateStr'] = message.date.strftime("%d-%b-%Y @ %H:%M:%S")
-        try:
-            curmsg['fromName'] = message.reporter.__unicode__()
-        except:
-            curmsg['fromName'] = message.identity
-
-        curmsg['name'] = message.identity
-        
-        responses = message.response.all()
-        r_text = []
-        for rr in responses:
-            r_text.append(rr.text)
-
-        curmsg['responses'] = r_text
-        msgs.append(curmsg)
-    return HttpResponse("%s" % simplejson.dumps(msgs))
+    return HttpResponse(simplejson.dumps(msgs), mimetype="text/json")

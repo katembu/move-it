@@ -18,12 +18,29 @@
 
 <h2>Incoming Message Log</h2>
 
+<script type="text/javascript">
+<!--
+var messageBuffer = [];
+-->
+</script>
+
+
+<div id="ajax-logger" style="display:none">
+	<table class='msgs'></table>
+</div>
+<div id="non-ajax-message-list">
 {% for msg in msgs.object_list %}
-<div class="lng_msg" title="ID:{{msg.id}}">
+
+<script type="text/javascript">
+<!--
+messageBuffer.push({{msg.to_json|safe}})
+-->
+</script>
+
+<div class="lng_msg">
     <div class="details">
         <span class="date">{{msg.date|date:"d-M-Y @ H:m:s"}}</span>
         <span class="from">{{msg.ident_string}}</span>
-		<span class="status" title="{{'good'}}"></span>
     </div>
     <div class="msg {% if msg.is_incoming %}text{% else %}response{% endif %}">{{msg.text}}</div>
     {% for response in msg.response.all %}
@@ -33,70 +50,38 @@
         <div class="respond"><form action="" method="post">
             <input class="resp_box" name="respond_{{msg.id}}" type="text" />
             <input type="submit" value="Respond" />
-        </form></div>    
+        </form></div>
     {% endif %}
 </div>
+
 {% endfor %}
 
-<script type="text/javascript">
-	var CurrentLang = (window.navigator.language.toLowerCase()=="en-us") ? "en" : "fr",
-		ExchangeSettings = {
-		'token' : "qwertyuiopasdfghjklzxcvbnm",
-		'msgPOSTurl' : "/logger_ng/post_message"
-		},
-		Translations;
+</div>
 
-	// window.navigator.language is not reliable in all browsers, but
-	// might be good for surprising kevin+renaud with a french ui
-	CurrentLang = (window.navigator.language.toLowerCase()=="en-us") ? "en" : "fr";
-	
-	Translations = {
-		'en': {
-			'response': "Response",
-			'responses': "Responses",
-			'reply': 'Respond',
-			'status': {
-				'good': "Status: Good",
-				'warning': "Status: Warning",
-				'pending': "Status: Pending",
-				'error': "Status: Error",
-				'info': "Status: Info"
-			},
-			'sendMessage': "Send",
-			'tooManyCharacters': "Too many characters"
-		},
-		'fr': {
-			'response': "Réponse",
-			'responses': "Réponses",
-			'reply': "Répondre",
-			'status': {
-				'good': "Statut: Bon",
-				'pending': "Statut: Pending",
-				'warning': "Statut: Warning",
-				'error': "Statut: Error",
-				'info' : "Statut: Info"
-			},
-			'sendMessage': "Envoyer",
-			'tooManyCharacters': "Too many characters (in French)"
-		}
-	};
-	
+<script type="text/javascript">
+
 	(function(){
 		//creates the wrapping table with class msgs
-		var tableWrap = $("<table class='msgs'></table>");
+		var tableWrap = $('#ajax-logger table.msgs'),
+			pageNumber = "{{msgs.number}}";
 		
-		//creates exchange object and inserts it into tableWrap
-		$('.lng_msg').enableSmsExchangeIn(tableWrap, ExchangeSettings);
+		SmsExchange.placeIn(tableWrap);
+		$(messageBuffer).each(function(){
+			new SmsExchange.constructor(this);
+		});
 		
-		//inserts tableWrap just before the first '.lng_msg'
-		$($('.lng_msg').get(0)).before(tableWrap);
-		
-		//updates list every 5 seconds, must be called after table is populated
-        if(Number($('#page_number').html())==1) {
-            $.listenForMessages("/logger_ng/latest_messages/", 5000); 
-        }
+		$('#non-ajax-message-list').hide();
+		$('#ajax-logger').show();
+
+		if(pageNumber=="1") {
+			//must be called after table is populated and only on the first page (when paginated)
+	        $.listenForMessages(5000); //updates every 5 seconds
+		}
 	})();
+	
+	
 </script>
+
 <table class="lng_page">
 <tr><td>
         {% if msgs.has_previous %}
