@@ -35,7 +35,7 @@ styleH3 = styles['Heading3']
 
 class Report(PrintedReport):
     title = u'Patient List: '
-    filename = 'patient_list'
+    filename = 'patient_list_'
     formats = ['pdf']
     variants = map(lambda c: \
         (unicode(c), c.code+'_active', {'clinic_pk': c.pk, 'active': True}),

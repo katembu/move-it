@@ -1554,8 +1554,8 @@ class MonthlyCHWReport(TheCHWReport):
             empty,
             ('People with DSs',\
                 self.num_danger_signs, self.sum),
-            ('People with DSs Referred',\
-                self.num_ds_referred, self.sum),
+            ('People with Referred',\
+                self.num_referred, self.sum),
             ('Num Follow Up Within 3 Days',\
                 self.num_ontime_follow_up, self.sum),
             ('% Follow Up Within 3 Days',\
@@ -1742,22 +1742,12 @@ class MonthlyCHWReport(TheCHWReport):
             .count()
         return 0 if count is None else count
 
-    def num_ds_referred(self, week_num):
-        count = 0
-        for d in DangerSignsReport\
-            .indicators\
-            .for_chw(self)\
-            .for_reporting_week(week_num):
-
-            try:
-                r = ReferralReport\
+    def num_referred(self, week_num):
+        return ReferralReport\
                 .indicators\
-                .get(encounter__pk=d.encounter.pk)
-            except ReferralReport.DoesNotExist:
-                pass
-            else:
-                count += 1
-        return count
+                .for_chw(self)\
+                .for_reporting_week(week_num)\
+                .count()
 
     def num_ontime_follow_up(self, week_num):
         count = 0
@@ -1767,21 +1757,23 @@ class MonthlyCHWReport(TheCHWReport):
             .for_reporting_week(week_num):
 
             due_by = r.encounter.encounter_date + timedelta(2)
-            try:
-                f = FollowUpReport\
-                    .indicators\
-                    .filter(encounter__patient__pk=r.encounter.patient.pk,\
-                        encounter__encounter_date__lte=due_by,
-                        encounter__encounter_date__gt=\
-                            r.encounter.encounter_date)
-            except FollowUpReport.DoesNotExist:
-                pass
+            f = FollowUpReport\
+                .indicators\
+                .for_chw(self)\
+                .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                    encounter__encounter_date__lte=due_by,
+                    encounter__encounter_date__gt=\
+                        r.encounter.encounter_date)\
+                .count()
+
+            if f is None or f == 0:
+                continue
             else:
                 count += 1
         return count 
 
     def perc_ontime_follow_up(self, week_num):
-        den = self.num_ds_referred(week_num)
+        den = self.num_referred(week_num)
         if den == 0: return None
 
         return float(self.num_ontime_follow_up(week_num))/float(den)
@@ -1789,7 +1781,7 @@ class MonthlyCHWReport(TheCHWReport):
     def perc_ontime_follow_up_monthly(self, lst):
         return self._aggregate_perc(\
             self.num_ontime_follow_up,
-            self.num_ds_referred)
+            self.num_referred)
 
     #
     # Pregnancy section
@@ -1832,12 +1824,12 @@ class MonthlyCHWReport(TheCHWReport):
 
         val = self._aggregate_perc(\
             lambda a: len(have_anc),
-            lambda a: len(women))
+            lambda a: len(women)) 
 
         if val is None:
             return '--'
         
-        return "%2.1f%% (%d/%d)" % (val, len(have_anc), len(women))
+        return "%2.1f%% (%d/%d)" % (val*100.0, len(have_anc), len(women))
 
     def _women_getting_n_anc_by(self, n_anc, trimester, week_num):
         if trimester not in xrange(1,4):
@@ -2018,7 +2010,6 @@ class MonthlyCHWReport(TheCHWReport):
     # Pregnant women in 2nd or 3rd trimester who haven't had 
     # ANC visits in last 5 five weeks
     def pregnant_needing_anc(self):
-        women = []
         pregs = PregnancyReport\
             .indicators\
             .for_chw(self)\
@@ -2026,6 +2017,8 @@ class MonthlyCHWReport(TheCHWReport):
                 date.today() - timedelta(10 * 30.4375))\
             .order_by('-encounter__encounter_date')
         
+        no_anc = []
+        women = []
         for p in pregs:
             if p.encounter.patient in women:
                 continue
@@ -2039,19 +2032,66 @@ class MonthlyCHWReport(TheCHWReport):
             if preg_month > 9.0 or preg_month < 3.0:
                 continue
          
-            print preg_month
-            months_left = preg_month - 9
+            print "%s %d %d" % (p.encounter.encounter_date, p.pregnancy_month, preg_month)
+            months_left = 9 - preg_month 
             days_left = months_left * 30.475
             due_date = date.today() + timedelta(days_left)
             
             # Current weeks since ANC
-            if p.weeks_since_anc is None \
-                or (p.weeks_since_anc + weeks_ago) > 5:
-                women.append((p.encounter.patient, due_date))
-        
-        return women
-            
-        
+            if p.weeks_since_anc is None:
+                no_anc.append((p.encounter.patient, \
+                    None,\
+                    due_date))
+            else:
+                weeks_since_anc = p.weeks_since_anc + weeks_ago
+                if weeks_since_anc > 5.0:
+                    women.append((p.encounter.patient, \
+                        p.encounter.encounter_date, \
+                        due_date))
 
+        women.sort(lambda x,y: cmp(x[1],y[1]))
+        return (no_anc + women)
+            
+    def kids_needing_muac(self):
+        # people eligible for MUAC
+        muac_list = self.muac_list()\
+            .order_by('encounter__patient__location__code')
+       
+        seen = []
+        need_muac = []
+        no_muac = []
+
+        one_month_ago = datetime.today() - timedelta(30.4375)
+        three_months_ago = datetime.today() - timedelta(3 * 30.4375)
+
+        danger = (NutritionReport.STATUS_SEVERE, \
+                        NutritionReport.STATUS_SEVERE_COMP)
+        for p in muac_list:
+            if p.pk in seen:
+                continue
+            else:
+                seen.append(p.pk)
+
+            try:
+                nut = NutritionReport\
+                    .objects\
+                    .filter(encounter__patient__pk=p.pk)\
+                    .latest('encounter__encounter_date')
+            except NutritionReport.DoesNotExist:
+                no_muac.append((p, None))
+                continue
+
+            if nut.status in danger and \
+                    nut.encounter.encounter_date < one_month_ago:
+                need_muac.append((p, nut))
+            elif nut.encounter.encounter_date < three_months_ago:
+                need_muac.append((p, nut))
+            else:
+                pass
+        
+        need_muac.sort(lambda x,y:\
+            cmp(x[1].encounter.encounter_date, \
+                y[1].encounter.encounter_date))
+        return no_muac + need_muac
 
 

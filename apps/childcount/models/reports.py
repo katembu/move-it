@@ -73,7 +73,10 @@ class IndicatorQuerySet(PolymorphicQuerySet):
         return self.filter(encounter__chw=chw)
  
 class IndicatorManager(PolymorphicManager):
-    pass
+    def get_query_set(self):
+        return super(IndicatorManager,self)\
+            .get_query_set()\
+            .filter(encounter__patient__status=Patient.STATUS_ACTIVE)
 
 class CCReport(PolymorphicModel):
 
