@@ -1,0 +1,14 @@
+<div id="statbar">
+<table>
+    <tr>
+		{% for stat in dashboard_data.highlight_stats_bar.titles %}
+		<th>{{ stat }}</th>
+		{% endfor %}
+    </tr>
+    <tr>
+		{% for stat in dashboard_data.highlight_stats_bar.data %}
+		<td><div>{{ stat }}</div></td>
+		{% endfor %}
+    </tr>
+</table>
+</div>
