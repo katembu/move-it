@@ -44,11 +44,18 @@ def highlight_stats_bar():
 def nutrition_chart():
     """
     TheCHWReport.muac_summary()
-    """
+    
+    these 2 lines were working before:    
     nut_data = TheCHWReport.muac_summary_data()
     nutrition_data_for_dashboard = [["Unknown", nut_data['unknown']], \
                                     ["Healthy", nut_data['healthy']], \
                                     ["Moderate", nut_data['moderate']]]
+    
+    I'm pushing to a new branch with dummy data as an example.
+    """
+    nutrition_data_for_dashboard = [["Unknown", 80], \
+                                    ["Healthy", 17], \
+                                    ["Moderate", 3]]
     
     return simplejson.dumps(nutrition_data_for_dashboard)
 
