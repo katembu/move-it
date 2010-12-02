@@ -69,7 +69,7 @@ class Report(PrintedReport):
         ])
 
         for row in chw.report_rows():
-            ind = Indicator(*row)
+            ind = Indicator(*row, excel=False)
             table.add_row(map(Text,[ind.title, ind.for_week(0), ind.for_week(1),
                 ind.for_week(2), ind.for_week(3), ind.for_month()]))
 

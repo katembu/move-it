@@ -490,15 +490,19 @@ class TheCHWReport(CHW):
         return num
 
     @property
-    def number_of_households(self):
-        return self.households().count()
+    def number_of_households(self, today=None):
+        return self.households(today).count()
 
-    def households(self):
+    def households(self, today=None):
         '''
         List of households belonging to this CHW
         '''
-        return Patient.objects.filter(health_id=F('household__health_id'), \
+        p = Patient.objects.filter(health_id=F('household__health_id'), \
                                         chw=self, status=Patient.STATUS_ACTIVE)
+        if today is None:
+            return p
+        else:
+            return p.filter(created_on__lte=today)
 
     def muac_list(self):
         '''
@@ -1493,116 +1497,96 @@ class MonthlyCHWReport(TheCHWReport):
     class Meta:
         proxy = True
 
-    ''' Aggregation functions
-        (for giving a total/average at the end of a row)
-    '''
-    def avg(self, lst):
-        lst = filter(lambda a: a is not None, lst)
-        return sum(lst, 0.0) / len(lst)
-
-    def sum(self, lst):
-        lst = filter(lambda a: a is not None, lst)
-        return sum(lst) 
-   
-    # Pretty-print for % values
-    def perc_print(self, val):
-        if val is None: return '--'
-        else: return "%2.1f%%" % (100.0 * val) 
- 
-    def _aggregate_perc(self, num_func, den_func):
-        weeks = xrange(0,3)
-        num = sum([num_func(w) for w in weeks]) 
-        den = sum([den_func(w) for w in weeks])
-
-        return None if den == 0 else (float(num)/float(den))
-
-   
     # The report rows.  Returns a list of tuples
     # that can be used to instantiate Indicator objects
     def report_rows(self):
         return [
+            ('Households',\
+                self.num_of_hhs, Indicator.AVG),
             ('HH Visits',\
-                self.num_of_hh_visits, self.sum),
+                self.num_of_hh_visits, Indicator.SUM),
             Indicator.EMPTY,
             ('Num of Women 15-49 Seen',\
-                self.num_of_women_under50_seen, self.sum),
+                self.num_of_women_under50_seen, Indicator.SUM),
             ('Num of Women using FP',\
-                self.num_of_women_under50_using_fp, self.sum),
+                self.num_of_women_under50_using_fp, Indicator.SUM),
             ('% of Women using FP',\
                 self.perc_of_women_under50_using_fp, \
-                    self.perc_of_women_using_fp_monthly, \
-                    self.perc_print),
+                    Indicator.AGG_PERCS, \
+                    Indicator.PERC_PRINT),
             ('Num of Women using FP: Condom',\
-                self.num_fp_usage_condom, self.sum),
+                self.num_fp_usage_condom, Indicator.SUM),
             ('Num of Women using FP: Injectable',\
-                self.num_fp_usage_injectable, self.sum),
+                self.num_fp_usage_injectable, Indicator.SUM),
             ('Num of Women using FP: IUD',\
-                self.num_fp_usage_iud, self.sum),
+                self.num_fp_usage_iud, Indicator.SUM),
             ('Num of Women using FP: Implant',\
-                self.num_fp_usage_implant, self.sum),
+                self.num_fp_usage_implant, Indicator.SUM),
             ('Num of Women using FP: Pill',\
-                self.num_fp_usage_pill, self.sum),
+                self.num_fp_usage_pill, Indicator.SUM),
             ('Num of Women using FP: Ster.',\
-                self.num_fp_usage_sterilization, self.sum),
+                self.num_fp_usage_sterilization, Indicator.SUM),
             ('Num of Women Starting FP or Never Registered',\
-                self.num_starting_fp, self.sum),
+                self.num_starting_fp, Indicator.SUM),
             ('Num of Women Remaining on FP',\
-                self.num_still_on_fp, self.sum),
+                self.num_still_on_fp, Indicator.SUM),
             ('Num of Women Stopping FP',\
-                self.num_ending_fp, self.sum),
+                self.num_ending_fp, Indicator.SUM),
             Indicator.EMPTY,
             ('People with DSs',\
-                self.num_danger_signs, self.sum),
+                self.num_danger_signs, Indicator.SUM),
             ('People with Referred',\
-                self.num_referred, self.sum),
+                self.num_referred, Indicator.SUM),
             ('Num Follow Up Within 3 Days',\
-                self.num_ontime_follow_up, self.sum),
+                self.num_ontime_follow_up, Indicator.SUM),
             ('% Follow Up Within 3 Days',\
                 self.perc_ontime_follow_up, 
-                self.perc_ontime_follow_up_monthly,
-                self.perc_print),
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator.EMPTY,
             ('Num Pregnant Women',\
-                self.num_pregnant_by_week, self.avg),
+                self.num_pregnant_by_week, Indicator.AVG),
             ('% Getting 1 ANC by 1st Trim.',\
                 self.perc_with_anc_first, 
-                self.perc_with_anc_first_tot),
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             ('% Getting 3 ANC by 2nd Trim.',\
                 self.perc_with_anc_second, 
-                self.perc_with_anc_second_tot),
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             ('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third, 
-                self.perc_with_anc_third_tot),
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             ('Num Births',\
-                self.num_births, self.sum),
+                self.num_births, Indicator.SUM),
             ('Num Births with 4 ANC',\
-                self.num_births_with_anc, self.sum),
+                self.num_births_with_anc, Indicator.SUM),
             ('Num Neonatal Rpts (<28 days)',\
-                self.num_neonatal, self.sum),
+                self.num_neonatal, Indicator.SUM),
             Indicator.EMPTY,
             ('Num Children U5',\
-                self.num_underfive, self.avg),
+                self.num_underfive, Indicator.AVG),
             ('Num U5 Known Immunized',\
-                self.num_underfive_imm, self.avg),
+                self.num_underfive_imm, Indicator.AVG),
             ('Num MUACs Taken',\
-                self.num_muacs_taken, self.sum),
+                self.num_muacs_taken, Indicator.SUM),
             ('Num active SAM Cases',\
-                self.num_active_sam_cases, self.avg),
+                self.num_active_sam_cases, Indicator.AVG),
             ('Num Tested RDTs',\
-                self.num_tested_rdts, self.sum),
+                self.num_tested_rdts, Indicator.SUM),
             ('Num Positive RDTs',\
-                self.num_positive_rdts, self.sum),
+                self.num_positive_rdts, Indicator.SUM),
             ('Num Anti-Malarials Given',\
-                self.num_antimalarials_given, self.sum),
+                self.num_antimalarials_given, Indicator.SUM),
             ('Num Diarrhea Cases',\
-                self.num_diarrhea, self.sum),
+                self.num_diarrhea, Indicator.SUM),
             ('Num ORS Given',\
-                self.num_ors_given, self.sum),
+                self.num_ors_given, Indicator.SUM),
         ]
 
     #
     # HH Visit section
     #
+
+    def num_of_hhs(self, week_num):
+        return self.households(reporting_week_sunday(week_num)).count()
 
     def num_of_hh_visits(self, weekNum):
         return HouseholdVisitReport\
@@ -1623,15 +1607,7 @@ class MonthlyCHWReport(TheCHWReport):
 
     def perc_of_women_under50_using_fp(self, week_num):
         u50 = self.num_of_women_under50_seen(week_num)
-        if u50 == 0: return None 
-
-        return float(self.num_of_women_under50_using_fp(week_num)) / \
-            float(u50)
-
-    def perc_of_women_using_fp_monthly(self, lst):
-        return self._aggregate_perc( \
-            self.num_of_women_under50_using_fp,
-            self.num_of_women_under50_seen)
+        return (self.num_of_women_under50_using_fp(week_num), u50)
 
     def _num_of_women_count(self, count_str, week_num):
         if count_str not in ['women','women_using']:
@@ -1779,15 +1755,8 @@ class MonthlyCHWReport(TheCHWReport):
         return count 
 
     def perc_ontime_follow_up(self, week_num):
-        den = self.num_referred(week_num)
-        if den == 0: return None
-
-        return float(self.num_ontime_follow_up(week_num))/float(den)
-
-    def perc_ontime_follow_up_monthly(self, lst):
-        return self._aggregate_perc(\
-            self.num_ontime_follow_up,
-            self.num_referred)
+        return (self.num_ontime_follow_up(week_num),\
+            self.num_referred(week_num))
 
     #
     # Pregnancy section
@@ -1802,20 +1771,14 @@ class MonthlyCHWReport(TheCHWReport):
     # % of women getting at least 1 ANC visit by 1st trimester
     def perc_with_anc_first(self, week_num):
         return self._women_getting_n_anc_by(1, 1, week_num)
-    def perc_with_anc_first_tot(self, lst):
-        return self._women_getting_n_anc_by_tot(1, 1)
 
     # % of women getting at least 3 ANC visits by 2nd trimester
     def perc_with_anc_second(self, week_num):
         return self._women_getting_n_anc_by(3, 2, week_num)
-    def perc_with_anc_second_tot(self, lst):
-        return self._women_getting_n_anc_by_tot(3, 2)
 
     # % of women getting at least 4 ANC visits by 3rd trimester
     def perc_with_anc_third(self, week_num):
         return self._women_getting_n_anc_by(4, 3, week_num)
-    def perc_with_anc_third_tot(self, lst):
-        return self._women_getting_n_anc_by_tot(4, 3)
 
     def _women_getting_n_anc_by_tot(self, n_anc, trimester):
         if trimester not in xrange(1,4):
@@ -1828,31 +1791,16 @@ class MonthlyCHWReport(TheCHWReport):
                     women.append(w)
         have_anc = filter(lambda w: w.anc_visits > n_anc, women)
 
-        val = self._aggregate_perc(\
-            lambda a: len(have_anc),
-            lambda a: len(women)) 
-
-        if val is None:
-            return '--'
-        
-        return "%2.1f%% (%d/%d)" % (val*100.0, len(have_anc), len(women))
+        return (len(have_anc), len(women))
 
     def _women_getting_n_anc_by(self, n_anc, trimester, week_num):
         if trimester not in xrange(1,4):
             raise ValueError('Trimester is out of range [1,3]')
 
         women = self._women_in_month_of_preg(trimester, week_num)
-        if len(women) == 0:
-            return '--'
-
         have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
        
-        num = len(have_anc)
-        den = len(women)
-
-        perc_str = "%2.1f%%" % (100.0 * float(num) / den)
-        count_str = "(%d/%d)" % (num, den)
-        return perc_str + ' ' + count_str
+        return (len(have_anc), len(women))
         
     
     def _women_in_month_of_preg(self, trimester, week_num):
