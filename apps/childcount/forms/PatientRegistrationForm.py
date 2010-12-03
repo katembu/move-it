@@ -125,6 +125,12 @@ class PatientRegistrationForm(CCForm):
                     raise BadValue(_(u"You must provide an exact birth date " \
                                       "or the age, in months, for children " \
                                       "under two years."))
+                elif patient.dob > date.today():
+                    raise BadValue(_("The birth date you gave %(bdate)s) " \
+                                     "is in the future!  Please try reentering " \
+                                     "the date with the full year " \
+                                     "(like 2009 instead of 09).") % \
+                                     {'bdate': patient.dob.strftime('%d-%b-%Y')})
 
         if not dob:
             raise ParseError(_(u"Could not understand age or " \
