@@ -116,6 +116,7 @@ class PatientRegistrationForm(CCForm):
 
             if dob:
                 patient.dob = dob
+
                 days, weeks, months = patient.age_in_days_weeks_months()
                 if days < 60 and variance > 1:
                     raise BadValue(_(u"You must provide an exact birth date " \

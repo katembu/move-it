@@ -14,7 +14,7 @@ from childcount.models import Clinic
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import reporting_week_monday, \
     reporting_week_sunday
-from childcount.reports.indicator import Indicator
+from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
@@ -87,7 +87,7 @@ class Report(PrintedReport):
             .objects\
             .filter(is_active=True)\
             .exclude(clinic__isnull=True)\
-            .order_by('clinic__name','first_name')
+            .order_by('clinic__name','first_name')[0:2]
 
         # Set up data structures for column totals
         self._aggregate_on = []
@@ -114,7 +114,7 @@ class Report(PrintedReport):
         self._ws.row(0).height = 0x180
         self._print_names(chws)
 
-        header_rows = chws[0].report_rows()
+        header_rows = chws[0].report_indicators()
         self._print_header(header_rows)
 
         row = 4
@@ -134,16 +134,15 @@ class Report(PrintedReport):
             self._write_merge(row+num, row+num, 0, 1, title,\
                 self._total_style)
 
-            for metric in header_rows:
-                if metric == Indicator.EMPTY:
+            for ind in header_rows:
+                if ind == INDICATOR_EMPTY:
                     self._add_spacer(col)
                     col += 1
                     continue
 
-                ind = Indicator(*metric)
-
                 for j in xrange(0, 5):
-                    self._write(row+num, col, ind.aggregate(self._indicator_data[num][i]), \
+                    self._write(row+num, col, \
+                        ind.aggregate_col(self._indicator_data[num][i]), \
                         self._total_perc_style if \
                             ind.is_percentage else self._total_style)
                     i += 1
@@ -151,15 +150,14 @@ class Report(PrintedReport):
             
 
     def _print_data(self, row, chw):
-        data = chw.report_rows()
+        data = chw.report_indicators()
         col = 3
         j = 0   # Index into _indicator_data cache
-        for metric in data:
-            if metric == Indicator.EMPTY:
+        for ind in data:
+            if ind == INDICATOR_EMPTY:
                 col += 1
                 continue
            
-            ind = Indicator(*metric)
             for i in xrange(0,4):
                 self._aggregate_data(chw, ind.for_week_raw(i), j)
                 j += 1
@@ -185,21 +183,21 @@ class Report(PrintedReport):
         self._ws.col(col).width = 0x0100
         self._ws.col(col).set_style(self._spacer)
 
-    def _print_header(self, rows):
+    def _print_header(self, indicators):
         col = 3
         LABEL_ROW = 2
         DATE_ROW = 3
         n_indicators = 0
-        for r in rows:
-            if r == Indicator.EMPTY:
+        for ind in indicators:
+            if ind == INDICATOR_EMPTY:
                 self._add_spacer(col)
                 col += 1
                 continue
 
             n_indicators += 1
 
-            self._write_merge(LABEL_ROW, LABEL_ROW, col, col+4, r[0], \
-                self._top_row)
+            self._write_merge(LABEL_ROW, LABEL_ROW, col, col+4, \
+                ind.title, self._top_row)
 
             for j in xrange(0, 4):
                 n_indicators += 1

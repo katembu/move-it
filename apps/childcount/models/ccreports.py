@@ -48,7 +48,7 @@ from childcount.utils import day_end, \
                                 first_date_of_week
 from childcount.reports.utils import reporting_week_sunday
 from childcount.reports.utils import reporting_week_monday
-from childcount.reports.indicator import Indicator
+from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 
 from logger_ng.models import LoggedMessage
 
@@ -1499,85 +1499,90 @@ class MonthlyCHWReport(TheCHWReport):
 
     # The report rows.  Returns a list of tuples
     # that can be used to instantiate Indicator objects
-    def report_rows(self):
+    def report_indicators(self):
         return [
-            ('Households',\
-                self.num_of_hhs, Indicator.AVG),
-            ('HH Visits',\
+            Indicator('Households',\
+                self.num_of_hhs, Indicator.AVG, \
+                col_agg_func = Indicator.SUM),
+            Indicator('HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
-            Indicator.EMPTY,
-            ('Num of Women 15-49 Seen',\
-                self.num_of_women_under50_seen, Indicator.SUM),
-            ('Num of Women using FP',\
+            INDICATOR_EMPTY,
+            Indicator('Num of Women 15-49 Seen',\
+            self.num_of_women_under50_seen, Indicator.SUM),
+            Indicator('Num of Women using FP',\
                 self.num_of_women_under50_using_fp, Indicator.SUM),
-            ('% of Women using FP',\
+            Indicator('% of Women using FP',\
                 self.perc_of_women_under50_using_fp, \
                     Indicator.AGG_PERCS, \
                     Indicator.PERC_PRINT),
-            ('Num of Women using FP: Condom',\
+            Indicator('Num of Women using FP: Condom',\
                 self.num_fp_usage_condom, Indicator.SUM),
-            ('Num of Women using FP: Injectable',\
+            Indicator('Num of Women using FP: Injectable',\
                 self.num_fp_usage_injectable, Indicator.SUM),
-            ('Num of Women using FP: IUD',\
+            Indicator('Num of Women using FP: IUD',\
                 self.num_fp_usage_iud, Indicator.SUM),
-            ('Num of Women using FP: Implant',\
+            Indicator('Num of Women using FP: Implant',\
                 self.num_fp_usage_implant, Indicator.SUM),
-            ('Num of Women using FP: Pill',\
+            Indicator('Num of Women using FP: Pill',\
                 self.num_fp_usage_pill, Indicator.SUM),
-            ('Num of Women using FP: Ster.',\
+            Indicator('Num of Women using FP: Ster.',\
                 self.num_fp_usage_sterilization, Indicator.SUM),
-            ('Num of Women Starting FP or Never Registered',\
+            Indicator('Num of Women Starting FP or Never Registered',\
                 self.num_starting_fp, Indicator.SUM),
-            ('Num of Women Remaining on FP',\
+            Indicator('Num of Women Remaining on FP',\
                 self.num_still_on_fp, Indicator.SUM),
-            ('Num of Women Stopping FP',\
+            Indicator('Num of Women Stopping FP',\
                 self.num_ending_fp, Indicator.SUM),
-            Indicator.EMPTY,
-            ('People with DSs',\
+            INDICATOR_EMPTY,
+            Indicator('People with DSs',\
                 self.num_danger_signs, Indicator.SUM),
-            ('People with Referred',\
+            Indicator('People with Referred',\
                 self.num_referred, Indicator.SUM),
-            ('Num Follow Up Within 3 Days',\
+            Indicator('Num Follow Up Within 3 Days',\
                 self.num_ontime_follow_up, Indicator.SUM),
-            ('% Follow Up Within 3 Days',\
+            Indicator('% Follow Up Within 3 Days',\
                 self.perc_ontime_follow_up, 
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator.EMPTY,
-            ('Num Pregnant Women',\
-                self.num_pregnant_by_week, Indicator.AVG),
-            ('% Getting 1 ANC by 1st Trim.',\
+            INDICATOR_EMPTY,
+            Indicator('Num Pregnant Women',\
+                self.num_pregnant_by_week, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('% Getting 1 ANC by 1st Trim.',\
                 self.perc_with_anc_first, 
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            ('% Getting 3 ANC by 2nd Trim.',\
+            Indicator('% Getting 3 ANC by 2nd Trim.',\
                 self.perc_with_anc_second, 
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            ('% Getting 4 ANC by 3rd Trim.',\
+            Indicator('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third, 
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            ('Num Births',\
+            Indicator('Num Births',\
                 self.num_births, Indicator.SUM),
-            ('Num Births with 4 ANC',\
+            Indicator('Num Births with 4 ANC',\
                 self.num_births_with_anc, Indicator.SUM),
-            ('Num Neonatal Rpts (<28 days)',\
+            Indicator('Num Neonatal Rpts (<28 days)',\
                 self.num_neonatal, Indicator.SUM),
-            Indicator.EMPTY,
-            ('Num Children U5',\
-                self.num_underfive, Indicator.AVG),
-            ('Num U5 Known Immunized',\
-                self.num_underfive_imm, Indicator.AVG),
-            ('Num MUACs Taken',\
+            INDICATOR_EMPTY,
+            Indicator('Num Children U5',\
+                self.num_underfive, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num U5 Known Immunized',\
+                self.num_underfive_imm, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num MUACs Taken',\
                 self.num_muacs_taken, Indicator.SUM),
-            ('Num active SAM Cases',\
-                self.num_active_sam_cases, Indicator.AVG),
-            ('Num Tested RDTs',\
+            Indicator('Num active SAM Cases',\
+                self.num_active_sam_cases, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num Tested RDTs',\
                 self.num_tested_rdts, Indicator.SUM),
-            ('Num Positive RDTs',\
+            Indicator('Num Positive RDTs',\
                 self.num_positive_rdts, Indicator.SUM),
-            ('Num Anti-Malarials Given',\
+            Indicator('Num Anti-Malarials Given',\
                 self.num_antimalarials_given, Indicator.SUM),
-            ('Num Diarrhea Cases',\
+            Indicator('Num Diarrhea Cases',\
                 self.num_diarrhea, Indicator.SUM),
-            ('Num ORS Given',\
+            Indicator('Num ORS Given',\
                 self.num_ors_given, Indicator.SUM),
         ]
 

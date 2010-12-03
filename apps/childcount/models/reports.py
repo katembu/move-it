@@ -49,12 +49,12 @@ class IndicatorQuerySet(PolymorphicQuerySet):
 
     def between_dates(self, startDate, endDate):
         return self.filter(encounter__encounter_date__gte=startDate,\
-            encounter__encounter_date__lte=endDate)
+            encounter__encounter_date__lt=endDate)
 
     def for_reporting_week(self, week_num):
         return self.between_dates(\
             reporting_week_monday(week_num), \
-            reporting_week_sunday(week_num))
+            reporting_week_monday(week_num+1))
 
     def before_reporting_week(self, week_num):
         return self.filter(\

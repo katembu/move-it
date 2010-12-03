@@ -2,27 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
-def print_func(val, excel):
-    out = None
-
-    if val is None:
-        return u"--"
-
-    try:
-        out = int(val)
-    except ValueError:
-        pass
-
-    if out is None:
-        try:
-            out = float(val)
-        except ValueError:
-            pass
-
-    if out is None:
-        print "string: %s" % val
-        out = unicode(val)
-    return out
 
 class Indicator(object):
     _agg_func = None
@@ -30,8 +9,11 @@ class Indicator(object):
     _print_func = None
     title = None
 
-    EMPTY_FUNC = lambda n: ''
-    EMPTY = ('________', EMPTY_FUNC, EMPTY_FUNC) 
+    def __unicode__(self):
+        return u"\"<Indicator: %s (excel: %s)>\"" % (self.title, self._excel)
+
+    def __str__(self):
+        return str(self.__unicode__())
 
     @classmethod
     def PERC_PRINT(cls, (num, den), excel):
@@ -42,6 +24,30 @@ class Indicator(object):
             return frac
         
         return "%2.1f%% (%d/%d)" % (100.0*frac, num, den)
+    
+    @classmethod
+    def print_func_default(cls, val, excel):
+        out = None
+
+        if val is None:
+            return u"--"
+
+        try:
+            out = int(val)
+        except ValueError:
+            pass
+
+        if out is None:
+            try:
+                out = float(val)
+            except ValueError:
+                pass
+
+        if out is None:
+            print "string: %s" % val
+            out = unicode(val)
+        return out
+
 
     @classmethod
     def AGG_PERCS(cls, lst):
@@ -68,16 +74,31 @@ class Indicator(object):
         lst = filter(lambda a: a is not None, lst)
         return sum(lst) 
 
-    def __init__(self, title, for_week, agg_func, \
-            print_func=print_func, excel=True):
+    def __init__(self, title, for_week, row_agg_func, \
+            print_func=None, col_agg_func=None, excel=True):
+
         self.title = title
         self._excel = excel
-        self._agg_func = agg_func
+        self._row_agg_func = row_agg_func
         self._for_week = for_week
-        self._print_func = print_func
+
+        if print_func is None:
+            self._print_func = self.print_func_default
+        else:
+            self._print_func = print_func
+
+        if col_agg_func is None:
+            self._col_agg_func = row_agg_func
+        else:
+            self._col_agg_func = col_agg_func
+
+    def set_excel(self, val):
+        if val not in [False, True]:
+            raise ValueError('Excel value must be a boolean')
+        self._excel = val
 
     def _for_month(self):
-        return self._agg_func([self._for_week(w) for w in xrange(0,4)])
+        return self._row_agg_func([self._for_week(w) for w in xrange(0,4)])
 
     def for_month(self):
         return self._print_func(self._for_month(), self._excel)
@@ -89,10 +110,19 @@ class Indicator(object):
     def for_week_raw(self, week_num):
         return self._for_week(week_num)
 
-    def aggregate(self, lst):
-        return self._print_func(self._agg_func(lst), self._excel)
+    def aggregate_col(self, lst):
+        return self._print_func(\
+            self._col_agg_func(lst), self._excel)
 
     @property
     def is_percentage(self):
         return self._print_func == Indicator.PERC_PRINT
 
+    @classmethod
+    def empty_func(self, week_num):
+        return ''
+
+
+INDICATOR_EMPTY = Indicator('________', \
+    Indicator.empty_func, \
+    Indicator.empty_func)

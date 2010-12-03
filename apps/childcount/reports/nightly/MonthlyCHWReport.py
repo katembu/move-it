@@ -16,7 +16,7 @@ from childcount.models.ccreports import MonthlyCHWReport
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import reporting_week_monday
 from childcount.reports.utils import reporting_week_sunday
-from childcount.reports.indicator import Indicator
+from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
@@ -68,8 +68,9 @@ class Report(PrintedReport):
             Text(_(u"Tot/Avg")),
         ])
 
-        for row in chw.report_rows():
-            ind = Indicator(*row, excel=False)
+        for ind in chw.report_indicators():
+            ind.set_excel(False)
+            print ind
             table.add_row(map(Text,[ind.title, ind.for_week(0), ind.for_week(1),
                 ind.for_week(2), ind.for_week(3), ind.for_month()]))
 
