@@ -90,8 +90,11 @@ def dashboard_gather_data(dashboard_template_names):
 def index(request):
     '''Dashboard page '''
     info = {'title':"ChildCount+ Dashboard"}
-    dashboard_template_names = ["highlight_stats_bar", "registration_chart", \
-                                "recent_numbers", "nutrition_chart", "reports_list"]
+
+    try:
+        dashboard_template_names = Configuration.objects.get(key='dashboard_sections').value.split()
+    except:
+        dashboard_template_names = ['highlight_stats_bar',]
     
     info['dashboard_data'] = dashboard_gather_data(dashboard_template_names)
     info['section_templates'] = ["%s/%s.html" % (DASHBOARD_TEMPLATE_DIRECTORY, ds) for ds in dashboard_template_names]
