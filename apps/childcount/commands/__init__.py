@@ -19,4 +19,6 @@ from childcount.commands.LocationCommand import LocationCommand
 from childcount.commands.RelocateCommand import RelocateCommand
 from childcount.commands.nids.NIDSCommand import NIDSCommand
 from childcount.commands.nids.PolioSummaryCommand import PolioSummaryCommand
-
+from childcount.commands.StockInCommand import StockInCommand
+from childcount.commands.GetStockCommand import GetStockCommand
+from childcount.commands.StockOutCommand import StockOutCommand
