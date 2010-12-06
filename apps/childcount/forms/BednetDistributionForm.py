@@ -62,9 +62,10 @@ class BednetDistributionForm(CCForm):
                                     encounter__patient=self.encounter.patient)\
                                     .latest()
             except BednetIssuedReport.DoesNotExist:
-                self.response += _(u": None")
-
-            self.response += _(u"Last received: %(last_issued)d bednets.") % \
+                self.response += _(u"Last received: None")
+            else:
+                self.response += _(u"Last received: %(last_issued)d "
+                                    "bednets.") % \
                                {'last_issued': last_issued.bednet_received}
         else:
             self.response = _(u"%(patient)s: %(ssite)d sleeping sites. Need " \
@@ -76,9 +77,10 @@ class BednetDistributionForm(CCForm):
                                     encounter__patient=self.encounter.patient)\
                                     .latest()
             except BednetIssuedReport.DoesNotExist:
-                self.response += _(u": None")
-
-            self.response += _(u"Last received: %(last_issued)d bednets.") % \
+                self.response += _(u"Last received: None")
+            else:
+                self.response += _(u"Last received: %(last_issued)d "
+                                    "bednets.") % \
                                {'last_issued': last_issued.bednet_received}
 
         pr.bednet_received = bdnt_required
