@@ -15,6 +15,8 @@ from childcount.reports import pmtct
 from childcount.reports import polio
 from childcount.reports import performance
 from childcount.reports import custom_reports as reports
+from childcount import chartviews
+from childcount.reports import extra
 
 admin.autodiscover()
 
@@ -55,6 +57,7 @@ urlpatterns = patterns('',
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/reports/underfive-(?P<clinic>[a-z]*).(?P<rformat>[a-z]*)$', reports.gen_underfive_register_pdf),
+    url(r'^childcount/reports/hhsurvey-(?P<clinic>[a-z]*).(?P<rformat>[a-z]*)$', reports.gen_household_surveyreport),
     url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
 
     url(r'^childcount/reports/form_a_entered.(?P<rformat>[a-z]*)$',
@@ -112,4 +115,13 @@ urlpatterns = patterns('',
         polio.polio_inactive_reports),
     url(r'^childcount/reports/polio-overage-(?P<username>[a-z]*).(?P<rformat>[a-z]*)$', 
         polio.polio_overage_reports),
+    # chartviews
+    url(r'^childcount/charts-test.png?$', 
+        chartviews.barchart),
+    url(r'^childcount/reports/malaria.(?P<rformat>[a-z]*)$', 
+        extra.malaria),
+    url(r'^childcount/reports/muac.(?P<rformat>[a-z]*)$', 
+        extra.muac),
+    url(r'^childcount/reports/sample.(?P<rformat>[a-z]*)$', 
+        extra.samplebednetreports),
 )
