@@ -1,0 +1,405 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
+
+from datetime import date, timedelta, datetime
+from dateutil.relativedelta import relativedelta
+
+from django.http import HttpResponse
+from django.db.models import Count
+
+from reportlab.graphics.shapes import Drawing, String
+from reportlab.graphics.charts.legends import Legend
+from reportlab.lib import colors
+
+from locations.models import Location
+
+from childcount.models import PolioCampaignReport, Patient
+from childcount.charts import CCBarChartDrawing, CCPieChartDrawing
+
+
+IMMUNIZATION_START_DATE = date(2010, 11, 24)
+
+
+def daterange(start_date, end_date):
+    for n in range((end_date - start_date).days):
+        yield start_date + timedelta(n)
+
+
+def barchart(request):
+    
+    #instantiate a drawing object
+    d = CCPieChartDrawing(650, 400)
+    start_date = IMMUNIZATION_START_DATE
+    five_years_back = start_date + relativedelta(months=-59)
+    tp = Patient.objects.filter(status=Patient.STATUS_ACTIVE,
+                                    dob__gt=five_years_back).count()
+    smdata = PolioCampaignReport.objects.filter(patient__status=Patient.STATUS_ACTIVE).values('chw__location__name',
+                                        'chw__location').annotate(Count('chw'))
+    trpts = PolioCampaignReport.objects.filter(patient__status=Patient.STATUS_ACTIVE).count()
+    data = []
+    cats = []
+    count  = 0
+    tpercentage = 0
+    for row in smdata:
+        percentage = round((row['chw__count']/float(tp)) * 100, 0)
+        data.append(percentage)
+        cats.append(u"%s - %s%%" % (row['chw__location__name'], percentage))
+        count += row['chw__count']
+        tpercentage += percentage
+    data.append(100 - tpercentage)
+    cats.append(u"Not Covered - %s%%" % (100 - tpercentage))
+    d.add(String(20,380,u"Polio Campaign Report by sub-locaton: %s total; "
+    "expected %s reports" % (count, tp)), name='title')
+    d.title.fontSize = 18
+    d.chart.data = data
+    d.chart.labels = cats
+    
+    d.chart.slices[0].fillColor = colors.steelblue
+    d.chart.slices[1].fillColor = colors.thistle
+    d.chart.slices[2].fillColor = colors.cornflower
+    d.chart.slices[3].fillColor = colors.lightsteelblue
+    d.chart.slices[4].fillColor = colors.aquamarine
+    d.chart.slices[5].fillColor = colors.cadetblue
+    d.chart.slices[6].fillColor = colors.lightcoral
+    d.chart.slices[7].fillColor = colors.tan
+    d.chart.slices[8].fillColor = colors.darkseagreen
+    d.chart.slices[9].fillColor = colors.lemonchiffon
+    d.chart.slices[10].fillColor = colors.lavenderblush
+    d.chart.slices[11].fillColor = colors.lightgrey
+    
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def percentage_barchart(request):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200, 780, u"Polio Campaign Report: Percentage Coverage"),
+            name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 20
+    IMMUNIZATION_START_DATE = date(2010, 11, 24)
+    start_date = IMMUNIZATION_START_DATE
+    five_years_back = start_date + relativedelta(months=-59)
+    smdata = PolioCampaignReport.objects.values('chw__location__name',
+                                        'chw__location').annotate(Count('chw'))
+    data = ()
+    cats = []
+    for row in smdata:
+        c = row['chw__count']
+        t = Patient.objects.filter(status=Patient.STATUS_ACTIVE,
+                                    dob__gt=five_years_back,
+                                    chw__location__pk=row['chw__location'])\
+                                    .count()
+        data += round(c/float(t) * 100, 0),
+        cats.append(row['chw__location__name'])
+
+    d.chart.data = [data]
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 10
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 100
+    d.chart.x = 50
+    d.chart.y = 50
+    d.chart.width = d.chart.width - 20
+    d.chart.height = d.chart.height - 100
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 18
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabelFormat = "%d%%"
+    d.chart.barLabels.nudge = 10
+
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.bars[1].fillColor = colors.orange
+    
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def malefemalesummary(request):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200,700,u"Polio Campaign Report: Daily Summary by Gender"),
+            name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 24
+    start_date = date(2010, 11, 20)
+    end_date = date(2010, 11, 26)
+    data = []
+    for gender, s in Patient.GENDER_CHOICES:
+        smdata = []
+        cats = []
+        for single_date in daterange(start_date, end_date):
+            current_day = single_date
+            next_day = single_date + timedelta(1)
+            smdata.append({"count":
+                PolioCampaignReport.objects.filter(created_on__gte=current_day,
+                    created_on__lt=next_day, patient__gender=gender).count()})
+            cats.append(current_day.strftime("%A %d"))
+        print smdata
+        sdata = ()
+        for row in smdata:
+            sdata += row['count'],
+        data.append(sdata)
+    print data
+    d.chart.data = data
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 100
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 1500
+    d.chart.valueAxis.labels.fontSize = 18
+    d.chart.x = 50
+    d.chart.y = 50
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 20
+    d.chart.barLabelFormat = "%d"
+    d.chart.barLabels.nudge = 10
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabels.fontName = 'Helvetica-Bold'
+    d.chart.barWidth = 150
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.bars[1].fillColor = colors.lemonchiffon
+    d.chart.groupSpacing = 10
+    legend = Legend()
+    legend.alignment = 'left'
+    legend.x = 100
+    legend.y = 500
+    legend.dxTextSpace = 5
+    legend.fontSize = 14
+    legend.colorNamePairs = [(colors.steelblue, u"Male"),
+                            (colors.lemonchiffon, u"Female")]
+    d.add(legend, 'legend')
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def dailysummaryperloc(request):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200,700,u"Polio Campaign Report: Daily summary by"
+            " sub-locaton."), name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 14
+    start_date = date(2010, 11, 20)
+    end_date = date(2010, 11, 26)
+    data = []
+    for location in  \
+        Location.objects.filter(type__name='Sub Location')\
+            .order_by('name'):
+        smdata = []
+        cats = []
+        for single_date in daterange(start_date, end_date):
+            current_day = single_date
+            next_day = single_date + timedelta(1)
+            smdata.append({"location": location,
+                        "count":
+                PolioCampaignReport.objects.filter(created_on__gte=current_day,
+                    created_on__lt=next_day,
+                    patient__chw__location=location).count()})
+            cats.append(current_day.strftime("%A %d"))
+        print smdata
+        sdata = ()
+        for row in smdata:
+            sdata += row['count'],
+        data.append(sdata)
+    print data
+    d.chart.data = data
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 50
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 800
+    d.chart.valueAxis.labels.fontSize = 18
+    d.chart.x = 50
+    d.chart.y = 50
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 18
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabelFormat = "%d"
+    d.chart.barLabels.nudge = 10
+    d.chart.barWidth = 150
+    d.chart.groupSpacing = 10
+
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.bars[1].fillColor = colors.thistle
+    d.chart.bars[2].fillColor = colors.cornflower
+    d.chart.bars[3].fillColor = colors.lightsteelblue
+    d.chart.bars[4].fillColor = colors.aquamarine
+    d.chart.bars[5].fillColor = colors.cadetblue
+    d.chart.bars[6].fillColor = colors.lightcoral
+    d.chart.bars[7].fillColor = colors.tan
+    d.chart.bars[8].fillColor = colors.darkseagreen
+    d.chart.bars[9].fillColor = colors.lemonchiffon
+    d.chart.bars[10].fillColor = colors.lavenderblush
+    
+    legend = Legend()
+    legend.alignment = 'left'
+    legend.x = 100
+    legend.y = 500
+    legend.dxTextSpace = 5
+    legend.fontSize = 14
+    legend.deltax = 150
+    legend.variColumn = False
+    legend.colorNamePairs = [(colors.steelblue, u"Anyiko"),
+                            (colors.thistle, u"Gongo"),
+                            (colors.cornflower, u"Jina"),
+                            (colors.lightsteelblue, u"Lihanda"),
+                            (colors.aquamarine, u"Marenyo"),
+                            (colors.cadetblue, u"Nyamninia"),
+                            (colors.lightcoral, u"Nyandiwa"),
+                            (colors.tan, u"Nyawara"),
+                            (colors.darkseagreen, u"Ramula"),
+                            (colors.lemonchiffon, u"Sauri"),
+                            (colors.lavenderblush, u"Uranga")]
+    d.add(legend, 'legend')
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def dailysummary(request):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200,700,u"Polio Campaign Report: Daily summary"), name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 24
+    start_date = date(2010, 11, 20)
+    end_date = date(2010, 11, 26)
+    data = []
+    smdata = []
+    cats = []
+    for single_date in daterange(start_date, end_date):
+        current_day = single_date
+        next_day = single_date + timedelta(1)
+        smdata.append({"count":
+            PolioCampaignReport.objects.filter(created_on__gte=current_day,
+                created_on__lt=next_day).count()})
+        cats.append(current_day.strftime("%A %d"))
+    print smdata
+    sdata = ()
+    for row in smdata:
+        sdata += row['count'],
+    data.append(sdata)
+    print data
+    d.chart.data = data
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 100
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 3000
+    d.chart.valueAxis.labels.fontSize = 18
+    d.chart.x = 50
+    d.chart.y = 50
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 20
+    d.chart.barLabelFormat = "%d"
+    d.chart.barLabels.nudge = 10
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabels.fontName = 'Helvetica-Bold'
+    d.chart.barWidth = 150
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.groupSpacing = 10
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def locations_piechart(request):
+    #instantiate a drawing object
+    d = CCPieChartDrawing(650, 400)
+    smdata = PolioCampaignReport.objects.values('chw__location__name',
+                                        'chw__location').annotate(Count('chw'))
+    data = []
+    cats = []
+    count  = 0
+    for row in smdata:
+        data.append(row['chw__count'])
+        cats.append(u"%s - %s" % (row['chw__location__name'],
+            row['chw__count']))
+        count += row['chw__count']
+    d.add(String(200,380,u"Polio Campaign Report by sub-locaton: %s total "
+            "reports" % count), name='title')
+
+    d.chart.data = data
+    d.chart.labels = cats
+    
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def locations_barchart(request):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200,600,'Polio Campaign Report'), name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 20
+    smdata = PolioCampaignReport.objects.values('chw__location__name',
+                                        'chw__location').annotate(Count('chw'))
+    data = ()
+    cats = []
+    for row in smdata:
+        data += row['chw__count'],
+        cats.append(row['chw__location__name'])
+        print row['chw__count'], row['chw__location__name']
+
+    d.chart.data = [data]
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 100
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 1600
+    d.chart.x = 50
+    d.chart.y = 150
+    d.chart.width = d.chart.width - 20
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 18
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabelFormat = "%d"
+    d.chart.barLabels.nudge = 10
+
+    d.chart.bars[0].fillColor = colors.steelblue
+    
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString('png')
+    return HttpResponse(binaryStuff, 'image/png')
+
+
+def bc():
+    #instantiate a drawing object
+    d = CCBarChartDrawing()
+    smdata = PolioCampaignReport.objects.values('chw__location__name',
+                                        'chw__location').annotate(Count('chw'))
+    data = ()
+    for row in smdata:
+        data += row['chw__count'],
+
+    d.chart.data = [data]
+    d.chart.categoryAxis.categoryNames = [r['chw__location__name'] for r in \
+                                    smdata]
+    d.chart.width = 400
+    d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 'se'
+    d.chart.categoryAxis.labels.angle = 30
+    d.save(formats=['gif','png','pdf'],outDir='/Users/ukanga/dev/sms',fnRoot='barchart')
