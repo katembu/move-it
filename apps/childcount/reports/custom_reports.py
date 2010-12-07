@@ -733,17 +733,24 @@ def gen_all_household_surveyreports():
         gen_household_surveyreport(f, clinic)
         f.close()
 
-def gen_household_surveyreport(filename, location=None):
+def gen_household_surveyreport(request, clinic=None, rformat="pdf"):
     story = []
-    if StringType == type(filename):
-        filename = StringIO()
-    chws = None
-    if location:
+    code = clinic
+    if isinstance(code, Clinic):
+        code = clinic.code
+    else:
         try:
-            chws = TheCHWReport.objects.filter(clinic=location)
+            clinic = Clinic.objects.get(code=code)
+        except Clinic.DoesNotExist:
+            return HttpResponse(_(u"Unknown clinic code"))
+    filename = "hhsurvey-%s.%s" % (code, rformat)
+    chws = None
+    if clinic:
+        try:
+            chws = TheCHWReport.objects.filter(clinic=clinic)
         except TheCHWReport.DoesNotExist:
-            raise BadValue(_(u"Unknown Location: %(location)s specified." % \
-                                {'location': location}))
+            raise BadValue(_(u"Unknown Clinic: %(clinic)s specified." % \
+                                {'clinic': clinic}))
     if chws is None and  TheCHWReport.objects.all().count():
         chws = TheCHWReport.objects.all()
 
@@ -766,10 +773,13 @@ def gen_household_surveyreport(filename, location=None):
             and not (len(patients) / 47) * 47 == len(patients):
             story.append(PageBreak())
 
-    doc = SimpleDocTemplate(filename, pagesize=(8.5 * inch, 13.5 * inch), \
-                            topMargin=(0 * inch), \
+    doc = SimpleDocTemplate(report_filename(filename),
+                            pagesize=(8.5 * inch, 13.5 * inch),
+                            topMargin=(0 * inch),
                             bottomMargin=(0 * inch), showBoundary=0)
     doc.build(story)
+    return HttpResponseRedirect( \
+        '/static/childcount/' + REPORTS_DIR + '/' + filename)
 
 
 def household_surveyreport(location=None):
@@ -823,7 +833,7 @@ def household_surveyreportable(title, indata=None):
     data.append(thirdrow)
 
     rowHeights = [None, 1.3 * inch]
-    colWidths = [0.3 * inch, 0.6 * inch, 0.8 * inch, 1.5 * inch]
+    colWidths = [0.3 * inch, 0.6 * inch, 0.8 * inch, 2.0 * inch]
     colWidths.extend((len(cols) - 3) * [0.5 * inch])
 
     if indata:
