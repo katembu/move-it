@@ -101,6 +101,9 @@ class CCReport(PolymorphicModel):
         '''
         return {}
 
+    def identity(self):
+        return self.chw().connection().identity
+
 reversion.register(CCReport)
 
 
