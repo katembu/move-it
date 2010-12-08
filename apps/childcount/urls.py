@@ -11,12 +11,10 @@ import webapp
 from childcount import views
 from childcount.reports import statistics
 from childcount.reports import operational
-<<<<<<< HEAD
+
 from childcount.reports import pmtct
 from childcount.reports import polio
-=======
 from childcount.reports import pmtct, bednet
->>>>>>> faab1b0... bednet distribution reports
 from childcount.reports import performance
 from childcount.reports import custom_reports as reports
 from childcount import chartviews
