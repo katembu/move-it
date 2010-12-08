@@ -210,7 +210,8 @@ class ThePatient(Patient):
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _("Name".upper()), \
-            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
+            'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
+                    "{{object.first_name}}"})
         columns.append(
             {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
@@ -248,19 +249,20 @@ class ThePatient(Patient):
         columns = []
         columns.append(
             {'name': _(u"LOC"), \
-            'bit': 
+            'bit':
                 '{% if object.is_head_of_household %}<strong>' \
                 '{{ object.household.location.code }}' \
                 '</strong>{% endif %}'})
         columns.append(
             {'name': _(u"HID"), \
-            'bit': 
+            'bit':
                 '{% if object.is_head_of_household %}<strong>{% endif %}' \
                 '{{object.health_id.upper}}' \
                 '{% if object.is_head_of_household %}</strong>{% endif %}'})
         columns.append(
             {'name': _(u"Name".upper()), \
-            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
+            'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
+                    "{{object.first_name}}"})
         columns.append(
             {'name': _(u"Gen."), \
             'bit': '{{object.gender}}'})
@@ -537,8 +539,8 @@ class TheCHWReport(CHW):
         # days, where count contains the number of
         # HH visits for that day by this CHW
         return [(i, self.household_visit(date.today() + timedelta(i), \
-            date.today() + timedelta(i+1))) \
-                for i in xrange(-30-offset,-offset)]
+            date.today() + timedelta(i + 1))) \
+                for i in xrange(-30 - offset, -offset)]
 
     def percentage_ontime_visits(self):
         households = self.households()
@@ -582,7 +584,8 @@ class TheCHWReport(CHW):
         if num_of_births == 0:
             return None
         else:
-            return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
+            return int(round(num_of_clinic_delivery / float(num_of_births)) *\
+                        100)
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -615,7 +618,7 @@ class TheCHWReport(CHW):
             thepatient = ThePatient.objects.get(id=achild.id)
             if thepatient.ontime_muac():
                 count += 1
-            return 
+            return
 
         if not count:
             return count
