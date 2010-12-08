@@ -869,6 +869,45 @@ class TheCHWReport(CHW):
                             'unkp': unkp}
         return info
 
+
+    @classmethod
+    def muac_summary_data():
+        """
+        Copy/Pasted from muac_summary to get the same data but in a dict, rather than
+        a string.
+        """
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        order = '-encounter__encounter_date'
+        muac = NutritionReport.objects.filter(\
+                                        encounter__patient__dob__gte=sixtym,
+                                        encounter__patient__dob__lte=sixm)\
+                                        .order_by(order)\
+                                        .values('encounter__patient')\
+                                        .distinct()
+
+        num_healthy = muac.filter(\
+                        status=NutritionReport.STATUS_HEALTHY).count()
+        num_mam = muac.filter(\
+                        status=NutritionReport.STATUS_MODERATE).count()
+        num_sam = muac.filter(\
+                        status=NutritionReport.STATUS_SEVERE).count()
+        num_comp = muac.filter(\
+                        status=NutritionReport.STATUS_SEVERE_COMP).count()
+        num_eligible = TheCHWReport.total_muac_eligible()
+
+        unkwn = num_eligible - num_healthy - num_mam - num_sam - num_comp
+        if num_eligible > 0:
+            hp = int(round((num_healthy / float(num_eligible)) * 100))
+            modp = int(round((num_mam / float(num_eligible)) * 100))
+            svp = int(round((num_sam / float(num_eligible)) * 100))
+            svcomp = int(round((num_comp / float(num_eligible)) * 100))
+            unkp = int(round((unkwn / float(num_eligible)) * 100))
+        else:
+            hp = modp = svp = svcomp = unkp = 0
+        return {'healthy':hp, 'moderate': modp, 'unknown': unkp }
+
+
     @classmethod
     def total_at_risk(cls):
         num = NutritionReport.objects.filter(\

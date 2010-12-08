@@ -68,28 +68,39 @@ def form(request, formid):
 
     return HttpResponse(form, mimetype="application/json")
 
+
+from childcount import dashboard_sections
+
+DASHBOARD_TEMPLATE_DIRECTORY = "childcount/dashboard_sections"
+
+def dashboard_gather_data(dashboard_template_names):
+    """this method is used with the new dashboard_sections templates
+    and their corresponding methods in the 'dashboard_sections' module
+    """
+    data={}
+    for tname in dashboard_template_names:
+        try:
+            data[tname] = getattr(dashboard_sections, tname)()
+        except:
+            data[tname] = False
+    return data
+
+
 @login_required
 def index(request):
-    '''Index page '''
-    template_name = "childcount/index.html"
-    title = "ChildCount+"
+    '''Dashboard page '''
+    info = {'title':"ChildCount+ Dashboard"}
 
-    info = {}
+    try:
+        dashboard_template_names = Configuration.objects.get(key='dashboard_sections').value.split()
+    except:
+        dashboard_template_names = ['highlight_stats_bar',]
+    
+    info['dashboard_data'] = dashboard_gather_data(dashboard_template_names)
+    info['section_templates'] = ["%s/%s.html" % (DASHBOARD_TEMPLATE_DIRECTORY, ds) for ds in dashboard_template_names]
+    
+    return render_to_response(request, "childcount/dashboard.html", info)
 
-    info.update({"title": title})
-    info.update({'risk': nutrition_png(request)})
-    info.update(clinic_report(request))
-    clinics = Location.objects.all()
-    info.update({'sms': sms_png(request)})
-    #info.update({'clinics': clinics})
-    info.update({'atrisk': TheCHWReport.total_at_risk(), \
-                           'eligible': TheCHWReport.total_muac_eligible()})
-
-    info['registrations'] = Patient.registrations_by_date()
-
-    report_sets = report_framework.report_sets()
-    info.update({'report_sets': report_sets})
-    return render_to_response(request, template_name, info)
 
 
 def site_summary(request, report='site', format='json'):
