@@ -762,10 +762,9 @@ class NutritionReport(CCReport):
             self.OEDEMA_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
         }
 
-        igive =  {
+        igive = {
             'mid_upper_arm_circumference': self.muac,
-            'oedema': oedema_map[self.oedema]
-        }
+            'oedema': oedema_map[self.oedema]}
         if self.weight:
             igive.update({'weight': self.weight})
         if self.oedema == self.OEDEMA_YES:
@@ -1457,6 +1456,7 @@ class PatientStatusReport(CCReport):
         (STATUS_INACTIVE, _(u"Relocated")))
 
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES)
-    reason = models.CharField(_(u"Reason"), max_length=100, blank=True, null=True)
+    reason = models.CharField(_(u"Reason"), max_length=100, blank=True,
+                                null=True)
 
 reversion.register(PatientStatusReport, follow=['ccreport_ptr'])
