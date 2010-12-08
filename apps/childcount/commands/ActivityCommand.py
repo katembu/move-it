@@ -40,7 +40,7 @@ class ActivityCommand(CCCommand):
                     start_date = today + relativedelta(months=-1, day=1, \
                                     hour=0, minute=0, second=0, microsecond=0)
                 else:
-                    start_date = today + relativedelta( day=1, \
+                    start_date = today + relativedelta(day=1, \
                                     hour=0, minute=0, second=0, microsecond=0)
                 summary = thechw.chw_activities_summary(start_date, today)
         if not summary:
