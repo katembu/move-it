@@ -50,24 +50,30 @@ class CheckHealthIdCommand(CCCommand):
             resp = _(u"Health ID %(id)s does NOT exist in the database ") \
                 % {'id': health_id.upper()}
             if checksum.is_valid_identifier(health_id):
-                resp += _(u" but IS a valid identifier.  Check to make sure the database is current.")
+                resp += _(u" but IS a valid identifier.  Check to make sure "
+                            "the database is current.")
             else:
-                resp += _(u" and is NOT a valid identifier.  You might have entered the ID incorrectly.")
+                resp += _(u" and is NOT a valid identifier.  You might have "
+                            "entered the ID incorrectly.")
             self.message.respond(resp, 'error')
             return True
 
         resp = _(u"Health ID %(id)s ") % {'id': health_id.upper()}
         if health_id_obj.status == HealthId.STATUS_GENERATED:
-            resp += _(u" is valid but no patient has been registered with this ID.")
+            resp += _(u" is valid but no patient has been registered "
+                        "with this ID.")
         elif health_id_obj.status == HealthId.STATUS_PRINTED:
-            resp += _(u" is valid but no patient has been registered with this ID.")
+            resp += _(u" is valid but no patient has been registered "
+                        "with this ID.")
         elif health_id_obj.status == HealthId.STATUS_ISSUED:
             resp += _(u" is marked as belonging to a patient, but that \
                         patient is unknown.")
         elif health_id_obj.status == HealthId.STATUS_REVOKED:
-            resp += _(u" is in the database but is marked as UNUSABLE.", 'error')
+            resp += _(u" is in the database but is marked as UNUSABLE.",
+                        'error')
         else:
-            raise BadValue("Health ID is marked with an invalid status.", 'error')
+            raise BadValue("Health ID is marked with an invalid status.",
+                        'error')
 
         self.message.respond(resp)
         return True
