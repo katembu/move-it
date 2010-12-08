@@ -11,6 +11,7 @@ from locations.models import Location
 
 from childcount.models import Patient, CHW
 
+
 class BednetStock(models.Model):
 
     class Meta:
