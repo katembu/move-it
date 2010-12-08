@@ -46,8 +46,6 @@ from childcount.utils import day_end, \
                                 first_day_of_month, \
                                 last_day_of_month, \
                                 first_date_of_week
-from childcount.reports.utils import reporting_week_sunday
-from childcount.reports.utils import reporting_week_monday
 from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 
 from logger_ng.models import LoggedMessage
@@ -656,7 +654,7 @@ class TheCHWReport(CHW):
                 .filter(encounter__patient=patient,
                     encounter__encounter_date__lte=today)\
                 .latest()
-            days = (pr.encounter.encounter_date - today).days
+            days = (pr.encounter.encounter_date.date() - today).days
             months = round(days / 30.4375)
             if pr.pregnancy_month + months < 9:
                 c.append(patient)
@@ -1493,6 +1491,7 @@ class TheBHSurveyReport(TheCHWReport):
     but I don't have any good ideas for
     how to shrink the size.
 '''
+
 class MonthlyCHWReport(TheCHWReport):
     class Meta:
         proxy = True
@@ -1545,7 +1544,7 @@ class MonthlyCHWReport(TheCHWReport):
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             INDICATOR_EMPTY,
             Indicator('Num Pregnant Women',\
-                self.num_pregnant_by_week, Indicator.AVG,\
+                self.num_pregnant_by_period, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
             Indicator('% Getting 1 ANC by 1st Trim.',\
                 self.perc_with_anc_first, 
@@ -1590,60 +1589,61 @@ class MonthlyCHWReport(TheCHWReport):
     # HH Visit section
     #
 
-    def num_of_hhs(self, week_num):
-        return self.households(reporting_week_sunday(week_num)).count()
+    def num_of_hhs(self, per_cls, per_num):
+        return self.households(\
+            per_cls.period_end_date(per_num)).count()
 
-    def num_of_hh_visits(self, weekNum):
+    def num_of_hh_visits(self, per_cls, per_num):
         return HouseholdVisitReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(weekNum)\
+            .for_period(per_cls, per_num)\
             .count()
 
     #
     # Family planning section
     #
 
-    def num_of_women_under50_seen(self, week_num):
-        return self._num_of_women_count('women', week_num)
+    def num_of_women_under50_seen(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women')
     
-    def num_of_women_under50_using_fp(self, week_num):
-        return self._num_of_women_count('women_using', week_num)
+    def num_of_women_under50_using_fp(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women_using')
 
-    def perc_of_women_under50_using_fp(self, week_num):
-        u50 = self.num_of_women_under50_seen(week_num)
-        return (self.num_of_women_under50_using_fp(week_num), u50)
+    def perc_of_women_under50_using_fp(self, per_cls, per_num):
+        u50 = self.num_of_women_under50_seen(per_cls, per_num)
+        return (self.num_of_women_under50_using_fp(per_cls, per_num), u50)
 
-    def _num_of_women_count(self, count_str, week_num):
+    def _num_of_women_count(self, per_cls, per_num, count_str):
         if count_str not in ['women','women_using']:
             raise ValueError('Invalid aggregation string.')
 
         count = FamilyPlanningReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .aggregate(Sum(count_str))[count_str+'__sum']
         return 0 if count is None else count
     
-    def num_fp_usage_condom(self, week_num):
-        return self._fp_usage_count('c', week_num)
+    def num_fp_usage_condom(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'c')
 
-    def num_fp_usage_injectable(self, week_num):
-        return self._fp_usage_count('i', week_num)
+    def num_fp_usage_injectable(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'i')
 
-    def num_fp_usage_iud(self, week_num):
-        return self._fp_usage_count('iud', week_num)
+    def num_fp_usage_iud(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'iud')
 
-    def num_fp_usage_implant(self, week_num):
-        return self._fp_usage_count('n', week_num)
+    def num_fp_usage_implant(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'n')
 
-    def num_fp_usage_pill(self, week_num):
-        return self._fp_usage_count('p', week_num)
+    def num_fp_usage_pill(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'p')
 
-    def num_fp_usage_sterilization(self, week_num):
-        return self._fp_usage_count('st', week_num)
+    def num_fp_usage_sterilization(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'st')
 
-    def _fp_usage_count(self, code, week_num):
+    def _fp_usage_count(self, per_cls, per_num, code):
         fp = CodedItem\
             .objects\
             .filter(type=CodedItem.TYPE_FAMILY_PLANNING)\
@@ -1652,26 +1652,26 @@ class MonthlyCHWReport(TheCHWReport):
         count = FamilyPlanningReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .filter(familyplanningusage__method__code=fp.code)\
             .aggregate(Sum('familyplanningusage__count'))\
             ['familyplanningusage__count__sum']
         return 0 if count is None else count
 
-    def num_starting_fp(self, week_num):
-        return self._fp_change_stats(week_num)[0]
+    def num_starting_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[0]
 
-    def num_still_on_fp(self, week_num):
-        return self._fp_change_stats(week_num)[1]
+    def num_still_on_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[1]
 
-    def num_ending_fp(self, week_num):
-        return self._fp_change_stats(week_num)[2]
+    def num_ending_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[2]
 
-    def _fp_change_stats(self, week_num):
+    def _fp_change_stats(self, per_cls, per_num):
         reps = FamilyPlanningReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .order_by('-encounter__encounter_date')
 
         start_count = 0
@@ -1721,27 +1721,27 @@ class MonthlyCHWReport(TheCHWReport):
     # Danger signs section
     #
 
-    def num_danger_signs(self, week_num):
+    def num_danger_signs(self, per_cls, per_num):
         count = DangerSignsReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .count()
         return 0 if count is None else count
 
-    def num_referred(self, week_num):
+    def num_referred(self, per_cls, per_num):
         return ReferralReport\
                 .indicators\
                 .for_chw(self)\
-                .for_reporting_week(week_num)\
+                .for_period(per_cls, per_num)\
                 .count()
 
-    def num_ontime_follow_up(self, week_num):
+    def num_ontime_follow_up(self, per_cls, per_num):
         count = 0
         for r in ReferralReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num):
+            .for_period(per_cls, per_num):
 
             due_by = r.encounter.encounter_date + timedelta(2)
             f = FollowUpReport\
@@ -1759,56 +1759,58 @@ class MonthlyCHWReport(TheCHWReport):
                 count += 1
         return count 
 
-    def perc_ontime_follow_up(self, week_num):
-        return (self.num_ontime_follow_up(week_num),\
-            self.num_referred(week_num))
+    def perc_ontime_follow_up(self, per_cls, per_num):
+        return (self.num_ontime_follow_up(per_cls, per_num),\
+            self.num_referred(per_cls, per_num))
 
     #
     # Pregnancy section
     #
     
-    def pregnant_by_week(self, week_num):
-        return self.pregnant_women(reporting_week_sunday(week_num))
+    def pregnant_by_period(self, per_cls, per_num):
+        return self.pregnant_women(per_cls.period_end_date(per_num))
     
-    def num_pregnant_by_week(self, week_num):
-        return len(self.pregnant_by_week(week_num))
+    def num_pregnant_by_period(self, per_cls, per_num):
+        return len(self.pregnant_by_period(per_cls, per_num))
 
     # % of women getting at least 1 ANC visit by 1st trimester
-    def perc_with_anc_first(self, week_num):
-        return self._women_getting_n_anc_by(1, 1, week_num)
+    def perc_with_anc_first(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 1, 1)
 
     # % of women getting at least 3 ANC visits by 2nd trimester
-    def perc_with_anc_second(self, week_num):
-        return self._women_getting_n_anc_by(3, 2, week_num)
+    def perc_with_anc_second(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 3, 2)
 
     # % of women getting at least 4 ANC visits by 3rd trimester
-    def perc_with_anc_third(self, week_num):
-        return self._women_getting_n_anc_by(4, 3, week_num)
+    def perc_with_anc_third(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
 
-    def _women_getting_n_anc_by_tot(self, n_anc, trimester):
+    def _women_getting_n_anc_by_tot(self, per_cls, \
+            n_anc, trimester):
+
         if trimester not in xrange(1,4):
             raise ValueError('Trimester is out of range [1,3]')
 
         women = []
-        for wk in xrange(0,4):
-            for w in self._women_in_month_of_preg(trimester, wk):
+        for period in xrange(0, per_cls.num_periods):
+            for w in self._women_in_month_of_preg(per_cls, per_num, trimester):
                 if w not in women:
                     women.append(w)
         have_anc = filter(lambda w: w.anc_visits > n_anc, women)
 
         return (len(have_anc), len(women))
 
-    def _women_getting_n_anc_by(self, n_anc, trimester, week_num):
+    def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
         if trimester not in xrange(1,4):
             raise ValueError('Trimester is out of range [1,3]')
 
-        women = self._women_in_month_of_preg(trimester, week_num)
+        women = self._women_in_month_of_preg(per_cls, per_num, trimester)
         have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
        
         return (len(have_anc), len(women))
         
     
-    def _women_in_month_of_preg(self, trimester, week_num):
+    def _women_in_month_of_preg(self, per_cls, per_num, trimester):
         if trimester not in xrange(1,4):
             raise ValueError('Trimester is out of range [1,3]')
 
@@ -1817,7 +1819,7 @@ class MonthlyCHWReport(TheCHWReport):
         start_mo = end_mo - 3
         month_range = xrange(start_mo, end_mo)
 
-        women = self.pregnant_by_week(week_num)
+        women = self.pregnant_by_period(per_cls, per_num)
 
         # Get latest pregnancy report for woman
         preggers = map(lambda w:
@@ -1825,15 +1827,15 @@ class MonthlyCHWReport(TheCHWReport):
                 .objects\
                 .filter(encounter__patient=w, \
                     encounter__encounter_date__gte=\
-                        reporting_week_monday(week_num) - \
+                        per_cls.period_start_date(per_num) - \
                             timedelta(30.4375 * 10))
                 .latest('encounter__encounter_date'), women)
 
         # See how many women fall in this trimester
         targets = []
         for p in preggers:
-            days_ago = (reporting_week_sunday(week_num) - \
-                p.encounter.encounter_date).days
+            days_ago = (per_cls.period_end_date(per_num) - \
+                p.encounter.encounter_date.date()).days
             months_ago = days_ago / 30.4375
             months_of_preg = p.pregnancy_month + months_ago
 
@@ -1842,17 +1844,17 @@ class MonthlyCHWReport(TheCHWReport):
 
         return targets
 
-    def _births(self, week_num):
+    def _births(self, per_cls, per_num):
         return BirthReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
 
-    def num_births(self, week_num):
-        return self._births(week_num).count()
+    def num_births(self, per_cls, per_num):
+        return self._births(per_cls, per_num).count()
 
-    def num_births_with_anc(self, week_num):
-        births = self._births(week_num)
+    def num_births_with_anc(self, per_cls, per_num):
+        births = self._births(per_cls, per_num)
         count = 0
         for b in births:
             if b.encounter.patient.mother is None:
@@ -1875,77 +1877,77 @@ class MonthlyCHWReport(TheCHWReport):
 
         return count
 
-    def num_neonatal(self, week_num):
+    def num_neonatal(self, per_cls, per_num):
         return NeonatalReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .count()
 
-    def num_underfive(self, week_num):
+    def num_underfive(self, per_cls, per_num):
         return self.patients_under_five(\
-            reporting_week_sunday(week_num)).count()
+            per_cls.period_end_date(per_num)).count()
 
-    def num_underfive_imm(self, week_num):
-        return self._num_underfive_imm_pks(week_num).count()
+    def num_underfive_imm(self, per_cls, per_num):
+        return self._num_underfive_imm_pks(per_cls, per_num).count()
 
-    def _num_underfive_imm_pks(self, week_num):
+    def _num_underfive_imm_pks(self, per_cls, per_num):
         return UnderOneReport\
             .indicators\
             .for_chw(self)\
-            .before_reporting_week(week_num)\
+            .before_period(per_cls, per_num)\
             .filter(immunized=UnderOneReport.IMMUNIZED_YES)\
             .values('encounter__patient__pk')\
             .distinct()
 
-    def num_muacs_taken(self, week_num):
+    def num_muacs_taken(self, per_cls, per_num):
         return NutritionReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .count()
 
-    def num_active_sam_cases(self, week_num):
+    def num_active_sam_cases(self, per_cls, per_num):
         return self.num_of_active_sam_cases(\
-            reporting_week_sunday(week_num))
+            per_cls.period_end_date(per_num))
 
-    def num_tested_rdts(self, week_num):
+    def num_tested_rdts(self, per_cls, per_num):
         return FeverReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
             .count()
 
-    def num_positive_rdts(self, week_num):
+    def num_positive_rdts(self, per_cls, per_num):
         return FeverReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .filter(rdt_result=FeverReport.RDT_POSITIVE)\
             .count()
 
-    def num_antimalarials_given(self, week_num):
+    def num_antimalarials_given(self, per_cls, per_num):
         return MedicineGivenReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .filter(medicines__code='act')\
             .count()
 
-    def num_diarrhea(self, week_num):
+    def num_diarrhea(self, per_cls, per_num):
         return DangerSignsReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .filter(danger_signs__code='dr')\
             .count()
 
-    def num_ors_given(self, week_num):
+    def num_ors_given(self, per_cls, per_num):
         return MedicineGivenReport\
             .indicators\
             .for_chw(self)\
-            .for_reporting_week(week_num)\
+            .for_period(per_cls, per_num)\
             .filter(medicines__code='r')\
             .count()
 

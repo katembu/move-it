@@ -12,8 +12,10 @@ from childcount.models.ccreports import MonthlyCHWReport
 from childcount.models import Clinic
 
 from childcount.reports.utils import render_doc_to_file
-from childcount.reports.utils import reporting_week_monday, \
-    reporting_week_sunday
+from childcount.reports.utils import MonthlyPeriodSet
+from childcount.reports.utils import QuarterlyPeriodSet
+from childcount.reports.utils import AnnualPeriodSet
+
 from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 from childcount.reports.report_framework import PrintedReport
 
@@ -21,6 +23,7 @@ class Report(PrintedReport):
     title = _(u"CHW Manager Report")
     filename = 'chw_manager_report'
     formats = ['xls']
+    per_cls = MonthlyPeriodSet
 
     _safe_template = Template('{{value}}')
     _WIDTH_SKINNY = 0x0800
@@ -77,7 +80,6 @@ class Report(PrintedReport):
         self._total_perc_style.num_format_str = '0.0%'
 
     def generate(self, rformat, title, filepath, data):
-
         self._setup_styles()
 
         wb = xlwt.Workbook()
@@ -87,7 +89,7 @@ class Report(PrintedReport):
             .objects\
             .filter(is_active=True)\
             .exclude(clinic__isnull=True)\
-            .order_by('clinic__name','first_name')[0:2]
+            .order_by('clinic__name','first_name')[0:1]
 
         # Set up data structures for column totals
         self._aggregate_on = []
@@ -108,9 +110,11 @@ class Report(PrintedReport):
         # Write report titles
         self._write_merge(0, 0, 0, 1, self.title, self._title_style)
         self._write_merge(1, 1, 0, 1, \
-            reporting_week_monday(0).strftime('%d-%b-%Y') + \
+            self.per_cls.period_start_date(0).strftime('%d-%b-%Y') + \
                 _(u" through ") + \
-            reporting_week_sunday(3).strftime('%d-%b-%Y'))
+            self.per_cls.period_end_date(\
+                self.per_cls.num_periods).strftime('%d-%b-%Y'))
+
         self._ws.row(0).height = 0x180
         self._print_names(chws)
 
@@ -140,7 +144,7 @@ class Report(PrintedReport):
                     col += 1
                     continue
 
-                for j in xrange(0, 5):
+                for j in xrange(0, self.per_cls.num_periods+1):
                     self._write(row+num, col, \
                         ind.aggregate_col(self._indicator_data[num][i]), \
                         self._total_perc_style if \
@@ -158,17 +162,24 @@ class Report(PrintedReport):
                 col += 1
                 continue
            
-            for i in xrange(0,4):
-                self._aggregate_data(chw, ind.for_week_raw(i), j)
+            for i in xrange(0, self.per_cls.num_periods):
+                self._aggregate_data(chw, \
+                    ind.for_period(self.per_cls, i), \
+                    j)
+
                 j += 1
 
-                self._write(row, col, ind.for_week(i),\
+                self._write(row, \
+                    col, \
+                    ind.for_period(self.per_cls, i),\
                     self._perc_style if ind.is_percentage else Style.default_style)
                 col += 1
 
-            self._aggregate_data(chw, ind.for_month_raw(), j)
+            self._aggregate_data(chw, ind.for_total_raw(self.per_cls), j)
             j += 1
-            self._write(row, col, ind.for_month(), \
+            self._write(row,\
+                col,\
+                ind.for_total(self.per_cls),\
                 self._end_section_perc if ind.is_percentage else self._end_section)
             col += 1
 
@@ -196,19 +207,23 @@ class Report(PrintedReport):
 
             n_indicators += 1
 
-            self._write_merge(LABEL_ROW, LABEL_ROW, col, col+4, \
+            self._write_merge(LABEL_ROW, LABEL_ROW, col, col+self.per_cls.num_periods, \
                 ind.title, self._top_row)
 
-            for j in xrange(0, 4):
+            for j in xrange(0, self.per_cls.num_periods):
                 n_indicators += 1
-                self._ws.col(col+j).width = self._WIDTH_SKINNY
-                self._write(DATE_ROW, col+j, \
-                    _("W%(week)d") % {'week': j+1})
-            self._write(DATE_ROW, col+4, _(u"M"), self._end_section)
-    
-            self._ws.col(col+4).set_style(self._end_section)
-            self._ws.col(col+4).width = self._WIDTH_SKINNY
-            col += 5
+                self._ws.col(col).width = self._WIDTH_SKINNY
+                self._write(DATE_ROW, col, self.per_cls.period_name(j))
+                col += 1
+
+            self._write(DATE_ROW, 
+                col, 
+                self.per_cls.total_name,
+                self._end_section)
+
+            self._ws.col(col).set_style(self._end_section)
+            self._ws.col(col).width = self._WIDTH_SKINNY
+            col += 1
 
         # For every aggregation set
         for i in xrange(0, len(self._aggregate_on)):
@@ -217,7 +232,6 @@ class Report(PrintedReport):
                 # add an empty list to store data
                 self._indicator_data[i].append([])
                 
-
     def _print_names(self, chws):
         self._write(2, 0, _(u"CHW Name"), self._top_row)
         self._write(2, 1, _(u"Clinic"), self._top_row)

@@ -34,8 +34,6 @@ from childcount.models import Encounter
 from childcount.models import Vaccine
 
 from childcount.utils import send_msg
-from childcount.reports.utils import reporting_week_monday
-from childcount.reports.utils import reporting_week_sunday
 
 class IndicatorQuerySet(PolymorphicQuerySet):
     # Only consider active patients
@@ -51,20 +49,20 @@ class IndicatorQuerySet(PolymorphicQuerySet):
         return self.filter(encounter__encounter_date__gte=startDate,\
             encounter__encounter_date__lt=endDate)
 
-    def for_reporting_week(self, week_num):
+    def for_period(self, per_cls, per_num):
         return self.between_dates(\
-            reporting_week_monday(week_num), \
-            reporting_week_monday(week_num+1))
+            per_cls.period_start_date(per_num), \
+            per_cls.period_start_date(per_num+1))
 
-    def before_reporting_week(self, week_num):
+    def before_period(self, per_cls, per_num):
         return self.filter(\
             encounter__encounter_date__lte=\
-                reporting_week_sunday(week_num))
+                per_cls.period_end_date(per_num))
 
-    def for_reporting_month(self):
-        first_mon = reporting_week_monday(0)
-        last_sun = first_mon + timedelta(27)
-        return self.between_dates(first_mon, last_sun)
+    def for_period_total(self, per_cls):
+        first_date = per_cls.period_start_date(0)
+        last_date = per_cls.period_start_date(per_cls.num_periods)
+        return self.between_dates(first_date, last_date)
 
     def for_clinic(self, clinic):
         return self.filter(encounter__chw__clinic=clinic)
@@ -81,7 +79,8 @@ class IndicatorManager(PolymorphicManager):
 class CCReport(PolymorphicModel):
 
     '''
-    The highest level superclass to be inhereted by all other report classes
+    The highest level superclass to be 
+    inhereted by all other report classes
     '''
 
     objects = PolymorphicManager()

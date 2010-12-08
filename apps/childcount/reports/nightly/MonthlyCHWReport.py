@@ -14,8 +14,7 @@ from childcount.models.reports import NutritionReport
 from childcount.models.ccreports import MonthlyCHWReport
 
 from childcount.reports.utils import render_doc_to_file
-from childcount.reports.utils import reporting_week_monday
-from childcount.reports.utils import reporting_week_sunday
+from childcount.reports.utils import MonthlyPeriodSet
 from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 from childcount.reports.report_framework import PrintedReport
 
@@ -45,8 +44,9 @@ class Report(PrintedReport):
             doc.add_element(Section(chw.full_name())) 
             
             doc.add_element(Paragraph(_(u"For days %(start)s - %(end)s") %\
-                {'start': reporting_week_monday(0).strftime('%e %B %Y'),\
-                'end': reporting_week_sunday(3).strftime('%e %B %Y')}))
+                {'start': MonthlyPeriodSet.period_start_date(0).strftime('%e %B %Y'),\
+                'end': MonthlyPeriodSet.period_end_date(\
+                    MonthlyPeriodSet.num_periods-1).strftime('%e %B %Y')}))
 
             doc.add_element(self._indicator_table(chw))
             doc.add_element(self._immunization_table(chw))
@@ -59,20 +59,23 @@ class Report(PrintedReport):
 
     def _indicator_table(self, chw):
         table = Table(6)
-        table.add_header_row([
-            Text(_(u"Indicator")),
-            Text(self._reporting_week_date_str(0)),
-            Text(self._reporting_week_date_str(1)),
-            Text(self._reporting_week_date_str(2)),
-            Text(self._reporting_week_date_str(3)),
-            Text(_(u"Tot/Avg")),
-        ])
+
+        headers = [_(u"Indicator")]
+        headers += [self._reporting_week_date_str(w) \
+            for w in xrange(0, MonthlyPeriodSet.num_weeks)]
+        headers += [_(u"Tot/Avg")]
+
+        table.add_header_row(map(Text, headers))
 
         for ind in chw.report_indicators():
             ind.set_excel(False)
-            print ind
-            table.add_row(map(Text,[ind.title, ind.for_week(0), ind.for_week(1),
-                ind.for_week(2), ind.for_week(3), ind.for_month()]))
+
+            cols = [ind.title]
+            cols += [ind.for_period(MonthlyPeriodSet, w) \
+                for w in xrange(0, MonthlyPeriodSet.num_periods)]
+            cols += [ind.for_total(MonthlyPeriodSet)]
+
+            table.add_row(map(Text, cols))
 
         return table 
 
@@ -119,7 +122,9 @@ class Report(PrintedReport):
 
     def _muac_table(self, chw):
         table = Table(6, \
-            Text(_(u"Children without MUAC in past 1 month (SAM) or 3 months (healthy)")))
+            Text(_(
+            u"Children without MUAC in past 1 month (SAM)" \
+            "or 3 months (healthy)")))
 
         table.add_header_row([
             Text(_(u"Loc Code")),
@@ -146,5 +151,7 @@ class Report(PrintedReport):
         return table
 
     def _reporting_week_date_str(self, week_num):
-        return u"Week of "+reporting_week_monday(week_num)\
-            .strftime('%e %b')
+        return u"Week of " + \
+            MonthlyPeriodSet\
+                .period_start_date(week_num)\
+                .strftime('%e %b')

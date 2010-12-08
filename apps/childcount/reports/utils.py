@@ -1,5 +1,6 @@
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
 import os
 import shutil
 
@@ -14,16 +15,90 @@ from childcount.utils import first_date_of_week
 from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
 REPORTS_DIR = 'reports'
-REPORTING_DELAY = 60
 
-def reporting_week_monday(week_num):
-    return first_date_of_week(\
-        datetime.today() - timedelta(REPORTING_DELAY)) + \
-        (week_num * timedelta(7))
+# Monthly (w1, w2, w3, w4)
+# Quarterly (J, F, M, A, ...)
+# Annual (q1, q2, q3, q4)
 
-def reporting_week_sunday(week_num):
-    return reporting_week_monday(week_num) + \
-        timedelta(6)
+class PeriodSet(object):
+    num_periods = None
+    total_name = None
+    period_index = None
+
+    @classmethod
+    def enum_periods(cls):
+        periods = []
+        for i in xrange(0, cls.num_periods):
+            periods.append(cls.period_name(i))
+        return enumerate(periods)
+    
+    @classmethod
+    def period_name(cls, period_num):
+        raise NotImplementedError('No period name function')
+
+    @classmethod
+    def period_start_date(cls, period_num):
+        raise NotImplementedError('No period start date function')
+
+    # End date is the start date of the *next* period
+    # minus one day
+    @classmethod
+    def period_end_date(cls, period_num):
+        return cls.period_start_date(period_num+1) - \
+            timedelta(1)
+
+class MonthlyPeriodSet(PeriodSet):
+    num_periods = 4
+    total_name = 'M'
+
+    @classmethod
+    def period_name(cls, period_num):
+        return "W%d" % (period_num + 1)
+
+    @classmethod
+    def period_start_date(cls, week_num):
+        first_day_of_month = date.today() - \
+                timedelta(35) - \
+                relativedelta(day=1)
+        return first_date_of_week(first_day_of_month) + \
+            timedelta(week_num * 7)
+
+class QuarterlyPeriodSet(PeriodSet):
+    num_periods = 3
+    total_name = 'Q'
+
+    @classmethod
+    def period_name(cls, period_num):
+        return self\
+            .period_start_date(period_num)\
+            .strftime('%b')
+
+    @classmethod
+    def period_start_date(cls, month_num):
+        first_day_of_quarter = date.today() - \
+            timedelta(4 * 30.475) - \
+            relativedelta(day=1)
+
+        return first_day_of_quarter + \
+            timedelta(month_num * 32) - \
+            relativedelta(day=1)
+
+class AnnualPeriodSet(PeriodSet):
+    num_periods = 4
+    total_name = 'Y'
+
+    @classmethod
+    def period_name(cls, period_num):
+        return "Q%d" % (period_num + 1)
+
+    @classmethod
+    def period_start_date(cls, q_num):
+        first_day_of_year = date.today() - \
+            relativedelta(month=1, day=1)
+
+        return first_day_of_year + \
+            timedelta(30.473 * 3 * q_num) - \
+            relativedelta(day=1)
 
 def render_doc_to_file(filename, rformat, doc):
     h = None 

@@ -2,10 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
-
 class Indicator(object):
     _agg_func = None
-    _for_week = None
+    _for_period = None
     _print_func = None
     title = None
 
@@ -56,6 +55,7 @@ class Indicator(object):
         if len(lst) == 0:
             return (0,0)
 
+        print lst
         (nums, dens) = zip(*lst)
         return (sum(nums), sum(dens))
  
@@ -74,13 +74,14 @@ class Indicator(object):
         lst = filter(lambda a: a is not None, lst)
         return sum(lst) 
 
-    def __init__(self, title, for_week, row_agg_func, \
+    def __init__(self, title, for_period, row_agg_func, \
             print_func=None, col_agg_func=None, excel=True):
 
         self.title = title
         self._excel = excel
         self._row_agg_func = row_agg_func
-        self._for_week = for_week
+
+        self._for_period = for_period
 
         if print_func is None:
             self._print_func = self.print_func_default
@@ -97,18 +98,20 @@ class Indicator(object):
             raise ValueError('Excel value must be a boolean')
         self._excel = val
 
-    def _for_month(self):
-        return self._row_agg_func([self._for_week(w) for w in xrange(0,4)])
+    def _for_total(self, per_cls):
+        return self._row_agg_func([\
+            self._for_period(per_cls, per_num) \
+                for per_num in xrange(0,per_cls.num_periods)])
 
-    def for_month(self):
-        return self._print_func(self._for_month(), self._excel)
-    def for_month_raw(self):
-        return self._for_month()
+    def for_total(self, per_cls):
+        return self._print_func(self._for_total(per_cls), self._excel)
 
-    def for_week(self, week_num):
-        return self._print_func(self._for_week(week_num), self._excel)
-    def for_week_raw(self, week_num):
-        return self._for_week(week_num)
+    def for_total_raw(self, per_cls):
+        return self._for_total(per_cls)
+
+    def for_period(self, per_cls, per_num):
+        return self._print_func(\
+            self._for_period(per_cls, per_num), self._excel)
 
     def aggregate_col(self, lst):
         return self._print_func(\
