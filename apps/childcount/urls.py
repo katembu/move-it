@@ -11,7 +11,7 @@ import webapp
 from childcount import views
 from childcount.reports import statistics
 from childcount.reports import operational
-from childcount.reports import pmtct
+from childcount.reports import pmtct, bednet
 from childcount.reports import performance
 from childcount.reports import custom_reports as reports
 
@@ -101,4 +101,6 @@ urlpatterns = patterns('',
         performance.chw_performance),
     url(r'^childcount/reports/num-under-five-per-clinic.(?P<rformat>[a-z]*)$', 
         reports.num_under_five_per_clinic),
+    url(r'^childcount/reports/bednet-issued.(?P<rformat>[a-z]*)$', 
+        bednet.issued_report),
 )
