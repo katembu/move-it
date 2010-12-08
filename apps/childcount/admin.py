@@ -15,8 +15,9 @@ admin.site.register(Clinic)
 
 
 class PatientAdmin(VersionAdmin):
-    list_display = ('__unicode__', 'location', 'chw')
+    list_display = ('__unicode__', 'location', 'chw', 'status')
     search_fields = ['health_id', 'first_name', 'last_name']
+    list_filter = ['status', 'chw']
 admin.site.register(Patient, PatientAdmin)
 
 
