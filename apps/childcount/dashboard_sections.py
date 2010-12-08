@@ -59,8 +59,6 @@ def nutrition_chart():
     
     return simplejson.dumps(nutrition_data_for_dashboard)
 
-import ipdb
-
 def recent_numbers():
     """
     pumps a python dict with "columns" and "rows"(&data) which is
