@@ -80,7 +80,7 @@ class QuarterlyPeriodSet(PeriodSet):
 
     @classmethod
     def period_name(cls, period_num):
-        return self\
+        return cls\
             .period_start_date(period_num)\
             .strftime('%b')
 
