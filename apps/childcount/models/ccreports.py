@@ -47,6 +47,7 @@ from childcount.utils import day_end, \
                                 last_day_of_month, \
                                 first_date_of_week
 from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
+from childcount.reports.utils import MonthlyPeriodSet
 
 from logger_ng.models import LoggedMessage
 
@@ -1698,7 +1699,8 @@ class MonthlyCHWReport(TheCHWReport):
                     .latest('encounter__encounter_date')
             except FamilyPlanningReport.DoesNotExist:
                 # If not, count all women as new to FP
-                start_count += r.women_using
+                if r.women_using is not None:
+                    start_count += r.women_using
             else:
                 if r.women_using is None:
                     if old_rep.women_using is None: continue
@@ -1958,7 +1960,7 @@ class MonthlyCHWReport(TheCHWReport):
     # Kids 1-2 yrs needing immunizations
     def needing_immunizations(self):
         imm_pks = map(lambda i: i['encounter__patient__pk'],\
-            self._num_underfive_imm_pks(3))
+            self._num_underfive_imm_pks(MonthlyPeriodSet, 3))
 
         return Patient\
             .objects\

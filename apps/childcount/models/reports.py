@@ -35,6 +35,11 @@ from childcount.models import Vaccine
 
 from childcount.utils import send_msg
 
+"""
+We use IndicatorQuerySet to hold some nifty
+filtering methods for use with Indicators
+and reports generation.
+"""
 class IndicatorQuerySet(PolymorphicQuerySet):
     # Only consider active patients
     def patient_encounters(self):
@@ -69,7 +74,10 @@ class IndicatorQuerySet(PolymorphicQuerySet):
 
     def for_chw(self, chw):
         return self.filter(encounter__chw=chw)
- 
+
+"""
+For indicators, only consider active patients.
+"""
 class IndicatorManager(PolymorphicManager):
     def get_query_set(self):
         return super(IndicatorManager,self)\

@@ -20,10 +20,19 @@ REPORTS_DIR = 'reports'
 # Quarterly (J, F, M, A, ...)
 # Annual (q1, q2, q3, q4)
 
+"""
+PeriodSet is for representing a set of
+time periods that you would use to generate
+a report.
+
+For example, MonthlyPeriodSet describes
+the beginning and ends of each week in
+the month.
+"""
+
 class PeriodSet(object):
     num_periods = None
     total_name = None
-    period_index = None
 
     @classmethod
     def enum_periods(cls):
@@ -40,8 +49,10 @@ class PeriodSet(object):
     def period_start_date(cls, period_num):
         raise NotImplementedError('No period start date function')
 
-    # End date is the start date of the *next* period
-    # minus one day
+    """
+    End date is the start date of the *next* period
+    minus one day
+    """
     @classmethod
     def period_end_date(cls, period_num):
         return cls.period_start_date(period_num+1) - \

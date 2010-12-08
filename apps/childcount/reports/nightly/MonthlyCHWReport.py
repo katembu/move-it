@@ -62,7 +62,7 @@ class Report(PrintedReport):
 
         headers = [_(u"Indicator")]
         headers += [self._reporting_week_date_str(w) \
-            for w in xrange(0, MonthlyPeriodSet.num_weeks)]
+            for w in xrange(0, MonthlyPeriodSet.num_periods)]
         headers += [_(u"Tot/Avg")]
 
         table.add_header_row(map(Text, headers))

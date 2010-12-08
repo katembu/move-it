@@ -20,10 +20,17 @@ from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = _(u"CHW Manager Report")
-    filename = 'chw_manager_report'
+    title = _(u"CHW Manager Report: ")
+    filename = 'chw_manager_report_'
     formats = ['xls']
-    per_cls = MonthlyPeriodSet
+    variants = [
+        (u"Monthly", 'monthly', \
+            {'period_cls': MonthlyPeriodSet}),
+        (u"Quarterly", 'quarterly', \
+            {'period_cls': QuarterlyPeriodSet}),
+        (u"Annual", 'annual', \
+            {'period_cls': AnnualPeriodSet}),
+    ]
 
     _safe_template = Template('{{value}}')
     _WIDTH_SKINNY = 0x0800
@@ -80,6 +87,8 @@ class Report(PrintedReport):
         self._total_perc_style.num_format_str = '0.0%'
 
     def generate(self, rformat, title, filepath, data):
+        self.per_cls = data['period_cls']
+
         self._setup_styles()
 
         wb = xlwt.Workbook()
@@ -89,7 +98,7 @@ class Report(PrintedReport):
             .objects\
             .filter(is_active=True)\
             .exclude(clinic__isnull=True)\
-            .order_by('clinic__name','first_name')[0:1]
+            .order_by('clinic__name','first_name')
 
         # Set up data structures for column totals
         self._aggregate_on = []
@@ -152,7 +161,6 @@ class Report(PrintedReport):
                     i += 1
                     col += 1
             
-
     def _print_data(self, row, chw):
         data = chw.report_indicators()
         col = 3
@@ -164,7 +172,7 @@ class Report(PrintedReport):
            
             for i in xrange(0, self.per_cls.num_periods):
                 self._aggregate_data(chw, \
-                    ind.for_period(self.per_cls, i), \
+                    ind.for_period_raw(self.per_cls, i), \
                     j)
 
                 j += 1
@@ -176,6 +184,7 @@ class Report(PrintedReport):
                 col += 1
 
             self._aggregate_data(chw, ind.for_total_raw(self.per_cls), j)
+            #print ">%s" % unicode(ind.for_total_raw(self.per_cls))
             j += 1
             self._write(row,\
                 col,\
@@ -186,9 +195,10 @@ class Report(PrintedReport):
     def _aggregate_data(self, chw, bit, index):
         for (num, (name, lst)) in enumerate(self._aggregate_on):
             if chw.clinic.pk in lst:
-                print (num, index)
+                #print '_indicator_data[%d][%d] = \
+                # %s' % (num, index, unicode(bit))
+
                 self._indicator_data[num][index].append(bit)
-            
 
     def _add_spacer(self, col):
         self._ws.col(col).width = 0x0100
@@ -207,7 +217,8 @@ class Report(PrintedReport):
 
             n_indicators += 1
 
-            self._write_merge(LABEL_ROW, LABEL_ROW, col, col+self.per_cls.num_periods, \
+            self._write_merge(LABEL_ROW, \
+                LABEL_ROW, col, col+self.per_cls.num_periods, \
                 ind.title, self._top_row)
 
             for j in xrange(0, self.per_cls.num_periods):
