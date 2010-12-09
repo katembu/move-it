@@ -59,7 +59,8 @@ admin.site.register(SanitationReport, VersionAdmin)
 
 
 class BednetIssuedReportAdmin(VersionAdmin):
-    list_display = ('patient', 'bednet_received', 'chw', 'identity')
+    list_display = ('patient', 'bednet_received', 'chw', 'identity',
+                    'encounter')
     list_filter = ('bednet_received', )
     search_fields = ['encounter__patient__health_id',
                     'encounter__chw__location__name',
