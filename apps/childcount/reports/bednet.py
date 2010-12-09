@@ -22,7 +22,8 @@ def issued_report(request, rformat="html"):
     for clinic in Clinic.objects.all():
         rpts = BednetIssuedReport.objects\
                             .filter(encounter__patient__chw__clinic=clinic)\
-                            .order_by('encounter__chw__location')
+                            .order_by('encounter__chw__location',
+                            'encounter__encounter_date')
         t = Table(5)
         t.add_header_row([
             Text(unicode(_(u"Date"))),
