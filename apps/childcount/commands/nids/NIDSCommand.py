@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: ukanga
 
 import re
 
@@ -16,9 +16,10 @@ from locations.models import Location
 from childcount.models import HealthId
 
 from childcount.commands import CCCommand
-from childcount.models import Patient
+from childcount.models import Patient, Configuration
 from childcount.models.PolioCampaignReport import PolioCampaignReport
 from childcount.utils import authenticated
+from childcount.exceptions import CCException
 
 
 class NIDSCommand(CCCommand):
@@ -38,6 +39,7 @@ class NIDSCommand(CCCommand):
             return True
         health_ids = self.params[1:]
         patients = []
+        inactive_patients = []
         invalid_hids = []
         over_age = []
         for health_id in health_ids:
@@ -49,15 +51,24 @@ class NIDSCommand(CCCommand):
                 fm = datetime.now().date() + relativedelta(months=-59)
                 if patient.dob < fm:
                     over_age.append(patient)
-                else:
+                elif patient.status == Patient.STATUS_ACTIVE:
                     patients.append(patient)
+                else:
+                    inactive_patients.append(patient)
         reported = []
         successful = []
+        try:
+            phase = Configuration.get('polio_round')
+        except Configuration.DoesNotExist:
+            raise CCException(_(u"Configuration Error: Please contact system"
+                                " administrator."))
         for patient in patients:
             try:
-                rpt = PolioCampaignReport.objects.get(patient=patient)
+                rpt = PolioCampaignReport.objects.get(patient=patient,
+                                                phase=phase)
             except PolioCampaignReport.DoesNotExist:
                 rpt = PolioCampaignReport(patient=patient, chw=chw)
+                rpt.phase = phase
                 rpt.save()
                 successful.append(patient)
             else:
@@ -72,6 +83,9 @@ class NIDSCommand(CCCommand):
         if over_age.__len__():
             resp += _(u"Over 59m: %(patients)s. " % {'patients':
                 ', '.join([p.health_id.upper() for p in over_age])})
+        if inactive_patients.__len__():
+            resp += _(u"Inactive: %(patients)s. " % {'patients':
+                ', '.join([p.health_id.upper() for p in inactive_patients])})
         if invalid_hids.__len__():
             resp += _(u"Invalid HealthID: %(hid)s. " % {'hid':
                                             ','. join(invalid_hids)})

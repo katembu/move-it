@@ -17,24 +17,32 @@ from locations.models import Location
 from childcount.models import HealthId
 
 from childcount.commands import CCCommand
-from childcount.models import Patient, CHW
+from childcount.models import Patient, CHW, Configuration
 from childcount.models.PolioCampaignReport import PolioCampaignReport
 from childcount.utils import authenticated, send_msg
+from childcount.exceptions import CCException
 
 
 class PolioSummaryCommand(CCCommand):
 
     KEYWORDS = {
-        'en': ['plsummary'],
+        'en': ['plsummary', 'plsummery'],
         'fr': ['plsummary'],
     }
 
     @authenticated
     def process(self):
         chw = self.message.persistant_connection.reporter.chw
+        try:
+            phase = Configuration.get('polio_round')
+        except Configuration.DoesNotExist:
+            raise CCException(_(u"Configuration Error: Please contact system"
+                                " administrator."))
 
-        if PolioCampaignReport.objects.filter(chw=chw):
-            rpts = PolioCampaignReport.objects.filter(patient__chw=chw)
+        if PolioCampaignReport.objects.filter(patient__chw=chw, phase=phase):
+            rpts = PolioCampaignReport.objects.filter(patient__chw=chw,
+                                        patient__status=Patient.STATUS_ACTIVE,
+                                                        phase=phase)
             count = rpts.count()
             dob = datetime.today() + relativedelta(months=-59)
             underfive = Patient.objects.filter(chw=chw, dob__gte=dob,
@@ -51,7 +59,7 @@ class PolioSummaryCommand(CCCommand):
         dob = datetime.today() + relativedelta(months=-59)
         underfive = Patient.objects.filter(dob__gte=dob,
                                     status=Patient.STATUS_ACTIVE)
-        rpts = PolioCampaignReport.objects.filter()
+        rpts = PolioCampaignReport.objects.filter(phase=phase)
         percentage = round((rpts.count()/float(underfive.count()))*100, 2)
         resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
                 {'total': rpts.count(), 'percentage': percentage})
