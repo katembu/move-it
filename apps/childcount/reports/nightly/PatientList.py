@@ -186,13 +186,13 @@ class Report(PrintedReport):
             tscount = 0
             for box in boxes:
                 if tscount % 2:
-                    ts.append((('BOX', (0, box['top'] + 2), \
-                            (-1, box['bottom'] + 2), 0.5, colors.black)))
+                    ts.append((('BOX', (0, box['top'] + 3), \
+                            (-1, box['bottom'] + 3), 0.5, colors.black)))
                 else:
-                    ts.append((('BOX', (0, box['top'] + 2), \
-                            (-1, box['bottom'] + 2), 0.5, colors.black)))
-                ts.append((('BACKGROUND', (0, box['top'] + 2), \
-                            (2, box['top'] + 2), colors.lightgrey)))
+                    ts.append((('BOX', (0, box['top'] + 3), \
+                            (-1, box['bottom'] + 3), 0.5, colors.black)))
+                ts.append((('BACKGROUND', (0, box['top'] + 3), \
+                            (2, box['top'] + 3), colors.lightgrey)))
                 tscount += 1
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
         tb.setStyle(TableStyle(ts))
