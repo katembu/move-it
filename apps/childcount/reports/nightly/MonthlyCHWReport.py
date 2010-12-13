@@ -58,7 +58,7 @@ class Report(PrintedReport):
         return render_doc_to_file(filepath, rformat, doc)
 
     def _indicator_table(self, chw):
-        table = Table(6)
+        table = Table(6, title=Text(_(u"Indicators")))
 
         headers = [_(u"Indicator")]
         headers += [self._reporting_week_date_str(w) \

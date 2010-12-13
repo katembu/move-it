@@ -3,6 +3,7 @@
 # maintainer: ukanga
 
 import copy
+from datetime import date
 
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
@@ -145,18 +146,21 @@ class Report(PrintedReport):
 
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
-        data = [hdata]
+        datedata = [Paragraph(date.today().strftime("Current as of %d %B %Y."), styleH5)]
+        datedata.extend((len(cols) - 1) * [''])
+        data = [hdata, datedata]
 
         firstrow = [Paragraph(cols[0]['name'], styleH5)]
         firstrow.extend([Paragraph(col['name'], styleH5) for col in cols[1:]])
         data.append(firstrow)
 
-        rowHeights = [None, 0.2 * inch]
+        rowHeights = [None, None, 0.2 * inch]
         # Loc, HID, Name
         colWidths = [0.5 * inch, 0.5 * inch, 1.3 * inch]
         colWidths.extend((len(cols) - 3) * [0.4 * inch])
 
         ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
+                                ('SPAN', (0, 1), (len(cols)-1, 1)),
                                 ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
                                 colors.black),
                                 ('LINEBELOW', (0, 1), (len(cols) - 1, 1), 1, \
