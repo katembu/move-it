@@ -50,7 +50,7 @@ class PolioSummaryCommand(CCCommand):
             total = underfive.count()
             percentage = 0
             if total:
-                percentage = round((count/float(total))*100, 2)
+                percentage = round((count / float(total)) * 100, 2)
             resp = _(u"Vaccinated: %(count)s of %(total)s - %(percentage)s%%" \
                     % {'count': count, 'total': total,
                         'percentage': percentage})
@@ -60,12 +60,18 @@ class PolioSummaryCommand(CCCommand):
         underfive = Patient.objects.filter(dob__gte=dob,
                                     status=Patient.STATUS_ACTIVE)
         rpts = PolioCampaignReport.objects.filter(phase=phase)
-        percentage = round((rpts.count()/float(underfive.count()))*100, 2)
+        percentage = round((rpts.count() / float(underfive.count())) * 100, 2)
         resp = _(u"%(percentage)s%% coverage, Total Reports: %(total)s. " % \
                 {'total': rpts.count(), 'percentage': percentage})
-        rpts = rpts.values('chw__location__name').annotate(Count('chw'))
+        rpts = rpts.values('chw__location__name', 'chw__location')\
+                    .annotate(Count('chw'))
         for loc in rpts:
-            resp += u"%s: %s. " % (loc['chw__location__name'], loc['chw__count'])
+            loc_pk = loc['chw__location']
+            t = underfive.filter(chw__location__pk=loc_pk).count()
+            p = int(round((loc['chw__count'] / float(t)) * 100, 0))
+            resp += u"%(loc)s: %(vacc)s/%(total)s - %(percentage)s%%. " % \
+                    {'loc': loc['chw__location__name'],
+                    'vacc': loc['chw__count'], 'total': t, 'percentage': p}
         self.message.respond(resp)
         if self.params.__len__() > 1 and self.params[1].lower() == 'all':
             for chw in CHW.objects.all():
