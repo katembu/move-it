@@ -2018,12 +2018,15 @@ class MonthlyCHWReport(TheCHWReport):
             .filter(encounter__encounter_date__gt = \
                 date.today() - timedelta(10 * 30.4375))\
             .order_by('-encounter__encounter_date')
-        
+       
+        seen = []
         no_anc = []
         women = []
         for p in pregs:
-            if p.encounter.patient in women:
+            if p.encounter.patient.pk in seen:
                 continue
+            else:
+                seen.append(p.encounter.patient.pk)
 
             days_ago = (datetime.today() - p.encounter.encounter_date).days
             weeks_ago = days_ago / 7.0

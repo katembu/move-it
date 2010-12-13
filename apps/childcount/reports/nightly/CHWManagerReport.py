@@ -122,7 +122,7 @@ class Report(PrintedReport):
             self.per_cls.period_start_date(0).strftime('%d-%b-%Y') + \
                 _(u" through ") + \
             self.per_cls.period_end_date(\
-                self.per_cls.num_periods).strftime('%d-%b-%Y'))
+                self.per_cls.num_periods-1).strftime('%d-%b-%Y'))
 
         self._ws.row(0).height = 0x180
         self._print_names(chws)
