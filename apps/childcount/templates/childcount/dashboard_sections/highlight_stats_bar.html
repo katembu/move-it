@@ -6,10 +6,10 @@
 		{% endfor %}
     </tr>
     <tr>
-		<td class="num_households"></td>
-		<td class="num_patients"></td>
-		<td class="num_underfive"></td>
-		<td class="num_pregnant"></td>
+		<td class="num_households"><div></div></td>
+		<td class="num_patients"><div></div></td>
+		<td class="num_underfive"><div></div></td>
+		<td class="num_pregnant"><div></div></td>
     </tr>
 </table>
 </div>
@@ -18,10 +18,10 @@
 	$(function(){
 		$('#tblsite_summary td').addClass('loading')
         $.getJSON('/childcount/site_summary/site/json', function(data){
-            $('#tblsite_summary td.num_patients').html(data.summary.num_patients);
-            $('#tblsite_summary td.num_households').html(data.summary.num_households);
-            $('#tblsite_summary td.num_underfive').html(data.summary.num_underfive);
-            $('#tblsite_summary td.num_pregnant').html(data.summary.num_pregnant);
+            $('#tblsite_summary td.num_patients div').html(data.summary.num_patients);
+            $('#tblsite_summary td.num_households div').html(data.summary.num_households);
+            $('#tblsite_summary td.num_underfive div').html(data.summary.num_underfive);
+            $('#tblsite_summary td.num_pregnant div').html(data.summary.num_pregnant);
             $('#tblsite_summary td').removeClass('loading')
         });
 	})
