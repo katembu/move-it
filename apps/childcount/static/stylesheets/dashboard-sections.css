@@ -49,6 +49,7 @@ div.dashboard-section {
 	width: 25%;
 }
 #statbar td div {
+	height: 15px;
 	color: #fff;
 	background-color: #401a11;
 	padding: 4px 0;
