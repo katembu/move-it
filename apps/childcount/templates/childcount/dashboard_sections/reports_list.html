@@ -1,0 +1,60 @@
+{% for report_list in dashboard_data.reports_list %}
+<div class="dashboard-section">
+	<h2 class="title">{{report_list.title}}</h2>
+	<div class="s-content">
+		<div class="reports">
+			<table class="report-list cclist">
+				<tbody>
+					<tr>
+						<th>Report Name</th>
+						<th class="scol">HTML</th>
+						<th class="scol">PDF</th>
+						<th class="scol">Excel</th>
+						<th class="scol">Other</th>
+					</tr>
+					{% for r in report_list.reports %}
+					<tr>
+						<td class="title-holder"><a href="#" class="changeDefaultClick">{{ r.title }}</a></td>
+						<td class="scol">
+							{% if r.html %}
+							<a href="{{r.url}}.html" class="report-link html" title="{{r.title}} [Html]" target="_BLANK">&nbsp;</a>
+							{% endif %}
+						</td>
+						<td class="scol">
+							{% if r.pdf %}
+							<a href="{{r.url}}.pdf" class="report-link pdf" title="{{r.title}} [PDF]">&nbsp;</a>
+							{% endif %}
+						</td>
+						<td class="scol">
+							{% if r.xls %}
+							<a href="{{r.url}}.xls" class="report-link xls" title="{{r.title}} [Excel]">&nbsp;</a>
+							{% endif %}
+						</td>
+						<td class="scol">
+							{% if r.csv %}
+							<a href="{{r.url}}.csv" class="report-link csv" title="{{r.title}} [CSV]">CSV</a>
+							{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endfor %}
+
+<script type="text/javascript">
+<!--
+$(function(){
+	var rpLink;
+	$('table.report-list a.changeDefaultClick').each(function(){
+		rpLink = $(this).closest('tr').find('a.report-link').get(0);
+		if(rpLink) {
+			this.href= rpLink.href;
+			this.target = rpLink.target;
+		}
+	});
+})
+-->
+</script>

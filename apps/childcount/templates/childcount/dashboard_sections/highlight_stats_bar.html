@@ -1,0 +1,29 @@
+<div id="statbar">
+<table id="tblsite_summary">
+    <tr>
+		{% for stat in dashboard_data.highlight_stats_bar.titles %}
+		<th>{{ stat }}</th>
+		{% endfor %}
+    </tr>
+    <tr>
+		<td class="num_households"><div></div></td>
+		<td class="num_patients"><div></div></td>
+		<td class="num_underfive"><div></div></td>
+		<td class="num_pregnant"><div></div></td>
+    </tr>
+</table>
+</div>
+<script type="text/javascript" charset="utf-8">
+	<!--
+	$(function(){
+		$('#tblsite_summary td').addClass('loading')
+        $.getJSON('/childcount/site_summary/site/json', function(data){
+            $('#tblsite_summary td.num_patients div').html(data.summary.num_patients);
+            $('#tblsite_summary td.num_households div').html(data.summary.num_households);
+            $('#tblsite_summary td.num_underfive div').html(data.summary.num_underfive);
+            $('#tblsite_summary td.num_pregnant div').html(data.summary.num_pregnant);
+            $('#tblsite_summary td').removeClass('loading')
+        });
+	})
+	-->
+</script>

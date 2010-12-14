@@ -1,0 +1,30 @@
+<div class="dashboard-section" id="recent-numbers">
+	<h2 class="title">Recent Numbers</h2>
+	<div class="s-content">
+		<table style="width:100%">
+			<tbody>
+				<tr>
+					<th></th>
+					{% for col_name in dashboard_data.recent_numbers.columns %}
+					<th class="highlight-column">{{col_name}}</th>
+					{% endfor %}
+				</tr>
+				{% for row_name in dashboard_data.recent_numbers.rows %}
+				<tr>
+				<td>{{row_name.0}}</td>
+				{% for datum in row_name.1 %}
+				<td>{{datum}}</td>
+				{% endfor %}
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/jquery.cc.highlight-table.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(function(){
+	$('#recent-numbers table').highlightTable();
+})
+</script>

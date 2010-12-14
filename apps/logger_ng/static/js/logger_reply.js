@@ -1,26 +1,40 @@
-/*! I wrapped this in a jquery plugin
--*    this function essentially extracts the important information from the html element and
--*    creates a new exchange with the JS object
+/*! SmsExchange is the object that converts json records of message&responses into a table view.
+-*  if $.listenForMessages(timeoutTime) is called, it will autoupdate with newer messages
+-*  Requires-- jquery "buildIn" plugin to generate HTML from json
+-*     see: https://github.com/dorey/jquery-JsonML-plugin/blob/master/jquery.buildin.js
+-*  if you have questions, please email me: 
+-*  - Alex Dorey: dorey415@gmail.com
 -**/
 
-(function($){
+var SmsExchange = (function($){
 	var wrap, SmsExchange,
 		Messages,
 		maxId = 0,
-		exchangeVersion = "0.1";
+		exchangeVersion = "0.2",
+		options = {
+		    msgPostUrl: "/logger_ng/post_message",
+		    latestMessagesUrl: "/logger_ng/latest_messages/",
+		    currentLang: 'en',
+		    translations: {
+        		'en': {
+        			'response': "Response",
+        			'responses': "Responses",
+        			'reply': 'Respond',
+        			'status': {
+        				'good': "Status: Good",
+        				'warning': "Status: Warning",
+        				'pending': "Status: Pending",
+        				'error': "Status: Error",
+        				'info': "Status: Info"
+        			},
+        			'sendMessage': "Send",
+        			'tooManyCharacters': "Too many characters"
+        		}
+    	    }
+	    };
 	
-	$.fn.enableSmsExchangeIn = function(_wrap){
-		SmsExchange.placeIn(_wrap);
-		wrap = $(_wrap);
-		this.each(function(){
-			wrap.append(SmsExchange.fromHTML(this));
-			$(this).hide();
-		})
-	}
 	SmsExchange = (function(){
 	   /*!  The "exchange" object is what stores the details of a conversation in the DOM and inserts them into 
-	   -*   See "importHTML" to edit the import function.  
-	   -*   You can also use json
 	   -*/
 		var exchangeWrap,
 			unfocusMessageTable,
@@ -32,8 +46,9 @@
 				twrap = $("<tbody />");
 
 			table.addClass('msgs').html(
-				"<col class='status'>" +
-				"<col class='name'>" +
+				"<col class='newbar'>" +
+                "<col class='status'>" +
+                "<col class='name'>" +
 				"<col class='subj'>" +
 				"<col class='date'>" +
 				"<col class='l'>");
@@ -41,32 +56,40 @@
 			table.append(twrap);
 			exchangeWrap = twrap;
 		}
-		
-		function exchange(opts, placement) {
-			if(!exchangeWrap) {throw("Wrap element must be defined");}
-			this.id			=	opts.id.match(/\d+/)[0];
-			if(parseInt(this.id)>maxId) {maxId=this.id}
-			this.status		=	opts.status;
-			this.details	=	opts.details;
-			this.message	=	opts.message;
-			this.responses	=	opts.responses instanceof Array ? opts.responses : [];
-			this.name		=	opts.name;
-			this.dateStr	=	opts.dateStr;
+
+		function exchange(msgJson, opts) {
+		    if(!opts){opts={}}
+			if(!exchangeWrap) {return "Wrap element must be defined"}
+
+			this.id			=	msgJson.id;
+			if(this.id>maxId) {maxId=this.id}
+			
+			this.status		=	msgJson.status;
+			this.details	=	msgJson.details;
+			this.message	=	msgJson.message;
+			this.responses	=	msgJson.responses instanceof Array ? msgJson.responses : [];
+			this.name		=	msgJson.name;
+			this.dateStr	=	msgJson.dateStr;
+
 			this.respMessage=	"";
-			if(placement=="prepend") {
-//				exchangeWrap.find('tr').get(-1).smsExchange.remove();
+			
+			if(opts.placement=="prepend") {
 				this.createTr();
 				this.tr.css({'display':'none'});
+				this.tr.addClass('unread');
 				exchangeWrap.prepend(this.tr);
 				this.tr.fadeIn();
 			} else {
 				exchangeWrap.append(this.createTr());
 			}
+			if(opts.replace) {
+			    $('tr:last-child', exchangeWrap).remove();
+			}
 		}
-
-		//UI specific messages
+		
+		//UI specific messages (can be translated)
 		exchange.prototype.msgs = function(){
-			return Translations[CurrentLang];
+			return options.translations[options.currentLang];
 		}
 		exchange.prototype.responsesSummary = function() { var rc = this.responses.length; return (rc==1) ? ("1 "+this.msgs().response) : (rc + " " + this.msgs().responses) }
 		exchange.prototype.statusSummary = function() { return this.msgs().status[this.statusCode()] }
@@ -82,12 +105,6 @@
 			$(this.tr).find('div.status').get(0).title = this.msgs().status[str];
 		}
 		exchange.prototype.remove = function(){this.tr.fadeOut();}
-		exchange.prototype.submitMessage = function(obj){
-			var _exch = this;
-			$.post('sample_json/sms_received.json', obj, function(data){
-				_exch.setStatus(data['status'])
-			})
-		}
 		exchange.prototype.updateResponses = function() {
 			$(this.tr).find('.replycount').text(this.responsesSummary())
 			if(typeof(this.responseRow)!=='undefined'){$(this.responseRow).find('.replycount').text(this.responsesSummary())}
@@ -96,7 +113,8 @@
 			var _r = this;
 			this.tr = $("<tr></tr>");
 			this.tr.buildIn(
-					["td", {}, ["div",{'class':'status'}]],
+			        ["td", {'class':'newbar'}, ["div",{'class':'newbar'},"&nbsp;"]],				
+				    ["td", {}, ["div",{'class':'status', 'title': this.statusSummary()}]],
 					["td", {}, this.name],
 					["td", {}, this.message],
 					["td", {}, this.dateString()],
@@ -120,7 +138,6 @@
 		}
 	
         /*!  The populateTrAndOpen function loads the expanded message and adds listeners, etc.
-        -*
 	    -*/
 		exchange.prototype.populateTrAndOpen = function() {
 			var b_form, b_wdiv, b_rrow,
@@ -215,7 +232,7 @@
 				};
 				_r.respMessage = "";
 				_r.responses.push(postMsg.msg);
-				$.post(ExchangeSettings.msgPOSTurl, postMsg, function(data){
+				$.post(options.msgPostUrl, postMsg, function(data){
 					$($(_r.responseRow.find('li.pending')).get(-1)).text(data.sms);
 					_r.setStatus(data.status)
 				});
@@ -245,6 +262,7 @@
 		}
 		exchange.prototype.clickOpen = function() {
 			var focused = ($('table.msgs').find('.hidden-open').length > 0);
+			this.tr.removeClass('unread');
 			if(focused) {
 				unfocusMessageTable(this, this.populateTrAndOpen)
 			} else {
@@ -262,47 +280,29 @@
 			}
 			return count;
 		}
-
-		/*! importHTML will have to be updated whenever html input changes
-		-*    this function essentially extracts the important information from the html element and
-		-*    creates a new exchange with the JS object
-		-**/
-		function importHTML(elem){
-			var elems = {
-				details: $(elem).find('.details').get(0),
-				originalMessage: $(elem).find('.msg.text').get(0),
-				responses: $(elem).find('.msg.response')
-			}
-			return new exchange({
-				status: $(elems.details).find('.status').attr('title'),
-				details: $.map($.trim($(elems.details).text()).split("\n"), $.trim).join("\n"), //traverses each line and trims whitespace
-				message: $.trim($(elems.originalMessage).text()),
-				responses: $.map($(elems.responses), function(e){return $(e).text()}),
-				id: $(elem).find('input.resp_box').attr('name'),
-				dateStr: $(elems.details).find('.date').text(),
-				name: $(elem).find('.details').text().trim().split("\n")[1].trim().split(" ")[1] //it would be much nicer if we could get a "name" field...
-			});
+		
+		function setOption(optionName, optionValue) {
+		    options[optionName]=optionValue;
 		}
-		function importJSON(json) {return new exchange(json)}
 		return {
-			fromHTML: importHTML,
-			fromJSON: importJSON,
 			placeIn: setWrapElement,
-			constructor: exchange
+			constructor: exchange,
+			setOption: setOption
 		}
 	})();
-	var reqUrl, freq = 4 * (1000 * 60);
-	$.listenForMessages = function(url, frequency) {
-		reqUrl = url;
+	
+	var reqUrl, freq;
+	$.listenForMessages = function(frequency) {
 		freq = (frequency < 1000) ? (frequency*1000) : frequency;
 		window.setTimeout(checkForMessages, freq);
 	}
 	function checkForMessages() {
-		$.getJSON(reqUrl, "id="+maxId, function(results){
+		$.getJSON(options.latestMessagesUrl+maxId, function(results){
 			$(results).each(function(){
-				var nm = new SmsExchange.constructor(this, "prepend");
+				var nm = new SmsExchange.constructor(this, {'placement':'prepend'});
 			});
+			window.setTimeout(checkForMessages, freq);
 		});
-		window.setTimeout(checkForMessages, freq);
 	}
+	return SmsExchange;
 })(jQuery)

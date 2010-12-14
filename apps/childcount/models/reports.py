@@ -21,7 +21,8 @@ from django.utils.translation import ugettext as _
 import reversion
 from reversion.models import Version
 
-from polymorphic import PolymorphicModel
+from polymorphic import PolymorphicModel, PolymorphicManager
+from polymorphic import PolymorphicQuerySet
 
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
@@ -34,12 +35,64 @@ from childcount.models import Vaccine
 
 from childcount.utils import send_msg
 
+"""
+We use IndicatorQuerySet to hold some nifty
+filtering methods for use with Indicators
+and reports generation.
+"""
+class IndicatorQuerySet(PolymorphicQuerySet):
+    # Only consider active patients
+    def patient_encounters(self):
+        return self.filter(\
+            encounter__type=Encounter.TYPE_PATIENT,
+            encounter__patient__status=Patient.STATUS_ACTIVE)
+
+    def household_encounters(self):
+        return self.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
+
+    def between_dates(self, startDate, endDate):
+        return self.filter(encounter__encounter_date__gte=startDate,\
+            encounter__encounter_date__lt=endDate)
+
+    def for_period(self, per_cls, per_num):
+        return self.between_dates(\
+            per_cls.period_start_date(per_num), \
+            per_cls.period_start_date(per_num+1))
+
+    def before_period(self, per_cls, per_num):
+        return self.filter(\
+            encounter__encounter_date__lte=\
+                per_cls.period_end_date(per_num))
+
+    def for_period_total(self, per_cls):
+        first_date = per_cls.period_start_date(0)
+        last_date = per_cls.period_start_date(per_cls.num_periods)
+        return self.between_dates(first_date, last_date)
+
+    def for_clinic(self, clinic):
+        return self.filter(encounter__chw__clinic=clinic)
+
+    def for_chw(self, chw):
+        return self.filter(encounter__chw=chw)
+
+"""
+For indicators, only consider active patients.
+"""
+class IndicatorManager(PolymorphicManager):
+    def get_query_set(self):
+        return super(IndicatorManager,self)\
+            .get_query_set()\
+            .filter(encounter__patient__status=Patient.STATUS_ACTIVE)
 
 class CCReport(PolymorphicModel):
 
     '''
-    The highest level superclass to be inhereted by all other report classes
+    The highest level superclass to be 
+    inhereted by all other report classes
     '''
+
+    objects = PolymorphicManager()
+    indicators = IndicatorManager(IndicatorQuerySet)
 
     class Meta:
         app_label = 'childcount'
@@ -49,6 +102,7 @@ class CCReport(PolymorphicModel):
         get_latest_by = ('encounter__encounter_date')
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
+
 
     def reset(self):
         self.__init__(pk=self.pk, encounter=self.encounter)
@@ -138,9 +192,9 @@ class BirthReport(CCReport):
         return string
 
     def get_omrs_dict(self):
-        igive = {
-            'weight': self.weight,
-        }
+        igive = {}
+        if self.weight:
+            igive.update({'weight': self.weight})
         return igive
 
     @task()
@@ -464,8 +518,9 @@ class PregnancyReport(CCReport):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
             'antenatal_visit_number': self.anc_visits,
-            'weeks_since_last_anc': self.weeks_since_anc,
         }
+        if self.weeks_since_anc:
+            igive.update({'weeks_since_last_anc': self.weeks_since_anc})
         return igive
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
@@ -1289,7 +1344,7 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-    def save(self, *args, **kwargs):
+'''    def save(self, *args, **kwargs):
         delay = self.appointment_date + relativedelta(days=-3)
         if delay.weekday() > calendar.FRIDAY:
             delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
@@ -1307,7 +1362,7 @@ class AppointmentReport(CCReport):
         sms_alert.name = u'appointment_report_reminder'
         sms_alert.save()
         self.sms_alert = sms_alert
-        super(AppointmentReport, self).save(*args, **kwargs)
+        super(AppointmentReport, self).save(*args, **kwargs)'''
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 

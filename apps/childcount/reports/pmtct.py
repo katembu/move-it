@@ -21,7 +21,7 @@ open_status = (AppointmentReport.STATUS_OPEN, \
 
 
 def defaulters(request, rformat="html"):
-    doc = Document(_(u'Defaulters Report'))
+    doc = Document(unicode(_(u'Defaulters Report')))
     today = datetime.today()
     df = AppointmentReport.objects.filter(status__in=open_status, \
                                             appointment_date__lt=today, \
@@ -30,28 +30,27 @@ def defaulters(request, rformat="html"):
 
     t = Table(4)
     t.add_header_row([
-        Text(_(u'Patient')),
-        Text(_(u'Status')),
-        Text(_(u'CHW')),
-        Text(_(u'Location'))])
+        Text(unicode(_(u'Patient'))),
+        Text(unicode(_(u'Status'))),
+        Text(unicode(_(u'CHW'))),
+        Text(unicode(_(u'Location')))])
     for row in df:
         if row.status == AppointmentReport.STATUS_PENDING_CV:
             statustxt = _("Reminded")
         else:
             statustxt = _("Not Reminded")
         t.add_row([
-            Text(row.encounter.patient, \
-                castfunc=lambda a:a),
-            Text(statustxt),
-            Text(row.encounter.patient.chw),
-            Text(row.encounter.patient.chw.location)])
+            Text(unicode(row.encounter.patient)),
+            Text(unicode(statustxt)),
+            Text(unicode(row.encounter.patient.chw)),
+            Text(unicode(row.encounter.patient.chw.location))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'defaulters-list')
 
 
 def upcoming_deliveries(request, rformat="html"):
-    doc = Document(_(u'Upcoming Deliveries Report - within 2 weeks'))
+    doc = Document(unicode(_(u'Upcoming Deliveries')))
     today = datetime.today()
     two_weeks_time = today + relativedelta(weeks=2)
     ud = AntenatalVisitReport.objects.filter(expected_on__gte=today, \
@@ -61,15 +60,14 @@ def upcoming_deliveries(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(_(u'Patient')),
-        Text(_(u'CHW')),
-        Text(_(u'Location'))])
+        Text(unicode(_(u'Patient'))),
+        Text(unicode(_(u'CHW'))),
+        Text(unicode(_(u'Location')))])
     for row in ud:
         t.add_row([
-            Text(row.encounter.patient, \
-                castfunc=lambda a: a),
-            Text(row.encounter.patient.chw),
-            Text(row.encounter.patient.chw.location)])
+            Text(unicode(row.encounter.patient)),
+            Text(unicode(row.encounter.patient.chw)),
+            Text(unicode(row.encounter.patient.chw.location))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'upcoming-deliveries')
@@ -108,7 +106,7 @@ def new_registrations(request, rformat="html"):
     '''Weekly, the number of new mother/infant pairs registered into the
     system - Based solely on First Visit report i.e +PF'''
     # TODO: Need to include under five as well
-    doc = Document(_(u'New Registration: Last one week to date'))
+    doc = Document(unicode(_(u'New Registrations')))
     today = datetime.today()
     start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
     r = AntenatalVisitReport.objects
@@ -118,15 +116,14 @@ def new_registrations(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(_(u'Patient')),
-        Text(_(u'CHW')),
-        Text(_(u'Location'))])
+        Text(unicode(_(u'Patient'))),
+        Text(unicode(_(u'CHW'))),
+        Text(unicode(_(u'Location')))])
     for row in r:
         t.add_row([
-            Text(row.encounter.patient, \
-                castfunc=lambda a: a),
-            Text(row.encounter.patient.chw),
-            Text(row.encounter.patient.chw.location)])
+            Text(unicode(row.encounter.patient)),
+            Text(unicode(row.encounter.patient.chw)),
+            Text(unicode(row.encounter.patient.chw.location))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'new-registrations')
@@ -136,7 +133,7 @@ def active_mothers(request, rformat="html"):
     '''Total number of mothers followed currently, overall and broken down
     by location - dob is atleast 10 yrs ago'''
     # TODO: Need to include under five as well
-    doc = Document(_(u'Mothers Being followed'))
+    doc = Document(unicode(_(u'Mothers Being followed')))
     today = datetime.today()
     ten_years_ago = today + relativedelta(years=-10)
     start = today + relativedelta(days=-7, weekday=calendar.MONDAY)
@@ -149,16 +146,15 @@ def active_mothers(request, rformat="html"):
 
     t = Table(3)
     t.add_header_row([
-        Text(_(u'Patient')),
-        Text(_(u'CHW')),
-        Text(_(u'Location'))])
+        Text(unicode(_(u'Patient'))),
+        Text(unicode(_(u'CHW'))),
+        Text(unicode(_(u'Location')))])
     for row in r:
         patient = Patient.objects.get(pk=row['encounter__patient'])
         t.add_row([
-            Text(patient, \
-                castfunc=lambda a: a),
-            Text(patient.chw),
-            Text(patient.chw.location)])
+            Text(unicode(patient)),
+            Text(unicode(patient.chw)),
+            Text(unicode(patient.chw.location))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'mothers-on-followup')

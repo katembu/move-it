@@ -20,10 +20,7 @@ from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 
-from childcount.reports import gen_operationalreport
-from childcount.reports import gen_surveyreport
-from childcount.reports import gen_registerlist
-from childcount.reports import gen_all_household_surveyreports
+from childcount.reports.report_framework import report_objects
 
 from alerts.utils import SmsAlert
 
@@ -221,21 +218,127 @@ def weekly_anc_visit_reminder():
         sms_alert.name = u"weekly_anc_visit_reminder"
         sms_alert.save()
 
+def appointment_calendar(weekday):
+    '''----------- 3 days b4 apt
+    monday 0      wednesday 2
+    tuesday 1     thursday 3
+    wednesday 2   friday 4
+    thursday  3   monday 0
+    friday    4   tuesday 1
+    '''
+    if weekday < 2:
+        return weekday + 3
+    else:
+        return weekday - 2
 
-# once a day: generating them every hour caused database to crash
-@periodic_task(run_every=crontab(minute=0, hour=0))
-def daily_operationalreport():
-    gen_operationalreport()
+def get_appointment_date(dt=datetime.today()):
+    day = appointment_calendar(dt.weekday())
+    return (dt + relativedelta.relativedelta(days=+3, weekday=day))
 
-@periodic_task(run_every=crontab(minute=30, hour=0))
-def daily_surveyreport():
-    gen_surveyreport()
 
-@periodic_task(run_every=crontab(minute=0, hour=1))
-def daily_registerlist():
-    gen_registerlist()
+@periodic_task(run_every=crontab(hour=7, minute=30))
+def appointment_reminders():
+    '''Remind the chw to remind their clients of an appointment 3 week days
+    before the date of appointment
+    '''
+    today = datetime.today().date()
+    # no appointment reminder over the weekend
+    if today.weekday() > 4:
+        return;
+    apt_date = get_appointment_date(today)
+    if apt_date.weekday() == 0:
+        # just in case there were appointments on saturday or sunday
+        saturday = apt_date + relativedelta.relativedelta(days=-2)
+        apts = AppointmentReport.objects.filter(appointment_date__lte=apt_date,\
+                            appointment_date__gte=saturday,\
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
+    else:
+        apts = AppointmentReport.objects.filter(appointment_date=apt_date, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
+    for apt in apts:
+        msg = _(u"Please send %(patient)s to the health center for their" \
+                    " appointment on %(apt_date)s") % {
+                    'patient': apt.encounter.patient, \
+                    'apt_date': apt.appointment_date.strftime('%d-%m-%Y')}
+        alert = SmsAlert(reporter=apt.encounter.patient.chw, msg=msg)
+        try:
+            sms_alert = alert.send()
+        except:
+            print "Error"
+        else:
+            sms_alert.name = u'appointment_report_reminder'
+            sms_alert.save()
+            apt.sms_alert = sms_alert
+            apt.save()
 
-@periodic_task(run_every=crontab(minute=30, hour=1))
-def daily_all_surveyreports():
-    gen_all_household_surveyreports()
+
+def appointment_defaulter_calendar(weekday):
+    '''------- 2 weekdays after date of apt
+    doa         reminder
+    friday 4      wednesday 2
+    thursday 3    tuesday 1
+    wednesday 2   monday 0
+    tuesday 1     friday 4
+    monday 0      thursday 3
+    '''
+    if weekday < 3:
+        return weekday + 2
+    else:
+        return weekday - 3
+
+
+def get_appointment_defaulter_date(dt=datetime.today()):
+    day = appointment_defaulter_calendar(dt.weekday())
+    return (dt + relativedelta.relativedelta(days=+2, weekday=day)) \
+            + relativedelta.relativedelta(days=-7)
+
+
+@periodic_task(run_every=crontab(hour=8, minute=0))
+def appointment_defaulter_reminders():
+    '''Remind the chw to remind their defaulting clients of an appointment
+    2 week days after the date of appointment
+    '''
+    today = datetime.today().date()
+    # no appointment reminder over the weekend
+    if today.weekday() > 4:
+        return;
+    apt_date = get_appointment_defaulter_date(today)
+    if apt_date.weekday() == 4:
+        # just in case there were appointments on saturday or sunday
+        sunday = apt_date + relativedelta.relativedelta(days=2)
+        apts = AppointmentReport.objects.filter(appointment_date__lte=sunday,\
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
+    else:
+        apts = AppointmentReport.objects.filter(appointment_date__lte=apt_date, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE, \
+                            status=AppointmentReport.STATUS_OPEN)
+    for apt in apts:
+        msg = _(u"Please send %(patient)s to the health center on for their" \
+                    " failed appointment on %(apt_date)s") % {
+                    'patient': apt.encounter.patient, \
+                    'apt_date': apt.appointment_date.strftime('%d-%m-%Y')}
+        alert = SmsAlert(reporter=apt.encounter.patient.chw, msg=msg)
+        try:
+            sms_alert = alert.send()
+        except:
+            print "Error"
+        else:
+            sms_alert.name = u'appointment_report_reminder'
+            sms_alert.save()
+            apt.sms_alert = sms_alert
+            apt.save()
+
+
+# This is one big task now... we need
+# to somehow split it up
+@periodic_task(run_every=crontab(hour=0, minute=0))
+def gen_framework_nightly_reports():
+    for thereport in report_objects('nightly'):
+        print "[%s]" % thereport.title 
+        rep = thereport.apply()
+    print "Done"
+
 

@@ -45,7 +45,7 @@ class NutritionForm(CCForm):
 
         days, weeks, months = patient.age_in_days_weeks_months()
 
-        if days <= 30:
+        if months < 6:
             raise Inapplicable(_(u"Child is too young for MUAC."))
         elif months > 59:
             raise Inapplicable(_(u"Child is older than 59 months. If there " \

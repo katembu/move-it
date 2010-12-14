@@ -16,4 +16,6 @@ from childcount.commands.TestAlertsCommand import TestAlertsCommand
 from childcount.commands.HHSurveySummaryCommand import HHSurveySummaryCommand
 from childcount.commands.ChownCommand import ChownCommand
 from childcount.commands.LocationCommand import LocationCommand
+from childcount.commands.RelocateCommand import RelocateCommand
+from childcount.commands.FamilyCommand import FamilyCommand
 

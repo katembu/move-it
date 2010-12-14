@@ -566,6 +566,9 @@ def get_dates_of_the_week(givendate=None):
         week.append({'date': day, 'day': day.strftime("%a")})
     return week
 
+# Return date of first Monday before givendate
+def first_date_of_week(givendate):
+    return givendate - timedelta(givendate.weekday())
 
 def seven_days_to_date(givendate=None):
     if not givendate:
