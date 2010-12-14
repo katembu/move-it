@@ -17,6 +17,9 @@ from childcount.models.reports import CD4ResultReport
 
 
 class CD4ResultForm(CCForm):
+    """
+    Params:
+    * CD4 Value (range 0-999) """
     KEYWORDS = {
         'en': ['cd'],
         'fr': ['cd'],
