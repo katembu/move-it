@@ -126,12 +126,13 @@ def polio_chw_summary(request, code, phase=1, rformat="html"):
         location = Location.objects.get(code=code)
     except Location.DoesNotExist:
         return HttpResponse(_(u"No Location with code %s" % code))
-    t = Table(4)
+    t = Table(5)
     t.add_header_row([
         Text(unicode(_(u"Name"))),
         Text(unicode(_(u"Vaccinated"))),
         Text(unicode(_(u"Target"))),
-        Text(unicode(_(u"Remaining")))])
+        Text(unicode(_(u"Remaining"))),
+        Text(unicode(_(u"% Coverage")))])
     for chw in CHW.objects.filter(location=location):
         ps = PolioCampaignReport.objects.filter(patient__chw=chw, phase=phase)\
             .values('patient')
@@ -141,7 +142,21 @@ def polio_chw_summary(request, code, phase=1, rformat="html"):
             Text(unicode(chw)),
             Text(unicode(ps.count())),
             Text(unicode(underfive.count())),
-            Text(unicode(underfive.exclude(pk__in=ps).count()))])
+            Text(unicode(underfive.exclude(pk__in=ps).count())),
+            Text(unicode(u"%s%%" % round((ps.count() / \
+                                    float(underfive.count())) * 100, 2)))])
+    ps = PolioCampaignReport.objects.filter(phase=phase,
+                                            patient__chw__location=location)\
+                                            .values('patient')
+    underfive = Patient.objects.filter(dob__gte=dob, chw__location=location,
+                                        status=Patient.STATUS_ACTIVE)
+    t.add_row([
+        Text(unicode(u"Total")),
+        Text(unicode(ps.count())),
+        Text(unicode(underfive.count())),
+        Text(unicode(underfive.exclude(pk__in=ps).count())),
+        Text(unicode(u"%s%%" % round((ps.count() / \
+                                    float(underfive.count())) * 100, 2)))])
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc,
