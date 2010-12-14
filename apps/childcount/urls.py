@@ -109,17 +109,19 @@ urlpatterns = patterns('',
         performance.chw_performance),
     url(r'^childcount/reports/num-under-five-per-clinic.(?P<rformat>[a-z]*)$',
         reports.num_under_five_per_clinic),
-
+    # polio
     url(r'^childcount/reports/polio-summary.(?P<rformat>[a-z]*)$',
         polio.polio_summary),
-    url(r'^childcount/reports/polio-summary-by-location.(?P<rformat>[a-z]*)$',
-        polio.polio_summary_by_location),
+    url(r'^childcount/reports/polio-summary-by-location-(?P<phase>[0-9]*)'
+        '.(?P<rformat>[a-z]*)$', polio.polio_summary_by_location),
     url(r'^childcount/reports/polio-not-covered-(?P<username>[a-z]*)'
-        '.(?P<rformat>[a-z]*)$', polio.polio_not_covered),
+        '-(?P<phase>[0-9]*).(?P<rformat>[a-z]*)$', polio.polio_not_covered),
     url(r'^childcount/reports/polio-inactive-(?P<username>[a-z]*)'
-        '.(?P<rformat>[a-z]*)$', polio.polio_inactive_reports),
+        '-(?P<phase>[0-9]*).(?P<rformat>[a-z]*)$',
+        polio.polio_inactive_reports),
     url(r'^childcount/reports/polio-overage-(?P<username>[a-z]*)'
-        '.(?P<rformat>[a-z]*)$', polio.polio_overage_reports),
+        '-(?P<phase>[0-9]*).(?P<rformat>[a-z]*)$',
+        polio.polio_overage_reports),
     url(r'^childcount/reports/polio-chw-summary-(?P<code>[a-z]*)'
         '-(?P<phase>[0-9]*).(?P<rformat>[a-z]*)$', polio.polio_chw_summary),
     # chartviews
