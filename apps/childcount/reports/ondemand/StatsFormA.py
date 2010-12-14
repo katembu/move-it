@@ -14,5 +14,5 @@ class Report(PrintedReport):
             matching_message_stats(\
                 ['You successfuly registered ']),
             filepath) 
-
+            
 
