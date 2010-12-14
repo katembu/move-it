@@ -59,7 +59,8 @@ class PolioSummaryCommand(CCCommand):
             not_covered_ids = []
             for rec in underfive.exclude(pk__in=rpts.values('patient'))[:20]:
                 not_covered_ids.append(rec.health_id)
-            self.message.respond(not_covered + u", ".join(not_covered_ids))
+            if not_covered_ids:
+                self.message.respond(not_covered + u", ".join(not_covered_ids))
             return True
         dob = datetime.today() + relativedelta(months=-59)
         underfive = Patient.objects.filter(dob__gte=dob,
