@@ -118,6 +118,36 @@ def polio_summary_by_location(request, rformat="html"):
                                     'polio-summary-by-location')
 
 
+def polio_chw_summary(request, code, phase=1, rformat="html"):
+    doc = Document(unicode(_(u"Polio Campaign Summary Report")))
+    today = datetime.today()
+    dob = datetime.today() + relativedelta(months=-59)
+    try:
+        location = Location.objects.get(code=code)
+    except Location.DoesNotExist:
+        return HttpResponse(_(u"No Location with code %s" % code))
+    t = Table(4)
+    t.add_header_row([
+        Text(unicode(_(u"Name"))),
+        Text(unicode(_(u"Vaccinated"))),
+        Text(unicode(_(u"Target"))),
+        Text(unicode(_(u"Remaining")))])
+    for chw in CHW.objects.filter(location=location):
+        ps = PolioCampaignReport.objects.filter(patient__chw=chw, phase=phase)\
+            .values('patient')
+        underfive = Patient.objects.filter(dob__gte=dob, chw=chw,
+                                status=Patient.STATUS_ACTIVE)
+        t.add_row([
+            Text(unicode(chw)),
+            Text(unicode(ps.count())),
+            Text(unicode(underfive.count())),
+            Text(unicode(underfive.exclude(pk__in=ps).count()))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc,
+                                'polio-chw-summary-%s-%s' % (code, phase))
+
+
 def polio_not_covered(request, username, rformat="html"):
     doc = Document(unicode(_(u"Polio Campaign Summary Report")))
     today = datetime.today()
@@ -130,7 +160,7 @@ def polio_not_covered(request, username, rformat="html"):
     underfive = Patient.objects.filter(dob__gte=dob, chw=chw,
                                 status=Patient.STATUS_ACTIVE)
     underfive = underfive.exclude(pk__in=ps)
-    
+
     t = Table(3)
     t.add_header_row([
         Text(unicode(_(u"Name"))),
