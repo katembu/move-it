@@ -11,6 +11,13 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class NeonatalForm(CCForm):
+    """
+    Add NeonatalForm report.
+
+    params:
+    * Number of clinic visits since birth (int)
+    """
+
     KEYWORDS = {
         'en': ['n'],
         'fr': ['n'],
