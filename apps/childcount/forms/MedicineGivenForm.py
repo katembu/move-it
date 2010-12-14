@@ -12,6 +12,13 @@ from childcount.exceptions import ParseError
 
 
 class MedicineGivenForm(CCForm):
+    """
+    To add Medicine Given Report.
+
+    params:
+    * Drug code (ex: al for Allaitement maternel, nut for Nutrition)
+    """
+
     KEYWORDS = {
         'en': ['g'],
         'fr': ['g'],

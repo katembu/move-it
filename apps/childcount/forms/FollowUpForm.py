@@ -12,6 +12,13 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class FollowUpForm(CCForm):
+    """
+    To add Follow-up Report.
+
+    params:
+    * Improvement (O, N, I, or L)
+    * Visited clinic (O, N, I, or P)
+    """
     KEYWORDS = {
         'en': ['u'],
         'fr': ['u'],
