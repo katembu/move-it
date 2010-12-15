@@ -19,6 +19,9 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class DBSResultForm(CCForm):
+    """ DBS Result
+    Params:
+    * Positive (y/n)"""
     KEYWORDS = {
         'en': ['db'],
         'fr': ['db'],
@@ -30,6 +33,10 @@ class DBSResultForm(CCForm):
         result_field.add_choice('en', \
                             DBSResultReport.RESULT_POSITIVE, 'Y')
         result_field.add_choice('en', \
+                            DBSResultReport.RESULT_NEGATIVE, 'N')
+        result_field.add_choice('fr', \
+                            DBSResultReport.RESULT_POSITIVE, 'O')
+        result_field.add_choice('fr', \
                             DBSResultReport.RESULT_NEGATIVE, 'N')
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: | Positive | " \
