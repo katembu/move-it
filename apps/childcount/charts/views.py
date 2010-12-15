@@ -98,8 +98,7 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
             "Phase %s" % phase), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 20
-    IMMUNIZATION_START_DATE = date(2010, 11, 24)
-    start_date = IMMUNIZATION_START_DATE
+    start_date, end_date = polio_start_end_dates(phase)
     five_years_back = start_date + relativedelta(months=-59)
     smdata = PolioCampaignReport.objects.filter(phase=phase)\
                                         .values('chw__location__name',
