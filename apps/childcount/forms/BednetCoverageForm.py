@@ -11,12 +11,13 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetCoverageForm(CCForm):
-    """
+    """BednetCoverageForm
+
     Params:
-    * Sleeping sites(int)
-    * Function Bednets(int)
-    * Earlier Bednets(int)
-    * Damaged Bednets(int)
+        * Sleeping sites(int)
+        * Function Bednets(int)
+        * Earlier Bednets(int)
+        * Damaged Bednets(int)
     """
     KEYWORDS = {
         'en': ['bc'],
