@@ -12,6 +12,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class HouseholdForm(CCForm):
+    """
+    HouseholdForm
+
+    params:
+    *household health-id
+    *mother/guardian healthid
+    """
+
     KEYWORDS = {
         'en': ['hed', 'head'],
         'fr': ['hed', 'head'],

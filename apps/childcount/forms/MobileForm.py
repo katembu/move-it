@@ -12,6 +12,13 @@ from childcount.models import Encounter
 
 
 class MobileForm(CCForm):
+    """
+    To add a phone number.
+
+    params:
+    * Phone number
+    """
+
     KEYWORDS = {
         'en': ['mob', 'mobile'],
         'fr': ['mob', 'mobile'],

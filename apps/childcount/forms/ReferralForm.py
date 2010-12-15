@@ -9,7 +9,9 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class ReferralForm(CCForm):
-    """ Referral Form
+    """
+    Referral Form
+
     Params:
         * Ref (A/E/B/C)
     """
