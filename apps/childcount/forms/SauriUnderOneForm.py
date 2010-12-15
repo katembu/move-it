@@ -17,8 +17,9 @@ from childcount.forms.utils import MultipleChoiceField
 class SauriUnderOneForm(CCForm):
     """Under one monitoring
 
-    Params: * breastfeeding only (Y/N/U)
-            * up-to-date immunisations (Y/N/U)
+    Params: 
+        * breastfeeding only (Y/N/U)
+        * up-to-date immunisations (Y/N/U)
     """
 
     KEYWORDS = {

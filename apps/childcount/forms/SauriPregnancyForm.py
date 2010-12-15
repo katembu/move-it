@@ -13,6 +13,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class SauriPregnancyForm(CCForm):
+    """Monitoring of pregnancy
+
+    Params:
+        * month of pregnancy 
+        * number of ANC
+        * visits 
+        * weeks since last ANC visit
+    """
     KEYWORDS = {
         'en': ['p'],
         'fr': ['p'],
