@@ -11,6 +11,14 @@ from childcount.exceptions import ParseError
 
 
 class SickMembersForm(CCForm):
+    """ Sick Members Form
+
+    Params:
+        * Others sick (int)
+        * RDTs (int)
+        * Positive RDTs (int)
+        * Others on treatment (int)
+    """
     KEYWORDS = {
         'en': ['e'],
         'fr': ['e'],

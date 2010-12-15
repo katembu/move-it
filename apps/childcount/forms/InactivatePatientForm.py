@@ -18,6 +18,11 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class InactivatePatientForm(CCForm):
+    """ Patient set status
+
+    Params:
+        * status (Y/N)
+    """
     KEYWORDS = {
         'en': ['active'],
         'fr': ['active'],
@@ -27,12 +32,13 @@ class InactivatePatientForm(CCForm):
     def process(self, patient):
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: Patient status: " \
-                                "activate(Y) deactivate (N)"))
+                                u"activate(Y) deactivate (N)"))
 
         status_field = MultipleChoiceField()
         status_field.add_choice('en', PatientStatusReport.STATUS_ACTIVE, 'Y')
         status_field.add_choice('en', PatientStatusReport.STATUS_INACTIVE, 'N')
-
+        status_field.add_choice('fr', PatientStatusReport.STATUS_ACTIVE, 'O')
+        status_field.add_choice('fr', PatientStatusReport.STATUS_INACTIVE, 'N')
         try:
             psr = PatientStatusReport.objects.get(encounter=self.encounter)
         except PatientStatusReport.DoesNotExist:

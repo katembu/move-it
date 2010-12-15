@@ -20,6 +20,12 @@ from childcount.utils import DOBProcessor
 
 
 class AppointmentForm(CCForm):
+    """
+        the status of patients appointment 
+        params:
+                *
+    """
+    
     KEYWORDS = {
         'en': ['ap'],
         'fr': ['ap'],
@@ -27,7 +33,7 @@ class AppointmentForm(CCForm):
     ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
 
     def process(self, patient):
-
+        print self.params
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: date of "\
                             "appointment."))
