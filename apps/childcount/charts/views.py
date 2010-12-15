@@ -145,6 +145,71 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
                                         'polio-phase-%s-barchart' % phase)
 
 
+def polio_percentage_comparison_barchart(request, cformat='png'):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200, 780, u"Polio Campaign Report: Percentage Coverage "),
+            name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 20
+    data = []
+    for phase in PolioCampaignReport.objects.values('phase')\
+        .order_by('phase').distinct():
+        start_date, end_date = polio_start_end_dates(phase['phase'])
+        five_years_back = start_date + relativedelta(months=-59)
+        smdata = PolioCampaignReport.objects.filter(phase=phase['phase'])\
+                                            .values('chw__location__name',
+                                            'chw__location')\
+                                            .order_by('chw__location__name')\
+                                            .annotate(Count('chw'))
+        tdata = ()
+        cats = []
+        for row in smdata:
+            c = row['chw__count']
+            t = Patient.objects.filter(status=Patient.STATUS_ACTIVE,
+                                    dob__gt=five_years_back,
+                                    chw__location__pk=row['chw__location'])\
+                                        .count()
+            tdata += round(c/float(t) * 100, 0),
+            cats.append(row['chw__location__name'])
+        data.append(tdata)
+    d.chart.data = data
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 10
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 100
+    d.chart.x = 50
+    d.chart.y = 50
+    d.chart.width = d.chart.width - 20
+    d.chart.height = d.chart.height - 100
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 18
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabelFormat = "%d%%"
+    d.chart.barLabels.nudge = 10
+
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.bars[1].fillColor = colors.orange
+    
+    legend = Legend()
+    legend.alignment = 'left'
+    legend.x = 100
+    legend.y = d.chart.height + 100
+    legend.dxTextSpace = 5
+    legend.fontSize = 14
+    legend.colorNamePairs = [(colors.steelblue, u"Phase 1"),
+                            (colors.orange, u"Phase 2")]
+    d.add(legend, 'legend')
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                                        'polio-pcomparison-barchart')
+
+
 def polio_malefemale_summary(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
