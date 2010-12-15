@@ -378,7 +378,6 @@ def polio_daily_summary(request, phase=1, cformat='png'):
     for row in smdata:
         sdata += row['count'],
     data.append(sdata)
-    print data
     d.chart.data = data
     d.chart.categoryAxis.categoryNames = cats
     d.chart.valueAxis.valueStep = 100
@@ -404,6 +403,74 @@ def polio_daily_summary(request, phase=1, cformat='png'):
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),
                             'polio-dailysummary-phase-%s-barchart' % phase)
+
+
+def polio_daily_summary_comparison(request, cformat='png'):
+    #instantiate a drawing object
+    d = CCBarChartDrawing(1280, 800)
+    d.add(String(200, d.chart.height,u"Polio Campaign Report: Daily summary"), name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 24
+    data = []
+    rows = []
+    for phase in PolioCampaignReport.objects.values('phase')\
+        .order_by('phase').distinct():
+        start_date, end_date = polio_start_end_dates(phase['phase'])
+        smdata = []
+        cats = []
+        for single_date in daterange(start_date, end_date):
+            current_day = single_date
+            next_day = single_date + timedelta(1)
+            smdata.append(
+                PolioCampaignReport.objects.filter(created_on__gte=current_day,
+                                            phase=phase['phase'],
+                                            created_on__lt=next_day).count())
+            cats.append(current_day.strftime("%A %d"))
+        rows.append(smdata)
+    if rows[0].__len__() > rows[1].__len__():
+        rows[1].extend([0] * (rows[0].__len__() - rows[1].__len__()))
+    else:
+        rows[0].extend([0] * (rows[1].__len__() - rows[0].__len__()))
+    for row in rows:
+        sdata = ()
+        for item in row:
+            sdata += item,
+        data.append(sdata)
+    d.chart.data = data
+    d.chart.categoryAxis.categoryNames = cats
+    d.chart.valueAxis.valueStep = 100
+    d.chart.valueAxis.valueMin = 0
+    d.chart.valueAxis.valueMax = 3000
+    d.chart.valueAxis.labels.fontSize = 18
+    d.chart.x = 50
+    d.chart.y = 50
+    #d.chart.width = 400
+    #d.chart.height = 400
+    d.chart.categoryAxis.labels.boxAnchor = 's'
+    d.chart.categoryAxis.labels.angle = 0
+    d.chart.categoryAxis.labels.dy = -25
+    d.chart.categoryAxis.labels.fontSize = 20
+    d.chart.barLabelFormat = "%d"
+    d.chart.barLabels.nudge = 10
+    d.chart.barLabels.fontSize = 14
+    d.chart.barLabels.fontName = 'Helvetica-Bold'
+    d.chart.barWidth = 150
+    d.chart.bars[0].fillColor = colors.steelblue
+    d.chart.bars[1].fillColor = colors.lemonchiffon
+    d.chart.groupSpacing = 10
+    legend = Legend()
+    legend.alignment = 'left'
+    legend.x = 100
+    legend.y = d.chart.height - 10
+    legend.dxTextSpace = 5
+    legend.fontSize = 14
+    legend.colorNamePairs = [(colors.steelblue, u"Phase 1"),
+                            (colors.lemonchiffon, u"Phase 2")]
+    d.add(legend, 'legend')
+    #get a GIF (or PNG, JPG, or whatever)
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                            'polio-dailysummary-comparison-barchart')
 
 
 def locations_piechart(request):
