@@ -47,7 +47,9 @@ def polio_piechart(request, phase=1, cformat='png'):
     smdata = PolioCampaignReport.objects.filter(phase=phase,
                                 patient__status=Patient.STATUS_ACTIVE)\
                                 .values('chw__location__name',
-                                        'chw__location').annotate(Count('chw'))
+                                        'chw__location')\
+                                .order_by('chw__location__name')\
+                                .annotate(Count('chw'))
     trpts = PolioCampaignReport.objects.filter(phase=phase,
                                 patient__status=Patient.STATUS_ACTIVE).count()
     data = []
