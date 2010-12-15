@@ -127,6 +127,8 @@ urlpatterns = patterns('',
     # chartviews
     url(r'^childcount/charts/polio-phase-(?P<phase>[0-9]*)-piechart.'
         '(?P<cformat>[a-z]*)$', charts.polio_piechart),
+    url(r'^childcount/charts/polio-phase-(?P<phase>[0-9]*)-barchart.'
+        '(?P<cformat>[a-z]*)$', charts.polio_percentage_barchart),
     url(r'^childcount/reports/malaria.(?P<rformat>[a-z]*)$',
         extra.malaria),
     url(r'^childcount/reports/muac.(?P<rformat>[a-z]*)$',

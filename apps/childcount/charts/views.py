@@ -91,18 +91,21 @@ def polio_piechart(request, phase=1, cformat='png'):
                                         'polio-phase-%s-piechart' % phase)
 
 
-def percentage_barchart(request):
+def polio_percentage_barchart(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200, 780, u"Polio Campaign Report: Percentage Coverage"),
-            name='title')
+    d.add(String(200, 780, u"Polio Campaign Report: Percentage Coverage "
+            "Phase %s" % phase), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 20
     IMMUNIZATION_START_DATE = date(2010, 11, 24)
     start_date = IMMUNIZATION_START_DATE
     five_years_back = start_date + relativedelta(months=-59)
-    smdata = PolioCampaignReport.objects.values('chw__location__name',
-                                        'chw__location').annotate(Count('chw'))
+    smdata = PolioCampaignReport.objects.filter(phase=phase)\
+                                        .values('chw__location__name',
+                                        'chw__location')\
+                                        .order_by('chw__location__name')\
+                                        .annotate(Count('chw'))
     data = ()
     cats = []
     for row in smdata:
@@ -137,8 +140,9 @@ def percentage_barchart(request):
     d.chart.bars[1].fillColor = colors.orange
     
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                                        'polio-phase-%s-barchart' % phase)
 
 
 def malefemalesummary(request):
