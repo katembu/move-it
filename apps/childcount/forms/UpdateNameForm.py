@@ -10,6 +10,10 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class UpdateNameForm(CCForm):
+    """ Update Name
+    Params:
+    * first name
+    * last name"""
     KEYWORDS = {
         'en': ['uname'],
         'fr': ['uname'],
