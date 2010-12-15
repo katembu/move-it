@@ -357,14 +357,13 @@ def dailysummaryperloc(request):
     return HttpResponse(binaryStuff, 'image/png')
 
 
-def dailysummary(request):
+def polio_daily_summary(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
     d.add(String(200,700,u"Polio Campaign Report: Daily summary"), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 24
-    start_date = date(2010, 11, 20)
-    end_date = date(2010, 11, 26)
+    start_date, end_date = polio_start_end_dates(phase)
     data = []
     smdata = []
     cats = []
@@ -373,9 +372,8 @@ def dailysummary(request):
         next_day = single_date + timedelta(1)
         smdata.append({"count":
             PolioCampaignReport.objects.filter(created_on__gte=current_day,
-                created_on__lt=next_day).count()})
+                                phase=phase, created_on__lt=next_day).count()})
         cats.append(current_day.strftime("%A %d"))
-    print smdata
     sdata = ()
     for row in smdata:
         sdata += row['count'],
@@ -403,8 +401,9 @@ def dailysummary(request):
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.groupSpacing = 10
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                            'polio-dailysummary-phase-%s-barchart' % phase)
 
 
 def locations_piechart(request):
