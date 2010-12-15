@@ -64,9 +64,9 @@ def polio_piechart(request, phase=1, cformat='png'):
         tpercentage += percentage
     data.append(100 - tpercentage)
     cats.append(u"Not Covered - %s%%" % (100 - tpercentage))
-    d.add(String(30, d.chart.height + d.chart.y + 100,
-                u"Polio Campaign Report by sub-locaton - Vaccinated: %s, "
-                "Target: %s reports." % (count, tp)), name='title')
+    d.add(String(10, d.chart.height + d.chart.y + 100,
+                u"Polio Campaign Phase %s by sub-locaton - Vaccinated: %s, "
+                "Target: %s reports." % (phase, count, tp)), name='title')
     d.title.fontSize = 18
     d.chart.data = data
     d.chart.labels = cats
