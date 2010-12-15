@@ -17,7 +17,7 @@ from childcount.reports import polio
 from childcount.reports import pmtct, bednet
 from childcount.reports import performance
 from childcount.reports import custom_reports as reports
-from childcount import chartviews
+from childcount import charts
 from childcount.reports import extra
 
 admin.autodiscover()
@@ -125,8 +125,8 @@ urlpatterns = patterns('',
     url(r'^childcount/reports/polio-chw-summary-(?P<code>[a-z]*)'
         '-(?P<phase>[0-9]*).(?P<rformat>[a-z]*)$', polio.polio_chw_summary),
     # chartviews
-    url(r'^childcount/charts-test.png?$',
-        chartviews.barchart),
+    url(r'^childcount/charts/polio-phase-(?P<phase>[0-9]*)-piechart.'
+        '(?P<cformat>[a-z]*)$', charts.polio_piechart),
     url(r'^childcount/reports/malaria.(?P<rformat>[a-z]*)$',
         extra.malaria),
     url(r'^childcount/reports/muac.(?P<rformat>[a-z]*)$',

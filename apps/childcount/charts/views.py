@@ -16,6 +16,17 @@ from locations.models import Location
 
 from childcount.models import PolioCampaignReport, Patient
 from childcount.charts import CCBarChartDrawing, CCPieChartDrawing
+from childcount.charts.utils import *
+
+
+def polio_start_end_dates(phase):
+    first_day = PolioCampaignReport.objects.filter(phase=phase)\
+                                    .values('created_on')\
+                                    .order_by('created_on')[0]['created_on']
+    last_day = PolioCampaignReport.objects.filter(phase=phase)\
+                                    .values('created_on')\
+                                    .order_by('-created_on')[0]['created_on']
+    return first_day, last_day
 
 
 IMMUNIZATION_START_DATE = date(2010, 11, 24)
@@ -26,17 +37,19 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def barchart(request):
-    
+def polio_piechart(request, phase=1, cformat='png'):
     #instantiate a drawing object
-    d = CCPieChartDrawing(650, 400)
-    start_date = IMMUNIZATION_START_DATE
+    d = CCPieChartDrawing(600, 600)
+    start_date, end_date = polio_start_end_dates(phase)
     five_years_back = start_date + relativedelta(months=-59)
     tp = Patient.objects.filter(status=Patient.STATUS_ACTIVE,
                                     dob__gt=five_years_back).count()
-    smdata = PolioCampaignReport.objects.filter(patient__status=Patient.STATUS_ACTIVE).values('chw__location__name',
+    smdata = PolioCampaignReport.objects.filter(phase=phase,
+                                patient__status=Patient.STATUS_ACTIVE)\
+                                .values('chw__location__name',
                                         'chw__location').annotate(Count('chw'))
-    trpts = PolioCampaignReport.objects.filter(patient__status=Patient.STATUS_ACTIVE).count()
+    trpts = PolioCampaignReport.objects.filter(phase=phase,
+                                patient__status=Patient.STATUS_ACTIVE).count()
     data = []
     cats = []
     count  = 0
@@ -49,11 +62,13 @@ def barchart(request):
         tpercentage += percentage
     data.append(100 - tpercentage)
     cats.append(u"Not Covered - %s%%" % (100 - tpercentage))
-    d.add(String(20,380,u"Polio Campaign Report by sub-locaton: %s total; "
-    "expected %s reports" % (count, tp)), name='title')
+    d.add(String(30, d.chart.height + d.chart.y + 100,
+                u"Polio Campaign Report by sub-locaton - Vaccinated: %s, "
+                "Target: %s reports." % (count, tp)), name='title')
     d.title.fontSize = 18
     d.chart.data = data
     d.chart.labels = cats
+    d.chart.xradius = 200
     
     d.chart.slices[0].fillColor = colors.steelblue
     d.chart.slices[1].fillColor = colors.thistle
@@ -69,8 +84,9 @@ def barchart(request):
     d.chart.slices[11].fillColor = colors.lightgrey
     
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                                        'polio-phase-%s-piechart' % phase)
 
 
 def percentage_barchart(request):
