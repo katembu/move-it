@@ -16,12 +16,19 @@ function send_message()
     }
 
     if (text.length == 0) {
-        alert("Can't send empty message.");   
+        alert("Can't send empty message."); return false;
     }
 
     data = {'identity': identity, 'message': text, 'chw': chw, 'encounter_date': encounter_date};
 
-    res = proxy_send(data, on_proxy_send);
+    confstr = "Please confirm:\n\t";
+    confstr += "Encounter Date: " + encounter_date + "\n\t";
+    confstr += "CHW: " + $('#chw option:selected').text();
+
+    if (confirm(confstr)) {
+        res = proxy_send(data, on_proxy_send);
+    }
+    else return false;
 }
 
 function on_proxy_send(data)
