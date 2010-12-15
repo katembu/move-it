@@ -18,6 +18,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class StillbirthMiscarriageForm(CCForm):
+    """Stillbirth Miscarriage Form
+
+    Params:
+        * Date of stillbirth or miscarriage('en' = yyyy-mm-dd
+                                            'fr' = dd-mm-yyyy)
+        * Type(SB/MC)
+
+    """
     KEYWORDS = {
         'en': ['sbm'],
         'fr': ['sbm'],
