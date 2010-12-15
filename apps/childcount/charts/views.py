@@ -145,15 +145,15 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
                                         'polio-phase-%s-barchart' % phase)
 
 
-def malefemalesummary(request):
+def polio_malefemale_summary(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200,700,u"Polio Campaign Report: Daily Summary by Gender"),
+    d.add(String(200,700,u"Polio Campaign Phase %s: Daily Summary by Gender" %\
+                phase),
             name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 24
-    start_date = date(2010, 11, 20)
-    end_date = date(2010, 11, 26)
+    start_date, end_date = polio_start_end_dates(phase)
     data = []
     for gender, s in Patient.GENDER_CHOICES:
         smdata = []
@@ -163,14 +163,14 @@ def malefemalesummary(request):
             next_day = single_date + timedelta(1)
             smdata.append({"count":
                 PolioCampaignReport.objects.filter(created_on__gte=current_day,
-                    created_on__lt=next_day, patient__gender=gender).count()})
+                    created_on__lt=next_day, patient__gender=gender,
+                    phase=phase).count()})
             cats.append(current_day.strftime("%A %d"))
         print smdata
         sdata = ()
         for row in smdata:
             sdata += row['count'],
         data.append(sdata)
-    print data
     d.chart.data = data
     d.chart.categoryAxis.categoryNames = cats
     d.chart.valueAxis.valueStep = 100
@@ -179,8 +179,6 @@ def malefemalesummary(request):
     d.chart.valueAxis.labels.fontSize = 18
     d.chart.x = 50
     d.chart.y = 50
-    #d.chart.width = 400
-    #d.chart.height = 400
     d.chart.categoryAxis.labels.boxAnchor = 's'
     d.chart.categoryAxis.labels.angle = 0
     d.chart.categoryAxis.labels.dy = -25
@@ -203,8 +201,9 @@ def malefemalesummary(request):
                             (colors.lemonchiffon, u"Female")]
     d.add(legend, 'legend')
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                            'polio-malefemaleratio-phase-%s-barchart' % phase)
 
 
 def dailysummaryperloc(request):
