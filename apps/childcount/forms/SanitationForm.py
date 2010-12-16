@@ -12,7 +12,9 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class SanitationForm(CCForm):
-    """ Sanitation Form
+    """
+    Sanitation Form
+
     Params:
         * type (FL/VP/PY/PN/CT/HT/BT/NS/Z)
         * share_toilet (int)

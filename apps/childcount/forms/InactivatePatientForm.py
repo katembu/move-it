@@ -18,8 +18,16 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class InactivatePatientForm(CCForm):
+<<<<<<< HEAD
     """ Patient set status
         Params:* status (Y/N)
+=======
+    """
+    Patient set status
+
+    Params:
+    * status (Y/N)
+>>>>>>> be9de5760a429bda005ca7ce1dcedead00eb7d4f
     """
     KEYWORDS = {
         'en': ['active'],
