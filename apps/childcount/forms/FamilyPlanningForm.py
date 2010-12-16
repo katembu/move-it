@@ -12,12 +12,12 @@ from childcount.exceptions import ParseError
 
 
 class FamilyPlanningForm(CCForm):
-    """Family planning
+    """ Family planning
 
     Params:
         * number of women aged (15 - 49)
-        * number using FP 
-        * methods being used 
+        * number using FP
+        * methods being used
     """
     KEYWORDS = {
         'en': ['k', 'fp'],

@@ -16,6 +16,9 @@ from alerts.utils import SmsAlert
 
 
 class AntenatalVisitForm(CCForm):
+    """ Antenatal Visit
+
+    """
     KEYWORDS = {
         'en': ['pf'],
         'fr': ['pf'],

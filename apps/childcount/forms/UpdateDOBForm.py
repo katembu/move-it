@@ -11,11 +11,10 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class UpdateDOBForm(CCForm):
-    """
-    Update DOB
+    """ Update DOB
 
     Params:
-    * dob (number/date)
+        * dob (number/date)
     """
 
     KEYWORDS = {

@@ -12,8 +12,7 @@ from childcount.exceptions import ParseError
 
 
 class HouseholdVisitForm(CCForm):
-    """
-    Household visit
+    """ Household visit
 
     Params:
         * household member available? (Y/N)

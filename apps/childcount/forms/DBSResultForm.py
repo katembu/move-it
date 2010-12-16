@@ -20,8 +20,10 @@ from childcount.forms.utils import MultipleChoiceField
 
 class DBSResultForm(CCForm):
     """ DBS Result
+
     Params:
-    * Positive (y/n)"""
+        * Positive (y/n)
+    """
     KEYWORDS = {
         'en': ['db'],
         'fr': ['db'],

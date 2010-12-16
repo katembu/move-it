@@ -11,7 +11,7 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetCoverageForm(CCForm):
-    """BednetCoverageForm
+    """ BednetCoverageForm
 
     Params:
         * Sleeping sites(int)

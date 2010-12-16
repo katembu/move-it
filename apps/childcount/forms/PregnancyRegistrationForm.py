@@ -15,9 +15,7 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class PregnancyRegistrationForm(CCForm):
-    """
-
-    To add Pregnancy Registration.
+    """ To add Pregnancy Registration.
 
     params:
     * Married ? (boolean)
