@@ -12,21 +12,12 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class HouseholdForm(CCForm):
-<<<<<<< HEAD
+
     """household head registration
        params: * household healthid
                * mother/guardian healthid
     """
-=======
-    """
-    HouseholdForm
 
-    params:
-    *household health-id
-    *mother/guardian healthid
-    """
-
->>>>>>> be9de5760a429bda005ca7ce1dcedead00eb7d4f
     KEYWORDS = {
         'en': ['hed', 'head'],
         'fr': ['hed', 'head'],
