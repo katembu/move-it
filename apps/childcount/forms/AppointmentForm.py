@@ -22,7 +22,7 @@ from childcount.utils import DOBProcessor
 class AppointmentForm(CCForm):
     """the status of patients appointment
 
-        params:* date of appointment
+        Params:* date of appointment
     """
 
     KEYWORDS = {
