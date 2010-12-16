@@ -418,14 +418,16 @@ def polio_daily_summary_comparison(request, cformat='png'):
         start_date, end_date = polio_start_end_dates(phase['phase'])
         smdata = []
         cats = []
+        day = 0
         for single_date in daterange(start_date, end_date):
             current_day = single_date
             next_day = single_date + timedelta(1)
+            day += 1
             smdata.append(
                 PolioCampaignReport.objects.filter(created_on__gte=current_day,
                                             phase=phase['phase'],
                                             created_on__lt=next_day).count())
-            cats.append(current_day.strftime("%A %d"))
+            cats.append(u"Day %d" % day)
         rows.append(smdata)
     if rows[0].__len__() > rows[1].__len__():
         rows[1].extend([0] * (rows[0].__len__() - rows[1].__len__()))
