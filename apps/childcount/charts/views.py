@@ -65,8 +65,9 @@ def polio_piechart(request, phase=1, cformat='png'):
     data.append(100 - tpercentage)
     cats.append(u"Not Covered - %s%%" % (100 - tpercentage))
     d.add(String(10, d.chart.height + d.chart.y + 100,
-                u"Polio Campaign Phase %s by sub-locaton - Vaccinated: %s, "
-                "Target: %s reports." % (phase, count, tp)), name='title')
+                u"Polio Campaign Phase %s by sub-locaton - %s%% coverage:"
+                "%s of %s reached." % (phase, tpercentage,
+                count, tp)), name='title')
     d.title.fontSize = 18
     d.chart.data = data
     d.chart.labels = cats
@@ -147,8 +148,8 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
 def polio_percentage_comparison_barchart(request, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200, 780, u"Polio Campaign Report: Percentage Coverage "),
-            name='title')
+    d.add(String(200, 780, u"Polio Campaign: Phase 1 and Phase 2 Percentage "
+                "Coverage Comparison"), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 20
     data = []
