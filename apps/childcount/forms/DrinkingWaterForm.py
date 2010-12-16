@@ -12,7 +12,7 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class DrinkingWaterForm(CCForm):
-    """Drinking water report
+    """ Drinking water report
 
     params:
         * Water source (PP, PT, TB, PW, UW, PS, UP, RW, SU, or Z)

@@ -12,8 +12,7 @@ from childcount.models import Encounter
 
 
 class MobileForm(CCForm):
-    """
-    To add a phone number.
+    """ To add a phone number.
 
     params:
     * Phone number

@@ -15,8 +15,7 @@ from childcount.utils import send_msg
 
 
 class NutritionForm(CCForm):
-    """
-    Nutrition Form
+    """ Nutrition Form
 
     Param:
         * MPB (int)

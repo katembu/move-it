@@ -13,7 +13,7 @@ from childcount.exceptions import ParseError
 
 
 class DangerSignsForm(CCForm):
-    """DangerSignsForm
+    """ DangerSignsForm
 
     Params:
         * Danger Signs

@@ -12,7 +12,7 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class BednetUtilizationForm(CCForm):
-    """Bednet Utilization Form
+    """ Bednet Utilization Form
 
     Params:
         * Children under five (int)

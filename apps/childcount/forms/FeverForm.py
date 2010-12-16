@@ -16,7 +16,7 @@ from childcount.exceptions import ParseError, Inapplicable
 
 
 class FeverForm(CCForm):
-    """Fever
+    """ Fever
 
     Params:
         * rdt result (Y/N/U)

@@ -17,7 +17,7 @@ from childcount.utils import DOBProcessor
 
 
 class DeathForm(CCForm):
-    """Register a death
+    """ Register a death
 
     Params:
         * date of death
