@@ -12,9 +12,10 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetIssuedForm(CCForm):
-    """Bednet issued
+    """ Bednet issued
 
-    Params:*number of bednets issued
+    Params:
+        * number of bednets issued
     """
     KEYWORDS = {
         'en': ['bd'],

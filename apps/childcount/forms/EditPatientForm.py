@@ -11,7 +11,7 @@ from childcount.models import Encounter
 class EditPatientForm(CCForm):
     """ Change First and Last Name of a Patient
 
-    PARAMS:
+    Params:
         * first_name
         * last_name
     """
