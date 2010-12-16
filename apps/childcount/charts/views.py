@@ -360,7 +360,8 @@ def dailysummaryperloc(request):
 def polio_daily_summary(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200,700,u"Polio Campaign Report: Daily summary"), name='title')
+    d.add(String(200, 700, u"Polio Campaign Phase %s: Daily summary" % phase),
+                name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 24
     start_date, end_date = polio_start_end_dates(phase)
