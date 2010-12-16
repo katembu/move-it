@@ -18,6 +18,7 @@ class BednetLookupForm(CCForm):
         * bdnt_needed (int)
         * bdnt_issued (int)
     """
+
     KEYWORDS = {
         'en': ['bs'],
         'fr': ['bs'],

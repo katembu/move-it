@@ -18,6 +18,7 @@ class SanitationForm(CCForm):
         * type (FL/VP/PY/PN/CT/HT/BT/NS/Z)
         * share_toilet (int)
     """
+
     KEYWORDS = {
         'en': ['san'],
         'fr': ['san'],

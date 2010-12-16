@@ -20,6 +20,7 @@ class HIVTestForm(CCForm):
     Params:
         * VIH test result (Y/N/U/NC)
     """
+
     KEYWORDS = {
         'en': ['ht'],
         'fr': ['ht'],

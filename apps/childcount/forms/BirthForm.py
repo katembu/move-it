@@ -22,6 +22,7 @@ class BirthForm(CCForm):
         * delivered in health facility
         * weight(kg)(optional)
     """
+
     KEYWORDS = {
         'en': ['bir', 'birth'],
         'fr': ['bir', 'birth'],

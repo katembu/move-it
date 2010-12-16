@@ -14,7 +14,7 @@ from childcount.forms.utils import MultipleChoiceField
 class HouseholdForm(CCForm):
     """ household head registration
 
-    Params: 
+    Params:
         * household healthid
         * mother/guardian healthid
     """

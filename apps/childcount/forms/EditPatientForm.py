@@ -15,6 +15,7 @@ class EditPatientForm(CCForm):
         * first_name
         * last_name
     """
+
     KEYWORDS = {
         'en': ['edit'],
         'fr': ['edit', 'mod'],

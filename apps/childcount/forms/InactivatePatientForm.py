@@ -20,7 +20,7 @@ from childcount.forms.utils import MultipleChoiceField
 class InactivatePatientForm(CCForm):
     """ Patient set status
 
-    Params: 
+    Params:
         * status (Y/N)
     """
 

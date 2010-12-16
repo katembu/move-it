@@ -16,11 +16,12 @@ class SauriPregnancyForm(CCForm):
     """ Monitoring of pregnancy
 
     Params:
-        * month of pregnancy 
+        * month of pregnancy
         * number of ANC
-        * visits 
+        * visits
         * weeks since last ANC visit
     """
+
     KEYWORDS = {
         'en': ['p'],
         'fr': ['p'],

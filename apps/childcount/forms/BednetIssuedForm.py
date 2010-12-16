@@ -17,6 +17,7 @@ class BednetIssuedForm(CCForm):
     Params:
         * number of bednets issued
     """
+
     KEYWORDS = {
         'en': ['bd'],
         'fr': ['bd'],

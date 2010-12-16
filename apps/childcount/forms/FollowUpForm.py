@@ -18,6 +18,7 @@ class FollowUpForm(CCForm):
         * Improvement (O, N, I, or L)
         * Visited clinic (O, N, I, or P)
     """
+
     KEYWORDS = {
         'en': ['u'],
         'fr': ['u'],
