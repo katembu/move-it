@@ -12,10 +12,19 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class PregnancyForm(CCForm):
+<<<<<<< HEAD
     """Pregnancy monitoring
        Params: * month of pregnancy 
                * number of ANC visits 
                * number of weeks since last ANC visit (0=under 7 days)
+=======
+    """ Pregnancy monitoring
+
+    Params:
+    * month of pregnancy
+    * number of ANC visits
+    * weeks since last ANC visit
+>>>>>>> 45d1f3574f2f7897245b954e589ff280c3d5b6a6
     """
 
     KEYWORDS = {

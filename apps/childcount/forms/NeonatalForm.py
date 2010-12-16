@@ -11,6 +11,10 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class NeonatalForm(CCForm):
+<<<<<<< HEAD
+=======
+    """ Add NeonatalForm report.
+>>>>>>> 45d1f3574f2f7897245b954e589ff280c3d5b6a6
 
     """Add Neonatal report
        

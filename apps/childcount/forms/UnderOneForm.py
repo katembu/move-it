@@ -13,8 +13,7 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class UnderOneForm(CCForm):
-    """
-    Under One Report.
+    """ Under One Report.
 
     params:
     * Does the mother exclusively breast feed (Y/N/U)

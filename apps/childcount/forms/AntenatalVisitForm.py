@@ -16,7 +16,7 @@ from alerts.utils import SmsAlert
 
 
 class AntenatalVisitForm(CCForm):
-    """Antenatal Visit
+    """ Antenatal Visit
 
     """
     KEYWORDS = {

@@ -13,6 +13,7 @@ from childcount.models.reports import VerbalAutopsyReport
 
 class VerbalAutopsyForm(CCForm):
     """Verbal Autopsy
+
     params: None
     """
 

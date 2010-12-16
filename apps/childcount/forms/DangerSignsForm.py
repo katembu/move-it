@@ -14,8 +14,10 @@ from childcount.exceptions import ParseError
 
 class DangerSignsForm(CCForm):
     """DangerSignsForm
+
        Params: * Danger Signs codes
     """
+
     KEYWORDS = {
         'en': ['s'],
         'fr': ['s'],
