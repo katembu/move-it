@@ -17,8 +17,8 @@ class UnderOneForm(CCForm):
     Under One Report.
 
     params:
-    * Does the mother exclusively breast feed? (Boolean: O, N, or I)
-    * Is the child up-to-date onimmunizations? (Boolean: O, N, or I)
+    * Does the mother exclusively breast feed (O/N/I)
+    * Is the child up-to-date onimmunizations? (O/N/I)
     """
 
     KEYWORDS = {

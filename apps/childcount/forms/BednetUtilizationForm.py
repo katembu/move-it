@@ -12,12 +12,12 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class BednetUtilizationForm(CCForm):
-    """Bednet Utilization Form
+    """Bednet Utilization
 
     Params:
-        * Children under five (int)
+        * number of children who slept here last night
         * Children slept under bednet (int)
-        * Number of hanging bednet (int)
+        * Hanging bednet (int)
     """
     KEYWORDS = {
         'en': ['bu'],

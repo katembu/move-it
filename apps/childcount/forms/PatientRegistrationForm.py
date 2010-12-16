@@ -19,14 +19,12 @@ from childcount.models.ccreports import ThePatient
 
 class PatientRegistrationForm(CCForm):
     """Register a new patient
-
-    Params: 
-        * health ID
-        * location 
-        * patient names 
-        * gender 
-        * age or DOB 
-        * head_of_household
+       Params: * health ID
+               * location 
+               * patient names 
+               * gender 
+               * age or DOB 
+               * head_of_household
     """
 
     KEYWORDS = {
