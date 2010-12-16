@@ -22,7 +22,6 @@ class PregnancyRegistrationForm(CCForm):
     * Number of pregnancy(int)
     * Number of children living with her(int)
     * husband's health Id
-
     """
 
     KEYWORDS = {

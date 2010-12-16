@@ -12,8 +12,7 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetLookupForm(CCForm):
-    """
-    BednetLookupForm
+    """BednetLookupForm
 
     params:
         *bdnt_needed (int)

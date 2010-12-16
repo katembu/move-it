@@ -24,8 +24,8 @@ class StillbirthMiscarriageForm(CCForm):
         * Date of stillbirth or miscarriage('en' = yyyy-mm-dd
                                             'fr' = dd-mm-yyyy)
         * Type(SB/MC)
-
     """
+
     KEYWORDS = {
         'en': ['sbm'],
         'fr': ['sbm'],
