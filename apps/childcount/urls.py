@@ -137,6 +137,11 @@ urlpatterns = patterns('',
         '(?P<cformat>[a-z]*)$', charts.polio_daily_summary_comparison),
     url(r'^childcount/charts/polio-dailysummary-phase-(?P<phase>[0-9]*)'
         '-barchart.(?P<cformat>[a-z]*)$', charts.polio_daily_summary),
+    url(r'^childcount/charts/polio-locations-phase-(?P<phase>[0-9]*)'
+        '-piechart.(?P<cformat>[a-z]*)$', charts.polio_locations_piechart),
+    url(r'^childcount/charts/polio-dailysummary-per-location-phase-'
+        '(?P<phase>[0-9]*)-barchart.(?P<cformat>[a-z]*)$',
+        charts.daily_summary_per_location),
     url(r'^childcount/reports/malaria.(?P<rformat>[a-z]*)$',
         extra.malaria),
     url(r'^childcount/reports/muac.(?P<rformat>[a-z]*)$',

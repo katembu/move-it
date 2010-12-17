@@ -33,6 +33,7 @@ IMMUNIZATION_START_DATE = date(2010, 11, 24)
 
 
 def daterange(start_date, end_date):
+    end_date = end_date + timedelta(1)
     for n in range((end_date - start_date).days):
         yield start_date + timedelta(n)
 
@@ -271,15 +272,14 @@ def polio_malefemale_summary(request, phase=1, cformat='png'):
                             'polio-malefemaleratio-phase-%s-barchart' % phase)
 
 
-def dailysummaryperloc(request):
+def daily_summary_per_location(request, phase=1, cformat='png'):
     #instantiate a drawing object
-    d = CCBarChartDrawing(1280, 800)
-    d.add(String(200,700,u"Polio Campaign Report: Daily summary by"
-            " sub-locaton."), name='title')
+    d = CCBarChartDrawing(1440, 800)
+    d.add(String(200, 700, u"Polio Campaign Phase %s: Daily summary by"
+            " sub-locaton." % phase), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 14
-    start_date = date(2010, 11, 20)
-    end_date = date(2010, 11, 26)
+    start_date, end_date = polio_start_end_dates(phase)
     data = []
     for location in  \
         Location.objects.filter(type__name='Sub Location')\
@@ -293,6 +293,7 @@ def dailysummaryperloc(request):
                         "count":
                 PolioCampaignReport.objects.filter(created_on__gte=current_day,
                     created_on__lt=next_day,
+                    phase=phase,
                     patient__chw__location=location).count()})
             cats.append(current_day.strftime("%A %d"))
         print smdata
@@ -300,17 +301,15 @@ def dailysummaryperloc(request):
         for row in smdata:
             sdata += row['count'],
         data.append(sdata)
-    print data
+    print start_date, end_date
     d.chart.data = data
     d.chart.categoryAxis.categoryNames = cats
     d.chart.valueAxis.valueStep = 50
     d.chart.valueAxis.valueMin = 0
     d.chart.valueAxis.valueMax = 800
     d.chart.valueAxis.labels.fontSize = 18
-    d.chart.x = 50
+    d.chart.x = 30
     d.chart.y = 50
-    #d.chart.width = 400
-    #d.chart.height = 400
     d.chart.categoryAxis.labels.boxAnchor = 's'
     d.chart.categoryAxis.labels.angle = 0
     d.chart.categoryAxis.labels.dy = -25
@@ -318,8 +317,8 @@ def dailysummaryperloc(request):
     d.chart.barLabels.fontSize = 14
     d.chart.barLabelFormat = "%d"
     d.chart.barLabels.nudge = 10
-    d.chart.barWidth = 150
-    d.chart.groupSpacing = 10
+    d.chart.barWidth = 10
+    d.chart.groupSpacing = 5
 
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.bars[1].fillColor = colors.thistle
@@ -353,9 +352,9 @@ def dailysummaryperloc(request):
                             (colors.lemonchiffon, u"Sauri"),
                             (colors.lavenderblush, u"Uranga")]
     d.add(legend, 'legend')
-    #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                'polio-dailysummary-per-location-phase-%s-barchart' % phase)
 
 
 def polio_daily_summary(request, phase=1, cformat='png'):
@@ -477,28 +476,35 @@ def polio_daily_summary_comparison(request, cformat='png'):
                             'polio-dailysummary-comparison-barchart')
 
 
-def locations_piechart(request):
+def polio_locations_piechart(request, phase=1, cformat='png'):
     #instantiate a drawing object
-    d = CCPieChartDrawing(650, 400)
-    smdata = PolioCampaignReport.objects.values('chw__location__name',
+    d = CCPieChartDrawing(1280, 800)
+    smdata = PolioCampaignReport.objects.filter(phase=phase)\
+                                        .values('chw__location__name',
                                         'chw__location').annotate(Count('chw'))
     data = []
     cats = []
-    count  = 0
+    count  = PolioCampaignReport.objects.filter(phase=phase).count()
     for row in smdata:
         data.append(row['chw__count'])
-        cats.append(u"%s - %s" % (row['chw__location__name'],
-            row['chw__count']))
-        count += row['chw__count']
-    d.add(String(200,380,u"Polio Campaign Report by sub-locaton: %s total "
-            "reports" % count), name='title')
-
+        percentage = round((row['chw__count'] / float(count)) * 100, 2)
+        cats.append(u"%s - %s - %s%%" % (row['chw__location__name'],
+            row['chw__count'], percentage))
+    d.add(String(200, d.chart.height + 100, u"Polio Campaign Phase %s by "
+            "sub-locaton: %s total reports" % (phase, count)), name='title')
+    d.title.fontName = 'Helvetica-Bold'
+    d.title.fontSize = 24
     d.chart.data = data
     d.chart.labels = cats
+    d.chart.xradius = 400
+    d.chart.yradius = 280
+    d.chart.x = 50
+    d.chart.slices.fontSize = 18
     
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                            'polio-locations-phase-%s-piechart' % phase)
 
 
 def locations_barchart(request):
