@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.models.reports import FamilyPlanningReport
 from childcount.models import CodedItem, FamilyPlanningUsage, Encounter
-from childcount.exceptions import ParseError
+from childcount.exceptions import ParseError, BadValue
 
 
 class FamilyPlanningForm(CCForm):
