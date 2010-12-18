@@ -550,22 +550,3 @@ def polio_locations_barchart(request, phase=1, cformat='png'):
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),
                             'polio-locations-phase-%s-barchart' % phase)
-
-
-def bc():
-    #instantiate a drawing object
-    d = CCBarChartDrawing()
-    smdata = PolioCampaignReport.objects.values('chw__location__name',
-                                        'chw__location').annotate(Count('chw'))
-    data = ()
-    for row in smdata:
-        data += row['chw__count'],
-
-    d.chart.data = [data]
-    d.chart.categoryAxis.categoryNames = [r['chw__location__name'] for r in \
-                                    smdata]
-    d.chart.width = 400
-    d.chart.height = 400
-    d.chart.categoryAxis.labels.boxAnchor = 'se'
-    d.chart.categoryAxis.labels.angle = 30
-    d.save(formats=['gif','png','pdf'],outDir='/Users/ukanga/dev/sms',fnRoot='barchart')
