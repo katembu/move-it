@@ -507,14 +507,18 @@ def polio_locations_piechart(request, phase=1, cformat='png'):
                             'polio-locations-phase-%s-piechart' % phase)
 
 
-def locations_barchart(request):
+def polio_locations_barchart(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200,600,'Polio Campaign Report'), name='title')
+    d.add(String(200, d.chart.height + 100, 'Polio Campaign Phase %s' % phase),
+                name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 20
-    smdata = PolioCampaignReport.objects.values('chw__location__name',
-                                        'chw__location').annotate(Count('chw'))
+    smdata = PolioCampaignReport.objects.filter(phase=phase)\
+                                        .values('chw__location__name',
+                                        'chw__location')\
+                                        .order_by('chw__location__name')\
+                                        .annotate(Count('chw'))
     data = ()
     cats = []
     for row in smdata:
@@ -543,8 +547,9 @@ def locations_barchart(request):
     d.chart.bars[0].fillColor = colors.steelblue
     
     #get a GIF (or PNG, JPG, or whatever)
-    binaryStuff = d.asString('png')
-    return HttpResponse(binaryStuff, 'image/png')
+    binaryStuff = d.asString(cformat.lower())
+    return render_chart_to_response(request, binaryStuff, cformat.lower(),
+                            'polio-locations-phase-%s-barchart' % phase)
 
 
 def bc():
