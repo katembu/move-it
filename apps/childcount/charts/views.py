@@ -55,10 +55,10 @@ def polio_piechart(request, phase=1, cformat='png'):
                                 patient__status=Patient.STATUS_ACTIVE).count()
     data = []
     cats = []
-    count  = 0
+    count = 0
     tpercentage = 0
     for row in smdata:
-        percentage = round((row['chw__count']/float(tp)) * 100, 0)
+        percentage = round((row['chw__count'] / float(tp)) * 100, 0)
         data.append(percentage)
         cats.append(u"%s - %s%%" % (row['chw__location__name'], percentage))
         count += row['chw__count']
@@ -73,7 +73,7 @@ def polio_piechart(request, phase=1, cformat='png'):
     d.chart.data = data
     d.chart.labels = cats
     d.chart.xradius = 200
-    
+
     d.chart.slices[0].fillColor = colors.steelblue
     d.chart.slices[1].fillColor = colors.thistle
     d.chart.slices[2].fillColor = colors.cornflower
@@ -86,7 +86,7 @@ def polio_piechart(request, phase=1, cformat='png'):
     d.chart.slices[9].fillColor = colors.lemonchiffon
     d.chart.slices[10].fillColor = colors.lavenderblush
     d.chart.slices[11].fillColor = colors.lightgrey
-    
+
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),
@@ -115,7 +115,7 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
                                     dob__gt=five_years_back,
                                     chw__location__pk=row['chw__location'])\
                                     .count()
-        data += round(c/float(t) * 100, 0),
+        data += round(c / float(t) * 100, 0),
         cats.append(row['chw__location__name'])
 
     d.chart.data = [data]
@@ -139,7 +139,7 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
 
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.bars[1].fillColor = colors.orange
-    
+
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),
@@ -171,7 +171,7 @@ def polio_percentage_comparison_barchart(request, cformat='png'):
                                     dob__gt=five_years_back,
                                     chw__location__pk=row['chw__location'])\
                                         .count()
-            tdata += round(c/float(t) * 100, 0),
+            tdata += round(c / float(t) * 100, 0),
             cats.append(row['chw__location__name'])
         data.append(tdata)
     d.chart.data = data
@@ -195,7 +195,7 @@ def polio_percentage_comparison_barchart(request, cformat='png'):
 
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.bars[1].fillColor = colors.orange
-    
+
     legend = Legend()
     legend.alignment = 'left'
     legend.x = 100
@@ -214,8 +214,8 @@ def polio_percentage_comparison_barchart(request, cformat='png'):
 def polio_malefemale_summary(request, phase=1, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200,700,u"Polio Campaign Phase %s: Daily Summary by Gender" %\
-                phase),
+    d.add(String(200, 700, u"Polio Campaign Phase %s: Daily "
+                "Summary by Gender" % phase),
             name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 24
@@ -331,7 +331,7 @@ def daily_summary_per_location(request, phase=1, cformat='png'):
     d.chart.bars[8].fillColor = colors.darkseagreen
     d.chart.bars[9].fillColor = colors.lemonchiffon
     d.chart.bars[10].fillColor = colors.lavenderblush
-    
+
     legend = Legend()
     legend.alignment = 'left'
     legend.x = 100
@@ -409,7 +409,8 @@ def polio_daily_summary(request, phase=1, cformat='png'):
 def polio_daily_summary_comparison(request, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200, d.chart.height,u"Polio Campaign Report: Daily summary"), name='title')
+    d.add(String(200, d.chart.height, u"Polio Campaign Report: Daily summary"),
+                name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 24
     data = []
@@ -484,7 +485,7 @@ def polio_locations_piechart(request, phase=1, cformat='png'):
                                         'chw__location').annotate(Count('chw'))
     data = []
     cats = []
-    count  = PolioCampaignReport.objects.filter(phase=phase).count()
+    count = PolioCampaignReport.objects.filter(phase=phase).count()
     for row in smdata:
         data.append(row['chw__count'])
         percentage = round((row['chw__count'] / float(count)) * 100, 2)
@@ -500,7 +501,7 @@ def polio_locations_piechart(request, phase=1, cformat='png'):
     d.chart.yradius = 280
     d.chart.x = 50
     d.chart.slices.fontSize = 18
-    
+
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),
@@ -545,7 +546,7 @@ def polio_locations_barchart(request, phase=1, cformat='png'):
     d.chart.barLabels.nudge = 10
 
     d.chart.bars[0].fillColor = colors.steelblue
-    
+
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
     return render_chart_to_response(request, binaryStuff, cformat.lower(),

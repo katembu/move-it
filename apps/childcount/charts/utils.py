@@ -8,15 +8,17 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import gettext_lazy as _
 
 CHARTS_DIR = 'charts'
- 
+
+
 def render_chart_to_response(request, binarydata, rformat='png',
-        filebasename = _(u'chart')):
+        filebasename=_(u'chart')):
     filename = filebasename + '.' + rformat
     f = open(chart_filename(filename), 'w')
     f.write(binarydata)
     f.close()
     return HttpResponseRedirect( \
         '/static/childcount/' + CHARTS_DIR + '/' + filename)
+
 
 def chart_filename(chart_name):
     return os.path.abspath(\
@@ -26,4 +28,3 @@ def chart_filename(chart_name):
                     'static',
                     CHARTS_DIR,
                     chart_name))
-
