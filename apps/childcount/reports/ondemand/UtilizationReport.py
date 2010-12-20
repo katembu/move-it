@@ -23,28 +23,31 @@ def _(text):
 
 
 def list_average(values):
+    """ dsadsad """
     total = 0
     for value in values:
         total += value
     return int(total / values.__len__())
 
 def date_under_five():
-        today = date.today()
-        date_under_five = date(today.year - 5, today.month, today.day)
-        return date_under_five
+    """ fsdfsd """
+    today = date.today()
+    date_under_five = date(today.year - 5, today.month, today.day)
+    return date_under_five
 
 
 def list_median(values):
-    sorted = values
-    sorted.sort()
-    num = sorted.__len__()
+    """ dfasdas """
+    sorted_values = values
+    sorted_values.sort()
+    num = sorted_values.__len__()
     if num % 2 == 0:
         half = num / 2
-        center = sorted[num / 2: (num / 2) + 2]
-        moy = list_average(center)
+        center = sorted_values[num / 2: (num / 2) + 2]
+        avg = list_average(center)
     else:
-        moy = sorted[num + 1 / 2]
-    return moy
+        avg = sorted_values[num + 1 / 2]
+    return avg
 
 
 class Report(PrintedReport):
@@ -53,24 +56,24 @@ class Report(PrintedReport):
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
+    def month_nums(self):
+        return range(1, 13)
+
     def generate(self, rformat, title, filepath, data):
 
         """ Display sms number per month, total, average, median
+
             Days since last SMS
-            NUMBER of Patient registered PER MONTH
-        """
+            NUMBER of Patient registered PER MONTH """
 
         doc = Document(title)
 
         header_row = [Text(_(u'Indicator:'))]
 
-        for month_num in range(1, 13):
-            month = date(year=2010, month=month_num, day=1).strftime("%B")
-
         year_today = date.today().year
-        for month_num in range(1, 13):
+        for month_num in self.month_nums():
             month = date(year=year_today, month=month_num,\
-                                                day=1).strftime("%B")
+                                                day=1).strftime("%b")
             header_row.append(Text(month.title()))
 
         header_row += [
@@ -79,17 +82,37 @@ class Report(PrintedReport):
             Text(_(u'Median'))
         ]
 
-        table = Table(header_row.__len__())
-        table.add_header_row(header_row)
+        self.table = Table(header_row.__len__())
+        self.table.add_header_row(header_row)
 
-        doc.add_element(table)
+        # date at which people are more than 5 years old
+        self.date_five = date_under_five()
 
          # SMS NUMBER PER MONTH
+        self._add_sms_number_per_month_row()
+
+        # NUMBER of Patient registered PER MONTH
+        self._add_number_patient_reg_month()
+
+        # Days since last SMS
+        self._add_days_since_last_sms_month()
+
+        # Adult Women registered
+        self._add_adult_women_registered()
+
+        # Adult Men registered
+        self._add_adult_men_registered()
+
+        doc.add_element(self.table)
+
+        return render_doc_to_file(filepath, rformat, doc)
+
+    def _add_sms_number_per_month_row(self):
         list_sms = []
         list_sms.append("SMS per month")
 
         list_sms_month = []
-        for month_num in range(1, 13):
+        for month_num in self.month_nums():
             sms_month = LoggedMessage.incoming.filter(date__month=month_num)
             list_sms_month.append(sms_month.count())
 
@@ -105,14 +128,14 @@ class Report(PrintedReport):
         list_sms.append(median)
 
         list_sms_text = [Text(sms) for sms in list_sms]
-        table.add_row(list_sms_text)
+        self.table.add_row(list_sms_text)
 
-        # NUMBER of Patient registered PER MONTH
+    def _add_number_patient_reg_month(self):
         list_patient = []
         list_patient.append("patient per month")
 
         list_patient_month = []
-        for month_num in range(1, 13):
+        for month_num in self.month_nums():
             patient_month = Patient.objects.filter(created_on__month=month_num)
             list_patient_month.append(patient_month.count())
 
@@ -128,13 +151,13 @@ class Report(PrintedReport):
         list_patient.append(median)
 
         list_patient_text = [Text(patient) for patient in list_patient]
-        table.add_row(list_patient_text)
+        self.table.add_row(list_patient_text)
 
-        # Days since last SMS
+    def _add_days_since_last_sms_month(self):
         list_date = list_sms = []
 
         list_sms.append("Days since last SMS")
-        for i in range(1, 13):
+        for i in self.month_nums():
             ms = LoggedMessage.incoming.filter(date__month=i)
             try:
                 lastsms = ms.order_by("-date")[1]
@@ -148,24 +171,23 @@ class Report(PrintedReport):
             list_date.append("")
 
         list_sms = [Text(sms) for sms in list_date]
-        table.add_row(list_sms)
+        self.table.add_row(list_sms)
 
-        # Adult Women registered
-        date_five = date_under_five()
+    def _add_adult_women_registered(self):
         list_women = []
         list_women.append("Women per month")
 
         list_women_month = []
-        for month_num in range(1, 13):
+        for month_num in self.month_nums():
             women_month = Patient.objects.filter(gender='F',
                                             created_on__month=month_num,
-                                            dob__lt=date_five)
+                                            dob__lt=self.date_five)
             list_women_month.append(women_month.count())
 
         list_women += list_women_month
 
         total = Patient.objects.filter(gender='F',
-                                       dob__lt=date_five).count()
+                                       dob__lt=self.date_five).count()
         list_women.append(total)
 
         average = list_average(list_women_month)
@@ -175,22 +197,22 @@ class Report(PrintedReport):
         list_women.append(median)
 
         list_women_text = [Text(women) for women in list_women]
-        table.add_row(list_women_text)
+        self.table.add_row(list_women_text)
 
-        # Adult Men registered
+    def _add_adult_men_registered(self):
         list_men = []
         list_men.append("Men per month")
 
         list_men_month = []
-        for month_num in range(1, 13):
+        for month_num in self.month_nums():
             men_month = Patient.objects.filter(gender='M',
                                             created_on__month=month_num,
-                                            dob__lt=date_five)
+                                            dob__lt=self.date_five)
             list_men_month.append(men_month.count())
 
         list_men += list_men_month
 
-        total = Patient.objects.filter(dob__lt=date_five,
+        total = Patient.objects.filter(dob__lt=self.date_five,
                                        gender='M').count()
         list_men.append(total)
 
@@ -201,7 +223,5 @@ class Report(PrintedReport):
         list_men.append(median)
 
         list_men_text = [Text(men) for men in list_men]
-        table.add_row(list_men_text)
-
-        return render_doc_to_file(filepath, rformat, doc)
+        self.table.add_row(list_men_text)
 
