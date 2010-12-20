@@ -49,7 +49,7 @@ from libreport.csvreport import CSVReport
 from libreport.pdfreport import MultiColDocTemplate
 from libreport.pdfreport import ScaledTable
 
-import ccdoc 
+import ccdoc
 from childcount.reports.utils import render_doc_to_response
 from childcount.reports.utils import report_filename, REPORTS_DIR
 
@@ -191,7 +191,7 @@ def gen_underfive_register_pdf(f, clinic, rformat):
         # 108 is the number of rows per page, should probably put this in a
         # variable
         pcount = plist.count()
-        if (((pcount/ 108) + 1) % 2) == 1 \
+        if (((pcount / 108) + 1) % 2) == 1 \
             and not (pcount / 108) * 108 == pcount:
             story.append(PageBreak())
     story.insert(0, PageBreak())
@@ -233,7 +233,7 @@ def under_five_table(title, indata=None, boxes=None):
     data.append(firstrow)
 
     rowHeights = [None, None, 0.2 * inch]
-    colWidths = [0.5 * inch, 0.5 * inch, 2.0 * inch, 1.0 *inch]
+    colWidths = [0.5 * inch, 0.5 * inch, 2.0 * inch, 1.0 * inch]
 
     ts = [('SPAN', (0, 0), (len(cols), 0)), ('SPAN', (0, 1), (len(cols), 1)),
                             ('LINEABOVE', (0, 2), (len(cols), 2), 1, \
@@ -321,6 +321,7 @@ def chw(request, rformat='html'):
         else:
             return render_to_response(request, 'childcount/chw.html', \
                                             context_dict)
+
 
 def gen_operationalreport():
     '''
@@ -430,15 +431,18 @@ def operationalreportable(title, indata=None):
                 ]))
     return tb
 
+
 def gen_registerlist():
     clinics = Clinic.objects.all()
     for c in clinics:
-        for active in ['','-active']:
-            filename = report_filename("registerlist-%s%s.pdf" % (c.code, active))
+        for active in ['', '-active']:
+            filename = report_filename("registerlist-%s%s.pdf" % \
+                                                            (c.code, active))
             f = open(filename, 'w')
 
             gen_patient_register_pdf(f, c, (active == '-active'))
             f.close()
+
 
 def gen_patient_register_pdf(f, clinic, active=False):
     story = []
@@ -446,7 +450,7 @@ def gen_patient_register_pdf(f, clinic, active=False):
     if not chws.count():
         story.append(Paragraph(_("No report for %s.") % clinic, styleN))
     for chw in chws:
-        households = chw.households().order_by('location__code','last_name')
+        households = chw.households().order_by('location__code', 'last_name')
         if not households:
             continue
         patients = []
@@ -725,6 +729,7 @@ def clinic_monthly_summary_csv(request):
     response.write(rpt)
     return response
 
+
 def gen_all_household_surveyreports():
     clinics = Clinic.objects.all()
     for clinic in clinics:
@@ -732,6 +737,7 @@ def gen_all_household_surveyreports():
         f = open(filename, 'w')
         gen_household_surveyreport(f, clinic)
         f.close()
+
 
 def gen_household_surveyreport(filename, location=None):
     story = []
@@ -867,7 +873,7 @@ def num_under_five_per_clinic(request, rformat="html"):
     ps = ps.annotate(Count('id'), Count('gender'))
     data = {}
     for p in ps:
-        if data.has_key(p['chw__clinic__name']):
+        if p['chw__clinic__name'] in data:
             data[p['chw__clinic__name']].update({p['gender']:
                                                             p['id__count']})
         else:
@@ -880,9 +886,9 @@ def num_under_five_per_clinic(request, rformat="html"):
         ccdoc.Text(unicode(_(u"Female"))),
         ccdoc.Text(unicode(_(u"Male")))])
     for row in data:
-        if not data[row].has_key(Patient.GENDER_FEMALE):
+        if not Patient.GENDER_FEMALE in data[row]:
             data[row][Patient.GENDER_FEMALE] = 0
-        if not data[row].has_key(Patient.GENDER_MALE):
+        if not Patient.GENDER_MALE in data[row]:
             data[row][Patient.GENDER_MALE] = 0
         total = data[row][Patient.GENDER_FEMALE] + \
                                     data[row][Patient.GENDER_MALE]
@@ -914,7 +920,7 @@ def ccforms_summary(request, rformat="html"):
     for dt in period:
         recs = FormGroup.forms_summary(dt)
         for rec in recs:
-            if not data.has_key(rec['name']):
+            if not rec['name'] in data:
                 data[rec['name']] = []
             data[rec['name']].append(rec['count'])
     for row in FormGroup.forms_summary():
