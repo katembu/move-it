@@ -9,6 +9,7 @@ import cProfile
 from time import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
+from dateutil.rrule import rrule, MONTHLY
 from types import StringType
 
 from rapidsms.webui.utils import render_to_response
@@ -34,6 +35,7 @@ except ImportError:
     pass
 
 from childcount.models import Clinic, CHW, Patient, FormGroup, CCReport
+from childcount.models import Encounter
 from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
@@ -914,14 +916,24 @@ def ccforms_summary(request, rformat="html"):
 def ccreports_summary(request, rformat="html"):
     '''CCReport summary'''
     doc = ccdoc.Document(unicode(_(u"ChildCount Reports Summary")))
-    t = ccdoc.Table(2)
-    t.add_header_row([
-        ccdoc.Text(unicode(_(u"Name"))),
-        ccdoc.Text(unicode(_(u"#")))])
+    fEnc = Encounter.objects.all().order_by('encounter_date')[0].encounter_date
+    dtstart = datetime(fEnc.year, fEnc.month, 1)
+    period = list(rrule(MONTHLY, dtstart=dtstart, until=datetime.today()))
+    period.reverse()
+    t = ccdoc.Table(2 + period.__len__())
+    months = [ccdoc.Text(unicode(dt.strftime('%B, %Y'))) for dt in period]
+    headers = [ccdoc.Text(unicode(_(u"Name"))),
+                ccdoc.Text(unicode(_(u"Total")))]
+    headers.extend(months)
+    t.add_header_row(headers)
     for row in CCReport.__subclasses__():
-        t.add_row([
-            ccdoc.Text(unicode(row._meta.verbose_name)),
-            ccdoc.Text(unicode(row.objects.all().count()))])
+        items = [ccdoc.Text(unicode(row._meta.verbose_name)),
+                    ccdoc.Text(unicode(row.objects.filter().count()))]
+        for dt in period:
+            items.append(ccdoc.Text(unicode(row.objects.filter(\
+                encounter__encounter_date__year=dt.year,
+                encounter__encounter_date__month=dt.month).count())))
+        t.add_row(items)
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'ccreports-summary')
