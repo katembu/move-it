@@ -28,6 +28,11 @@ def list_average(values):
         total += value
     return int(total / values.__len__())
 
+def date_under_five():
+        today = date.today()
+        date_under_five = date(today.year - 5, today.month, today.day)
+        return date_under_five
+
 
 def list_median(values):
     sorted = values
@@ -144,4 +149,59 @@ class Report(PrintedReport):
 
         list_sms = [Text(sms) for sms in list_date]
         table.add_row(list_sms)
+
+        # Adult Women registered
+        date_five = date_under_five()
+        list_women = []
+        list_women.append("Women per month")
+
+        list_women_month = []
+        for month_num in range(1, 13):
+            women_month = Patient.objects.filter(gender='F',
+                                            created_on__month=month_num,
+                                            dob__lt=date_five)
+            list_women_month.append(women_month.count())
+
+        list_women += list_women_month
+
+        total = Patient.objects.filter(gender='F',
+                                       dob__lt=date_five).count()
+        list_women.append(total)
+
+        average = list_average(list_women_month)
+        list_women.append(average)
+
+        median = list_median(list_women_month)
+        list_women.append(median)
+
+        list_women_text = [Text(women) for women in list_women]
+        table.add_row(list_women_text)
+
+        # Adult Men registered
+        list_men = []
+        list_men.append("Men per month")
+
+        list_men_month = []
+        for month_num in range(1, 13):
+            men_month = Patient.objects.filter(gender='M',
+                                            created_on__month=month_num,
+                                            dob__lt=date_five)
+            list_men_month.append(men_month.count())
+
+        list_men += list_men_month
+
+        total = Patient.objects.filter(dob__lt=date_five,
+                                       gender='M').count()
+        list_men.append(total)
+
+        average = list_average(list_men_month)
+        list_men.append(average)
+
+        median = list_median(list_men_month)
+        list_men.append(median)
+
+        list_men_text = [Text(men) for men in list_men]
+        table.add_row(list_men_text)
+
         return render_doc_to_file(filepath, rformat, doc)
+
