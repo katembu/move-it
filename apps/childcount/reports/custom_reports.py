@@ -900,14 +900,28 @@ def num_under_five_per_clinic(request, rformat="html"):
 def ccforms_summary(request, rformat="html"):
     '''CCForms summary'''
     doc = ccdoc.Document(unicode(_(u"ChildCount Forms Summary")))
-    t = ccdoc.Table(2)
-    t.add_header_row([
-        ccdoc.Text(unicode(_(u"Name"))),
-        ccdoc.Text(unicode(_(u"#")))])
+    fEnc = Encounter.objects.all().order_by('encounter_date')[0].encounter_date
+    dtstart = datetime(fEnc.year, fEnc.month, 1)
+    period = list(rrule(MONTHLY, dtstart=dtstart, until=datetime.today()))
+    period.reverse()
+    t = ccdoc.Table(2 + period.__len__())
+    months = [ccdoc.Text(unicode(dt.strftime('%B, %Y'))) for dt in period]
+    headers = [ccdoc.Text(unicode(_(u"Name"))),
+                ccdoc.Text(unicode(_(u"Total")))]
+    headers.extend(months)
+    t.add_header_row(headers)
+    data = {}
+    for dt in period:
+        recs = FormGroup.forms_summary(dt)
+        for rec in recs:
+            if not data.has_key(rec['name']):
+                data[rec['name']] = []
+            data[rec['name']].append(rec['count'])
     for row in FormGroup.forms_summary():
-        t.add_row([
-            ccdoc.Text(unicode(row['name'])),
-            ccdoc.Text(unicode(row['count']))])
+        items = [ccdoc.Text(unicode(row['name'])),
+                    ccdoc.Text(unicode(row['count']))]
+        items.extend([ccdoc.Text(unicode(i)) for i in data[row['name']]])
+        t.add_row(items)
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'ccforms-summary')
