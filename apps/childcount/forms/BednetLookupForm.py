@@ -12,13 +12,13 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetLookupForm(CCForm):
-    """
-    BednetLookupForm
+    """ BednetLookupForm
 
     params:
-        *bdnt_needed (int)
-        *bdnt_issued (int)
+        * bdnt_needed (int)
+        * bdnt_issued (int)
     """
+
     KEYWORDS = {
         'en': ['bs'],
         'fr': ['bs'],

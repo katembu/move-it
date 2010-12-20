@@ -19,6 +19,7 @@ class FamilyPlanningForm(CCForm):
         * number using FP
         * methods being used
     """
+
     KEYWORDS = {
         'en': ['k', 'fp'],
         'fr': ['k', 'fp'],

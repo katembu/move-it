@@ -15,7 +15,6 @@ class BednetDistributionForm(CCForm):
     """ For adding a Bednet distribution Report.
 
     Params:
-
         * number of bednet received
     """
 

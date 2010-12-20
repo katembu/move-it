@@ -19,6 +19,7 @@ class HouseholdVisitForm(CCForm):
         * number of children
         * counseling advice given (optional)
     """
+
     KEYWORDS = {
         'en': ['v'],
         'fr': ['v'],

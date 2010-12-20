@@ -19,6 +19,7 @@ class BednetCoverageForm(CCForm):
         * Earlier Bednets(int)
         * Damaged Bednets(int)
     """
+
     KEYWORDS = {
         'en': ['bc'],
         'fr': ['bc'],

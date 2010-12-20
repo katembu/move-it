@@ -18,11 +18,10 @@ class PregnancyRegistrationForm(CCForm):
     """ To add Pregnancy Registration.
 
     params:
-    * Married ? (boolean)
-    * Number of pregnancy(int)
-    * Number of children living with her(int)
-    * husband's health Id
-
+        * Married ? (boolean)
+        * Number of pregnancy(int)
+        * Number of children living with her(int)
+        * husband's health Id
     """
 
     KEYWORDS = {

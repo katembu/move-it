@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-#!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: alou
 
 
 from datetime import date
@@ -10,10 +9,12 @@ from django.utils.translation import gettext_lazy as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section
 
-from childcount.models import Patient
+from logger_ng.models import LoggedMessage
 
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
+from childcount.models import Patient
+
 
 def _(text):
     """ short circuits the translation as not supported by CCdoc
@@ -46,11 +47,18 @@ class Report(PrintedReport):
 
     def generate(self, rformat, title, filepath, data):
 
+        """ Display sms number per month, total, average, median"""
+
         doc = Document(title)
 
         header_row = [Text(_(u'Indicator:'))]
+
         for month_num in range(1,13):
             month = date(year=2010, month=month_num, day=1).strftime("%B")
+
+        year_today = date.today().year
+        for month_num in range(1,13):
+            month = date(year=year_today, month=month_num, day=1).strftime("%B")
             header_row.append(Text(month.title()))
 
         header_row += [
@@ -63,7 +71,29 @@ class Report(PrintedReport):
         table.add_header_row(header_row)
 
         doc.add_element(table)
+         # SMS NUMBER PER MONTH
+        list_sms = []
+        list_sms.append("SMS per month")
 
+        list_sms_month = []
+        for month_num in range(1,13):
+            sms_month = LoggedMessage.incoming.filter(date__month=month_num)
+            list_sms_month.append(sms_month.count())
+
+        list_sms += list_sms_month
+
+        total = LoggedMessage.incoming.all().count()
+        list_sms.append(total)
+
+        average = list_average(list_sms_month)
+        list_sms.append(average)
+
+        median = list_median(list_sms_month)
+        list_sms.append(median)
+
+        list_sms_text= [Text(sms) for sms in list_sms]
+        table.add_row(list_sms_text)
+        
         # NUMBER of Patient registered PER MONTH
         list_patient = []
         list_patient.append("patient per month")
@@ -86,5 +116,6 @@ class Report(PrintedReport):
 
         list_patient_text= [Text(patient) for patient in list_patient]
         table.add_row(list_patient_text)
+
         return render_doc_to_file(filepath, rformat, doc)
 

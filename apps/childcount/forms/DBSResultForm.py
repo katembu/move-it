@@ -24,6 +24,7 @@ class DBSResultForm(CCForm):
     Params:
         * Positive (y/n)
     """
+
     KEYWORDS = {
         'en': ['db'],
         'fr': ['db'],
