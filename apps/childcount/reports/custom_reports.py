@@ -33,7 +33,7 @@ try:
 except ImportError:
     pass
 
-from childcount.models import Clinic, CHW, Patient, FormGroup
+from childcount.models import Clinic, CHW, Patient, FormGroup, CCReport
 from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
@@ -909,3 +909,19 @@ def ccforms_summary(request, rformat="html"):
     doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'ccforms-summary')
+
+
+def ccreports_summary(request, rformat="html"):
+    '''CCReport summary'''
+    doc = ccdoc.Document(unicode(_(u"ChildCount Reports Summary")))
+    t = ccdoc.Table(2)
+    t.add_header_row([
+        ccdoc.Text(unicode(_(u"Name"))),
+        ccdoc.Text(unicode(_(u"#")))])
+    for row in CCReport.__subclasses__():
+        t.add_row([
+            ccdoc.Text(unicode(row._meta.verbose_name)),
+            ccdoc.Text(unicode(row.objects.all().count()))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'ccreports-summary')
