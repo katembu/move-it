@@ -33,8 +33,7 @@ try:
 except ImportError:
     pass
 
-from childcount.models import Clinic
-from childcount.models import CHW, Patient
+from childcount.models import Clinic, CHW, Patient, FormGroup
 from childcount.models.reports import BedNetReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import ThePatient, OperationalReport
@@ -894,3 +893,19 @@ def num_under_five_per_clinic(request, rformat="html"):
 
     return render_doc_to_response(request, rformat, doc,
                                     'num-under-five-per-clinic')
+
+
+def ccforms_summary(request, rformat="html"):
+    '''CCForms summary'''
+    doc = ccdoc.Document(unicode(_(u"ChildCount Forms Summary")))
+    t = ccdoc.Table(2)
+    t.add_header_row([
+        ccdoc.Text(unicode(_(u"Name"))),
+        ccdoc.Text(unicode(_(u"#")))])
+    for row in FormGroup.forms_summary():
+        t.add_row([
+            ccdoc.Text(unicode(row['name'])),
+            ccdoc.Text(unicode(row['count']))])
+    doc.add_element(t)
+
+    return render_doc_to_response(request, rformat, doc, 'ccforms-summary')
