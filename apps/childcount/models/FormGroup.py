@@ -46,21 +46,25 @@ class FormGroup(models.Model):
                                    self.entered_by)
 
     @classmethod
-    def forms_summary(cls):
+    def forms_summary(cls, dtstart=None):
         info = []
-        hhforms = FormGroup.objects\
-                            .filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
+        if dtstart:
+            frms = FormGroup.objects\
+                .filter(encounter__encounter_date__year=dtstart.year,
+                    encounter__encounter_date__month=dtstart.month)
+        else:
+            frms = FormGroup.objects
+        hhforms = frms.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
         info.append({'count': hhforms.count(),
                     'name': _(u"Total Household forms")})
         forms = get_ccforms_by_name()
         for form in forms[Encounter.TYPE_HOUSEHOLD]:
             info.append({'name': form, 'count':
-                FormGroup.objects.filter(forms__contains=form).count()})
-        cforms = FormGroup.objects\
-                            .filter(encounter__type=Encounter.TYPE_PATIENT)
+                frms.filter(forms__contains=form).count()})
+        cforms = frms.filter(encounter__type=Encounter.TYPE_PATIENT)
         info.append({'count': cforms.count(),
                     'name': _(u"Total Consultation Forms")})
         for form in forms[Encounter.TYPE_PATIENT]:
             info.append({'name': form, 'count':
-                FormGroup.objects.filter(forms__contains=form).count()})
+                frms.filter(forms__contains=form).count()})
         return info
