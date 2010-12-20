@@ -42,6 +42,12 @@ def list_median(values):
     return moy
 
 
+def date_under_five():
+        today = date.today()
+        date_under_five = date(today.year - 5, today.month, today.day)
+        return date_under_five
+        
+
 class Report(PrintedReport):
     title = 'Utilization Report'
     filename = 'UtilizationReport'
@@ -144,4 +150,29 @@ class Report(PrintedReport):
 
         list_sms = [Text(sms) for sms in list_date]
         table.add_row(list_sms)
+        
+        # UNDERFIVE
+        under_five_list = []
+        under_five_list.append("underfive registered per month")
+        u = date_under_five()
+        list_of_under_five_per_month = []
+        for month_num in range(1, 13):
+            under_five = Patient.objects.filter(dob__gt=u, created_on__month=month_num)
+            list_of_under_five_per_month.append(under_five.count())
+
+        under_five_list += list_of_under_five_per_month
+
+        total = Patient.objects.filter(dob__gt=u).count()
+        under_five_list.append(total)
+
+        average = list_average(list_of_under_five_per_month)
+        under_five_list.append(average)
+
+        median = list_median(list_of_under_five_per_month)
+        under_five_list.append(median)
+
+        list_under_five_text = [Text(under_five) for under_five in under_five_list]
+        table.add_row(list_under_five_text)
+       
+       
         return render_doc_to_file(filepath, rformat, doc)
