@@ -23,21 +23,21 @@ def _(text):
 
 
 def list_average(values):
-    """ dsadsad """
+    """ Returns the average of a list """
     total = 0
     for value in values:
         total += value
     return int(total / values.__len__())
 
 def date_under_five():
-    """ fsdfsd """
+    """ Returns the date reduced by five years """
     today = date.today()
     date_under_five = date(today.year - 5, today.month, today.day)
     return date_under_five
 
 
 def list_median(values):
-    """ dfasdas """
+    """ Returns the median of a list """
     sorted_values = values
     sorted_values.sort()
     num = sorted_values.__len__()
@@ -85,10 +85,10 @@ class Report(PrintedReport):
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
 
-        # date at which people are more than 5 years old
+        # Date at which people are more than 5 years old
         self.date_five = date_under_five()
 
-         # SMS NUMBER PER MONTH
+        # SMS number per month
         self._add_sms_number_per_month_row()
 
         # NUMBER of Patient registered PER MONTH
@@ -98,20 +98,23 @@ class Report(PrintedReport):
         self._add_days_since_last_sms_month()
 
         # Adult Women registered
-        self._add_adult_women_registered()
+        self._add_adult_registered('F')
 
         # Adult Men registered
-        self._add_adult_men_registered()
+        self._add_adult_registered('M')
 
         doc.add_element(self.table)
 
         return render_doc_to_file(filepath, rformat, doc)
 
     def _add_sms_number_per_month_row(self):
+        """ SMS number per month """
+
         list_sms = []
+        list_sms_month = []
+
         list_sms.append("SMS per month")
 
-        list_sms_month = []
         for month_num in self.month_nums():
             sms_month = LoggedMessage.incoming.filter(date__month=month_num)
             list_sms_month.append(sms_month.count())
@@ -173,55 +176,38 @@ class Report(PrintedReport):
         list_sms = [Text(sms) for sms in list_date]
         self.table.add_row(list_sms)
 
-    def _add_adult_women_registered(self):
-        list_women = []
-        list_women.append("Women per month")
+    def _add_adult_registered(self, gender):
+        """ Adult registered
 
-        list_women_month = []
+            Params:
+                * gender """
+
+        list_adult = []
+        list_adult_month = []
+
+        if gender == 'M':
+            list_adult.append("Men per month")
+        elif gender == 'F':
+            list_adult.append("Women per month")
+
         for month_num in self.month_nums():
-            women_month = Patient.objects.filter(gender='F',
+            adult_month = Patient.objects.filter(gender=gender,
                                             created_on__month=month_num,
                                             dob__lt=self.date_five)
-            list_women_month.append(women_month.count())
+            list_adult_month.append(adult_month.count())
 
-        list_women += list_women_month
-
-        total = Patient.objects.filter(gender='F',
-                                       dob__lt=self.date_five).count()
-        list_women.append(total)
-
-        average = list_average(list_women_month)
-        list_women.append(average)
-
-        median = list_median(list_women_month)
-        list_women.append(median)
-
-        list_women_text = [Text(women) for women in list_women]
-        self.table.add_row(list_women_text)
-
-    def _add_adult_men_registered(self):
-        list_men = []
-        list_men.append("Men per month")
-
-        list_men_month = []
-        for month_num in self.month_nums():
-            men_month = Patient.objects.filter(gender='M',
-                                            created_on__month=month_num,
-                                            dob__lt=self.date_five)
-            list_men_month.append(men_month.count())
-
-        list_men += list_men_month
+        list_adult += list_adult_month
 
         total = Patient.objects.filter(dob__lt=self.date_five,
-                                       gender='M').count()
-        list_men.append(total)
+                                       gender=gender).count()
+        list_adult.append(total)
 
-        average = list_average(list_men_month)
-        list_men.append(average)
+        average = list_average(list_adult_month)
+        list_adult.append(average)
 
-        median = list_median(list_men_month)
-        list_men.append(median)
+        median = list_median(list_adult_month)
+        list_adult.append(median)
 
-        list_men_text = [Text(men) for men in list_men]
-        self.table.add_row(list_men_text)
+        list_adult_text = [Text(adult) for adult in list_adult]
+        self.table.add_row(list_adult_text)
 
