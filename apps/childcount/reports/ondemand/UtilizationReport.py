@@ -24,8 +24,10 @@ def _(text):
 
 
 def list_average(values):
-    """ dsadsad """
+    """ Returns the average of a list """
+
     values = clean_list(values)
+
     total = 0
     for value in values:
         total += value
@@ -33,7 +35,7 @@ def list_average(values):
 
 
 def date_under_five():
-    """ fsdfsd """
+    """ Returns the date reduced by five years """
     today = date.today()
     date_under_five = date(today.year - 5, today.month, today.day)
     return date_under_five
@@ -47,9 +49,10 @@ def clean_list(values):
 
 
 def list_median(values):
-    """ dfasdas """
+    """ Returns the median of a list """
 
     sorted_values = clean_list(values)
+
     sorted_values.sort()
     num = sorted_values.__len__()
     if num % 2 == 0:
@@ -96,10 +99,10 @@ class Report(PrintedReport):
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
 
-        # date at which people are more than 5 years old
+        # Date at which people are more than 5 years old
         self.date_five = date_under_five()
 
-         # SMS NUMBER PER MONTH
+        # SMS number per month
         self._add_sms_number_per_month_row()
 
         # NUMBER of Patient registered PER MONTH
@@ -109,20 +112,29 @@ class Report(PrintedReport):
         self._add_days_since_last_sms_month()
 
         # Adult Women registered
-        self._add_adult_women_registered()
+        self._add_adult_registered('F')
 
         # Adult Men registered
-        self._add_adult_men_registered()
+        self._add_adult_registered('M')
+
+        # Under Five registered
+        self._add_under_five_registered()
+
+        # Number of sms error per month
+        self._add_sms_error_per_month_row()
 
         doc.add_element(self.table)
 
         return render_doc_to_file(filepath, rformat, doc)
 
     def _add_sms_number_per_month_row(self):
+        """ SMS number per month """
+
         list_sms = []
+        list_sms_month = []
+
         list_sms.append("SMS per month")
 
-        list_sms_month = []
         for month_num in self.month_nums():
             sms_month = LoggedMessage.incoming.filter(date__month=month_num)
             list_sms_month.append(sms_month.count())
@@ -142,6 +154,8 @@ class Report(PrintedReport):
         self.table.add_row(list_sms_text)
 
     def _add_number_patient_reg_month(self):
+        """ Patient registered per month"""
+
         list_patient = []
         list_patient.append("patient per month")
 
@@ -200,54 +214,93 @@ class Report(PrintedReport):
         list_sms_ = [Text(sms) for sms in list_sms]
         self.table.add_row(list_sms_)
 
-    def _add_adult_women_registered(self):
-        list_women = []
-        list_women.append("Women per month")
+    def _add_adult_registered(self, gender):
+        """ Adult registered
 
-        list_women_month = []
+            Params:
+                * gender """
+
+        list_adult = []
+        list_adult_month = []
+
+        if gender == 'M':
+            list_adult.append("Men per month")
+        elif gender == 'F':
+            list_adult.append("Women per month")
+
         for month_num in self.month_nums():
-            women_month = Patient.objects.filter(gender='F',
+            adult_month = Patient.objects.filter(gender=gender,
                                             created_on__month=month_num,
                                             dob__lt=self.date_five)
-            list_women_month.append(women_month.count())
+            list_adult_month.append(adult_month.count())
 
-        list_women += list_women_month
-
-        total = Patient.objects.filter(gender='F',
-                                       dob__lt=self.date_five).count()
-        list_women.append(total)
-
-        average = list_average(list_women_month)
-        list_women.append(average)
-
-        median = list_median(list_women_month)
-        list_women.append(median)
-
-        list_women_text = [Text(women) for women in list_women]
-        self.table.add_row(list_women_text)
-
-    def _add_adult_men_registered(self):
-        list_men = []
-        list_men.append("Men per month")
-
-        list_men_month = []
-        for month_num in self.month_nums():
-            men_month = Patient.objects.filter(gender='M',
-                                            created_on__month=month_num,
-                                            dob__lt=self.date_five)
-            list_men_month.append(men_month.count())
-
-        list_men += list_men_month
+        list_adult += list_adult_month
 
         total = Patient.objects.filter(dob__lt=self.date_five,
-                                       gender='M').count()
-        list_men.append(total)
+                                       gender=gender).count()
+        list_adult.append(total)
 
-        average = list_average(list_men_month)
-        list_men.append(average)
+        average = list_average(list_adult_month)
+        list_adult.append(average)
 
-        median = list_median(list_men_month)
-        list_men.append(median)
+        median = list_median(list_adult_month)
+        list_adult.append(median)
 
-        list_men_text = [Text(men) for men in list_men]
-        self.table.add_row(list_men_text)
+        list_adult_text = [Text(adult) for adult in list_adult]
+        self.table.add_row(list_adult_text)
+
+    def _add_under_five_registered(self):
+        """ Under five registered per month"""
+
+        under_five_list = []
+        under_five_list.append("underfive registered per month")
+        u = date_under_five()
+        list_of_under_five_per_month = []
+        for month_num in range(1, 13):
+            under_five = Patient.objects.filter(dob__gt=u,
+                                            created_on__month=month_num)
+
+            list_of_under_five_per_month.append(under_five.count())
+
+        under_five_list += list_of_under_five_per_month
+
+        total = Patient.objects.filter(dob__gt=u).count()
+        under_five_list.append(total)
+
+        average = list_average(list_of_under_five_per_month)
+        under_five_list.append(average)
+
+        median = list_median(list_of_under_five_per_month)
+        under_five_list.append(median)
+
+        list_under_five_text = [Text(under_five)\
+                                    for under_five in under_five_list]
+        self.table.add_row(list_under_five_text)
+
+    def _add_sms_error_per_month_row(self):
+        """ SMS error per month """
+
+        list_error = []
+        list_error_month = []
+
+        list_error.append("SMS error rate")
+
+        for month_num in self.month_nums():
+            error_month = LoggedMessage.objects.filter(date__month=month_num,\
+                                                        status="error")
+            list_error_month.append(error_month.count())
+
+        list_error += list_error_month
+
+        total = LoggedMessage.objects.filter(date__month=month_num,\
+                                        status="error").count()
+        list_error.append(total)
+
+        average = list_average(list_error_month)
+        list_error.append(average)
+
+        median = list_median(list_error_month)
+        list_error.append(median)
+
+        list_error_text = [Text(error) for error in list_error]
+        self.table.add_row(list_error_text)
