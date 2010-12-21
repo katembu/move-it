@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: alou
 
+import calendar
 
 from datetime import date
 
@@ -25,10 +26,14 @@ def _(text):
 
 def list_average(values):
     """ Returns the average of a list """
+
+    values = clean_list(values)
+
     total = 0
     for value in values:
         total += value
     return int(total / values.__len__())
+
 
 def date_under_five():
     """ Returns the date reduced by five years """
@@ -37,9 +42,18 @@ def date_under_five():
     return date_under_five
 
 
+def clean_list(values):
+    """ kjkj """
+    if '-' in values:
+        values = [0 if v == '-' else v for v in values]
+    return values
+
+
 def list_median(values):
     """ Returns the median of a list """
-    sorted_values = values
+
+    sorted_values = clean_list(values)
+
     sorted_values.sort()
     num = sorted_values.__len__()
     if num % 2 == 0:
@@ -198,24 +212,40 @@ class Report(PrintedReport):
         self.table.add_row(bir_patient_text)
 
     def _add_days_since_last_sms_month(self):
-        list_date = list_sms = []
+        """ Days since last SMS """
 
+        list_date = []
+        list_sms = []
+        total_date = 0
         list_sms.append("Days since last SMS")
+        date_ = date.today()
         for i in self.month_nums():
             ms = LoggedMessage.incoming.filter(date__month=i)
             try:
-                lastsms = ms.order_by("-date")[1]
-                ldate = "%d-%d-%d" % (lastsms.date.year,\
-                                           lastsms.date.month,\
-                                            lastsms.date.day)
-            except:
-                ldate = "none"
-            list_date.append(ldate)
-        for i in range(3):
-            list_date.append("")
+                lastsms = ms.order_by("-date")[0]
+                if lastsms.date.month == date_.month:
+                    ldate = date_.day - lastsms.date.day
+                else:
+                    weekday, nb_day_per_month = \
+                                calendar.monthrange(lastsms.date.year,\
+                                lastsms.date.month)
+                    ldate = nb_day_per_month - lastsms.date.day
+                total_date += int(ldate)
 
-        list_sms = [Text(sms) for sms in list_date]
-        self.table.add_row(list_sms)
+            except:
+                ldate = '-'
+            list_date.append(ldate)
+
+        list_sms += list_date
+        list_sms.append(total_date)
+        average_date = list_average(list_date)
+        list_sms.append(average_date)
+
+        median_date = list_median(list_date)
+        list_sms.append(median_date)
+
+        list_sms_ = [Text(sms) for sms in list_sms]
+        self.table.add_row(list_sms_)
 
     def _add_adult_registered(self, gender=''):
         """ Adult registered
@@ -254,7 +284,6 @@ class Report(PrintedReport):
         list_adult_text = [Text(adult) for adult in list_adult]
         self.table.add_row(list_adult_text)
 
-
     def _add_under_five_registered(self):
         """ Under five registered per month """
 
@@ -279,9 +308,9 @@ class Report(PrintedReport):
         median = list_median(list_of_under_five_per_month)
         under_five_list.append(median)
 
-        list_under_five_text = [Text(under_five) for under_five in under_five_list]
+        list_under_five_text = [Text(under_five)\
+                                    for under_five in under_five_list]
         self.table.add_row(list_under_five_text)
-
 
     def _add_sms_error_per_month_row(self):
         """ SMS error per month """
@@ -292,12 +321,14 @@ class Report(PrintedReport):
         list_error.append("SMS error rate")
 
         for month_num in self.month_nums():
-            error_month = LoggedMessage.objects.filter(date__month=month_num, status="error")
+            error_month = LoggedMessage.objects.filter(date__month=month_num,\
+                                                        status="error")
             list_error_month.append(error_month.count())
 
         list_error += list_error_month
 
-        total = LoggedMessage.objects.filter(date__month=month_num, status="error").count()
+        total = LoggedMessage.objects.filter(date__month=month_num,\
+                                        status="error").count()
         list_error.append(total)
 
         average = list_average(list_error_month)
