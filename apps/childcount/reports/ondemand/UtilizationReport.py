@@ -102,10 +102,10 @@ class Report(PrintedReport):
 
         # Adult Men registered
         self._add_adult_registered('M')
-        
+
         # Under Five registered
         self._add_under_five_registered()
-        
+
         doc.add_element(self.table)
 
         return render_doc_to_file(filepath, rformat, doc)
@@ -179,7 +179,7 @@ class Report(PrintedReport):
         list_sms = [Text(sms) for sms in list_date]
         self.table.add_row(list_sms)
 
-    def _add_adult_registered(self, gender):
+    def _add_adult_registered(self, gender=''):
         """ Adult registered
 
             Params:
@@ -192,6 +192,8 @@ class Report(PrintedReport):
             list_adult.append("Men per month")
         elif gender == 'F':
             list_adult.append("Women per month")
+        else:
+            list_adult.append("")
 
         for month_num in self.month_nums():
             adult_month = Patient.objects.filter(gender=gender,
@@ -214,16 +216,16 @@ class Report(PrintedReport):
         list_adult_text = [Text(adult) for adult in list_adult]
         self.table.add_row(list_adult_text)
 
-    
+
     def _add_under_five_registered(self):
         under_five_list = []
         under_five_list.append("underfive registered per month")
         u = date_under_five()
         list_of_under_five_per_month = []
         for month_num in range(1, 13):
-            under_five = Patient.objects.filter(dob__gt=u, 
+            under_five = Patient.objects.filter(dob__gt=u,
                                             created_on__month=month_num)
-            
+
             list_of_under_five_per_month.append(under_five.count())
 
         under_five_list += list_of_under_five_per_month
