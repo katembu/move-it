@@ -67,6 +67,7 @@ def date_under_five():
     date_under_five = date(today.year - 5, today.month, today.day)
     return date_under_five
 
+
 def clean_list(values):
     """ Cleans a list """
     if '-' in values:
@@ -88,7 +89,7 @@ class Report(PrintedReport):
         today = date.today()
         last_month = today.month
 
-        table_list = [(index, today.year -1) \
+        table_list = [(index, today.year - 1) \
                       for index in months[last_month:]]
         table_list += [(index, today.year) \
                         for index in months[:last_month]]
@@ -236,7 +237,8 @@ class Report(PrintedReport):
         list_sms.append("SMS per month")
 
         for month_num, year in self.month_nums():
-            sms_month = LoggedMessage.incoming.filter(date__month=month_num, date__year=year)
+            sms_month = LoggedMessage.incoming.\
+                        filter(date__month=month_num, date__year=year)
             list_sms_month.append(sms_month.count())
 
         list_sms += list_sms_month
@@ -265,7 +267,9 @@ class Report(PrintedReport):
 
         list_patient_month = []
         for month_num, year in self.month_nums():
-            patient_month = name.objects.filter(created_on__month=month_num, created_on__year=year)
+            patient_month = name.objects.\
+                filter(created_on__month=month_num,\
+                created_on__year=year)
             list_patient_month.append(patient_month.count())
 
         list_patient += list_patient_month
@@ -293,7 +297,7 @@ class Report(PrintedReport):
         list_.append(line)
 
         list_month = []
-        for month_num,year in self.month_nums():
+        for month_num, year in self.month_nums():
             month = name.objects.\
             filter(encounter__encounter_date__month=month_num,\
                    encounter__encounter_date__year=year)
@@ -367,8 +371,9 @@ class Report(PrintedReport):
 
         for month_num, year in self.month_nums():
             adult_month = Patient.objects.filter(gender=gender,
-                                            created_on__month=month_num, created_on__year=year,
-                                            dob__lt=self.date_five)
+                                        created_on__month=month_num,\
+                                        created_on__year=year,
+                                        dob__lt=self.date_five)
             list_adult_month.append(adult_month.count())
 
         list_adult += list_adult_month
@@ -395,7 +400,8 @@ class Report(PrintedReport):
         list_of_under_five_per_month = []
         for month_num, year in self.month_nums():
             under_five = Patient.objects.filter(dob__gt=u,
-                                            created_on__month=month_num, created_on__year=year)
+                                        created_on__month=month_num,\
+                                        created_on__year=year)
 
             list_of_under_five_per_month.append(under_five.count())
 
@@ -423,12 +429,14 @@ class Report(PrintedReport):
         list_error.append("SMS error ")
 
         for month_num, year in self.month_nums():
-            error_month = LoggedMessage.outgoing.filter(date__month=month_num, date__year=year,\
-                                                        status="error")
-            total_sms_month =  LoggedMessage.incoming.filter(date__month=month_num).count()
+            error_month = LoggedMessage.outgoing.\
+                        filter(date__month=month_num, date__year=year,\
+                        status="error")
+            total_sms_month = LoggedMessage.incoming.\
+                              filter(date__month=month_num).count()
             try:
                 list_sms_error_rate_month.append((error_month.count()\
-                                                *100)/total_sms_month)
+                                            * 100) / total_sms_month)
             except ZeroDivisionError:
                 list_sms_error_rate_month.append(0)
 
@@ -445,5 +453,5 @@ class Report(PrintedReport):
         median = list_median(list_sms_error_rate_month)
         list_error.append(median)
 
-        list_error_text = [Text(str(error)+'%') for error in list_error]
+        list_error_text = [Text(str(error) + '%') for error in list_error]
         self.table.add_row(list_error_text)
