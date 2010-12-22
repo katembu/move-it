@@ -12,15 +12,25 @@ from ccdoc import Document, Table, Paragraph, Text, Section
 
 from logger_ng.models import LoggedMessage
 
-from childcount.models import Patient
+from childcount.models import Patient, DeadPerson
 from childcount.reports.utils import render_doc_to_file
-from childcount.models.reports import BirthReport
+from childcount.models.reports import (BirthReport, FollowUpReport,
+                                       HouseholdVisitReport, DeathReport,
+                                       MedicineGivenReport, PregnancyReport,
+                                       HIVTestReport, FeverReport,
+                                       NutritionReport, NeonatalReport,
+                                       PregnancyRegistrationReport,
+                                       ReferralReport, UnderOneReport,
+                                       SickMembersReport, StillbirthMiscarriageReport,
+                                       BCPillReport, FamilyPlanningReport,
+                                       DangerSignsReport, AntenatalVisitReport,
+                                       AppointmentReport, CD4ResultReport,
+                                       DBSResultReport)
 from childcount.reports.report_framework import PrintedReport
 
 
 def _(text):
-    """ short circuits the translation as not supported by CCdoc
-    """
+    """ short circuits the translation as not supported by CCdoc """
     return text
 
 
@@ -43,7 +53,7 @@ def date_under_five():
 
 
 def clean_list(values):
-    """ kjkj """
+    """ Cleans a list """
     if '-' in values:
         values = [0 if v == '-' else v for v in values]
     return values
@@ -72,6 +82,7 @@ class Report(PrintedReport):
     argvs = []
 
     def month_nums(self):
+        """ Returns a list of number of months """
         return range(1, 13)
 
     def generate(self, rformat, title, filepath, data):
@@ -107,7 +118,7 @@ class Report(PrintedReport):
         self._add_sms_number_per_month_row()
 
         # NUMBER of Patient registered PER MONTH
-        self._add_number_patient_reg_month('Patient per month')
+        self._add_number_patient_reg_month(Patient, 'Patient per month')
 
         # Days since last SMS
         self._add_days_since_last_sms_month()
@@ -125,10 +136,76 @@ class Report(PrintedReport):
         self._add_sms_error_per_month_row()
 
         # +NEW
-        self._add_number_patient_reg_month('+NEW')
+        self._add_number_patient_reg_month(Patient, '+NEW')
 
         # +BIR
-        self._add_number_bir_reg_month()
+        self._add_reg_report(BirthReport, '+BIR')
+
+        # +DDA
+        self._add_reg_report(DeathReport, '+DDA')
+
+        # +DDB
+        self._add_number_patient_reg_month(DeadPerson, '+DDB')
+
+        # +SBM
+        self._add_reg_report(StillbirthMiscarriageReport, '+SBM')
+
+        # +V
+        self._add_reg_report(HouseholdVisitReport, '+V')
+
+        # +E
+        self._add_reg_report(SickMembersReport, '+E')
+
+        # +L
+        self._add_reg_report(BCPillReport, '+L')
+
+        # +K
+        self._add_reg_report(FamilyPlanningReport, '+K')
+
+        # +U
+        self._add_reg_report(FollowUpReport, '+U')
+
+        # +S
+        self._add_reg_report(DangerSignsReport, '+S')
+
+        # +P
+        self._add_reg_report(PregnancyReport, '+P')
+
+        # +N
+        self._add_reg_report(NeonatalReport, '+N')
+
+        # +T
+        self._add_reg_report(UnderOneReport, '+T')
+
+        # +M
+        self._add_reg_report(NutritionReport, '+M')
+
+        # +F
+        self._add_reg_report(FeverReport, '+F')
+
+        # +G
+        self._add_reg_report(MedicineGivenReport, '+G')
+
+        # +R
+        self._add_reg_report(ReferralReport, '+R')
+
+        # +PD
+        self._add_reg_report(PregnancyRegistrationReport, '+PD')
+
+        # +PF
+        self._add_reg_report(AntenatalVisitReport, '+PF')
+
+        # +Ht
+        self._add_reg_report(HIVTestReport, '+Ht')
+
+        # +AP
+        self._add_reg_report(AppointmentReport, '+AP')
+
+        # +CD
+        self._add_reg_report(CD4ResultReport, '+CD')
+
+        # +DB
+        self._add_reg_report(DBSResultReport, '+DB')
 
         doc.add_element(self.table)
 
@@ -143,7 +220,7 @@ class Report(PrintedReport):
         list_sms.append("SMS per month")
 
         for month_num in self.month_nums():
-            sms_month = LoggedMessage.incoming.filter(date__month=month_num)
+            sms_month = LoggedMessage.incoming.filter(date__month=month_num, date__year=2010)
             list_sms_month.append(sms_month.count())
 
         list_sms += list_sms_month
@@ -160,7 +237,7 @@ class Report(PrintedReport):
         list_sms_text = [Text(sms) for sms in list_sms]
         self.table.add_row(list_sms_text)
 
-    def _add_number_patient_reg_month(self, line=''):
+    def _add_number_patient_reg_month(self, name, line=''):
         """ Patient registered per month"""
 
         list_patient = []
@@ -168,12 +245,12 @@ class Report(PrintedReport):
 
         list_patient_month = []
         for month_num in self.month_nums():
-            patient_month = Patient.objects.filter(created_on__month=month_num)
+            patient_month = name.objects.filter(created_on__month=month_num)
             list_patient_month.append(patient_month.count())
 
         list_patient += list_patient_month
 
-        total = Patient.objects.all().count()
+        total = name.objects.all().count()
         list_patient.append(total)
 
         average = list_average(list_patient_month)
@@ -185,31 +262,30 @@ class Report(PrintedReport):
         list_patient_text = [Text(patient) for patient in list_patient]
         self.table.add_row(list_patient_text)
 
-    def _add_number_bir_reg_month(self):
+    def _add_reg_report(self, name='', line=''):
         """ BIR registered per month"""
 
-        bir_patient = []
-        bir_patient.append("bir")
+        list_ = []
+        list_.append(line)
 
-        list_bir_month = []
+        list_month = []
         for month_num in self.month_nums():
-            print month_num
-            bir_month = BirthReport.objects.filter(encounter__encounter_date__month=month_num)
-            list_bir_month.append(bir_month.count())
+            month = name.objects.filter(encounter__encounter_date__month=month_num)
+            list_month.append(month.count())
 
-        bir_patient += list_bir_month
+        list_ += list_month
 
-        total = BirthReport.objects.all().count()
-        bir_patient.append(total)
+        total = name.objects.all().count()
+        list_.append(total)
 
-        average = list_average(list_bir_month)
-        bir_patient.append(average)
+        average = list_average(list_month)
+        list_.append(average)
 
-        median = list_median(list_bir_month)
-        bir_patient.append(median)
+        median = list_median(list_month)
+        list_.append(median)
 
-        bir_patient_text = [Text(bir) for bir in bir_patient]
-        self.table.add_row(bir_patient_text)
+        list_text = [Text(l) for l in list_]
+        self.table.add_row(list_text)
 
     def _add_days_since_last_sms_month(self):
         """ Days since last SMS """
@@ -316,26 +392,32 @@ class Report(PrintedReport):
         """ SMS error per month """
 
         list_error = []
-        list_error_month = []
+        list_sms_error_rate_month = []
 
         list_error.append("SMS error rate")
 
         for month_num in self.month_nums():
-            error_month = LoggedMessage.objects.filter(date__month=month_num,\
+            error_month = LoggedMessage.outgoing.filter(date__month=month_num,\
                                                         status="error")
-            list_error_month.append(error_month.count())
+            total_sms_month =  LoggedMessage.incoming.filter(date__month=month_num).count()
+            try:
+                list_sms_error_rate_month.append((error_month.count()\
+                                                *100)/total_sms_month)
+            except ZeroDivisionError:
+                list_sms_error_rate_month.append(0)
 
-        list_error += list_error_month
+        list_error += list_sms_error_rate_month
 
-        total = LoggedMessage.objects.filter(date__month=month_num,\
-                                        status="error").count()
-        list_error.append(total)
+        total_error = LoggedMessage.outgoing.filter(status="error").count()
+        total_sms = LoggedMessage.incoming.all().count()
+        sms_error_rate = (total_error * 100) / total_sms
+        list_error.append(sms_error_rate)
 
-        average = list_average(list_error_month)
+        average = list_average(list_sms_error_rate_month)
         list_error.append(average)
 
-        median = list_median(list_error_month)
+        median = list_median(list_sms_error_rate_month)
         list_error.append(median)
 
-        list_error_text = [Text(error) for error in list_error]
+        list_error_text = [Text(str(error)+'%') for error in list_error]
         self.table.add_row(list_error_text)
