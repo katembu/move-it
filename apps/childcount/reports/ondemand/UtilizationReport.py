@@ -112,6 +112,9 @@ class Report(PrintedReport):
         # Days since last SMS
         self._add_days_since_last_sms_month()
 
+        # % of days with SMS / month
+        self._of_days_with_SMS_month()
+
         # Adult Women registered
         self._add_adult_registered('F')
 
@@ -193,7 +196,6 @@ class Report(PrintedReport):
 
         list_bir_month = []
         for month_num in self.month_nums():
-            print month_num
             bir_month = BirthReport.objects.filter(encounter__encounter_date__month=month_num)
             list_bir_month.append(bir_month.count())
 
@@ -220,9 +222,9 @@ class Report(PrintedReport):
         list_sms.append("Days since last SMS")
         date_ = date.today()
         for i in self.month_nums():
-            ms = LoggedMessage.incoming.filter(date__month=i)
+            sms_per_month = LoggedMessage.incoming.filter(date__month=i)
             try:
-                lastsms = ms.order_by("-date")[0]
+                lastsms = sms_per_month.order_by("-date")[0]
                 if lastsms.date.month == date_.month:
                     ldate = date_.day - lastsms.date.day
                 else:
@@ -238,6 +240,7 @@ class Report(PrintedReport):
 
         list_sms += list_date
         list_sms.append(total_date)
+
         average_date = list_average(list_date)
         list_sms.append(average_date)
 
@@ -339,3 +342,35 @@ class Report(PrintedReport):
 
         list_error_text = [Text(error) for error in list_error]
         self.table.add_row(list_error_text)
+
+    def _of_days_with_SMS_month(self):
+        """ % of days with SMS / month """
+        list_sms=[]
+        liste_day_rate = []
+        total_day=0
+        list_sms.append("% of days with SMS / month")
+
+        for i in self.month_nums():
+            liste_day_month = []
+            sms_per_month = LoggedMessage.incoming.filter(date__month=i)
+            for sms in sms_per_month:
+                liste_day_month.append(sms.date.day)
+
+            list_nb_day_month = dict().fromkeys(liste_day_month).keys()
+            nb_day_per_month = len(list_nb_day_month)
+            rate_day = (nb_day_per_month * 100) / 30
+            total_day += nb_day_per_month
+            liste_day_rate.append(rate_day)
+
+        list_sms +=liste_day_rate
+        total_rate = (total_day * 100) / 365
+        list_sms.append(total_rate)
+
+        average_date = list_average(liste_day_rate)
+        list_sms.append(average_date)
+
+        median_date = list_median(liste_day_rate)
+        list_sms.append(median_date)
+
+        self.table.add_row(list_rate)
+        list_rate = [Text(sms) for sms in list_sms]
