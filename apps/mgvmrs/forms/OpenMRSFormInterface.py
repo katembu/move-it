@@ -140,6 +140,10 @@ class OpenMRSFormInterface(object):
         if not field in self.fields:
             return None
 
+        # if value is None, it's probably a non-filled optional one.
+        if value == None:
+            return None
+
         # retrive field definition
         ff_type, ff_values = self.fields[field]
 
