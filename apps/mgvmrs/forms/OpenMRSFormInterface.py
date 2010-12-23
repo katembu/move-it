@@ -140,6 +140,10 @@ class OpenMRSFormInterface(object):
         if not field in self.fields:
             return None
 
+        # if value is None, it's probably a non-filled optional one.
+        if value == None:
+            return None
+
         # retrive field definition
         ff_type, ff_values = self.fields[field]
 
@@ -151,7 +155,7 @@ class OpenMRSFormInterface(object):
                 ff_value = value
             try:
                 tmp = float(ff_value)
-            except ValueError:
+            except (TypeError, ValueError):
                 raise UnexpectedValueError(_(u"Expecting Numeric value"))
 
             self.values[field] = ff_value
