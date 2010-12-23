@@ -151,7 +151,7 @@ class OpenMRSFormInterface(object):
                 ff_value = value
             try:
                 tmp = float(ff_value)
-            except ValueError:
+            except (TypeError, ValueError):
                 raise UnexpectedValueError(_(u"Expecting Numeric value"))
 
             self.values[field] = ff_value
