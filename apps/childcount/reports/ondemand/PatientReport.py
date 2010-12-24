@@ -13,7 +13,8 @@ from locations.models import Location
 
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
-from childcount.models.reports import PregnancyReport
+from childcount.models.reports import (PregnancyReport, FeverReport,
+                                       NutritionReport)
 
 
 def _(text):
@@ -42,6 +43,7 @@ class Report(PrintedReport):
         for chw in CHW.objects.all():
             doc.add_element(Paragraph("%s clinic: %s " %\
                                         (chw.clinic, chw.full_name())))
+            doc.add_element(Paragraph("CHILDREN"))
             table1 = Table(11)
             table1.add_header_row([
                 Text((u'Health ID')),
@@ -60,6 +62,22 @@ class Report(PrintedReport):
 
             children = Patient.objects.filter(chw=chw.id, dob__gt=d)
             for child in children:
+                # rdt test status
+                try:
+                    rdt = FeverReport.objects.\
+                        get(encounter__patient__health_id=child.\
+                            health_id).rdt_result
+                except FeverReport.DoesNotExist:
+                    rdt = '-'
+
+                # muac
+                try:
+                    muac = NutritionReport.objects.\
+                        get(encounter__patient__health_id=child.\
+                            health_id).muac
+                except NutritionReport.DoesNotExist:
+                    muac = '-'
+
                 if child.mother:
                     mother = child.mother.full_name()
                 else:
@@ -72,8 +90,8 @@ class Report(PrintedReport):
                     Text(child.humanised_age()),
                     Text(mother),
                     Text("child.location"),
-                    Text(''),
-                    Text(''),
+                    Text(rdt),
+                    Text(muac),
                     Text(child.updated_on.strftime("%d %b %Y")),
                     Text(''),
                     Text('')
