@@ -31,6 +31,20 @@ def date_under_five():
     return date_under_five
 
 
+def rdt(health_id):
+    """ RDT test status
+
+        Params:
+            * health_id """
+    try:
+        rdt = FeverReport.objects.\
+            get(encounter__patient__health_id=health_id).rdt_result
+    except FeverReport.DoesNotExist:
+        rdt = '-'
+
+    return rdt
+
+
 class Report(PrintedReport):
     title = 'PatientReport'
     filename = 'PatientReport'
@@ -38,15 +52,16 @@ class Report(PrintedReport):
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
-
         doc = Document(title)
+
         for chw in CHW.objects.all():
             doc.add_element(Paragraph("%s clinic: %s " %\
                                         (chw.clinic, chw.full_name())))
             doc.add_element(Paragraph("CHILDREN"))
+
             table1 = Table(11)
             table1.add_header_row([
-                Text((u'Health ID')),
+                Text((u'#')),
                 Text(_(u'Name')),
                 Text(_(u'Gender')),
                 Text(_(u'Age')),
@@ -58,17 +73,16 @@ class Report(PrintedReport):
                 Text(_(u'PID')),
                 Text(_(u'Instructions'))
                 ])
+
             d = date_under_five()
 
+            num = 0
             children = Patient.objects.filter(chw=chw.id, dob__gt=d)
             for child in children:
-                # rdt test status
-                try:
-                    rdt = FeverReport.objects.\
-                        get(encounter__patient__health_id=child.\
-                            health_id).rdt_result
-                except FeverReport.DoesNotExist:
-                    rdt = '-'
+                num += 1
+
+                # RDT test status
+                rdt_result = rdt(child.health_id)
 
                 # muac
                 try:
@@ -84,18 +98,19 @@ class Report(PrintedReport):
                     mother = '-'
 
                 table1.add_row([
-                    Text(child.health_id),
+                    Text(num),
                     Text(child.full_name()),
                     Text(child.gender),
                     Text(child.humanised_age()),
                     Text(mother),
                     Text("child.location"),
-                    Text(rdt),
+                    Text(rdt_result),
                     Text(muac),
                     Text(child.updated_on.strftime("%d %b %Y")),
-                    Text(''),
+                    Text(child.health_id),
                     Text('')
                     ])
+
             doc.add_element(table1)
 
         table2 = Table(11)
@@ -116,21 +131,35 @@ class Report(PrintedReport):
         for chw in CHW.objects.all():
             pregnant_women =\
                    PregnancyReport.objects.filter(encounter__chw=chw.id)
+
+            if pregnant_women:
+                doc.add_element(Paragraph("%s clinic: %s " %\
+                                        (chw.clinic, chw.full_name())))
+                doc.add_element(Paragraph("PREGNANT WOMEN"))
+
+            num = 0
+
             for woman in pregnant_women:
+                num += 1
+
+                # RDT test status
+                rdt_result = rdt(woman.pregnancyreport.encounter.patient.health_id)
+
                 table2.add_row([
-                Text(woman.pregnancyreport.encounter.patient.health_id),
+                Text(num),
                 Text(str(woman.pregnancyreport.encounter.patient.full_name())),
                 Text(woman.pregnancyreport.encounter.patient.location.name),
                 Text(woman.pregnancyreport.encounter.patient.humanised_age()),
                 Text(woman.pregnancy_month),
                 Text(woman.pregnancyreport.encounter.patient.child \
                                                        .all().count()),
+                Text(rdt_result),
                 Text(''),
                 Text(''),
-                Text(''),
-                Text(''),
+                Text(woman.pregnancyreport.encounter.patient.health_id),
                 Text('')
                 ])
+
         doc.add_element(table2)
         patients = Patient.objects.all()
 
