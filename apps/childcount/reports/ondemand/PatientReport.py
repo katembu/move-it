@@ -44,7 +44,7 @@ class Report(PrintedReport):
                                         (chw.clinic, chw.full_name())))
             table1 = Table(11)
             table1.add_header_row([
-                Text((u'Health ID')),
+                Text((u'#')),
                 Text(_(u'Name')),
                 Text(_(u'Gender')),
                 Text(_(u'Age')),
@@ -57,16 +57,17 @@ class Report(PrintedReport):
                 Text(_(u'Instructions'))
                 ])
             d = date_under_five()
-
+            i = 0
             children = Patient.objects.filter(chw=chw.id, dob__gt=d)
             for child in children:
+                i+=1
                 if child.mother:
                     mother = child.mother.full_name()
                 else:
                     mother = '-'
 
                 table1.add_row([
-                    Text(child.health_id),
+                    Text(i),
                     Text(child.full_name()),
                     Text(child.gender),
                     Text(child.humanised_age()),
@@ -75,7 +76,7 @@ class Report(PrintedReport):
                     Text(''),
                     Text(''),
                     Text(child.updated_on.strftime("%d %b %Y")),
-                    Text(''),
+                    Text(child.health_id),
                     Text('')
                     ])
             doc.add_element(table1)
