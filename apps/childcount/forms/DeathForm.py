@@ -7,6 +7,7 @@ import time
 from datetime import date
 
 from django.utils.translation import ugettext as _
+from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
@@ -49,6 +50,13 @@ class DeathForm(CCForm):
                                   "submited by %(chw)s.") % \
                                   {'p': patient, 'chw': dr.chw()})
 
+        # import ethiopian date variable
+        try:
+            is_ethiopiandate = bool(Configuration.objects \
+                                .get(key='inputs_ethiopian_date').value)
+        except (DoesNotExist, TypeError):
+            is_ethiopiandate = False
+
         dod_str = ' '.join(self.params[1:])
         try:
             dod, variance = DOBProcessor.from_dob(self.chw.language, dod_str, \
@@ -57,6 +65,10 @@ class DeathForm(CCForm):
             raise BadValue(_(u"Could not understand date of death: " \
                              "%(dod)s.") % \
                              {'dod': dod_str})
+
+        # convert dod to gregorian before saving to DB
+        if is_ethiopiandate and not variance:
+            dod = EthiopianDateConverter.date_to_gregorian(dod)
 
         dr.death_date = dod
         dr.save()
