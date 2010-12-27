@@ -29,6 +29,40 @@ def date_under_five():
     return date_under_five
 
 
+def birth_date(num):
+    """ Returns the date reduced by five years """
+    today = date.today()
+    remaining = 9-num
+    date_under_five = date(today.year,\
+                           today.month + remaining, today.day)
+    return date_under_five
+
+
+def delivery_estimate(patient):
+    """ Return delivery estimate date
+        Params:
+            * patient """
+
+    preg_report = PregnancyReport.objects\
+        .get(encounter__patient__health_id=patient\
+        .encounter.patient.health_id)
+
+    num_month = preg_report.pregnancy_month
+    remaining = 9 - num_month
+
+    date_created_on = preg_report.encounter.encounter_date
+    year =preg_report.encounter.encounter_date.year
+    month_ = preg_report.encounter.encounter_date.month + remaining
+
+    if month_ >12:
+        year = date_created_on.year +1
+        month_ -= 12
+
+    estimate_date = date(year, month_, 1)
+
+    return estimate_date
+
+
 def rdt(health_id):
     """ RDT test status
 
@@ -73,7 +107,8 @@ class Report(PrintedReport):
             d_under_five = date_under_five()
 
             children = Patient.objects.filter(chw=chw.id,\
-                                              dob__gt=d_under_five)[:5]
+                                              dob__gt=d_under_five)\
+                              .order_by('last_name', 'first_name')[:5]
 
             if children:
                 table1 = Table(11)
@@ -155,6 +190,7 @@ class Report(PrintedReport):
                 num = 0
 
                 for woman in pregnant_women:
+                    estimate_date = delivery_estimate(woman)
                     num += 1
 
                     # RDT test status
@@ -169,7 +205,9 @@ class Report(PrintedReport):
                                               .patient.location.name),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
-                    Text(woman.pregnancy_month),
+                    Text('%(month)s m(%(date)s)' %\
+                            {'month': woman.pregnancy_month,\
+                             'date': estimate_date.strftime("%b %y") }),
                     Text(woman.pregnancyreport.encounter.patient.child \
                                               .all().count()),
                     Text(rdt_result),
