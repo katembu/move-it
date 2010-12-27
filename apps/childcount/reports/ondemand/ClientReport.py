@@ -9,8 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 
 from childcount.models import Patient, CHW
-from locations.models import Location
-
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.reports import (PregnancyReport, FeverReport,
@@ -46,26 +44,35 @@ def rdt(health_id):
 
 
 class Report(PrintedReport):
-    title = 'PatientReport'
-    filename = 'PatientReport'
+    title = 'ClientReport'
+    filename = 'ClientReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
-        d_today = datetime.today()
+        date_today = datetime.today()
         not_first_chw = False
+
         for chw in CHW.objects.all():
+            if chw.clinic:
+                section_name = (_("%(clinic)s clinic: %(full_name)s"))\
+                   % {'clinic':chw.clinic, 'full_name': chw.full_name()}
+            else:
+                section_name = chw.full_name()
 
             # add Page Break before each CHW section.
             if not_first_chw:
                 doc.add_element(PageBreak())
+                doc.add_element(Section(section_name))
             else:
+                doc.add_element(Section(section_name))
                 not_first_chw = True
 
-            d = date_under_five()
+            d_under_five = date_under_five()
 
-            children = Patient.objects.filter(chw=chw.id, dob__gt=d)[:5]
+            children = Patient.objects.filter(chw=chw.id,\
+                                              dob__gt=d_under_five)[:5]
 
             if children:
                 table1 = Table(11)
@@ -83,9 +90,7 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
-                doc.add_element(Section("%s clinic: %s " %\
-                                        (chw.clinic, chw.full_name())))
-                doc.add_element(Paragraph("CHILDREN"))
+                doc.add_element(Paragraph(_(u"CHILDREN")))
 
                 num = 0
 
@@ -117,7 +122,7 @@ class Report(PrintedReport):
                         Text(child.location.code),
                         Text(rdt_result),
                         Text(muac),
-                        Text((d_today - child.updated_on).days),
+                        Text((date_today - child.updated_on).days),
                         Text(child.health_id),
                         Text('')
                         ])
@@ -125,7 +130,8 @@ class Report(PrintedReport):
                 doc.add_element(table1)
 
             pregnant_women =\
-                   PregnancyReport.objects.filter(encounter__chw=chw.id)[:5]
+                   PregnancyReport.objects\
+                                    .filter(encounter__chw=chw.id)[:5]
 
             if pregnant_women:
                 table2 = Table(11)
@@ -143,9 +149,7 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
-                doc.add_element(Paragraph("%s clinic: %s " %\
-                                        (chw.clinic, chw.full_name())))
-                doc.add_element(Paragraph("PREGNANT WOMEN"))
+                doc.add_element(Paragraph(_(u'PREGNANT WOMEN')))
 
                 num = 0
 
@@ -159,7 +163,7 @@ class Report(PrintedReport):
                     table2.add_row([
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter\
-                                                  .patient.full_name())),
+                                                 .patient.full_name())),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.location.name),
                     Text(woman.pregnancyreport.encounter\
@@ -168,16 +172,19 @@ class Report(PrintedReport):
                     Text(woman.pregnancyreport.encounter.patient.child \
                                               .all().count()),
                     Text(rdt_result),
-                    Text((d_today - woman.pregnancyreport.encounter.patient.updated_on).days),
+                    Text((date_today - woman.pregnancyreport.encounter\
+                                            .patient.updated_on).days),
                     Text(''),
-                    Text(woman.pregnancyreport.encounter.patient.health_id),
+                    Text(woman.pregnancyreport.encounter\
+                                              .patient.health_id),
                     Text('')
                     ])
 
                 doc.add_element(table2)
 
             women = Patient.objects.\
-                            filter(chw=chw.id, gender='F', dob__gt=d)[:5]
+                            filter(chw=chw.id, gender='F',\
+                                               dob__gt=d_under_five)[:5]
 
             if women:
                 table3 = Table(9)
@@ -193,9 +200,7 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
-                doc.add_element(Paragraph("%s clinic: %s " %\
-                                        (chw.clinic, chw.full_name())))
-                doc.add_element(Paragraph("WOMEN"))
+                doc.add_element(Paragraph(_(u'WOMEN')))
 
                 num = 0
 
@@ -212,7 +217,7 @@ class Report(PrintedReport):
                     Text(woman.location.code),
                     Text(woman.child.all().count()),
                     Text(rdt_result),
-                    Text((d_today - woman.updated_on).days),
+                    Text((date_today - woman.updated_on).days),
                     Text(woman.health_id),
                     Text('')
                     ])
