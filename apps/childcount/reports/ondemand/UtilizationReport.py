@@ -4,7 +4,7 @@
 
 import calendar
 
-from datetime import date
+from datetime import datetime, date
 
 from django.utils.translation import gettext_lazy as _
 
@@ -327,7 +327,7 @@ class Report(PrintedReport):
         list_sms = []
         total_date = 0
         list_sms.append("Days since last SMS")
-        date_ = date.today()
+        date_ = datetime.today()
 
         for nb_month, year in self.month_nums():
             sms_per_month = \
@@ -336,11 +336,7 @@ class Report(PrintedReport):
 
             try:
                 lastsms = sms_per_month.order_by("-date")[0]
-                if lastsms.date.month == date_.month:
-                    ldate = date_.day - lastsms.date.day
-                else:
-                    ldate = calendar.monthrange(year, nb_month)[1] -\
-                                                lastsms.date.day
+                ldate = (date_ - lastsms.date).days
                 total_date += int(ldate)
             except:
                 ldate = '-'
