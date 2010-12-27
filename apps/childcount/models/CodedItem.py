@@ -67,6 +67,8 @@ class CodedItem(models.Model):
         'pcm': (_('pcm'), _(u"Paracetamol")),
         'va': (_('va'), _(u"Vitamin A")),
         'vc': (_('vc'), _(u"Vitamin C")),
+        'f': (_('f'), _(u"Fesolate")),
+        'bco': (_('bco'), _(u"B Complex")),
     }
 
     counseling = {
