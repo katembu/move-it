@@ -6,7 +6,7 @@ from datetime import datetime, date
 
 from django.utils.translation import gettext_lazy as _
 
-from ccdoc import Document, Table, Paragraph, Text, Section
+from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 
 from childcount.models import Patient, CHW
 from locations.models import Location
@@ -54,7 +54,15 @@ class Report(PrintedReport):
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
         d_today = datetime.today()
+        not_first_chw = False
         for chw in CHW.objects.all():
+
+            # add Page Break before each CHW section.
+            if not_first_chw:
+                doc.add_element(PageBreak())
+            else:
+                not_first_chw = True
+
             d = date_under_five()
 
             children = Patient.objects.filter(chw=chw.id, dob__gt=d)[:5]
@@ -75,7 +83,7 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
-                doc.add_element(Paragraph("%s clinic: %s " %\
+                doc.add_element(Section("%s clinic: %s " %\
                                         (chw.clinic, chw.full_name())))
                 doc.add_element(Paragraph("CHILDREN"))
 
