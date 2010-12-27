@@ -107,7 +107,9 @@ class Report(PrintedReport):
             d_under_five = date_under_five()
 
             children = Patient.objects.filter(chw=chw.id,\
-                                              dob__gt=d_under_five)\
+                                              dob__gt=d_under_five,
+                                              updated_on__month=date\
+                                              .today().month)\
                               .order_by('last_name', 'first_name')[:5]
 
             if children:
@@ -167,7 +169,9 @@ class Report(PrintedReport):
 
             pregnant_women =\
                    PregnancyReport.objects\
-                                    .filter(encounter__chw=chw.id)[:5]
+                                .filter(encounter__chw=chw.id,
+                                encounter__encounter_date__month=date\
+                                .today().month)[:5]
 
             if pregnant_women:
                 table2 = Table(11)
@@ -223,7 +227,9 @@ class Report(PrintedReport):
 
             women = Patient.objects.\
                             filter(chw=chw.id, gender='F',\
-                                               dob__lt=d_under_five)[:5]
+                                               dob__lt=d_under_five,
+                                               updated_on__month=date\
+                                               .today().month)[:5]
 
             if women:
                 table3 = Table(9)
@@ -251,7 +257,7 @@ class Report(PrintedReport):
 
                     table3.add_row([
                     Text(num),
-                    Text(woman.full_name()),
+                    Text('woman.full_name()'),
                     Text(woman.humanised_age()),
                     Text(woman.location.code),
                     Text(woman.child.all().count()),
