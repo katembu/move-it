@@ -57,7 +57,8 @@ class Report(PrintedReport):
         for chw in CHW.objects.all():
             if chw.clinic:
                 section_name = (_("%(clinic)s clinic: %(full_name)s"))\
-                   % {'clinic':chw.clinic, 'full_name': chw.full_name()}
+                   % {'clinic': chw.clinic,\
+                      'full_name': chw.full_name()}
             else:
                 section_name = chw.full_name()
 
@@ -90,7 +91,7 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
-                doc.add_element(Paragraph(_(u"CHILDREN")))
+                doc.add_element(Paragraph(_(u'CHILDREN')))
 
                 num = 0
 
@@ -184,7 +185,7 @@ class Report(PrintedReport):
 
             women = Patient.objects.\
                             filter(chw=chw.id, gender='F',\
-                                               dob__gt=d_under_five)[:5]
+                                               dob__lt=d_under_five)[:5]
 
             if women:
                 table3 = Table(9)
