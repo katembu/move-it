@@ -111,6 +111,11 @@ class Report(PrintedReport):
         not_first_chw = False
 
         for chw in CHW.objects.all():
+
+            if not Patient.objects.filter(chw=chw.id,\
+                            updated_on__month=date.today().month).count():
+                continue
+
             if chw.clinic:
                 section_name = (_("%(clinic)s clinic: %(full_name)s"))\
                    % {'clinic': chw.clinic,\
@@ -157,15 +162,31 @@ class Report(PrintedReport):
                 for child in children:
                     num += 1
 
+                    # rate of change of muac
+                    nutrition_report = NutritionReport.objects\
+                    .filter(encounter__patient__health_id=child\
+                    .health_id).order_by('-encounter__encounter_date')
+
+                    rate_muac = '-'
+                    if len(nutrition_report) > 1:
+                        rate_muac = ((nutrition_report[0].muac \
+                                    - nutrition_report[1].muac) * 100)\
+                                    / (nutrition_report[0].muac \
+                                    + nutrition_report[1].muac)
+
                     # RDT test status
                     rdt_result = rdt(child.health_id)
 
                     # muac
                     try:
                         muac = NutritionReport.objects.\
-                            get(encounter__patient__health_id=child.\
-                                health_id).muac
+                            filter(encounter__patient__health_id=child.\
+                            health_id)\
+                            .order_by('-encounter__encounter_date')[0]\
+                            .muac
                     except NutritionReport.DoesNotExist:
+                        muac = '-'
+                    except IndexError:
                         muac = '-'
 
                     if child.mother:
@@ -197,7 +218,9 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result),
-                        Text(muac),
+                        Text(('%(muac)s (%(rate_muac)s )' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac})),
                         Text(last_visit, bold=b),
                         Text(child.health_id),
                         Text('')
@@ -205,7 +228,7 @@ class Report(PrintedReport):
 
                 doc.add_element(table1)
 
-            pregnant_women =\
+            pregnant_women = \
                    PregnancyReport.objects\
                                 .filter(encounter__chw=chw.id,
                                 encounter__encounter_date__month=date\
@@ -304,7 +327,7 @@ class Report(PrintedReport):
 
                     table3.add_row([
                     Text(num),
-                    Text('woman.full_name()'),
+                    Text(woman.full_name()),
                     Text(woman.humanised_age()),
                     Text(woman.location.code),
                     Text(woman.child.all().count()),

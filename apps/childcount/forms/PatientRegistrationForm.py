@@ -7,9 +7,11 @@ from datetime import date, datetime
 
 from django.db import models
 from django.utils.translation import ugettext as _
+from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
+from childcount.models import Configuration
 from childcount.models import Patient, Encounter, HealthId, CHWHealthId
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
@@ -113,6 +115,13 @@ class PatientRegistrationForm(CCForm):
                                 "with a %(choices)s.") % \
                               {'choices': self.gender_field.choices_string()})
 
+        # import ethiopian date variable
+        try:
+            is_ethiopiandate = bool(Configuration.objects \
+                                .get(key='inputs_ethiopian_date').value)
+        except (Configuration.DoesNotExist, TypeError):
+            is_ethiopiandate = False
+
         dob = None
         for i in gender_indexes:
             # the gender field is at the end of the tokens.  We don't know
@@ -126,6 +135,11 @@ class PatientRegistrationForm(CCForm):
                                                          self.date.date())
 
             if dob:
+
+                # convert dob to gregorian before saving to DB
+                if is_ethiopiandate and not variance:
+                    dob = EthiopianDateConverter.date_to_gregorian(dob)
+
                 patient.dob = dob
 
                 days, weeks, months = patient.age_in_days_weeks_months()

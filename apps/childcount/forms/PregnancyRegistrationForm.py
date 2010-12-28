@@ -9,8 +9,7 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.models.reports import PregnancyRegistrationReport
 from childcount.models import Encounter, Patient
-from childcount.exceptions import ParseError, BadValue, InvalidDOB
-from childcount.utils import DOBProcessor
+from childcount.exceptions import ParseError, BadValue
 from childcount.forms.utils import MultipleChoiceField
 
 
