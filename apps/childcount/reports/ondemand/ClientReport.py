@@ -89,6 +89,10 @@ class Report(PrintedReport):
         not_first_chw = False
 
         for chw in CHW.objects.all():
+
+            if not Patient.objects.filter(chw=chw.id,updated_on__month=date.today().month).count():
+                continue
+
             if chw.clinic:
                 section_name = (_("%(clinic)s clinic: %(full_name)s"))\
                    % {'clinic': chw.clinic,\
