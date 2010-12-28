@@ -11,6 +11,8 @@ class HTMLGenerator(Generator):
         self.tlines += u"<html>\n"
         self.tlines += u"<head>\n"
 
+        self.tlines += u"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+
         self.tlines += \
         '''
             <style type="text/css">
@@ -155,6 +157,4 @@ class HTMLGenerator(Generator):
         t = template.Template(''.join(self.tlines))
         ''' Compile context '''
         c = template.Context(self.context)
-        self._handle.write(t.render(c))
-
-        
+        self._handle.write(t.render(c).encode('utf-8'))       
