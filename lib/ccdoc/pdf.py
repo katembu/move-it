@@ -12,6 +12,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import Table, Paragraph, Frame, \
     BaseDocTemplate, PageBreak
+from reportlab.lib.pagesizes import landscape, A4
 from reportlab.platypus import PageTemplate, Spacer
 
 from ccdoc.generator import Generator
@@ -21,6 +22,14 @@ class PDFGenerator(Generator):
     def _start_document(self):
         self.PAGE_HEIGHT = 21.0 * cm
         self.PAGE_WIDTH = 29.7 * cm
+
+        if self.landscape:
+            x = self.PAGE_HEIGHT
+            self.PAGE_HEIGHT = self.PAGE_WIDTH
+            self.PAGE_WIDTH = x
+            pagesize = landscape(A4)
+        else:
+            pagesize = A4
 
         self.text_templ = template.Template('{{text}}')
 
@@ -34,7 +43,7 @@ class PDFGenerator(Generator):
 
         ''' Overall document object describing PDF '''
         self.doc = BaseDocTemplate(self._filename,
-            showBoundary=0,
+            showBoundary=0, pagesize=pagesize, 
             title = unicode(self.title))
 
         ''' Frame template defining page size, margins, etc '''
