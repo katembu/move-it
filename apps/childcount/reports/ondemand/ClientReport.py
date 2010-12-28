@@ -4,7 +4,7 @@
 
 from datetime import datetime, date
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 
@@ -13,12 +13,6 @@ from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.reports import (PregnancyReport, FeverReport,
                                        NutritionReport)
-
-
-def _(text):
-    """ short circuits the translation as not supported by CCdoc
-    """
-    return text
 
 
 def date_under_five():
@@ -106,7 +100,7 @@ class Report(PrintedReport):
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
-        doc = Document(title)
+        doc = Document(title, landscape=True)
         date_today = datetime.today()
         not_first_chw = False
 
@@ -147,8 +141,8 @@ class Report(PrintedReport):
                     Text(_(u'Gender')),
                     Text(_(u'Age')),
                     Text(_(u"Mother's name")),
-                    Text(_(u'Location code')),
-                    Text(_(u'RDT+ (past 6mo)')),
+                    Text(_(u'Location')),
+                    Text(_(u'RDT+')),
                     Text(_(u'MUAC (+/-)')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID')),
@@ -216,13 +210,13 @@ class Report(PrintedReport):
                         Text(child.gender),
                         Text(child.humanised_age(), bold=b1),
                         Text(mother),
-                        Text(child.location.code),
+                        Text(child.location.name),
                         Text(rdt_result),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})),
                         Text(last_visit, bold=b),
-                        Text(child.health_id),
+                        Text(child.health_id.upper()),
                         Text('')
                         ])
 
@@ -243,7 +237,7 @@ class Report(PrintedReport):
                     Text(_(u'Age')),
                     Text(_(u'Pregnancy')),
                     Text(_(u'# children')),
-                    Text(_(u'RDT+ (past 6 mo)')),
+                    Text(_(u'RDT+')),
                     Text(_(u'Last Visit')),
                     Text(_(u'Next ANC')),
                     Text(_(u'PID')),
@@ -284,7 +278,7 @@ class Report(PrintedReport):
                     Text(last_visit, bold=b),
                     Text(''),
                     Text(woman.pregnancyreport.encounter\
-                                              .patient.health_id),
+                                              .patient.health_id.upper()),
                     Text('')
                     ])
 
@@ -303,9 +297,9 @@ class Report(PrintedReport):
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Age')),
-                    Text(_(u'Location code')),
+                    Text(_(u'Location')),
                     Text(_(u'# children')),
-                    Text(_(u'RDT+ (past 6 mo)')),
+                    Text(_(u'RDT+')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID#')),
                     Text(_(u'Instructions'))
@@ -329,11 +323,11 @@ class Report(PrintedReport):
                     Text(num),
                     Text(woman.full_name()),
                     Text(woman.humanised_age()),
-                    Text(woman.location.code),
+                    Text(woman.location.name),
                     Text(woman.child.all().count()),
                     Text(rdt_result),
                     Text(last_visit, bold=b),
-                    Text(woman.health_id),
+                    Text(woman.health_id.upper()),
                     Text('')
                     ])
 
