@@ -4,7 +4,7 @@
 
 from datetime import datetime, date
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 
@@ -13,12 +13,6 @@ from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.reports import (PregnancyReport, FeverReport,
                                        NutritionReport)
-
-
-def _(text):
-    """ short circuits the translation as not supported by CCdoc
-    """
-    return text
 
 
 def date_under_five():
@@ -32,7 +26,7 @@ def date_under_five():
 def birth_date(num):
     """ Returns the date reduced by five years """
     today = date.today()
-    remaining = 9-num
+    remaining = 9 - num
     date_under_five = date(today.year,\
                            today.month + remaining, today.day)
     return date_under_five
@@ -51,11 +45,11 @@ def delivery_estimate(patient):
     remaining = 9 - num_month
 
     date_created_on = preg_report.encounter.encounter_date
-    year =preg_report.encounter.encounter_date.year
+    year = preg_report.encounter.encounter_date.year
     month_ = preg_report.encounter.encounter_date.month + remaining
 
-    if month_ >12:
-        year = date_created_on.year +1
+    if month_ > 12:
+        year = date_created_on.year + 1
         month_ -= 12
 
     estimate_date = date(year, month_, 1)
@@ -77,6 +71,28 @@ def rdt(health_id):
     return rdt
 
 
+def alerte(nb_date_after):
+    """
+    Function that calculates the number of days passed between
+    the last visit and today's date to see if it happened more
+    than 30 days.
+    """
+
+    b = False
+    b1 = False
+    ba = False
+    last_visit = nb_date_after
+    if nb_date_after >= 30:
+        last_visit = nb_date_after
+        b = True
+        ba = b
+    if nb_date_after >= 100:
+        last_visit = "! %s !" % nb_date_after
+        b = True
+        ba = b
+    return b, b1, ba, last_visit
+
+
 class Report(PrintedReport):
     title = 'ClientReport'
     filename = 'ClientReport'
@@ -84,13 +100,14 @@ class Report(PrintedReport):
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
-        doc = Document(title)
+        doc = Document(title, landscape=True)
         date_today = datetime.today()
         not_first_chw = False
 
         for chw in CHW.objects.all():
 
-            if not Patient.objects.filter(chw=chw.id,updated_on__month=date.today().month).count():
+            if not Patient.objects.filter(chw=chw.id,\
+                            updated_on__month=date.today().month).count():
                 continue
 
             if chw.clinic:
@@ -124,8 +141,8 @@ class Report(PrintedReport):
                     Text(_(u'Gender')),
                     Text(_(u'Age')),
                     Text(_(u"Mother's name")),
-                    Text(_(u'Location code')),
-                    Text(_(u'RDT+ (past 6mo)')),
+                    Text(_(u'Location')),
+                    Text(_(u'RDT+')),
                     Text(_(u'MUAC (+/-)')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID')),
@@ -145,7 +162,7 @@ class Report(PrintedReport):
                     .health_id).order_by('-encounter__encounter_date')
 
                     rate_muac = '-'
-                    if len(nutrition_report)>1:
+                    if len(nutrition_report) > 1:
                         rate_muac = ((nutrition_report[0].muac \
                                     - nutrition_report[1].muac) * 100)\
                                     / (nutrition_report[0].muac \
@@ -171,19 +188,35 @@ class Report(PrintedReport):
                     else:
                         mother = '-'
 
+                    #We pass a parameter the number of days since the
+                    #last visit to the alert function.
+                    b, b1, ba, last_visit = alerte((date_today\
+                                            - child.updated_on).days)
+
+                    #We check if the child has not yet 2 months.
+                    child_age = child.humanised_age()\
+                                .split(child.humanised_age()[-1])[0]
+                    if child.humanised_age()[-1] == "w":
+                        b1 = True
+                        ba = b1
+                    if child.humanised_age()[-1] == "m":
+                        if int(child_age) < 2:
+                            b1 = True
+                            ba = b1
+
                     table1.add_row([
                         Text(num),
-                        Text(child.full_name()),
+                        Text(child.full_name(), bold=ba),
                         Text(child.gender),
-                        Text(child.humanised_age()),
+                        Text(child.humanised_age(), bold=b1),
                         Text(mother),
-                        Text(child.location.code),
+                        Text(child.location.name),
                         Text(rdt_result),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})),
-                        Text((date_today - child.updated_on).days),
-                        Text(child.health_id),
+                        Text(last_visit, bold=b),
+                        Text(child.health_id.upper()),
                         Text('')
                         ])
 
@@ -204,7 +237,7 @@ class Report(PrintedReport):
                     Text(_(u'Age')),
                     Text(_(u'Pregnancy')),
                     Text(_(u'# children')),
-                    Text(_(u'RDT+ (past 6 mo)')),
+                    Text(_(u'RDT+')),
                     Text(_(u'Last Visit')),
                     Text(_(u'Next ANC')),
                     Text(_(u'PID')),
@@ -223,25 +256,29 @@ class Report(PrintedReport):
                     rdt_result = rdt(woman.pregnancyreport.encounter\
                                           .patient.health_id)
 
+                    #We pass a parameter the number of days since the
+                    #last visit to the alert function.
+                    b, b1, ba, last_visit = alerte((date_today\
+                                - woman.pregnancyreport.encounter\
+                                            .patient.updated_on).days)
                     table2.add_row([
                     Text(num),
-                    Text(str(woman.pregnancyreport.encounter\
-                                                 .patient.full_name())),
+                    Text(str(woman.pregnancyreport.encounter.\
+                                        patient.full_name()), bold=ba),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.location.name),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
                     Text('%(month)s m(%(date)s)' %\
                             {'month': woman.pregnancy_month,\
-                             'date': estimate_date.strftime("%b %y") }),
+                             'date': estimate_date.strftime("%b %y")}),
                     Text(woman.pregnancyreport.encounter.patient.child \
                                               .all().count()),
                     Text(rdt_result),
-                    Text((date_today - woman.pregnancyreport.encounter\
-                                            .patient.updated_on).days),
+                    Text(last_visit, bold=b),
                     Text(''),
                     Text(woman.pregnancyreport.encounter\
-                                              .patient.health_id),
+                                              .patient.health_id.upper()),
                     Text('')
                     ])
 
@@ -254,14 +291,15 @@ class Report(PrintedReport):
                                                .today().month)[:5]
 
             if women:
+
                 table3 = Table(9)
                 table3.add_header_row([
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Age')),
-                    Text(_(u'Location code')),
+                    Text(_(u'Location')),
                     Text(_(u'# children')),
-                    Text(_(u'RDT+ (past 6 mo)')),
+                    Text(_(u'RDT+')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID#')),
                     Text(_(u'Instructions'))
@@ -275,17 +313,21 @@ class Report(PrintedReport):
                     num += 1
 
                     # RDT test status
+
                     rdt_result = rdt(woman.health_id)
+
+                    b, b1, ba, last_visit = alerte((date_today\
+                                            - woman.updated_on).days)
 
                     table3.add_row([
                     Text(num),
                     Text(woman.full_name()),
                     Text(woman.humanised_age()),
-                    Text(woman.location.code),
+                    Text(woman.location.name),
                     Text(woman.child.all().count()),
                     Text(rdt_result),
-                    Text((date_today - woman.updated_on).days),
-                    Text(woman.health_id),
+                    Text(last_visit, bold=b),
+                    Text(woman.health_id.upper()),
                     Text('')
                     ])
 

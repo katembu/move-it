@@ -486,6 +486,7 @@ class Report(PrintedReport):
             rate_day = (nb_day_per_month * 100) / calendar.monthrange(year,\
                                                             nb_month)[1]
             total_day += nb_day_per_month
+            print total_day
             liste_day_rate.append(rate_day)
 
         sms_per_year = LoggedMessage.incoming.filter(date__year=year)
