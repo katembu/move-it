@@ -108,10 +108,10 @@ class PDFGenerator(Generator):
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
         '''
-        output = self.text_templ.render(c)
+        output += self.text_templ.render(c)
 
         if text.size != text.DEFAULT_SIZE:
-            ouptut += "</font>"
+            output += "</font>"
         if text.italic:
             output += "</i>"
         if text.bold:
