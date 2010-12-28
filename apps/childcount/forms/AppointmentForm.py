@@ -14,6 +14,7 @@ from django.utils.translation import ugettext as _
 from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
+from childcount.models import Configuration
 from childcount.models.reports import AppointmentReport
 from childcount.models import Encounter
 from childcount.exceptions import ParseError, BadValue, InvalidDOB

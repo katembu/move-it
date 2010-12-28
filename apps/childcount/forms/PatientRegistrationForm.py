@@ -11,6 +11,7 @@ from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
+from childcount.models import Configuration
 from childcount.models import Patient, Encounter, HealthId, CHWHealthId
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError

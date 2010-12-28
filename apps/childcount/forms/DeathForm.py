@@ -12,6 +12,7 @@ from ethiopian_date import EthiopianDateConverter
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
 from childcount.exceptions import Inapplicable
+from childcount.models import Configuration
 from childcount.models.reports import DeathReport
 from childcount.models import Patient, Encounter
 from childcount.utils import DOBProcessor

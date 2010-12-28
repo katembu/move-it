@@ -16,6 +16,7 @@ from childcount.utils import authenticated
 from childcount.utils import clean_names, DOBProcessor
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
+from childcount.models import Configuration
 from childcount.models import DeadPerson, Patient
 
 
