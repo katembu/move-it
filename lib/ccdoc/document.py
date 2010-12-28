@@ -21,10 +21,12 @@ class Document(object):
     def __init__(self,
             title,
             subtitle=None,
+            landscape=False,
             datestring=u'Created on %d-%m-%Y at %H:%M'):
 
         self.title = title
         self.subtitle = subtitle
+        self.landscape = landscape
         self.datestring = datestring
         self.contents = []
 
