@@ -6,7 +6,7 @@ import calendar
 
 from datetime import datetime, date
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section
 
@@ -27,11 +27,6 @@ from childcount.models.reports import (BirthReport, FollowUpReport,
                                    AppointmentReport, CD4ResultReport,
                                    StillbirthMiscarriageReport)
 from childcount.reports.report_framework import PrintedReport
-
-
-def _(text):
-    """ short circuits the translation as not supported by CCdoc """
-    return text
 
 
 def list_average(values):
@@ -74,6 +69,19 @@ def clean_list(values):
         values = [0 if v == '-' else v for v in values]
     return values
 
+def textify_list(cells):
+    """ returns list of Text() from list """
+    first = True
+    nl = []
+    for cell in cells:
+        if first:
+            elem = Text(cell, size=7, bold=True)
+            first = False
+        else:
+            elem = Text(cell)
+        nl.append(elem)
+    return nl 
+
 
 class Report(PrintedReport):
     title = 'Utilization Report'
@@ -110,7 +118,7 @@ class Report(PrintedReport):
             * +NEW, BIR, DDA, DDB, SBM, V, E, L, K, U, S, P, N, T, M, F,
             G, R, PD, PF, HT, AP, CD, DB """
 
-        doc = Document(title)
+        doc = Document(title, landscape=True)
 
         header_row = [Text(_(u'Indicator:'))]
 
@@ -135,7 +143,7 @@ class Report(PrintedReport):
         self._add_sms_number_per_month_row()
 
         # NUMBER of Patient registered PER MONTH
-        self._add_number_patient_reg_month_row(Patient, 'Patient per month')
+        self._add_number_patient_reg_month_row(Patient, _(u"patient reg."))
 
         # Days since last SMS
         self._add_days_since_last_sms_month_row()
@@ -237,7 +245,7 @@ class Report(PrintedReport):
         list_sms = []
         list_sms_month = []
 
-        list_sms.append("SMS per month")
+        list_sms.append("SMS #.")
 
         for month_num, year in self.month_nums():
             sms_month = LoggedMessage.incoming.\
@@ -255,7 +263,7 @@ class Report(PrintedReport):
         median = list_median(list_sms_month)
         list_sms.append(median)
 
-        list_sms_text = [Text(sms) for sms in list_sms]
+        list_sms_text = textify_list(list_sms)
         self.table.add_row(list_sms_text)
 
     def _add_number_patient_reg_month_row(self, name, line=''):
@@ -286,7 +294,7 @@ class Report(PrintedReport):
         median = list_median(list_patient_month)
         list_patient.append(median)
 
-        list_patient_text = [Text(patient) for patient in list_patient]
+        list_patient_text = textify_list(list_patient)
         self.table.add_row(list_patient_text)
 
     def _add_reg_report_row(self, name='', line=''):
@@ -317,7 +325,7 @@ class Report(PrintedReport):
         median = list_median(list_month)
         list_.append(median)
 
-        list_text = [Text(l) for l in list_]
+        list_text = textify_list(list_)
         self.table.add_row(list_text)
 
     def _add_days_since_last_sms_month_row(self):
@@ -326,7 +334,7 @@ class Report(PrintedReport):
         list_date = []
         list_sms = []
         total_date = 0
-        list_sms.append("Days since last SMS")
+        list_sms.append("last sms")
         date_ = datetime.today()
 
         for nb_month, year in self.month_nums():
@@ -351,7 +359,7 @@ class Report(PrintedReport):
         median_date = list_median(list_date)
         list_sms.append(median_date)
 
-        list_sms_ = [Text(sms) for sms in list_sms]
+        list_sms_ = textify_list(list_sms)
         self.table.add_row(list_sms_)
 
     def _add_adult_registered_row(self, gender=''):
@@ -364,9 +372,9 @@ class Report(PrintedReport):
         list_adult_month = []
 
         if gender == 'M':
-            list_adult.append("Men per month")
+            list_adult.append("men reg.")
         elif gender == 'F':
-            list_adult.append("Women per month")
+            list_adult.append("women reg.")
         else:
             list_adult.append("")
 
@@ -389,14 +397,14 @@ class Report(PrintedReport):
         median = list_median(list_adult_month)
         list_adult.append(median)
 
-        list_adult_text = [Text(adult) for adult in list_adult]
+        list_adult_text = textify_list(list_adult)
         self.table.add_row(list_adult_text)
 
     def _add_under_five_registered_row(self):
         """ Under five registered per month """
 
         under_five_list = []
-        under_five_list.append("underfive registered per month")
+        under_five_list.append("<5 reg.")
         u = date_under_five()
         list_of_under_five_per_month = []
         for month_num, year in self.month_nums():
@@ -417,8 +425,7 @@ class Report(PrintedReport):
         median = list_median(list_of_under_five_per_month)
         under_five_list.append(median)
 
-        list_under_five_text = [Text(under_five)\
-                                    for under_five in under_five_list]
+        list_under_five_text = textify_list(under_five_list)
         self.table.add_row(list_under_five_text)
 
     def _add_sms_error_per_month_row(self):
@@ -427,7 +434,7 @@ class Report(PrintedReport):
         list_error = []
         list_sms_error_rate_month = []
 
-        list_error.append("SMS error rate ")
+        list_error.append("% SMS error")
 
         for month_num, year in self.month_nums():
 
@@ -455,7 +462,7 @@ class Report(PrintedReport):
         median = list_median(list_sms_error_rate_month)
         list_error.append(median)
 
-        list_error_text = [Text(error) for error in list_error]
+        list_error_text = textify_list(list_error)
         self.table.add_row(list_error_text)
 
     def _of_days_with_SMS_month_row(self):
@@ -464,7 +471,7 @@ class Report(PrintedReport):
         list_sms = []
         liste_day_rate = []
         total_day = 0
-        list_sms.append("% of days with SMS / month")
+        list_sms.append("days w/SMS")
 
         for nb_month, year in self.month_nums():
             liste_day_month = []
@@ -496,5 +503,5 @@ class Report(PrintedReport):
         median_date = list_median(liste_day_rate)
         list_sms.append(median_date)
 
-        list_rate = [Text(sms) for sms in list_sms]
+        list_rate = textify_list(list_sms)
         self.table.add_row(list_rate)
