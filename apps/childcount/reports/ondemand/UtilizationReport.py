@@ -69,6 +69,7 @@ def clean_list(values):
         values = [0 if v == '-' else v for v in values]
     return values
 
+
 def textify_list(cells):
     """ returns list of Text() from list """
     first = True
@@ -80,7 +81,7 @@ def textify_list(cells):
         else:
             elem = Text(cell)
         nl.append(elem)
-    return nl 
+    return nl
 
 
 class Report(PrintedReport):
@@ -130,8 +131,7 @@ class Report(PrintedReport):
         header_row += [
             Text(_(u'Total')),
             Text(_(u'Average')),
-            Text(_(u'Median'))
-        ]
+            Text(_(u'Median'))]
 
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
