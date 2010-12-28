@@ -43,7 +43,7 @@ class AntenatalVisitForm(CCForm):
         try:
             is_ethiopiandate = bool(Configuration.objects \
                                 .get(key='inputs_ethiopian_date').value)
-        except (DoesNotExist, TypeError):
+        except (Configuration.DoesNotExist, TypeError):
             is_ethiopiandate = False
 
         expected_on_str = self.params[1]

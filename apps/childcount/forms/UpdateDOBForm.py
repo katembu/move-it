@@ -35,7 +35,7 @@ class UpdateDOBForm(CCForm):
         try:
             is_ethiopiandate = bool(Configuration.objects \
                                 .get(key='inputs_ethiopian_date').value)
-        except (DoesNotExist, TypeError):
+        except (Configuration.DoesNotExist, TypeError):
             is_ethiopiandate = False
 
         dob, variance = DOBProcessor.from_age_or_dob(lang, self.params[1])
