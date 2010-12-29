@@ -92,7 +92,7 @@ def send_to_omrs(router, *args, **kwargs):
                                     encounter.patient.first_name, '', \
                                     encounter.patient.gender, \
                                     encounter.patient.location.name.title(), \
-                                    OpenMRSConsultationForm.YES)
+                                    '1065')
         # assign site-specific ID
         omrsform.openmrs__form_id = form_id
         omrsform.patient___identifier_type = identifier_type

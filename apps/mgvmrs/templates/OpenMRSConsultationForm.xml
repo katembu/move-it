@@ -16,8 +16,8 @@
     <patient_identifier.identifier_type openmrs_table="patient_identifier" openmrs_attribute="identifier_type">{{ patient___identifier_type }}</patient_identifier.identifier_type>
     <patient.medical_record_number openmrs_table="patient_identifier" openmrs_attribute="identifier">{{ patient___medical_record_number }}</patient.medical_record_number>
     <patient.sex openmrs_table="patient" openmrs_attribute="gender">{{ patient___sex }}</patient.sex>
+    <person_address_city_village>{{ patient___village }}</person_address_city_village>
     <person_attribute{{ patient__in_cluster_id }}>{{ patient__in_cluster }}</person_attribute{{ patient__in_cluster_id }}>
-    <patient_address.city_village openmrs_attribute="city_village" openmrs_table="patient_address">{{ patient___village }}</patient_address.city_village>
   </patient>
   <encounter>
     <encounter.encounter_datetime openmrs_table="encounter" openmrs_attribute="encounter_datetime">{{ encounter___encounter_datetime }}</encounter.encounter_datetime>
