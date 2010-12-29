@@ -79,18 +79,19 @@ def alerte(nb_date_after):
     """
 
     b = False
-    b1 = False
     ba = False
+    icon = ""
+    """◉  ◆ ☻ """
     last_visit = nb_date_after
-    if nb_date_after >= 30:
+    if nb_date_after >= 8:
         last_visit = nb_date_after
-        b = True
-        ba = b
-    if nb_date_after >= 100:
+        ba = b = True
+
+    if nb_date_after >= 20:
         last_visit = "! %s !" % nb_date_after
-        b = True
-        ba = b
-    return b, b1, ba, last_visit
+        ba = b = True
+        icon ="!"
+    return icon, b, ba, last_visit
 
 
 class Report(PrintedReport):
@@ -134,8 +135,9 @@ class Report(PrintedReport):
                               .order_by('last_name', 'first_name')[:5]
 
             if children:
-                table1 = Table(11)
+                table1 = Table(12)
                 table1.add_header_row([
+                    Text((u'')),
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Gender')),
@@ -190,21 +192,22 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    b, b1, ba, last_visit = alerte((date_today\
+                    icon, b, ba, last_visit = alerte((date_today\
                                             - child.updated_on).days)
 
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
                                 .split(child.humanised_age()[-1])[0]
+                    b1 = False
                     if child.humanised_age()[-1] == "w":
-                        b1 = True
-                        ba = b1
+                        if int(child_age) < 5:
+                            ba = b1 = True
                     if child.humanised_age()[-1] == "m":
                         if int(child_age) < 2:
-                            b1 = True
-                            ba = b1
+                            ba = b1 = True
 
                     table1.add_row([
+                        Text(icon),
                         Text(num),
                         Text(child.full_name(), bold=ba),
                         Text(child.gender),
@@ -229,12 +232,13 @@ class Report(PrintedReport):
                                 .today().month)[:5]
 
             if pregnant_women:
-                table2 = Table(11)
+                table2 = Table(12)
                 table2.add_header_row([
+                    Text((u'')),
                     Text((u'#')),
                     Text(_(u'Name')),
-                    Text(_(u'Location')),
                     Text(_(u'Age')),
+                    Text(_(u'Location')),
                     Text(_(u'Pregnancy')),
                     Text(_(u'# children')),
                     Text(_(u'RDT+')),
@@ -258,17 +262,18 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    b, b1, ba, last_visit = alerte((date_today\
+                    icon, b, ba, last_visit = alerte((date_today\
                                 - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days)
                     table2.add_row([
+                    Text(icon),
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter.\
                                         patient.full_name()), bold=ba),
                     Text(woman.pregnancyreport.encounter\
-                                              .patient.location.name),
-                    Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
+                    Text(woman.pregnancyreport.encounter\
+                                              .patient.location.name),
                     Text('%(month)s m(%(date)s)' %\
                             {'month': woman.pregnancy_month,\
                              'date': estimate_date.strftime("%b %y")}),
@@ -292,8 +297,9 @@ class Report(PrintedReport):
 
             if women:
 
-                table3 = Table(9)
+                table3 = Table(10)
                 table3.add_header_row([
+                    Text((u'')),
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Age')),
@@ -316,12 +322,13 @@ class Report(PrintedReport):
 
                     rdt_result = rdt(woman.health_id)
 
-                    b, b1, ba, last_visit = alerte((date_today\
+                    icon, b, ba, last_visit = alerte((date_today\
                                             - woman.updated_on).days)
 
                     table3.add_row([
+                    Text(icon),
                     Text(num),
-                    Text(woman.full_name()),
+                    Text(woman.full_name(),bold=ba),
                     Text(woman.humanised_age()),
                     Text(woman.location.name),
                     Text(woman.child.all().count()),
