@@ -65,7 +65,7 @@ def rdt(health_id):
     return x_times
 
 
-def encounter_alerte(nbr_DayAfterEncounter):
+def encounter_alert(nbr_DayAfterEncounter):
     """
     Function that calculates the number of days passed between
     the last visit and today's date to see if it happened more
@@ -77,16 +77,24 @@ def encounter_alerte(nbr_DayAfterEncounter):
     """◉  ◆ ☻ """
     last_visit = nbr_DayAfterEncounter
 
-    if nbr_DayAfterEncounter >= 8:
+    if nbr_DayAfterEncounter >= 30:
         last_visit = nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
 
-    if nbr_DayAfterEncounter >= 10:
+    if nbr_DayAfterEncounter >= 100:
         last_visit = "! %s !" % nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
         icon = "!"
 
     return icon, b_LastVisit, b_FullName, last_visit
+
+
+def rdt_alert(nb_times_rdt, b_FullName):
+    """ """
+    b_rdt = False
+    if nb_times_rdt > 1:
+        b_FullName = b_rdt = True
+    return b_FullName, b_rdt
 
 
 class Report(PrintedReport):
@@ -189,7 +197,7 @@ class Report(PrintedReport):
                     #last visit to the alert function.
 
                     icon, b_LastVisit, b_FullName, last_visit =\
-                                            encounter_alerte((date_today\
+                                            encounter_alert((date_today\
                                             - child.updated_on).days)
 
                     #We check if the child has not yet 2 months.
@@ -205,6 +213,8 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
+                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+
                     table1.add_row([
                         Text(icon),
                         Text(num),
@@ -213,7 +223,7 @@ class Report(PrintedReport):
                         Text(child.humanised_age(), bold=b_ChildAge),
                         Text(mother),
                         Text(child.location.name),
-                        Text(rdt_result),
+                        Text(rdt_result, bold=b_rdt),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})),
@@ -261,9 +271,12 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b_LastVisit, b_FullName, last_visit = encounter_alerte((date_today\
+                    icon, b_LastVisit, b_FullName, last_visit = encounter_alert((date_today\
                                 - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days)
+
+                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+
                     table2.add_row([
                     Text(icon),
                     Text(num),
@@ -278,7 +291,7 @@ class Report(PrintedReport):
                              'date': estimate_date.strftime("%b %y")}),
                     Text(woman.pregnancyreport.encounter.patient.child \
                                               .all().count()),
-                    Text(rdt_result),
+                    Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(''),
                     Text(woman.pregnancyreport.encounter\
@@ -322,8 +335,10 @@ class Report(PrintedReport):
                     rdt_result = rdt(woman.health_id)
 
                     icon, b_LastVisit, b_FullName, last_visit\
-                                        = encounter_alerte((date_today\
+                                        = encounter_alert((date_today\
                                             - woman.updated_on).days)
+
+                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
                     table3.add_row([
                     Text(icon),
@@ -332,7 +347,7 @@ class Report(PrintedReport):
                     Text(woman.humanised_age()),
                     Text(woman.location.name),
                     Text(woman.child.all().count()),
-                    Text(rdt_result),
+                    Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
                     Text('')
