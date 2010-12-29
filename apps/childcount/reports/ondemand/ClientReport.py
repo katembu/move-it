@@ -23,15 +23,6 @@ def date_under_five():
     return date_under_five
 
 
-def birth_date(num):
-    """ Returns the date reduced by five years """
-    today = date.today()
-    remaining = 9 - num
-    date_under_five = date(today.year,\
-                           today.month + remaining, today.day)
-    return date_under_five
-
-
 def delivery_estimate(patient):
     """ Return delivery estimate date
         Params:
@@ -71,27 +62,28 @@ def rdt(health_id):
     return rdt
 
 
-def alerte(nb_date_after):
+def encounter_alerte(nbr_DayAfterEncounter):
     """
     Function that calculates the number of days passed between
     the last visit and today's date to see if it happened more
     than 30 days.
     """
-
-    b = False
-    ba = False
+    b_LastVisit = False
+    b_FullName = False
     icon = ""
     """◉  ◆ ☻ """
-    last_visit = nb_date_after
-    if nb_date_after >= 8:
-        last_visit = nb_date_after
-        ba = b = True
+    last_visit = nbr_DayAfterEncounter
 
-    if nb_date_after >= 20:
-        last_visit = "! %s !" % nb_date_after
-        ba = b = True
-        icon ="!"
-    return icon, b, ba, last_visit
+    if nbr_DayAfterEncounter >= 8:
+        last_visit = nbr_DayAfterEncounter
+        b_FullName = b_LastVisit = True
+
+    if nbr_DayAfterEncounter >= 10:
+        last_visit = "! %s !" % nbr_DayAfterEncounter
+        b_FullName = b_LastVisit = True
+        icon = "!"
+
+    return icon, b_LastVisit, b_FullName, last_visit
 
 
 class Report(PrintedReport):
@@ -158,7 +150,7 @@ class Report(PrintedReport):
                 for child in children:
                     num += 1
 
-                    # rate of change of muac
+                    #Rate of muac
                     nutrition_report = NutritionReport.objects\
                     .filter(encounter__patient__health_id=child\
                     .health_id).order_by('-encounter__encounter_date')
@@ -173,7 +165,7 @@ class Report(PrintedReport):
                     # RDT test status
                     rdt_result = rdt(child.health_id)
 
-                    # muac
+                    # geting the muac
                     try:
                         muac = NutritionReport.objects.\
                             filter(encounter__patient__health_id=child.\
@@ -190,35 +182,39 @@ class Report(PrintedReport):
                     else:
                         mother = '-'
 
-                    #We pass a parameter the number of days since the
+                    #We pass in parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b, ba, last_visit = alerte((date_today\
+
+                    icon, b_LastVisit, b_FullName, last_visit =\
+                                            encounter_alerte((date_today\
                                             - child.updated_on).days)
 
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
                                 .split(child.humanised_age()[-1])[0]
-                    b1 = False
+
+                    b_ChildAge = False
                     if child.humanised_age()[-1] == "w":
                         if int(child_age) < 5:
-                            ba = b1 = True
+                            b_FullName = b_ChildAge = True
                     if child.humanised_age()[-1] == "m":
                         if int(child_age) < 2:
-                            ba = b1 = True
+                            b_ChildAge = True
+                            b_FullName = b_ChildAge
 
                     table1.add_row([
                         Text(icon),
                         Text(num),
-                        Text(child.full_name(), bold=ba),
+                        Text(child.full_name(), bold=b_FullName),
                         Text(child.gender),
-                        Text(child.humanised_age(), bold=b1),
+                        Text(child.humanised_age(), bold=b_ChildAge),
                         Text(mother),
                         Text(child.location.name),
                         Text(rdt_result),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})),
-                        Text(last_visit, bold=b),
+                        Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text('')
                         ])
@@ -262,14 +258,14 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b, ba, last_visit = alerte((date_today\
+                    icon, b_LastVisit, b_FullName, last_visit = encounter_alerte((date_today\
                                 - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days)
                     table2.add_row([
                     Text(icon),
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter.\
-                                        patient.full_name()), bold=ba),
+                                        patient.full_name()), bold=b_FullName),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
                     Text(woman.pregnancyreport.encounter\
@@ -280,7 +276,7 @@ class Report(PrintedReport):
                     Text(woman.pregnancyreport.encounter.patient.child \
                                               .all().count()),
                     Text(rdt_result),
-                    Text(last_visit, bold=b),
+                    Text(last_visit, bold=b_LastVisit),
                     Text(''),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
@@ -322,18 +318,19 @@ class Report(PrintedReport):
 
                     rdt_result = rdt(woman.health_id)
 
-                    icon, b, ba, last_visit = alerte((date_today\
+                    icon, b_LastVisit, b_FullName, last_visit\
+                                        = encounter_alerte((date_today\
                                             - woman.updated_on).days)
 
                     table3.add_row([
                     Text(icon),
                     Text(num),
-                    Text(woman.full_name(),bold=ba),
+                    Text(woman.full_name(), bold=b_LastVisit),
                     Text(woman.humanised_age()),
                     Text(woman.location.name),
                     Text(woman.child.all().count()),
                     Text(rdt_result),
-                    Text(last_visit, bold=b),
+                    Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
                     Text('')
                     ])
