@@ -53,7 +53,7 @@ def rdt(health_id):
 
         Params:
             * health_id """
-    x_times =0
+    x_times = 0
     try:
         rdt = FeverReport.objects.\
             filter(encounter__patient__health_id=health_id)
@@ -198,7 +198,7 @@ class Report(PrintedReport):
                         two_LastReport.append(nutrition_report[1])
                         #Checking for a difference between two reports.
                         if two_LastReport[0].muac != two_LastReport[1].muac:
-                            b_muac = True
+                            b_FullName = b_muac = True
                     except:
                         pass
 
@@ -224,8 +224,7 @@ class Report(PrintedReport):
                             b_FullName = b_ChildAge = True
                     if child.humanised_age()[-1] == "m":
                         if int(child_age) < 2:
-                            b_ChildAge = True
-                            b_FullName = b_ChildAge
+                            b_FullName = b_ChildAge = True
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
@@ -285,8 +284,9 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b_LastVisit, b_FullName, last_visit = encounter_alert((date_today\
-                                - woman.pregnancyreport.encounter\
+                    icon, b_LastVisit, b_FullName, last_visit =\
+                                        encounter_alert((date_today\
+                                        - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days)
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
