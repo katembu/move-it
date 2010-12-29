@@ -136,6 +136,11 @@ class Report(PrintedReport):
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
 
+        # first column is left aligned
+        self.table.set_alignment(Table.ALIGN_LEFT, column=0)
+        # first column has width of 20%
+        self.table.set_column_width(20, column=0)
+
         # Date at which people are more than 5 years old
         self.date_five = date_under_five()
 
