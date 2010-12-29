@@ -177,6 +177,20 @@ class Report(PrintedReport):
                     except IndexError:
                         muac = '-'
 
+                    #Making an alerte if nutrition report change.
+                    two_LastReport = []
+                    b_muac = False
+                    #Check if they are more than two report.
+                    try:
+                        #Get the last two nutrition reports of the child
+                        two_LastReport.append(nutrition_report[0])
+                        two_LastReport.append(nutrition_report[1])
+                        #Checking for a difference between two reports.
+                        if two_LastReport[0].muac != two_LastReport[1].muac:
+                            b_muac = True
+                    except:
+                        pass
+
                     if child.mother:
                         mother = child.mother.full_name()
                     else:
@@ -213,7 +227,7 @@ class Report(PrintedReport):
                         Text(rdt_result),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
-                                             'muac': muac})),
+                                             'muac': muac}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text('')
