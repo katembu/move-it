@@ -36,6 +36,12 @@ def send_to_omrs(router, *args, **kwargs):
     except KeyError:
         raise Exception("Invalid [mgvmrs] configuration")
 
+    # this one is not fatal
+    try:
+        in_cluster_attribute_id = int(conf['in_cluster_attribute_id'])
+    except:
+        in_cluster_attribute_id = 10
+
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
                                           Q(sync_omrs__in=(None, False)))
@@ -84,10 +90,13 @@ def send_to_omrs(router, *args, **kwargs):
                                     bool(encounter.patient.estimated_dob), \
                                     encounter.patient.last_name, \
                                     encounter.patient.first_name, '', \
-                                    encounter.patient.gender)
+                                    encounter.patient.gender, \
+                                    encounter.patient.location.name.title(), \
+                                    '1065')
         # assign site-specific ID
         omrsform.openmrs__form_id = form_id
         omrsform.patient___identifier_type = identifier_type
+        omrsform.patient__in_cluster_id = in_cluster_attribute_id
 
         # each report contains reference to OMRS fields
         for report in reports:
