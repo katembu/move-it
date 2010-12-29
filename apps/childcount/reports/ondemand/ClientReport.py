@@ -53,13 +53,15 @@ def rdt(health_id):
 
         Params:
             * health_id """
+    x_times =0
     try:
         rdt = FeverReport.objects.\
             get(encounter__patient__health_id=health_id).rdt_result
     except FeverReport.DoesNotExist:
         rdt = '-'
-
-    return rdt
+    if rdt == 'P':
+        x_times += 1
+    return x_times
 
 
 def encounter_alerte(nbr_DayAfterEncounter):
