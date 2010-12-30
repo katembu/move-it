@@ -230,7 +230,7 @@ class PDFGenerator(Generator):
             if widths[col] == auto:
                 widths[col] = default_width
 
-        return [w for w in widths.values()]
+        return widths.values()
 
     def _end_document(self):
         template = PageTemplate('normal', [self.tframe])
