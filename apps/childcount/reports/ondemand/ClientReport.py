@@ -25,7 +25,10 @@ def date_under_five():
 
 
 def next_anc_date(patient):
-    preg_woman = PregnancyReport.objects.get(encounter__patient__health_id=patient.encounter.patient.health_id)
+    preg_woman = PregnancyReport.objects\
+                        .get(encounter__patient__health_id=patient\
+                        .encounter.patient.health_id)
+
     year_ = preg_woman.encounter.encounter_date.year
     month_ = preg_woman.encounter.encounter_date.month
     day_ = preg_woman.encounter.encounter_date.day
@@ -36,7 +39,10 @@ def next_anc_date(patient):
         nbr_week = 4 - preg_woman.weeks_since_anc
         days = nbr_week * 7
         day_ = preg_woman.encounter.encounter_date.day + days
-        total_days = calendar.monthrange(preg_woman.encounter.encounter_date.year, preg_woman.encounter.encounter_date.month)[1]
+        total_days = calendar.monthrange(preg_woman.encounter\
+                             .encounter_date.year, preg_woman\
+                             .encounter.encounter_date.month)[1]
+
         if day_ > total_days:
             day_ -= total_days
             month_ = preg_woman.encounter.encounter_date.month +1
@@ -87,7 +93,8 @@ def rdt(health_id):
 
     try:
         rdt = FeverReport.objects.\
-            filter(encounter__patient__health_id=health_id, rdt_result='P').count()
+            filter(encounter__patient__health_id=health_id,\
+                                                rdt_result='P').count()
     except FeverReport.DoesNotExist:
         rdt = '-'
 
