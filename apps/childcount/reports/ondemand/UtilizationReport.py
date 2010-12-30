@@ -12,7 +12,7 @@ from ccdoc import Document, Table, Paragraph, Text, Section
 
 from logger_ng.models import LoggedMessage
 
-from childcount.models import Patient, DeadPerson
+from childcount.models import Patient, DeadPerson, Encounter
 from childcount.reports.utils import render_doc_to_file
 from childcount.models.reports import (BirthReport, FollowUpReport,
                                    HouseholdVisitReport, DeathReport,
@@ -29,22 +29,42 @@ from childcount.models.reports import (BirthReport, FollowUpReport,
 from childcount.reports.report_framework import PrintedReport
 
 
-def list_average(values):
-    """ Returns the average of a list """
+def list_average(values, valid_indexes_only=False):
+    """ returns the average value of a list of int
+
+    * valid_indexes_only: boolean
+    specify wether or not to exclude 
+    values not matching VALID_MONTH_INDEXES """
+    values = clean_list(values)
+    total = 0
+    for index in xrange(0, values.__len__()):
+        if valid_indexes_only:
+            if index in VALID_MONTH_INDEXES:
+                total += values[index]
+        else:
+            total += values[index]        
+    nb_months = VALID_MONTH_INDEXES.__len__() if valid_indexes_only \
+                                              else values.__len__()
+    return int(total / nb_months)
+
+def list_median(values, valid_indexes_only=False):
+    """ returns the median value of a list of int
+
+    * valid_indexes_only: boolean
+    specify wether or not to exclude 
+    values not matching VALID_MONTH_INDEXES """
 
     values = clean_list(values)
 
-    total = 0
-    for value in values:
-        total += value
-    return int(total / values.__len__())
+    if valid_indexes_only:
+        valid_values = []
+        for index in xrange(0, values.__len__()):
+            if index in VALID_MONTH_INDEXES:
+                valid_values.append(values[index])
+    else:
+        valid_values = values
 
-
-def list_median(values):
-    """ Returns the median of a list """
-
-    sorted_values = clean_list(values)
-
+    sorted_values = valid_values
     sorted_values.sort()
     num = sorted_values.__len__()
     if num % 2 == 0:
@@ -83,27 +103,48 @@ def textify_list(cells):
         nl.append(elem)
     return nl
 
+# global static list of months
+def month_nums():
+
+    months = range(1, 13)
+
+    today = date.today()
+    last_month = today.month
+
+    table_list = [(index, today.year - 1) \
+                  for index in months[last_month:]]
+    table_list += [(index, today.year) \
+                    for index in months[:last_month]]
+
+    return table_list
+ALL_MONTHS = month_nums()
+
+# global static list of months with data
+def busy_months():
+
+    months = []
+    for month in ALL_MONTHS:
+        if Encounter.objects.filter(encounter_date__month=month[0], \
+                                    encounter_date__year=month[1]).count():
+            months.append(month)
+    return months
+VALID_MONTHS = busy_months()
+
+# global static list of month-indexes with data
+def busy_month_indexes():
+
+    indexes = []
+    for index in xrange(0, ALL_MONTHS.__len__()):
+        if ALL_MONTHS[index] in VALID_MONTHS:
+            indexes.append(index)
+    return indexes
+VALID_MONTH_INDEXES = busy_month_indexes()
 
 class Report(PrintedReport):
     title = 'Utilization Report'
     filename = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
-
-    def month_nums(self):
-        """ Returns a tuple of number of months and year """
-
-        months = range(1, 13)
-
-        today = date.today()
-        last_month = today.month
-
-        table_list = [(index, today.year - 1) \
-                      for index in months[last_month:]]
-        table_list += [(index, today.year) \
-                        for index in months[:last_month]]
-
-        return table_list
 
     def generate(self, rformat, title, filepath, data):
 
@@ -119,11 +160,12 @@ class Report(PrintedReport):
             * +NEW, BIR, DDA, DDB, SBM, V, E, L, K, U, S, P, N, T, M, F,
             G, R, PD, PF, HT, AP, CD, DB """
 
+
         doc = Document(title, landscape=True)
 
         header_row = [Text(_(u'Indicator:'))]
 
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             month = date(year=year, month=month_num,\
                                                 day=1).strftime("%b %y")
             header_row.append(Text(month.title()))
@@ -170,76 +212,76 @@ class Report(PrintedReport):
         self._add_sms_error_per_month_row()
 
         # +NEW
-        self._add_number_patient_reg_month_row(Patient, '+NEW')
+        self._add_number_patient_reg_month_row(Patient, _(u"+NEW"))
 
         # +BIR
-        self._add_reg_report_row(BirthReport, '+BIR')
+        self._add_reg_report_row(BirthReport, _(u"+BIR"))
 
         # +DDA
-        self._add_reg_report_row(DeathReport, '+DDA')
+        self._add_reg_report_row(DeathReport, _(u"+DDA"))
 
         # +DDB
-        self._add_number_patient_reg_month_row(DeadPerson, '+DDB')
+        self._add_number_patient_reg_month_row(DeadPerson, _(u"+DDB"))
 
         # +SBM
-        self._add_reg_report_row(StillbirthMiscarriageReport, '+SBM')
+        self._add_reg_report_row(StillbirthMiscarriageReport, _(u"+SBM"))
 
         # +V
-        self._add_reg_report_row(HouseholdVisitReport, '+V')
+        self._add_reg_report_row(HouseholdVisitReport, _(u"+V"))
 
         # +E
-        self._add_reg_report_row(SickMembersReport, '+E')
+        self._add_reg_report_row(SickMembersReport, _(u"+E"))
 
         # +L
-        self._add_reg_report_row(BCPillReport, '+L')
+        self._add_reg_report_row(BCPillReport, _(u"+L"))
 
         # +K
-        self._add_reg_report_row(FamilyPlanningReport, '+K')
+        self._add_reg_report_row(FamilyPlanningReport, _(u"+K"))
 
         # +U
-        self._add_reg_report_row(FollowUpReport, '+U')
+        self._add_reg_report_row(FollowUpReport, _(u"+U"))
 
         # +S
-        self._add_reg_report_row(DangerSignsReport, '+S')
+        self._add_reg_report_row(DangerSignsReport, _(u"+S"))
 
         # +P
-        self._add_reg_report_row(PregnancyReport, '+P')
+        self._add_reg_report_row(PregnancyReport, _(u"+P"))
 
         # +N
-        self._add_reg_report_row(NeonatalReport, '+N')
+        self._add_reg_report_row(NeonatalReport, _(u"+N"))
 
         # +T
-        self._add_reg_report_row(UnderOneReport, '+T')
+        self._add_reg_report_row(UnderOneReport, _(u"+T"))
 
         # +M
-        self._add_reg_report_row(NutritionReport, '+M')
+        self._add_reg_report_row(NutritionReport, _(u"+M"))
 
         # +F
-        self._add_reg_report_row(FeverReport, '+F')
+        self._add_reg_report_row(FeverReport, _(u"+F"))
 
         # +G
-        self._add_reg_report_row(MedicineGivenReport, '+G')
+        self._add_reg_report_row(MedicineGivenReport, _(u"+G"))
 
         # +R
-        self._add_reg_report_row(ReferralReport, '+R')
+        self._add_reg_report_row(ReferralReport, _(u"+R"))
 
         # +PD
-        self._add_reg_report_row(PregnancyRegistrationReport, '+PD')
+        self._add_reg_report_row(PregnancyRegistrationReport, _(u"+PD"))
 
         # +PF
-        self._add_reg_report_row(AntenatalVisitReport, '+PF')
+        self._add_reg_report_row(AntenatalVisitReport, _(u"+PF"))
 
         # +Ht
-        self._add_reg_report_row(HIVTestReport, '+HT')
+        self._add_reg_report_row(HIVTestReport, _(u"+HT"))
 
         # +AP
-        self._add_reg_report_row(AppointmentReport, '+AP')
+        self._add_reg_report_row(AppointmentReport, _(u"+AP"))
 
         # +CD
-        self._add_reg_report_row(CD4ResultReport, '+CD')
+        self._add_reg_report_row(CD4ResultReport, _(u"+CD"))
 
         # +DB
-        self._add_reg_report_row(DBSResultReport, '+DB')
+        self._add_reg_report_row(DBSResultReport, _(u"+DB"))
 
         doc.add_element(self.table)
 
@@ -253,7 +295,7 @@ class Report(PrintedReport):
 
         list_sms.append("Number of SMS sent.")
 
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             sms_month = LoggedMessage.incoming.\
                         filter(date__month=month_num, date__year=year)
             list_sms_month.append(sms_month.count())
@@ -263,10 +305,10 @@ class Report(PrintedReport):
         total = LoggedMessage.incoming.all().count()
         list_sms.append(total)
 
-        average = list_average(list_sms_month)
+        average = list_average(list_sms_month, True)
         list_sms.append(average)
 
-        median = list_median(list_sms_month)
+        median = list_median(list_sms_month, True)
         list_sms.append(median)
 
         list_sms_text = textify_list(list_sms)
@@ -283,7 +325,7 @@ class Report(PrintedReport):
         list_patient.append(line)
 
         list_patient_month = []
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             patient_month = name.objects.\
                 filter(created_on__month=month_num,\
                 created_on__year=year)
@@ -294,10 +336,10 @@ class Report(PrintedReport):
         total = name.objects.all().count()
         list_patient.append(total)
 
-        average = list_average(list_patient_month)
+        average = list_average(list_patient_month, True)
         list_patient.append(average)
 
-        median = list_median(list_patient_month)
+        median = list_median(list_patient_month, True)
         list_patient.append(median)
 
         list_patient_text = textify_list(list_patient)
@@ -314,7 +356,7 @@ class Report(PrintedReport):
         list_.append(line)
 
         list_month = []
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             month = name.objects.\
             filter(encounter__encounter_date__month=month_num,\
                    encounter__encounter_date__year=year)
@@ -325,10 +367,10 @@ class Report(PrintedReport):
         total = name.objects.all().count()
         list_.append(total)
 
-        average = list_average(list_month)
+        average = list_average(list_month, True)
         list_.append(average)
 
-        median = list_median(list_month)
+        median = list_median(list_month, True)
         list_.append(median)
 
         list_text = textify_list(list_)
@@ -343,7 +385,7 @@ class Report(PrintedReport):
         list_sms.append("Days since last SMS.")
         date_ = datetime.today()
 
-        for nb_month, year in self.month_nums():
+        for nb_month, year in ALL_MONTHS:
             sms_per_month = \
                     LoggedMessage.incoming.filter(date__month=nb_month,\
                                                         date__year=year)
@@ -359,16 +401,16 @@ class Report(PrintedReport):
         list_sms += list_date
         list_sms.append(total_date)
 
-        average_date = list_average(list_date)
+        average_date = list_average(list_date, True)
         list_sms.append(average_date)
 
-        median_date = list_median(list_date)
+        median_date = list_median(list_date, True)
         list_sms.append(median_date)
 
         list_sms_ = textify_list(list_sms)
         self.table.add_row(list_sms_)
 
-    def _add_adult_registered_row(self, gender=''):
+    def _add_adult_registered_row(self, gender):
         """ Adult registered
 
             Params:
@@ -378,13 +420,13 @@ class Report(PrintedReport):
         list_adult_month = []
 
         if gender == 'M':
-            list_adult.append("Adult Men Reg.")
+            list_adult.append(_(u"Adult Men Reg."))
         elif gender == 'F':
-            list_adult.append("Adult Women Reg.")
+            list_adult.append(_(u"Adult Women Reg."))
         else:
-            list_adult.append("")
+            return
 
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             adult_month = Patient.objects.filter(gender=gender,
                                         created_on__month=month_num,\
                                         created_on__year=year,
@@ -397,10 +439,10 @@ class Report(PrintedReport):
                                        gender=gender).count()
         list_adult.append(total)
 
-        average = list_average(list_adult_month)
+        average = list_average(list_adult_month, True)
         list_adult.append(average)
 
-        median = list_median(list_adult_month)
+        median = list_median(list_adult_month, True)
         list_adult.append(median)
 
         list_adult_text = textify_list(list_adult)
@@ -410,10 +452,10 @@ class Report(PrintedReport):
         """ Under five registered per month """
 
         under_five_list = []
-        under_five_list.append("Under 5 Registered.")
+        under_five_list.append(_(u"Under 5 Registered."))
         u = date_under_five()
         list_of_under_five_per_month = []
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
             under_five = Patient.objects.filter(dob__gt=u,
                                         created_on__month=month_num,\
                                         created_on__year=year)
@@ -425,10 +467,10 @@ class Report(PrintedReport):
         total = Patient.objects.filter(dob__gt=u).count()
         under_five_list.append(total)
 
-        average = list_average(list_of_under_five_per_month)
+        average = list_average(list_of_under_five_per_month, True)
         under_five_list.append(average)
 
-        median = list_median(list_of_under_five_per_month)
+        median = list_median(list_of_under_five_per_month, True)
         under_five_list.append(median)
 
         list_under_five_text = textify_list(under_five_list)
@@ -440,9 +482,9 @@ class Report(PrintedReport):
         list_error = []
         list_sms_error_rate_month = []
 
-        list_error.append("SMS error rate.")
+        list_error.append(_(u"SMS error rate."))
 
-        for month_num, year in self.month_nums():
+        for month_num, year in ALL_MONTHS:
 
             error_month = LoggedMessage.outgoing.\
                         filter(date__month=month_num, date__year=year,\
@@ -462,10 +504,10 @@ class Report(PrintedReport):
         sms_error_rate = (total_error * 100) / total_sms
         list_error.append(sms_error_rate)
 
-        average = list_average(list_sms_error_rate_month)
+        average = list_average(list_sms_error_rate_month, True)
         list_error.append(average)
 
-        median = list_median(list_sms_error_rate_month)
+        median = list_median(list_sms_error_rate_month, True)
         list_error.append(median)
 
         list_error_text = textify_list(list_error)
@@ -477,9 +519,9 @@ class Report(PrintedReport):
         list_sms = []
         liste_day_rate = []
         total_day = 0
-        list_sms.append("% of days with SMS / month.")
+        list_sms.append(_(u"% of days with SMS / month."))
 
-        for nb_month, year in self.month_nums():
+        for nb_month, year in ALL_MONTHS:
             liste_day_month = []
             sms_per_month =\
                     LoggedMessage.incoming.filter(date__month=nb_month,\
@@ -497,14 +539,14 @@ class Report(PrintedReport):
 
         sms_per_year = LoggedMessage.incoming.filter(date__year=year)
         total_day_per_year = 0
-        for nb_month, year in self.month_nums():
+        for nb_month, year in ALL_MONTHS:
             total_day_per_year += calendar.monthrange(year, nb_month)[1]
 
         list_sms += liste_day_rate
         total_rate = (total_day * 100) / total_day_per_year
         list_sms.append(total_rate)
 
-        average_date = list_average(liste_day_rate)
+        average_date = list_average(liste_day_rate, True)
         list_sms.append(average_date)
 
         median_date = list_median(liste_day_rate)
