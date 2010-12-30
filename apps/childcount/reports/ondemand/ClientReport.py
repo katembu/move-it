@@ -73,6 +73,12 @@ def delivery_estimate(patient):
     return estimate_date
 
 
+def resize(table, column, rate):
+    """ Resize the column width """
+    table.set_column_width(rate, column=column)
+    return table
+
+
 def rdt(health_id):
     """ RDT test status
 
@@ -169,13 +175,21 @@ class Report(PrintedReport):
                     Text(_(u'Gender')),
                     Text(_(u'Age')),
                     Text(_(u"Mother's name")),
-                    Text(_(u'Location')),
+                    Text(_(u'Location code')),
                     Text(_(u'RDT+')),
                     Text(_(u'MUAC (+/-)')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID')),
                     Text(_(u'Instructions'))
                     ])
+
+                table1 = resize(table1, 0, 5)
+                table1 = resize(table1, 2, 13)
+                table1 = resize(table1, 3, 7)
+                table1 = resize(table1, 4, 7)
+                table1 = resize(table1, 5, 13)
+                table1 = resize(table1, 6, 13)
+                table1 = resize(table1, 7, 7)
 
                 doc.add_element(Paragraph(_(u'CHILDREN')))
 
@@ -259,7 +273,7 @@ class Report(PrintedReport):
                         Text(child.gender),
                         Text(child.humanised_age(), bold=b_ChildAge),
                         Text(mother),
-                        Text(child.location.name),
+                        Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
@@ -284,7 +298,7 @@ class Report(PrintedReport):
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Age')),
-                    Text(_(u'Location')),
+                    Text(_(u'Location code')),
                     Text(_(u'Pregnancy')),
                     Text(_(u'# children')),
                     Text(_(u'RDT+')),
@@ -294,6 +308,8 @@ class Report(PrintedReport):
                     Text(_(u'Instructions'))
                     ])
 
+                table2 = resize(table2, 2, 13)
+                table2 = resize(table2, 4, 13)
                 doc.add_element(Paragraph(_(u'PREGNANT WOMEN')))
 
                 num = 0
@@ -335,7 +351,7 @@ class Report(PrintedReport):
                     Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
                     Text(woman.pregnancyreport.encounter\
-                                              .patient.location.name),
+                                              .patient.location.code),
                     Text('%(month)s m(%(date)s)' %\
                             {'month': woman.pregnancy_month,\
                              'date': estimate_date.strftime("%b %y")}),
@@ -365,13 +381,15 @@ class Report(PrintedReport):
                     Text((u'#')),
                     Text(_(u'Name')),
                     Text(_(u'Age')),
-                    Text(_(u'Location')),
+                    Text(_(u'Location code')),
                     Text(_(u'# children')),
                     Text(_(u'RDT+')),
                     Text(_(u'Last Visit')),
                     Text(_(u'PID#')),
                     Text(_(u'Instructions'))
                     ])
+
+                table1 = resize(table3, 2, 13)
 
                 doc.add_element(Paragraph(_(u'WOMEN')))
 
@@ -395,7 +413,7 @@ class Report(PrintedReport):
                     Text(num),
                     Text(woman.full_name(), bold=b_LastVisit),
                     Text(woman.humanised_age()),
-                    Text(woman.location.name),
+                    Text(woman.location.code),
                     Text(woman.child.all().count()),
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
