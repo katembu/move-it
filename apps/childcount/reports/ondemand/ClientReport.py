@@ -149,6 +149,11 @@ class Report(PrintedReport):
                             updated_on__month=date.today().month).count():
                 continue
 
+            # special content for First Page
+            if not not_first_chw:
+                doc.add_element(Paragraph(_(u"CHW reports one-per page starting next page.")))
+                not_first_chw = True
+
             if chw.clinic:
                 section_name = (_("%(clinic)s clinic: %(full_name)s"))\
                    % {'clinic': chw.clinic,\
@@ -157,12 +162,8 @@ class Report(PrintedReport):
                 section_name = chw.full_name()
 
             # add Page Break before each CHW section.
-            if not_first_chw:
-                doc.add_element(PageBreak())
-                doc.add_element(Section(section_name))
-            else:
-                doc.add_element(Section(section_name))
-                not_first_chw = True
+            doc.add_element(PageBreak())
+            doc.add_element(Section(section_name))
 
             d_under_five = date_under_five()
 
@@ -175,27 +176,35 @@ class Report(PrintedReport):
             if children:
                 table1 = Table(12)
                 table1.add_header_row([
-                    Text((u'')),
-                    Text((u'#')),
-                    Text(_(u'Name')),
-                    Text(_(u'Gender')),
-                    Text(_(u'Age')),
-                    Text(_(u"Mother's name")),
-                    Text(_(u'Location code')),
-                    Text(_(u'RDT+')),
-                    Text(_(u'MUAC (+/-)')),
-                    Text(_(u'Last Visit')),
-                    Text(_(u'PID')),
-                    Text(_(u'Instructions'))
+                    Text(_(u"D.S")),
+                    Text(_(u"#")),
+                    Text(_(u"Name")),
+                    Text(_(u"Gender")),
+                    Text(_(u"Age")),
+                    Text(_(u"Mother")),
+                    Text(_(u"Location")),
+                    Text(_(u"RDT+")),
+                    Text(_(u"MUAC (+/-)")),
+                    Text(_(u"Visit")),
+                    Text(_(u"PID")),
+                    Text(_(u"Instructions"))
                     ])
 
-                table1 = resize(table1, 0, 5)
-                table1 = resize(table1, 2, 13)
-                table1 = resize(table1, 3, 7)
-                table1 = resize(table1, 4, 7)
-                table1 = resize(table1, 5, 13)
-                table1 = resize(table1, 6, 13)
-                table1 = resize(table1, 7, 7)
+                table1.set_column_width(2, 0)
+                table1.set_column_width(5, 1)
+                table1.set_column_width(16, 2)
+                table1.set_column_width(5, 3)
+                table1.set_column_width(5, 4)
+                table1.set_column_width(13, 5)
+                table1.set_column_width(5, 6)
+                table1.set_column_width(4, 7)
+                table1.set_column_width(8, 8)
+                table1.set_column_width(5, 9)
+                table1.set_column_width(5, 10)
+
+                table1.set_alignment(Table.ALIGN_LEFT, column=2)
+                table1.set_alignment(Table.ALIGN_LEFT, column=5)
+                table1.set_alignment(Table.ALIGN_CENTER, column=11)
 
                 doc.add_element(Paragraph(_(u'CHILDREN')))
 
@@ -272,6 +281,16 @@ class Report(PrintedReport):
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
+                    if rate_muac < 0:
+                        rate_muac = ('! %(muac)s (%(rate_muac)s) !' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac})
+                        icon = u"◆"
+                    else:
+                        rate_muac = ('%(muac)s (%(rate_muac)s)' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac})
+
                     table1.add_row([
                         Text(icon),
                         Text(num),
@@ -281,9 +300,7 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text(('%(muac)s (%(rate_muac)s )' % \
-                                            {'rate_muac': rate_muac, \
-                                             'muac': muac}), bold=b_muac),
+                        Text(rate_muac, bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text('')
@@ -300,22 +317,35 @@ class Report(PrintedReport):
             if pregnant_women:
                 table2 = Table(12)
                 table2.add_header_row([
-                    Text((u'')),
-                    Text((u'#')),
-                    Text(_(u'Name')),
-                    Text(_(u'Age')),
-                    Text(_(u'Location code')),
-                    Text(_(u'Pregnancy')),
-                    Text(_(u'# children')),
-                    Text(_(u'RDT+')),
-                    Text(_(u'Last Visit')),
-                    Text(_(u'Next ANC')),
-                    Text(_(u'PID')),
-                    Text(_(u'Instructions'))
+                    Text(_(u"D.S")),
+                    Text(_(u"#")),
+                    Text(_(u"Name")),
+                    Text(_(u"Age")),
+                    Text(_(u"Location")),
+                    Text(_(u"Pregnancy")),
+                    Text(_(u"Children")),
+                    Text(_(u"RDT+")),
+                    Text(_(u"Visit")),
+                    Text(_(u"Next ANC")),
+                    Text(_(u"PID")),
+                    Text(_(u"Instructions"))
                     ])
 
-                table2 = resize(table2, 2, 13)
-                table2 = resize(table2, 4, 13)
+                table2.set_column_width(2, 0)
+                table2.set_column_width(5, 1)
+                table2.set_column_width(16, 2)
+                table2.set_column_width(5, 3)
+                table2.set_column_width(5, 4)
+                table2.set_column_width(10, 5)
+                table2.set_column_width(5, 6)
+                table2.set_column_width(5, 7)
+                table2.set_column_width(5, 8)
+                table2.set_column_width(10, 9)
+                table2.set_column_width(5, 10)
+
+                table2.set_alignment(Table.ALIGN_LEFT, column=2)
+                table2.set_alignment(Table.ALIGN_CENTER, column=11)
+
                 doc.add_element(Paragraph(_(u'PREGNANT WOMEN')))
 
                 num = 0
@@ -383,19 +413,30 @@ class Report(PrintedReport):
 
                 table3 = Table(10)
                 table3.add_header_row([
-                    Text((u'')),
-                    Text((u'#')),
-                    Text(_(u'Name')),
-                    Text(_(u'Age')),
-                    Text(_(u'Location code')),
-                    Text(_(u'# children')),
-                    Text(_(u'RDT+')),
-                    Text(_(u'Last Visit')),
-                    Text(_(u'PID#')),
-                    Text(_(u'Instructions'))
+                    Text(_(u"D.S")),
+                    Text(_(u"#")),
+                    Text(_(u"Name")),
+                    Text(_(u"Age")),
+                    Text(_(u"Location")),
+                    Text(_(u"Children")),
+                    Text(_(u"RDT+")),
+                    Text(_(u"Visit")),
+                    Text(_(u"PID")),
+                    Text(_(u"Instructions"))
                     ])
 
-                table1 = resize(table3, 2, 13)
+                table3.set_column_width(2, 0)
+                table3.set_column_width(5, 1)
+                table3.set_column_width(16, 2)
+                table3.set_column_width(5, 3)
+                table3.set_column_width(5, 4)
+                table3.set_column_width(5, 5)
+                table3.set_column_width(5, 6)
+                table3.set_column_width(5, 7)
+                table3.set_column_width(5, 8)
+
+                table3.set_alignment(Table.ALIGN_LEFT, column=2)
+                table3.set_alignment(Table.ALIGN_CENTER, column=9)
 
                 doc.add_element(Paragraph(_(u'WOMEN')))
 
