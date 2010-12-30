@@ -79,12 +79,6 @@ def delivery_estimate(patient):
     return estimate_date
 
 
-def resize(table, column, rate):
-    """ Resize the column width """
-    table.set_column_width(rate, column=column)
-    return table
-
-
 def rdt(health_id):
     """ RDT test status
 
@@ -109,7 +103,7 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
     """
     b_LastVisit = False
     icon = ""
-    """◉  ◆ ☻ """
+
     last_visit = nbr_DayAfterEncounter
 
     if nbr_DayAfterEncounter >= 30:
@@ -127,9 +121,11 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
 def rdt_alert(nb_times_rdt, b_FullName):
     """ """
     b_rdt = False
-    if nb_times_rdt > 1:
+    rdt_result = nb_times_rdt
+    if nb_times_rdt > 2:
         b_FullName = b_rdt = True
-    return b_FullName, b_rdt
+        rdt_result = "! %s !" % rdt_result
+    return rdt_result, b_FullName, b_rdt
 
 
 class Report(PrintedReport):
@@ -279,7 +275,7 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
-                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
                     if rate_muac < 0:
                         rate_muac = ('! %(muac)s (%(rate_muac)s) !' % \
@@ -377,7 +373,7 @@ class Report(PrintedReport):
                                         - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days, b_FullName)
 
-                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
                     table2.add_row([
                     Text(icon),
@@ -453,7 +449,7 @@ class Report(PrintedReport):
                                         = encounter_alert((date_today\
                                             - woman.updated_on).days, b_FullName)
 
-                    b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
                     table3.add_row([
                     Text(icon),
