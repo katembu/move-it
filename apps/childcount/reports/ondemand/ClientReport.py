@@ -101,14 +101,13 @@ def rdt(health_id):
     return rdt
 
 
-def encounter_alert(nbr_DayAfterEncounter):
+def encounter_alert(nbr_DayAfterEncounter, b_FullName):
     """
     Function that calculates the number of days passed between
     the last visit and today's date to see if it happened more
     than 30 days.
     """
     b_LastVisit = False
-    b_FullName = False
     icon = ""
     """◉  ◆ ☻ """
     last_visit = nbr_DayAfterEncounter
@@ -234,7 +233,7 @@ class Report(PrintedReport):
 
                     #Making an alerte if nutrition report change.
                     two_LastReport = []
-                    b_muac = False
+                    b_FullName = b_muac = False
                     #Check if they are more than two report.
                     try:
                         #Get the last two nutrition reports of the child
@@ -256,7 +255,7 @@ class Report(PrintedReport):
 
                     icon, b_LastVisit, b_FullName, last_visit =\
                                             encounter_alert((date_today\
-                                            - child.updated_on).days)
+                                            - child.updated_on).days, b_FullName)
 
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
@@ -346,7 +345,7 @@ class Report(PrintedReport):
                     icon, b_LastVisit, b_FullName, last_visit =\
                                         encounter_alert((date_today\
                                         - woman.pregnancyreport.encounter\
-                                            .patient.updated_on).days)
+                                            .patient.updated_on).days, b_FullName)
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
@@ -411,7 +410,7 @@ class Report(PrintedReport):
 
                     icon, b_LastVisit, b_FullName, last_visit\
                                         = encounter_alert((date_today\
-                                            - woman.updated_on).days)
+                                            - woman.updated_on).days, b_FullName)
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
 
