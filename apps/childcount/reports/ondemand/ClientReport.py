@@ -33,7 +33,10 @@ def next_anc_date(patient):
     month_ = preg_woman.encounter.encounter_date.month
     day_ = preg_woman.encounter.encounter_date.day
 
-    if preg_woman.weeks_since_anc==0:
+    if not preg_woman.weeks_since_anc:
+        return None
+
+    if preg_woman.weeks_since_anc == 0:
         month_ = preg_woman.encounter.encounter_date.month + 1
     else:
         nbr_week = 4 - preg_woman.weeks_since_anc
@@ -356,12 +359,16 @@ class Report(PrintedReport):
                     # Next anc visit
                     next_anc = next_anc_date(woman)
 
-                    next_anc_alert = False
-                    if next_anc < date_today:
-                        nbr_days = (date_today - next_anc).days
+                    if not next_anc:
+                        next_anc_str = _(u"-")
+                    else:
+                        next_anc_alert = False
+                        if next_anc < date_today:
+                            nbr_days = (date_today - next_anc).days
 
-                        if nbr_days > 30:
-                            next_anc_alert = True
+                            if nbr_days > 30:
+                                next_anc_alert = True
+                        next_anc_str = next_anc.strftime("%d-%b")
 
                     # Delivery estimate date
                     estimate_date = delivery_estimate(woman)
@@ -395,7 +402,7 @@ class Report(PrintedReport):
                                               .all().count()),
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
-                    Text(next_anc.strftime("%d-%b"), bold=next_anc_alert),
+                    Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
                     Text('')
