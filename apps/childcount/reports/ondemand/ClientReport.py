@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: diarra
+import calendar
 
 from datetime import datetime, date
 
@@ -21,6 +22,30 @@ def date_under_five():
     today = date.today()
     date_under_five = date(today.year - 5, today.month, today.day)
     return date_under_five
+
+
+def next_anc_date(patient):
+    preg_woman = PregnancyReport.objects.get(encounter__patient__health_id=patient.encounter.patient.health_id)
+    year_ = preg_woman.encounter.encounter_date.year
+    month_ = preg_woman.encounter.encounter_date.month
+    day_ = preg_woman.encounter.encounter_date.day
+
+    if preg_woman.weeks_since_anc==0:
+        month_ = preg_woman.encounter.encounter_date.month + 1
+    else:
+        nbr_week = 4 - preg_woman.weeks_since_anc
+        days = nbr_week * 7
+        day_ = preg_woman.encounter.encounter_date.day + days
+        total_days = calendar.monthrange(preg_woman.encounter.encounter_date.year, preg_woman.encounter.encounter_date.month)[1]
+        if day_ > total_days:
+            day_ -= total_days
+            month_ = preg_woman.encounter.encounter_date.month +1
+
+    if month_ >12:
+        year_ = preg_woman.encounter.encounter_date.year +1
+        month_ -= 12
+    next_anc = datetime(year_, month_, day_)
+    return next_anc
 
 
 def delivery_estimate(patient):
@@ -186,6 +211,20 @@ class Report(PrintedReport):
                     except IndexError:
                         muac = '-'
 
+                    #Making an alerte if nutrition report change.
+                    two_LastReport = []
+                    b_muac = False
+                    #Check if they are more than two report.
+                    try:
+                        #Get the last two nutrition reports of the child
+                        two_LastReport.append(nutrition_report[0])
+                        two_LastReport.append(nutrition_report[1])
+                        #Checking for a difference between two reports.
+                        if two_LastReport[0].muac != two_LastReport[1].muac:
+                            b_FullName = b_muac = True
+                    except:
+                        pass
+
                     if child.mother:
                         mother = child.mother.full_name()
                     else:
@@ -224,7 +263,7 @@ class Report(PrintedReport):
                         Text(rdt_result, bold=b_rdt),
                         Text(('%(muac)s (%(rate_muac)s )' % \
                                             {'rate_muac': rate_muac, \
-                                             'muac': muac})),
+                                             'muac': muac}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text('')
@@ -260,8 +299,20 @@ class Report(PrintedReport):
                 num = 0
 
                 for woman in pregnant_women:
-                    estimate_date = delivery_estimate(woman)
                     num += 1
+
+                    # Next anc visit
+                    next_anc = next_anc_date(woman)
+
+                    next_anc_alert = False
+                    if next_anc < date_today:
+                        nbr_days = (date_today - next_anc).days
+
+                        if nbr_days > 30:
+                            next_anc_alert = True
+
+                    # Delivery estimate date
+                    estimate_date = delivery_estimate(woman)
 
                     # RDT test status
                     rdt_result = rdt(woman.pregnancyreport.encounter\
@@ -269,8 +320,9 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b_LastVisit, b_FullName, last_visit = encounter_alert((date_today\
-                                - woman.pregnancyreport.encounter\
+                    icon, b_LastVisit, b_FullName, last_visit =\
+                                        encounter_alert((date_today\
+                                        - woman.pregnancyreport.encounter\
                                             .patient.updated_on).days)
 
                     b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
@@ -291,7 +343,7 @@ class Report(PrintedReport):
                                               .all().count()),
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
-                    Text(''),
+                    Text(next_anc.strftime("%d-%b"), bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
                     Text('')

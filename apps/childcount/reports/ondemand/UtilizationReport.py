@@ -136,6 +136,11 @@ class Report(PrintedReport):
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
 
+        # first column is left aligned
+        self.table.set_alignment(Table.ALIGN_LEFT, column=0)
+        # first column has width of 20%
+        self.table.set_column_width(13, column=0)
+
         # Date at which people are more than 5 years old
         self.date_five = date_under_five()
 
@@ -143,7 +148,8 @@ class Report(PrintedReport):
         self._add_sms_number_per_month_row()
 
         # NUMBER of Patient registered PER MONTH
-        self._add_number_patient_reg_month_row(Patient, _(u"patient reg."))
+        self._add_number_patient_reg_month_row(Patient, \
+                                                      _(u"Total Clients Reg."))
 
         # Days since last SMS
         self._add_days_since_last_sms_month_row()
@@ -224,7 +230,7 @@ class Report(PrintedReport):
         self._add_reg_report_row(AntenatalVisitReport, '+PF')
 
         # +Ht
-        self._add_reg_report_row(HIVTestReport, '+Ht')
+        self._add_reg_report_row(HIVTestReport, '+HT')
 
         # +AP
         self._add_reg_report_row(AppointmentReport, '+AP')
@@ -245,7 +251,7 @@ class Report(PrintedReport):
         list_sms = []
         list_sms_month = []
 
-        list_sms.append("SMS #.")
+        list_sms.append("Number of SMS sent.")
 
         for month_num, year in self.month_nums():
             sms_month = LoggedMessage.incoming.\
@@ -334,7 +340,7 @@ class Report(PrintedReport):
         list_date = []
         list_sms = []
         total_date = 0
-        list_sms.append("last sms")
+        list_sms.append("Days since last SMS.")
         date_ = datetime.today()
 
         for nb_month, year in self.month_nums():
@@ -372,9 +378,9 @@ class Report(PrintedReport):
         list_adult_month = []
 
         if gender == 'M':
-            list_adult.append("men reg.")
+            list_adult.append("Adult Men Reg.")
         elif gender == 'F':
-            list_adult.append("women reg.")
+            list_adult.append("Adult Women Reg.")
         else:
             list_adult.append("")
 
@@ -404,7 +410,7 @@ class Report(PrintedReport):
         """ Under five registered per month """
 
         under_five_list = []
-        under_five_list.append("<5 reg.")
+        under_five_list.append("Under 5 Registered.")
         u = date_under_five()
         list_of_under_five_per_month = []
         for month_num, year in self.month_nums():
@@ -434,7 +440,7 @@ class Report(PrintedReport):
         list_error = []
         list_sms_error_rate_month = []
 
-        list_error.append("% SMS error")
+        list_error.append("SMS error rate.")
 
         for month_num, year in self.month_nums():
 
@@ -471,7 +477,7 @@ class Report(PrintedReport):
         list_sms = []
         liste_day_rate = []
         total_day = 0
-        list_sms.append("days w/SMS")
+        list_sms.append("% of days with SMS / month.")
 
         for nb_month, year in self.month_nums():
             liste_day_month = []

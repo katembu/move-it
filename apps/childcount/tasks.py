@@ -337,7 +337,7 @@ def appointment_defaulter_reminders():
 @periodic_task(run_every=crontab(hour=0, minute=0))
 def gen_framework_nightly_reports():
     for thereport in report_objects('nightly'):
-        print "[%s]" % thereport.title 
+        print "[%s]" % thereport.title
         rep = thereport.apply()
     print "Done"
 
