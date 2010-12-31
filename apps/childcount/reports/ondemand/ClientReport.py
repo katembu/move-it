@@ -176,7 +176,7 @@ class Report(PrintedReport):
             if children:
                 table1 = Table(12)
                 table1.add_header_row([
-                    Text(_(u"D.S")),
+                    Text(u""),
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Gender")),
@@ -318,7 +318,7 @@ class Report(PrintedReport):
             if pregnant_women:
                 table2 = Table(12)
                 table2.add_header_row([
-                    Text(_(u"D.S")),
+                    Text(u""),
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
@@ -419,7 +419,7 @@ class Report(PrintedReport):
 
                 table3 = Table(10)
                 table3.add_header_row([
-                    Text(_(u"D.S")),
+                    Text(u""),
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
