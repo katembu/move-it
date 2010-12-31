@@ -276,15 +276,15 @@ class Report(PrintedReport):
                     b_FullName = b_muac = False
 
                     #Check if they are more than two report.
-                    try:
-                        #Get the last two nutrition reports of the child
-                        two_LastReport.append(nutrition_report[0])
-                        two_LastReport.append(nutrition_report[1])
-                        #Checking for a difference between two reports.
-                        if two_LastReport[0].muac != two_LastReport[1].muac:
-                            b_FullName = b_muac = True
-                    except:
-                        pass
+                    #~ try:
+                        #~ #Get the last two nutrition reports of the child
+                        #~ two_LastReport.append(nutrition_report[0])
+                        #~ two_LastReport.append(nutrition_report[1])
+                        #~ #Checking for a difference between two reports.
+                        #~ if two_LastReport[0].muac != two_LastReport[1].muac:
+                            #~ b_FullName = b_muac = True
+                    #~ except:
+                        #~ pass
 
                     if child.mother:
                         mother = child.mother.full_name()
@@ -317,23 +317,16 @@ class Report(PrintedReport):
                     icon_rate = icon_ = instruction = ''
 
                     if rate_muac < 0:
-                        rate_muac = ('%(muac)s (%(rate_muac)s)' % \
-                                            {'rate_muac': rate_muac, \
-                                             'muac': muac})
                         icon_rate = u"◆"
-                    else:
-                        rate_muac = ('%(muac)s (%(rate_muac)s)' % \
-                                            {'rate_muac': rate_muac, \
-                                             'muac': muac})
+                        b_FullName = b_muac = True
 
                     try:
                         child_muac = NutritionReport.objects\
                                 .filter(encounter__patient__health_id=child.\
                                                         health_id).latest()
 
-
                         if child_muac.status != 4:
-                            b_FullName = True
+                            b_muac = b_FullName = True
                             icon_ = u'◆'
                             instruction = _(u'Nutrition consult')
                     except NutritionReport.DoesNotExist:
@@ -349,7 +342,9 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text(rate_muac, bold=b_muac),
+                        Text(('%(muac)s (%(rate_muac)s)' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text(_(u"%(instruction_text)s %(rdt_instruction)s %(instruction)s" %\
