@@ -232,7 +232,7 @@ class Report(PrintedReport):
 
                 table1.set_alignment(Table.ALIGN_LEFT, column=2)
                 table1.set_alignment(Table.ALIGN_LEFT, column=5)
-                table1.set_alignment(Table.ALIGN_CENTER, column=11)
+                table1.set_alignment(Table.ALIGN_LEFT, column=11)
 
                 doc.add_element(Paragraph(_(u'CHILDREN')))
 
@@ -240,6 +240,7 @@ class Report(PrintedReport):
 
                 for child in children:
                     num += 1
+                    all_instructions = []
 
                     #Rate of muac
                     nutrition_report = NutritionReport.objects\
@@ -298,6 +299,8 @@ class Report(PrintedReport):
                                         encounter_alert((date_today\
                                        - child.updated_on).days, b_FullName)
 
+                    if instruction_text:
+                        all_instructions.append(instruction_text)
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
                                 .split(child.humanised_age()[-1])[0]
@@ -314,6 +317,8 @@ class Report(PrintedReport):
                     icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                                 b_FullName)
 
+                    if rdt_instruction:
+                        all_instructions.append(rdt_instruction)
                     icon_rate = icon_ = instruction = ''
 
                     if rate_muac < 0:
@@ -329,6 +334,7 @@ class Report(PrintedReport):
                             b_muac = b_FullName = True
                             icon_ = u'◆'
                             instruction = _(u'Nutrition consult')
+                            all_instructions.append(instruction)
                     except NutritionReport.DoesNotExist:
                         pass
 
@@ -347,10 +353,7 @@ class Report(PrintedReport):
                                              'muac': muac}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
-                        Text(_(u"%(instruction_text)s %(rdt_instruction)s %(instruction)s" %\
-                            {'instruction_text': instruction_text,
-                             'instruction': instruction,
-                             'rdt_instruction': rdt_instruction}), bold=True)
+                        Text(u" | ".join(all_instructions), bold=True)
                         ])
 
                 doc.add_element(table1)
@@ -391,7 +394,7 @@ class Report(PrintedReport):
                 table2.set_column_width(5, 10)
 
                 table2.set_alignment(Table.ALIGN_LEFT, column=2)
-                table2.set_alignment(Table.ALIGN_CENTER, column=11)
+                table2.set_alignment(Table.ALIGN_LEFT, column=11)
 
                 doc.add_element(Paragraph(_(u'PREGNANT WOMEN')))
 
@@ -399,6 +402,7 @@ class Report(PrintedReport):
 
                 for woman in pregnant_women:
                     num += 1
+                    all_instructions = []
 
                     # Next anc visit
                     next_anc = next_anc_date(woman)
@@ -428,14 +432,19 @@ class Report(PrintedReport):
                                         preg_WomenEncounterAlert((date_today\
                                         - woman.pregnancyreport.encounter\
                                         .patient.updated_on).days, b_FullName)
+                    if instruction_text:
+                        all_instructions.append(instruction_text)
 
                     icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                                 b_FullName)
+                    if rdt_instruction:
+                        all_instructions.append(rdt_instruction)
 
                     instruction = icon_ = ''
                     if (date_today - estimate_date).days < 21:
                         icon_ = u'☻'
                         instruction = _(u'go over personalized birth plan')
+                        all_instructions.append(instruction)
 
                     table2.add_row([
                     Text(_(u'%(icon)s %(icon_)s' % {'icon': icon, 'icon_': icon_})),
@@ -456,10 +465,7 @@ class Report(PrintedReport):
                     Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
-                    Text(_(u"%(instruction_text)s %(rdt_instruction)s %(instruction)s" %\
-                            {'instruction_text': instruction_text,
-                             'instruction': instruction,
-                             'rdt_instruction': rdt_instruction}), bold=True)
+                    Text(u" | ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table2)
@@ -505,7 +511,7 @@ class Report(PrintedReport):
                 table3.set_column_width(5, 8)
 
                 table3.set_alignment(Table.ALIGN_LEFT, column=2)
-                table3.set_alignment(Table.ALIGN_CENTER, column=9)
+                table3.set_alignment(Table.ALIGN_LEFT, column=9)
 
                 doc.add_element(Paragraph(_(u'WOMEN')))
 
@@ -513,6 +519,7 @@ class Report(PrintedReport):
 
                 for woman in women:
                     num += 1
+                    all_instructions = []
 
                     # RDT test status
 
@@ -521,9 +528,13 @@ class Report(PrintedReport):
                     icon, b_LastVisit, b_FullName, last_visit, instruction_text\
                                         = encounter_alert((date_today\
                                         - woman.updated_on).days, b_FullName)
+                    if instruction_text:
+                        all_instructions.append(instruction_text)
 
                     icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                               b_FullName)
+                    if rdt_instruction:
+                        all_instructions.append(rdt_instruction)
 
                     table3.add_row([
                     Text(icon),
@@ -535,9 +546,7 @@ class Report(PrintedReport):
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
-                    Text(_(u"%(instruction_text)s %(rdt_instruction)s " %\
-                            {'instruction_text': instruction_text,
-                            'rdt_instruction': rdt_instruction}), bold=True)
+                    Text(u" | ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table3)
