@@ -171,7 +171,7 @@ class Report(PrintedReport):
                                               dob__gt=d_under_five,
                                               updated_on__month=date\
                                               .today().month)\
-                              .order_by('last_name', 'first_name')[:5]
+                              .order_by('last_name', 'first_name')
 
             if children:
                 table1 = Table(12)
@@ -313,7 +313,7 @@ class Report(PrintedReport):
                    PregnancyReport.objects\
                                 .filter(encounter__chw=chw.id,
                                 encounter__encounter_date__month=date\
-                                .today().month)[:5]
+                                .today().month)
 
             if pregnant_women:
                 table2 = Table(12)
@@ -413,7 +413,7 @@ class Report(PrintedReport):
                             filter(chw=chw.id, gender='F',\
                                                dob__lt=d_under_five,
                                                updated_on__month=date\
-                                               .today().month)[:5]
+                                               .today().month)
 
             if women:
 
