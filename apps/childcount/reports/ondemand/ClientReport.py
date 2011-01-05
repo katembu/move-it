@@ -48,10 +48,10 @@ def next_anc_date(patient):
 
         if day_ > total_days:
             day_ -= total_days
-            month_ = preg_woman.encounter.encounter_date.month +1
+            month_ = preg_woman.encounter.encounter_date.month + 1
 
-    if month_ >12:
-        year_ = preg_woman.encounter.encounter_date.year +1
+    if month_ > 12:
+        year_ = preg_woman.encounter.encounter_date.year + 1
         month_ -= 12
     next_anc = datetime(year_, month_, day_)
     return next_anc
@@ -150,7 +150,8 @@ class Report(PrintedReport):
 
             # special content for First Page
             if not not_first_chw:
-                doc.add_element(Paragraph(_(u"CHW reports one-per page starting next page.")))
+                doc.add_element(Paragraph(_(u"CHW reports one-per page\
+                                                starting next page.")))
                 not_first_chw = True
 
             if chw.clinic:
@@ -262,8 +263,8 @@ class Report(PrintedReport):
                     #last visit to the alert function.
 
                     icon, b_LastVisit, b_FullName, last_visit =\
-                                            encounter_alert((date_today\
-                                            - child.updated_on).days, b_FullName)
+                                        encounter_alert((date_today\
+                                       - child.updated_on).days, b_FullName)
 
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
@@ -278,7 +279,8 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                                                                b_FullName)
 
                     if rate_muac < 0:
                         rate_muac = ('! %(muac)s (%(rate_muac)s) !' % \
@@ -378,15 +380,16 @@ class Report(PrintedReport):
                     icon, b_LastVisit, b_FullName, last_visit =\
                                         encounter_alert((date_today\
                                         - woman.pregnancyreport.encounter\
-                                            .patient.updated_on).days, b_FullName)
+                                        .patient.updated_on).days, b_FullName)
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                                                                b_FullName)
 
                     table2.add_row([
                     Text(icon),
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter.\
-                                        patient.full_name()), bold=b_FullName),
+                                    patient.full_name()), bold=b_FullName),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.humanised_age()),
                     Text(woman.pregnancyreport.encounter\
@@ -454,9 +457,10 @@ class Report(PrintedReport):
 
                     icon, b_LastVisit, b_FullName, last_visit\
                                         = encounter_alert((date_today\
-                                            - woman.updated_on).days, b_FullName)
+                                        - woman.updated_on).days, b_FullName)
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result, b_FullName)
+                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                                                              b_FullName)
 
                     table3.add_row([
                     Text(icon),
