@@ -221,67 +221,67 @@ class Report(PrintedReport):
         self._add_reg_report_row(DeathReport, _(u"+DDA"))
 
         # +DDB
-        self._add_number_patient_reg_month_row(DeadPerson, _(u"+DDB"))
+        self._add_number_patient_reg_month_row(DeadPerson, _(u"+DDB (Dead person)" ))
 
         # +SBM
-        self._add_reg_report_row(StillbirthMiscarriageReport, _(u"+SBM"))
+        self._add_reg_report_row(StillbirthMiscarriageReport, _(u"+SBM (Still birth miscarriage)"))
 
         # +V
-        self._add_reg_report_row(HouseholdVisitReport, _(u"+V"))
+        self._add_reg_report_row(HouseholdVisitReport, _(u"+V (Household visit)"))
 
         # +E
-        self._add_reg_report_row(SickMembersReport, _(u"+E"))
+        self._add_reg_report_row(SickMembersReport, _(u"+E (Sick members)"))
 
         # +L
-        self._add_reg_report_row(BCPillReport, _(u"+L"))
+        self._add_reg_report_row(BCPillReport, _(u"+L (BC pill)"))
 
         # +K
-        self._add_reg_report_row(FamilyPlanningReport, _(u"+K"))
+        self._add_reg_report_row(FamilyPlanningReport, _(u"+K (Family planning)"))
 
         # +U
-        self._add_reg_report_row(FollowUpReport, _(u"+U"))
+        self._add_reg_report_row(FollowUpReport, _(u"+U (Follow up)"))
 
         # +S
-        self._add_reg_report_row(DangerSignsReport, _(u"+S"))
+        self._add_reg_report_row(DangerSignsReport, _(u"+S (Danger signs)"))
 
         # +P
-        self._add_reg_report_row(PregnancyReport, _(u"+P"))
+        self._add_reg_report_row(PregnancyReport, _(u"+P (Pregnancy)"))
 
         # +N
-        self._add_reg_report_row(NeonatalReport, _(u"+N"))
+        self._add_reg_report_row(NeonatalReport, _(u"+N (Neonatal)"))
 
         # +T
-        self._add_reg_report_row(UnderOneReport, _(u"+T"))
+        self._add_reg_report_row(UnderOneReport, _(u"+T (Under one)"))
 
-        # +M
-        self._add_reg_report_row(NutritionReport, _(u"+M"))
+        # +MFeverReport
+        self._add_reg_report_row(NutritionReport, _(u"+M (Nutrition)"))
 
         # +F
-        self._add_reg_report_row(FeverReport, _(u"+F"))
+        self._add_reg_report_row(FeverReport, _(u"+F (Fever)"))
 
         # +G
-        self._add_reg_report_row(MedicineGivenReport, _(u"+G"))
+        self._add_reg_report_row(MedicineGivenReport, _(u"+G (Medicine given)"))
 
         # +R
-        self._add_reg_report_row(ReferralReport, _(u"+R"))
+        self._add_reg_report_row(ReferralReport, _(u"+R (Referral)"))
 
         # +PD
-        self._add_reg_report_row(PregnancyRegistrationReport, _(u"+PD"))
+        self._add_reg_report_row(PregnancyRegistrationReport, _(u"+PD (Pregnancy registration)"))
 
         # +PF
-        self._add_reg_report_row(AntenatalVisitReport, _(u"+PF"))
+        self._add_reg_report_row(AntenatalVisitReport, _(u"+PF (Antenatal visit)"))
 
         # +Ht
-        self._add_reg_report_row(HIVTestReport, _(u"+HT"))
+        self._add_reg_report_row(HIVTestReport, _(u"+HT (HIV test)"))
 
         # +AP
-        self._add_reg_report_row(AppointmentReport, _(u"+AP"))
+        self._add_reg_report_row(AppointmentReport, _(u"+AP (Appointment)"))
 
         # +CD
-        self._add_reg_report_row(CD4ResultReport, _(u"+CD"))
+        self._add_reg_report_row(CD4ResultReport, _(u"+CD (CD4 result)"))
 
         # +DB
-        self._add_reg_report_row(DBSResultReport, _(u"+DB"))
+        self._add_reg_report_row(DBSResultReport, _(u"+DB (DBS result)"))
 
         doc.add_element(self.table)
 
