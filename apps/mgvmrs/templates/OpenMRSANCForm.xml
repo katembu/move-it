@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<form id="{{ openmrs__form_id }}" name="Sauri PMTCT Module clinic form" version="1.0" xmlns:openmrs="http://localhost:8080/openmrs-dev/moduleServlet/formentry/forms/schema/9-35" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <header>
+    <enterer/>
+    <date_entered/>
+    <session/>
+    <uid/>
+  </header>
+  <patient>
+    <patient.birthdate openmrs_table="patient" openmrs_attribute="birthdate">{{ patient___birthdate }}</patient.birthdate>
+    <patient.birthdate_estimated openmrs_table="patient" openmrs_attribute="birthdate_estimated">{{ patient___birthdate_estimated }}</patient.birthdate_estimated>
+    <patient.family_name openmrs_table="patient_name" openmrs_attribute="family_name">{{ patient___family_name }}</patient.family_name>
+    <patient.given_name openmrs_table="patient_name" openmrs_attribute="given_name">{{ patient___given_name }}</patient.given_name>
+    <patient.middle_name openmrs_table="patient_name" openmrs_attribute="middle_name">{{ patient___middle_name }}</patient.middle_name>
+    <patient.patient_id openmrs_table="patient" openmrs_attribute="patient_id">{{ patient___patient_id }}</patient.patient_id>
+    <patient_identifier.identifier_type openmrs_table="patient_identifier" openmrs_attribute="identifier_type">{{ patient___identifier_type }}</patient_identifier.identifier_type>
+    <patient.medical_record_number openmrs_table="patient_identifier" openmrs_attribute="identifier">{{ patient___medical_record_number }}</patient.medical_record_number>
+    <patient.sex openmrs_table="patient" openmrs_attribute="gender">{{ patient___sex }}</patient.sex>
+  </patient>
+  <encounter>
+    <encounter.encounter_datetime openmrs_table="encounter" openmrs_attribute="encounter_datetime">{{ encounter___encounter_datetime }}</encounter.encounter_datetime>
+    <encounter.location_id openmrs_table="encounter" openmrs_attribute="location_id">{{ encounter___location_id }}</encounter.location_id>
+    <encounter.provider_id openmrs_table="encounter" openmrs_attribute="provider_id">{{ encounter___provider_id }}</encounter.provider_id>
+  </encounter>
+  <obs openmrs_concept="1238^MEDICAL RECORD OBSERVATIONS^99DCT" openmrs_datatype="ZZ">
+    <total_offspring_living_in_home openmrs_concept="5675^TOTAL OFFSPRING LIVING IN HOME^99DCT" openmrs_datatype="NM">
+          <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ total_offspring_living_in_home }}</value>
+    </total_offspring_living_in_home>
+    <weeks_of_current_gestation openmrs_concept="1438^WEEKS OF CURRENT GESTATION^99DCT" openmrs_datatype="NM">
+          <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ weeks_of_current_gestation }}</value>
+    </weeks_of_current_gestation>
+    <past_pregnancy_complications openmrs_concept="1430^PAST PREGNANCY COMPLICATIONS^99DCT" openmrs_datatype="CWE" multiple="1">
+        <retained_placenta openmrs_concept="127592^Retained Placenta^99DCT">{% if retained_placenta %}true{% else %}false{% endif %}</retained_placenta>
+        <pregnancy_miscarriage openmrs_concept="48^PREGNANCY, MISCARRIAGE^99DCT">{% if pregnancy_miscarriage %}true{% else %}false{% endif %}</pregnancy_miscarriage>
+        <postpartum_hemorrhage openmrs_concept="230^POSTPARTUM HEMORRHAGE^99DCT">{% if postpartum_hemorrhage %}true{% else %}false{% endif %}</postpartum_hemorrhage>
+        <ectopic_pregnancy_without_intrauterine_pregnancy openmrs_concept="46^Ectopic Pregnancy without Intrauterine Pregnancy^99DCT">{% if ectopic_pregnancy_without_intrauterine_pregnancy %}true{% else %}false{% endif %}</ectopic_pregnancy_without_intrauterine_pregnancy>
+        <other_non-coded openmrs_concept="5622^OTHER NON-CODED^99DCT">{% if other_non_coded %}true{% else %}false{% endif %}</other_non-coded>
+        <pregnancy-induced_hypertension openmrs_concept="113859^PREGNANCY-INDUCED HYPERTENSION^99DCT">{% if pregnancy_induced_hypertension %}true{% else %}false{% endif %}</pregnancy-induced_hypertension>
+        <rectovaginal_fistula openmrs_concept="127847^RECTOVAGINAL FISTULA^99DCT">{% if rectovaginal_fistula %}true{% else %}false{% endif %}</rectovaginal_fistula>
+        <cesarean_section openmrs_concept="1171^CESAREAN SECTION^99DCT">{% if cesarean_section %}true{% else %}false{% endif %}</cesarean_section>
+        <diabetes_mellitus openmrs_concept="119481^DIABETES MELLITUS^99DCT">{% if diabetes_mellitus %}true{% else %}false{% endif %}</diabetes_mellitus>
+        <prolonged_labor openmrs_concept="113602^PROLONGED LABOR^99DCT">{% if prolonged_labor %}true{% else %}false{% endif %}</prolonged_labor>
+        <gestational_diabetes openmrs_concept="1449^GESTATIONAL DIABETES^99DCT">{% if gestational_diabetes %}true{% else %}false{% endif %}</gestational_diabetes>
+        <dilation_and_curettage openmrs_concept="1637^DILATION AND CURETTAGE^99DCT">{% if dilation_and_curettage %}true{% else %}false{% endif %}</dilation_and_curettage>
+        <eclampsia openmrs_concept="118744^Eclampsia^99DCT">{% if eclampsia %}true{% else %}false{% endif %}</eclampsia>
+        <vesico-vaginal_fistula openmrs_concept="49^VESICO-VAGINAL FISTULA^99DCT">{% if vesico_vaginal_fistula %}true{% else %}false{% endif %}</vesico-vaginal_fistula>
+        <low_birth-weight_baby openmrs_concept="1431^LOW BIRTH-WEIGHT BABY^99DCT">{% if low_birth_weight_baby %}true{% else %}false{% endif %}</low_birth-weight_baby>
+        <pregnancy_complication_habitual_aborter openmrs_concept="113399^Pregnancy Complication, Habitual Aborter^99DCT">{% if pregnancy_complication_habitual_aborter %}true{% else %}false{% endif %}</pregnancy_complication_habitual_aborter>
+        <antepartum_hemorrhage openmrs_concept="228^ANTEPARTUM HEMORRHAGE^99DCT">{% if antepartum_hemorrhage %}true{% else %}false{% endif %}</antepartum_hemorrhage>
+        <puerperal_sepsis openmrs_concept="130^PUERPERAL SEPSIS^99DCT">{% if puerperal_sepsis %}true{% else %}false{% endif %}</puerperal_sepsis>
+    </past_pregnancy_complications>
+    <estimated_date_of_confinement openmrs_concept="5596^ESTIMATED DATE OF CONFINEMENT^99DCT" openmrs_datatype="TS">
+          <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ estimated_date_of_confinement }}</value>
+    </estimated_date_of_confinement>
+    <antenatal_visit_number openmrs_concept="1425^ANTENATAL VISIT NUMBER^99DCT" openmrs_datatype="NM">
+      <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <time xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ antenatal_visit_number }}</value>
+    </antenatal_visit_number>
+    <hiv_infected openmrs_concept="1169^HIV INFECTED^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+      <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ hiv_infected }}</value>
+    </hiv_infected>
+    <hiv_test openmrs_concept="1356^HIV Test^99DCT" openmrs_datatype="BIT">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ hiv_test }}</value>
+    </hiv_test>
+    <pregnancy_status openmrs_concept="5272^PREGNANCY STATUS^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ pregnancy_status }}</value>
+    </pregnancy_status>
+    <cd4_count openmrs_concept="5497^CD4 COUNT^99DCT" openmrs_datatype="NM">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ cd4_count }}</value>
+    </cd4_count>
+    <hiv_pcr_qual openmrs_concept="1030^HIV DNA POLYMERASE CHAIN REACTION, QUALITATIVE^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ hiv_pcr_qual }}</value>
+    </hiv_pcr_qual>
+    <gravida openmrs_concept="5624^GRAVIDA^99DCT" openmrs_datatype="NM">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ gravida }}</value>
+    </gravida>
+    <partner_apos_s_hiv_status openmrs_concept="1436^PARTNER'S HIV STATUS^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ partner_apos_s_hiv_status }}</value>
+    </partner_apos_s_hiv_status>
+    <hiv_enzyme_immunoassay_qualitative openmrs_concept="1042^HIV ENZYME IMMUNOASSAY, QUALITATIVE^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ hiv_enzyme_immunoassay_qualitative }}</value>
+    </hiv_enzyme_immunoassay_qualitative>
+    <blood_drawn_for_cd4_count openmrs_concept="1941^Blood drawn for CD4 count^99DCT" openmrs_datatype="CWE" multiple="0">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ blood_drawn_for_cd4_count }}</value>
+    </blood_drawn_for_cd4_count>
+    <return_visit_date openmrs_concept="5096^RETURN VISIT DATE^99DCT" openmrs_datatype="DT">
+    <date xsi:nil="true"/>
+    <time xsi:nil="true"/>
+          <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ return_visit_date }}</value>
+    </return_visit_date>
+    </obs>
+    <other/>
+</form>
