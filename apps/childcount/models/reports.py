@@ -1292,25 +1292,13 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-'''    def save(self, *args, **kwargs):
-        delay = self.appointment_date + relativedelta(days=-3)
-        if delay.weekday() > calendar.FRIDAY:
-            delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
-        #7am
-        delay = datetime.combine(delay, time(7, 0))
-        #delay = datetime.now() + timedelta(seconds=20)
-        if self.sms_alert:
-            revoke(self.sms_alert.task_meta.task_id)
-        msg = _(u"Please send %(patient)s to the health center on for their" \
-                " appointment on %(apt_date)s") % {
-                'patient': self.encounter.patient, \
-                'apt_date': self.appointment_date.strftime('%d-%m-%Y')}
-        alert = SmsAlert(reporter=self.encounter.patient.chw, msg=msg)
-        sms_alert = alert.send(send_at=delay)
-        sms_alert.name = u'appointment_report_reminder'
-        sms_alert.save()
-        self.sms_alert = sms_alert
-        super(AppointmentReport, self).save(*args, **kwargs)'''
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'return_visit_date': self.appointment_date}
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
@@ -1354,6 +1342,14 @@ class PregnancyRegistrationReport(CCReport):
             (self._meta.get_field_by_name('number_of_children')[0]\
                 .verbose_name, self.number_of_children)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'total_offspring_living_in_home': self.number_of_children}
 reversion.register(PregnancyRegistrationReport, follow=['ccreport_ptr'])
 
 
@@ -1395,6 +1391,19 @@ class HIVTestReport(CCReport):
             (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
             self.blood_drawn)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        info = {'blood_drawn_for_cd4_count': self.blood_drawn}
+        if self.hiv == HIV_YES:
+            info.update({'hiv_test': True})
+        if self.hiv == HIV_NO:
+            info.update({'hiv_test': False})
+        return info
 reversion.register(HIVTestReport, follow=['ccreport_ptr'])
 
 
@@ -1419,6 +1428,14 @@ class DBSResultReport(CCReport):
             (self._meta.get_field_by_name('test_result')[0].verbose_name, \
             self.test_result)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'hiv_infected': self.test_result}
 reversion.register(DBSResultReport, follow=['ccreport_ptr'])
 
 
