@@ -6,6 +6,7 @@ import os
 import copy
 import csv
 import cProfile
+import numpy
 from time import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -355,6 +356,7 @@ def gen_operationalreport():
 def operationalreportable(title, indata=None):
     styleH3.fontName = 'Times-Bold'
     styleH3.alignment = TA_CENTER
+    styleH3.fontSize = 10
     styleN2 = copy.copy(styleN)
     styleN2.alignment = TA_CENTER
     styleN3 = copy.copy(styleN)
@@ -369,8 +371,11 @@ def operationalreportable(title, indata=None):
             Paragraph('Newborn', styleH3), '', '', \
             Paragraph('Under-5\'s', styleH3), '', \
             '', '', '', '', Paragraph('Pregnant', styleH3), '', '', \
+            Paragraph('Appointment', styleH3), '', \
             Paragraph('Follow-up', styleH3), '', \
-            Paragraph('SMS', styleH3), ''], \
+            Paragraph('SMS', styleH3), '', \
+            Paragraph('Calculated overall CHW performance indicator',
+                        styleH3)], \
             ['', Paragraph('A1', styleH3), Paragraph('A2', styleH3), \
             Paragraph('A3', styleH3), Paragraph('B1', styleH3), \
             Paragraph('B2', styleH3), Paragraph('B3', styleH3), \
@@ -378,9 +383,10 @@ def operationalreportable(title, indata=None):
             Paragraph('C3', styleH3), Paragraph('C4',  styleH3), \
             Paragraph('C5', styleH3), Paragraph('C6', styleH3), \
             Paragraph('D1', styleH3), Paragraph('D2', styleH3), \
-            Paragraph('D3', styleH3), Paragraph('E1', styleH3), \
+            Paragraph('D3', styleH3), Paragraph('F1', styleH3),
+            Paragraph('F2', styleH3), Paragraph('E1', styleH3), \
             Paragraph('E2', styleH3), Paragraph('F1', styleH3), \
-            Paragraph('F2', styleH3)]]
+            Paragraph('F2', styleH3), Paragraph('I1', styleH3)]]
 
     thirdrow = [Paragraph(cols[0]['name'], styleH3)]
     thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
@@ -390,7 +396,8 @@ def operationalreportable(title, indata=None):
     fourthrow = [Paragraph('Target:', styleH3)]
     fourthrow.extend([Paragraph(item, styleN) for item in ['-', '-', '100', \
                         '-', '100', '100', '-', '-', '-', '-', '100', '-', \
-                        '-', '-', '100', '100', '&lt;=2', '0', '-']])
+                        '-', '-', '100', '', '100', '100', '&lt;=2', '0', \
+                        '-', '100']])
     data.append(fourthrow)
 
     fifthrow = [Paragraph('<u>List of CHWs</u>', styleH3)]
@@ -398,9 +405,9 @@ def operationalreportable(title, indata=None):
     data.append(fifthrow)
 
     rowHeights = [None, None, None, 2.3 * inch, 0.25 * inch, 0.25 * inch]
-    colWidths = [1.5 * inch]
-    colWidths.extend((len(cols) - 1) * [0.5 * inch])
-
+    colWidths = [1.7 * inch]
+    colWidths.extend((len(cols) - 1) * [0.4 * inch])
+    analysis_data = {}
     if indata:
         for row in indata:
             ctx = Context({"object": row})
@@ -409,25 +416,56 @@ def operationalreportable(title, indata=None):
             values.extend([Paragraph(Template(col["bit"]).render(ctx), \
                                 styleN3) for col in cols[1:]])
             data.append(values)
+            for col in cols[1:]:
+                if col['col'] not in analysis_data:
+                    analysis_data[col['col']] = []
+                v = Template(col["bit"]).render(ctx)
+                v = v.replace('%', '').replace('-', '').replace(' ', '')
+                if v == '':
+                    v = 0
+                analysis_data[col['col']].append(int(v))
         rowHeights.extend(len(indata) * [0.25 * inch])
+        arow = [u'Average for all CHWs']
+        srow = [u'Standard Deviation']
+        mrow = [u'Median for all CHWs']
+        for col in cols[1:]:
+            avg = numpy.average(analysis_data[col['col']])
+            arow.append(int(avg))
+            sd = int(numpy.std(analysis_data[col['col']]))
+            if sd > avg:
+                sdp = Paragraph(u"<b>%d</b>" % sd, styleN3)
+            elif sd < avg:
+                sdp = Paragraph(u"<u>%d</u>" % sd, styleN3)
+            else:
+                sdp = Paragraph(u"%d" % sd, styleN3)
+            srow.append(sdp)
+            md = numpy.median(analysis_data[col['col']])
+            mrow.append(int(md))
+        data.extend([arow, srow, mrow])
+        rowHeights.extend(3 * [0.25 * inch])
     tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
     tb.setStyle(TableStyle([('SPAN', (0, 0), (19, 0)),
                             ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey),\
                             ('BOX', (0, 0), (-1, -1), 0.1, \
                             colors.lightgrey), \
-                            ('BOX', (1, 1), (3, -1), 5, \
+                            ('BOX', (1, 1), (3, -1), 2, \
                             colors.lightgrey),\
                             ('SPAN', (1, 1), (3, 1)), \
                             ('SPAN', (4, 1), (6, 1)), \
-                            ('BOX', (7, 1), (12, -1), 5, \
+                            ('BOX', (7, 1), (12, -1), 2, \
                             colors.lightgrey),\
                             ('SPAN', (7, 1), (12, 1)), \
                             ('SPAN', (13, 1), (15, 1)), \
-                            ('BOX', (16, 1), (17, -1), 5, \
+                            ('BOX', (16, 1), (17, -1), 2, \
                             colors.lightgrey),\
                             ('SPAN', (16, 1), (17, 1)), \
+                            ('SPAN', (18, 1), (19, 1)), \
                             ('SPAN', (-2, 1), (-1, 1)), \
+                            ('BOX', (-3, 1), (-2, -1), 2, \
+                            colors.lightgrey),
+                            ('LINEABOVE', (0, -3), (-1, -3), 1, \
+                            colors.black)
                 ]))
     return tb
 

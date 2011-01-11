@@ -21,7 +21,7 @@ from childcount.models import NutritionReport
 from childcount.models import FeverReport
 from childcount.models import ReferralReport
 from childcount.models import BirthReport
-from childcount.models import PregnancyReport
+from childcount.models import PregnancyReport, SPregnancy
 from childcount.models import HouseholdVisitReport
 from childcount.models import FollowUpReport
 from childcount.models import ImmunizationSchedule
@@ -31,6 +31,7 @@ from childcount.models import BednetIssuedReport
 from childcount.models import BednetUtilization
 from childcount.models import DrinkingWaterReport
 from childcount.models import SanitationReport
+from childcount.models import AppointmentReport
 
 from childcount.utils import day_end, \
                                 day_start, \
@@ -564,7 +565,7 @@ class TheCHWReport(CHW):
         births = BirthReport.objects.filter(encounter__chw=self)
         count = 0
         for birth in births:
-            thepatient = ThePatient.objects.get(id=birth.encounter.patient)
+            thepatient = ThePatient.objects.get(pk=birth.encounter.patient.pk)
             if thepatient.check_visit_within_seven_days_of_birth():
                 count += 1
         if births.count() == 0:
@@ -646,11 +647,15 @@ class TheCHWReport(CHW):
 
     def pregnant_women(self):
         c = []
-        pregs = PregnancyReport.objects.filter(encounter__chw=self)\
+        if not PregnancyReport.objects.filter(encounter__chw=self):
+            prgclass = SPregnancy
+        else:
+            prgclass = PregnancyReport
+        pregs = prgclass.objects.filter(encounter__chw=self)\
                                 .values('encounter__patient').distinct()
         for preg in pregs:
             patient = Patient.objects.get(id=preg['encounter__patient'])
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+            pr = prgclass.objects.filter(encounter__patient=patient)\
                                         .latest()
             days = (pr.encounter.encounter_date - datetime.now()).days
             months = round(days / 30.4375)
@@ -668,14 +673,17 @@ class TheCHWReport(CHW):
         pwomen = self.pregnant_women()
         if len(pwomen) == 0:
             return None
-
+        if not PregnancyReport.objects.filter(encounter__chw=self):
+            prgclass = SPregnancy
+        else:
+            prgclass = PregnancyReport
         count = 0
         for patient in pwomen:
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+            pr = prgclass.objects.filter(encounter__patient=patient)\
                                         .latest()
             latest_date = pr.encounter.encounter_date
             old_date = latest_date - timedelta(6 * 7)
-            pr = PregnancyReport.objects.filter(encounter__patient=patient, \
+            pr = prgclass.objects.filter(encounter__patient=patient, \
                                 encounter__encounter_date__gte=old_date, \
                                 encounter__encounter_date__lt=latest_date)
             if pr.count():
@@ -704,7 +712,7 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__lte=day2later)
             if fur:
                 ontimefollowup += 1
-        return '%s' % int(round((ontimefollowup / \
+        return int(round((ontimefollowup / \
                         float(num_referrals)) * 100))
 
     def median_number_of_followup_days(self):
@@ -822,6 +830,44 @@ class TheCHWReport(CHW):
     def num_drinkingwater(self):
         'total survey done on drinking water '
         return DrinkingWaterReport.objects.filter(encounter__chw=self).count()
+
+    def current_monthly_appointments(self):
+        '''AppointmentReports since the start of the month to date'''
+        today = datetime.today().date()
+        start_of_month = today + relativedelta(day=1)
+        apts = AppointmentReport.objects.filter(encounter__chw=self,
+                                appointment_date__gte=start_of_month,
+                                appointment_date__lte=today)
+        return apts
+
+    def num_of_appointment(self):
+        return self.current_monthly_appointments().count()
+
+    def percentage_reminded(self):
+        apts = self.current_monthly_appointments()
+        total = apts.count()
+        reminded = apts.filter(status__in=(AppointmentReport.STATUS_PENDING_CV,
+                                            AppointmentReport.STATUS_CLOSED))
+        if total == 0:
+            return 0
+        return int(round((reminded.count() / float(total)) * 100, 0))
+
+    def score(self):
+        pov = pobv = pom = ppov = pr = pof = 0
+        if self.percentage_ontime_visits():
+            pov = self.percentage_ontime_visits()
+        if self.percentage_ontime_birth_visits():
+            pobv = self.percentage_ontime_birth_visits()
+        if self.percentage_ontime_muac():
+            pom = self.percentage_ontime_muac()
+        if self.percentage_pregnant_ontime_visits():
+            ppov = self.percentage_pregnant_ontime_visits()
+        if self.percentage_reminded():
+            pr = self.percentage_reminded()
+        if self.percentage_ontime_followup():
+            pof = self.percentage_ontime_followup()
+        score =  pov + pobv + pom + ppov + pof + pr
+        return int(round(score / 6.0, 0))
 
     @classmethod
     def muac_summary(cls):
@@ -995,104 +1041,140 @@ class OperationalReport():
         columns.append({ \
             'name': _("CHW"),
             'abbr': _("CHW"),
-            'bit': '{{object}}'})
+            'bit': '{{object}}',
+            'col': 'name'})
         columns.append({ \
             'name': _("# of Households"), \
             'abbr': _("#HH"), \
-            'bit': '{{object.number_of_households}}'})
+            'bit': '{{object.number_of_households}}',
+            'col': 'A1'})
         columns.append({ \
             'name': _("# of Household Visits"), \
             'abbr': _("#HH-V"), \
-            'bit': '{{object.num_of_householdvisits}}'})
+            'bit': '{{object.num_of_householdvisits}}',
+            'col': 'A2'})
         columns.append({
             'name': _("% of HHs receiving on-time routine visit "\
                                     "(within 90 days) [S23]"), \
             'abbr': _("%OTV"), \
             'bit': '{% if object.percentage_ontime_visits %}' \
                    '{{ object.percentage_ontime_visits }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'A3'})
         columns.append({ \
             'name': _("# of Births"), \
             'abbr': _('#Bir'), \
-            'bit': '{{object.num_of_births}}'})
+            'bit': '{{object.num_of_births}}',
+            'col': 'B1'})
         columns.append({ \
             'name': _("% Births delivered in "\
                                 "Health Facility [S4]"),
             'abbr': _('%BHF'), \
             'bit': '{% if object.percentage_clinic_deliveries %}' \
                    '{{ object.percentage_clinic_deliveries }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'B2'})
         columns.append({ \
             'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
             'abbr': _('%NNV'), \
             'bit': '{% if object.percentage_ontime_birth_visits %}' \
                    '{{ object.percentage_ontime_birth_visits }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'B3'})
         columns.append({ \
             'name': _("# of Under-5s"), \
             'abbr': _('#U5'), \
-            'bit': '{{object.num_of_underfive}}'})
+            'bit': '{{object.num_of_underfive}}',
+            'col': 'C1'})
         columns.append({
             'name': _("# Under-5 Referred for Danger Signs"), \
             'abbr': _('#U5-DS'), \
-            'bit': '{{object.num_underfive_refferred}}'})
+            'bit': '{{object.num_underfive_refferred}}',
+            'col': 'C2'})
         columns.append({ \
             'name': _("# Under-5 Treated for Malarias"), \
             'abbr': _('#U5-Mal'), \
-            'bit': '{{object.num_underfive_malaria}}'})
+            'bit': '{{object.num_underfive_malaria}}',
+            'col': 'C3'})
         columns.append({ \
             'name': _("# Under-5 Treated for Diarrhea"), \
             'abbr': _('#U5-Dia'), \
-            'bit': '{{object.num_underfive_diarrhea}}'})
+            'bit': '{{object.num_underfive_diarrhea}}',
+            'col': 'C4'})
         columns.append({ \
             'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
             'abbr': _('#U5-MUAC'), \
             'bit': '{% if object.percentage_ontime_muac %}' \
                    '{{ object.percentage_ontime_muac }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'C5'})
         columns.append({ \
             'name': _("# of Active SAM cases"), \
             'abbr': _('#U5-SAM'), \
-            'bit': '{{object.num_of_active_sam_cases}}'})
+            'bit': '{{object.num_of_active_sam_cases}}',
+            'col': 'C6'})
         columns.append({ \
             'name': _("# of Pregnant Women"), \
             'abbr': _('#PW'), \
-            'bit': '{{object.num_of_pregnant_women}}'})
+            'bit': '{{object.num_of_pregnant_women}}',
+            'col': 'D1'})
         columns.append({ \
             'name': _("# Pregnant Women Referred for "\
                                     "Danger Signs"),
             'abbr': _('#PW-DS'), \
-            'bit': '{{object.num_pregnant_refferred}}'})
+            'bit': '{{object.num_pregnant_refferred}}',
+            'col': 'D2'})
         columns.append({ \
             'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
             'abbr': _('%PW-OTV'), \
             'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
                    '{{ object.percentage_pregnant_ontime_visits }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'D3'})
+        columns.append({ \
+            'name': _("# Number of appointments"), \
+            'abbr': _('%NOA'), \
+            'bit': '{{ object.num_of_appointment }}',
+            'col': 'F1'})
+        columns.append({ \
+            'name': _("% of appointment reminders completed"), \
+            'abbr': _('%POA-RT'), \
+            'bit': '{{ object.percentage_reminded }}%',
+            'col': 'F2'})
         columns.append({ \
             'name': _("% Referred / Treated receiving on-time "\
                             "follow-up (within 2 days) [S13]"),
             'abbr': _('%Ref'), \
             'bit': '{% if object.percentage_ontime_followup %}' \
                    '{{ object.percentage_ontime_followup }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'E1'})
         columns.append({ \
             'name': _("Median # of days for follow-up [S25]"), \
             'abbr': _('#Fol'), \
-            'bit': '{{object.median_number_of_followup_days}}'})
+            'bit': '{{object.median_number_of_followup_days}}',
+            'col': 'name'})
         columns.append({ \
             'name': _("SMS Error Rate %"), \
             'abbr': _('%Err'), \
             'bit': '{% if object.sms_error_rate %}' \
                    '{{ object.sms_error_rate }}%'\
-                   '{% else %}-{% endif %}'})
+                   '{% else %}-{% endif %}',
+            'col': 'F1'})
         columns.append({ \
             'name': _("Days since last SMS transmission"), \
             'abbr': _('#Days'), \
-            'bit': '{{object.days_since_last_sms}}'})
+            'bit': '{% if object.days_since_last_sms %} '\
+                    '{{object.days_since_last_sms}}{% else %}-{% endif %}',
+            'col': 'F2'})
+        columns.append({ \
+            'name': _("Calculated overall CHW performance indicator"), \
+            'abbr': _('SCORE'), \
+            'bit': '{{ object.score }}%',
+            'col': 'I1'})
         self.columns = columns
 
     def get_columns(self):
