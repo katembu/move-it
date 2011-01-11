@@ -31,7 +31,11 @@ class EncounterAdmin(VersionAdmin):
 admin.site.register(Encounter, EncounterAdmin)
 
 #Reports
-admin.site.register(CCReport, VersionAdmin)
+
+
+class CCReportAdmin(VersionAdmin):
+    search_fields = ['encounter__patient__health_id']
+admin.site.register(CCReport, CCReportAdmin)
 admin.site.register(BirthReport, VersionAdmin)
 admin.site.register(DeathReport, VersionAdmin)
 admin.site.register(StillbirthMiscarriageReport, VersionAdmin)
