@@ -14,6 +14,12 @@ from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetDistributionForm(CCForm):
+    """ For adding a Bednet distribution Report.
+
+    Params:
+        * number of bednet received
+    """
+
     KEYWORDS = {
         'en': ['bnd'],
         'fr': ['bnd'],

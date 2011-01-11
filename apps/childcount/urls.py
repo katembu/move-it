@@ -14,6 +14,7 @@ from childcount.reports import operational
 from childcount.reports import pmtct, bednet
 from childcount.reports import performance
 from childcount.reports import custom_reports as reports
+from childcount.reports import report_framework  
 
 admin.autodiscover()
 
@@ -40,36 +41,18 @@ urlpatterns = patterns('',
     url(r'^$', views.index, name='dashboard'),
     url(r'^childcount/?$', views.index, name='cc-dashboard'),
     url(r'^childcount/patients/?$', views.patient, name='cc-patients'),
-    url(r'^childcount/patients/edit/((?P<healthid>[A-Z0-9]+)/)?$',
+    url(r'^childcount/patients/edit/((?P<healthid>[a-zA-Z0-9]+)/)?$',
         views.edit_patient, name='cc-edit_patient'),
     #url(r'^childcount/patients/autocomplete/$',
     #    views.autocomplete),
     url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
     url(r'^childcount/bednet/?$', views.bednet_summary),
-    url(r'^childcount/patients/(?P<rfilter>[a-z]+)/(?P<rformat>[a-z]+)?$', \
-        reports.all_patient_list_pdf),
+
     url(r'^childcount/patients_per_chw/pdf/?$', \
                                     reports.all_patient_list_per_chw_pdf),
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
-    url(r'^childcount/reports/underfive-(?P<clinic>[a-z]*).(?P<rformat>[a-z]*)$', reports.gen_underfive_register_pdf),
-    url(r'^childcount/monthly-summary', reports.clinic_monthly_summary_csv),
-    url(r'^childcount/reports/ccforms-summary.(?P<rformat>[a-z]*)$',
-            reports.ccforms_summary),
-    url(r'^childcount/reports/ccreports-summary.(?P<rformat>[a-z]*)$',
-            reports.ccreports_summary),
-    url(r'^childcount/reports/form_a_entered.(?P<rformat>[a-z]*)$',
-        statistics.form_a_entered),
-    url(r'^childcount/reports/form_b_entered.(?P<rformat>[a-z]*)$',
-        statistics.form_b_entered),
-    url(r'^childcount/reports/form_c_entered.(?P<rformat>[a-z]*)$',
-        statistics.form_c_entered),
-    url(r'^childcount/reports/operational_report.(?P<rformat>[a-z]*)$',
-        operational.operational_report),
-    url(r'^childcount/reports/encounters_per_day.(?P<rformat>[a-z]*)$', 
-        statistics.encounters_per_day),
-
     url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
 
@@ -78,6 +61,7 @@ urlpatterns = patterns('',
                         views.form, name='form'),
     url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
         views.site_summary),
+
     # PMTCT links
     url(r'^childcount/reports/pmtct-defaulters.(?P<rformat>[a-z]*)$', 
         pmtct.defaulters),
@@ -97,13 +81,7 @@ urlpatterns = patterns('',
         pmtct.active_mothers),
     url(r'^childcount/reports/pmtct-stats.(?P<rformat>[a-z]*)$', 
         pmtct.statistics),
-    # survey rpts
-    url(r'^childcount/reports/hhsurveyrpt.(?P<rformat>[a-z]*)$', 
-        reports.a_surveyreport),
-    url(r'^childcount/reports/performance.pdf$', 
-        performance.chw_performance),
-    url(r'^childcount/reports/num-under-five-per-clinic.(?P<rformat>[a-z]*)$', 
-        reports.num_under_five_per_clinic),
-    url(r'^childcount/reports/bednet-issued.(?P<rformat>[a-z]*)$', 
-        bednet.issued_report),
+    # On-Demand Reports for Reporting Framework
+    url(r'^childcount/reports/ondemand/(?P<rname>[a-zA-Z0-9\-\_]*).(?P<rformat>[a-z]*)$', 
+        report_framework.serve_ondemand_report),
 )

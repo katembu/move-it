@@ -9,17 +9,35 @@ from django import template
 from reportlab.lib.units import cm 
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Table, Paragraph, Frame, BaseDocTemplate
+from reportlab.platypus import Table, Paragraph, Frame, \
+    BaseDocTemplate, PageBreak
+from reportlab.lib.pagesizes import landscape, A4
 from reportlab.platypus import PageTemplate, Spacer
 
 from ccdoc.generator import Generator
+from ccdoc.table import Table as cctable
 
+
+TA_MAP = {
+    cctable.ALIGN_LEFT: TA_LEFT,
+    cctable.ALIGN_RIGHT: TA_RIGHT,
+    cctable.ALIGN_CENTER: TA_CENTER,
+    cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
 
 class PDFGenerator(Generator):
     def _start_document(self):
         self.PAGE_HEIGHT = 21.0 * cm
         self.PAGE_WIDTH = 29.7 * cm
+
+        if self.landscape:
+            x = self.PAGE_HEIGHT
+            self.PAGE_HEIGHT = self.PAGE_WIDTH
+            self.PAGE_WIDTH = x
+            pagesize = landscape(A4)
+        else:
+            pagesize = A4
 
         self.text_templ = template.Template('{{text}}')
 
@@ -32,8 +50,8 @@ class PDFGenerator(Generator):
         self.elements = []
 
         ''' Overall document object describing PDF '''
-        self.doc = BaseDocTemplate(self._handle,
-            showBoundary=0,
+        self.doc = BaseDocTemplate(self._filename,
+            showBoundary=0, pagesize=pagesize, 
             title = unicode(self.title))
 
         ''' Frame template defining page size, margins, etc '''
@@ -61,7 +79,7 @@ class PDFGenerator(Generator):
 
         ''' Date string '''
         date_style = copy.copy(self.styles['Normal'])
-        date_style.fontSize = 12 
+        date_style.fontSize = 10
         date_style.leading = 13
         self.elements.append(Paragraph(unicode(self.datestring), date_style))
 
@@ -80,6 +98,10 @@ class PDFGenerator(Generator):
                 u'<strong>' + unicode(section.text) + u'</strong>',
                 self.section_style))
 
+    def _render_pagebreak(self, pagebreak):
+        self.elements.append(PageBreak())
+
+
     def _render_text(self, text):
         output = u''
         if text.bold:
@@ -94,10 +116,10 @@ class PDFGenerator(Generator):
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
         '''
-        output = self.text_templ.render(c)
+        output += self.text_templ.render(c)
 
         if text.size != text.DEFAULT_SIZE:
-            ouptut += "</font>"
+            output += "</font>"
         if text.italic:
             output += "</i>"
         if text.bold:
@@ -140,11 +162,15 @@ class PDFGenerator(Generator):
             rowdata = []
 
             # row[0] is true when this is a header row
+            k = 0
             for c in row[1]:
                 if row[0]:
                     j = 1; c.bold = True
                     tabstyle.append(('LINEBELOW', (0, i-1), (-1, i-1), 0.25, colors.black))
-                rowdata.append(Paragraph(self._render_text(c), self.table_style))
+                # Paragraph style is dynamic
+                rowdata.append(Paragraph(self._render_text(c), \
+                                          self.get_row_style(table, column=k)))
+                k += 1
             tabdata.append(rowdata)
 
             # Zebra stripes (not on header rows)
@@ -161,12 +187,53 @@ class PDFGenerator(Generator):
         tabstyle.append(('TOPPADDING', (0,0), (-1,-1), 1))
         tabstyle.append(('BOTTOMPADDING', (0,0), (-1,-1), 2))
 
-        table = Table(tabdata, style=tabstyle)
+        table = Table(tabdata, style=tabstyle, \
+                      colWidths=self.gen_column_widths(table))
         self.elements.append(table)
+
+    def get_row_style(self, table, column):
+        """ return a Style object based on a column number
+
+        serves either the standard table_style or same with custom alignment
+        if it's been modified """
+
+        if column in table.column_alignments:
+            custom_style = copy.copy(self.table_style)
+            custom_style.alignment = TA_MAP[table.column_alignments[column]]
+            return custom_style
+        return self.table_style
+
+    def gen_column_widths(self, table):
+        """ returns a colWidths compatible list of widths for all columns
+
+        sizes are calculated from user requests """
+
+        # total available width
+        total_width = self.PAGE_HEIGHT - 3 * cm
+        # static
+        auto = 'auto'
+        # available width used for counting
+        avail = total_width
+        # number of columns set
+        set_columns = 0
+        
+        widths = {}
+        for col in range(0, table.ncols + 1):
+            if col in table.column_widths:
+                widths[col] = (table.column_widths[col] * total_width) / 100.0
+                avail -= widths[col]
+                set_columns += 1
+            else:
+                widths[col] = auto
+        default_width = float(avail) / (table.ncols - set_columns)
+        for col in range(0, table.ncols + 1):
+            if widths[col] == auto:
+                widths[col] = default_width
+
+        return widths.values()
 
     def _end_document(self):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
         self.doc.build(self.elements)
-
 

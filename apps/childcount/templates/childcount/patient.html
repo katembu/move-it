@@ -1,91 +1,70 @@
 {% extends base_template %}
-{% block javascripts %}
+{% load i18n %}
 
+{% block javascripts %}
+<link rel="stylesheet" type="text/css" href="/static/childcount/stylesheets/cc_ui_tables.css" media="all" />
 {% endblock javascripts %}
 
 {% block page_stylesheets %}
 {{ block.super }}
-<link type="text/css" rel="stylesheet" href="/static/childcount/stylesheets/basic.css"/>
-<style typ=text/css>
-    table.display tr.odd.inc{
-        background-color: #FFDDDD;
-    }
-     table.display tr.even.inc{
-        background-color: #FFEEEE;
-    }
-    table.display tr.odd.inc td.sorting_1{
-        background-color: #FFC4C4;
-    }
-    table.display tr.even.inc td.sorting_1{
-        background-color: #FFD5D5;
-    }
-    tr.row_selected{
-        background-color: #D5FFD5;
-    }
-
-#ch-l {
-float:left;
-width:80%;
-}
-#ch-r {
-width:18%;
-float:right;
-position:relative;
-}
-    #content img{
-        border: 0 solid white;
-    }
-    
-
-</style>
 {% endblock page_stylesheets %}
 
 {% block title %}{{ title }}{% endblock %}
+
 {% block content %}
 
-<h2>Patient Lookup</h2>
-<form id='editform' action='/childcount/patients/edit/' method='GET'>
-    Health ID: <input name='hid' type='text'></input>
-    <input type="submit" value="Edit"></input>
-</form>
+<div class="list-header">
+<h2 class="ptitle">Patient List{% if search %}: <em>{{ search }}</em>{% endif %}</h2>
+<div class="searchbox">
+	<form action="/childcount/patients" method="get">
+	<input type="text" id="patient_search" name="patient_search">
+	</form>
+</div>
+<a href="#" class="send">Search</a>
+</div>
+<script type="text/javascript">
+$('div.list-header a.send').click(function(evt){
+	var button = $(evt.target);
+	button.blur();
+	evt.preventDefault();
+	button.parent().find('form').submit();
+})
+</script>
 
-<h2>{{report_title}}{% if scope %}: {{scope}}{% endif %}</h2>
-<div id='ch-bd'><div id='ch-l'>
 
-<table  cellpadding="0" cellspacing="0" border="0" id="report" class="display">
-    <thead>
-    <tr>
-    {% for column in columns %}
-            {% if sub_columns %}
-                {% if column.colspan %}
-                    <th colspan="{{column.colspan}}" class="spanned"{% ifequal columns|length 15%} style="font-size:8px"{% endifequal %}>{{column.name}}</th>
-                {% else %}
-                    <th rowspan="2">{{column.name}}</th>
-                {% endif %}
-            {% else %}
-                <th>{{column.name}}</th>
-            {% endif %}
-    {% endfor %}
-    </tr>
-    {% if sub_columns %}
-    <tr>
-        {% for column in sub_columns %}
-            <th>{{column.name}}</th>
-        {% endfor %}
-    </tr>
-    {% endif %}
 
-    </thead>
-    <tbody>
-        {% for row in rows %}
-            <tr{% if not row.complete %} class="inc"{%endif%}>
-            {% for cell in row.cells %}
-                    <td{% if cell.num %} class="num"{% endif %}{% if forloop.first %} style="white-space:nowrap;"{% endif %}>{% if cell.link %}<a href="{{cell.link}}">{% endif %}{{cell.value|default_if_none:""}}{% if cell.link %}</a>{% endif %}</td>
-            {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-
+<table style="width:100%" class="patient-list cclist">
+<thead>
+<tr>
+<th>ID</th>
+<th>Patient Name</th>
+<th></th>
+<th>DOB</th>
+<th>Location</th>
+<th>CHW</th>
+</thead>
+<tbody>
+{% for patient in patients.object_list %}
+<tr>
+<td class="health-id">{{patient.health_id}}</td>
+<td><a href="/childcount/patients/edit/{{patient.health_id}}">{{patient.last_name}}, {{patient.first_name}}</a></td>
+<td>{{patient.humanised_age}}</td>
+<td>{{patient.dob}}</td>
+<td>{{patient.location.name}}</td>
+<td>{{patient.chw}}</td>
+</tr>
+{% endfor %}
+<tr colspan='6'><p class='it info'>{{rcount}} results found. <!-- Displaying results {{rstart}}-{{rend}}. --></p></tr>
+</tbody>
+<script type="text/javascript">
+<!--
+$('table.patient-list').addClass('on');
+$('table.patient-list tbody').delegate('a', 'click', function(evt){evt.stopImmediatePropagation()})
+$('table.patient-list tbody tr').click(function(evt){
+    window.location.href=$(this).find('a').attr('href');
+})
+-->
+</script>
 </table>
 
 {% if is_paginated %}
@@ -98,25 +77,25 @@ position:relative;
 {% if has_previous %}<span class="prev"><a href="/childcount/patients?page={{previous}}" title="Previous Page">&laquo; Previous</a></span>{% else %}<span class="prev-na">&laquo; Previous</span>{% endif %}
  
 {% if not in_leading_range %}
-	{% for num in pages_outside_trailing_range %}
-		<span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
-	{% endfor %}
-	...
+    {% for num in pages_outside_trailing_range %}
+        <span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
+    ...
 {% endif %}
  
 {% for num in page_numbers %}
   {% ifequal num page %}
     <span class="curr" title="Current Page">{{ num }}</span>
   {% else %}
-  	<span class="page"><a href="/childcount/patients?page={{ num }}" title="Page {{ num }}">{{ num }}</a></span>
+    <span class="page"><a href="/childcount/patients?page={{ num }}" title="Page {{ num }}">{{ num }}</a></span>
   {% endifequal %}
 {% endfor %}
  
 {% if not in_trailing_range %}
-	...
-	{% for num in pages_outside_leading_range reversed %}
-		<span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
-	{% endfor %}
+    ...
+    {% for num in pages_outside_leading_range reversed %}
+        <span class="page"><a href="/childcount/patients?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
 
 {% endif %}
  

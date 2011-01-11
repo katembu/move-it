@@ -65,6 +65,9 @@ class OpenMRSFormInterface(object):
     patient___given_name = None
     patient___middle_name = None
     patient___sex = None
+    patient__village = None
+    patient__in_cluster = '1067^UNKNOWN^99DCT'
+    patient__in_cluster_id = 10
 
     # Encounter Informations
     encounter___encounter_datetime = None
@@ -80,7 +83,8 @@ class OpenMRSFormInterface(object):
     def __init__(self, create, mri, location, provider, \
                      encounter_datetime=datetime.now(), dob=None, \
                      dob_estimate=False, family_name=None, given_name=None, \
-                     middle_name=None, sex=None):
+                     middle_name=None, sex=None, village=None, \
+                     in_cluster='1067^UNKNOWN^99DCT'):
 
         # can't check much of those
         if not isinstance(location, int):
@@ -89,7 +93,7 @@ class OpenMRSFormInterface(object):
         if not isinstance(provider, int):
             raise UnexpectedValueError(_(u"Provider requires int"))
         self.encounter___provider_id = provider
-
+        
         if not isinstance(encounter_datetime, datetime):
             raise UnexpectedValueError(_(u"Encounter datetime invalid"))
         self.encounter___encounter_datetime = \
@@ -127,6 +131,8 @@ class OpenMRSFormInterface(object):
         self.patient___given_name = given_name
         self.patient___middle_name = middle_name
         self.patient___sex = sex
+        self.patient___village = village
+        self.patient__in_cluster = in_cluster
         self.values = {}
 
     def load_template(self):
@@ -140,6 +146,10 @@ class OpenMRSFormInterface(object):
         if not field in self.fields:
             return None
 
+        # if value is None, it's probably a non-filled optional one.
+        if value == None:
+            return None
+
         # retrive field definition
         ff_type, ff_values = self.fields[field]
 
@@ -151,7 +161,7 @@ class OpenMRSFormInterface(object):
                 ff_value = value
             try:
                 tmp = float(ff_value)
-            except ValueError:
+            except (TypeError, ValueError):
                 raise UnexpectedValueError(_(u"Expecting Numeric value"))
 
             self.values[field] = ff_value
@@ -243,6 +253,9 @@ class OpenMRSFormInterface(object):
             'patient___given_name',
             'patient___middle_name',
             'patient___sex',
+            'patient___village',
+            'patient__in_cluster',
+            'patient__in_cluster_id',
             'encounter___encounter_datetime',
             'encounter___location_id',
             'encounter___provider_id',

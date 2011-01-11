@@ -15,6 +15,12 @@ from childcount.utils import send_msg
 
 
 class HIVTestForm(CCForm):
+    """ HIV Test
+
+    Params:
+        * VIH test result (Y/N/U/NC)
+    """
+
     KEYWORDS = {
         'en': ['ht'],
         'fr': ['ht'],
@@ -47,7 +53,7 @@ class HIVTestForm(CCForm):
                                     HIVTestReport.BLOOD_DRAWN_NO, 'N')
         blood_drawn_field.add_choice('fr', \
                                     HIVTestReport.BLOOD_DRAWN_UNKNOWN, 'I')
-        
+
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info."))
         try:

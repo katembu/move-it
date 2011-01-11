@@ -1,6 +1,10 @@
 
 from text import Text
 
+class PageBreak(object):
+    def __init__(self):
+        pass
+
 class Section(Text):
     ''' Section is a section heading...
 

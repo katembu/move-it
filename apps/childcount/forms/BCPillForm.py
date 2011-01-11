@@ -12,6 +12,13 @@ from childcount.exceptions import ParseError
 
 
 class BCPillForm(CCForm):
+    """ For adding a Birth Control Pill Report.
+
+    Params:
+        * number of pill (int)
+        * number-of-women (int)
+    """
+
     KEYWORDS = {
         'en': ['l'],
         'fr': ['l'],

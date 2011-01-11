@@ -15,6 +15,14 @@ from childcount.utils import send_msg
 
 
 class NutritionForm(CCForm):
+    """ Nutrition Form
+
+    Params:
+        * MPB (int)
+        * Oed (Y/N/U)
+        * Kg (optional)
+    """
+
     KEYWORDS = {
         'en': ['m', 'muac'],
         'fr': ['m', 'muac'],

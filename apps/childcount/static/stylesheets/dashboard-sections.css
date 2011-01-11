@@ -1,0 +1,176 @@
+/* Main Dashboard Sections
+-*/
+
+div.dashboard-section {
+	width: 48%;
+	float: left;
+	margin: 0px 1%;
+	padding: 8px 0;
+}
+.dashboard-section h2.title {
+	display: inline;
+	color: #A34103;
+	font-family: "Lucida Grand",Arial,Helvetica,sans-serif;
+	font-size: 18px;
+	font-weight: normal;
+	background-color: #fff;
+	margin: 0 0 0 20px;
+	padding: 0 5px;
+}
+.dashboard-section div.s-content {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	padding: 12px 12px 8px;
+	margin: -8px 0 0 0;
+}
+
+/* Highlight Stats Bar
+-*/
+#statbar {
+	margin: 0 -20px;
+	background-color: #f8f3f2;
+	border: 1px solid #e7d3cf;
+	border-color: transparent #f7f0ee #e7d3cf #f7f0ee;
+	border-width: 0 2px 2px;
+	padding: 6px 18px;
+}
+#statbar table {
+	width: 100%;
+}
+#statbar th {
+	font-weight: normal;
+}
+#statbar td {
+	text-align: center;
+	font-weight: bold;
+	font-size: 15px;
+	width: 25%;
+}
+#statbar td div {
+	height: 15px;
+	color: #fff;
+	background-color: #401a11;
+	padding: 4px 0;
+	margin: 0 3px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+}
+
+/* Recent Numbers Table
+ - (uses jquery.cc.highlight-table.js)
+-*/
+
+#recent-numbers table {
+	border-spacing: 0;
+	border-padding: 0;
+}
+#recent-numbers th {
+	font-weight: normal;
+	font-size: 8px;
+	height: 30px;
+	vertical-align: bottom;
+	border: 1px solid #ddd;
+	border-width: 0 0 1px;
+}
+#recent-numbers td {
+	height: 22px;
+	border-color: #EEEEEE;
+    border-style:solid;
+    border-width:0 0 1px;
+}
+#recent-numbers td.highlight-column, #recent-numbers th.highlight-column {
+	text-align: center;
+	width: 40px;
+	padding: 0 5px;
+}
+#recent-numbers table.highlight-table th {
+	color: transparent;
+}
+#recent-numbers table.highlight-table td.highlight-column {
+	color: #666;
+}
+#recent-numbers table.highlight-table td.highlight-column div {
+	border: 1px solid #eee;
+	border-width: 0 1px;
+	height: 22px;
+	line-height: 22px;
+	padding: 0 6px;
+	cursor: pointer;
+}
+#recent-numbers table.highlight-table td.highlighted div {
+	background-color: rgba(163, 65, 3, 0.1);
+	border-color: rgba(163, 65, 3, 0.6);
+	color: rgba(113, 45, 2, 1);
+}
+#recent-numbers table.highlight-table tr:last-child td div {
+	border-bottom-width: 1px;
+	border-bottom-color: transparent;
+}
+#recent-numbers table.highlight-table tr:last-child td.highlighted div {
+	border-bottom-color: rgba(163, 65, 3, 1);
+}
+
+#recent-numbers table.highlight-table th div.absolute-wrap {
+	display: none;
+	position: absolute;
+	bottom: -1px;
+	right: 0px;
+	font-size: 15px;
+	background-color: rgba(255,0,0,0.1);
+	border: 1px solid rgba(163, 65, 3, 1);
+	color: rgba(163, 65, 3, 1);
+	border-width: 1px;
+	padding: 3px 0;
+}
+#recent-numbers table.highlight-table th.highlighted div.absolute-wrap {
+	display: block;
+	background-color: rgba(163, 65, 3, 1);
+	color: #fff;
+	font-weight: bold;
+}
+#recent-numbers table.highlight-table th.highlighted div.relative-wrap { position: relative;}
+
+/* Reports List
+-*/
+.report-list tr:hover td {
+	background-color: #eee;
+}
+.report-list td.title-holder a {
+	color: #333;
+	text-decoration: none;
+	display: block;
+}
+.report-list {
+	border-spacing: 0;
+	width: 100%;
+}
+.report-list th.scol {
+	width: 12px;
+	text-align: center;
+}
+.report-list td {
+	padding: 3px 5px;
+}
+a.report-link:hover {
+	opacity: 1;
+}
+a.report-link {
+	opacity: 0.7;
+	margin: 0 auto;
+	display: block;
+	width: auto;
+	height: 17px;
+	border: 0 none;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center;
+	text-align: center;
+	line-height: 18px;
+}
+a.report-link.html { background-image: url('/static/childcount/icons/html.png') }
+a.report-link.pdf { background-image: url('/static/childcount/icons/pdf.png') }
+a.report-link.xls { background-image: url('/static/childcount/icons/xls.png') }
+a.report-link.other {  }

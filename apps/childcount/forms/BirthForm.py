@@ -15,6 +15,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class BirthForm(CCForm):
+    """ Register children under 28 days
+
+    Params:
+        * Mom Health ID
+        * delivered in health facility
+        * weight(kg)(optional)
+    """
+
     KEYWORDS = {
         'en': ['bir', 'birth'],
         'fr': ['bir', 'birth'],

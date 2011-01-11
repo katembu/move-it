@@ -11,6 +11,8 @@ class HTMLGenerator(Generator):
         self.tlines += u"<html>\n"
         self.tlines += u"<head>\n"
 
+        self.tlines += u"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\n"
+
         self.tlines += \
         '''
             <style type="text/css">
@@ -82,6 +84,11 @@ class HTMLGenerator(Generator):
         self._render_text(section)
         self.tlines += u"</h2>\n" 
 
+    def _render_pagebreak(self, pagebreak):
+        self.tlines += u"<div style='page-break-after:always;'>\n"
+        self.tlines += u"<br />&nbsp;"
+        self.tlines += u"</div'>\n"
+
     def _render_text(self, text):
         self.context["text_%d" % self.var_counter] = text.text
         if text.bold:
@@ -150,6 +157,4 @@ class HTMLGenerator(Generator):
         t = template.Template(''.join(self.tlines))
         ''' Compile context '''
         c = template.Context(self.context)
-        self._handle.write(t.render(c))
-
-        
+        self._handle.write(t.render(c).encode('utf-8'))       

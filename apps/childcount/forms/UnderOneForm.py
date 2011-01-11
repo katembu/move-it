@@ -13,6 +13,13 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class UnderOneForm(CCForm):
+    """ Under One Report.
+
+    params:
+        * Does the mother exclusively breast feed (Y/N/U)
+        * Is the child up-to-date onimmunizations? (Y/N/U)
+    """
+
     KEYWORDS = {
         'en': ['t'],
         'fr': ['t'],
@@ -48,7 +55,10 @@ class UnderOneForm(CCForm):
         imm_field.set_language(self.chw.language)
 
         days, weeks, months = patient.age_in_days_weeks_months()
-        if months > 12:
+
+        # Allow up to 2 years to CHWs can mark kids over 1 as
+        # immunized
+        if months > 24:
             raise Inapplicable(_(u"Child is too old for this report."))
 
         if len(self.params) < 3:
