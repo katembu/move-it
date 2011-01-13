@@ -22,11 +22,13 @@ class Document(object):
             title,
             subtitle=None,
             landscape=False,
+            stick_sections=False,
             datestring=u'Created on %d-%m-%Y at %H:%M'):
 
         self.title = title
         self.subtitle = subtitle
         self.landscape = landscape
+        self.stick_sections = stick_sections
         self.datestring = datestring
         self.contents = []
 
