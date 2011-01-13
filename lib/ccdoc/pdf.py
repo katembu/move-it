@@ -6,7 +6,7 @@ import copy
 
 from django import template
 
-from reportlab.lib.units import cm 
+from reportlab.lib.units import cm, mm 
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
@@ -19,6 +19,33 @@ from reportlab.platypus import PageTemplate, Spacer
 from ccdoc.generator import Generator
 from ccdoc.table import Table as cctable
 
+from reportlab.pdfgen import canvas
+
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._codes = []
+    def showPage(self):
+        self._codes.append({'code': self._code, 'stack': self._codeStack})
+        self._startPage()
+    def save(self):
+        """add page info to each page (page x of y)"""
+        # reset page counter 
+        self._pageNumber = 0
+        for code in self._codes:
+            # recall saved page
+            self._code = code['code']
+            self._codeStack = code['stack']
+            self.setFont("Helvetica", 7)
+            self.drawRightString(200*mm, 20*mm, "page %(this)i of %(total)i" % {
+                   'this': self._pageNumber+1,
+                   'total': len(self._codes),
+                }
+            )
+            canvas.Canvas.showPage(self)
+
+def BuildPage(num=None):
+    print("BUILD PAGE: %s" % num)
 
 TA_MAP = {
     cctable.ALIGN_LEFT: TA_LEFT,
@@ -53,6 +80,7 @@ class PDFGenerator(Generator):
         self.doc = BaseDocTemplate(self._filename,
             showBoundary=0, pagesize=pagesize, 
             title = unicode(self.title))
+        self.doc.setPageCallBack(BuildPage)
 
         ''' Frame template defining page size, margins, etc '''
         self.tframe = Frame(1.5 * cm, 1.5 * cm,
@@ -236,4 +264,6 @@ class PDFGenerator(Generator):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
         self.doc.build(self.elements)
+        #self.doc.build(self.elements, onFirstPage=BuildPage,onLaterPages=BuildPage)
+        #self.doc.build(self.elements, canvasmaker=NumberedCanvas)
 
