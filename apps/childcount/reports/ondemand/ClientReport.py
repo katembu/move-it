@@ -143,7 +143,7 @@ class Report(PrintedReport):
         not_first_chw = False
 
         for chw in CHW.objects.all():
-
+            b_FullName = False
             if not Patient.objects.filter(chw=chw.id,\
                             updated_on__month=date.today().month).count():
                 continue
@@ -416,7 +416,6 @@ class Report(PrintedReport):
                                                .today().month)
 
             if women:
-
                 table3 = Table(10)
                 table3.add_header_row([
                     Text(u""),
