@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 
-from childcount.models import Patient, CHW
+from childcount.models import Patient, CHW, Encounter
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.reports import (PregnancyReport, FeverReport,
@@ -26,8 +26,8 @@ def date_under_five():
 
 def next_anc_date(patient):
     preg_woman = PregnancyReport.objects\
-                        .get(encounter__patient__health_id=patient\
-                        .encounter.patient.health_id)
+                        .filter(encounter__patient__health_id=patient\
+                        .encounter.patient.health_id).latest()
 
     year_ = preg_woman.encounter.encounter_date.year
     month_ = preg_woman.encounter.encounter_date.month
@@ -63,8 +63,8 @@ def delivery_estimate(patient):
             * patient """
 
     preg_report = PregnancyReport.objects\
-        .get(encounter__patient__health_id=patient\
-        .encounter.patient.health_id)
+        .filter(encounter__patient__health_id=patient\
+        .encounter.patient.health_id).latest()
 
     num_month = preg_report.pregnancy_month
     remaining = 9 - num_month
@@ -172,10 +172,10 @@ class Report(PrintedReport):
 
         for chw in CHW.objects.all():
             b_FullName = False
-            #~ instruction_text = {}
-
-            if not Patient.objects.filter(chw=chw.id,\
-                            updated_on__month=date.today().month).count():
+            #if not Patient.objects.filter(chw=chw.id,\
+            #                updated_on__month=date.today().month).count():
+            if not Encounter.objects.filter(encounter_date__month=date_today\
+            .month, encounter_date__year=date_today.year, chw=chw.id).count():
                 continue
 
             # special content for First Page
@@ -197,11 +197,14 @@ class Report(PrintedReport):
 
             d_under_five = date_under_five()
 
-            children = Patient.objects.filter(chw=chw.id,\
-                                              dob__gt=d_under_five,
-                                              updated_on__month=date\
-                                              .today().month)\
-                              .order_by('last_name', 'first_name')
+            children = [Patient.objects.get(id=e['patient']) for e in\
+                        Encounter.objects.filter(chw=chw,\
+                        encounter_date__month=date_today.month,\
+                        encounter_date__year=date_today.year,\
+                        patient__dob__gt=date(date_today.year - 5,\
+                        date_today.month, date_today.day))\
+                        .order_by('patient__last_name',\
+                        'patient__first_name').values('patient').distinct()]
 
             if children:
                 table1 = Table(12)
@@ -249,6 +252,7 @@ class Report(PrintedReport):
                     .health_id).order_by('-encounter__encounter_date')
 
                     rate_muac = '-'
+
                     if len(nutrition_report) > 1:
                         rate_muac = ((nutrition_report[0].muac \
                                     - nutrition_report[1].muac) * 100)\
@@ -296,8 +300,6 @@ class Report(PrintedReport):
                                         encounter_alert((date_today\
                                        - child.updated_on).days, b_FullName)
 
-
-
                     #We check if the child has not yet 2 months.
                     child_age = child.humanised_age()\
                                 .split(child.humanised_age()[-1])[0]
@@ -323,6 +325,13 @@ class Report(PrintedReport):
                         rate_muac = ('%(muac)s (%(rate_muac)s)' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})
+                    child_muac = NutritionReport.objects\
+                            .filter(encounter__patient__health_id=child.\
+                                                    health_id).latest()
+
+                    if child_muac.status != 4:
+                        b_FullName = True
+                        icon = u"◆"
 
                     table1.add_row([
                         Text(icon),
@@ -342,10 +351,10 @@ class Report(PrintedReport):
                 doc.add_element(table1)
 
             pregnant_women = \
-                   PregnancyReport.objects\
-                                .filter(encounter__chw=chw.id,
-                                encounter__encounter_date__month=date\
-                                .today().month)
+                   PregnancyReport.objects.filter(\
+                        encounter__chw=chw.id, \
+                        encounter__encounter_date__month=date_today.month, \
+                        encounter__encounter_date__year=date_today.year)
 
             if pregnant_women:
                 table2 = Table(12)
@@ -388,6 +397,7 @@ class Report(PrintedReport):
 
                     # Next anc visit
                     next_anc = next_anc_date(woman)
+                    next_anc_alert = False
 
                     if not next_anc:
                         next_anc_str = _(u"-")
@@ -402,7 +412,6 @@ class Report(PrintedReport):
 
                     # Delivery estimate date
                     estimate_date = delivery_estimate(woman)
-
                     # RDT test status
                     rdt_result = rdt(woman.pregnancyreport.encounter\
                                           .patient.health_id)
@@ -440,12 +449,18 @@ class Report(PrintedReport):
                     ])
 
                 doc.add_element(table2)
-
-            women = Patient.objects.\
-                            filter(chw=chw.id, gender='F',\
-                                               dob__lt=d_under_five,
-                                               updated_on__month=date\
-                                               .today().month)
+            pregnant_women_list = [rep.encounter.patient \
+                                    for rep in pregnant_women]
+            women = [Patient.objects.get(id=e['patient']) for e in\
+                    Encounter.objects.filter(chw=chw,\
+                    encounter_date__month=date_today.month,\
+                    encounter_date__year=date_today.year,\
+                    patient__gender=Patient.GENDER_FEMALE,\
+                    patient__dob__lt=date(date_today.year - 5,\
+                    date_today.month, date_today.day))\
+                    .order_by('patient__last_name', 'patient__first_name')\
+                    .values('patient').distinct()]
+            women = list(set(pregnant_women_list) - set(women))
 
             if women:
                 table3 = Table(9)
