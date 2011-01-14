@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: diarra
+
 import calendar
 
 from datetime import datetime, date
@@ -16,15 +17,9 @@ from childcount.models.reports import (PregnancyReport, FeverReport,
                                        NutritionReport)
 
 
-def date_under_five():
-    """ Returns the date reduced by five years """
-
-    today = date.today()
-    date_under_five = date(today.year - 5, today.month, today.day)
-    return date_under_five
-
-
 def next_anc_date(patient):
+    """ returns the date of next visit anc """
+
     preg_woman = PregnancyReport.objects\
                         .filter(encounter__patient__health_id=patient\
                         .encounter.patient.health_id).latest()
@@ -53,7 +48,9 @@ def next_anc_date(patient):
     if month_ > 12:
         year_ = preg_woman.encounter.encounter_date.year + 1
         month_ -= 12
+
     next_anc = datetime(year_, month_, day_)
+
     return next_anc
 
 
@@ -77,14 +74,13 @@ def delivery_estimate(patient):
         year = date_created_on.year + 1
         month_ -= 12
 
-    estimate_date = date(year, month_, 1)
+    estimate_date = datetime(year, month_, 1)
 
     return estimate_date
 
 
 def rdt(health_id):
     """ RDT test status
-
         Params:
             * health_id """
 
@@ -99,21 +95,20 @@ def rdt(health_id):
 
 
 def encounter_alert(nbr_DayAfterEncounter, b_FullName):
-    """
-    Function that calculates the number of days passed between
-    the last visit and today's date to see if it happened more
-    than 30 days.
-    """
+    """ Function that calculates the number of days passed between
+        the last visit and today's date to see if it happened more
+        than 30 days. """
+
     b_LastVisit = False
     icon = ""
 
     last_visit = nbr_DayAfterEncounter
 
-    if nbr_DayAfterEncounter >= 30:
+    if nbr_DayAfterEncounter >= 60:
         last_visit = nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
 
-    if nbr_DayAfterEncounter >= 100:
+    if nbr_DayAfterEncounter >= 90:
         last_visit = "! %s !" % nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
         icon = "!"
@@ -122,13 +117,17 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
 
 
 def rdt_alert(nb_times_rdt, b_FullName):
-    """ """
+    """ returns the rdt alert """
+
     b_rdt = False
     rdt_result = nb_times_rdt
-    if nb_times_rdt > 2:
+    icon = ''
+    if nb_times_rdt > 3:
         b_FullName = b_rdt = True
         rdt_result = "! %s !" % rdt_result
-    return rdt_result, b_FullName, b_rdt
+        icon = '!'
+
+    return icon,rdt_result, b_FullName, b_rdt
 
 
 class Report(PrintedReport):
@@ -138,14 +137,13 @@ class Report(PrintedReport):
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
-        doc = Document(title, landscape=True)
+        doc = Document(title, landscape=True, stick_sections=True)
         date_today = datetime.today()
         not_first_chw = False
 
         for chw in CHW.objects.all():
             b_FullName = False
-            #if not Patient.objects.filter(chw=chw.id,\
-            #                updated_on__month=date.today().month).count():
+
             if not Encounter.objects.filter(encounter_date__month=date_today\
             .month, encounter_date__year=date_today.year, chw=chw.id).count():
                 continue
@@ -163,11 +161,7 @@ class Report(PrintedReport):
             else:
                 section_name = chw.full_name()
 
-            # add Page Break before each CHW section.
-            doc.add_element(PageBreak())
             doc.add_element(Section(section_name))
-
-            d_under_five = date_under_five()
 
             children = [Patient.objects.get(id=e['patient']) for e in\
                         Encounter.objects.filter(chw=chw,\
@@ -195,7 +189,7 @@ class Report(PrintedReport):
                     Text(_(u"Instructions"))
                     ])
 
-                table1.set_column_width(2, 0)
+                table1.set_column_width(4, 0)
                 table1.set_column_width(5, 1)
                 table1.set_column_width(16, 2)
                 table1.set_column_width(5, 3)
@@ -249,6 +243,7 @@ class Report(PrintedReport):
                     #Making an alerte if nutrition report change.
                     two_LastReport = []
                     b_FullName = b_muac = False
+
                     #Check if they are more than two report.
                     try:
                         #Get the last two nutrition reports of the child
@@ -285,14 +280,16 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
                                                                 b_FullName)
 
+                    icon_rate = icon_ = instruction = ''
+
                     if rate_muac < 0:
-                        rate_muac = ('! %(muac)s (%(rate_muac)s) !' % \
+                        rate_muac = ('%(muac)s (%(rate_muac)s)' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})
-                        icon = u"◆"
+                        icon_rate = u"◆"
                     else:
                         rate_muac = ('%(muac)s (%(rate_muac)s)' % \
                                             {'rate_muac': rate_muac, \
@@ -301,12 +298,15 @@ class Report(PrintedReport):
                             .filter(encounter__patient__health_id=child.\
                                                     health_id).latest()
 
+
                     if child_muac.status != 4:
                         b_FullName = True
-                        icon = u"◆"
+                        icon_ = u'◆'
+                        instruction = _(u'Nutrition consult')
 
                     table1.add_row([
-                        Text(icon),
+                        Text((u"%(icon)s %(icon_rate)s %(icon_)s" % \
+                            {'icon':icon, 'icon_': icon_, 'icon_rate': icon_rate})),
                         Text(num),
                         Text(child.full_name(), bold=b_FullName),
                         Text(child.gender),
@@ -317,7 +317,7 @@ class Report(PrintedReport):
                         Text(rate_muac, bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
-                        Text('')
+                        Text(instruction, bold=True)
                         ])
 
                 doc.add_element(table1)
@@ -384,6 +384,9 @@ class Report(PrintedReport):
 
                     # Delivery estimate date
                     estimate_date = delivery_estimate(woman)
+
+
+
                     # RDT test status
                     rdt_result = rdt(woman.pregnancyreport.encounter\
                                           .patient.health_id)
@@ -395,11 +398,16 @@ class Report(PrintedReport):
                                         - woman.pregnancyreport.encounter\
                                         .patient.updated_on).days, b_FullName)
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
                                                                 b_FullName)
 
+                    instruction = icon_ = ''
+                    if (date_today - estimate_date).days < 21:
+                        icon_ = u'☻'
+                        instruction = _(u'go over personalized birth plan')
+
                     table2.add_row([
-                    Text(icon),
+                    Text(_(u'%(icon)s %(icon_)s' % {'icon': icon, 'icon_': icon_})),
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter.\
                                     patient.full_name()), bold=b_FullName),
@@ -417,7 +425,7 @@ class Report(PrintedReport):
                     Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
-                    Text('')
+                    Text(instruction, bold=True)
                     ])
 
                 doc.add_element(table2)
@@ -477,7 +485,7 @@ class Report(PrintedReport):
                                         = encounter_alert((date_today\
                                         - woman.updated_on).days, b_FullName)
 
-                    rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
                                                               b_FullName)
 
                     table3.add_row([
