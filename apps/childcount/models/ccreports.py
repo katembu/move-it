@@ -660,7 +660,7 @@ class TheCHWReport(CHW):
     def num_of_pregnant_women(self):
         return len(self.pregnant_women())
 
-    def pregnant_women(self, today=datetime.now()):
+    def pregnant_women(self, today=datetime.today().date()):
         c = []
         # Need to use Sauri specific
         # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
