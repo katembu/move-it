@@ -100,20 +100,46 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
         than 30 days. """
 
     b_LastVisit = False
-    icon = ""
+    icon = instruction_text = ""
 
     last_visit = nbr_DayAfterEncounter
 
     if nbr_DayAfterEncounter >= 60:
         last_visit = nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
+        exceded_days = nbr_DayAfterEncounter - 60
+        instruction_text = ("Visit HH by %s")%(exceded_days)
 
     if nbr_DayAfterEncounter >= 90:
         last_visit = "! %s !" % nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
         icon = "!"
 
-    return icon, b_LastVisit, b_FullName, last_visit
+    return icon, b_LastVisit, b_FullName, last_visit, instruction_text
+
+def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
+    """
+    Function that calculates the number of days passed between
+    the last visit and today's date to see if it happened more
+    than 30 days.
+    """
+    b_LastVisit = False
+    icon = ""
+
+    last_visit = nbr_DayAfterEncounter
+    instruction_text = ""
+    if nbr_DayAfterEncounter >= 15:
+        last_visit = nbr_DayAfterEncounter
+        b_FullName = b_LastVisit = True
+        exceded_days = nbr_DayAfterEncounter - 15
+        instruction_text = ("Visit HH by %s")%(exceded_days)
+
+    if nbr_DayAfterEncounter >= 45:
+        last_visit = "! %s !" % nbr_DayAfterEncounter
+        b_FullName = b_LastVisit = True
+        icon = "!"
+
+    return icon, b_LastVisit, b_FullName, last_visit, instruction_text
 
 
 def rdt_alert(nb_times_rdt, b_FullName):
@@ -121,13 +147,14 @@ def rdt_alert(nb_times_rdt, b_FullName):
 
     b_rdt = False
     rdt_result = nb_times_rdt
-    icon = ''
+    icon = rdt_instruction = ''
     if nb_times_rdt > 3:
         b_FullName = b_rdt = True
         rdt_result = "! %s !" % rdt_result
         icon = '!'
+        rdt_instruction = "check bednet"
 
-    return icon,rdt_result, b_FullName, b_rdt
+    return icon, rdt_result, b_FullName, b_rdt, rdt_instruction
 
 
 class Report(PrintedReport):
@@ -263,7 +290,7 @@ class Report(PrintedReport):
                     #We pass in parameter the number of days since the
                     #last visit to the alert function.
 
-                    icon, b_LastVisit, b_FullName, last_visit =\
+                    icon, b_LastVisit, b_FullName, last_visit, instruction_text =\
                                         encounter_alert((date_today\
                                        - child.updated_on).days, b_FullName)
 
@@ -280,7 +307,7 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
-                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                                 b_FullName)
 
                     icon_rate = icon_ = instruction = ''
@@ -317,7 +344,10 @@ class Report(PrintedReport):
                         Text(rate_muac, bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
-                        Text(instruction, bold=True)
+                        Text(_(u"%(instruction_text)s %(rdt_instruction)s %(instruction)s" %\
+                            {'instruction_text': instruction_text,
+                             'instruction': instruction,
+                             'rdt_instruction': rdt_instruction}), bold=True)
                         ])
 
                 doc.add_element(table1)
@@ -385,20 +415,18 @@ class Report(PrintedReport):
                     # Delivery estimate date
                     estimate_date = delivery_estimate(woman)
 
-
-
                     # RDT test status
                     rdt_result = rdt(woman.pregnancyreport.encounter\
                                           .patient.health_id)
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b_LastVisit, b_FullName, last_visit =\
-                                        encounter_alert((date_today\
+                    icon, b_LastVisit, b_FullName, last_visit, instruction_text =\
+                                        preg_WomenEncounterAlert((date_today\
                                         - woman.pregnancyreport.encounter\
                                         .patient.updated_on).days, b_FullName)
 
-                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                                 b_FullName)
 
                     instruction = icon_ = ''
@@ -425,7 +453,10 @@ class Report(PrintedReport):
                     Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
-                    Text(instruction, bold=True)
+                    Text(_(u"%(instruction_text)s %(rdt_instruction)s %(instruction)s" %\
+                            {'instruction_text': instruction_text,
+                             'instruction': instruction,
+                             'rdt_instruction': rdt_instruction}), bold=True)
                     ])
 
                 doc.add_element(table2)
@@ -481,11 +512,11 @@ class Report(PrintedReport):
 
                     rdt_result = rdt(woman.health_id)
 
-                    icon, b_LastVisit, b_FullName, last_visit\
+                    icon, b_LastVisit, b_FullName, last_visit, instruction_text\
                                         = encounter_alert((date_today\
                                         - woman.updated_on).days, b_FullName)
 
-                    icon, rdt_result, b_FullName, b_rdt = rdt_alert(rdt_result,\
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
                                                               b_FullName)
 
                     table3.add_row([
@@ -498,7 +529,9 @@ class Report(PrintedReport):
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
-                    Text('')
+                    Text(_(u"%(instruction_text)s %(rdt_instruction)s " %\
+                            {'instruction_text': instruction_text,
+                            'rdt_instruction': rdt_instruction}), bold=True)
                     ])
 
                 doc.add_element(table3)
