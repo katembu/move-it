@@ -72,7 +72,7 @@ def list_median(values, valid_indexes_only=False):
         center = sorted_values[num / 2: (num / 2) + 2]
         avg = list_average(center)
     else:
-        avg = sorted_values[num + 1 / 2]
+        avg = sorted_values[(num + 1) / 2]
     return avg
 
 

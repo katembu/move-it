@@ -6,7 +6,7 @@ import copy
 
 from django import template
 
-from reportlab.lib.units import cm 
+from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
@@ -19,12 +19,35 @@ from reportlab.platypus import PageTemplate, Spacer
 from ccdoc.generator import Generator
 from ccdoc.table import Table as cctable
 
-
 TA_MAP = {
     cctable.ALIGN_LEFT: TA_LEFT,
     cctable.ALIGN_RIGHT: TA_RIGHT,
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
+
+class SectionBreak(PageBreak):
+    pass
+
+class CustomDocTemplate(BaseDocTemplate):
+
+    def afterFlowable(self, flowable):
+        """ add another page break after a section end if on even page """
+
+        if not self.stick_sections:
+            return
+
+        try:
+            x = self.last_pb
+        except AttributeError:
+            self.last_pb = 0
+
+        if isinstance(flowable, SectionBreak):
+            page_num = self.canv.getPageNumber()
+            # PB after even page requires new blank            
+            if (page_num % 2 == 0) and page_num - self.last_pb > 1 \
+               and not page_num == 1:
+                self.handle_pageBreak()
+            self.last_pb = page_num
 
 class PDFGenerator(Generator):
     def _start_document(self):
@@ -50,9 +73,10 @@ class PDFGenerator(Generator):
         self.elements = []
 
         ''' Overall document object describing PDF '''
-        self.doc = BaseDocTemplate(self._filename,
+        self.doc = CustomDocTemplate(self._filename,
             showBoundary=0, pagesize=pagesize, 
             title = unicode(self.title))
+        self.doc.stick_sections = self.stick_sections
 
         ''' Frame template defining page size, margins, etc '''
         self.tframe = Frame(1.5 * cm, 1.5 * cm,
@@ -93,10 +117,14 @@ class PDFGenerator(Generator):
             self.elements.append(Paragraph(unicode(self.subtitle), subtitle_style))
        
     def _render_section(self, section):
-        self.elements.append(
-            Paragraph(
+        element = Paragraph(
                 u'<strong>' + unicode(section.text) + u'</strong>',
-                self.section_style))
+                self.section_style)
+        if self.stick_sections:
+            # on printer stick mode
+            # we add a blank page before new section
+            self.elements.append(SectionBreak())
+        self.elements.append(element)
 
     def _render_pagebreak(self, pagebreak):
         self.elements.append(PageBreak())
@@ -236,4 +264,3 @@ class PDFGenerator(Generator):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
         self.doc.build(self.elements)
-
