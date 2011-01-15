@@ -60,6 +60,7 @@ class Report(PrintedReport):
                 filter(clinic=clinic))
             story.append(tb)
             story.append(PageBreak())
+            print clinic
 
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
