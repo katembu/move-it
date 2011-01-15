@@ -174,6 +174,11 @@ def under_five(request):
 
 
 def gen_underfive_register_pdf(f, clinic, rformat):
+    build_underfive(clinic, rformat)
+    return HttpResponseRedirect( \
+        '/static/childcount/' + REPORTS_DIR + '/' + filename)
+
+def build_underfive(clinic, rformat):
     story = []
     filename = "underfive-%s.%s" % (clinic, rformat)
     clinic = Clinic.objects.get(code=clinic)
@@ -199,9 +204,17 @@ def gen_underfive_register_pdf(f, clinic, rformat):
     doc = MultiColDocTemplate(report_filename(filename), 2, pagesize=A4, \
                             topMargin=(0.5 * inch), showBoundary=0)
     doc.build(story)
-    return HttpResponseRedirect( \
-        '/static/childcount/' + REPORTS_DIR + '/' + filename)
+    return filename
 
+def build_all_underfive():
+    for clinic in Clinic.objects.all():
+        st = datetime.now()
+        print 'Starting %s' % clinic
+        build_underfive(clinic.code, 'pdf')
+        et = datetime.now()
+        d = (et - st).seconds
+        m = int(round(d/float(60), 0))
+        print 'Done %s in %d minutes , %d seconds' % (clinic, m, d)
 
 def under_five_table(title, indata=None, boxes=None):
     styleH3.fontName = 'Times-Bold'
@@ -222,7 +235,7 @@ def under_five_table(title, indata=None, boxes=None):
 
     hdata = [Paragraph('%s' % title, styleH3)]
     hdata.extend((len(cols)) * [''])
-    cmd = [Paragraph(u"Generated at %s" % \
+    cmd = [Paragraph(u"Generated at %s Polio Campaign - Round 3" % \
                     datetime.now().strftime('%Y-%d-%m %H:%M:%S'), styleN)]
     cmd.extend((len(cols)) * [''])
     data = [hdata, cmd]

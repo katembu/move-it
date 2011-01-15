@@ -191,8 +191,11 @@ class ThePatient(Patient):
 
     def polio(self):
         from childcount.models.PolioCampaignReport import PolioCampaignReport
+        from childcount.models import Configuration
+        c = Configuration.objects.get(key='polio_round')
         try:
-            pl = PolioCampaignReport.objects.get(patient=self)
+            pl = PolioCampaignReport.objects.get(patient=self, \
+                phase=int(c.value))
         except PolioCampaignReport.DoesNotExist:
             return _(u"No")
         else:
