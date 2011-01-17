@@ -19,6 +19,7 @@ class SickMembersForm(CCForm):
         * Positive RDTs (int)
         * Others on treatment (int)
     """
+
     KEYWORDS = {
         'en': ['e'],
         'fr': ['e'],

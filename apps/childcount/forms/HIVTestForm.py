@@ -15,9 +15,12 @@ from childcount.utils import send_msg
 
 
 class HIVTestForm(CCForm):
-    """ HIV Test Form
+    """ HIV Test
+
     Params:
-    * VIH test result (Y/N/U/NC) """
+        * VIH test result (Y/N/U/NC)
+    """
+
     KEYWORDS = {
         'en': ['ht'],
         'fr': ['ht'],

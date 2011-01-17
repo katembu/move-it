@@ -24,6 +24,8 @@ class Generator(object):
         self.document = document
         self.title = document.title
         self.subtitle = document.subtitle
+        self.landscape = document.landscape
+        self.stick_sections = document.stick_sections
         self.datestring = time.strftime(document.datestring)
         self.contents = document.contents
         self._rendered = False

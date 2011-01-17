@@ -23,6 +23,7 @@ class InactivatePatientForm(CCForm):
     Params:
         * status (Y/N)
     """
+
     KEYWORDS = {
         'en': ['active'],
         'fr': ['active'],

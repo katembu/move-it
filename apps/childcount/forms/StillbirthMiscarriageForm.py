@@ -7,10 +7,12 @@ import time
 from datetime import date
 
 from django.utils.translation import ugettext as _
+from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
 from childcount.exceptions import Inapplicable
+from childcount.models import Configuration
 from childcount.models import Encounter
 from childcount.models.reports import StillbirthMiscarriageReport
 from childcount.utils import DOBProcessor
@@ -18,6 +20,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class StillbirthMiscarriageForm(CCForm):
+    """ Stillbirth Miscarriage Form
+
+    Params:
+        * Date of stillbirth or miscarriage('en' = yyyy-mm-dd
+                                            'fr' = dd-mm-yyyy)
+        * Type(SB/MC)
+    """
+
     KEYWORDS = {
         'en': ['sbm'],
         'fr': ['sbm'],
@@ -61,6 +71,13 @@ class StillbirthMiscarriageForm(CCForm):
                                 {'choices': type_field.choices_string()})
         sbmr.type = type_field.get_db_value(type)
 
+        # import ethiopian date variable
+        try:
+            is_ethiopiandate = bool(Configuration.objects \
+                                .get(key='inputs_ethiopian_date').value)
+        except (Configuration.DoesNotExist, TypeError):
+            is_ethiopiandate = False
+
         doi_str = ' '.join(self.params[1:])
         try:
             doi, variance = DOBProcessor.from_dob(self.chw.language, doi_str, \
@@ -68,6 +85,10 @@ class StillbirthMiscarriageForm(CCForm):
         except InvalidDOB:
             raise BadValue(_(u"Could not understand date: %(dod)s.") %\
                              {'dod': doi_str})
+
+        # convert doi to gregorian before saving to DB
+        if is_ethiopiandate and not variance:
+            doi = EthiopianDateConverter.date_to_gregorian(doi)
 
         sbmr.incident_date = doi
         sbmr.save()
