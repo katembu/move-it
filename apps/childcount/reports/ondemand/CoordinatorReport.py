@@ -21,13 +21,12 @@ class Report(PrintedReport):
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
         header = [u'']
-        header.extend([YearlyPeriodSet.period_name(p) \
-                        for p in xrange(0, YearlyPeriodSet.num_periods)])
+        yps = YearlyPeriodSet(year=2010)
+        header.extend([yps.period_name(p) \
+                        for p in xrange(0, yps.num_periods)])
         t = Table(header.__len__())
         t.add_header_row(map(Text, header))
         hcr = HealthCoordinatorReport()
-        yps = YearlyPeriodSet()
-        yps.setYear(2010)
         for indicator in hcr.report_indicators():
             # indicator.set_excel(False)
             cols = [indicator.title]
