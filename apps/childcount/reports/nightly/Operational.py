@@ -146,8 +146,8 @@ class Report(PrintedReport):
             mrow = [u'Median for all CHWs']
             for col in cols[1:]:
                 avg = numpy.average(analysis_data[col['col']])
-                arow.append(int(avg))
-                sd = int(numpy.std(analysis_data[col['col']]))
+                arow.append(int(round(avg)))
+                sd = int(round(numpy.std(analysis_data[col['col']])))
                 if sd > avg:
                     sdp = Paragraph(u"<b>%d</b>" % sd, styleN3)
                 elif sd < avg:
@@ -156,7 +156,7 @@ class Report(PrintedReport):
                     sdp = Paragraph(u"%d" % sd, styleN3)
                 srow.append(sdp)
                 md = numpy.median(analysis_data[col['col']])
-                mrow.append(int(md))
+                mrow.append(md)
             data.extend([arow, srow, mrow])
             rowHeights.extend(3 * [0.25 * inch])
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
