@@ -34,7 +34,6 @@ class CancelCommand(CCCommand):
         # we are in revision control.
         revision.invalidate()
 
-
         # If we're in the debackend, use the CHW that this user is pretending
         # to be.
         user = None

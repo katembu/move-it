@@ -43,8 +43,8 @@ class LookupCommand(CCCommand):
         exact = True
         if terms.__len__() > 1:
             # exact matches for both names
-            fterm = terms[0] # first term
-            lterm = terms[1] # last term
+            fterm = terms[0]    # first term
+            lterm = terms[1]    # last term
             patients = Patient.objects.filter(first_name__iexact=fterm, \
                                                 last_name__iexact=lterm)
             if patients.__len__() > 0:

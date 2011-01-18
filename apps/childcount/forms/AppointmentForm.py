@@ -14,10 +14,12 @@ from django.utils.translation import ugettext as _
 from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
+from childcount.models import Patient
 from childcount.models import Configuration
 from childcount.models.reports import AppointmentReport
 from childcount.models import Encounter
 from childcount.exceptions import ParseError, BadValue, InvalidDOB
+from childcount.exceptions import Inapplicable
 from childcount.utils import DOBProcessor
 
 
@@ -39,7 +41,14 @@ class AppointmentForm(CCForm):
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: date of "\
                             "appointment."))
-
+        days, weeks, months = patient.age_in_days_weeks_months()
+        years = months / 12
+        if (months > 18 and patient.gender == Patient.GENDER_MALE) or \
+            (patient.gender == Patient.GENDER_FEMALE and years < 11 and \
+                months > 18):
+            raise Inapplicable(_(u"Inapplicable: %(patient)s is not within "
+                               Configuration     "required age bracket" % \
+                                    {'patient': patient}))
         try:
             aptr = AppointmentReport.objects.get(encounter=self.encounter)
         except AppointmentReport.DoesNotExist:

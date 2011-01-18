@@ -9,7 +9,10 @@ from django.contrib import admin
 import webapp
 
 from childcount import views
-from childcount.reports import pmtct
+from childcount.reports import statistics
+from childcount.reports import operational
+from childcount.reports import pmtct, bednet
+from childcount.reports import performance
 from childcount.reports import custom_reports as reports
 from childcount.reports import report_framework  
 
@@ -50,7 +53,6 @@ urlpatterns = patterns('',
     url(r'^childcount/chw/?$', views.chw),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
-
     url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
 
@@ -61,17 +63,24 @@ urlpatterns = patterns('',
         views.site_summary),
 
     # PMTCT links
-    url(r'^childcount/reports/pmtct-defaulters/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/pmtct-defaulters.(?P<rformat>[a-z]*)$', 
         pmtct.defaulters),
-    url(r'^childcount/reports/pmtct-deliveries/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/pmtct-appointments.(?P<rformat>[a-z]*)$', 
+        pmtct.appointments),
+    url(r'^childcount/reports/pmtct-apts-aggregate.(?P<rformat>[a-z]*)$', 
+        pmtct.appointments_aggregates),
+    url(r'^childcount/reports/pmtct-apts-by-clinic.(?P<rformat>[a-z]*)$', 
+        pmtct.appointments_by_clinic),
+    url(r'^childcount/reports/pmtct-apts-error.(?P<rformat>[a-z]*)$', 
+        pmtct.appointments_error_report),
+    url(r'^childcount/reports/pmtct-deliveries.(?P<rformat>[a-z]*)$', 
         pmtct.upcoming_deliveries),
-    url(r'^childcount/reports/pmtct-newregs/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/pmtct-newregs.(?P<rformat>[a-z]*)$', 
         pmtct.new_registrations),
-    url(r'^childcount/reports/pmtct-mothers-onfollowup/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/pmtct-mothers-onfollowup.(?P<rformat>[a-z]*)$', 
         pmtct.active_mothers),
-    url(r'^childcount/reports/pmtct-stats/(?P<rformat>[a-z]*)$', 
+    url(r'^childcount/reports/pmtct-stats.(?P<rformat>[a-z]*)$', 
         pmtct.statistics),
-
     # On-Demand Reports for Reporting Framework
     url(r'^childcount/reports/ondemand/(?P<rname>[a-zA-Z0-9\-\_]*).(?P<rformat>[a-z]*)$', 
         report_framework.serve_ondemand_report),
