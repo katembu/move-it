@@ -55,10 +55,11 @@ class BirthForm(CCForm):
 
         days, weeks, months = patient.age_in_days_weeks_months()
         humanised = patient.humanised_age()
-        if days > 28:
+
+        if days > 90:
             raise Inapplicable(_(u"Patient is %(age)s old. You can not " \
                                   "submit birth reports for patients over " \
-                                  "28 days old.") % {'age': humanised})
+                                  "90 days old.") % {'age': humanised})
 
         if BirthReport.objects.filter(encounter__patient=patient).count() > 0 \
                                                              and not overwrite:
