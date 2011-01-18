@@ -104,8 +104,9 @@ with filename test_report:
 
 1) Create a first draft of TestReport.py
 2) Open up the rapidsms shell and try running:
-   from childcount.reports.nightly.TestReport import Report
-      r = Report().apply().wait()
+      from childcount.reports.nightly.TestReport import Report
+      r = Report().apply()
+      r.wait()
 3) Check to see that your report is in:
       apps/childcount/reports/nightly/test_report.pdf
 4) If not, run this command:
