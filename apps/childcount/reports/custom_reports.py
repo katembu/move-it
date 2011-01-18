@@ -6,7 +6,6 @@ import os
 import copy
 import csv
 import cProfile
-import numpy
 from time import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta

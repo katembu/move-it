@@ -321,15 +321,19 @@ class Report(PrintedReport):
                         rate_muac = ('%(muac)s (%(rate_muac)s)' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})
-                    child_muac = NutritionReport.objects\
-                            .filter(encounter__patient__health_id=child.\
-                                                    health_id).latest()
+                                             
+                    try:
+                        child_muac = NutritionReport.objects\
+                                .filter(encounter__patient__health_id=child.\
+                                                        health_id).latest()
 
 
-                    if child_muac.status != 4:
-                        b_FullName = True
-                        icon_ = u'◆'
-                        instruction = _(u'Nutrition consult')
+                        if child_muac.status != 4:
+                            b_FullName = True
+                            icon_ = u'◆'
+                            instruction = _(u'Nutrition consult')
+                    except NutritionReport.DoesNotExist:
+                        pass
 
                     table1.add_row([
                         Text((u"%(icon)s %(icon_rate)s %(icon_)s" % \

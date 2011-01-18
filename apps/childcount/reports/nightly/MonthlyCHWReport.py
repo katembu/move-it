@@ -81,7 +81,7 @@ class Report(PrintedReport):
 
     def _immunization_table(self, chw):
         table = Table(4, \
-            Text(_(u"Children 1-2 years old needing immunizations")))
+            Text(_(u"Children Under 5 Needing Immunizations")))
         table.add_header_row([
             Text(_(u"Loc Code")),
             Text(_(u"Health ID")),

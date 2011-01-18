@@ -1638,42 +1638,42 @@ class MonthlyCHWReport(TheCHWReport):
     # that can be used to instantiate Indicator objects
     def report_indicators(self):
         return [
-            Indicator('Households',\
-                self.num_of_hhs, Indicator.AVG, \
-                col_agg_func = Indicator.SUM),
-            Indicator('HH Visits',\
+            #Indicator('Households',\
+            #    self.num_of_hhs, Indicator.AVG, \
+            #    col_agg_func = Indicator.SUM),
+            Indicator('Unique HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
             INDICATOR_EMPTY,
-            Indicator('Num of Women 15-49 Seen',\
-            self.num_of_women_under50_seen, Indicator.SUM),
+            #Indicator('Num of Women 15-49 Seen',\
+            #    self.num_of_women_under50_seen, Indicator.SUM),
             Indicator('Num of Women using FP',\
                 self.num_of_women_under50_using_fp, Indicator.SUM),
-            Indicator('% of Women using FP',\
-                self.perc_of_women_under50_using_fp, \
-                    Indicator.AGG_PERCS, \
-                    Indicator.PERC_PRINT),
-            Indicator('Num of Women using FP: Condom',\
-                self.num_fp_usage_condom, Indicator.SUM),
-            Indicator('Num of Women using FP: Injectable',\
-                self.num_fp_usage_injectable, Indicator.SUM),
-            Indicator('Num of Women using FP: IUD',\
-                self.num_fp_usage_iud, Indicator.SUM),
-            Indicator('Num of Women using FP: Implant',\
-                self.num_fp_usage_implant, Indicator.SUM),
-            Indicator('Num of Women using FP: Pill',\
-                self.num_fp_usage_pill, Indicator.SUM),
-            Indicator('Num of Women using FP: Ster.',\
-                self.num_fp_usage_sterilization, Indicator.SUM),
+            #Indicator('% of Women using FP',\
+            #    self.perc_of_women_under50_using_fp, \
+            #        Indicator.AGG_PERCS, \
+            #        Indicator.PERC_PRINT),
+            #Indicator('Num of Women using FP: Condom',\
+            #    self.num_fp_usage_condom, Indicator.SUM),
+            #Indicator('Num of Women using FP: Injectable',\
+            #    self.num_fp_usage_injectable, Indicator.SUM),
+            #Indicator('Num of Women using FP: IUD',\
+            #    self.num_fp_usage_iud, Indicator.SUM),
+            #Indicator('Num of Women using FP: Implant',\
+            #    self.num_fp_usage_implant, Indicator.SUM),
+            #Indicator('Num of Women using FP: Pill',\
+            #    self.num_fp_usage_pill, Indicator.SUM),
+            #Indicator('Num of Women using FP: Ster.',\
+            #    self.num_fp_usage_sterilization, Indicator.SUM),
             Indicator('Num of Women Starting FP or Never Registered',\
                 self.num_starting_fp, Indicator.SUM),
-            Indicator('Num of Women Remaining on FP',\
-                self.num_still_on_fp, Indicator.SUM),
-            Indicator('Num of Women Stopping FP',\
-                self.num_ending_fp, Indicator.SUM),
+            #Indicator('Num of Women Remaining on FP',\
+            #    self.num_still_on_fp, Indicator.SUM),
+            #Indicator('Num of Women Stopping FP',\
+            #    self.num_ending_fp, Indicator.SUM),
             INDICATOR_EMPTY,
             Indicator('People with DSs',\
                 self.num_danger_signs, Indicator.SUM),
-            Indicator('People with Referred',\
+            Indicator('People Referred',\
                 self.num_referred, Indicator.SUM),
             Indicator('Num Follow Up Within 3 Days',\
                 self.num_ontime_follow_up, Indicator.SUM),
@@ -1684,12 +1684,12 @@ class MonthlyCHWReport(TheCHWReport):
             Indicator('Num Pregnant Women',\
                 self.num_pregnant_by_period, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
-            Indicator('% Getting 1 ANC by 1st Trim.',\
-                self.perc_with_anc_first, 
-                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('% Getting 3 ANC by 2nd Trim.',\
-                self.perc_with_anc_second, 
-                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            #Indicator('% Getting 1 ANC by 1st Trim.',\
+            #    self.perc_with_anc_first, 
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            #Indicator('% Getting 3 ANC by 2nd Trim.',\
+            #    self.perc_with_anc_second, 
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third, 
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
@@ -1697,12 +1697,12 @@ class MonthlyCHWReport(TheCHWReport):
                 self.num_births, Indicator.SUM),
             Indicator('Num Births with 4 ANC',\
                 self.num_births_with_anc, Indicator.SUM),
-            Indicator('Num Neonatal Rpts (<28 days)',\
+            Indicator('Num Neonatal Rpts (<7 days)',\
                 self.num_neonatal, Indicator.SUM),
             INDICATOR_EMPTY,
-            Indicator('Num Children U5',\
-                self.num_underfive, Indicator.AVG,\
-                col_agg_func=Indicator.SUM),
+            #Indicator('Num Children U5',\
+            #    self.num_underfive, Indicator.AVG,\
+            #    col_agg_func=Indicator.SUM),
             Indicator('Num U5 Known Immunized',\
                 self.num_underfive_imm, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
@@ -1747,11 +1747,16 @@ class MonthlyCHWReport(TheCHWReport):
             .for_period(per_cls, per_num)\
             .filter(medicines__code='r')\
             .count()
+
+    # We're going for distinct households, not
+    # just raw household visits
     def num_of_hh_visits(self, per_cls, per_num):
         return HouseholdVisitReport\
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
+            .values('encounter__patient__household__pk')\
+            .distinct()\
             .count()
 
     #
@@ -2033,11 +2038,18 @@ class MonthlyCHWReport(TheCHWReport):
         return count
 
     def num_neonatal(self, per_cls, per_num):
-        return NeonatalReport\
+        count = 0
+        rpts = NeonatalReport\
             .indicators\
             .for_chw(self)\
-            .for_period(per_cls, per_num)\
-            .count()
+            .for_period(per_cls, per_num)
+
+        for r in rpts:
+            if r.encounter.encounter_date - timedelta(7) < \
+                r.encounter.patient.dob:
+                count += 1
+            
+        return count
 
     def num_underfive(self, per_cls, per_num):
         return self.patients_under_five(\
@@ -2051,7 +2063,10 @@ class MonthlyCHWReport(TheCHWReport):
             .indicators\
             .for_chw(self)\
             .before_period(per_cls, per_num)\
-            .filter(immunized=UnderOneReport.IMMUNIZED_YES)\
+            .filter(\
+                encounter__patient__dob__gte=\
+                    per_cls.period_start_date(per_num)-timedelta(5*365.25),\
+                immunized=UnderOneReport.IMMUNIZED_YES)\
             .values('encounter__patient__pk')\
             .distinct()
 
@@ -2110,7 +2125,7 @@ class MonthlyCHWReport(TheCHWReport):
     # Lists
     #
 
-    # Kids 1-2 yrs needing immunizations
+    # Kids under 5 yrs needing immunizations
     def needing_immunizations(self):
         imm_pks = map(lambda i: i['encounter__patient__pk'],\
             self._num_underfive_imm_pks(MonthlyPeriodSet, 3))
@@ -2118,9 +2133,8 @@ class MonthlyCHWReport(TheCHWReport):
         return Patient\
             .objects\
             .exclude(pk__in=imm_pks)\
-            .filter(dob__gte=date.today()-timedelta(2*365.25),\
-                dob__lte=date.today()-timedelta(365.25),\
-                chw=self)\
+            .filter(chw=self,\
+                dob__gte = date.today()-timedelta(5*365.25))\
             .order_by('location__code')
       
     # Pregnant women in 2nd or 3rd trimester who haven't had 
