@@ -3,7 +3,7 @@ from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form C (Consultation) Entered by Day'
+    title = 'Form C (Consultation) per Day'
     filename = 'form_c_entered'
     formats = ['pdf','xls','html']
     argvs = []
