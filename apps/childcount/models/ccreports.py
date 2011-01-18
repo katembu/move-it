@@ -1641,7 +1641,7 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('Households',\
             #    self.num_of_hhs, Indicator.AVG, \
             #    col_agg_func = Indicator.SUM),
-            Indicator('HH Visits',\
+            Indicator('Unique HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
             INDICATOR_EMPTY,
             #Indicator('Num of Women 15-49 Seen',\
@@ -1747,11 +1747,16 @@ class MonthlyCHWReport(TheCHWReport):
             .for_period(per_cls, per_num)\
             .filter(medicines__code='r')\
             .count()
+
+    # We're going for distinct households, not
+    # just raw household visits
     def num_of_hh_visits(self, per_cls, per_num):
         return HouseholdVisitReport\
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
+            .values('encounter__patient__household__pk')\
+            .distinct()\
             .count()
 
     #
