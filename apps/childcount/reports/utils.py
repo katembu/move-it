@@ -114,18 +114,21 @@ class AnnualPeriodSet(PeriodSet):
 class YearlyPeriodSet(PeriodSet):
     num_periods = 12
     total_name = 'Yrly'
+    year = 2010
+
+    def setYear(self, year):
+        self.year = year
 
     @classmethod
     def period_name(cls, period_num):
         if period_num >= cls.num_periods:
             period_num = period_num - cls.num_periods
-        month = datetime(datetime.today().year, period_num + 1, 1)
+        month = datetime(cls.year, period_num + 1, 1)
         return "%s" % (month.strftime('%b'))
 
     @classmethod
     def period_start_date(cls, month_num):
-        first_day_of_year = date.today() - \
-            relativedelta(month=1, day=1)
+        first_day_of_year = date(cls.year, 1, 1)
         if month_num >= cls.num_periods:
             month_num = month_num - cls.num_periods
             first_day_of_year = first_day_of_year + \
