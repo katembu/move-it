@@ -16,7 +16,7 @@ from childcount.models.ccreports import HealthCoordinatorReport
 class Report(PrintedReport):
     title = 'CC+ Health Coordinator Report'
     filename = 'health_coordinator'
-    formats = ['xls','html']
+    formats = ['xls', 'pdf', 'html']
 
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
@@ -28,7 +28,8 @@ class Report(PrintedReport):
         t.add_header_row(map(Text, header))
         hcr = HealthCoordinatorReport()
         for indicator in hcr.report_indicators():
-            # indicator.set_excel(False)
+            if rformat in ('html', 'pdf'):
+                indicator.set_excel(False)
             cols = [indicator.title]
             cols.extend([indicator.for_period(yps, p) \
                 for p in xrange(0, YearlyPeriodSet.num_periods)])
