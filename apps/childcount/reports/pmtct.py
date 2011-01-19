@@ -13,7 +13,7 @@ from childcount.models import AppointmentReport
 from childcount.models import AntenatalVisitReport
 from childcount.models import Patient, Clinic
 
-from ccdoc import Document, Table, Paragraph, Text, Section
+from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
 from childcount.reports.utils import render_doc_to_response
 
 open_status = (AppointmentReport.STATUS_OPEN, \
@@ -21,7 +21,11 @@ open_status = (AppointmentReport.STATUS_OPEN, \
 
 
 def defaulters(request, rformat="html"):
-    doc = Document(unicode(_(u"Defaulters Report")))
+    doc = pmtct_defaulters()
+    return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
+
+def pmtct_defaulters(title=u"Defaulters Report"):
+    doc = Document(title)
     today = datetime.today() + relativedelta(days=-3)
     for clinic in Clinic.objects.all():
         df = AppointmentReport.objects.filter(status__in=open_status,
@@ -50,10 +54,8 @@ def defaulters(request, rformat="html"):
                 Text(unicode(row.encounter.patient.chw.location))])
         doc.add_element(Section(u"%s" % clinic))
         doc.add_element(t)
-        
-
-    return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
-
+        doc.add_element(PageBreak())
+    return doc
 
 def appointments(request, rformat="html"):
     doc = Document(unicode(_(u"Appointments Report")))
