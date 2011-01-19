@@ -52,7 +52,8 @@ class Report(PrintedReport):
         story = []
         clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
                                                         .distinct('clinic'))
-
+    
+        clinics = [clinics[0]]
         for clinic in clinics:
             if not TheCHWReport.objects.filter(clinic=clinic).count():
                 continue
@@ -90,7 +91,7 @@ class Report(PrintedReport):
                 Paragraph('Appointment', styleH3), '', \
                 Paragraph('Follow-up', styleH3), '', \
                 Paragraph('SMS', styleH3), '', \
-                Paragraph('Calculated overall CHW performance indicator',
+                Paragraph('',
                             styleH3)], \
                 ['', Paragraph('A1', styleH3), Paragraph('A2', styleH3), \
                 Paragraph('A3', styleH3), Paragraph('B1', styleH3), \
@@ -99,10 +100,10 @@ class Report(PrintedReport):
                 Paragraph('C3', styleH3), Paragraph('C4', styleH3), \
                 Paragraph('C5', styleH3), Paragraph('C6', styleH3), \
                 Paragraph('D1', styleH3), Paragraph('D2', styleH3), \
-                Paragraph('D3', styleH3), Paragraph('F1', styleH3),
-                Paragraph('F2', styleH3), Paragraph('E1', styleH3), \
+                Paragraph('D3', styleH3), Paragraph('E1', styleH3),
                 Paragraph('E2', styleH3), Paragraph('F1', styleH3), \
-                Paragraph('F2', styleH3), Paragraph('I1', styleH3)]]
+                Paragraph('F2', styleH3), Paragraph('G1', styleH3), \
+                Paragraph('G2', styleH3), Paragraph('H1', styleH3)]]
 
         thirdrow = [Paragraph(cols[0]['name'], styleH3)]
         thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
@@ -123,44 +124,36 @@ class Report(PrintedReport):
         rowHeights = [None, None, None, 2.3 * inch, 0.25 * inch, 0.25 * inch]
         colWidths = [1.7 * inch]
         colWidths.extend((len(cols) - 1) * [0.4 * inch])
-        analysis_data = {}
-        if indata:
-            for row in indata:
-                ctx = Context({"object": row})
-                values = [Paragraph(Template(cols[0]["bit"]).render(ctx), \
-                                    styleN)]
-                values.extend([Paragraph(Template(col["bit"]).render(ctx), \
-                                    styleN3) for col in cols[1:]])
-                data.append(values)
-                for col in cols[1:]:
-                    if col['col'] not in analysis_data:
-                        analysis_data[col['col']] = []
-                    v = Template(col["bit"]).render(ctx)
-                    v = v.replace('%', '').replace('-', '').replace(' ', '')
-                    if v == '':
-                        v = 0
-                    analysis_data[col['col']].append(int(v))
+
+
+        (value_data, thresholds) = self._generate_stats(cols, indata)
+        if len(value_data) > 0:
+            for values in value_data:
+                row = []
+                for (i,col) in enumerate(values):
+                    if i == 0:
+                        row.append(Paragraph(col, styleN))
+                        continue
+
+                    tag_open = tag_close = u''
+                    colv = self._strip_junk(col)
+                    if thresholds[i-1][0] and colv < thresholds[i-1][0]:
+                        tag_open = u'<u>'
+                        tag_close = u'</u>'
+                    elif thresholds[i-1][0] and colv > thresholds[i-1][1]:
+                        tag_open = u'<b>'
+                        tag_close = u'</b>'
+
+                    row.append(Paragraph(u"%s%s%s" % \
+                        (tag_open, col, tag_close), styleN3)) 
+
+
+            data.extend(value_data)
             rowHeights.extend(len(indata) * [0.25 * inch])
-            arow = [u'Average for all CHWs']
-            srow = [u'Standard Deviation']
-            mrow = [u'Median for all CHWs']
-            for col in cols[1:]:
-                avg = numpy.average(analysis_data[col['col']])
-                arow.append(int(round(avg)))
-                sd = int(round(numpy.std(analysis_data[col['col']])))
-                if sd > avg:
-                    sdp = Paragraph(u"<b>%d</b>" % sd, styleN3)
-                elif sd < avg:
-                    sdp = Paragraph(u"<u>%d</u>" % sd, styleN3)
-                else:
-                    sdp = Paragraph(u"%d" % sd, styleN3)
-                srow.append(sdp)
-                md = numpy.median(analysis_data[col['col']])
-                mrow.append(md)
-            data.extend([arow, srow, mrow])
             rowHeights.extend(3 * [0.25 * inch])
+
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
-        tb.setStyle(TableStyle([('SPAN', (0, 0), (19, 0)),
+        tb.setStyle(TableStyle([('SPAN', (0, 0), (22, 0)),
                                 ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                                 colors.lightgrey),\
                                 ('BOX', (0, 0), (-1, -1), 0.1, \
@@ -177,11 +170,59 @@ class Report(PrintedReport):
                                 colors.lightgrey),\
                                 ('SPAN', (16, 1), (17, 1)), \
                                 ('SPAN', (18, 1), (19, 1)), \
-                                ('SPAN', (-2, 1), (-1, 1)), \
-                                ('BOX', (-3, 1), (-2, -1), 2, \
+                                ('SPAN', (20, 1), (21, 1)), \
+                                ('BOX', (20, 1), (21, -1), 2, \
                                 colors.lightgrey),
                                 ('LINEABOVE', (0, -3), (-1, -3), 1, \
                                 colors.black)
                     ]))
         return tb
+
+    def _generate_stats(self, cols, indata):
+        value_data = []
+        aggregate_data = map(lambda x: [], cols[1:])
+
+        if not indata:
+            return ([], [])
+
+        for chw in indata:
+            ctx = Context({"object": chw})
+
+            # Render column values into strings
+            row_values = map(lambda col: Template(col['bit']).render(ctx), cols)
+            value_data.append(row_values)
+
+            for (i,val) in enumerate(row_values[1:]):
+                val = self._strip_junk(val)
+                if val:
+                    aggregate_data[i].append(val)
+
+
+        thresholds = []
+        aggregates = []
+        for points in aggregate_data:
+            if points:
+                avg = numpy.average(points)
+                std = numpy.std(points)
+                med = numpy.median(points)
+        
+                aggregates.append(("%0.1f" % avg, "%0.1f" % std, "%0.1f" % med))
+                thresholds.append((avg - (2*std), avg + (2*std)))
+            else:
+                aggregates.append(('-','-','-'))
+                thresholds.append([False, False])
+
+        value_data.append(['Avgerage'] + map(lambda l: l[0], aggregates))
+        value_data.append(['Standard Deviation'] + map(lambda l: l[1], aggregates))
+        value_data.append(['Median'] + map(lambda l: l[2], aggregates))
+
+        return (value_data, thresholds)
+
+
+    def _strip_junk(self, v):
+        v = v.replace('%', '').replace('-', '').replace(' ', '')
+        if v == '':
+            return None
+        return float(v)
+
 
