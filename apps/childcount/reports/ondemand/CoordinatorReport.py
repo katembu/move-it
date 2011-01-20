@@ -34,6 +34,7 @@ class Report(PrintedReport):
             cols.extend([indicator.for_period(yps, p) \
                 for p in xrange(0, YearlyPeriodSet.num_periods)])
             t.add_row(map(Text, cols))
+            print indicator.title
         doc.add_element(Paragraph(_(u"For year %(year)s") % {'year': yps.year}))
         doc.add_element(t)
         return render_doc_to_file(filepath, rformat, doc)

@@ -19,7 +19,7 @@ class HTMLGenerator(Generator):
                 body {
                     font-family: Helvetica, Arial, sans-serif;
                     font-size: 0.8em;
-                    width: 750px;
+                    min-width: 750px;
                     border: 1px solid #eee;
                     padding: 2em;
                 }

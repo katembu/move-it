@@ -5,6 +5,7 @@
 import calendar
 
 from datetime import datetime, date
+from datetime import timedelta
 
 from django.utils.translation import gettext as _
 
@@ -24,34 +25,22 @@ def next_anc_date(patient):
                         .filter(encounter__patient__health_id=patient\
                         .encounter.patient.health_id).latest()
 
-    year_ = preg_woman.encounter.encounter_date.year
-    month_ = preg_woman.encounter.encounter_date.month
-    day_ = preg_woman.encounter.encounter_date.day
-
     if not preg_woman.weeks_since_anc:
         return None
 
+    anc_date = None
+    encounter_date = preg_woman.encounter.encounter_date
     if preg_woman.weeks_since_anc == 0:
-        month_ = preg_woman.encounter.encounter_date.month + 1
+        anc_date = encounter_date + timedelta(30)
+    elif preg_woman.weeks_since_anc >= 6:
+        anc_date = datetime.today() 
     else:
-        nbr_week = 4 - preg_woman.weeks_since_anc
-        days = nbr_week * 7
-        day_ = preg_woman.encounter.encounter_date.day + days
-        total_days = calendar.monthrange(preg_woman.encounter\
-                             .encounter_date.year, preg_woman\
-                             .encounter.encounter_date.month)[1]
+        weeks_to_anc = 6 - preg_woman.weeks_since_anc
+        days_to_anc = 7 * weeks_to_anc
 
-        if day_ > total_days:
-            day_ -= total_days
-            month_ = preg_woman.encounter.encounter_date.month + 1
+        anc_date = encounter_date + timedelta(days_to_anc)
 
-    if month_ > 12:
-        year_ = preg_woman.encounter.encounter_date.year + 1
-        month_ -= 12
-
-    next_anc = datetime(year_, month_, day_)
-
-    return next_anc
+    return anc_date
 
 
 def delivery_estimate(patient):
@@ -241,8 +230,10 @@ class Report(PrintedReport):
 
                     #Rate of muac
                     nutrition_report = NutritionReport.objects\
-                    .filter(encounter__patient__health_id=child\
-                    .health_id).order_by('-encounter__encounter_date')
+                    .filter(\
+                        encounter__patient__health_id=child.health_id, \
+                        muac__isnull=False)\
+                        .order_by('-encounter__encounter_date')
 
                     rate_muac = '-'
 

@@ -47,7 +47,7 @@ class AppointmentForm(CCForm):
             (patient.gender == Patient.GENDER_FEMALE and years < 11 and \
                 months > 18):
             raise Inapplicable(_(u"Inapplicable: %(patient)s is not within "
-                               Configuration     "required age bracket" % \
+                                    "required age bracket" % \
                                     {'patient': patient}))
         try:
             aptr = AppointmentReport.objects.get(encounter=self.encounter)
