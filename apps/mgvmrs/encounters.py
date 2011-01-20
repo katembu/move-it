@@ -38,7 +38,6 @@ def send_to_omrs(router, *args, **kwargs):
         # Form IDs and Field location ID are site-specific
         individual_id = int(conf['individual_id'])
         household_id = int(conf['household_id'])
-        ancform_id = int(conf['ancform_id'])
         location_id = int(conf['location_id'])
         identifier_type = int(conf['identifier_type'])
         # provider is a fallback if CHW has no OMRS ID in DB.
@@ -51,6 +50,12 @@ def send_to_omrs(router, *args, **kwargs):
         in_cluster_attribute_id = int(conf['in_cluster_attribute_id'])
     except:
         in_cluster_attribute_id = 10
+
+    try:
+        ancform_id = int(conf['ancform_id'])
+    except KeyError:
+        # for the time being, not in use
+        pass 
 
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
@@ -82,8 +87,11 @@ def send_to_omrs(router, *args, **kwargs):
             form_id = household_id
         else:
             if has_ancreport(reports):
-                omrsformclass = OpenMRSANCForm
-                form_id = ancform_id
+                # skip for the time being no clear way to deal with PMTCT
+                #  reports
+                continue
+                # omrsformclass = OpenMRSANCForm
+                # form_id = ancform_id
             else:
                 omrsformclass = OpenMRSConsultationForm
                 form_id = individual_id
