@@ -463,6 +463,7 @@ def polio_daily_summary_comparison(request, cformat='png'):
     d.chart.barWidth = 150
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.bars[1].fillColor = colors.lemonchiffon
+    d.chart.bars[2].fillColor = colors.green
     d.chart.groupSpacing = 10
     legend = Legend()
     legend.alignment = 'left'
@@ -471,7 +472,8 @@ def polio_daily_summary_comparison(request, cformat='png'):
     legend.dxTextSpace = 5
     legend.fontSize = 14
     legend.colorNamePairs = [(colors.steelblue, u"Phase 1"),
-                            (colors.lemonchiffon, u"Phase 2")]
+                            (colors.lemonchiffon, u"Phase 2"),
+                            (colors.green, u"Phase 3")]
     d.add(legend, 'legend')
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
