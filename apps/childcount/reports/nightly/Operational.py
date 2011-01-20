@@ -52,10 +52,9 @@ class Report(PrintedReport):
         story = []
         clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
                                                         .distinct('clinic'))
-    
-        clinics = [clinics[0]]
         for clinic in clinics:
-            if not TheCHWReport.objects.filter(clinic=clinic).count():
+            if not TheCHWReport.objects.filter(clinic=clinic, \
+                                        is_active=True).count():
                 continue
             tb = self._operationalreportable(clinic, TheCHWReport.objects.\
                 filter(clinic=clinic))
@@ -82,6 +81,7 @@ class Report(PrintedReport):
         opr = OperationalReport()
         cols = opr.get_columns()
 
+        ''' Header data '''
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
         data = [hdata, ['', Paragraph('Household', styleH3), '', '', \
@@ -125,30 +125,51 @@ class Report(PrintedReport):
         colWidths = [1.7 * inch]
         colWidths.extend((len(cols) - 1) * [0.4 * inch])
 
+        ''' value_data contains the strings for each cell of the table.
+            We need to format these into reportlab Paragraph objects
+            with bold and underlining.
 
-        (value_data, thresholds) = self._generate_stats(cols, indata)
+            agg_data has the summary figures for the bottom of the table.
+
+            thresholds has a tuple (low, high) for the values below/above
+            which a cell should be underlined/bolded.
+        '''
+
+        (value_data, agg_data, thresholds) = self._generate_stats(cols, indata)
         if len(value_data) > 0:
+            rows = []
             for values in value_data:
                 row = []
+
                 for (i,col) in enumerate(values):
+                    # CHW Name
                     if i == 0:
                         row.append(Paragraph(col, styleN))
                         continue
 
                     tag_open = tag_close = u''
                     colv = self._strip_junk(col)
-                    if thresholds[i-1][0] and colv < thresholds[i-1][0]:
+                    # If colv is None, then the value is '-' sp
+                    # don't format it.  If thresholds is None
+                    # then there isn't any data to format.
+                    if colv is not None and \
+                            thresholds[i-1] and \
+                            colv < thresholds[i-1][0]:
                         tag_open = u'<u>'
                         tag_close = u'</u>'
-                    elif thresholds[i-1][0] and colv > thresholds[i-1][1]:
+                    elif colv is not None and \
+                            thresholds[i-1] and \
+                            colv > thresholds[i-1][1]:
                         tag_open = u'<b>'
                         tag_close = u'</b>'
 
                     row.append(Paragraph(u"%s%s%s" % \
-                        (tag_open, col, tag_close), styleN3)) 
+                        (tag_open, col, tag_close), styleN)) 
+                rows.append(row)
 
-
-            data.extend(value_data)
+            # Add data to table
+            data.extend(rows)
+            data.extend(agg_data)
             rowHeights.extend(len(indata) * [0.25 * inch])
             rowHeights.extend(3 * [0.25 * inch])
 
@@ -180,10 +201,12 @@ class Report(PrintedReport):
 
     def _generate_stats(self, cols, indata):
         value_data = []
+        # Get data values minus first column -- since that column
+        # just has the CHW name
         aggregate_data = map(lambda x: [], cols[1:])
 
         if not indata:
-            return ([], [])
+            return ([], [], [])
 
         for chw in indata:
             ctx = Context({"object": chw})
@@ -192,31 +215,33 @@ class Report(PrintedReport):
             row_values = map(lambda col: Template(col['bit']).render(ctx), cols)
             value_data.append(row_values)
 
+            # Convert data to float for aggregation
             for (i,val) in enumerate(row_values[1:]):
                 val = self._strip_junk(val)
-                if val:
+                if val is not None:
                     aggregate_data[i].append(val)
 
 
         thresholds = []
-        aggregates = []
+        aggregates = [[u'Average'], [u'Standard Deviation'], [u'Median']]
         for points in aggregate_data:
             if points:
                 avg = numpy.average(points)
                 std = numpy.std(points)
                 med = numpy.median(points)
-        
-                aggregates.append(("%0.1f" % avg, "%0.1f" % std, "%0.1f" % med))
+       
+
+                aggregates[0].append(Paragraph(u"%0.1f" % avg, styleN))
+                aggregates[1].append(Paragraph(u"%0.1f" % std, styleN))
+                aggregates[2].append(Paragraph(u"%0.1f" % med, styleN))
+
                 thresholds.append((avg - (2*std), avg + (2*std)))
             else:
-                aggregates.append(('-','-','-'))
-                thresholds.append([False, False])
+                for i in xrange(0,3):
+                    aggregates[i].append(u'-') 
+                thresholds.append(None)
 
-        value_data.append(['Avgerage'] + map(lambda l: l[0], aggregates))
-        value_data.append(['Standard Deviation'] + map(lambda l: l[1], aggregates))
-        value_data.append(['Median'] + map(lambda l: l[2], aggregates))
-
-        return (value_data, thresholds)
+        return (value_data, aggregates, thresholds)
 
 
     def _strip_junk(self, v):

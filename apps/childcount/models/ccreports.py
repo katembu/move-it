@@ -539,6 +539,10 @@ class TheCHWReport(CHW):
     def num_of_householdvisits(self):
         return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
 
+    def num_of_householdvisits_90_days(self):
+        today = datetime.today().date()
+        return self.household_visit(today - timedelta(90), today)
+    
     def household_visit(self, startDate=None, endDate=None):
         return HouseholdVisitReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
@@ -631,10 +635,9 @@ class TheCHWReport(CHW):
             thepatient = ThePatient.objects.get(id=achild.id)
             if thepatient.ontime_muac():
                 count += 1
-            return
 
-        if not count:
-            return count
+        if count == 0:
+            return 0
         else:
             total_count = underfives.count()
             return int(round(100 * (count / float(total_count))))
@@ -691,16 +694,21 @@ class TheCHWReport(CHW):
 
     def percentage_pregnant_ontime_visits(self):
         pwomen = self.pregnant_women()
+
         if len(pwomen) == 0:
             return None
+
+        # Check if report submitted was Sauri report or standard
+        # report
         if not PregnancyReport.objects.filter(encounter__chw=self):
             prgclass = SPregnancy
         else:
             prgclass = PregnancyReport
+
         count = 0
         for patient in pwomen:
             pr = prgclass.objects.filter(encounter__patient=patient)\
-                                        .latest()
+                                        .latest('encounter__encounter_date')
             latest_date = pr.encounter.encounter_date
             old_date = latest_date - timedelta(6 * 7)
             pr = prgclass.objects.filter(encounter__patient=patient, \
@@ -854,7 +862,7 @@ class TheCHWReport(CHW):
     def current_monthly_appointments(self):
         '''AppointmentReports since the start of the month to date'''
         today = datetime.today().date()
-        start_of_month = today + relativedelta(day=1)
+        start_of_month = today - timedelta(today.day - 1)
         apts = AppointmentReport.objects.filter(encounter__chw=self,
                                 appointment_date__gte=start_of_month,
                                 appointment_date__lte=today)
@@ -874,20 +882,31 @@ class TheCHWReport(CHW):
 
     def score(self):
         pov = pobv = pom = ppov = pr = pof = 0
+        div_by = 0
         if self.percentage_ontime_visits():
             pov = self.percentage_ontime_visits()
+            div_by += 1
         if self.percentage_ontime_birth_visits():
             pobv = self.percentage_ontime_birth_visits()
+            div_by += 1
         if self.percentage_ontime_muac():
             pom = self.percentage_ontime_muac()
+            div_by += 1
         if self.percentage_pregnant_ontime_visits():
             ppov = self.percentage_pregnant_ontime_visits()
+            div_by += 1
         if self.percentage_reminded():
             pr = self.percentage_reminded()
+            div_by += 1
         if self.percentage_ontime_followup():
             pof = self.percentage_ontime_followup()
+            div_by += 1
         score =  pov + pobv + pom + ppov + pof + pr
-        return int(round(score / 6.0, 0))
+
+        if div_by == 0:
+            return None
+
+        return int(round(score / float(div_by), 0))
 
     @classmethod
     def muac_summary(cls):
@@ -1108,9 +1127,9 @@ class OperationalReport():
             'bit': '{{object.number_of_households}}',
             'col': 'A1'})
         columns.append({ \
-            'name': _("# of Household Visits"), \
+            'name': _("# of Household Visits (in last 90 days)"), \
             'abbr': _("#HH-V"), \
-            'bit': '{{object.num_of_householdvisits}}',
+            'bit': '{{object.num_of_householdvisits_90_days}}',
             'col': 'A2'})
         columns.append({
             'name': _("% of HHs receiving on-time routine visit "\
@@ -1231,7 +1250,9 @@ class OperationalReport():
         columns.append({ \
             'name': _("Calculated overall CHW performance indicator"), \
             'abbr': _('SCORE'), \
-            'bit': '{{ object.score }}%',
+            'bit': '{% if object.score %}'\
+                    '{{ object.score }}%'\
+                    '{% else %}-{% endif %}',
             'col': 'I1'})
         self.columns = columns
 
