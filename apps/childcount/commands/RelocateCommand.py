@@ -27,6 +27,8 @@ class RelocateCommand(CCCommand):
         'fr': ['reloc'],
     }
 
+    LOCATION_MOVED = 'X'
+
     @authenticated
     def process(self):
         if 'encounter_date' not in self.message.__dict__:
@@ -53,14 +55,21 @@ class RelocateCommand(CCCommand):
         loc_code = self.params[1]
         health_id = self.params[2]
 
-        # Lookup location code 
         location = None
-        try: 
-            location = Location.objects.get(code=loc_code)
-        except Patient.DoesNotExist:
-            self.message.respond(_(u"There is no location with code " \
-                                    "%(code)s.") % {'code': loc_code}, 'error')
-        # Lookup health id
+
+        # If location code is LOCATION_MOVED, then don't look up
+        # the location -- just marked the HH as moved.
+        active = (loc_code.upper() != self.LOCATION_MOVED)
+            
+        # Look up location code if HH is to remain active
+        if active:
+            try: 
+                location = Location.objects.get(code=loc_code)
+            except Patient.DoesNotExist:
+                self.message.respond(_(u"There is no location with code " \
+                                        "%(code)s.") % {'code': loc_code}, 'error')
+
+        # Look up health id
         person = None
         try: 
             person = Patient.objects.get(health_id=health_id)
@@ -72,13 +81,24 @@ class RelocateCommand(CCCommand):
             .objects\
             .filter(household__health_id=person.household.health_id)
 
-        count = members.update(location=location)
-        count = members.update(chw=new_chw)
+        msg = u''
 
-        msg = _(u"Assigned %(count)d patients to %(loc)s with CHW %(chw)s: ") % \
-            {'loc': location.code.upper(), \
-            'chw': new_chw.full_name(), \
-            'count': count}
+        if active:
+            # Relocate patients and assign new CHW
+            count = members.update(location=location,\
+                chw=new_chw,\
+                status=Patient.STATUS_ACTIVE)
+
+            msg = _(u"Made status ACTIVE and moved %(count)d people to %(loc)s with CHW %(chw)s: ") % \
+                {'loc': location.code.upper(), \
+                'chw': new_chw.full_name(), \
+                'count': count}
+        else:
+            # Mark HH members as inactive
+            count = members.update(status=Patient.STATUS_INACTIVE)
+            msg = _("Marked %(count)d patients as INACTIVE: ") % \
+                {'count': count}
+
         msg += ' '.join([p.health_id.upper() for p in members])
 
         self.message.respond(msg, 'success')
