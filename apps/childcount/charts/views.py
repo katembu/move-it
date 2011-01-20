@@ -149,8 +149,8 @@ def polio_percentage_barchart(request, phase=1, cformat='png'):
 def polio_percentage_comparison_barchart(request, cformat='png'):
     #instantiate a drawing object
     d = CCBarChartDrawing(1280, 800)
-    d.add(String(200, 780, u"Polio Campaign: Phase 1 and Phase 2 Percentage "
-                "Coverage Comparison"), name='title')
+    d.add(String(200, 780, u"Polio Campaign: Phase 1, Phase 2 and Phase 3"
+                " Percentage Coverage Comparison"), name='title')
     d.title.fontName = 'Helvetica-Bold'
     d.title.fontSize = 20
     data = []
@@ -195,6 +195,7 @@ def polio_percentage_comparison_barchart(request, cformat='png'):
 
     d.chart.bars[0].fillColor = colors.steelblue
     d.chart.bars[1].fillColor = colors.orange
+    d.chart.bars[2].fillColor = colors.green
 
     legend = Legend()
     legend.alignment = 'left'
@@ -203,7 +204,8 @@ def polio_percentage_comparison_barchart(request, cformat='png'):
     legend.dxTextSpace = 5
     legend.fontSize = 14
     legend.colorNamePairs = [(colors.steelblue, u"Phase 1"),
-                            (colors.orange, u"Phase 2")]
+                            (colors.orange, u"Phase 2"),
+                            (colors.green, u"Phase 3")]
     d.add(legend, 'legend')
     #get a GIF (or PNG, JPG, or whatever)
     binaryStuff = d.asString(cformat.lower())
