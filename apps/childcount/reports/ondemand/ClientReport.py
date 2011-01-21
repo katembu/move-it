@@ -157,7 +157,7 @@ class Report(PrintedReport):
         date_today = datetime.today()
         not_first_chw = False
 
-        for chw in CHW.objects.all():
+        for chw in CHW.objects.all().order_by('location'):
             b_FullName = False
 
             if not Encounter.objects.filter(encounter_date__month=date_today\
