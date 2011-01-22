@@ -52,8 +52,6 @@ class Report(PrintedReport):
         story = []
         clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
                                                         .distinct('clinic'))
-    
-        clinics = [clinics[0]]
         for clinic in clinics:
             if not TheCHWReport.objects.filter(clinic=clinic).count():
                 continue
