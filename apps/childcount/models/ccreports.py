@@ -2003,18 +2003,24 @@ class MonthlyCHWReport(TheCHWReport):
         women = self.pregnant_by_period(per_cls, per_num)
 
         # Get latest pregnancy report for woman
-        preggers = map(lambda w:
-            PregnancyReport\
-                .objects\
-                .filter(encounter__patient=w, \
-                    encounter__encounter_date__gte=\
-                        per_cls.period_start_date(per_num) - \
-                            timedelta(30.4375 * 10))
-                .latest('encounter__encounter_date'), women)
+        pregreps = []
+        for w in women:
+            try:
+                rep = PregnancyReport\
+                    .objects\
+                    .filter(encounter__patient=w, \
+                        encounter__encounter_date__gte=\
+                            per_cls.period_start_date(per_num) - \
+                                timedelta(30.4375 * 10))\
+                    .latest('encounter__encounter_date')
+            except PregnancyReport.DoesNotExist:
+                continue
+            else:
+                pregreps.append(rep)
 
         # See how many women fall in this trimester
         targets = []
-        for p in preggers:
+        for p in pregreps:
             days_ago = (per_cls.period_end_date(per_num) - \
                 p.encounter.encounter_date.date()).days
             months_ago = days_ago / 30.4375
@@ -2466,12 +2472,12 @@ class HealthCoordinatorReport():
         # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
         # does returns [], with values('encounter__patient').distinct()
         # returns some values but they are different if SPregnancy is used
-        pregs = PregnancyReport.objects.filter()\
+        pregs = PregnancyReport.objects.all()\
                                 .values('encounter__patient').distinct()
         for preg in pregs:
-            patient = Patient.objects.get(id=preg['encounter__patient'])
+            patient = Patient.objects.get(pk=preg['encounter__patient'])
             pr = PregnancyReport.objects.filter(encounter__patient=patient)\
-                                        .latest()
+                                        .latest('encounter__encounter_date')
             days = (pr.encounter.encounter_date.date() - today).days
             months = round(days / 30.4375)
             if pr.pregnancy_month + months < 9:
