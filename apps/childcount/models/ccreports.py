@@ -1721,9 +1721,9 @@ class MonthlyCHWReport(TheCHWReport):
             Indicator('Num Neonatal Rpts (<7 days)',\
                 self.num_neonatal, Indicator.SUM),
             INDICATOR_EMPTY,
-            #Indicator('Num Children U5',\
-            #    self.num_underfive, Indicator.AVG,\
-            #    col_agg_func=Indicator.SUM),
+            Indicator('Num Children U5',\
+                self.num_underfive, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
             Indicator('Num U5 Known Immunized',\
                 self.num_underfive_imm, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
