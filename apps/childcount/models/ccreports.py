@@ -2066,7 +2066,7 @@ class MonthlyCHWReport(TheCHWReport):
             .for_period(per_cls, per_num)
 
         for r in rpts:
-            if r.encounter.encounter_date - timedelta(7) < \
+            if r.encounter.encounter_date.date() - timedelta(7) < \
                 r.encounter.patient.dob:
                 count += 1
             
