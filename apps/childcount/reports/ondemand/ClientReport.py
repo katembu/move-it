@@ -33,7 +33,7 @@ def next_anc_date(patient):
     if preg_woman.weeks_since_anc == 0:
         anc_date = encounter_date + timedelta(30)
     elif preg_woman.weeks_since_anc >= 6:
-        anc_date = datetime.today() 
+        anc_date = datetime.today()
     else:
         weeks_to_anc = 6 - preg_woman.weeks_since_anc
         days_to_anc = 7 * weeks_to_anc
@@ -160,8 +160,20 @@ class Report(PrintedReport):
         for chw in CHW.objects.all().order_by('location'):
             b_FullName = False
 
-            if not Encounter.objects.filter(encounter_date__month=date_today\
-            .month, encounter_date__year=date_today.year, chw=chw.id).count():
+            encounters = Encounter.objects\
+                             .filter(encounter_date__month=date_today\
+                             .month, encounter_date__year=\
+                                           date_today.year, chw=chw.id)
+            if not encounters.count():
+                continue
+
+            # result of filter is list of under 5 or women
+            # from the encounters list.
+            # we skip the CHW is this result is empty.
+            if not filter(lambda x: x.patient.is_under_five() \
+                                    or x.patient.gender == \
+                                              Patient.GENDER_FEMALE, \
+                          list(encounters)):
                 continue
 
             # special content for First Page
@@ -176,6 +188,7 @@ class Report(PrintedReport):
                       'full_name': chw.full_name()}
             else:
                 section_name = chw.full_name()
+
 
             doc.add_element(Section(section_name))
 
@@ -312,7 +325,7 @@ class Report(PrintedReport):
                         rate_muac = ('%(muac)s (%(rate_muac)s)' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac})
-                                             
+
                     try:
                         child_muac = NutritionReport.objects\
                                 .filter(encounter__patient__health_id=child.\
@@ -455,8 +468,10 @@ class Report(PrintedReport):
                     ])
 
                 doc.add_element(table2)
+
             pregnant_women_list = [rep.encounter.patient \
                                     for rep in pregnant_women]
+
             women = [Patient.objects.get(id=e['patient']) for e in\
                     Encounter.objects.filter(chw=chw,\
                     encounter_date__month=date_today.month,\
@@ -466,7 +481,8 @@ class Report(PrintedReport):
                     date_today.month, date_today.day))\
                     .order_by('patient__last_name', 'patient__first_name')\
                     .values('patient').distinct()]
-            women = list(set(pregnant_women_list) - set(women))
+
+            women = list(set(women) - set(pregnant_women_list))
 
             if women:
                 table3 = Table(10)
