@@ -69,6 +69,8 @@ class CodedItem(models.Model):
         'vc': (_('vc'), _(u"Vitamin C")),
         'f': (_('f'), _(u"Fesolate")),
         'bco': (_('bco'), _(u"B Complex")),
+        'arv': (_('arv'), _(u"ARV")),
+        'azt': (_('azt'), _(u"AZT")),
     }
 
     counseling = {
