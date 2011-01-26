@@ -1198,7 +1198,7 @@ class OperationalReport():
         columns.append({ \
             'name': _("# of Active GAM cases"), \
             'abbr': _('#U5-GAM'), \
-            'bit': '{{object.num_of_active_gam_cases}}'
+            'bit': '{{object.num_of_active_gam_cases}}',\
             'col': 'C6' })
         columns.append({ \
             'name': _("# of Pregnant Women"), \
