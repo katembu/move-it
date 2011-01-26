@@ -715,8 +715,8 @@ class TheCHWReport(CHW):
             latest_date = pr.encounter.encounter_date
             old_date = latest_date - timedelta(6 * 7)
             pr = prgclass.objects.filter(encounter__patient=patient, \
-                                encounter__encounter_date__gte=old_date, \
-                                encounter__encounter_date__lt=latest_date)
+                                encounter__encounter_date__gte=latest_date, \
+                                encounter__encounter_date__lt=old_date)
             if pr.count():
                 count += 1
         if not count:
@@ -1198,7 +1198,8 @@ class OperationalReport():
         columns.append({ \
             'name': _("# of Active GAM cases"), \
             'abbr': _('#U5-GAM'), \
-            'bit': '{{object.num_of_active_gam_cases}}'})
+            'bit': '{{object.num_of_active_gam_cases}}'
+            'col': 'C6' })
         columns.append({ \
             'name': _("# of Pregnant Women"), \
             'abbr': _('#PW'), \
@@ -1221,14 +1222,14 @@ class OperationalReport():
             'name': _("# Number of appointments"), \
             'abbr': _('%NOA'), \
             'bit': '{{ object.num_of_appointment }}',
-            'col': 'F1'})
+            'col': 'E1'})
         columns.append({ \
             'name': _("% of appointment reminders completed"), \
             'abbr': _('%POA-RT'), \
             'bit': '{% if object.percentage_reminded %}'\
                     '{{ object.percentage_reminded }}%' \
                     '{% else %}-{% endif %}',
-            'col': 'F2'})
+            'col': 'E2'})
         columns.append({ \
             'name': _("% Urgently referred receiving on-time "\
                             "follow-up (within 2 days) [S13]"),
@@ -1236,31 +1237,31 @@ class OperationalReport():
             'bit': '{% if object.percentage_ontime_followup %}' \
                    '{{ object.percentage_ontime_followup }}%'\
                    '{% else %}-{% endif %}',
-            'col': 'E1'})
+            'col': 'F1'})
         columns.append({ \
             'name': _("Median # of days for follow-up [S25]"), \
             'abbr': _('#Fol'), \
             'bit': '{{object.median_number_of_followup_days}}',
-            'col': 'name'})
+            'col': 'F2'})
         columns.append({ \
             'name': _("SMS Error Rate %"), \
             'abbr': _('%Err'), \
             'bit': '{% if object.sms_error_rate %}' \
                    '{{ object.sms_error_rate }}%'\
                    '{% else %}-{% endif %}',
-            'col': 'F1'})
+            'col': 'G1'})
         columns.append({ \
             'name': _("Days since last SMS transmission"), \
             'abbr': _('#Days'), \
             'bit': '{{ object.days_since_last_sms|default_if_none:"-" }}',
-            'col': 'F2'})
+            'col': 'G2'})
         columns.append({ \
             'name': _("Calculated overall CHW performance indicator"), \
             'abbr': _('SCORE'), \
             'bit': '{% if object.score %}'\
                     '{{ object.score }}%'\
                     '{% else %}-{% endif %}',
-            'col': 'I1'})
+            'col': 'H1'})
         self.columns = columns
 
     def get_columns(self):
@@ -1495,7 +1496,7 @@ class MonthSummaryReport():
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE, \
                             encounter__encounter_date__gte=startDate, \
-                            encounter__encounter_date__lte=endDate).count()                
+                            encounter__encounter_date__lte=endDate).count()
         num += NutritionReport.objects.filter(\
                             status=NutritionReport.STATUS_MODERATE, \
                             encounter__encounter_date__gte=startDate, \
@@ -1558,8 +1559,8 @@ class GeneralSummaryReport():
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE).count()
         num += NutritionReport.objects.filter(\
-                                status=NutritionReport.STATUS_SEVERE_COMP).count()                       
-        
+                                status=NutritionReport.STATUS_SEVERE_COMP).count()
+
 
         return num
 
