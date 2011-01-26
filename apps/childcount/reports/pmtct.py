@@ -25,14 +25,16 @@ def defaulters(request, rformat="html"):
     return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
 
 def pmtct_defaulters(title=u"Defaulters Report"):
-    doc = Document(title)
+    doc =Document(title, landscape=True, stick_sections=True)
     today = datetime.today() + relativedelta(days=-3)
     for clinic in Clinic.objects.all():
         df = AppointmentReport.objects.filter(status__in=open_status,
                                 appointment_date__lt=today,
                                 encounter__patient__chw__clinic=clinic,
                             encounter__patient__status=Patient.STATUS_ACTIVE)
-        df = df.order_by('encounter__chw__location', 'appointment_date')
+        df = df.order_by('encounter__patient__chw',
+            'encounter__chw__location',
+            'appointment_date')
 
         t = Table(5)
         t.add_header_row([
