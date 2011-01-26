@@ -29,6 +29,7 @@ TA_MAP = {
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
 
+'''
 # Liberation Sans font
 pdfmetrics.registerFont(TTFont('LiberationSans', \
                                        'lib/ccdoc/LiberationSans-Regular.ttf'))
@@ -42,6 +43,7 @@ registerFontFamily('LiberationSans', normal='LiberationSans', \
                    bold='LiberationSans-Bold', \
                    italic='LiberationSans-Italic', \
                    boldItalic='LiberationSans-BoldItalic')
+'''
 
 class SectionBreak(PageBreak):
     pass
@@ -49,7 +51,8 @@ class SectionBreak(PageBreak):
 class CustomDocTemplate(BaseDocTemplate):
 
     def afterFlowable(self, flowable):
-        """ add another page break after a section end if on even page """
+'''
+""" add another page break after a section end if on even page """
 
         if not self.stick_sections:
             return
@@ -84,7 +87,7 @@ class PDFGenerator(Generator):
 
         self.styles = getSampleStyleSheet()
 
-        self.styles['Normal'].fontName = 'LiberationSans'
+        #self.styles['Normal'].fontName = 'LiberationSans'
         self.styles['Normal'].fontSize = 10
 
         ''' All Flowable elements on the page '''
