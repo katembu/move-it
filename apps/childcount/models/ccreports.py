@@ -2217,7 +2217,8 @@ class MonthlyCHWReport(TheCHWReport):
                 weeks_since_anc = p.weeks_since_anc + weeks_ago
                 if weeks_since_anc > 5.0:
                     women.append((p.encounter.patient, \
-                        p.encounter.encounter_date, \
+                        p.encounter.encounter_date - \
+                            timedelta(7 * p.weeks_since_anc), \
                         due_date))
 
         women.sort(lambda x,y: cmp(x[1],y[1]))
