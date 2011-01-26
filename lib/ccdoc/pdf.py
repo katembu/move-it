@@ -51,8 +51,7 @@ class SectionBreak(PageBreak):
 class CustomDocTemplate(BaseDocTemplate):
 
     def afterFlowable(self, flowable):
-'''
-""" add another page break after a section end if on even page """
+        """ add another page break after a section end if on even page """
 
         if not self.stick_sections:
             return
