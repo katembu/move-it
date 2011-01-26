@@ -12,6 +12,31 @@ from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import YearlyPeriodSet
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.ccreports import HealthCoordinatorReport
+from childcount.models import FamilyPlanningReport
+
+def total_for_each_line(values):
+    """ returns the total line
+
+        params:
+            * values """
+
+    total = 0
+
+    for value in values:
+        if isinstance(value, basestring) and '(' in value:
+            try:
+                value = value.split("(")[1].split("/")[0]
+            except Exception:
+                pass
+
+        try:
+            total += int(value)
+        except ValueError:
+            pass
+        except:
+            raise
+
+    return total
 
 class Report(PrintedReport):
     title = 'CC+ Health Coordinator Report'
@@ -21,9 +46,11 @@ class Report(PrintedReport):
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
         header = [u'']
+
         yps = YearlyPeriodSet(year=2010)
         header.extend([yps.period_name(p) \
                         for p in xrange(0, yps.num_periods)])
+        header.append('Total')
         t = Table(header.__len__())
         t.add_header_row(map(Text, header))
         hcr = HealthCoordinatorReport()
@@ -33,8 +60,10 @@ class Report(PrintedReport):
             cols = [indicator.title]
             cols.extend([indicator.for_period(yps, p) \
                 for p in xrange(0, YearlyPeriodSet.num_periods)])
+            total_value = total_for_each_line([indicator.for_period(yps, p) \
+                for p in xrange(0, YearlyPeriodSet.num_periods)])
+            cols.append(total_value)
             t.add_row(map(Text, cols))
-            print indicator.title
         doc.add_element(Paragraph(_(u"For year %(year)s") % {'year': yps.year}))
         doc.add_element(t)
         return render_doc_to_file(filepath, rformat, doc)
