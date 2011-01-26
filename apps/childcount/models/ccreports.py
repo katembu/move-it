@@ -1148,7 +1148,7 @@ class OperationalReport():
                    '{% else %}-{% endif %}',
             'col': 'A3'})
         columns.append({ \
-            'name': _("# of Births"), \
+            'name': _("# of Birth Reports"), \
             'abbr': _('#Bir'), \
             'bit': '{{object.num_of_births}}',
             'col': 'B1'})
@@ -1723,9 +1723,9 @@ class MonthlyCHWReport(TheCHWReport):
             Indicator('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('Num Births',\
+            Indicator('Num Birth Reports',\
                 self.num_births, Indicator.SUM),
-            Indicator('Num Births with 4 ANC',\
+            Indicator('Num Births Rpts with 4 ANC',\
                 self.num_births_with_anc, Indicator.SUM),
             Indicator('Num Neonatal Rpts (<7 days)',\
                 self.num_neonatal, Indicator.SUM),
