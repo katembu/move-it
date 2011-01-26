@@ -6,7 +6,7 @@
 from django.utils.translation import ugettext as _
 
 from childcount.forms import CCForm
-from childcount.models import Encounter
+from childcount.models import Encounter, Configuration
 from childcount.models.reports import UnderOneReport
 from childcount.exceptions import Inapplicable, ParseError, BadValue
 from childcount.forms.utils import MultipleChoiceField
@@ -58,8 +58,23 @@ class UnderOneForm(CCForm):
 
         # Allow up to 5 years to CHWs can mark kids over 1 as
         # immunized
-        if months > 60:
-            raise Inapplicable(_(u"Child is too old for this report."))
+
+        max_age = 12
+        try:
+            max_age = Configuration.objects.get(\
+                key='accept_under_one_report_until_months').value
+        except Configuration.DoesNotExist:
+            # Don't worry if this Configuration doesn't exist
+            pass
+
+        # Make sure we're dealing with an integer
+        max_age = int(max_age)
+
+        if months > max_age:
+            raise Inapplicable(_(u"This report is only allowed for children "\
+                                "under %(max_age)d months. This child is %(age)d "\
+                                "months old.") \
+                                % {'max_age': max_age, 'age': months})
 
         if len(self.params) < 3:
             raise ParseError(_(u"Not enough info. Expected: | breast feeding " \
