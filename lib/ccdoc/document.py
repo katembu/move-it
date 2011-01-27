@@ -23,7 +23,7 @@ class Document(object):
             subtitle=None,
             landscape=False,
             stick_sections=False,
-            datestring=u'Created on %d-%m-%Y at %H:%M Data From %b. 1 to %b. %d %Y'):
+            datestring=u'Generated on %d-%m-%Y at %H:%M.'):
 
         self.title = title
         self.subtitle = subtitle
