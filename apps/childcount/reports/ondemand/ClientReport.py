@@ -3,7 +3,7 @@
 # maintainer: diarra
 
 import calendar
-
+import time
 from datetime import datetime, date
 from datetime import timedelta
 
@@ -92,15 +92,33 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
     icon = instruction_text = ""
 
     last_visit = nbr_DayAfterEncounter
+    date_before_overdue = ""
+    day_in_month = calendar.monthrange(date.today().year, date.today().month)[1]
 
     if nbr_DayAfterEncounter >= 60:
-        last_visit = nbr_DayAfterEncounter
-        b_FullName = b_LastVisit = True
-        exceded_days = nbr_DayAfterEncounter - 60
-        instruction_text = ("Visit HH by %s")%(exceded_days)
+        day_deadline = ""
+        month_deadline = ""
+        year_deadline = ""
+        x = date.today()
+        if (x.day + (90 - nbr_DayAfterEncounter)) < day_in_month:
+            day_deadline = x.day + (90 - nbr_DayAfterEncounter)
+            date_before_overdue = date(x.year, x.month, day_deadline)
 
-    if nbr_DayAfterEncounter >= 90:
-        last_visit = "! %s !" % nbr_DayAfterEncounter
+
+        else :
+            day_deadline = (x.day + (90 - nbr_DayAfterEncounter)) - day_in_month
+            month_deadline = x.month + 1
+            date_before_overdue = date(x.year, month_deadline, day_deadline)
+
+            if month_deadline > 12:
+                year_deadline = x.year + 1
+                date_before_overdue = date(year_deadline, month_deadline, day_deadline)
+
+        b_FullName = b_LastVisit = True
+        instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
+
+    if nbr_DayAfterEncounter >= 3:
+        last_visit = "! %s !" % "Overdue"
         b_FullName = b_LastVisit = True
         icon = "!"
 
@@ -187,7 +205,8 @@ class Report(PrintedReport):
                    % {'clinic': chw.clinic,\
                       'full_name': chw.full_name()}
             else:
-                section_name = chw.full_name()
+                section_name = chw.full_name() + ' ' + time.strftime(u'Data from %b. 1 to %b. %d %Y')
+
 
 
             doc.add_element(Section(section_name))
@@ -227,7 +246,7 @@ class Report(PrintedReport):
                 table1.set_column_width(5, 6)
                 table1.set_column_width(4, 7)
                 table1.set_column_width(8, 8)
-                table1.set_column_width(5, 9)
+                table1.set_column_width(7, 9)
                 table1.set_column_width(5, 10)
 
                 table1.set_alignment(Table.ALIGN_LEFT, column=2)
@@ -249,7 +268,7 @@ class Report(PrintedReport):
                         muac__isnull=False)\
                         .order_by('-encounter__encounter_date')
 
-                    rate_muac = '-'
+                    rate_muac = ''
 
                     if len(nutrition_report) > 1:
                         rate_muac = ((nutrition_report[0].muac \
@@ -268,9 +287,9 @@ class Report(PrintedReport):
                             .order_by('-encounter__encounter_date')[0]\
                             .muac
                     except NutritionReport.DoesNotExist:
-                        muac = '-'
+                        muac = ''
                     except IndexError:
-                        muac = '-'
+                        muac = ''
 
                     #Making an alerte if nutrition report change.
                     two_LastReport = []
@@ -325,7 +344,6 @@ class Report(PrintedReport):
                         icon_rate = u"◆"
                         b_FullName = b_muac = True
                         sign = u'!'
-
                     try:
                         child_muac = NutritionReport.objects\
                                 .filter(encounter__patient__health_id=child.\
@@ -508,7 +526,7 @@ class Report(PrintedReport):
                 table3.set_column_width(5, 4)
                 table3.set_column_width(5, 5)
                 table3.set_column_width(5, 6)
-                table3.set_column_width(5, 7)
+                table3.set_column_width(7, 7)
                 table3.set_column_width(5, 8)
 
                 table3.set_alignment(Table.ALIGN_LEFT, column=2)
