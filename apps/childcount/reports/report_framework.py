@@ -89,7 +89,7 @@ class PrintedReport(Task):
                     self.title,
                     self.get_filepath(rformat),
                     {})
-                return True
+                continue
 
             for variant in variants:
                 print variant
