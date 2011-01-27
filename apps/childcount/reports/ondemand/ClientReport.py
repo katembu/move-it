@@ -320,10 +320,11 @@ class Report(PrintedReport):
                     if rdt_instruction:
                         all_instructions.append(rdt_instruction)
                     icon_rate = icon_ = instruction = ''
-
+                    sign = ''
                     if rate_muac < 0:
                         icon_rate = u"◆"
                         b_FullName = b_muac = True
+                        sign = u'!'
 
                     try:
                         child_muac = NutritionReport.objects\
@@ -348,9 +349,9 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text(('%(muac)s (%(rate_muac)s)' % \
+                        Text(('%(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
                                             {'rate_muac': rate_muac, \
-                                             'muac': muac}), bold=b_muac),
+                                             'muac': muac, 'sign': sign}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text(u" | ".join(all_instructions), bold=True)
@@ -441,7 +442,7 @@ class Report(PrintedReport):
                         all_instructions.append(rdt_instruction)
 
                     instruction = icon_ = ''
-                    if (date_today - estimate_date).days < 21:
+                    if (date_today - estimate_date).days < 30:
                         icon_ = u'☻'
                         instruction = _(u'go over personalized birth plan')
                         all_instructions.append(instruction)
