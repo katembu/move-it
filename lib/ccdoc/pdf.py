@@ -15,6 +15,10 @@ from reportlab.platypus import Table, Paragraph, Frame, \
     BaseDocTemplate, PageBreak
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.platypus import PageTemplate, Spacer
+from reportlab.lib.fonts import addMapping
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
 
 from ccdoc.generator import Generator
 from ccdoc.table import Table as cctable
@@ -24,6 +28,20 @@ TA_MAP = {
     cctable.ALIGN_RIGHT: TA_RIGHT,
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
+
+# Liberation Sans font
+pdfmetrics.registerFont(TTFont('LiberationSans', \
+                                       'lib/ccdoc/LiberationSans-Regular.ttf'))
+pdfmetrics.registerFont(TTFont('LiberationSans-Bold', \
+                               'lib/ccdoc/LiberationSans-Bold.ttf'))
+pdfmetrics.registerFont(TTFont('LiberationSans-Italic', \
+                               'lib/ccdoc/LiberationSans-Italic.ttf'))
+pdfmetrics.registerFont(TTFont('LiberationSans-BoldItalic', \
+                               'lib/ccdoc/LiberationSans-BoldItalic.ttf'))
+registerFontFamily('LiberationSans', normal='LiberationSans', \
+                   bold='LiberationSans-Bold', \
+                   italic='LiberationSans-Italic', \
+                   boldItalic='LiberationSans-BoldItalic')
 
 class SectionBreak(PageBreak):
     pass
@@ -66,7 +84,7 @@ class PDFGenerator(Generator):
 
         self.styles = getSampleStyleSheet()
 
-        self.styles['Normal'].fontName = 'Helvetica'
+        self.styles['Normal'].fontName = 'LiberationSans'
         self.styles['Normal'].fontSize = 10
 
         ''' All Flowable elements on the page '''
