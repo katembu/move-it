@@ -134,14 +134,34 @@ def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
     """
     b_LastVisit = False
     icon = ""
-
     last_visit = nbr_DayAfterEncounter
     instruction_text = ""
-    if nbr_DayAfterEncounter >= 15:
-        last_visit = nbr_DayAfterEncounter
+    date_before_overdue = ""
+    day_in_month = calendar.monthrange(date.today().year, date.today().month)[1]
+
+    #Calcul of the date where visit will reach 45 days.
+    if nbr_DayAfterEncounter >= 15 and nbr_DayAfterEncounter < 45:
+        day_deadline = ""
+        month_deadline = ""
+        year_deadline = ""
+        x = date.today()
+
+        if (x.day + (45 - nbr_DayAfterEncounter)) < day_in_month:
+            day_deadline = x.day + (45 - nbr_DayAfterEncounter)
+            date_before_overdue = date(x.year, x.month, day_deadline)
+
+        else :
+            day_deadline = (x.day + (45 - nbr_DayAfterEncounter)) - day_in_month
+            month_deadline = x.month + 1
+            date_before_overdue = date(x.year, month_deadline, day_deadline)
+
+            if month_deadline > 12:
+                year_deadline = x.year + 1
+                date_before_overdue = date(year_deadline, month_deadline, \
+                                           day_deadline)
+
         b_FullName = b_LastVisit = True
-        exceded_days = nbr_DayAfterEncounter - 15
-        instruction_text = ("Visit HH by %s")%(exceded_days)
+        instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
 
     if nbr_DayAfterEncounter >= 45:
         last_visit = "! %s !" % "Overdue"
