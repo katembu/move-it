@@ -67,15 +67,13 @@ class ThePatient(Patient):
         return u""
 
     def check_visit_within_seven_days_of_birth(self):
-        seven_days_after_birth = self.dob + timedelta(7)
+        seven_days_after_birth = self.dob + timedelta(8)
         hvr = HouseholdVisitReport.objects\
                 .filter(encounter__encounter_date__gt=self.dob, \
-                    encounter__encounter_date__lte=seven_days_after_birth)\
+                    encounter__encounter_date__lte=seven_days_after_birth, \
+                    encounter__patient=self)\
                 .count()
-        if hvr:
-            return True
-        else:
-            return False
+        return hvr
 
     def visit_within_90_days_of_last_visit(self):
         try:
@@ -573,24 +571,26 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return int(round((num_on_time / float(total_households)) * 100))
+            return int(100.0 * num_on_time / float(total_households))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
 
     def percentage_ontime_birth_visits(self):
         births = BirthReport.objects.filter(encounter__chw=self)
-        count = 0
+        v_count = 0
+        b_count = births.count()
         for birth in births:
             thepatient = ThePatient.objects.get(pk=birth.encounter.patient.pk)
             if thepatient.check_visit_within_seven_days_of_birth():
-                count += 1
-        if births.count() == 0:
+                v_count += 1
+        print (v_count, b_count)
+        if b_count == 0:
             return None
-        elif not count:
-            return count
+        elif v_count == 0:
+            return 0
         else:
-            return int(round(100 * (count / float(births.count()))))
+            return int(100.0 * v_count / float(b_count))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
@@ -602,8 +602,7 @@ class TheCHWReport(CHW):
         if num_of_births == 0:
             return None
         else:
-            return int(round(num_of_clinic_delivery / float(num_of_births)) *\
-                        100)
+            return int(100.0 * num_of_clinic_delivery / float(num_of_births))
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
