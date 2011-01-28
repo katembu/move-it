@@ -67,15 +67,13 @@ class ThePatient(Patient):
         return u""
 
     def check_visit_within_seven_days_of_birth(self):
-        seven_days_after_birth = self.dob + timedelta(7)
+        seven_days_after_birth = self.dob + timedelta(8)
         hvr = HouseholdVisitReport.objects\
                 .filter(encounter__encounter_date__gt=self.dob, \
-                    encounter__encounter_date__lte=seven_days_after_birth)\
+                    encounter__encounter_date__lte=seven_days_after_birth, \
+                    encounter__patient=self)\
                 .count()
-        if hvr:
-            return True
-        else:
-            return False
+        return hvr
 
     def visit_within_90_days_of_last_visit(self):
         try:
@@ -531,7 +529,8 @@ class TheCHWReport(CHW):
         '''
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
-        patients = ThePatient.objects.filter(chw=self, dob__gte=sixtym, \
+        patients = Patient.objects.filter(chw=self, \
+                                     dob__gte=sixtym, \
                                      dob__lte=sixm, \
                                      status=Patient.STATUS_ACTIVE)
         return patients
@@ -572,24 +571,26 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return int(round((num_on_time / float(total_households)) * 100))
+            return int(100.0 * num_on_time / float(total_households))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
 
     def percentage_ontime_birth_visits(self):
         births = BirthReport.objects.filter(encounter__chw=self)
-        count = 0
+        v_count = 0
+        b_count = births.count()
         for birth in births:
             thepatient = ThePatient.objects.get(pk=birth.encounter.patient.pk)
             if thepatient.check_visit_within_seven_days_of_birth():
-                count += 1
-        if births.count() == 0:
+                v_count += 1
+        print (v_count, b_count)
+        if b_count == 0:
             return None
-        elif not count:
-            return count
+        elif v_count == 0:
+            return 0
         else:
-            return int(round(100 * (count / float(births.count()))))
+            return int(100.0 * v_count / float(b_count))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
@@ -601,8 +602,7 @@ class TheCHWReport(CHW):
         if num_of_births == 0:
             return None
         else:
-            return int(round(num_of_clinic_delivery / float(num_of_births)) *\
-                        100)
+            return int(100.0 * num_of_clinic_delivery / float(num_of_births))
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -688,9 +688,12 @@ class TheCHWReport(CHW):
 
     def num_pregnant_refferred(self):
         pwomen = self.pregnant_women()
-        rr = ReferralReport.objects.filter(encounter__patient__in=pwomen, \
-                                        encounter__chw=self)
-        return rr.count()
+        return ReferralReport\
+            .objects\
+            .filter(\
+                encounter__patient__in=pwomen, \
+                encounter__chw=self)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT).count()
 
     def percentage_pregnant_ontime_visits(self):
         pwomen = self.pregnant_women()
@@ -723,7 +726,11 @@ class TheCHWReport(CHW):
             return int(round(100 * (count / float(total_count))))
 
     def percentage_ontime_followup(self):
-        referrals = ReferralReport.objects.filter(encounter__chw=self)
+        referrals = ReferralReport\
+            .objects\
+            .filter(encounter__chw=self)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
+
         if not referrals:
             return None
         num_referrals = referrals.count()
@@ -877,7 +884,7 @@ class TheCHWReport(CHW):
         reminded = apts.filter(status__in=(AppointmentReport.STATUS_PENDING_CV,
                                             AppointmentReport.STATUS_CLOSED))
         if total == 0:
-            return 0
+            return None
         return int(round((reminded.count() / float(total)) * 100, 0))
 
     def score(self):
@@ -1140,7 +1147,7 @@ class OperationalReport():
                    '{% else %}-{% endif %}',
             'col': 'A3'})
         columns.append({ \
-            'name': _("# of Births"), \
+            'name': _("# of Birth Reports"), \
             'abbr': _('#Bir'), \
             'bit': '{{object.num_of_births}}',
             'col': 'B1'})
@@ -1199,8 +1206,7 @@ class OperationalReport():
             'bit': '{{object.num_of_pregnant_women}}',
             'col': 'D1'})
         columns.append({ \
-            'name': _("# Pregnant Women Referred for "\
-                                    "Danger Signs"),
+            'name': _("# Pregnant Women Referred Urgently"),
             'abbr': _('#PW-DS'), \
             'bit': '{{object.num_pregnant_refferred}}',
             'col': 'D2'})
@@ -1220,10 +1226,12 @@ class OperationalReport():
         columns.append({ \
             'name': _("% of appointment reminders completed"), \
             'abbr': _('%POA-RT'), \
-            'bit': '{{ object.percentage_reminded }}%',
+            'bit': '{% if object.percentage_reminded %}'\
+                    '{{ object.percentage_reminded }}%' \
+                    '{% else %}-{% endif %}',
             'col': 'F2'})
         columns.append({ \
-            'name': _("% Referred / Treated receiving on-time "\
+            'name': _("% Urgently referred receiving on-time "\
                             "follow-up (within 2 days) [S13]"),
             'abbr': _('%Ref'), \
             'bit': '{% if object.percentage_ontime_followup %}' \
@@ -1694,7 +1702,7 @@ class MonthlyCHWReport(TheCHWReport):
             INDICATOR_EMPTY,
             Indicator('People with DSs',\
                 self.num_danger_signs, Indicator.SUM),
-            Indicator('People Referred',\
+            Indicator('Urgent (non-convenient) Referrals',\
                 self.num_referred, Indicator.SUM),
             Indicator('Num Follow Up Within 3 Days',\
                 self.num_ontime_follow_up, Indicator.SUM),
@@ -1714,9 +1722,9 @@ class MonthlyCHWReport(TheCHWReport):
             Indicator('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('Num Births',\
+            Indicator('Num Birth Reports',\
                 self.num_births, Indicator.SUM),
-            Indicator('Num Births with 4 ANC',\
+            Indicator('Num Births Rpts with 4 ANC',\
                 self.num_births_with_anc, Indicator.SUM),
             Indicator('Num Neonatal Rpts (<7 days)',\
                 self.num_neonatal, Indicator.SUM),
@@ -1915,6 +1923,7 @@ class MonthlyCHWReport(TheCHWReport):
                 .indicators\
                 .for_chw(self)\
                 .for_period(per_cls, per_num)\
+                .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)\
                 .count()
 
     def num_ontime_follow_up(self, per_cls, per_num):
@@ -1922,7 +1931,8 @@ class MonthlyCHWReport(TheCHWReport):
         for r in ReferralReport\
             .indicators\
             .for_chw(self)\
-            .for_period(per_cls, per_num):
+            .for_period(per_cls, per_num)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT):
 
             due_by = r.encounter.encounter_date + timedelta(2)
             f = FollowUpReport\
@@ -2206,7 +2216,8 @@ class MonthlyCHWReport(TheCHWReport):
                 weeks_since_anc = p.weeks_since_anc + weeks_ago
                 if weeks_since_anc > 5.0:
                     women.append((p.encounter.patient, \
-                        p.encounter.encounter_date, \
+                        p.encounter.encounter_date - \
+                            timedelta(7 * p.weeks_since_anc), \
                         due_date))
 
         women.sort(lambda x,y: cmp(x[1],y[1]))
@@ -2472,8 +2483,12 @@ class HealthCoordinatorReport():
         # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
         # does returns [], with values('encounter__patient').distinct()
         # returns some values but they are different if SPregnancy is used
-        pregs = PregnancyReport.objects.all()\
-                                .values('encounter__patient').distinct()
+        pregs = PregnancyReport\
+            .objects\
+            .filter(encounter__chw=self)\
+            .values('encounter__patient')\
+            .distinct()
+
         for preg in pregs:
             patient = Patient.objects.get(pk=preg['encounter__patient'])
             pr = PregnancyReport.objects.filter(encounter__patient=patient)\
@@ -2482,6 +2497,7 @@ class HealthCoordinatorReport():
             months = round(days / 30.4375)
             if pr.pregnancy_month + months < 9:
                 c.append(patient)
+
         return c
 
     def _births(self, per_cls, per_num):
