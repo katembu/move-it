@@ -112,7 +112,8 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
 
             if month_deadline > 12:
                 year_deadline = x.year + 1
-                date_before_overdue = date(year_deadline, month_deadline, day_deadline)
+                date_before_overdue = date(year_deadline, month_deadline, \
+                                           day_deadline)
 
         b_FullName = b_LastVisit = True
         instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
@@ -205,7 +206,8 @@ class Report(PrintedReport):
                    % {'clinic': chw.clinic,\
                       'full_name': chw.full_name()}
             else:
-                section_name = chw.full_name() + ' ' + time.strftime(u'Data from %b. 1 to %b. %d %Y')
+                section_name = chw.full_name() + ' ' + \
+                                time.strftime(u'Data from %b. 1 to %b. %d %Y')
 
 
 
@@ -243,14 +245,15 @@ class Report(PrintedReport):
                 table1.set_column_width(5, 3)
                 table1.set_column_width(5, 4)
                 table1.set_column_width(13, 5)
-                table1.set_column_width(5, 6)
+                table1.set_column_width(3, 6)
                 table1.set_column_width(4, 7)
-                table1.set_column_width(8, 8)
+                table1.set_column_width(10, 8)
                 table1.set_column_width(7, 9)
                 table1.set_column_width(5, 10)
 
                 table1.set_alignment(Table.ALIGN_LEFT, column=2)
                 table1.set_alignment(Table.ALIGN_LEFT, column=5)
+                table1.set_alignment(Table.ALIGN_LEFT, column=8)
                 table1.set_alignment(Table.ALIGN_LEFT, column=11)
 
                 doc.add_element(Paragraph(_(u'CHILDREN')))
@@ -258,6 +261,7 @@ class Report(PrintedReport):
                 num = 0
 
                 for child in children:
+                    status = ''
                     num += 1
                     all_instructions = []
 
@@ -333,8 +337,8 @@ class Report(PrintedReport):
                             b_ChildAge = True
                             b_FullName = b_ChildAge
 
-                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
-                                                                b_FullName)
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction =\
+                                    rdt_alert(rdt_result, b_FullName)
 
                     if rdt_instruction:
                         all_instructions.append(rdt_instruction)
@@ -354,6 +358,10 @@ class Report(PrintedReport):
                             icon_ = u'◆'
                             instruction = _(u'Nutrition consult')
                             all_instructions.append(instruction)
+                            if child_muac.status == 1:
+                                status =child_muac.verbose_state
+                            elif child_muac.status == 2:
+                                status = child_muac.verbose_state
                     except NutritionReport.DoesNotExist:
                         pass
 
@@ -367,12 +375,13 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text(('%(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
+                        Text(('%(status)s %(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
                                             {'rate_muac': rate_muac, \
-                                             'muac': muac, 'sign': sign}), bold=b_muac),
+                                             'muac': muac, 'sign': sign,
+                                             'status': status}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
-                        Text(u" | ".join(all_instructions), bold=True)
+                        Text(u", ".join(all_instructions), bold=True)
                         ])
 
                 doc.add_element(table1)
@@ -454,8 +463,8 @@ class Report(PrintedReport):
                     if instruction_text:
                         all_instructions.append(instruction_text)
 
-                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
-                                                                b_FullName)
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = \
+                                        rdt_alert(rdt_result, b_FullName)
                     if rdt_instruction:
                         all_instructions.append(rdt_instruction)
 
@@ -484,7 +493,7 @@ class Report(PrintedReport):
                     Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
-                    Text(u" | ".join(all_instructions), bold=True)
+                    Text(u", ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table2)
@@ -550,8 +559,8 @@ class Report(PrintedReport):
                     if instruction_text:
                         all_instructions.append(instruction_text)
 
-                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction = rdt_alert(rdt_result,\
-                                                              b_FullName)
+                    icon, rdt_result, b_FullName, b_rdt, rdt_instruction =\
+                                        rdt_alert(rdt_result, b_FullName)
                     if rdt_instruction:
                         all_instructions.append(rdt_instruction)
 
@@ -565,7 +574,7 @@ class Report(PrintedReport):
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
-                    Text(u" | ".join(all_instructions), bold=True)
+                    Text(u", ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table3)
