@@ -199,7 +199,7 @@ class App (rapidsms.app.App):
             # thier params:
             # i.e: [['birth', 'p', 'm'], ['h', 'y'], ['mob', '12345678']]
 
-            # Write now, we are only going to accept a single health ID.
+            # Right now, we are only going to accept a single health ID.
             if len(health_ids) != 1:
                 message.respond(_(u"Error: Message not understood. " \
                                    "Your message must start with " \
@@ -248,12 +248,19 @@ class App (rapidsms.app.App):
             except Patient.DoesNotExist:
                 message.respond(_(u"%(id)s is not a valid health ID. " \
                                    "Please correct and try again.") % \
-                                   {'id': health_id}, 'error')
+                                   {'id': health_id.upper()}, 'error')
                 return handled
 
-            # Set the CHW for this household to the person sending the text message.
-            # (Commented out 29/10/2010 by Henry since this might cause more
-            # problems than it's worth right now...)
+            if patient.chw != chw:
+                message.respond(_(u"Patient %(health_id)s is assigned to " \
+                                    "CHW %(real_chw)s.  You [%(fake_chw)s] " \
+                                    "can only submit forms for your own " \
+                                    "patients.") %\
+                                    {'health_id': health_id.upper(),\
+                                     'real_chw': patient.chw, \
+                                     'fake_chw': chw}, 'error')
+                return handled
+        
             #Patient.objects.filter(household=patient.household).update(chw=chw)
 
             # If all of the forms are household forms and the patient is not
@@ -381,6 +388,15 @@ class App (rapidsms.app.App):
                 failed_string += _(" You must resend the form.")
             elif send_again and len(failed_forms) > 1:
                 failed_string += _(" You must resend the forms.")
+
+            for form in successful_forms:
+                try:
+                    form['obj'].post_process(successful_forms)
+                except:
+                    # any exceptions here should not prevent feedback
+                    # fail silently
+                    # TODO: Log the exception, notify
+                    pass
 
             if successful_forms and not failed_forms:
                 message.respond(successful_string, 'success')

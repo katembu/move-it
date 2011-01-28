@@ -102,7 +102,6 @@ def index(request):
     return render_to_response(request, "childcount/dashboard.html", info)
 
 
-
 def site_summary(request, report='site', format='json'):
     if request.is_ajax() and format == 'json':
         rpt = None

@@ -5,13 +5,22 @@
 from rapidsms.webui import settings
 from django.db.models import Q
 
-from childcount.models import Encounter
-from childcount.models.reports import CCReport
+from childcount.models import Encounter, Patient
+from childcount.models.reports import CCReport, PregnancyReport, PregnancyRegistrationReport, AppointmentReport
 
 from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
-                         OpenMRSHouseholdForm
+                         OpenMRSHouseholdForm, OpenMRSANCForm
 from mgvmrs.utils import transmit_form
 from mgvmrs.models import User
+
+
+def has_ancreport(reports):
+    for report in reports:
+        if isinstance(report, PregnancyRegistrationReport):
+            return True
+        elif isinstance(report, AppointmentReport):
+            return True
+    return False
 
 
 def send_to_omrs(router, *args, **kwargs):
@@ -42,6 +51,12 @@ def send_to_omrs(router, *args, **kwargs):
     except:
         in_cluster_attribute_id = 10
 
+    try:
+        ancform_id = int(conf['ancform_id'])
+    except KeyError:
+        # for the time being, not in use
+        pass 
+
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
                                           Q(sync_omrs__in=(None, False)))
@@ -71,8 +86,15 @@ def send_to_omrs(router, *args, **kwargs):
             omrsformclass = OpenMRSHouseholdForm
             form_id = household_id
         else:
-            omrsformclass = OpenMRSConsultationForm
-            form_id = individual_id
+            if has_ancreport(reports):
+                # skip for the time being no clear way to deal with PMTCT
+                #  reports
+                continue
+                # omrsformclass = OpenMRSANCForm
+                # form_id = ancform_id
+            else:
+                omrsformclass = OpenMRSConsultationForm
+                form_id = individual_id
 
         try:
             # retrieve CHW from local mapping.

@@ -201,7 +201,10 @@ class OpenMRSFormInterface(object):
 
         # DT: Date
         if ff_type == self.T_DT:
-            pass
+            ff_value = value
+            if not isinstance(ff_value, (date, datetime)):
+                raise UnexpectedValueError(_(u"Expecting a Date value"))
+            self.values[field] = ff_value.strftime(XFORM_DATE_FMT)
 
         # TM: Time
         if ff_type == self.T_TM:

@@ -15,6 +15,7 @@ from urllib import urlencode
 from django.conf import settings
 from django.utils.translation import gettext as _
 from childcount.exceptions import *
+from childcount.models import Encounter
 
 
 class DOBProcessor:
@@ -653,3 +654,21 @@ def send_msg(reporter, text):
     req = urllib2.Request(url, urlencode(data))
     stream = urllib2.urlopen(req)
     stream.close()
+
+
+def get_ccforms_by_name():
+    ''' returns a list of childcount forms grouped Encounter type '''
+    from childcount.forms import *
+    conf = settings.RAPIDSMS_APPS['childcount']
+    formlist = conf['forms'].replace(' ', '').split(',')
+    forms = {}
+    forms[Encounter.TYPE_HOUSEHOLD] = []
+    forms[Encounter.TYPE_PATIENT] = []
+    for form in formlist:
+        try:
+            f = eval(form)
+        except NameError:
+            pass
+        else:
+            forms[f.ENCOUNTER_TYPE].append(form)
+    return forms

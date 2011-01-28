@@ -56,9 +56,9 @@ class UnderOneForm(CCForm):
 
         days, weeks, months = patient.age_in_days_weeks_months()
 
-        # Allow up to 2 years to CHWs can mark kids over 1 as
+        # Allow up to 5 years to CHWs can mark kids over 1 as
         # immunized
-        if months > 24:
+        if months > 60:
             raise Inapplicable(_(u"Child is too old for this report."))
 
         if len(self.params) < 3:

@@ -13,6 +13,7 @@ from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter, PersistantBackend
 from childcount.models import Encounter
+from childcount.utils import get_ccforms_by_name
 
 
 class FormGroup(models.Model):
@@ -43,3 +44,27 @@ class FormGroup(models.Model):
     def __unicode__(self):
         return u"%s (%s) %s %s" % (self.encounter, self.forms, self.backend, \
                                    self.entered_by)
+
+    @classmethod
+    def forms_summary(cls, dtstart=None):
+        info = []
+        if dtstart:
+            frms = FormGroup.objects\
+                .filter(encounter__encounter_date__year=dtstart.year,
+                    encounter__encounter_date__month=dtstart.month)
+        else:
+            frms = FormGroup.objects
+        hhforms = frms.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
+        info.append({'count': hhforms.count(),
+                    'name': _(u"Total Household forms")})
+        forms = get_ccforms_by_name()
+        for form in forms[Encounter.TYPE_HOUSEHOLD]:
+            info.append({'name': form, 'count':
+                frms.filter(forms__contains=form).count()})
+        cforms = frms.filter(encounter__type=Encounter.TYPE_PATIENT)
+        info.append({'count': cforms.count(),
+                    'name': _(u"Total Consultation Forms")})
+        for form in forms[Encounter.TYPE_PATIENT]:
+            info.append({'name': form, 'count':
+                frms.filter(forms__contains=form).count()})
+        return info

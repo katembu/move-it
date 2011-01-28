@@ -111,6 +111,36 @@ class AnnualPeriodSet(PeriodSet):
             timedelta(30.473 * 3 * q_num) - \
             relativedelta(day=1)
 
+class YearlyPeriodSet(object):
+    num_periods = 12
+    total_name = 'Yrly'
+    year = 2011
+
+    def __init__(self, year=2011):
+        self.year = year
+
+    def set_year(self, year):
+        self.year = year
+
+    def period_name(self, period_num):
+        if period_num >= self.num_periods:
+            period_num = period_num - self.num_periods
+        month = datetime(self.year, period_num + 1, 1)
+        return "%s" % (month.strftime('%b'))
+
+    def period_start_date(self, month_num):
+        first_day_of_year = date(self.year, 1, 1)
+        if month_num >= self.num_periods:
+            month_num = month_num - self.num_periods
+            first_day_of_year = first_day_of_year + \
+                relativedelta(year=(first_day_of_year.year + 1))
+        return first_day_of_year + \
+            relativedelta(month=month_num + 1, day=1)
+
+    def period_end_date(self, period_num):
+        return self.period_start_date(period_num+1) - \
+            timedelta(1)
+
 def render_doc_to_file(filename, rformat, doc):
     h = None 
 

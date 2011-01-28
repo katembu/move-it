@@ -33,7 +33,7 @@ def list_average(values, valid_indexes_only=False):
     """ returns the average value of a list of int
 
     * valid_indexes_only: boolean
-    specify wether or not to exclude 
+    specify wether or not to exclude
     values not matching VALID_MONTH_INDEXES """
     values = clean_list(values)
     total = 0
@@ -42,7 +42,7 @@ def list_average(values, valid_indexes_only=False):
             if index in VALID_MONTH_INDEXES:
                 total += values[index]
         else:
-            total += values[index]        
+            total += values[index]
     nb_months = VALID_MONTH_INDEXES.__len__() if valid_indexes_only \
                                               else values.__len__()
     return int(total / nb_months)
@@ -51,7 +51,7 @@ def list_median(values, valid_indexes_only=False):
     """ returns the median value of a list of int
 
     * valid_indexes_only: boolean
-    specify wether or not to exclude 
+    specify wether or not to exclude
     values not matching VALID_MONTH_INDEXES """
 
     values = clean_list(values)
@@ -72,7 +72,10 @@ def list_median(values, valid_indexes_only=False):
         center = sorted_values[num / 2: (num / 2) + 2]
         avg = list_average(center)
     else:
-        avg = sorted_values[num + 1 / 2]
+        try:
+            avg = sorted_values[(num + 1) / 2]
+        except IndexError:
+            avg = sorted_values[0]
     return avg
 
 
@@ -89,6 +92,13 @@ def clean_list(values):
         values = [0 if v == '-' else v for v in values]
     return values
 
+
+def convert_string(va1, va2):
+    if va1 == 0 and va2 == 0:
+        r =  0
+    else:
+        r = '%s/%s' % (va1, va2)
+    return r
 
 def textify_list(cells):
     """ returns list of Text() from list """
@@ -125,7 +135,9 @@ def busy_months():
     months = []
     for month in ALL_MONTHS:
         if Encounter.objects.filter(encounter_date__month=month[0], \
-                                    encounter_date__year=month[1]).count():
+                                    encounter_date__year=month[1]).count() \
+           or LoggedMessage.objects.filter(date__month=month[0], \
+                                           date__year=month[1]).count():
             months.append(month)
     return months
 VALID_MONTHS = busy_months()
@@ -292,24 +304,39 @@ class Report(PrintedReport):
 
         list_sms = []
         list_sms_month = []
+        list_sms_debackend_month = []
+        list_sms_pygsm_month = []
 
-        list_sms.append("Number of SMS sent.")
+        list_sms.append("SMS sent(SMS/Dataentry).")
 
         for month_num, year in ALL_MONTHS:
-            sms_month = LoggedMessage.incoming.\
-                        filter(date__month=month_num, date__year=year)
-            list_sms_month.append(sms_month.count())
+            sms_month_pygsm = LoggedMessage.incoming.\
+                        filter(backend='pygsm', date__month=month_num, date__year=year)
+            sms_month_debackend = LoggedMessage.incoming.\
+                        filter(backend='debackend', date__month=month_num, date__year=year)
+
+            list_sms_month.append(convert_string(sms_month_pygsm.count(),
+                                       sms_month_debackend.count()))
+
+            list_sms_pygsm_month.append(sms_month_pygsm.count())
+            list_sms_debackend_month.append(sms_month_debackend.count())
 
         list_sms += list_sms_month
 
-        total = LoggedMessage.incoming.all().count()
-        list_sms.append(total)
+        total_pygsm = LoggedMessage.incoming.filter(backend='pygsm').count()
+        total_debackend = LoggedMessage.incoming.filter(backend='debackend').count()
 
-        average = list_average(list_sms_month, True)
-        list_sms.append(average)
+        list_sms.append(convert_string(total_pygsm, total_debackend))
 
-        median = list_median(list_sms_month, True)
-        list_sms.append(median)
+        average_pygsm = list_average(list_sms_pygsm_month, True)
+        average_debackend = list_average(list_sms_debackend_month, True)
+
+        list_sms.append(convert_string(average_pygsm, average_debackend))
+
+        median_pygsm = list_median(list_sms_pygsm_month, True)
+        median_debackend = list_median(list_sms_debackend_month, True)
+
+        list_sms.append(convert_string(median_pygsm, median_debackend))
 
         list_sms_text = textify_list(list_sms)
         self.table.add_row(list_sms_text)

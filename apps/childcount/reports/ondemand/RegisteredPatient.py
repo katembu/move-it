@@ -4,9 +4,10 @@
 
 from datetime import date
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
+from django.db.models import Count
 
-from ccdoc import Document, Table, Paragraph, Text, Section
+from ccdoc import Document, Table, Text, Section
 
 from childcount.models import Patient
 from locations.models import Location
@@ -14,50 +15,80 @@ from locations.models import Location
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 
-
-def _(text):
-    """ short circuits the translation as not supported by CCdoc
-    """
-    return text
-
-
 class Report(PrintedReport):
     """ list all patients registered on the dashboard """
-    title = 'Children under 5 years'
+    title = 'Registered Patients'
     filename = 'RegisteredPatient'
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
-        doc = Document(title)
-        doc.add_element(Paragraph(u'list of children under 5 years'))
+        doc = Document(title, landscape=True, stick_sections=True)
+        locations = Location.objects.all()
+        for location in locations:
 
-        table = Table(6)
-        table.add_header_row([
-            Text(_(u'Health ID')),
-            Text(_(u'First name')),
-            Text(_(u'Last name')),
-            Text(_(u'Location')),
-            Text(_(u'Age')),
-            Text(_(u'Gender'))
-            ])
+            patients = Patient.objects.filter(location=location)\
+                                      .values('health_id', 'household')\
+                                      .annotate(dcount=Count('household'))
 
-        patients = Patient.objects.all()
+            if patients.count() == 0:
+                continue
 
-        for patient in patients:
-            if patient.years() <= 5:
+            doc.add_element(Section(location.__unicode__()))
+
+            table = self._create_patient_table()
+
+            for patient_dict in patients:
+                patient = Patient.objects\
+                                      .get(health_id=patient_dict['health_id'])
                 self._add_patient_to_table(table, patient)
 
-        doc.add_element(table)
+            doc.add_element(table)
+
         return render_doc_to_file(filepath, rformat, doc)
+
+    def _create_patient_table(self):
+        table = Table(8)
+        table.add_header_row([
+            Text(_(u'HID')),
+            Text(_(u'HoHH')),
+            Text(_(u'Last name')),
+            Text(_(u'First name')),
+            Text(_(u'Village')),
+            Text(_(u'CHW')),
+            Text(_(u'Age')),
+            Text(_(u'Gender'))
+            ]) 
+        # column alignments
+        table.set_alignment(Table.ALIGN_LEFT, column=0)
+        table.set_alignment(Table.ALIGN_LEFT, column=1)
+        table.set_alignment(Table.ALIGN_LEFT, column=2)
+        table.set_alignment(Table.ALIGN_LEFT, column=3)
+        table.set_alignment(Table.ALIGN_LEFT, column=4)
+        table.set_alignment(Table.ALIGN_LEFT, column=5)
+        # column sizings
+        table.set_column_width(6, column=0)
+        table.set_column_width(6, column=1)
+        table.set_column_width(5, column=4)
+        table.set_column_width(4, column=6)
+        table.set_column_width(4, column=7)
+
+        return table
 
     def _add_patient_to_table(self, table, patient):
         """ add patient to table """
+        is_bold = patient.is_head_of_household()
+        try:
+            hh = patient.household.health_id.upper()
+        except:
+            hh = u""
+
         table.add_row([
-            Text(patient.health_id),
-            Text(patient.last_name),
-            Text(patient.first_name),
-            Text(patient.location.__unicode__()),
-            Text(patient.humanised_age()),
-            Text(patient.gender)
-            ])
+            Text(patient.health_id.upper(), bold=is_bold),
+            Text(hh, bold=is_bold),
+            Text(patient.last_name, bold=is_bold),
+            Text(patient.first_name, bold=is_bold),
+            Text(patient.location.code.upper(), bold=is_bold),
+            Text(patient.chw.__unicode__(), bold=is_bold),
+            Text(patient.humanised_age(), bold=is_bold),
+            Text(patient.gender, bold=is_bold)])

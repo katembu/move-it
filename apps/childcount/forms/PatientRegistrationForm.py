@@ -117,8 +117,10 @@ class PatientRegistrationForm(CCForm):
 
         # import ethiopian date variable
         try:
-            is_ethiopiandate = bool(Configuration.objects \
-                                .get(key='inputs_ethiopian_date').value)
+            is_ethiopiandate = bool(eval(Configuration.objects \
+                                .get(key='inputs_ethiopian_date')\
+                                .value\
+                                .capitalize()))
         except (Configuration.DoesNotExist, TypeError):
             is_ethiopiandate = False
 
