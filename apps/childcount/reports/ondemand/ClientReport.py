@@ -372,7 +372,7 @@ class Report(PrintedReport):
                                              'muac': muac, 'sign': sign}), bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
-                        Text(u" | ".join(all_instructions), bold=True)
+                        Text(u", ".join(all_instructions), bold=True)
                         ])
 
                 doc.add_element(table1)
@@ -484,7 +484,7 @@ class Report(PrintedReport):
                     Text(next_anc_str, bold=next_anc_alert),
                     Text(woman.pregnancyreport.encounter\
                                               .patient.health_id.upper()),
-                    Text(u" | ".join(all_instructions), bold=True)
+                    Text(u", ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table2)
@@ -565,7 +565,7 @@ class Report(PrintedReport):
                     Text(rdt_result, bold=b_rdt),
                     Text(last_visit, bold=b_LastVisit),
                     Text(woman.health_id.upper()),
-                    Text(u" | ".join(all_instructions), bold=True)
+                    Text(u", ".join(all_instructions), bold=True)
                     ])
 
                 doc.add_element(table3)
