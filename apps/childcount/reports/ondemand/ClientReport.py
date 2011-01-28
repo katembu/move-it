@@ -431,8 +431,9 @@ class Report(PrintedReport):
                 table2.set_column_width(10, 5)
                 table2.set_column_width(5, 6)
                 table2.set_column_width(5, 7)
+                table2.set_column_width(7, 8)
                 table2.set_column_width(5, 10)
-                table2.set_column_width(10, 9)
+                table2.set_column_width(8, 9)
                 table2.set_column_width(5, 10)
 
                 table2.set_alignment(Table.ALIGN_LEFT, column=2)
