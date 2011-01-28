@@ -1431,6 +1431,9 @@ class GeneralSummaryReport():
                             status=NutritionReport.STATUS_MODERATE).count()
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE).count()
+        num += NutritionReport.objects.filter(\
+                                status=NutritionReport.STATUS_SEVERE_COMP).count()                       
+        
 
         return num
 
