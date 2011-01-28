@@ -72,7 +72,10 @@ def list_median(values, valid_indexes_only=False):
         center = sorted_values[num / 2: (num / 2) + 2]
         avg = list_average(center)
     else:
-        avg = sorted_values[(num + 1) / 2]
+        try:
+            avg = sorted_values[(num + 1) / 2]
+        except IndexError:
+            avg = sorted_values[0]
     return avg
 
 
@@ -132,7 +135,9 @@ def busy_months():
     months = []
     for month in ALL_MONTHS:
         if Encounter.objects.filter(encounter_date__month=month[0], \
-                                    encounter_date__year=month[1]).count():
+                                    encounter_date__year=month[1]).count() \
+           or LoggedMessage.objects.filter(date__month=month[0], \
+                                           date__year=month[1]).count():
             months.append(month)
     return months
 VALID_MONTHS = busy_months()
