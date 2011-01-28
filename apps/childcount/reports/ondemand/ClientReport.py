@@ -136,14 +136,35 @@ def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
     """
     b_LastVisit = False
     icon = ""
-
     last_visit = nbr_DayAfterEncounter
     instruction_text = ""
-    if nbr_DayAfterEncounter >= 15:
-        last_visit = nbr_DayAfterEncounter
-        b_FullName = b_LastVisit = True
-        exceded_days = nbr_DayAfterEncounter - 15
-        instruction_text = ("Visit HH by %s") % (exceded_days)
+    date_before_overdue = ""
+    day_in_month = calendar.monthrange(date.today().year,\
+                                                date.today().month)[1]
+
+    #Calcul of the date where visit will reach 45 days.
+    if nbr_DayAfterEncounter >= 15 and nbr_DayAfterEncounter < 45:
+        day_deadline = ""
+        month_deadline = ""
+        year_deadline = ""
+        x = date.today()
+
+        if (x.day + (45 - nbr_DayAfterEncounter)) < day_in_month:
+            day_deadline = x.day + (45 - nbr_DayAfterEncounter)
+            date_before_overdue = date(x.year, x.month, day_deadline)
+
+        else:
+            day_deadline = (x.day + (45 - nbr_DayAfterEncounter))\
+                                                            - day_in_month
+            month_deadline = x.month + 1
+            date_before_overdue = date(x.year, month_deadline, day_deadline)
+
+            if month_deadline > 12:
+                year_deadline = x.year + 1
+                date_before_overdue = date(year_deadline, month_deadline, \
+                                           day_deadline)
+
+        instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
 
     if nbr_DayAfterEncounter >= 45:
         last_visit = "! %s !" % "Overdue"
@@ -231,7 +252,7 @@ class Report(PrintedReport):
                     Text(_(u"Gender")),
                     Text(_(u"Age")),
                     Text(_(u"Mother")),
-                    Text(_(u"Location")),
+                    Text(_(u"Loc")),
                     Text(_(u"RDT+")),
                     Text(_(u"MUAC (+/-)")),
                     Text(_(u"Visit")),
@@ -239,7 +260,7 @@ class Report(PrintedReport):
                     Text(_(u"Instructions"))
                     ])
 
-                table1.set_column_width(4, 0)
+                table1.set_column_width(1, 0)
                 table1.set_column_width(5, 1)
                 table1.set_column_width(16, 2)
                 table1.set_column_width(5, 3)
@@ -247,7 +268,7 @@ class Report(PrintedReport):
                 table1.set_column_width(13, 5)
                 table1.set_column_width(3, 6)
                 table1.set_column_width(4, 7)
-                table1.set_column_width(10, 8)
+                table1.set_column_width(9, 8)
                 table1.set_column_width(7, 9)
                 table1.set_column_width(5, 10)
 
@@ -299,17 +320,6 @@ class Report(PrintedReport):
                     two_LastReport = []
                     b_FullName = b_muac = False
 
-                    #Check if they are more than two report.
-                    #~ try:
-                        #~ #Get the last two nutrition reports of the child
-                        #~ two_LastReport.append(nutrition_report[0])
-                        #~ two_LastReport.append(nutrition_report[1])
-                        #~ #Checking for a difference between two reports.
-                        #~ if two_LastReport[0].muac != two_LastReport[1].muac:
-                            #~ b_FullName = b_muac = True
-                    #~ except:
-                        #~ pass
-
                     if child.mother:
                         mother = child.mother.full_name()
                     else:
@@ -347,7 +357,7 @@ class Report(PrintedReport):
 
                     texte_muac = ""
                     if rate_muac < 0:
-                        icon_rate = u"◆"
+                        icon_rate = u"♦"
                         b_FullName = b_muac = True
                         sign = u'!'
 
@@ -358,7 +368,7 @@ class Report(PrintedReport):
 
                         if child_muac.status != 4:
                             b_muac = b_FullName = True
-                            icon_ = u'◆'
+                            icon_ = u'♦'
                             instruction = _(u'Nutrition consult')
                             all_instructions.append(instruction)
                             if child_muac.status == 1:
@@ -416,9 +426,9 @@ class Report(PrintedReport):
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
-                    Text(_(u"Location")),
+                    Text(_(u"Loc")),
                     Text(_(u"Pregnancy")),
-                    Text(_(u"Children")),
+                    Text(_(u"Child")),
                     Text(_(u"RDT+")),
                     Text(_(u"Visit")),
                     Text(_(u"Next ANC")),
@@ -426,13 +436,13 @@ class Report(PrintedReport):
                     Text(_(u"Instructions"))
                     ])
 
-                table2.set_column_width(2, 0)
+                table2.set_column_width(1, 0)
                 table2.set_column_width(5, 1)
                 table2.set_column_width(16, 2)
                 table2.set_column_width(5, 3)
-                table2.set_column_width(5, 4)
+                table2.set_column_width(3, 4)
                 table2.set_column_width(10, 5)
-                table2.set_column_width(5, 6)
+                table2.set_column_width(3, 6)
                 table2.set_column_width(5, 7)
                 table2.set_column_width(7, 8)
                 table2.set_column_width(5, 10)
@@ -541,20 +551,20 @@ class Report(PrintedReport):
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
-                    Text(_(u"Location")),
-                    Text(_(u"Children")),
+                    Text(_(u"Loc")),
+                    Text(_(u"Child")),
                     Text(_(u"RDT+")),
                     Text(_(u"Visit")),
                     Text(_(u"PID")),
                     Text(_(u"Instructions"))
                     ])
 
-                table3.set_column_width(2, 0)
+                table3.set_column_width(1, 0)
                 table3.set_column_width(5, 1)
                 table3.set_column_width(16, 2)
                 table3.set_column_width(5, 3)
-                table3.set_column_width(5, 4)
-                table3.set_column_width(5, 5)
+                table3.set_column_width(3, 4)
+                table3.set_column_width(3, 5)
                 table3.set_column_width(5, 6)
                 table3.set_column_width(7, 7)
                 table3.set_column_width(5, 8)
