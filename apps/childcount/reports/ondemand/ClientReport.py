@@ -95,6 +95,7 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
     date_before_overdue = ""
     day_in_month = calendar.monthrange(date.today().year, date.today().month)[1]
 
+    #Calcul of the date where visit will reach 90 days.
     if nbr_DayAfterEncounter >= 60:
         day_deadline = ""
         month_deadline = ""
@@ -117,7 +118,7 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
         b_FullName = b_LastVisit = True
         instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
 
-    if nbr_DayAfterEncounter >= 3:
+    if nbr_DayAfterEncounter >= 90:
         last_visit = "! %s !" % "Overdue"
         b_FullName = b_LastVisit = True
         icon = "!"
@@ -142,7 +143,7 @@ def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
         instruction_text = ("Visit HH by %s")%(exceded_days)
 
     if nbr_DayAfterEncounter >= 45:
-        last_visit = "! %s !" % nbr_DayAfterEncounter
+        last_visit = "! %s !" % "Overdue"
         b_FullName = b_LastVisit = True
         icon = "!"
 
@@ -340,10 +341,24 @@ class Report(PrintedReport):
                         all_instructions.append(rdt_instruction)
                     icon_rate = icon_ = instruction = ''
                     sign = ''
+
+                    texte_muac = ""
                     if rate_muac < 0:
                         icon_rate = u"◆"
                         b_FullName = b_muac = True
                         sign = u'!'
+
+                    #if the muac have a value it take a parentheses
+                    #if the muac is null it don't take a parentheses
+                    if rate_muac == '':
+                        texte_muac = ('%(sign)s %(muac)s %(rate_muac)s %(sign)s ' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac, 'sign': sign})
+                    else:
+                        texte_muac = ('%(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
+                                            {'rate_muac': rate_muac, \
+                                             'muac': muac, 'sign': sign})
+
                     try:
                         child_muac = NutritionReport.objects\
                                 .filter(encounter__patient__health_id=child.\
@@ -367,9 +382,7 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text(('%(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
-                                            {'rate_muac': rate_muac, \
-                                             'muac': muac, 'sign': sign}), bold=b_muac),
+                        Text( texte_muac, bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text(u" | ".join(all_instructions), bold=True)
@@ -408,7 +421,7 @@ class Report(PrintedReport):
                 table2.set_column_width(10, 5)
                 table2.set_column_width(5, 6)
                 table2.set_column_width(5, 7)
-                table2.set_column_width(5, 8)
+                table2.set_column_width(5, 10)
                 table2.set_column_width(10, 9)
                 table2.set_column_width(5, 10)
 
