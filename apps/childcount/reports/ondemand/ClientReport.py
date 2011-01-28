@@ -93,7 +93,8 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
 
     last_visit = nbr_DayAfterEncounter
     date_before_overdue = ""
-    day_in_month = calendar.monthrange(date.today().year, date.today().month)[1]
+    day_in_month = calendar.monthrange(date.today().year,\
+                                        date.today().month)[1]
 
     #Calcul of the date where visit will reach 90 days.
     if nbr_DayAfterEncounter >= 60:
@@ -101,13 +102,13 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
         month_deadline = ""
         year_deadline = ""
         x = date.today()
+
         if (x.day + (90 - nbr_DayAfterEncounter)) < day_in_month:
             day_deadline = x.day + (90 - nbr_DayAfterEncounter)
             date_before_overdue = date(x.year, x.month, day_deadline)
-
-
-        else :
-            day_deadline = (x.day + (90 - nbr_DayAfterEncounter)) - day_in_month
+        else:
+            day_deadline = (x.day + (90 - nbr_DayAfterEncounter))\
+                                                        - day_in_month
             month_deadline = x.month + 1
             date_before_overdue = date(x.year, month_deadline, day_deadline)
 
@@ -126,6 +127,7 @@ def encounter_alert(nbr_DayAfterEncounter, b_FullName):
 
     return icon, b_LastVisit, b_FullName, last_visit, instruction_text
 
+
 def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
     """
     Function that calculates the number of days passed between
@@ -141,7 +143,7 @@ def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
         last_visit = nbr_DayAfterEncounter
         b_FullName = b_LastVisit = True
         exceded_days = nbr_DayAfterEncounter - 15
-        instruction_text = ("Visit HH by %s")%(exceded_days)
+        instruction_text = ("Visit HH by %s") % (exceded_days)
 
     if nbr_DayAfterEncounter >= 45:
         last_visit = "! %s !" % "Overdue"
@@ -179,11 +181,10 @@ class Report(PrintedReport):
 
         for chw in CHW.objects.all().order_by('location'):
             b_FullName = False
-
             encounters = Encounter.objects\
-                             .filter(encounter_date__month=date_today\
-                             .month, encounter_date__year=\
-                                           date_today.year, chw=chw.id)
+                        .filter(encounter_date__month=date_today.month,\
+                                encounter_date__year=date_today.year,\
+                                                            chw=chw.id)
             if not encounters.count():
                 continue
 
@@ -209,8 +210,6 @@ class Report(PrintedReport):
             else:
                 section_name = chw.full_name() + ' ' + \
                                 time.strftime(u'Data from %b. 1 to %b. %d %Y')
-
-
 
             doc.add_element(Section(section_name))
 
@@ -319,8 +318,8 @@ class Report(PrintedReport):
                     #We pass in parameter the number of days since the
                     #last visit to the alert function.
 
-                    icon, b_LastVisit, b_FullName, last_visit, instruction_text =\
-                                        encounter_alert((date_today\
+                    icon, b_LastVisit, b_FullName, last_visit,\
+                        instruction_text = encounter_alert((date_today\
                                        - child.updated_on).days, b_FullName)
 
                     if instruction_text:
@@ -363,7 +362,8 @@ class Report(PrintedReport):
                             instruction = _(u'Nutrition consult')
                             all_instructions.append(instruction)
                             if child_muac.status == 1:
-                                status =child_muac.verbose_state
+                                status = child_muac.verbose_state
+                                print status
                             elif child_muac.status == 2:
                                 status = child_muac.verbose_state
                     except NutritionReport.DoesNotExist:
@@ -372,19 +372,22 @@ class Report(PrintedReport):
                     #if the muac have a value it take a parentheses
                     #if the muac is null it don't take a parentheses
                     if rate_muac == '':
-                        texte_muac = ('%(status)s %(sign)s %(muac)s %(rate_muac)s %(sign)s ' % \
+                        texte_muac = (u'%(status)s %(sign)s %(muac)s\
+                                        %(rate_muac)s %(sign)s ' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac, 'sign': sign,
                                              'status': status})
                     else:
-                        texte_muac = ('%(status)s %(sign)s %(muac)s (%(rate_muac)s) %(sign)s ' % \
+                        texte_muac = (u'%(status)s %(sign)s %(muac)s \
+                                        (%(rate_muac)s) %(sign)s ' % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac, 'sign': sign,
                                              'status': status})
 
                     table1.add_row([
                         Text((u"%(icon)s %(icon_rate)s %(icon_)s" % \
-                            {'icon':icon, 'icon_': icon_, 'icon_rate': icon_rate})),
+                                        {'icon':icon, 'icon_': icon_,\
+                                            'icon_rate': icon_rate})),
                         Text(num),
                         Text(child.full_name(), bold=b_FullName),
                         Text(child.gender),
@@ -392,7 +395,7 @@ class Report(PrintedReport):
                         Text(mother),
                         Text(child.location.code),
                         Text(rdt_result, bold=b_rdt),
-                        Text( texte_muac, bold=b_muac),
+                        Text(texte_muac, bold=b_muac),
                         Text(last_visit, bold=b_LastVisit),
                         Text(child.health_id.upper()),
                         Text(u", ".join(all_instructions), bold=True)
@@ -403,7 +406,7 @@ class Report(PrintedReport):
             pregnant_women = \
                    PregnancyReport.objects.filter(\
                         encounter__chw=chw.id, \
-                        encounter__encounter_date__month=date_today.month, \
+                        encounter__encounter_date__month=date_today.month,\
                         encounter__encounter_date__year=date_today.year)
 
             if pregnant_women:
@@ -471,10 +474,12 @@ class Report(PrintedReport):
 
                     #We pass a parameter the number of days since the
                     #last visit to the alert function.
-                    icon, b_LastVisit, b_FullName, last_visit, instruction_text =\
-                                        preg_WomenEncounterAlert((date_today\
-                                        - woman.pregnancyreport.encounter\
-                                        .patient.updated_on).days, b_FullName)
+                    icon, b_LastVisit, b_FullName, last_visit,\
+                                    instruction_text =\
+                                    preg_WomenEncounterAlert((date_today\
+                                    - woman.pregnancyreport.encounter\
+                                    .patient.updated_on).days, b_FullName)
+
                     if instruction_text:
                         all_instructions.append(instruction_text)
 
@@ -490,7 +495,8 @@ class Report(PrintedReport):
                         all_instructions.append(instruction)
 
                     table2.add_row([
-                    Text(_(u'%(icon)s %(icon_)s' % {'icon': icon, 'icon_': icon_})),
+                    Text(_(u'%(icon)s %(icon_)s' % {'icon': icon,\
+                                                    'icon_': icon_})),
                     Text(num),
                     Text(str(woman.pregnancyreport.encounter.\
                                     patient.full_name()), bold=b_FullName),
@@ -568,9 +574,11 @@ class Report(PrintedReport):
 
                     rdt_result = rdt(woman.health_id)
 
-                    icon, b_LastVisit, b_FullName, last_visit, instruction_text\
+                    icon, b_LastVisit, b_FullName, last_visit,\
+                                        instruction_text\
                                         = encounter_alert((date_today\
                                         - woman.updated_on).days, b_FullName)
+
                     if instruction_text:
                         all_instructions.append(instruction_text)
 
