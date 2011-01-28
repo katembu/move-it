@@ -232,7 +232,7 @@ class Report(PrintedReport):
                     Text(_(u"Gender")),
                     Text(_(u"Age")),
                     Text(_(u"Mother")),
-                    Text(_(u"Location")),
+                    Text(_(u"Loc")),
                     Text(_(u"RDT+")),
                     Text(_(u"MUAC (+/-)")),
                     Text(_(u"Visit")),
@@ -240,7 +240,7 @@ class Report(PrintedReport):
                     Text(_(u"Instructions"))
                     ])
 
-                table1.set_column_width(4, 0)
+                table1.set_column_width(1, 0)
                 table1.set_column_width(5, 1)
                 table1.set_column_width(16, 2)
                 table1.set_column_width(5, 3)
@@ -248,7 +248,7 @@ class Report(PrintedReport):
                 table1.set_column_width(13, 5)
                 table1.set_column_width(3, 6)
                 table1.set_column_width(4, 7)
-                table1.set_column_width(10, 8)
+                table1.set_column_width(9, 8)
                 table1.set_column_width(7, 9)
                 table1.set_column_width(5, 10)
 
@@ -348,7 +348,7 @@ class Report(PrintedReport):
 
                     texte_muac = ""
                     if rate_muac < 0:
-                        icon_rate = u"◆"
+                        icon_rate = u"♦"
                         b_FullName = b_muac = True
                         sign = u'!'
 
@@ -359,7 +359,7 @@ class Report(PrintedReport):
 
                         if child_muac.status != 4:
                             b_muac = b_FullName = True
-                            icon_ = u'◆'
+                            icon_ = u'♦'
                             instruction = _(u'Nutrition consult')
                             all_instructions.append(instruction)
                             if child_muac.status == 1:
@@ -413,9 +413,9 @@ class Report(PrintedReport):
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
-                    Text(_(u"Location")),
+                    Text(_(u"Loc")),
                     Text(_(u"Pregnancy")),
-                    Text(_(u"Children")),
+                    Text(_(u"Child")),
                     Text(_(u"RDT+")),
                     Text(_(u"Visit")),
                     Text(_(u"Next ANC")),
@@ -423,16 +423,17 @@ class Report(PrintedReport):
                     Text(_(u"Instructions"))
                     ])
 
-                table2.set_column_width(2, 0)
+                table2.set_column_width(1, 0)
                 table2.set_column_width(5, 1)
                 table2.set_column_width(16, 2)
                 table2.set_column_width(5, 3)
-                table2.set_column_width(5, 4)
+                table2.set_column_width(3, 4)
                 table2.set_column_width(10, 5)
-                table2.set_column_width(5, 6)
+                table2.set_column_width(3, 6)
                 table2.set_column_width(5, 7)
+                table2.set_column_width(8, 8)
                 table2.set_column_width(5, 10)
-                table2.set_column_width(10, 9)
+                table2.set_column_width(6, 9)
                 table2.set_column_width(5, 10)
 
                 table2.set_alignment(Table.ALIGN_LEFT, column=2)
@@ -534,20 +535,20 @@ class Report(PrintedReport):
                     Text(_(u"#")),
                     Text(_(u"Name")),
                     Text(_(u"Age")),
-                    Text(_(u"Location")),
-                    Text(_(u"Children")),
+                    Text(_(u"Loc")),
+                    Text(_(u"Child")),
                     Text(_(u"RDT+")),
                     Text(_(u"Visit")),
                     Text(_(u"PID")),
                     Text(_(u"Instructions"))
                     ])
 
-                table3.set_column_width(2, 0)
+                table3.set_column_width(1, 0)
                 table3.set_column_width(5, 1)
                 table3.set_column_width(16, 2)
                 table3.set_column_width(5, 3)
-                table3.set_column_width(5, 4)
-                table3.set_column_width(5, 5)
+                table3.set_column_width(3, 4)
+                table3.set_column_width(3, 5)
                 table3.set_column_width(5, 6)
                 table3.set_column_width(7, 7)
                 table3.set_column_width(5, 8)
