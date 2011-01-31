@@ -1196,10 +1196,9 @@ class OperationalReport():
                    '{% else %}-{% endif %}',
             'col': 'C5'})
         columns.append({ \
-            'name': _("# of Active SAM cases"), \
-            'abbr': _('#U5-SAM'), \
-            'bit': '{{object.num_of_active_sam_cases}}',
-            'col': 'C6'})
+            'name': _("# of Active GAM cases"), \
+            'abbr': _('#U5-GAM'), \
+            'bit': '{{object.num_of_active_gam_cases}}'})
         columns.append({ \
             'name': _("# of Pregnant Women"), \
             'abbr': _('#PW'), \
@@ -1496,6 +1495,10 @@ class MonthSummaryReport():
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE, \
                             encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()                
+        num += NutritionReport.objects.filter(\
+                            status=NutritionReport.STATUS_MODERATE, \
+                            encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
 
         return num
@@ -1551,9 +1554,12 @@ class GeneralSummaryReport():
 
     def num_of_muac(self, startDate=None, endDate=None):
         num = NutritionReport.objects.filter(\
-                            status=NutritionReport.STATUS_SEVERE_COMP).count()
+                            status=NutritionReport.STATUS_MODERATE).count()
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE).count()
+        num += NutritionReport.objects.filter(\
+                                status=NutritionReport.STATUS_SEVERE_COMP).count()                       
+        
 
         return num
 
@@ -1737,7 +1743,7 @@ class MonthlyCHWReport(TheCHWReport):
                 col_agg_func=Indicator.SUM),
             Indicator('Num MUACs Taken',\
                 self.num_muacs_taken, Indicator.SUM),
-            Indicator('Num active SAM Cases',\
+            Indicator('Num active GAM Cases',\
                 self.num_active_sam_cases, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
             Indicator('Num Tested RDTs',\

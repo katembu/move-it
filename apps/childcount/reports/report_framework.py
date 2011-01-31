@@ -213,7 +213,6 @@ def report_objects(folder):
 def report_sets():
     report_sets = []
 
-    print report_objects('ondemand')
     tmp = map(
         lambda rep: rep().report_view_data('ondemand'),
         report_objects('ondemand'))
@@ -231,6 +230,5 @@ def report_sets():
         nightly.extend(item)
     report_sets.append(('Nightly Reports', nightly))
 
-    print report_sets
     return report_sets
 
