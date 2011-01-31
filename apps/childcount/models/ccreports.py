@@ -715,8 +715,8 @@ class TheCHWReport(CHW):
             latest_date = pr.encounter.encounter_date
             old_date = latest_date - timedelta(6 * 7)
             pr = prgclass.objects.filter(encounter__patient=patient, \
-                                encounter__encounter_date__gte=old_date, \
-                                encounter__encounter_date__lt=latest_date)
+                                encounter__encounter_date__gte=latest_date, \
+                                encounter__encounter_date__lt=old_date)
             if pr.count():
                 count += 1
         if not count:
