@@ -53,8 +53,9 @@ class DeathForm(CCForm):
 
         # import ethiopian date variable
         try:
-            is_ethiopiandate = bool(Configuration.objects \
-                                .get(key='inputs_ethiopian_date').value)
+            is_ethiopiandate = (Configuration.objects \
+                                .get(key='inputs_ethiopian_date')\
+                                .value.lower() == "true")
         except (Configuration.DoesNotExist, TypeError):
             is_ethiopiandate = False
 
