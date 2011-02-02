@@ -7,6 +7,7 @@ import numpy
 
 from django.utils.translation import gettext_lazy as _
 from django.template import Template, Context
+from locations.models import Location
 
 try:
     from reportlab.lib.styles import getSampleStyleSheet
@@ -24,6 +25,7 @@ from childcount.models import CHW
 from childcount.models.ccreports import TheCHWReport
 from childcount.models.ccreports import OperationalReport
 from childcount.utils import RotatedParagraph
+from childcount.reports.utils import render_doc_to_file
 
 from libreport.pdfreport import p
 
@@ -47,20 +49,20 @@ class Report(PrintedReport):
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
 
+
         f = open(filepath, 'w')
 
         story = []
-        clinics = Clinic.objects.filter(pk__in=CHW.objects.values('clinic')\
-                                                        .distinct('clinic'))
-        for clinic in clinics:
-            if not TheCHWReport.objects.filter(clinic=clinic, \
+        locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
+                                                        .distinct('location'))
+        for location in locations:
+            if not TheCHWReport.objects.filter(location=location, \
                                         is_active=True).count():
                 continue
-            tb = self._operationalreportable(clinic, TheCHWReport.objects.\
-                filter(clinic=clinic))
+            tb = self._operationalreportable(location, TheCHWReport.objects.\
+                filter(location=location))
             story.append(tb)
             story.append(PageBreak())
-            print clinic
 
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
