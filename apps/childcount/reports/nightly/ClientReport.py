@@ -145,16 +145,23 @@ def rdt_alert(nb_times_rdt, b_FullName):
 
     return icon, rdt_result, b_FullName, b_rdt, rdt_instruction
 
+LAST_MONTH = datetime.today().replace(day=1) - timedelta(1)
 
 class Report(PrintedReport):
-    title = 'ClientReport'
-    filename = 'ClientReport'
-    formats = ['html', 'pdf', 'xls']
+    title = 'Client Report - '
+    filename = 'client_report_'
+    formats = ('html', 'pdf', 'xls')
+    variants = [ \
+                (date.today().strftime('%b. %Y'), 'thismonth', \
+                    {'date': datetime.today()}), \
+                (LAST_MONTH.strftime('%b. %Y'), 'lastmonth', \
+                    {'date': LAST_MONTH})\
+               ]
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
         doc = Document(title, landscape=True, stick_sections=True)
-        date_today = datetime.today()
+        date_today = data['date']
         not_first_chw = False
 
         for chw in CHW.objects.all():
