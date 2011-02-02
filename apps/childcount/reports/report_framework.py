@@ -194,7 +194,7 @@ def report_objects(folder):
         # Get childcount.reports.folder.report_name.Report
         try:
             rmod = __import__(\
-                ''.join(['childcount.reports.',folder,'.',reporttype]),
+                ''.join(['childcount.reports.definitions.',reporttype]),
                 globals(), \
                 locals(), \
                 ['Report'], \
