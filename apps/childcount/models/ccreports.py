@@ -1122,6 +1122,14 @@ class OperationalReport():
     columns = []
 
     def __init__(self):
+        percentage_template = lambda field_name: \
+            ''.join(['{% ifequal object.', 
+                    field_name,
+                    ' None %}-{%else%}'\
+                    '{{ object.',
+                    field_name,
+                    ' }}%{% endifequal %}'])
+
         columns = []
         columns.append({ \
             'name': _("CHW"),
@@ -1142,9 +1150,7 @@ class OperationalReport():
             'name': _("% of HHs receiving on-time routine visit "\
                                     "(within 90 days) [S23]"), \
             'abbr': _("%OTV"), \
-            'bit': '{% if object.percentage_ontime_visits %}' \
-                   '{{ object.percentage_ontime_visits }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_ontime_visits'),
             'col': 'A3'})
         columns.append({ \
             'name': _("# of Birth Reports"), \
@@ -1155,17 +1161,13 @@ class OperationalReport():
             'name': _("% Births delivered in "\
                                 "Health Facility [S4]"),
             'abbr': _('%BHF'), \
-            'bit': '{% if object.percentage_clinic_deliveries %}' \
-                   '{{ object.percentage_clinic_deliveries }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_clinic_deliveries'),
             'col': 'B2'})
         columns.append({ \
             'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
             'abbr': _('%NNV'), \
-            'bit': '{% if object.percentage_ontime_birth_visits %}' \
-                   '{{ object.percentage_ontime_birth_visits }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_ontime_birth_visits'),
             'col': 'B3'})
         columns.append({ \
             'name': _("# of Under-5s"), \
@@ -1191,9 +1193,7 @@ class OperationalReport():
             'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
             'abbr': _('#U5-MUAC'), \
-            'bit': '{% if object.percentage_ontime_muac %}' \
-                   '{{ object.percentage_ontime_muac }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_ontime_muac'),
             'col': 'C5'})
         columns.append({ \
             'name': _("# of Active GAM cases"), \
@@ -1214,9 +1214,7 @@ class OperationalReport():
             'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
             'abbr': _('%PW-OTV'), \
-            'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
-                   '{{ object.percentage_pregnant_ontime_visits }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_pregnant_ontime_visits'),
             'col': 'D3'})
         columns.append({ \
             'name': _("# Number of appointments"), \
@@ -1226,17 +1224,13 @@ class OperationalReport():
         columns.append({ \
             'name': _("% of appointment reminders completed"), \
             'abbr': _('%POA-RT'), \
-            'bit': '{% if object.percentage_reminded %}'\
-                    '{{ object.percentage_reminded }}%' \
-                    '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_reminded'),
             'col': 'E2'})
         columns.append({ \
             'name': _("% Urgently referred receiving on-time "\
                             "follow-up (within 2 days) [S13]"),
             'abbr': _('%Ref'), \
-            'bit': '{% if object.percentage_ontime_followup %}' \
-                   '{{ object.percentage_ontime_followup }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('percentage_ontime_followup'),
             'col': 'F1'})
         columns.append({ \
             'name': _("Median # of days for follow-up [S25]"), \
@@ -1246,9 +1240,7 @@ class OperationalReport():
         columns.append({ \
             'name': _("SMS Error Rate %"), \
             'abbr': _('%Err'), \
-            'bit': '{% if object.sms_error_rate %}' \
-                   '{{ object.sms_error_rate }}%'\
-                   '{% else %}-{% endif %}',
+            'bit': percentage_template('sms_error_rate'),
             'col': 'G1'})
         columns.append({ \
             'name': _("Days since last SMS transmission"), \
@@ -1258,9 +1250,7 @@ class OperationalReport():
         columns.append({ \
             'name': _("Calculated overall CHW performance indicator"), \
             'abbr': _('SCORE'), \
-            'bit': '{% if object.score %}'\
-                    '{{ object.score }}%'\
-                    '{% else %}-{% endif %}',
+            'bit': percentage_template('score'),
             'col': 'H1'})
         self.columns = columns
 
