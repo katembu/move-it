@@ -74,6 +74,24 @@ class MonthlyPeriodSet(PeriodSet):
         return first_date_of_week(first_day_of_month) + \
             timedelta(week_num * 7)
 
+class TwoMonthPeriodSet(PeriodSet):
+    num_periods = 2
+
+    @classmethod
+    def period_name(cls, period_num):
+        return cls.period_start_date(period_num)\
+            .strftime('%b')
+
+    @classmethod
+    def period_start_date(cls, month_num):
+        first_day_of_month = (date.today() - timedelta(14)).replace(day=1)
+
+        return_date = first_day_of_month
+        for i in xrange(0, month_num):
+            return_date = (return_date - timedelta(1)).replace(day=1)
+
+        return return_date
+
 class QuarterlyPeriodSet(PeriodSet):
     num_periods = 3
     total_name = 'Q'

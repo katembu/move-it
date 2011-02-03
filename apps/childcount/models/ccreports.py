@@ -91,20 +91,27 @@ class ThePatient(Patient):
         except HouseholdVisitReport.DoesNotExist:
             return False
 
-    def ontime_muac(self):
+    def ontime_muac(self, relative_to=date.today()):
         try:
-            nr = NutritionReport.objects\
-                    .filter(encounter__patient=self).latest()
-            latest_date = nr.encounter.encounter_date
-            old_date = latest_date - timedelta(90)
+            nr = NutritionReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to)\
+                    .latest('encounter__encounter_date')
+        except NutritionReport.DoesNotExist:
+            return False
+
+        latest_date = nr.encounter.encounter_date
+        old_date = latest_date - timedelta(90)
+
+        try:
             nr = NutritionReport.objects.filter(encounter__patient=self, \
                                 encounter__encounter_date__gte=old_date, \
                                 encounter__encounter_date__lt=latest_date)
-            if nr.count():
-                return True
-            return False
         except NutritionReport.DoesNotExist:
             return False
+        else:
+            return nr.count()
 
     def status_text(self):
         ''' Return the text in status choices '''
@@ -626,9 +633,20 @@ class TheCHWReport(CHW):
         return 0
 
     def percentage_ontime_muac(self):
-        underfives = self.patients_under_five()
-        if underfives.count() == 0:
+        (num, den) = self.fraction_ontime_muac()
+
+        if den == 0:
             return None
+
+        if num == 0:
+            return 0
+        else:
+            return int(round(100 * (num/ float(den))))
+
+    def fraction_ontime_muac(self):
+        # Consider only kids over 6 months
+        underfives = self.patients_under_five()
+        underfives.filter(dob__lte=(date.today()-timedelta(180)))
 
         count = 0
         for achild in underfives:
@@ -636,11 +654,7 @@ class TheCHWReport(CHW):
             if thepatient.ontime_muac():
                 count += 1
 
-        if count == 0:
-            return 0
-        else:
-            total_count = underfives.count()
-            return int(round(100 * (count / float(total_count))))
+        return (count, underfives.count())
 
     def num_of_active_sam_cases(self, today=date.today()):
         count = 0
@@ -1258,8 +1272,45 @@ class OperationalReport():
         return self.columns
 
 
-class ClinicReport(Clinic):
+class GraphicalClinicReport(Clinic):
+    class Meta:
+        verbose_name = _("Graphical Clinic Report")
+        proxy = True
+    
+    @property
+    def indicators(self):
+        return [\
+            Indicator(_(u'Percentage of 6m-59m Children '\
+                        'Getting at Least 2 MUACs in Last '\
+                        '6 Months'), \
+                        self.perc_ontime_follow_up,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT)\
+        ]
 
+    def percentage_ontime_muac(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+
+        try:
+            # Get active patients for this CHW who were aged 6-59m
+            # during the time period we're talking about
+            patients = ThePatient.objects.filter(\
+                chw__clinic=self, \
+                chw__is_active=True, \
+                status=Patient.STATUS_ACTIVE, \
+                dob__lte = end_date - timedelta(30.475 * 6),
+                dob__gte = end_date - timedelta(30.475 * 59))
+        except ThePatient.DoesNotExist:
+            return None
+
+        ontimes = 0
+        for patient in patients:
+            if patient.ontime_muac(end_date):
+                ontimes += 1
+
+        return int(round(100.0 * ontimes / float(patients.count())))
+
+
+class ClinicReport(Clinic):
     class Meta:
         verbose_name = _("Clinic Report")
         proxy = True
@@ -1756,7 +1807,6 @@ class MonthlyCHWReport(TheCHWReport):
     def num_of_hhs(self, per_cls, per_num):
         return self.households(\
             per_cls.period_end_date(per_num)).count()
-
 
     def num_diarrhea(self, per_cls, per_num):
         return DangerSignsReport\
