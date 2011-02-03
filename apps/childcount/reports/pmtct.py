@@ -24,8 +24,9 @@ def defaulters(request, rformat="html"):
     doc = pmtct_defaulters()
     return render_doc_to_response(request, rformat, doc, 'pmtct-defaulters')
 
+
 def pmtct_defaulters(title=u"Defaulters Report"):
-    doc =Document(title, landscape=True, stick_sections=True)
+    doc = Document(title, landscape=True, stick_sections=True)
     today = datetime.today() + relativedelta(days=-3)
     for clinic in Clinic.objects.all():
         df = AppointmentReport.objects.filter(status__in=open_status,
@@ -58,6 +59,7 @@ def pmtct_defaulters(title=u"Defaulters Report"):
         doc.add_element(t)
         doc.add_element(PageBreak())
     return doc
+
 
 def appointments(request, rformat="html"):
     doc = Document(unicode(_(u"Appointments Report")))
@@ -353,3 +355,42 @@ def active_mothers(request, rformat="html"):
 
     return render_doc_to_response(request, rformat, doc,
                                     'pmtct-mothers-onfollowup')
+
+
+def upcoming_appointments(title=_(u'Upcoming Apointments')):
+    doc = Document(title)
+    today = datetime.today()
+    next_45days = today + relativedelta(days=45)
+    ud = AppointmentReport\
+        .objects\
+        .filter(appointment_date__gte=today,
+            appointment_date__lte=next_45days,
+            status=AppointmentReport.STATUS_OPEN)
+    ud = ud.order_by('appointment_date', 'encounter__patient__chw')
+
+    for clinic in Clinic.objects.all():
+        t = Table(4)
+        t.add_header_row([
+            Text(unicode(_(u"Patient"))),
+            Text(unicode(_(u"Date of Appointment"))),
+            Text(unicode(_(u"CHW"))),
+            Text(unicode(_(u"Location")))])
+        for row in ud.filter(encounter__patient__chw__clinic=clinic):
+            t.add_row([
+                Text(unicode(row.encounter.patient)),
+                Text(unicode(row.appointment_date.strftime("%d-%m-%Y"))),
+                Text(unicode(row.encounter.patient.chw)),
+                Text(unicode(row.encounter.patient.chw.location))])
+        t.set_alignment(Table.ALIGN_LEFT, column=0)
+        t.set_alignment(Table.ALIGN_CENTER, column=1)
+        t.set_alignment(Table.ALIGN_LEFT, column=2)
+        t.set_alignment(Table.ALIGN_LEFT, column=3)
+        t.set_column_width(16, column=3)
+        doc.add_element(Section(u"%(clinic)s: Upcoming Appointments "\
+            "%(from)s to %(to)s" % {'clinic': clinic,
+            'from': today.strftime("%d %b"),
+            'to': next_45days.strftime("%d %b")}))
+        doc.add_element(t)
+        doc.add_element(PageBreak())
+    doc.add_element(t)
+    return doc
