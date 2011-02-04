@@ -434,7 +434,7 @@ class Report(PrintedReport):
                     instruction = icon_ = ''
                     if (date_today - estimate_date).days < 21:
                         icon_ = u'☻'
-                        instruction = _(u'go over personalized birth plan')
+                        instruction = _(u'Review Birth plan')
 
                     table2.add_row([
                     Text(_(u'%(icon)s %(icon_)s' % {'icon': icon, 'icon_': icon_})),
