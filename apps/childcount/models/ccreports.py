@@ -185,11 +185,25 @@ class ThePatient(Patient):
         for item in survey:
             if survey[item] is None:
                 survey[item] = '-'
+        # issued 
+        bdnt_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self)\
+                                    .aggregate(\
+                                    stotal=Sum('bednet_received'))['stotal']
+        if not bdnt_issued:
+            bdnt_issued = 0
+        survey.update({'issued': bdnt_issued})
         return survey
 
     def required_bednet(self):
+        bdnt_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self)\
+                                    .aggregate(\
+                                    stotal=Sum('bednet_received'))['stotal']
         try:
             total = self.survey()['num_site'] - self.survey()['function']
+            if bdnt_issued:
+                total -= bdnt_issued
         except:
             total = '-'
 
@@ -393,6 +407,51 @@ class ThePatient(Patient):
             {'name': _("Treatment".upper()),
              'bit': '{{object.survey.treat_method}}'})
 
+        sub_columns = None
+        return columns, sub_columns
+
+    @classmethod
+    def bednet_coverage(cls):
+        columns = []
+        columns.append(
+            {'name': _("HH".upper()),
+            'bit': '{{object.household.health_id.upper}}'})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("HH Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': _("# SSs".upper()),
+             'bit': '{{object.survey.num_site}}'})
+        columns.append(
+            {'name': _("# Func. Nets".upper()),
+             'bit': '{{object.survey.function}}'})
+        columns.append(
+            {'name': _("# Elr. Nets".upper()),
+             'bit': '{{object.survey.earlier}}'})
+        columns.append(
+            {'name': _("# Dmgd. Nets".upper()),
+             'bit': '{{object.survey.damaged}}'})
+        columns.append(
+            {'name': _("# Nets Issued".upper()),
+             'bit': '{{object.survey.issued}}'})
+        columns.append(
+            {'name': _("# Rqrd. Nets".upper()),
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': _("# U5 LN".upper()),
+             'bit': '{{object.survey.under_five}}'})
+        columns.append(
+            {'name': _("# Slept on Net".upper()),
+             'bit': '{{object.survey.slept_bednet}}'})
+        columns.append(
+            {'name': _("# Hanging Nets".upper()),
+             'bit': '{{object.survey.hanging}}'})
+        columns.append(
+            {'name': _("Reason".upper()),
+             'bit': '{{object.survey.reason}}'})
         sub_columns = None
         return columns, sub_columns
 
