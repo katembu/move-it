@@ -39,7 +39,14 @@ styleH3 = styles['Heading3']
 class Report(PrintedReport):
     title = 'Operational Report'
     filename = 'operational_report'
-    formats = ['pdf']
+    formats = ('pdf',)
+
+    variants = [ \
+        (' (By Clinic)', '_clinic', \
+            {'type_str': 'clinic', 'type_obj': Clinic}), \
+        (' (By Location)', '_location', 
+            {'type_str': 'location', 'type_obj': Location}), \
+    ]
 
     def generate(self, rformat, title, filepath, data):
         '''
@@ -52,15 +59,22 @@ class Report(PrintedReport):
 
         f = open(filepath, 'w')
 
+        type_str = data['type_str']
+        type_obj = data['type_obj']
+
         story = []
-        locations = Location.objects.filter(pk__in=CHW.objects.values('location')\
-                                                        .distinct('location'))
+        locations = type_obj.objects.filter(pk__in=CHW.objects.values(type_str)\
+                                                        .distinct(type_str))
+
         for location in locations:
-            if not TheCHWReport.objects.filter(location=location, \
-                                        is_active=True).count():
+            filter_on = {type_str: location}
+            if not TheCHWReport\
+                    .objects\
+                    .filter(is_active=True)\
+                    .filter(**filter_on).count():
                 continue
-            tb = self._operationalreportable(location, TheCHWReport.objects.\
-                filter(location=location))
+            tb = self._operationalreportable(location, \
+                    TheCHWReport.objects.filter(**filter_on))
             story.append(tb)
             story.append(PageBreak())
 
@@ -211,7 +225,7 @@ class Report(PrintedReport):
             return ([], [], [])
 
         for chw in indata:
-            ctx = Context({"object": chw})
+            ctx = Context({"object": chw, "zero": u'0'})
 
             # Render column values into strings
             row_values = map(lambda col: Template(col['bit']).render(ctx), cols)
