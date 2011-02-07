@@ -107,8 +107,11 @@ class App (rapidsms.app.App):
         # for locations with DST.
         message.date = message.date - timedelta(seconds=time.timezone)
 
+        # Check if coming from debackend
+        is_debackend = ('chw' in message.__dict__)
+
         # If coming from debackend...
-        if 'chw' in message.__dict__:
+        if is_debackend:
             try: 
                 rep = Reporter.objects.get(username=message.identity)
             except Reporter.DoesNotExist:
@@ -251,7 +254,7 @@ class App (rapidsms.app.App):
                                    {'id': health_id.upper()}, 'error')
                 return handled
 
-            if patient.chw != chw:
+            if is_debackend and patient.chw != chw:
                 message.respond(_(u"Patient %(health_id)s is assigned to " \
                                     "CHW %(real_chw)s.  You [%(fake_chw)s] " \
                                     "can only submit forms for your own " \
