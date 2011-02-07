@@ -80,7 +80,7 @@ class TwoMonthPeriodSet(PeriodSet):
     @classmethod
     def period_name(cls, period_num):
         return cls.period_start_date(period_num)\
-            .strftime('%b')
+            .strftime('%b. %Y')
 
     @classmethod
     def period_start_date(cls, month_num):

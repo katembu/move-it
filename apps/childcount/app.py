@@ -110,6 +110,15 @@ class App (rapidsms.app.App):
         # Check if coming from debackend
         is_debackend = ('chw' in message.__dict__)
 
+        # Check if we're allowing submissions for patients
+        # by CHWs other than their own
+        try:
+            allow = Cfg.objects.get(key='allow_third_party_submissions')
+        except Cfg.DoesNotExist:
+            allow_3rd_party = True
+        else:
+            allow_3rd_party = (allow.value.lower() == 'true')
+
         # If coming from debackend...
         if is_debackend:
             try: 
@@ -254,7 +263,7 @@ class App (rapidsms.app.App):
                                    {'id': health_id.upper()}, 'error')
                 return handled
 
-            if is_debackend and patient.chw != chw:
+            if (not allow_3rd_party) and patient.chw != chw:
                 message.respond(_(u"Patient %(health_id)s is assigned to " \
                                     "CHW %(real_chw)s.  You [%(fake_chw)s] " \
                                     "can only submit forms for your own " \
@@ -264,8 +273,6 @@ class App (rapidsms.app.App):
                                      'fake_chw': chw}, 'error')
                 return handled
         
-            #Patient.objects.filter(household=patient.household).update(chw=chw)
-
             # If all of the forms are household forms and the patient is not
             # head of household, don't proceed to process.  If there is one
             # or more household forms mixed with one or more individual forms
