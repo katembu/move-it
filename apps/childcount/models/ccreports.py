@@ -1335,14 +1335,17 @@ class GraphicalClinicReport(Clinic):
     class Meta:
         verbose_name = _("Graphical Clinic Report")
         proxy = True
-    
-    @property
+  
+    @classmethod
+    def n_indicators(self):
+        return 1
+
     def indicators(self):
         return [\
             Indicator(_(u'Percentage of 6m-59m Children '\
                         'Getting at Least 2 MUACs in Last '\
                         '6 Months'), \
-                        self.perc_ontime_follow_up,
+                        self.percentage_ontime_muac,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT)\
         ]
 
@@ -1359,6 +1362,9 @@ class GraphicalClinicReport(Clinic):
                 dob__lte = end_date - timedelta(30.475 * 6),
                 dob__gte = end_date - timedelta(30.475 * 59))
         except ThePatient.DoesNotExist:
+            return None
+
+        if patients.count() == 0:
             return None
 
         ontimes = 0

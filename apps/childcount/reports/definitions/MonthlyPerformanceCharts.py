@@ -30,32 +30,43 @@ styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
 class Report(PrintedReport):
-    title = 'Monthly Performance Charts'
+    title = _(u'Monthly Performance Charts')
     filename = 'monthly_performance_charts'
     formats = ('pdf',)
 
     def generate(self, rformat, title, filepath, data):
         
         if rformat != 'pdf':
-            raise NotImplementedError('Can only generate PDF for performance charts')
+            raise NotImplementedError(\
+                _(u'Can only generate PDF for performance charts'))
 
         f = open(filepath, 'w')
         story = [Paragraph(unicode(title), styleH3)]
 
-        '''
-        clinics = GraphicalClinicReport.objects.order_by('name')
-        for ind in GraphicalClinicReport.indicators:
+        clinics = GraphicalClinicReport.objects.order_by('name')[0:3]
+        # Get indicator sets for each clinic
+        c_inds = map(lambda c: c.indicators(), clinics)
+
+        # data[t][c] should be the value at time period t of
+        # an indicator at clinic c
+        for i in xrange(GraphicalClinicReport.n_indicators()):
+            title = c_inds[0][i].title
+            print title
+
             # Initialize data structure
             data = []
-            for i in xrange(0, TwoMonthPeriodSet.num_periods):
+            for t in xrange(0, TwoMonthPeriodSet.num_periods):
                 data.append([])
 
-            for i in xrange(0, TwoMonthPeriodSet.num_periods):
-                for c in clinics:
-                    data[i].append(ind.for_period_raw(TwoMonthPeriodSet, i))
+            for t in xrange(0, TwoMonthPeriodSet.num_periods):
+                for c in xrange(0, len(clinics)):
+                    val = c_inds[c][i].for_period_raw(TwoMonthPeriodSet, t)
+                    print "%s: %s = %f" % (title, clinics[c], val)
+
+                    data[t].append(val)
             
-            story.append(self._graph(ind.title, data, labels))
-        '''
+            story.append(self._graph(title, data, map(unicode, clinics)))
+        
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
                                 bottomMargin=(0 * inch))
