@@ -55,10 +55,9 @@ class Percentage(Fraction):
             return s + _(u"(No data)")
         else:
             return "%s%d%% (%d/%d)" % \
-                (s, int(self), self.num / 100, self.den)
+                (s, int(self), self.num, self.den)
 
     def __new__(cls, n, d):
-
         empty = (d == 0)
         obj = super(Percentage,cls)\
             .__new__(cls, 100*n, 1 if empty else d)
