@@ -91,6 +91,19 @@ class ThePatient(Patient):
         except HouseholdVisitReport.DoesNotExist:
             return False
 
+    def is_immunized(self, relative_to=date.today()):
+        try:
+            ir = UnderOneReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to,\
+                        immunized=UnderOneReport.IMMUNIZED_YES)
+        except UnderOneReport.DoesNotExist:
+            return False
+
+        return (ir.count() > 0)
+
+
     def ontime_muac(self, relative_to=date.today()):
         try:
             nr = NutritionReport\
@@ -1350,30 +1363,69 @@ class GraphicalClinicReport(Clinic):
     class Meta:
         verbose_name = _("Graphical Clinic Report")
         proxy = True
-    
-    @property
+
+    # This is not good. We need to be able to get the
+    # number of indicators from the class, but can't
+    # look at .indicators() directly unless the object
+    # is instantiated
+    @classmethod
+    def n_indicators(self):
+        return 4
+
     def indicators(self):
         return [\
-            Indicator(_(u'Percentage of 6m-59m Children '\
+            Indicator(_(u'Percentage of Children 6m-59m Old '\
                         'Getting at Least 2 MUACs in Last '\
                         '6 Months'), \
-                        self.perc_ontime_follow_up,
-                        Indicator.AGG_PERCS, Indicator.PERC_PRINT)\
+                        self.percentage_ontime_muac,\
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+                        self.percentage_known_immunized,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+                        self.percentage_known_immunized,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+                        self.percentage_known_immunized,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
         ]
+
+    def _underfive_at_per(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+
+        # Get active patients for this CHW who were aged 6-59m
+        # during the time period we're talking about
+        return ThePatient.objects.filter(\
+            chw__clinic=self, \
+            chw__is_active=True, \
+            status=Patient.STATUS_ACTIVE, \
+            dob__lte = end_date - timedelta(30.475 * 6),
+            dob__gte = end_date - timedelta(30.475 * 59))
+
+    def percentage_known_immunized(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+        try:
+            patients = self._underfive_at_per(per_cls, per_num)
+        except ThePatient.DoesNotExist:
+            return None
+
+        if patients.count() == 0:
+            return None
+
+        count = 0
+        for p in patients:
+            if p.is_immunized():
+                count += 1
+        return int(round(100.0 * count / float(patients.count())))
 
     def percentage_ontime_muac(self, per_cls, per_num):
         end_date = per_cls.period_end_date(per_num)
-
         try:
-            # Get active patients for this CHW who were aged 6-59m
-            # during the time period we're talking about
-            patients = ThePatient.objects.filter(\
-                chw__clinic=self, \
-                chw__is_active=True, \
-                status=Patient.STATUS_ACTIVE, \
-                dob__lte = end_date - timedelta(30.475 * 6),
-                dob__gte = end_date - timedelta(30.475 * 59))
+            patients = self._underfive_at_per(per_cls, per_num)
         except ThePatient.DoesNotExist:
+            return None
+
+        if patients.count() == 0:
             return None
 
         ontimes = 0
