@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: dgelvin, ukanga
 
 from childcount.commands.CCCommand import CCCommand
 from childcount.commands.RegistrationCommand import RegistrationCommand
@@ -18,6 +18,8 @@ from childcount.commands.ChownCommand import ChownCommand
 from childcount.commands.LocationCommand import LocationCommand
 from childcount.commands.RelocateCommand import RelocateCommand
 from childcount.commands.FamilyCommand import FamilyCommand
+from childcount.commands.nids.NIDSCommand import NIDSCommand
+from childcount.commands.nids.PolioSummaryCommand import PolioSummaryCommand
 from childcount.commands.StockInCommand import StockInCommand
 from childcount.commands.GetStockCommand import GetStockCommand
 from childcount.commands.StockOutCommand import StockOutCommand
