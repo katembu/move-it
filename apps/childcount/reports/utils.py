@@ -79,18 +79,38 @@ class TwoMonthPeriodSet(PeriodSet):
 
     @classmethod
     def period_name(cls, period_num):
+        if period_num < 0:
+            raise NotImplementedError(_(u'I can\'t deal with'\
+                                    'negative period numbers'))
+
         return cls.period_start_date(period_num)\
             .strftime('%b. %Y')
 
     @classmethod
-    def period_start_date(cls, month_num):
+    def period_start_date(cls, period_num):
+        if period_num < 0:
+            raise NotImplementedError(_(u'I can\'t deal with'\
+                                    'negative period numbers'))
+
         first_day_of_month = (date.today() - timedelta(14)).replace(day=1)
 
         return_date = first_day_of_month
-        for i in xrange(0, month_num):
+        for i in xrange(0, period_num):
             return_date = (return_date - timedelta(1)).replace(day=1)
 
         return return_date
+    
+    @classmethod
+    def period_end_date(self, period_num):
+        if period_num > 0:
+            return self.period_start_date(period_num-1) - \
+                timedelta(1)
+        elif period_num == 0:
+            return (self.period_start_date(0) + timedelta(32))\
+                .replace(day=1) - timedelta(1)
+        else:
+            raise NotImplementedError(_(u'I can\'t deal with'\
+                                    'negative period numbers'))
 
 class QuarterlyPeriodSet(PeriodSet):
     num_periods = 3
