@@ -105,6 +105,10 @@ class ThePatient(Patient):
 
 
     def ontime_muac(self, relative_to=date.today()):
+        # MUAC should be every 3 months for healthy kids
+        # and every 1 month for kids with SAM/MAM
+
+        # Get the most recent NutritionReport
         try:
             nr = NutritionReport\
                     .objects\
@@ -114,17 +118,47 @@ class ThePatient(Patient):
         except NutritionReport.DoesNotExist:
             return False
 
-        latest_date = nr.encounter.encounter_date
-        old_date = latest_date - timedelta(90)
+        days_old = (relative_to - nr.encounter.encounter_date.date()).days
 
-        try:
-            nr = NutritionReport.objects.filter(encounter__patient=self, \
-                                encounter__encounter_date__gte=old_date, \
-                                encounter__encounter_date__lt=latest_date)
-        except NutritionReport.DoesNotExist:
-            return False
+        # First, check if the current MUAC is out of date
+        if nr.status == NutritionReport.STATUS_HEALTHY:
+            if days_old > 90:
+                return False
         else:
-            return nr.count()
+            if days_old > 30:
+                return False
+
+        return True
+        
+        '''
+        # Next, get the previous MUAC
+        latest_date = nr.encounter.encounter_date.date()
+
+        # If a month before the child's last MUAC, the child was
+        # under 6 months old, then growth monitoring is okay
+        if (latest_date - timedelta(30)) < (self.dob + timedelta(182)):
+            return True
+
+        # Otherwise, make sure that there was a previous MUAC
+        try:
+            secnr = NutritionReport\
+                .objects\
+                .filter(encounter__patient=self, \
+                        encounter__encounter_date__lt=latest_date)\
+                .latest('encounter__encounter_date')
+        except NutritionReport.DoesNotExist:
+            # If there's no previous MUAC
+            return False
+
+        # Check that the first report is timely relative to 
+        # MUAC guidelines
+        days_diff = (latest_date - \
+            secnr.encounter.encounter_date.date()).days
+        if secnr.status == NutritionReport.STATUS_HEALTHY:
+            if days_diff > 90: return False
+        else:
+            if days_diff > 30: return False
+        '''
 
     def status_text(self):
         ''' Return the text in status choices '''
@@ -811,29 +845,46 @@ class TheCHWReport(CHW):
             total_count = len(pwomen)
             return int(round(100 * (count / float(total_count))))
 
-    def percentage_ontime_followup(self):
+    def percentage_ontime_followup(self, start_date=date(1901,01,01),\
+            end_date=date.today(), raw=False):
+
+        print (start_date, end_date)
         referrals = ReferralReport\
             .objects\
-            .filter(encounter__chw=self)\
+            .filter(encounter__chw=self, \
+                encounter__encounter_date__lte=end_date,\
+                encounter__encounter_date__gt=start_date)\
             .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
 
-        if not referrals:
-            return None
         num_referrals = referrals.count()
+        print "%d referrals" % referrals.count()
         if num_referrals == 0:
+            print "No referrals"
             return None
 
         ontimefollowup = 0
         for referral in referrals:
             rdate = referral.encounter.encounter_date
             day2later = day_end(rdate + timedelta(2))
-            fur = FollowUpReport.objects.filter(encounter__chw=self, \
+            try:
+                fur = FollowUpReport.objects.filter(encounter__chw=self, \
                             encounter__patient=referral.encounter.patient, \
                             encounter__encounter_date__gt=rdate, \
                             encounter__encounter_date__lte=day2later)
-            if fur:
+            except FollowUpReport.DoesNotExist:
+                print "Ref: %s, FU: None" % rdate.date()
+
+            if fur.count() > 0:
+                print "Ref: %s, FU: %s" % (rdate.date(), \
+                    fur[0].encounter.encounter_date.date())
                 ontimefollowup += 1
-        return int(round((ontimefollowup / \
+            else:
+                print "Ref: %s, FU: None" % rdate.date()
+
+        if raw:
+            return (ontimefollowup, num_referrals)
+        else:
+            return int(round((ontimefollowup / \
                         float(num_referrals)) * 100))
 
     def median_number_of_followup_days(self):
@@ -1360,20 +1411,59 @@ class GraphicalClinicReport(Clinic):
     def indicators(self):
         return [\
             Indicator(_(u'Percentage of Children 6m-59m Old '\
-                        'Getting at Least 2 MUACs in Last '\
-                        '6 Months'), \
+                        'Getting at Least 1 MUAC in the Last '\
+                        '3 Months (or 1 month for SAM/MAM cases)'),\
                         self.percentage_ontime_muac,\
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
                         self.percentage_known_immunized,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
-            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
-                        self.percentage_known_immunized,
+            Indicator(_(u'Percentage of Pregnant Women Having '\
+                        'at Least 4 ANC Visits by 3rd Trimester'),\
+                        self.percentage_with_four_anc,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
-            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
-                        self.percentage_known_immunized,
+            Indicator(_(u'Percentage On-Time Follow-Up '\
+                        '(within 2 days of a Basic, Emergency, or '\
+                        'Ambulance referral)'),\
+                        self.percentage_ontime_follow_up,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
         ]
+
+    def _aggregate_clinic_percentage(self, agg_func):
+        chws = MonthlyCHWReport\
+            .objects\
+            .filter(clinic=self, is_active=True)
+
+        if chws.count() == 0:
+            return None
+
+        num = 0
+        den = 0
+        for c in chws:
+            out = agg_func(c)
+            if out is None: continue
+
+            (n,d) = out
+            num += n
+            den += d
+
+        print (num, den)
+        if den == 0:
+            return None
+        return (num, den)
+ 
+
+    def percentage_with_four_anc(self, per_cls, per_num):
+        return self._aggregate_clinic_percentage(\
+            lambda c: c.perc_with_anc_third(per_cls, per_num))
+           
+    def percentage_ontime_follow_up(self, per_cls, per_num):
+        return self._aggregate_clinic_percentage(\
+            lambda c: \
+                c.percentage_ontime_followup(\
+                    per_cls.period_start_date(per_num),\
+                    per_cls.period_end_date(per_num), \
+                    True))
 
     def _underfive_at_per(self, per_cls, per_num):
         end_date = per_cls.period_end_date(per_num)
@@ -1401,7 +1491,8 @@ class GraphicalClinicReport(Clinic):
         for p in patients:
             if p.is_immunized():
                 count += 1
-        return int(round(100.0 * count / float(patients.count())))
+
+        return (count, patients.count())
 
     def percentage_ontime_muac(self, per_cls, per_num):
         end_date = per_cls.period_end_date(per_num)
@@ -1418,8 +1509,7 @@ class GraphicalClinicReport(Clinic):
             if patient.ontime_muac(end_date):
                 ontimes += 1
 
-        return int(round(100.0 * ontimes / float(patients.count())))
-
+        return (ontimes, patients.count())
 
 class ClinicReport(Clinic):
     class Meta:
@@ -2154,6 +2244,8 @@ class MonthlyCHWReport(TheCHWReport):
             raise ValueError('Trimester is out of range [1,3]')
 
         women = self._women_in_month_of_preg(per_cls, per_num, trimester)
+        for w in women:
+            print (w, w.anc_visits)
         have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
 
         return (len(have_anc), len(women))
@@ -2195,6 +2287,9 @@ class MonthlyCHWReport(TheCHWReport):
             months_of_preg = p.pregnancy_month + months_ago
 
             if round(months_of_preg) in month_range:
+                print "women %d days from %s was in m%d" % \
+                    (days_ago, per_cls.period_end_date(per_num),
+                        p.pregnancy_month)
                 targets.append(p)
 
         return targets
