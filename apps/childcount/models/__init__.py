@@ -28,3 +28,4 @@ from ImmunizationSchedule import ImmunizationNotification
 from PolioCampaignReport import PolioCampaignReport
 
 from bednet import BednetStock
+from bednet import DistributionPoints

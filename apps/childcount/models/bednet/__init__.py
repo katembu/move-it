@@ -3,3 +3,4 @@
 # maintainer: ukanga
 
 from BednetStock import BednetStock
+from DistributionPoints import DistributionPoints
