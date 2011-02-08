@@ -9,7 +9,7 @@ from django.db.models import Sum
 
 from childcount.forms import CCForm
 from childcount.models.reports import BedNetReport, BednetIssuedReport
-from childcount.models import Patient, Encounter, BednetStock
+from childcount.models import Patient, Encounter, BednetStock, DistributionPoints
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
@@ -102,13 +102,17 @@ class BednetDistributionForm(CCForm):
             pr.bednet_received = issued
             pr.save()
             today = date.today()
+            d_sites = DistributionPoints.objects.filter(chw=self.chw)
+            distribution_site = None
+            if d_sites:
+                distribution_site = d_sites[0].location
             try:
                 bns = BednetStock.objects.get(created_on__day=today.day,
                                             created_on__month=today.month,
                                             created_on__year=today.year,
-                                            location=self.chw.location)
+                                            location=distribution_site)
             except BednetStock.DoesNotExist:
-                pass
+                print self.chw, distribution_site
             else:
                 bns.quantity -= bdnt_required
                 bns.save()
