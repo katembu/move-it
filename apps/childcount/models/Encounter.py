@@ -75,11 +75,15 @@ class Encounter(models.Model):
         ''' return true if TIMEOUT minutes has not passed since creation '''
         if self.sync_omrs == True:
             return False
-        now = datetime.now()
         td = timedelta(minutes=self.TIMEOUT)
-        # Return False (the encounter is closed) if the encounter date
-        # is older than (TD[six hours] ago)
-        return False if self.encounter_date < (now - td) else True
+        now = datetime.now()
+        # Return True (the encounter is open) if the encounter date
+        # is newer than TD[six hours] ago
+        #   OR
+        # For debackend: Return True if the encounter was 
+        # created more recently than TD[six hours] ago
+        return self.encounter_date >= (now - td) or \
+            self.initial_version().revision.date_created >= (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \
