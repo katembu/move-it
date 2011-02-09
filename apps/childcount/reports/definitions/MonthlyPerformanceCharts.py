@@ -50,7 +50,7 @@ class Percentage(Fraction):
         return unicode(self)
 
     def __unicode__(self):
-        s = ' ' * 25
+        s = ' ' * 30
         if self.empty:
             return s + _(u"(No data)")
         else:
@@ -108,8 +108,10 @@ class Report(PrintedReport):
 
             for t in xrange(0, TwoMonthPeriodSet.num_periods):
                 for c in xrange(0, len(clinics)):
-                    # We get a Fraction back, multiply by 100 to get a percentage
                     val = c_inds[c][i].for_period_raw(TwoMonthPeriodSet, t)
+                    #from random import random
+                    #val = (int(100*random()),100)
+
                     if val is not None:
                         val = Percentage(val[0], val[1])
                     else:
@@ -149,17 +151,17 @@ class Report(PrintedReport):
         f.close()
 
     def _graph(self, data, labels, period_set):
-        dh = 2 * inch
-        dw = 3.5 * inch
+        dh = 2.2 * inch
+        dw = 4 * inch
 
         drawing = Drawing(dw, dh)
 
         bc = HorizontalBarChart()
         bc.setProperties({
-            'x': 1 * inch,
+            'x': 0.5 * inch,
             'y': 0 * inch,
             'height': dh - (0 * inch),
-            'width': dw - (1.5 * inch),
+            'width': dw - (1.4 * inch),
             'data': data,
             'strokeWidth': 0,
             'barLabelFormat': unicode,
@@ -174,8 +176,14 @@ class Report(PrintedReport):
             'categoryNames': labels,
         })
 
+        if len(data) > 0:
+            bc.bars[0].fillColor = colors.Color(0.2,0.2,0.2, 1)
+        if len(data) > 1:
+            bc.bars[1].fillColor = colors.Color(0.7,0.7,0.7, 1)
+            bc.bars[1].strokeDashArray = [2,2]
+
         from pprint import pprint
-        pprint(bc.getProperties())
+        pprint(bc.bars.getProperties())
         drawing.add(bc)
 
         legend = Legend()
@@ -186,7 +194,7 @@ class Report(PrintedReport):
         for i in xrange(0, len(data)):
             legend.colorNamePairs.append(\
                 (bc.bars[i].fillColor, period_set.period_name(i)))
-        #pprint(legend.getProperties())
+        pprint(legend.getProperties())
 
         # For some reason these get drawn in the opposite
         # order as the bars by default

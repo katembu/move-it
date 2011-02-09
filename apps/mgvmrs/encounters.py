@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+from datetime import datetime
+
 from rapidsms.webui import settings
 from django.db.models import Q
 

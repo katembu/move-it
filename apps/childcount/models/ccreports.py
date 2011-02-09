@@ -860,8 +860,8 @@ class TheCHWReport(CHW):
             total_count = len(pwomen)
             return int(round(100 * (count / float(total_count))))
 
-    def percentage_ontime_followup(self, start_date=date(1901,01,01),\
-            end_date=date.today(), raw=False):
+    def people_without_followup(self, start_date=date(1901,01,01),\
+            end_date=date.today()):
 
         print (start_date, end_date)
         referrals = ReferralReport\
@@ -872,12 +872,12 @@ class TheCHWReport(CHW):
             .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
 
         num_referrals = referrals.count()
-        print "%d referrals" % referrals.count()
         if num_referrals == 0:
             print "No referrals"
             return None
 
-        ontimefollowup = 0
+        ontime = []
+        nofup = []
         for referral in referrals:
             rdate = referral.encounter.encounter_date
             day2later = day_end(rdate + timedelta(2))
@@ -887,20 +887,36 @@ class TheCHWReport(CHW):
                             encounter__encounter_date__gt=rdate, \
                             encounter__encounter_date__lte=day2later)
             except FollowUpReport.DoesNotExist:
+                pass
                 print "Ref: %s, FU: None" % rdate.date()
 
             if fur.count() > 0:
                 print "Ref: %s, FU: %s" % (rdate.date(), \
                     fur[0].encounter.encounter_date.date())
-                ontimefollowup += 1
+                ontime.append(referral)
             else:
+                nofup.append(referral)
                 print "Ref: %s, FU: None" % rdate.date()
 
+        return (ontime, nofup)
+
+    def percentage_ontime_followup(self, start_date=date(1901,01,01),\
+            end_date=date.today(), raw=False):
+
+        out = self.people_without_followup(start_date, end_date)
+        if out is None:
+            return None
+
+        (ontime, nofup) = out
+        n_ontime = len(ontime)
+        n_nofup = len(nofup)
+        n_total = n_ontime + n_nofup
+
         if raw:
-            return (ontimefollowup, num_referrals)
+            return (n_ontime, n_total)
         else:
-            return int(round((ontimefollowup / \
-                        float(num_referrals)) * 100))
+            return int(round((n_ontime/ \
+                        float(n_total)) * 100))
 
     def median_number_of_followup_days(self):
         referrals = ReferralReport.objects.filter(encounter__chw=self)
@@ -1986,7 +2002,7 @@ class MonthlyCHWReport(TheCHWReport):
             Indicator('% Getting 4 ANC by 3rd Trim.',\
                 self.perc_with_anc_third,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('Num Birth Reports',\
+            Indicator('Num Birth *Reports*',\
                 self.num_births, Indicator.SUM),
             Indicator('Num Births Rpts with 4 ANC',\
                 self.num_births_with_anc, Indicator.SUM),
@@ -2430,6 +2446,38 @@ class MonthlyCHWReport(TheCHWReport):
     # Lists
     #
 
+    # People lacking follow-up in last 45 days
+    def lacking_follow_up(self):
+        out = self.people_without_followup(date.today() - timedelta(45))
+        if out is None:
+            return []
+        (fup, nofup) = out
+
+        entries = []
+        for ref in nofup:
+            entries.append(self._dict_for_follow_up(ref))
+
+        return entries
+
+    def _dict_for_follow_up(self, ref):
+        e = ref.encounter
+        all_ds = DangerSignsReport.objects.filter(encounter=e)
+        ds = all_ds[0] if (all_ds.count() > 0) else None
+
+        all_fu = FollowUpReport\
+            .objects\
+            .filter(encounter__patient=e.patient, \
+                encounter__encounter_date__gt=\
+                    ref.encounter.encounter_date)\
+            .order_by('encounter__encounter_date')
+        fu = all_fu[0] if (all_fu.count() > 0) else None
+
+        return {
+            'referral': ref,
+            'danger_signs': ds,
+            'follow_up': fu,
+            }
+        
     # Kids under 5 yrs needing immunizations
     def needing_immunizations(self):
         imm_pks = map(lambda i: i['encounter__patient__pk'],\
