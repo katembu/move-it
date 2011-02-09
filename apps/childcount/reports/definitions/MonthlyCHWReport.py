@@ -9,6 +9,8 @@ from ccdoc import Document, Table, Paragraph, \
 
 from childcount.models import CHW, Clinic
 from childcount.models.reports import HouseholdVisitReport
+from childcount.models.reports import DangerSignsReport
+from childcount.models.reports import ReferralReport
 from childcount.models.reports import FamilyPlanningReport
 from childcount.models.reports import NutritionReport
 from childcount.models.ccreports import MonthlyCHWReport
@@ -49,9 +51,10 @@ class Report(PrintedReport):
                     MonthlyPeriodSet.num_periods-1).strftime('%e %B %Y')}))
 
             doc.add_element(self._indicator_table(chw))
-            doc.add_element(self._immunization_table(chw))
             doc.add_element(self._pregnancy_table(chw))
+            doc.add_element(self._followup_table(chw))
             doc.add_element(self._muac_table(chw))
+            doc.add_element(self._immunization_table(chw))
 
             doc.add_element(PageBreak())
 
@@ -67,6 +70,10 @@ class Report(PrintedReport):
 
         table.add_header_row(map(Text, headers))
 
+        for col in xrange(1,5):
+            table.set_column_width(12, col)
+        table.set_column_width(18, 5)
+
         for ind in chw.report_indicators():
             ind.set_excel(False)
 
@@ -79,6 +86,53 @@ class Report(PrintedReport):
 
         return table 
 
+    def _followup_table(self, chw):
+        table = Table(7, \
+            Text(_(u"Patients Referred in the Previous 45 days "\
+                "Lacking an On-Time Follow-Up Visit")))
+        table.set_column_width(10, 0)
+        table.set_column_width(10, 1)
+        table.add_header_row([
+            Text(_(u"Loc Code")),
+            Text(_(u"Health ID")),
+            Text(_(u"Name / Age")),
+            Text(_(u"Household Head")),
+            Text(_(u"Referral Type / Date")),
+            Text(_(u"Referred For")),
+            Text(_(u"Follow-Up Date")),
+        ])
+
+        for entry in chw.lacking_follow_up():
+            ref = entry['referral']
+            ds = entry['danger_signs']
+            fu = entry['follow_up']
+            patient = ref.encounter.patient
+           
+            urgency_str = filter(lambda x: x[0] == ref.urgency,\
+                ReferralReport.URGENCY_CHOICES)[0][1]
+
+            table.add_row([
+                Text(patient.location.code),
+                Text(patient.health_id.upper()),
+                Text(patient.full_name() + u" / " + \
+                                    patient.humanised_age()),
+                Text(patient.household.full_name()),
+                Text(urgency_str + _(u" on ") + \
+                                     ref.encounter\
+                                        .encounter_date\
+                                        .strftime('%d %b %Y')),
+                Text(u", ".join([sign.description \
+                                    for sign in ds.danger_signs.all()]))
+                    if ds else Text(_(u"[No DSs Reported]")),
+                Text(_(u"Late: ") + fu\
+                            .encounter\
+                            .encounter_date\
+                            .strftime('%d %b %Y'))\
+                    if fu else Text(_(u"[No Follow-Up]"))])
+
+        return table
+
+
     def _immunization_table(self, chw):
         table = Table(4, \
             Text(_(u"Children Under 5 Needing Immunizations")))
@@ -88,6 +142,8 @@ class Report(PrintedReport):
             Text(_(u"Name / Age")),
             Text(_(u"Household Head")),
         ])
+        table.set_column_width(10, 0)
+        table.set_column_width(10, 1)
         for kid in chw.needing_immunizations():
             table.add_row([
                 Text(kid.location.code),
@@ -108,6 +164,11 @@ class Report(PrintedReport):
             Text(_(u"Approx Due Date")),
             Text(_(u"Household Head")),
         ])
+        table.set_column_width(10, 0)
+        table.set_column_width(10, 1)
+        table.set_column_width(12, 3)
+        table.set_column_width(12, 4)
+
         for pair in chw.pregnant_needing_anc():
             (woman, last_anc, due_date) = pair
             table.add_row([
@@ -123,7 +184,7 @@ class Report(PrintedReport):
     def _muac_table(self, chw):
         table = Table(6, \
             Text(_(
-            u"Children without MUAC in past 1 month (SAM)" \
+            u"Children without MUAC in past 1 month (SAM) " \
             "or 3 months (healthy)")))
 
         table.add_header_row([
@@ -134,15 +195,19 @@ class Report(PrintedReport):
             Text(_(u"MUAC Status")),
             Text(_(u"Household Head")),
         ])
+        table.set_column_width(10, 0)
+        table.set_column_width(10, 1)
+        table.set_column_width(15, 3)
+        table.set_column_width(15, 4)
         for row in chw.kids_needing_muac():
             (kid, nut) = row
             table.add_row([
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
-                Text('No MUAC' if nut is None else \
+                Text(_(u'[No MUAC]') if nut is None else \
                     nut.encounter.encounter_date.strftime("%d-%b-%Y")),
-                Text('--' if nut is None else \
+                Text(_(u'[No MUAC]') if nut is None else \
                     filter(lambda c: c[0] == nut.status, \
                         NutritionReport.STATUS_CHOICES)[0][1]),
                 Text(kid.household.full_name())
@@ -151,7 +216,7 @@ class Report(PrintedReport):
         return table
 
     def _reporting_week_date_str(self, week_num):
-        return u"Week of " + \
+        return _(u"Week of ") + \
             MonthlyPeriodSet\
                 .period_start_date(week_num)\
                 .strftime('%e %b')
