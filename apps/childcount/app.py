@@ -315,10 +315,17 @@ class App (rapidsms.app.App):
                 # them now.
                 if encounters[form.ENCOUNTER_TYPE] is None:
                     try:
+                        # Look for an encounter of the same type
+                        # for the same person within TIMEOUT
+                        # minutes.
                         encounters[form.ENCOUNTER_TYPE] = \
                             Encounter.objects.filter(chw=chw, \
                                  patient=patient, \
-                                 type=form.ENCOUNTER_TYPE)\
+                                 type=form.ENCOUNTER_TYPE, \
+                                 encounter_date__gte=encounter_date-\
+                                    timedelta(minutes=Encounter.TIMEOUT),
+                                 encounter_date__lte=encounter_date+\
+                                    timedelta(minutes=Encounter.TIMEOUT))\
                                  .latest('encounter_date')
                         if not encounters[form.ENCOUNTER_TYPE].is_open == True:
                             raise Encounter.DoesNotExist

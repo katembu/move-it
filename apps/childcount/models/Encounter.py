@@ -83,7 +83,11 @@ class Encounter(models.Model):
         # For debackend: Return True if the encounter was 
         # created more recently than TD[six hours] ago
         return self.encounter_date >= (now - td) or \
-            self.initial_version().revision.date_created >= (now - td)
+            Version\
+                .objects\
+                .get_for_object(self)[0]\
+                .revision\
+                .date_created >= (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \
