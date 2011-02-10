@@ -50,7 +50,7 @@ class Encounter(models.Model):
 
     sync_omrs = models.NullBooleanField(_('OMRS'), null=True, blank=True)
 
-    def inital_version(self):
+    def initial_version(self):
         return Version.objects.get_for_object(self)[0]
 
     def current_version(self):

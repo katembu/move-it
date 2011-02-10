@@ -113,7 +113,7 @@ class CCReport(PolymorphicModel):
     def chw(self):
         return self.encounter.chw
 
-    def inital_version(self):
+    def initial_version(self):
         return Version.objects.get_for_object(self)[0]
 
     def current_version(self):
