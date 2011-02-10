@@ -103,6 +103,20 @@ class CCReport(PolymorphicModel):
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
 
+    def substantively_equal(self, other):
+        if type(self) != type(other):
+            return False
+
+        for f in self._meta.fields:
+            fname = f.name
+            if fname in ['id', 'ccreport_ptr']:
+                continue
+
+            v1 = getattr(self, fname)
+            v2 = getattr(other, fname)
+            if v1 != v2: return False
+
+        return True
 
     def reset(self):
         self.__init__(pk=self.pk, encounter=self.encounter)

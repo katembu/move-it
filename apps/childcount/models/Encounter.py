@@ -51,7 +51,10 @@ class Encounter(models.Model):
     sync_omrs = models.NullBooleanField(_('OMRS'), null=True, blank=True)
 
     def initial_version(self):
-        return Version.objects.get_for_object(self)[0]
+        v = Version.objects.get_for_object(self)
+        if v.count() == 0:
+            raise Version.DoesNotExist
+        return v[0]
 
     def current_version(self):
         return Version.objects.get_for_object(self).\
@@ -82,12 +85,17 @@ class Encounter(models.Model):
         #   OR
         # For debackend: Return True if the encounter was 
         # created more recently than TD[six hours] ago
-        return self.encounter_date >= (now - td) or \
-            Version\
-                .objects\
-                .get_for_object(self)[0]\
-                .revision\
-                .date_created >= (now - td)
+        if self.encounter_date >= (now - td):
+            return True
+            
+        try:
+            v = self.initial_version()
+        except Version.DoesNotExist:
+            # If versioning information is lost,
+            # just create a new encounter
+            return False
+        else:
+            return v.revision.date_created >= (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \
