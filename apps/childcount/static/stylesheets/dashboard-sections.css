@@ -174,3 +174,5 @@ a.report-link.html { background-image: url('/static/childcount/icons/html.png') 
 a.report-link.pdf { background-image: url('/static/childcount/icons/pdf.png') }
 a.report-link.xls { background-image: url('/static/childcount/icons/xls.png') }
 a.report-link.other {  }
+
+div#nav_links table { width: 100%; font-size: 1.5em; border: 2px solid #EEEEEE; }

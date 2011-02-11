@@ -223,9 +223,9 @@ class PDFGenerator(Generator):
             tabdata.append(rowdata)
 
             # Zebra stripes (not on header rows)
-            if j % 2 == 1 and not row[0]:
+            if j % 2 == 1:
                 tabstyle.append(('BACKGROUND', \
-                    (0, i-1), (-1, i-1), \
+                    (0, i), (-1, i), \
                     colors.HexColor('#eeeeee')))
 
             i += 1; j += 1
