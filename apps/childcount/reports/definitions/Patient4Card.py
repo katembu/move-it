@@ -48,14 +48,15 @@ class Report(PrintedReport):
         return render_doc_to_file(filepath, rformat, doc)
 
     def _create_patient_table(self):
-        table = Table(6)
+        table = Table(7)
         table.add_header_row([
             Text(_(u'HID')),
             Text(_(u'Name')),
             Text(_(u'DOB')),
             Text(_(u'Sex')),
-            Text(_(u'Village')),
-            Text(_(u'HoHH'))])
+            Text(_(u'Location')),
+            Text(_(u'HoHH')),
+            Text(_(u'Village'))])
         # column alignments
         table.set_alignment(Table.ALIGN_LEFT, column=0)
         table.set_alignment(Table.ALIGN_LEFT, column=1)
@@ -63,6 +64,7 @@ class Report(PrintedReport):
         table.set_alignment(Table.ALIGN_LEFT, column=3)
         table.set_alignment(Table.ALIGN_LEFT, column=4)
         table.set_alignment(Table.ALIGN_LEFT, column=5)
+        table.set_alignment(Table.ALIGN_LEFT, column=6)
 
         return table
 
@@ -79,10 +81,16 @@ class Report(PrintedReport):
         if patient.estimated_dob:
             dob = u"%s*" % dob
 
+        location = u"%(village)s/%(code)s-%(chw)s" \
+                   % {'village': patient.location.name.title(), \
+                      'code': patient.location.code.upper(), \
+                      'chw': patient.chw.id.__str__().zfill(3)}
+
         table.add_row([
             Text(patient.health_id.upper(), bold=is_bold),
             Text(patient.full_name(), bold=is_bold),
             Text(dob, bold=is_bold),
             Text(patient.gender, bold=is_bold),
-            Text(patient.location.name.upper(), bold=is_bold),
-            Text(hh, bold=is_bold)])
+            Text(location, bold=is_bold),
+            Text(hh, bold=is_bold),
+            Text(patient.location.name.upper(), bold=is_bold)])
