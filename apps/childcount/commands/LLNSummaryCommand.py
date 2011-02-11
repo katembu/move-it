@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-from datetime import date
+from datetime import datetime, date, timedelta
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import Group
@@ -31,18 +31,7 @@ class LLNSummaryCommand(CCCommand):
     @authenticated
     def process(self):
         chw = self.message.persistant_connection.reporter.chw
-
-        '''if self.params.__len__() < 2:
-            raise ParseError(_(u"Not enough information. Expected:"
-                                "%(keyword)s | locationcode |" % \
-                                {'keyword': self.params[0]}))
-        try:
-            loc = Location.objects.get(code__iexact=self.params[1])
-        except Location.DoesNotExist:
-            raise BadValue(_(u"Unknown location code %(loc)s." % \
-                            {'loc': self.params[1]}))'''
         today = date.today()
-        
         k = {}
         [k.update({dp.location: 0}) for dp in DistributionPoints.objects.all()]
         for bir in BednetIssuedReport\
@@ -62,10 +51,13 @@ class LLNSummaryCommand(CCCommand):
         _jn = u''
 
         for item in k:
-            bns = BednetStock.objects.get(created_on__day=today.day,
-                created_on__month=today.month,
-                created_on__year=today.year,
-                location=item)
+            try:
+                bns = BednetStock.objects.get(created_on__day=today.day,
+                    created_on__month=today.month,
+                    created_on__year=today.year,
+                    location=item)
+            except BednetStock.DoesNotExist:
+                continue
             remaining = bns.quantity
             print item, bns.quantity
             _str += _jn
@@ -73,28 +65,50 @@ class LLNSummaryCommand(CCCommand):
                 "closing_point: %s]" % (item.__unicode__(),
                 bns.start_point, k[item], remaining, bns.end_point)
             _jn = u', '
-        self.message.respond(_str)
-        # facilitators
-        try:
-            g = Group.objects.get(name='Facilitator')
-            for user in g.user_set.all():
-                try:
-                    send_msg(user.reporter, _str)
-                except:
-                    print "Failed: ", user
-        except Group.DoesNotExist:
-                pass
+        if _str != '':
+            self.message.respond(_str)
+            # facilitators
+            try:
+                g = Group.objects.get(name='Facilitator')
+                for user in g.user_set.all():
+                    try:
+                        send_msg(user.reporter, _str)
+                    except:
+                        print "Failed: ", user
+            except Group.DoesNotExist:
+                    pass
+            for dp in DistributionPoints.objects.all():
+                for chw in dp.chw.all():
+                    try:
+                        send_msg(chw, _str)
+                    except:
+                        print chw, _str
+        if self.params.__len__() >= 2 and self.params[1].lower() == 'all':
+            # for the campaign period
+            start_date = datetime(2011, 2, 8)
+            end_date = datetime(2011, 2, 11)
+            current_date = start_date
+            while current_date <= end_date:
+                self._send_chw_net_summary(current_date)
+                current_date = current_date + timedelta(1)
+        else:
+            self._send_chw_net_summary(today)
+        return True
+
+    def _send_chw_net_summary(self, dod):
         for dp in DistributionPoints.objects.all():
             for chw in dp.chw.all():
                 inets = BednetIssuedReport.objects\
-                    .filter(encounter__encounter_date__gte=today,
+                    .filter(encounter__encounter_date__gte=dod,
                     encounter__chw=chw)\
                     .aggregate(dc=Sum('bednet_received'))
-                msg = _(u"You issued %s bednets on %s" % (inets['dc'],
-                    today.strftime("%d/%m/%Y")))
+                if inets['dc']:
+                    nets = inets['dc']
+                else:
+                    nets = 0
+                msg = _(u"You issued %s bednets on %s" % (nets,
+                    dod.strftime("%d/%m/%Y")))
                 try:
                     send_msg(chw, msg)
-                    send_msg(chw, _str)
                 except:
                     print chw, msg
-        return True
