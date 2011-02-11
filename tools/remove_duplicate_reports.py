@@ -43,7 +43,7 @@ from datetime import datetime
 def r_query(report):
     q = []
     for f in report._meta.fields:
-        if f.name not in ['id','ccreport_ptr']:
+        if f.name not in ['id','ccreport_ptr','pk']:
             q.append((f.name+'__exact', getattr(report, f.name)))
     return q
 
@@ -65,10 +65,13 @@ while True:
   
     query = r_query(r)
     # Look for a duplicate report for the same name
-    dups = r.__class__.objects.exclude(pk=r.pk).filter(pk__gt=seen).filter(*query)
+    dups = r.__class__.objects.exclude(pk=r.pk).filter(*query)
     if dups.count() > 0:
         print "DUP: [%s] [%s]" % (map(lambda d: d.encounter.pk,dups), r.encounter.pk)
         for d in dups:
+            print "ORIG %d, DUP %d" % (r.pk, d.pk)
+            print_rep(r)
+            print_rep(d)
             d.delete()
 
         # Leave original intact
