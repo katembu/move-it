@@ -43,7 +43,7 @@ from datetime import datetime
 def r_query(report):
     q = []
     for f in report._meta.fields:
-        if f.name not in ['id','ccreport_ptr']:
+        if f.name not in ['id','ccreport_ptr','pk']:
             q.append((f.name+'__exact', getattr(report, f.name)))
     return q
 
@@ -52,27 +52,27 @@ def print_rep(report):
         print "\t%s = %s" % (f.name, getattr(report,f.name))
 
 i = 0
-for e in Encounter.objects.all():
+seen = -1
+while True:
+    reps = CCReport.objects.order_by('pk').filter(pk__gt=seen)
+
+    if reps.count() == 0: break
+    
+    r = reps[0]
     i += 1
     if i%100==0:
-        print "Working on encounter %d" % e.pk
+        print "Working on report %d" % r.pk
   
-    count = e.ccreport_set.count()
-    while True:
-        for r in e.ccreport_set.all():
-            query = r_query(r)
-            # Look for a duplicate report for the same name
-            dups = r.__class__.objects.exclude(pk=r.pk).filter(*query)
-            if dups.count() > 0:
-                print "DUP: [%s] [%s]" % (map(lambda d: d.encounter.pk,dups), r.encounter.pk)
-                print_rep(r)
-                for d in dups:
-                    print_rep(d)
-                # If we find one, delete this record (leave the duplicate)
-                r.delete()
+    query = r_query(r)
+    # Look for a duplicate report for the same name
+    dups = r.__class__.objects.exclude(pk=r.pk).filter(*query)
+    if dups.count() > 0:
+        print "DUP: [%s] [%s]" % (map(lambda d: d.encounter.pk,dups), r.encounter.pk)
+        for d in dups:
+            print "ORIG %d, DUP %d" % (r.pk, d.pk)
+            print_rep(r)
+            print_rep(d)
+            d.delete()
 
-        # Loop until we don't find an encounter to delete
-        if count == e.ccreport_set.count():
-            break
-        count = e.ccreport_set.count()
-
+        # Leave original intact
+    seen = r.pk
