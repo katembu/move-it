@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
+import os
 import copy
 
 from django import template
@@ -29,21 +30,21 @@ TA_MAP = {
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
 
-'''
+filedir = os.path.dirname(__file__)
+
 # Liberation Sans font
 pdfmetrics.registerFont(TTFont('LiberationSans', \
-                                       'lib/ccdoc/LiberationSans-Regular.ttf'))
-pdfmetrics.registerFont(TTFont('LiberationSans-Bold', \
-                               'lib/ccdoc/LiberationSans-Bold.ttf'))
-pdfmetrics.registerFont(TTFont('LiberationSans-Italic', \
-                               'lib/ccdoc/LiberationSans-Italic.ttf'))
-pdfmetrics.registerFont(TTFont('LiberationSans-BoldItalic', \
-                               'lib/ccdoc/LiberationSans-BoldItalic.ttf'))
+                                      filedir + '/LiberationSans-Regular.ttf'))
+pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-Bold', \
+                               filedir + '/LiberationSans-Bold.ttf'))
+pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-Italic', \
+                               filedir + '/LiberationSans-Italic.ttf'))
+pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-BoldItalic', \
+                               filedir + '/LiberationSans-BoldItalic.ttf'))
 registerFontFamily('LiberationSans', normal='LiberationSans', \
-                   bold='LiberationSans-Bold', \
-                   italic='LiberationSans-Italic', \
-                   boldItalic='LiberationSans-BoldItalic')
-'''
+                   bold=filedir + '/LiberationSans-Bold', \
+                   italic=filedir + '/LiberationSans-Italic', \
+                   boldItalic=filedir + '/LiberationSans-BoldItalic')
 
 class SectionBreak(PageBreak):
     pass
@@ -86,7 +87,7 @@ class PDFGenerator(Generator):
 
         self.styles = getSampleStyleSheet()
 
-        #self.styles['Normal'].fontName = 'LiberationSans'
+        self.styles['Normal'].fontName = 'LiberationSans'
         self.styles['Normal'].fontSize = 10
 
         ''' All Flowable elements on the page '''
