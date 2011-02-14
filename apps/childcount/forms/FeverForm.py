@@ -64,7 +64,8 @@ class FeverForm(CCForm):
             raise ParseError(_(u"RDT Result must be %(choices)s.") % \
                               {'choices': rdt_field.choices_string()})
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
 
         rdt = rdt_field.get_db_value(self.params[1])
         if rdt == FeverReport.RDT_POSITIVE:

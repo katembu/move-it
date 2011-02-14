@@ -56,7 +56,8 @@ class SauriUnderOneForm(CCForm):
         breast_field.set_language(self.chw.language)
         imm_field.set_language(self.chw.language)
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
         if months > 12:
             raise Inapplicable(_(u"Child is too old for this report."))
 

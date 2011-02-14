@@ -53,7 +53,8 @@ class BirthForm(CCForm):
             overwrite = True
         br.form_group = self.form_group
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
         humanised = patient.humanised_age()
 
         if days > 90:
