@@ -144,7 +144,7 @@ class PatientRegistrationForm(CCForm):
                 patient.dob = dob
 
                 days, weeks, months = patient.age_in_days_weeks_months(\
-                    self.encounter.encounter_date.date())
+                    self.date.date())
                 if days < 60 and variance > 1:
                     raise BadValue(_(u"You must provide an exact birth date " \
                                       "for children under 2 months."))

@@ -476,6 +476,8 @@ def respond_exceptions(func):
         try:
             return func(self, *args)
         except Exception, e:
+            import sys, traceback
+            traceback.print_tb(sys.exc_traceback)
             message.respond(_(u"An error has occured: %(e)s") % {'e': e}, \
                             'error')
             raise
