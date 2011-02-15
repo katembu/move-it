@@ -17,11 +17,14 @@ class Report(PrintedReport):
     title = 'CC+ Health Coordinator Report'
     filename = 'health_coordinator'
     formats = ['xls', 'pdf', 'html']
+    variants = [(u'2010', '2010', {'year': 2010}), \
+                (u'2011', '2011', {'year': 2011}),]
 
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
         header = [u'']
-        yps = YearlyPeriodSet(year=2010)
+        year = data['year']
+        yps = YearlyPeriodSet(year=year)
         header.extend([yps.period_name(p) \
                         for p in xrange(0, yps.num_periods)])
         t = Table(header.__len__())
