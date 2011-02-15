@@ -26,7 +26,8 @@ class NeonatalForm(CCForm):
 
     def process(self, patient):
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
         if days > 28:
             raise Inapplicable(_(u"Neonatal reports are only " \
                                   "for children less than 28 days old."))

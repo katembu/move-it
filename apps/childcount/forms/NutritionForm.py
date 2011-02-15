@@ -51,7 +51,8 @@ class NutritionForm(CCForm):
             nr = NutritionReport(encounter=self.encounter)
         nr.form_group = self.form_group
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
 
         if months < 6:
             raise Inapplicable(_(u"Child is too young for MUAC."))

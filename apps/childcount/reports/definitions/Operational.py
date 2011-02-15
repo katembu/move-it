@@ -74,7 +74,7 @@ class Report(PrintedReport):
                     .filter(**filter_on).count():
                 continue
             tb = self._operationalreportable(location, \
-                    TheCHWReport.objects.filter(**filter_on))
+                    TheCHWReport.objects.filter(is_active=True).filter(**filter_on))
             story.append(tb)
             story.append(PageBreak())
 

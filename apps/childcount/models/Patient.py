@@ -113,9 +113,9 @@ class Patient(models.Model):
                 'gender': self.gender,
                 'guardian': self.guardian}
 
-    def age_in_days_weeks_months(self):
+    def age_in_days_weeks_months(self, relative_to=date.today()):
         '''return the age of the patient in days and in months'''
-        days = (date.today() - self.dob).days
+        days = (relative_to - self.dob).days
         weeks = days / 7
         months = int(days / 30.4375)
         return days, weeks, months

@@ -239,6 +239,7 @@ class App (rapidsms.app.App):
                 # First process.  This is where PatientRegistration will
                 # create the patient records
                 try:
+                    form.date = encounter_date
                     form.pre_process()
                 except CCException, e:
                     pretty_form = '%s%s' % (self.FORM_PREFIX, \

@@ -41,7 +41,8 @@ class AppointmentForm(CCForm):
         if len(self.params) < 2:
             raise ParseError(_(u"Not enough info. Expected: date of "\
                             "appointment."))
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
         years = months / 12
         if (months > 18 and patient.gender == Patient.GENDER_MALE) or \
             (patient.gender == Patient.GENDER_FEMALE and years < 11 and \

@@ -49,7 +49,9 @@ class UpdateDOBForm(CCForm):
                 dob = EthiopianDateConverter.date_to_gregorian(dob)
 
             patient.dob = dob
-            days, weeks, months = patient.age_in_days_weeks_months()
+            days, weeks, months = patient.age_in_days_weeks_months(\
+                self.encounter.encounter_date.date())
+
             if days < 60 and variance > 1:
                 raise BadValue(_(u"You must provide an exact birth date " \
                                       "for children under 2 months"))

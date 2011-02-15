@@ -54,7 +54,8 @@ class UnderOneForm(CCForm):
         breast_field.set_language(self.chw.language)
         imm_field.set_language(self.chw.language)
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
 
         # Allow up to 5 years to CHWs can mark kids over 1 as
         # immunized
