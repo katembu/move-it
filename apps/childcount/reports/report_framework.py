@@ -127,7 +127,8 @@ class PrintedReport(Task):
                 '/static/childcount/reports/',\
                 self.filename,\
                 usuffix]),
-            'types': self.formats
+            'types': self.formats,
+            'filename': self.filename+usuffix,
         }
 
 

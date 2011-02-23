@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: mvpdev
 
+import datetime
+
 from childcount.models import Patient
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 
@@ -9,10 +11,8 @@ from childcount.models.ccreports import SummaryReport, WeekSummaryReport
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 
-
 from childcount.reports import report_framework
-
-
+from childcount.reports.utils import report_modified_on
 
 from django.utils import simplejson
 
@@ -105,13 +105,14 @@ def reports_list():
             temp_r = {
                 'title': rrr['title'],
                 'url': rrr['url'],
-                'html': False,
-                'xls': False,
-                'pdf': False,
-                'csv': False
+                'html': (False, None),
+                'xls': (False, None),
+                'pdf': (False, None),
+                'csv': (False, None),
             }
             for rtype in rrr['types']:
-                temp_r[rtype] = True
+                temp_r[rtype] = (True, \
+                        report_modified_on(rrr['filename'], rtype))
             
             rset_reports.append(temp_r)
         

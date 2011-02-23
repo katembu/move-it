@@ -1435,7 +1435,7 @@ class GraphicalClinicReport(Clinic):
                         self.percentage_known_immunized,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage of Pregnant Women Having '\
-                        'at Least 4 ANC Visits by 3rd Trimester'),\
+                        'at Least 4 ANC Visits by Birth'),\
                         self.percentage_with_four_anc,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage On-Time Follow-Up '\
@@ -1935,6 +1935,8 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('Households',\
             #    self.num_of_hhs, Indicator.AVG, \
             #    col_agg_func = Indicator.SUM),
+            Indicator('Total HH Visits',\
+                self.total_hh_visits, Indicator.SUM),
             Indicator('Unique HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
             INDICATOR_EMPTY,
@@ -1984,7 +1986,7 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('% Getting 3 ANC by 2nd Trim.',\
             #    self.perc_with_anc_second,
             #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('% Getting 4 ANC by 3rd Trim.',\
+            Indicator('% Getting 4 ANC by Birth',\
                 self.perc_with_anc_third,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('Num Birth *Reports*',\
@@ -2002,7 +2004,7 @@ class MonthlyCHWReport(TheCHWReport):
                 col_agg_func=Indicator.SUM),
             Indicator('Num MUACs Taken',\
                 self.num_muacs_taken, Indicator.SUM),
-            Indicator('Num active GAM Cases',\
+            Indicator('Num active SAM/MAM Cases',\
                 self.num_active_sam_cases, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
             Indicator('Num Tested RDTs',\
@@ -2039,6 +2041,13 @@ class MonthlyCHWReport(TheCHWReport):
             .for_chw(self)\
             .for_period(per_cls, per_num)\
             .filter(medicines__code='r')\
+            .count()
+
+    def total_hh_visits(self, per_cls, per_num):
+        return HouseholdVisitReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
             .count()
 
     # We're going for distinct households, not
@@ -2238,13 +2247,13 @@ class MonthlyCHWReport(TheCHWReport):
 
     # % of women getting at least 4 ANC visits by 3rd trimester
     def perc_with_anc_third(self, per_cls, per_num):
-        return self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
+        return self._women_getting_n_anc_by(per_cls, per_num, 4, 4)
 
     def _women_getting_n_anc_by_tot(self, per_cls, \
             n_anc, trimester):
 
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = []
         for period in xrange(0, per_cls.num_periods):
@@ -2256,8 +2265,8 @@ class MonthlyCHWReport(TheCHWReport):
         return (len(have_anc), len(women))
 
     def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = self._women_in_month_of_preg(per_cls, per_num, trimester)
         for w in women:
@@ -2268,8 +2277,8 @@ class MonthlyCHWReport(TheCHWReport):
 
 
     def _women_in_month_of_preg(self, per_cls, per_num, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         # e.g., 2nd trimester is range(4, 7)
         end_mo = (trimester*3)+1
@@ -2381,6 +2390,7 @@ class MonthlyCHWReport(TheCHWReport):
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
+            .filter(muac__isnull=False, status__isnull=False)\
             .count()
 
     def num_active_sam_cases(self, per_cls, per_num):
@@ -2547,7 +2557,9 @@ class MonthlyCHWReport(TheCHWReport):
             try:
                 nut = NutritionReport\
                     .objects\
-                    .filter(encounter__patient__pk=p.pk)\
+                    .filter(encounter__patient__pk=p.pk,
+                        muac__isnull=False,
+                        status__isnull=False)\
                     .latest('encounter__encounter_date')
             except NutritionReport.DoesNotExist:
                 no_muac.append((p, None))

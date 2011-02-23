@@ -157,6 +157,7 @@ div.dashboard-section {
 a.report-link:hover {
 	opacity: 1;
 }
+
 a.report-link {
 	opacity: 0.7;
 	margin: 0 auto;
@@ -169,10 +170,26 @@ a.report-link {
 	background-position: center;
 	text-align: center;
 	line-height: 18px;
+    position: relative;
 }
 a.report-link.html { background-image: url('/static/childcount/icons/html.png') }
 a.report-link.pdf { background-image: url('/static/childcount/icons/pdf.png') }
 a.report-link.xls { background-image: url('/static/childcount/icons/xls.png') }
 a.report-link.other {  }
+
+a.report-link span {
+    display: none;
+}
+
+a.report-link:hover span {
+    z-index: 24;
+    top: 10px; left: 20px;
+    padding: 10px;
+    width: 225px;
+    display: block;
+    position: absolute;
+    border: 1px solid #ccc;
+    background-color: white;
+}
 
 div#nav_links table { width: 100%; font-size: 1.5em; border: 2px solid #EEEEEE; }
