@@ -77,6 +77,7 @@
 <div id="form_wrapper">
 <form id="form" name="form">
 <div id="user_input">
+<p>{% trans "Date of Encounter:" %} <span id="date_value">(No date)</span>&nbsp;</p><br />
 {% if user.is_authenticated %}
 {% blocktrans %} Logged in as {{ user }} {% endblocktrans %} (<a href="/accounts/logout/">{% trans "Change" %}</a>).
 <input type="hidden" id="phone" name="phone" value="{{ user.username }}" />
@@ -86,7 +87,6 @@
 {% endif %}
 <input type="hidden" name="edate" id="edate" value="" />
 <p>{% trans "CHW:" %} <select name="chw" id="chw">{% for chw in chws %}<option value="{{ chw.id }}" label="{{ chw }} ({{ chw.location }})"{% ifequal chw.id user.id %} selected="true"{% endifequal %}>{{ chw }} ({{ chw.location }})</option>{% endfor %}</select></p>
-<p>{% trans "Date of Encounter:" %} <span id="date_value">(No date)</span>&nbsp;</p>
 </div>
 <label for="message">{% trans "Message:" %}</label>
 <input type="text" id="message" name="message" onkeydown="" onkeyup="parse_message();" autocomplete="off" />
