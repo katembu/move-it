@@ -121,6 +121,18 @@ table.response thead td {
     text-align: left;
 }
 
+span#date_value {
+    background-color: white;
+    font-weight: bold;
+}
+
+.date_okay {
+    color: green;
+}
+.date_bad {
+    color: red;
+}
+
 #feedback tbody {
     height: 12em;
 }
