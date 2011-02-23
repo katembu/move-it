@@ -11,8 +11,19 @@ function parse_date()
     var raw_date = text.split(/\s+/, 1)[0].trim();
 
     var d = Date.parse(raw_date);
+
     if (d == null) {
         $('#date_value').text('Cannot read date'); 
+        $('#date_value').addClass('date_bad'); 
+        $('#date_value').removeClass('date_okay'); 
+        $('#edate').val('');
+    } else if (Date.today().compareTo(d) < 0) {
+        $('#date_value').text('Encounter date (' + d.toString('dd-MMM-yyyy') + ') is in future'); 
+        $('#date_value').addClass('date_bad'); 
+        $('#date_value').removeClass('date_okay'); 
+        $('#edate').val('');
+    } else if (Date.today().add({'year': -1}).compareTo(d) > 1) {
+        $('#date_value').text('Encounter date (' + d.toString('dd-MMM-yyyy') + ') is too old'); 
         $('#date_value').addClass('date_bad'); 
         $('#date_value').removeClass('date_okay'); 
         $('#edate').val('');
@@ -26,6 +37,8 @@ function parse_date()
 
 function send_message()
 {
+    parse_date();
+
     var identity = $('#phone').val();
     var chw = $('#chw').val();
     var encounter_date = $('#edate').val();
