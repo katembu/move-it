@@ -21,7 +21,8 @@ from django.utils.translation import ugettext as _
 import reversion
 from reversion.models import Version
 
-from polymorphic import PolymorphicModel
+from polymorphic import PolymorphicModel, PolymorphicManager
+from polymorphic import PolymorphicQuerySet
 
 from mgvmrs.forms import OpenMRSHouseholdForm, OpenMRSConsultationForm
 
@@ -34,12 +35,64 @@ from childcount.models import Vaccine
 
 from childcount.utils import send_msg
 
+"""
+We use IndicatorQuerySet to hold some nifty
+filtering methods for use with Indicators
+and reports generation.
+"""
+class IndicatorQuerySet(PolymorphicQuerySet):
+    # Only consider active patients
+    def patient_encounters(self):
+        return self.filter(\
+            encounter__type=Encounter.TYPE_PATIENT,
+            encounter__patient__status=Patient.STATUS_ACTIVE)
+
+    def household_encounters(self):
+        return self.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
+
+    def between_dates(self, startDate, endDate):
+        return self.filter(encounter__encounter_date__gte=startDate,\
+            encounter__encounter_date__lt=endDate)
+
+    def for_period(self, per_cls, per_num):
+        return self.between_dates(\
+            per_cls.period_start_date(per_num), \
+            per_cls.period_start_date(per_num+1))
+
+    def before_period(self, per_cls, per_num):
+        return self.filter(\
+            encounter__encounter_date__lte=\
+                per_cls.period_end_date(per_num))
+
+    def for_period_total(self, per_cls):
+        first_date = per_cls.period_start_date(0)
+        last_date = per_cls.period_start_date(per_cls.num_periods)
+        return self.between_dates(first_date, last_date)
+
+    def for_clinic(self, clinic):
+        return self.filter(encounter__chw__clinic=clinic)
+
+    def for_chw(self, chw):
+        return self.filter(encounter__chw=chw)
+
+"""
+For indicators, only consider active patients.
+"""
+class IndicatorManager(PolymorphicManager):
+    def get_query_set(self):
+        return super(IndicatorManager,self)\
+            .get_query_set()\
+            .filter(encounter__patient__status=Patient.STATUS_ACTIVE)
 
 class CCReport(PolymorphicModel):
 
     '''
-    The highest level superclass to be inhereted by all other report classes
+    The highest level superclass to be 
+    inhereted by all other report classes
     '''
+
+    objects = PolymorphicManager()
+    indicators = IndicatorManager(IndicatorQuerySet)
 
     class Meta:
         app_label = 'childcount'
@@ -50,6 +103,21 @@ class CCReport(PolymorphicModel):
 
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
 
+    def substantively_equal(self, other):
+        if type(self) != type(other):
+            return False
+
+        for f in self._meta.fields:
+            fname = f.name
+            if fname in ['id', 'ccreport_ptr']:
+                continue
+
+            v1 = getattr(self, fname)
+            v2 = getattr(other, fname)
+            if v1 != v2: return False
+
+        return True
+
     def reset(self):
         self.__init__(pk=self.pk, encounter=self.encounter)
 
@@ -59,7 +127,7 @@ class CCReport(PolymorphicModel):
     def chw(self):
         return self.encounter.chw
 
-    def inital_version(self):
+    def initial_version(self):
         return Version.objects.get_for_object(self)[0]
 
     def current_version(self):
@@ -101,6 +169,9 @@ class CCReport(PolymorphicModel):
         '''
         return {}
 
+    def identity(self):
+        return self.chw().connection().identity
+
 reversion.register(CCReport)
 
 
@@ -138,9 +209,9 @@ class BirthReport(CCReport):
         return string
 
     def get_omrs_dict(self):
-        igive = {
-            'weight': self.weight,
-        }
+        igive = {}
+        if self.weight:
+            igive.update({'weight': self.weight})
         return igive
 
     @task()
@@ -464,8 +535,9 @@ class PregnancyReport(CCReport):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
             'antenatal_visit_number': self.anc_visits,
-            'weeks_since_last_anc': self.weeks_since_anc,
         }
+        if self.weeks_since_anc:
+            igive.update({'weeks_since_last_anc': self.weeks_since_anc})
         return igive
 reversion.register(PregnancyReport, follow=['ccreport_ptr'])
 
@@ -758,10 +830,9 @@ class NutritionReport(CCReport):
             self.OEDEMA_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
         }
 
-        igive =  {
+        igive = {
             'mid_upper_arm_circumference': self.muac,
-            'oedema': oedema_map[self.oedema]
-        }
+            'oedema': oedema_map[self.oedema]}
         if self.weight:
             igive.update({'weight': self.weight})
         if self.oedema == self.OEDEMA_YES:
@@ -1289,25 +1360,13 @@ class AppointmentReport(CCReport):
              self.appointment_date)
         return string
 
-    def save(self, *args, **kwargs):
-        delay = self.appointment_date + relativedelta(days=-3)
-        if delay.weekday() > calendar.FRIDAY:
-            delay = delay + relativedelta(weekday=calendar.FRIDAY, days=-3)
-        #7am
-        delay = datetime.combine(delay, time(7, 0))
-        #delay = datetime.now() + timedelta(seconds=20)
-        if self.sms_alert:
-            revoke(self.sms_alert.task_meta.task_id)
-        msg = _(u"Please send %(patient)s to the health center on for their" \
-                " appointment on %(apt_date)s") % {
-                'patient': self.encounter.patient, \
-                'apt_date': self.appointment_date.strftime('%d-%m-%Y')}
-        alert = SmsAlert(reporter=self.encounter.patient.chw, msg=msg)
-        sms_alert = alert.send(send_at=delay)
-        sms_alert.name = u'appointment_report_reminder'
-        sms_alert.save()
-        self.sms_alert = sms_alert
-        super(AppointmentReport, self).save(*args, **kwargs)
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'return_visit_date': self.appointment_date}
 reversion.register(AppointmentReport, follow=['ccreport_ptr'])
 
 
@@ -1351,6 +1410,14 @@ class PregnancyRegistrationReport(CCReport):
             (self._meta.get_field_by_name('number_of_children')[0]\
                 .verbose_name, self.number_of_children)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'total_offspring_living_in_home': self.number_of_children}
 reversion.register(PregnancyRegistrationReport, follow=['ccreport_ptr'])
 
 
@@ -1392,6 +1459,19 @@ class HIVTestReport(CCReport):
             (self._meta.get_field_by_name('blood_drawn')[0].verbose_name, \
             self.blood_drawn)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        info = {'blood_drawn_for_cd4_count': self.blood_drawn}
+        if self.hiv == HIV_YES:
+            info.update({'hiv_test': True})
+        if self.hiv == HIV_NO:
+            info.update({'hiv_test': False})
+        return info
 reversion.register(HIVTestReport, follow=['ccreport_ptr'])
 
 
@@ -1416,6 +1496,14 @@ class DBSResultReport(CCReport):
             (self._meta.get_field_by_name('test_result')[0].verbose_name, \
             self.test_result)
         return string
+
+    def get_omrs_dict(self):
+        '''OpenMRS Key/Value dict.
+
+        Return key/value dictionary of openmrs values that this report can
+        populate
+        '''
+        return {'hiv_infected': self.test_result}
 reversion.register(DBSResultReport, follow=['ccreport_ptr'])
 
 
@@ -1453,6 +1541,7 @@ class PatientStatusReport(CCReport):
         (STATUS_INACTIVE, _(u"Relocated")))
 
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES)
-    reason = models.CharField(_(u"Reason"), max_length=100, blank=True, null=True)
+    reason = models.CharField(_(u"Reason"), max_length=100, blank=True,
+                                null=True)
 
 reversion.register(PatientStatusReport, follow=['ccreport_ptr'])

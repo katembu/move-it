@@ -15,6 +15,14 @@ from childcount.forms.utils import MultipleChoiceField
 
 
 class BirthForm(CCForm):
+    """ Register children under 28 days
+
+    Params:
+        * Mom Health ID
+        * delivered in health facility
+        * weight(kg)(optional)
+    """
+
     KEYWORDS = {
         'en': ['bir', 'birth'],
         'fr': ['bir', 'birth'],
@@ -45,12 +53,14 @@ class BirthForm(CCForm):
             overwrite = True
         br.form_group = self.form_group
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
         humanised = patient.humanised_age()
-        if days > 28:
+
+        if days > 90:
             raise Inapplicable(_(u"Patient is %(age)s old. You can not " \
                                   "submit birth reports for patients over " \
-                                  "28 days old.") % {'age': humanised})
+                                  "90 days old.") % {'age': humanised})
 
         if BirthReport.objects.filter(encounter__patient=patient).count() > 0 \
                                                              and not overwrite:

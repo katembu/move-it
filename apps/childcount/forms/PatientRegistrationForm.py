@@ -7,9 +7,11 @@ from datetime import date, datetime
 
 from django.db import models
 from django.utils.translation import ugettext as _
+from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.utils import clean_names, DOBProcessor
+from childcount.models import Configuration
 from childcount.models import Patient, Encounter, HealthId, CHWHealthId
 from locations.models import Location
 from childcount.exceptions import BadValue, ParseError
@@ -18,6 +20,17 @@ from childcount.models.ccreports import ThePatient
 
 
 class PatientRegistrationForm(CCForm):
+    """ Register a new patient
+
+    Params:
+        * health ID
+        * location
+        * patient names
+        * gender
+        * age or DOB
+        * head_of_household
+    """
+
     KEYWORDS = {
         'en': ['new', 'new!'],
         'fr': ['new', 'new!'],
@@ -102,6 +115,14 @@ class PatientRegistrationForm(CCForm):
                                 "with a %(choices)s.") % \
                               {'choices': self.gender_field.choices_string()})
 
+        # import ethiopian date variable
+        try:
+            is_ethiopiandate = (Configuration.objects \
+                                .get(key='inputs_ethiopian_date')\
+                                .value.lower() == "true")
+        except (Configuration.DoesNotExist, TypeError):
+            is_ethiopiandate = False
+
         dob = None
         for i in gender_indexes:
             # the gender field is at the end of the tokens.  We don't know
@@ -115,8 +136,15 @@ class PatientRegistrationForm(CCForm):
                                                          self.date.date())
 
             if dob:
+
+                # convert dob to gregorian before saving to DB
+                if is_ethiopiandate and not variance:
+                    dob = EthiopianDateConverter.date_to_gregorian(dob)
+
                 patient.dob = dob
-                days, weeks, months = patient.age_in_days_weeks_months()
+
+                days, weeks, months = patient.age_in_days_weeks_months(\
+                    self.date.date())
                 if days < 60 and variance > 1:
                     raise BadValue(_(u"You must provide an exact birth date " \
                                       "for children under 2 months."))
@@ -124,6 +152,12 @@ class PatientRegistrationForm(CCForm):
                     raise BadValue(_(u"You must provide an exact birth date " \
                                       "or the age, in months, for children " \
                                       "under two years."))
+                elif patient.dob > date.today():
+                    raise BadValue(_("The birth date you gave %(bdate)s) " \
+                                     "is in the future!  Please try reentering " \
+                                     "the date with the full year " \
+                                     "(like 2009 instead of 09).") % \
+                                     {'bdate': patient.dob.strftime('%d-%b-%Y')})
 
         if not dob:
             raise ParseError(_(u"Could not understand age or " \

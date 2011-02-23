@@ -6,9 +6,8 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>{% block title %}{% endblock %}</title>
-	<link href="/static/childcount/stylesheets/basic.css" rel="stylesheet" />
-	<link href="/static/childcount/stylesheets/cc_ui.css" rel="stylesheet" />
-<script type="text/javascript" src="/static/webapp/javascripts/jquery-1.3.2.min.js"></script>
+	<link href="/static/childcount/stylesheets/cc_ui.css" rel="stylesheet" media="all" />
+    <script type="text/javascript" src="/static/childcount/scripts/jquery-1.4.2.min.js"></script>
 
 {% block javascripts %}{% endblock %}
 {% block page_stylesheets %}{% endblock %}
@@ -42,9 +41,16 @@
 		{% block content %}{% endblock %}
 		</div>
 	</div>
-	<div id="footer">
+	<div id="footer" style="clear:both;">
 		<div class='fwidth'>
-		{% block footer %}{% endblock %}
+
+			<div style="text-align: right;color:#953D27;font-size:14px">
+			{% block footer %}
+			<a href="http://www.childcount.org/" style="">&copy; 2009&ndash;2010 <span class="bigger">ChildCount.org</span></a> | Built with <a href="http://www.rapidsms.org/" class="bigger">RapidSMS</a> | Deployed in the <a href="http://www.millenniumvillages.org/" class="bigger">Millennium Villages</a>
+			
+			{% endblock %}
+			</div>
+
 		</div>
 	</div>
 </body>

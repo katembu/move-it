@@ -69,6 +69,8 @@ class App (rapidsms.app.App):
     def handle(self, message):
         handled = False
 
+        if message.text is None:
+            return False
 
         # If this is coming from debackend, it will have message.chw and
         # message.encounter_date.  Otherwise, the reporter is the chw,
@@ -105,8 +107,20 @@ class App (rapidsms.app.App):
         # for locations with DST.
         message.date = message.date - timedelta(seconds=time.timezone)
 
+        # Check if coming from debackend
+        is_debackend = ('chw' in message.__dict__)
+
+        # Check if we're allowing submissions for patients
+        # by CHWs other than their own
+        try:
+            allow = Cfg.objects.get(key='allow_third_party_submissions')
+        except Cfg.DoesNotExist:
+            allow_3rd_party = True
+        else:
+            allow_3rd_party = (allow.value.lower() == 'true')
+
         # If coming from debackend...
-        if 'chw' in message.__dict__:
+        if is_debackend:
             try: 
                 rep = Reporter.objects.get(username=message.identity)
             except Reporter.DoesNotExist:
@@ -197,7 +211,7 @@ class App (rapidsms.app.App):
             # thier params:
             # i.e: [['birth', 'p', 'm'], ['h', 'y'], ['mob', '12345678']]
 
-            # Write now, we are only going to accept a single health ID.
+            # Right now, we are only going to accept a single health ID.
             if len(health_ids) != 1:
                 message.respond(_(u"Error: Message not understood. " \
                                    "Your message must start with " \
@@ -225,6 +239,7 @@ class App (rapidsms.app.App):
                 # First process.  This is where PatientRegistration will
                 # create the patient records
                 try:
+                    form.date = encounter_date
                     form.pre_process()
                 except CCException, e:
                     pretty_form = '%s%s' % (self.FORM_PREFIX, \
@@ -246,14 +261,19 @@ class App (rapidsms.app.App):
             except Patient.DoesNotExist:
                 message.respond(_(u"%(id)s is not a valid health ID. " \
                                    "Please correct and try again.") % \
-                                   {'id': health_id}, 'error')
+                                   {'id': health_id.upper()}, 'error')
                 return handled
 
-            # Set the CHW for this household to the person sending the text message.
-            # (Commented out 29/10/2010 by Henry since this might cause more
-            # problems than it's worth right now...)
-            #Patient.objects.filter(household=patient.household).update(chw=chw)
-
+            if (not allow_3rd_party) and patient.chw != chw:
+                message.respond(_(u"Patient %(health_id)s is assigned to " \
+                                    "CHW %(real_chw)s.  You [%(fake_chw)s] " \
+                                    "can only submit forms for your own " \
+                                    "patients.") %\
+                                    {'health_id': health_id.upper(),\
+                                     'real_chw': patient.chw, \
+                                     'fake_chw': chw}, 'error')
+                return handled
+        
             # If all of the forms are household forms and the patient is not
             # head of household, don't proceed to process.  If there is one
             # or more household forms mixed with one or more individual forms
@@ -296,10 +316,17 @@ class App (rapidsms.app.App):
                 # them now.
                 if encounters[form.ENCOUNTER_TYPE] is None:
                     try:
+                        # Look for an encounter of the same type
+                        # for the same person within TIMEOUT
+                        # minutes.
                         encounters[form.ENCOUNTER_TYPE] = \
                             Encounter.objects.filter(chw=chw, \
                                  patient=patient, \
-                                 type=form.ENCOUNTER_TYPE)\
+                                 type=form.ENCOUNTER_TYPE, \
+                                 encounter_date__gte=encounter_date-\
+                                    timedelta(minutes=Encounter.TIMEOUT),
+                                 encounter_date__lte=encounter_date+\
+                                    timedelta(minutes=Encounter.TIMEOUT))\
                                  .latest('encounter_date')
                         if not encounters[form.ENCOUNTER_TYPE].is_open == True:
                             raise Encounter.DoesNotExist
@@ -379,6 +406,15 @@ class App (rapidsms.app.App):
                 failed_string += _(" You must resend the form.")
             elif send_again and len(failed_forms) > 1:
                 failed_string += _(" You must resend the forms.")
+
+            for form in successful_forms:
+                try:
+                    form['obj'].post_process(successful_forms)
+                except:
+                    # any exceptions here should not prevent feedback
+                    # fail silently
+                    # TODO: Log the exception, notify
+                    pass
 
             if successful_forms and not failed_forms:
                 message.respond(successful_string, 'success')

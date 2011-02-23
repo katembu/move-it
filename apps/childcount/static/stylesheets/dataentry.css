@@ -3,7 +3,7 @@
 @font-face { font-family: Lekton; src: url("/static/childcount/lekton005_l.otf"); }
 
 body {
-    font-family: Lekton;
+    font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
     background-color: #414141;
     margin: 0;
     width: 100%;
@@ -37,7 +37,7 @@ table.rsmsList tr td {
     min-width: 1em;
     height: 1.5em;
     text-align: center;
-    font-family: Lekton;
+    font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
 }
 
 table.rsmsList tbody tr:last-child td {
@@ -70,8 +70,7 @@ table.rsmsList tbody tr {
 }
 
 #message {
-    font-family: Lekton;
-
+    font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
     margin: auto auto;
     padding: 0.2em;
 
@@ -84,7 +83,7 @@ table.rsmsList tbody tr {
     width: 90%;
     font-size: 1.5em;
     height: 2.0em;
-    font-family: Lekton;
+    font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
 }
 
 #ccform_body tr:last-child {
@@ -164,7 +163,7 @@ table.response thead td {
     margin-bottom: 1em;
     background-color: #666;
 
-    font-family: WhiteRabbit;
+    font-family: WhiteRabbit,"Courier New",Courier,monospace,sans-serif;
 }
 
 #form_buttons li.hover {
@@ -190,7 +189,7 @@ table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td, table.rsmsList
     background-color: yellow;
     color: black;
     border-color: black;
-    font-family: Lekton;
+    font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
     width: auto;
 }
 

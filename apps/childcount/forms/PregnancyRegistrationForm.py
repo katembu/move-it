@@ -9,12 +9,20 @@ from django.utils.translation import ugettext as _
 from childcount.forms import CCForm
 from childcount.models.reports import PregnancyRegistrationReport
 from childcount.models import Encounter, Patient
-from childcount.exceptions import ParseError, BadValue, InvalidDOB
-from childcount.utils import DOBProcessor
+from childcount.exceptions import ParseError, BadValue
 from childcount.forms.utils import MultipleChoiceField
 
 
 class PregnancyRegistrationForm(CCForm):
+    """ To add Pregnancy Registration.
+
+    params:
+        * Married ? (boolean)
+        * Number of pregnancy(int)
+        * Number of children living with her(int)
+        * husband's health Id
+    """
+
     KEYWORDS = {
         'en': ['pd'],
         'fr': ['pd'],
@@ -24,17 +32,17 @@ class PregnancyRegistrationForm(CCForm):
     def process(self, patient):
         married_field = MultipleChoiceField()
         married_field.add_choice('en', \
-							PregnancyRegistrationReport.MARRIED_YES, 'Y')
+                            PregnancyRegistrationReport.MARRIED_YES, 'Y')
         married_field.add_choice('en', \
-							PregnancyRegistrationReport.MARRIED_NO, 'N')
+                            PregnancyRegistrationReport.MARRIED_NO, 'N')
         married_field.add_choice('en', \
-							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
+                            PregnancyRegistrationReport.MARRIED_UNKNOWN, 'U')
         married_field.add_choice('fr', \
-							PregnancyRegistrationReport.MARRIED_YES, 'O')
+                            PregnancyRegistrationReport.MARRIED_YES, 'O')
         married_field.add_choice('fr', \
-							PregnancyRegistrationReport.MARRIED_NO, 'N')
+                            PregnancyRegistrationReport.MARRIED_NO, 'N')
         married_field.add_choice('fr', \
-							PregnancyRegistrationReport.MARRIED_UNKNOWN, 'I')
+                            PregnancyRegistrationReport.MARRIED_UNKNOWN, 'I')
 
         if len(self.params) < 4:
             raise ParseError(_(u"Not enough info."))

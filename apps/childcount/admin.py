@@ -15,8 +15,9 @@ admin.site.register(Clinic)
 
 
 class PatientAdmin(VersionAdmin):
-    list_display = ('__unicode__', 'location', 'chw')
+    list_display = ('__unicode__', 'location', 'chw', 'status')
     search_fields = ['health_id', 'first_name', 'last_name']
+    list_filter = ['status', 'dob', 'chw']
 admin.site.register(Patient, PatientAdmin)
 
 
@@ -30,7 +31,11 @@ class EncounterAdmin(VersionAdmin):
 admin.site.register(Encounter, EncounterAdmin)
 
 #Reports
-admin.site.register(CCReport, VersionAdmin)
+
+
+class CCReportAdmin(VersionAdmin):
+    search_fields = ['encounter__patient__health_id']
+admin.site.register(CCReport, CCReportAdmin)
 admin.site.register(BirthReport, VersionAdmin)
 admin.site.register(DeathReport, VersionAdmin)
 admin.site.register(StillbirthMiscarriageReport, VersionAdmin)
@@ -38,7 +43,10 @@ admin.site.register(FollowUpReport, VersionAdmin)
 admin.site.register(PregnancyReport, VersionAdmin)
 admin.site.register(NeonatalReport, VersionAdmin)
 admin.site.register(UnderOneReport, VersionAdmin)
-admin.site.register(NutritionReport, VersionAdmin)
+class NutritionReportAdmin(VersionAdmin):
+    list_filter = ['status', ]
+    search_fields = ['encounter__patient__chw__username',]
+admin.site.register(NutritionReport, NutritionReportAdmin)
 admin.site.register(FeverReport, VersionAdmin)
 admin.site.register(ReferralReport, VersionAdmin)
 admin.site.register(HouseholdVisitReport, VersionAdmin)
@@ -52,7 +60,17 @@ admin.site.register(MedicineGivenReport, VersionAdmin)
 #Bednet Sanitation
 admin.site.register(BednetUtilization, VersionAdmin)
 admin.site.register(SanitationReport, VersionAdmin)
-admin.site.register(BednetIssuedReport, VersionAdmin)
+
+
+class BednetIssuedReportAdmin(VersionAdmin):
+    list_display = ('patient', 'bednet_received', 'chw', 'identity',
+                    'encounter')
+    list_filter = ('bednet_received', )
+    search_fields = ['encounter__patient__health_id',
+                    'encounter__chw__location__name',
+                    'encounter__chw__first__name',
+                    'encounter__chw__last__name']
+admin.site.register(BednetIssuedReport, BednetIssuedReportAdmin)
 admin.site.register(DrinkingWaterReport, VersionAdmin)
 #PMTCT
 admin.site.register(AntenatalVisitReport, VersionAdmin)

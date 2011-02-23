@@ -2,16 +2,27 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+from datetime import datetime
+
 from rapidsms.webui import settings
 from django.db.models import Q
 
-from childcount.models import Encounter
-from childcount.models.reports import CCReport
+from childcount.models import Encounter, Patient
+from childcount.models.reports import CCReport, PregnancyReport, PregnancyRegistrationReport, AppointmentReport
 
 from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
-                         OpenMRSHouseholdForm
+                         OpenMRSHouseholdForm, OpenMRSANCForm
 from mgvmrs.utils import transmit_form
 from mgvmrs.models import User
+
+
+def has_ancreport(reports):
+    for report in reports:
+        if isinstance(report, PregnancyRegistrationReport):
+            return True
+        elif isinstance(report, AppointmentReport):
+            return True
+    return False
 
 
 def send_to_omrs(router, *args, **kwargs):
@@ -35,6 +46,18 @@ def send_to_omrs(router, *args, **kwargs):
         provider_id = int(conf['provider_id'])
     except KeyError:
         raise Exception("Invalid [mgvmrs] configuration")
+
+    # this one is not fatal
+    try:
+        in_cluster_attribute_id = int(conf['in_cluster_attribute_id'])
+    except:
+        in_cluster_attribute_id = 10
+
+    try:
+        ancform_id = int(conf['ancform_id'])
+    except KeyError:
+        # for the time being, not in use
+        pass 
 
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
@@ -65,8 +88,15 @@ def send_to_omrs(router, *args, **kwargs):
             omrsformclass = OpenMRSHouseholdForm
             form_id = household_id
         else:
-            omrsformclass = OpenMRSConsultationForm
-            form_id = individual_id
+            if has_ancreport(reports):
+                # skip for the time being no clear way to deal with PMTCT
+                #  reports
+                continue
+                # omrsformclass = OpenMRSANCForm
+                # form_id = ancform_id
+            else:
+                omrsformclass = OpenMRSConsultationForm
+                form_id = individual_id
 
         try:
             # retrieve CHW from local mapping.
@@ -84,10 +114,13 @@ def send_to_omrs(router, *args, **kwargs):
                                     bool(encounter.patient.estimated_dob), \
                                     encounter.patient.last_name, \
                                     encounter.patient.first_name, '', \
-                                    encounter.patient.gender)
+                                    encounter.patient.gender, \
+                                    encounter.patient.location.name.title(), \
+                                    '1065')
         # assign site-specific ID
         omrsform.openmrs__form_id = form_id
         omrsform.patient___identifier_type = identifier_type
+        omrsform.patient__in_cluster_id = in_cluster_attribute_id
 
         # each report contains reference to OMRS fields
         for report in reports:

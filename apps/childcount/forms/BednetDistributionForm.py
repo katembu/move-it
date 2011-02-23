@@ -1,17 +1,25 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: katembu
+# maintainer: katembu, ukanga
+
+from datetime import date
 
 from django.utils.translation import ugettext as _
 from django.db.models import Sum
 
 from childcount.forms import CCForm
 from childcount.models.reports import BedNetReport, BednetIssuedReport
-from childcount.models import Patient, Encounter
+from childcount.models import Patient, Encounter, BednetStock
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
 class BednetDistributionForm(CCForm):
+    """ For adding a Bednet distribution Report.
+
+    Params:
+        * number of bednet received
+    """
+
     KEYWORDS = {
         'en': ['bnd'],
         'fr': ['bnd'],
@@ -53,18 +61,20 @@ class BednetDistributionForm(CCForm):
         bdnt_required = bdnt_needed - bdnt_issued
         #if less then zero nno bed ned required
         if bdnt_required <= 0:
-            self.response = _(u"%(patient)s has already received %(nets)d " \
-                               "nets for %(site)d sleeping sites.") % \
-                               {'patient': patient, 'nets': bdnt_needed, \
-                                'site': bdnt_needed}
+            self.response = _(u"DO NOT ISSUE nets to %(patient)s, already "
+                               "received %(nets)d nets for %(site)d sleeping "
+                               "sites.") % {'patient': patient,
+                               'nets': bdnt_needed,
+                               'site': bdnt_needed}
             try:
                 last_issued = BednetIssuedReport.objects.filter(\
                                     encounter__patient=self.encounter.patient)\
                                     .latest()
             except BednetIssuedReport.DoesNotExist:
-                self.response += _(u": None")
-
-            self.response += _(u"Last received: %(last_issued)d bednets.") % \
+                self.response += _(u"Last received: None")
+            else:
+                self.response += _(u"Last received: %(last_issued)d "
+                                    "bednets.") % \
                                {'last_issued': last_issued.bednet_received}
         else:
             self.response = _(u"%(patient)s: %(ssite)d sleeping sites. Need " \
@@ -76,10 +86,29 @@ class BednetDistributionForm(CCForm):
                                     encounter__patient=self.encounter.patient)\
                                     .latest()
             except BednetIssuedReport.DoesNotExist:
-                self.response += _(u": None")
-
-            self.response += _(u"Last received: %(last_issued)d bednets.") % \
+                self.response += _(u"Last received: None")
+            else:
+                self.response += _(u"Last received: %(last_issued)d "
+                                    "bednets.") % \
                                {'last_issued': last_issued.bednet_received}
 
-        pr.bednet_received = bdnt_required
-        pr.save()
+            if self.params.__len__() > 1 and self.params[1].isdigit():
+                bdnt_required = int(self.params[1])
+            self.response += _(u"Issued %(issued)s nets." % \
+                                    {'issued': bdnt_required})
+            issued = bdnt_required
+            if bdnt_issued:
+                 issued = bdnt_required + bdnt_issued
+            pr.bednet_received = issued
+            pr.save()
+            today = date.today()
+            try:
+                bns = BednetStock.objects.get(created_on__day=today.day,
+                                            created_on__month=today.month,
+                                            created_on__year=today.year,
+                                            location=self.chw.location)
+            except BednetStock.DoesNotExist:
+                pass
+            else:
+                bns.quantity -= bdnt_required
+                bns.save()

@@ -15,6 +15,14 @@ from childcount.utils import send_msg
 
 
 class NutritionForm(CCForm):
+    """ Nutrition Form
+
+    Params:
+        * MPB (int)
+        * Oed (Y/N/U)
+        * Kg (optional)
+    """
+
     KEYWORDS = {
         'en': ['m', 'muac'],
         'fr': ['m', 'muac'],
@@ -43,9 +51,10 @@ class NutritionForm(CCForm):
             nr = NutritionReport(encounter=self.encounter)
         nr.form_group = self.form_group
 
-        days, weeks, months = patient.age_in_days_weeks_months()
+        days, weeks, months = patient.age_in_days_weeks_months(\
+            self.encounter.encounter_date.date())
 
-        if days <= 30:
+        if months < 6:
             raise Inapplicable(_(u"Child is too young for MUAC."))
         elif months > 59:
             raise Inapplicable(_(u"Child is older than 59 months. If there " \

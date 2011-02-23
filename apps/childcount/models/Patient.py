@@ -22,6 +22,7 @@ from locations.models import Location
 import childcount.models.Clinic
 import childcount.models.CHW
 
+
 class Patient(models.Model):
 
     '''Holds the patient details, properties and methods related to it'''
@@ -92,9 +93,9 @@ class Patient(models.Model):
                               blank=True, null=True)
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
                                       default=STATUS_ACTIVE)
-    hiv_status = models.NullBooleanField(_(u"HIV Status"), 
+    hiv_status = models.NullBooleanField(_(u"HIV Status"),
                                             blank=True, null=True)
-    hiv_exposed = models.NullBooleanField(_(u"HIV Exposed?"), 
+    hiv_exposed = models.NullBooleanField(_(u"HIV Exposed?"),
                                             blank=True, null=True)
 
     def is_head_of_household(self):
@@ -112,9 +113,9 @@ class Patient(models.Model):
                 'gender': self.gender,
                 'guardian': self.guardian}
 
-    def age_in_days_weeks_months(self):
+    def age_in_days_weeks_months(self, relative_to=date.today()):
         '''return the age of the patient in days and in months'''
-        days = (date.today() - self.dob).days
+        days = (relative_to - self.dob).days
         weeks = days / 7
         months = int(days / 30.4375)
         return days, weeks, months
@@ -190,7 +191,7 @@ class Patient(models.Model):
             agg += pair[1]
             counts.append(agg)
         return (dates, counts)
-    
+
     @classmethod
     def table_columns(cls):
         columns = []
@@ -216,5 +217,3 @@ class Patient(models.Model):
         sub_columns = None
         return columns, sub_columns
 reversion.register(Patient)
-
-

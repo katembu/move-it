@@ -12,6 +12,12 @@ from childcount.models.reports import VerbalAutopsyReport
 
 
 class VerbalAutopsyForm(CCForm):
+    """Verbal Autopsy
+
+    Params: 
+        * None
+    """
+
     KEYWORDS = {
         'en': ['va'],
         'fr': ['va'],

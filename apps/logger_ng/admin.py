@@ -16,7 +16,8 @@ class LoggedMessageAdmin(admin.ModelAdmin):
     filtering, searching (name and text fields), and the slick built-in
     django date-higherarchy widget.
     '''
-    list_filter = ['direction']
+    list_display = ('date', '__unicode__')
+    list_filter = ['direction', 'reporter']
     search_fields = ['reporter__first_name', 'reporter__last_name', 'text']
     date_hierarchy = 'date'
 admin.site.register(LoggedMessage, LoggedMessageAdmin)

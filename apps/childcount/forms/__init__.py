@@ -5,6 +5,7 @@
 from childcount.forms.CCForm import CCForm
 from childcount.forms.PatientRegistrationForm import PatientRegistrationForm
 from childcount.forms.BirthForm import BirthForm
+from childcount.forms.EditPatientForm import EditPatientForm
 from childcount.forms.MobileForm import MobileForm
 from childcount.forms.DeathForm import DeathForm
 from childcount.forms.StillbirthMiscarriageForm import \

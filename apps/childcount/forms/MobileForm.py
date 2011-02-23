@@ -12,6 +12,12 @@ from childcount.models import Encounter
 
 
 class MobileForm(CCForm):
+    """ Patient's phone number registration
+
+    Params:
+        * phone number
+    """
+
     KEYWORDS = {
         'en': ['mob', 'mobile'],
         'fr': ['mob', 'mobile'],

@@ -1,4 +1,6 @@
 {% extends base_template %}
+{% load i18n %}
+
 {% block page_stylesheets %}
 {{ block.super }}
 <link type="text/css" rel="stylesheet" href="/static/childcount/stylesheets/basic.css"/>
@@ -14,9 +16,9 @@
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.pie.js"></script>
 <script type="text/javascript" language="javascript" src="/static/childcount/scripts/g.line.js"></script>
 <script type="text/javascript" charset="utf-8">
-	$(function() {
-		$("#accordion").accordion();
-	});
+    $(function() {
+        $("#accordion").accordion();
+    });
 
     RegistrationsLineChart = function() {
         var x = [
@@ -44,21 +46,21 @@
 
     };
     var k;
-	$(document).ready(function(){
-	    //Get Site summary
-	    $('#tblsite_summary td').addClass('loading')
-	    $.getJSON('/childcount/site_summary/site/json', function(data){
-	        $('#tblsite_summary td.num_patients').html(data.summary.num_patients);
-	        $('#tblsite_summary td.num_households').html(data.summary.num_households);
-	        $('#tblsite_summary td.num_underfive').html(data.summary.num_underfive);
-	        $('#tblsite_summary td.num_pregnant').html(data.summary.num_pregnant);
-	        $('#tblsite_summary td').removeClass('loading')
-	    });
+    $(document).ready(function(){
+        //Get Site summary
+        $('#tblsite_summary td').addClass('loading')
+        $.getJSON('/childcount/site_summary/site/json', function(data){
+            $('#tblsite_summary td.num_patients').html(data.summary.num_patients);
+            $('#tblsite_summary td.num_households').html(data.summary.num_households);
+            $('#tblsite_summary td.num_underfive').html(data.summary.num_underfive);
+            $('#tblsite_summary td.num_pregnant').html(data.summary.num_pregnant);
+            $('#tblsite_summary td').removeClass('loading')
+        });
 
-	    //Load summary data for ['week', 'month', 'general']
-	    reports = ['week', 'month', 'general_summary']
-	    for (i in reports){
-	        (function(){
+        //Load summary data for ['week', 'month', 'general']
+        reports = ['week', 'month', 'general_summary']
+        for (i in reports){
+            (function(){
                 var report = reports[i]
                 $('ul.' + report + '_report li span').addClass('loading')
                 url = '/childcount/site_summary/' + report + '/json'
@@ -73,14 +75,14 @@
                     $('ul.' + report + '_report li span').removeClass('loading');
                 });
             })();
-	    }
+        }
 
-	    //RegistrationsLineChart
-	    RegistrationsLineChart();
-	    //Nutrition Pie Chart
-	    NutritionPieChart();
-	});
-	
+        //RegistrationsLineChart
+        RegistrationsLineChart();
+        //Nutrition Pie Chart
+        NutritionPieChart();
+    });
+    
      // Run the script on DOM ready:
      NutritionPieChart = function (){
                 var mr = Raphael("muacpie", width=400, height=250);
@@ -117,10 +119,10 @@
 
 <table width="100%" class='summary' id="tblsite_summary">
     <tr>
-        <th>No. Of Households</th>
-        <th>No. Of Patients</th>
-        <th>No. Of Underfives</th>
-        <th>No. Of Pregnant Women</th>
+        <th>{% trans "No. Of Households" %}</th>
+        <th>{% trans "No. Of Patients" %}</th>
+        <th>{% trans "No. Of Underfives" %}</th>
+        <th>{% trans "No. Of Pregnant Women" %}</th>
     </tr>
     <tr>
         <td class="num_households">&nbsp;</td>
@@ -130,24 +132,23 @@
     </tr>
 </table>
 <div id='ch-bd'><div id='ch-l'>
+{% for reports in report_sets %}
 <div class='block'>
     <div class="block_child">
         <div class="hd">
-            <h2>ChildCount Reports</h2>
+            <h2>{{ reports.0 }}</h2>
         </div>
 
         <div class="bd">
-        <em>Note: Reports are generated every evening
-        so new registrations and form data will not
-        appear in reports until the following day.</em>
-        <table>
-            <tr>
-                <th>Report Name</th>
+        <table width=100%>
+           <tr>
+                <th>{% trans "Report Name" %}</th>
                 <th>HTML</th>
                 <th>PDF</th>
                 <th>Excel</th>
+                <th>Other</th>
             </tr>
-            {% for r in reports %}
+            {% for r in reports.1 %}
             <tr>
                 <td>{{ r.title }}</td>
                 <td class="icon">
@@ -177,36 +178,21 @@
                         {% endifequal %}
                     {% endfor %}
                 </td>
+                <td class="icon">
+                    {% for t in r.types %}
+                        {% ifnotequal t 'pdf' %}
+                        {% ifnotequal t 'xls' %}
+                        {% ifnotequal t 'html' %}
+                        <a href="{{ r.url }}.{{ t }}">{{ t.upper }}</a>
+                        {% endifnotequal %}
+                        {% endifnotequal %}
+                        {% endifnotequal %}
+                    {% endfor %}
+                </td>
             </tr>
             {% endfor %}
         </table>
 
-            <!--
-            <ul>
-
-                <li>Operational Report <a href='/childcount/operationalreport/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Patient Register
-                    <ul>
-                    {% for clinic in clinics %}
-                        <li><a href='/childcount/registerlist/{{ clinic.id }}' title='All Patients'>All</a> |  
-                            <a href='/childcount/registerlist/{{ clinic.id }}/active' title='Patients with status active only'>Active</a> : 
-                            {{ clinic }}
-                        </li>
-                    {% endfor %}
-                    </ul>
-                </li>
-                <li>Patient List <a href='/childcount/patients' class='html'>html</a>
-                </li>
-                <li>Under five Patient List <a href='/childcount/patients/underfive/html' class='html'>html</a>
-                    | <a href='/childcount/patients/underfive/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Patient list per community health worker <a href='/childcount/patients_per_chw/pdf' class='pdf'>pdf</a>
-                </li>
-                <li>Under five list per community health worker <a href='/childcount/under_five' class='pdf'>pdf</a>
-                </li>
-            </ul>
-            -->
         </div>
 
     </div>
@@ -216,12 +202,30 @@
         <div class="last"></div>
     </div>
 </div>
+{% endfor %}
 </div>
 <div id='ch-r'>
+    <div class='block'>
+        <div class="block_child">
+            <div class="hd">
+                <h2>{% trans "Useful Links" %}</h2>
+            </div>
+            <div class="bd" >
+                <ul>
+                    <li><a href="/childcount/dataentry">CC+ Data Entry</a></li>
+                    <li><a href="/childcount/list_chw">CHW List</a></li>
+                    <li><a href="/childcount/patients/edit">Edit Patient</a></li>
+                </ul>
+            </div>
+        <div id='visualizeline'>
+        </div>
+    </div>
+</div>
+
 <div class='block'>
     <div class="block_child">
         <div class="hd">
-            <h2>Form A Registrations</h2>
+            <h2>{% trans "Form A Registrations" %}</h2>
         </div>
         <div class="bd" >
             <div id='deline'>
@@ -244,7 +248,7 @@
     
     <div id="accordion">
     
-    <h2>This Week </h2>
+    <h2>{% trans "This Week" %} </h2>
     <ul class="system_messages week_report">
     <li><span class="num_mam_sam">{{week_report.num_mam_sam}}</span> +SAM / MAM</li>
     <li><span class="num_rdt">{{week_report.num_rdt}}</span> MALARIA</li>
@@ -253,14 +257,14 @@
     
     </ul>
     
-     <h2>This Month </h2>      
+     <h2>{% trans "This Month" %} </h2>      
      <ul class="system_messages month_report">
      <li ><span class="num_mam_sam">{{month_report.num_mam_sam}}</span> +SAM / MAM</li>
      <li ><span class="num_rdt">{{month_report.num_rdt}}</span> MALARIA</li>
      <li ><span class="num_pregnant">{{month_report.num_pregnant}}</span> PREGNANCY</li>
      </ul>
      
-     <h2>General </h2>
+     <h2>{% trans "Genera" %}l </h2>
      <ul class="system_messages general_summary_report">
      <li ><span class="num_mam_sam">{{general_summary_report.num_mam_sam}}</span> +SAM / MAM</li>
      <li ><span class="num_rdt">{{general_summary_report.num_rdt}}</span> MALARIA</li>
@@ -277,7 +281,7 @@
 <div class='block'>
     <div class="block_child">
         <div class="hd">
-            <h2>Nutrition Graph</h2>
+            <h2>{% trans "Nutrition Graph" %}</h2>
         </div>
         <div class="bd" >
             <div id='muacpie'>

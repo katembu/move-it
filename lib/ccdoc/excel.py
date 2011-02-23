@@ -72,6 +72,8 @@ class ExcelGenerator(Generator):
         section.text, style)
         self.row += 2
 
+    def _render_pagebreak(self, pagebreak):
+        pass
 
     def _render_paragraph(self, paragraph):
         s = u''

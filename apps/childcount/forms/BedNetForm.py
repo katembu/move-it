@@ -12,6 +12,13 @@ from childcount.exceptions import ParseError
 
 
 class BedNetForm(CCForm):
+    """ To save the bednets of a household.
+
+    Params:
+        * number ofsleeping sites 
+        * number of bednets
+    """
+
     KEYWORDS = {
         'en': ['bn'],
         'fr': ['bn'],

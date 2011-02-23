@@ -50,8 +50,11 @@ class Encounter(models.Model):
 
     sync_omrs = models.NullBooleanField(_('OMRS'), null=True, blank=True)
 
-    def inital_version(self):
-        return Version.objects.get_for_object(self)[0]
+    def initial_version(self):
+        v = Version.objects.get_for_object(self)
+        if v.count() == 0:
+            raise Version.DoesNotExist
+        return v[0]
 
     def current_version(self):
         return Version.objects.get_for_object(self).\
@@ -75,11 +78,24 @@ class Encounter(models.Model):
         ''' return true if TIMEOUT minutes has not passed since creation '''
         if self.sync_omrs == True:
             return False
-        now = datetime.now()
         td = timedelta(minutes=self.TIMEOUT)
-        # Return False (the encounter is closed) if the encounter date
-        # is older than (TD[six hours] ago)
-        return False if self.encounter_date < (now - td) else True
+        now = datetime.now()
+        # Return True (the encounter is open) if the encounter date
+        # is newer than TD[six hours] ago
+        #   OR
+        # For debackend: Return True if the encounter was 
+        # created more recently than TD[six hours] ago
+        if self.encounter_date >= (now - td):
+            return True
+            
+        try:
+            v = self.initial_version()
+        except Version.DoesNotExist:
+            # If versioning information is lost,
+            # just create a new encounter
+            return False
+        else:
+            return v.revision.date_created >= (now - td)
 
     def __unicode__(self):
         return u"%s %s: %s" % (self.get_type_display(), \

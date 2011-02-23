@@ -5,7 +5,7 @@ class Text(object):
         Later can contain font info, etc
     """
 
-    DEFAULT_SIZE = 12
+    DEFAULT_SIZE = 10
 
     def __init__(self, text, italic=False, bold=False,
             size=DEFAULT_SIZE):

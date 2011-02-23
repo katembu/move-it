@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+# maintainer: ukanga, rgaudin
 
 from django.utils.translation import gettext as _
 
@@ -18,10 +18,15 @@ from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport
+from childcount.models import MedicineGivenReport
+from childcount.models import DangerSignsReport
+from childcount.models import NeonatalReport
+from childcount.models import FamilyPlanningReport
 from childcount.models import FeverReport
+from childcount.models import CodedItem
 from childcount.models import ReferralReport
 from childcount.models import BirthReport
-from childcount.models import PregnancyReport
+from childcount.models import PregnancyReport, SPregnancy
 from childcount.models import HouseholdVisitReport
 from childcount.models import FollowUpReport
 from childcount.models import ImmunizationSchedule
@@ -31,6 +36,9 @@ from childcount.models import BednetIssuedReport
 from childcount.models import BednetUtilization
 from childcount.models import DrinkingWaterReport
 from childcount.models import SanitationReport
+from childcount.models import AppointmentReport
+from childcount.models import UnderOneReport
+from childcount.models import DeathReport
 
 from childcount.utils import day_end, \
                                 day_start, \
@@ -38,7 +46,10 @@ from childcount.utils import day_end, \
                                 get_median, \
                                 seven_days_to_date, \
                                 first_day_of_month, \
-                                last_day_of_month
+                                last_day_of_month, \
+                                first_date_of_week
+from childcount.reports.indicator import Indicator, INDICATOR_EMPTY
+from childcount.reports.utils import MonthlyPeriodSet
 
 from logger_ng.models import LoggedMessage
 
@@ -56,15 +67,13 @@ class ThePatient(Patient):
         return u""
 
     def check_visit_within_seven_days_of_birth(self):
-        seven_days_after_birth = self.dob + timedelta(7)
+        seven_days_after_birth = self.dob + timedelta(8)
         hvr = HouseholdVisitReport.objects\
                 .filter(encounter__encounter_date__gt=self.dob, \
-                    encounter__encounter_date__lte=seven_days_after_birth)\
+                    encounter__encounter_date__lte=seven_days_after_birth, \
+                    encounter__patient=self)\
                 .count()
-        if hvr:
-            return True
-        else:
-            return False
+        return hvr
 
     def visit_within_90_days_of_last_visit(self):
         try:
@@ -82,20 +91,74 @@ class ThePatient(Patient):
         except HouseholdVisitReport.DoesNotExist:
             return False
 
-    def ontime_muac(self):
+    def is_immunized(self, relative_to=date.today()):
         try:
-            nr = NutritionReport.objects\
-                    .filter(encounter__patient=self).latest()
-            latest_date = nr.encounter.encounter_date
-            old_date = latest_date - timedelta(90)
-            nr = NutritionReport.objects.filter(encounter__patient=self, \
-                                encounter__encounter_date__gte=old_date, \
-                                encounter__encounter_date__lt=latest_date)
-            if nr.count():
-                return True
+            ir = UnderOneReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to,\
+                        immunized=UnderOneReport.IMMUNIZED_YES)
+        except UnderOneReport.DoesNotExist:
             return False
+
+        return (ir.count() > 0)
+
+
+    def ontime_muac(self, relative_to=date.today()):
+        # MUAC should be every 3 months for healthy kids
+        # and every 1 month for kids with SAM/MAM
+
+        # Get the most recent NutritionReport
+        try:
+            nr = NutritionReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to)\
+                    .latest('encounter__encounter_date')
         except NutritionReport.DoesNotExist:
             return False
+
+        days_old = (relative_to - nr.encounter.encounter_date.date()).days
+
+        # First, check if the current MUAC is out of date
+        if nr.status == NutritionReport.STATUS_HEALTHY:
+            if days_old > 90:
+                return False
+        else:
+            if days_old > 30:
+                return False
+
+        return True
+        
+        '''
+        # Next, get the previous MUAC
+        latest_date = nr.encounter.encounter_date.date()
+
+        # If a month before the child's last MUAC, the child was
+        # under 6 months old, then growth monitoring is okay
+        if (latest_date - timedelta(30)) < (self.dob + timedelta(182)):
+            return True
+
+        # Otherwise, make sure that there was a previous MUAC
+        try:
+            secnr = NutritionReport\
+                .objects\
+                .filter(encounter__patient=self, \
+                        encounter__encounter_date__lt=latest_date)\
+                .latest('encounter__encounter_date')
+        except NutritionReport.DoesNotExist:
+            # If there's no previous MUAC
+            return False
+
+        # Check that the first report is timely relative to 
+        # MUAC guidelines
+        days_diff = (latest_date - \
+            secnr.encounter.encounter_date.date()).days
+        if secnr.status == NutritionReport.STATUS_HEALTHY:
+            if days_diff > 90: return False
+        else:
+            if days_diff > 30: return False
+        '''
 
     def status_text(self):
         ''' Return the text in status choices '''
@@ -176,11 +239,25 @@ class ThePatient(Patient):
         for item in survey:
             if survey[item] is None:
                 survey[item] = '-'
+        # issued 
+        bdnt_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self)\
+                                    .aggregate(\
+                                    stotal=Sum('bednet_received'))['stotal']
+        if not bdnt_issued:
+            bdnt_issued = 0
+        survey.update({'issued': bdnt_issued})
         return survey
 
     def required_bednet(self):
+        bdnt_issued = BednetIssuedReport.objects.filter(\
+                                    encounter__patient=self)\
+                                    .aggregate(\
+                                    stotal=Sum('bednet_received'))['stotal']
         try:
             total = self.survey()['num_site'] - self.survey()['function']
+            if bdnt_issued:
+                total -= bdnt_issued
         except:
             total = '-'
 
@@ -210,7 +287,8 @@ class ThePatient(Patient):
             'bit': '{{object.health_id.upper}}'})
         columns.append(
             {'name': _("Name".upper()), \
-            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
+            'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
+                    "{{object.first_name}}"})
         columns.append(
             {'name': cls._meta.get_field('gender').verbose_name.upper(), \
             'bit': '{{object.gender}}'})
@@ -227,23 +305,41 @@ class ThePatient(Patient):
         sub_columns = None
         return columns, sub_columns
 
+    @classmethod
+    def underfive_summary_list(cls):
+        columns = []
+        columns.append(
+            {'name': _("HID".upper()), \
+            'bit': '{{object.health_id.upper}}'})
+        columns.append(
+            {'name': _("Name".upper()), \
+            'bit': '{{object.full_name}} {{object.gender}} / '
+                    '{{object.humanised_age}}'})
+        columns.append(
+            {'name': _("Last MUAC".upper()), \
+            'bit': '{{object.latest_muac}}'})
+
+        sub_columns = None
+        return columns, sub_columns
+
     def patient_register_columns(cls):
         columns = []
         columns.append(
             {'name': _(u"LOC"), \
-            'bit': 
+            'bit':
                 '{% if object.is_head_of_household %}<strong>' \
                 '{{ object.household.location.code }}' \
                 '</strong>{% endif %}'})
         columns.append(
             {'name': _(u"HID"), \
-            'bit': 
+            'bit':
                 '{% if object.is_head_of_household %}<strong>{% endif %}' \
                 '{{object.health_id.upper}}' \
                 '{% if object.is_head_of_household %}</strong>{% endif %}'})
         columns.append(
             {'name': _(u"Name".upper()), \
-            'bit': '{{object.last_name}}{% if object.pk %},{% endif %} {{object.first_name}}'})
+            'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
+                    "{{object.first_name}}"})
         columns.append(
             {'name': _(u"Gen."), \
             'bit': '{{object.gender}}'})
@@ -368,9 +464,52 @@ class ThePatient(Patient):
         sub_columns = None
         return columns, sub_columns
 
+    @classmethod
+    def bednet_coverage(cls):
+        columns = []
+        columns.append(
+            {'name': _("HH".upper()),
+            'bit': '{{object.household.health_id.upper}}'})
+        columns.append(
+            {'name': cls._meta.get_field('location').verbose_name.upper(), \
+             'bit': '{{ object.location }}'})
+        columns.append(
+            {'name': _("HH Name".upper()), \
+             'bit': '{{ object.first_name }} {{ object.last_name }}'})
+        columns.append(
+            {'name': _("# SSs".upper()),
+             'bit': '{{object.survey.num_site}}'})
+        columns.append(
+            {'name': _("# Func. Nets".upper()),
+             'bit': '{{object.survey.function}}'})
+        columns.append(
+            {'name': _("# Elr. Nets".upper()),
+             'bit': '{{object.survey.earlier}}'})
+        columns.append(
+            {'name': _("# Dmgd. Nets".upper()),
+             'bit': '{{object.survey.damaged}}'})
+        columns.append(
+            {'name': _("# Nets Issued".upper()),
+             'bit': '{{object.survey.issued}}'})
+        columns.append(
+            {'name': _("# Rqrd. Nets".upper()),
+             'bit': '{{object.required_bednet}}'})
+        columns.append(
+            {'name': _("# U5 LN".upper()),
+             'bit': '{{object.survey.under_five}}'})
+        columns.append(
+            {'name': _("# Slept on Net".upper()),
+             'bit': '{{object.survey.slept_bednet}}'})
+        columns.append(
+            {'name': _("# Hanging Nets".upper()),
+             'bit': '{{object.survey.hanging}}'})
+        columns.append(
+            {'name': _("Reason".upper()),
+             'bit': '{{object.survey.reason}}'})
+        sub_columns = None
+        return columns, sub_columns
 
 class TheCHWReport(CHW):
-
     class Meta:
         verbose_name = _("Community Health Worker Report")
         proxy = True
@@ -389,8 +528,8 @@ class TheCHWReport(CHW):
     def num_of_underfive(self):
         return self.patients_under_five().count()
 
-    def patients_under_five(self):
-        sixtym = date.today() - timedelta(int(30.4375 * 59))
+    def patients_under_five(self, today = date.today()):
+        sixtym = today - timedelta(int(30.4375 * 59))
         return Patient.objects.filter(chw=self, dob__gte=sixtym, \
                             status=Patient.STATUS_ACTIVE)
 
@@ -482,15 +621,19 @@ class TheCHWReport(CHW):
         return num
 
     @property
-    def number_of_households(self):
-        return self.households().count()
+    def number_of_households(self, today=None):
+        return self.households(today).count()
 
-    def households(self):
+    def households(self, today=None):
         '''
         List of households belonging to this CHW
         '''
-        return Patient.objects.filter(health_id=F('household__health_id'), \
-                                        chw=self)
+        p = Patient.objects.filter(health_id=F('household__health_id'), \
+                                        chw=self, status=Patient.STATUS_ACTIVE)
+        if today is None:
+            return p
+        else:
+            return p.filter(created_on__lte=today)
 
     def muac_list(self):
         '''
@@ -499,7 +642,8 @@ class TheCHWReport(CHW):
         '''
         sixtym = date.today() - timedelta(int(30.4375 * 59))
         sixm = date.today() - timedelta(int(30.4375 * 6))
-        patients = ThePatient.objects.filter(chw=self, dob__gte=sixtym, \
+        patients = Patient.objects.filter(chw=self, \
+                                     dob__gte=sixtym, \
                                      dob__lte=sixm, \
                                      status=Patient.STATUS_ACTIVE)
         return patients
@@ -507,10 +651,25 @@ class TheCHWReport(CHW):
     def num_of_householdvisits(self):
         return HouseholdVisitReport.objects.filter(encounter__chw=self).count()
 
+    def num_of_householdvisits_90_days(self):
+        today = datetime.today().date()
+        return self.household_visit(today - timedelta(90), today)
+
     def household_visit(self, startDate=None, endDate=None):
         return HouseholdVisitReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
                                 encounter__encounter_date__lte=endDate).count()
+
+    def household_visits_for_month(self, offset=0):
+        # This list comprehension deserves some explanation.
+        # First, we get a list of days from 30+offset days ago up
+        # to today.
+        # Then, we get (day, count) tuples for each of those
+        # days, where count contains the number of
+        # HH visits for that day by this CHW
+        return [(i, self.household_visit(date.today() + timedelta(i), \
+            date.today() + timedelta(i + 1))) \
+                for i in xrange(-30 - offset, -offset)]
 
     def percentage_ontime_visits(self):
         households = self.households()
@@ -525,24 +684,26 @@ class TheCHWReport(CHW):
             return 0
         else:
             total_households = households.count()
-            return int(round((num_on_time / float(total_households)) * 100))
+            return int(100.0 * num_on_time / float(total_households))
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
 
     def percentage_ontime_birth_visits(self):
         births = BirthReport.objects.filter(encounter__chw=self)
-        count = 0
+        v_count = 0
+        b_count = births.count()
         for birth in births:
-            thepatient = ThePatient.objects.get(id=birth.encounter.patient)
+            thepatient = ThePatient.objects.get(pk=birth.encounter.patient.pk)
             if thepatient.check_visit_within_seven_days_of_birth():
-                count += 1
-        if births.count() == 0:
+                v_count += 1
+        print (v_count, b_count)
+        if b_count == 0:
             return None
-        elif not count:
-            return count
+        elif v_count == 0:
+            return 0
         else:
-            return int(round(100 * (count / float(births.count()))))
+            return int(100.0 * v_count / float(b_count))
 
     def num_of_clinic_delivery(self):
         return BirthReport.objects.filter(encounter__chw=self, \
@@ -554,7 +715,7 @@ class TheCHWReport(CHW):
         if num_of_births == 0:
             return None
         else:
-            return int(round(num_of_clinic_delivery / float(num_of_births)) * 100)
+            return int(100.0 * num_of_clinic_delivery / float(num_of_births))
 
     def num_underfive_refferred(self):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -578,34 +739,44 @@ class TheCHWReport(CHW):
         return 0
 
     def percentage_ontime_muac(self):
-        underfives = self.patients_under_five()
-        if underfives.count() == 0:
+        (num, den) = self.fraction_ontime_muac()
+
+        if den == 0:
             return None
+
+        if num == 0:
+            return 0
+        else:
+            return int(round(100 * (num/ float(den))))
+
+    def fraction_ontime_muac(self):
+        # Consider only kids over 6 months
+        underfives = self.patients_under_five()
+        underfives.filter(dob__lte=(date.today()-timedelta(180)))
 
         count = 0
         for achild in underfives:
             thepatient = ThePatient.objects.get(id=achild.id)
             if thepatient.ontime_muac():
                 count += 1
-            return 
 
-        if not count:
-            return count
-        else:
-            total_count = underfives.count()
-            return int(round(100 * (count / float(total_count))))
+        return (count, underfives.count())
 
-    def num_of_active_sam_cases(self):
+    def num_of_active_sam_cases(self, today=date.today()):
         count = 0
         danger = (NutritionReport.STATUS_SEVERE, \
                         NutritionReport.STATUS_SEVERE_COMP)
         nr = NutritionReport.objects\
-                        .filter(encounter__chw=self, status__in=danger)\
+                        .filter(encounter__chw=self, status__in=danger,\
+                        encounter__encounter_date__lte=today)\
                         .values('encounter__patient').distinct()
         for r in nr:
             p = Patient.objects.get(id=r['encounter__patient'])
-            latest = NutritionReport.objects.filter(encounter__patient=p)\
-                                            .latest()
+            latest = NutritionReport\
+                .objects\
+                .filter(encounter__patient=p,\
+                    encounter__encounter_date__lte=today)\
+                .latest()
             if latest.status in danger:
                 count += 1
         return count
@@ -613,15 +784,23 @@ class TheCHWReport(CHW):
     def num_of_pregnant_women(self):
         return len(self.pregnant_women())
 
-    def pregnant_women(self):
+    def pregnant_women(self, today=datetime.today().date()):
         c = []
-        pregs = PregnancyReport.objects.filter(encounter__chw=self)\
+        # Need to use Sauri specific
+        # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
+        # does returns [], with values('encounter__patient').distinct()
+        # returns some values but they are different if SPregnancy is used
+        if not PregnancyReport.objects.filter(encounter__chw=self):
+            prgclass = SPregnancy
+        else:
+            prgclass = PregnancyReport
+        pregs = prgclass.objects.filter(encounter__chw=self)\
                                 .values('encounter__patient').distinct()
         for preg in pregs:
             patient = Patient.objects.get(id=preg['encounter__patient'])
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+            pr = prgclass.objects.filter(encounter__patient=patient)\
                                         .latest()
-            days = (pr.encounter.encounter_date - datetime.now()).days
+            days = (pr.encounter.encounter_date.date() - today).days
             months = round(days / 30.4375)
             if pr.pregnancy_month + months < 9:
                 c.append(patient)
@@ -629,24 +808,35 @@ class TheCHWReport(CHW):
 
     def num_pregnant_refferred(self):
         pwomen = self.pregnant_women()
-        rr = ReferralReport.objects.filter(encounter__patient__in=pwomen, \
-                                        encounter__chw=self)
-        return rr.count()
+        return ReferralReport\
+            .objects\
+            .filter(\
+                encounter__patient__in=pwomen, \
+                encounter__chw=self)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT).count()
 
     def percentage_pregnant_ontime_visits(self):
         pwomen = self.pregnant_women()
+
         if len(pwomen) == 0:
             return None
 
+        # Check if report submitted was Sauri report or standard
+        # report
+        if not PregnancyReport.objects.filter(encounter__chw=self):
+            prgclass = SPregnancy
+        else:
+            prgclass = PregnancyReport
+
         count = 0
         for patient in pwomen:
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
-                                        .latest()
+            pr = prgclass.objects.filter(encounter__patient=patient)\
+                                        .latest('encounter__encounter_date')
             latest_date = pr.encounter.encounter_date
             old_date = latest_date - timedelta(6 * 7)
-            pr = PregnancyReport.objects.filter(encounter__patient=patient, \
-                                encounter__encounter_date__gte=old_date, \
-                                encounter__encounter_date__lt=latest_date)
+            pr = prgclass.objects.filter(encounter__patient=patient, \
+                                encounter__encounter_date__gte=latest_date, \
+                                encounter__encounter_date__lt=old_date)
             if pr.count():
                 count += 1
         if not count:
@@ -655,26 +845,63 @@ class TheCHWReport(CHW):
             total_count = len(pwomen)
             return int(round(100 * (count / float(total_count))))
 
-    def percentage_ontime_followup(self):
-        referrals = ReferralReport.objects.filter(encounter__chw=self)
-        if not referrals:
-            return None
+    def people_without_followup(self, start_date=date(1901,01,01),\
+            end_date=date.today()):
+
+        print (start_date, end_date)
+        referrals = ReferralReport\
+            .objects\
+            .filter(encounter__chw=self, \
+                encounter__encounter_date__lte=end_date,\
+                encounter__encounter_date__gt=start_date)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
+
         num_referrals = referrals.count()
         if num_referrals == 0:
+            print "No referrals"
             return None
 
-        ontimefollowup = 0
+        ontime = []
+        nofup = []
         for referral in referrals:
             rdate = referral.encounter.encounter_date
             day2later = day_end(rdate + timedelta(2))
-            fur = FollowUpReport.objects.filter(encounter__chw=self, \
+            try:
+                fur = FollowUpReport.objects.filter(encounter__chw=self, \
                             encounter__patient=referral.encounter.patient, \
                             encounter__encounter_date__gt=rdate, \
                             encounter__encounter_date__lte=day2later)
-            if fur:
-                ontimefollowup += 1
-        return '%s' % int(round((ontimefollowup / \
-                        float(num_referrals)) * 100))
+            except FollowUpReport.DoesNotExist:
+                pass
+                print "Ref: %s, FU: None" % rdate.date()
+
+            if fur.count() > 0:
+                print "Ref: %s, FU: %s" % (rdate.date(), \
+                    fur[0].encounter.encounter_date.date())
+                ontime.append(referral)
+            else:
+                nofup.append(referral)
+                print "Ref: %s, FU: None" % rdate.date()
+
+        return (ontime, nofup)
+
+    def percentage_ontime_followup(self, start_date=date(1901,01,01),\
+            end_date=date.today(), raw=False):
+
+        out = self.people_without_followup(start_date, end_date)
+        if out is None:
+            return None
+
+        (ontime, nofup) = out
+        n_ontime = len(ontime)
+        n_nofup = len(nofup)
+        n_total = n_ontime + n_nofup
+
+        if raw:
+            return (n_ontime, n_total)
+        else:
+            return int(round((n_ontime/ \
+                        float(n_total)) * 100))
 
     def median_number_of_followup_days(self):
         referrals = ReferralReport.objects.filter(encounter__chw=self)
@@ -792,6 +1019,55 @@ class TheCHWReport(CHW):
         'total survey done on drinking water '
         return DrinkingWaterReport.objects.filter(encounter__chw=self).count()
 
+    def current_monthly_appointments(self):
+        '''AppointmentReports since the start of the month to date'''
+        today = datetime.today().date()
+        start_of_month = today - timedelta(today.day - 1)
+        apts = AppointmentReport.objects.filter(encounter__chw=self,
+                                appointment_date__gte=start_of_month,
+                                appointment_date__lte=today)
+        return apts
+
+    def num_of_appointment(self):
+        return self.current_monthly_appointments().count()
+
+    def percentage_reminded(self):
+        apts = self.current_monthly_appointments()
+        total = apts.count()
+        reminded = apts.filter(status__in=(AppointmentReport.STATUS_PENDING_CV,
+                                            AppointmentReport.STATUS_CLOSED))
+        if total == 0:
+            return None
+        return int(round((reminded.count() / float(total)) * 100, 0))
+
+    def score(self):
+        pov = pobv = pom = ppov = pr = pof = 0
+        div_by = 0
+        if self.percentage_ontime_visits():
+            pov = self.percentage_ontime_visits()
+            div_by += 1
+        if self.percentage_ontime_birth_visits():
+            pobv = self.percentage_ontime_birth_visits()
+            div_by += 1
+        if self.percentage_ontime_muac():
+            pom = self.percentage_ontime_muac()
+            div_by += 1
+        if self.percentage_pregnant_ontime_visits():
+            ppov = self.percentage_pregnant_ontime_visits()
+            div_by += 1
+        if self.percentage_reminded():
+            pr = self.percentage_reminded()
+            div_by += 1
+        if self.percentage_ontime_followup():
+            pof = self.percentage_ontime_followup()
+            div_by += 1
+        score =  pov + pobv + pom + ppov + pof + pr
+
+        if div_by == 0:
+            return None
+
+        return int(round(score / float(div_by), 0))
+
     @classmethod
     def muac_summary(cls):
         sixtym = date.today() - timedelta(int(30.4375 * 59))
@@ -834,6 +1110,45 @@ class TheCHWReport(CHW):
                             'mp': modp, 'svp': svp, 'scm': svcomp, \
                             'unkp': unkp}
         return info
+
+
+    @classmethod
+    def muac_summary_data():
+        """
+        Copy/Pasted from muac_summary to get the same data but in a dict, rather than
+        a string.
+        """
+        sixtym = date.today() - timedelta(int(30.4375 * 59))
+        sixm = date.today() - timedelta(int(30.4375 * 6))
+        order = '-encounter__encounter_date'
+        muac = NutritionReport.objects.filter(\
+                                        encounter__patient__dob__gte=sixtym,
+                                        encounter__patient__dob__lte=sixm)\
+                                        .order_by(order)\
+                                        .values('encounter__patient')\
+                                        .distinct()
+
+        num_healthy = muac.filter(\
+                        status=NutritionReport.STATUS_HEALTHY).count()
+        num_mam = muac.filter(\
+                        status=NutritionReport.STATUS_MODERATE).count()
+        num_sam = muac.filter(\
+                        status=NutritionReport.STATUS_SEVERE).count()
+        num_comp = muac.filter(\
+                        status=NutritionReport.STATUS_SEVERE_COMP).count()
+        num_eligible = TheCHWReport.total_muac_eligible()
+
+        unkwn = num_eligible - num_healthy - num_mam - num_sam - num_comp
+        if num_eligible > 0:
+            hp = int(round((num_healthy / float(num_eligible)) * 100))
+            modp = int(round((num_mam / float(num_eligible)) * 100))
+            svp = int(round((num_sam / float(num_eligible)) * 100))
+            svcomp = int(round((num_comp / float(num_eligible)) * 100))
+            unkp = int(round((unkwn / float(num_eligible)) * 100))
+        else:
+            hp = modp = svp = svcomp = unkp = 0
+        return {'healthy':hp, 'moderate': modp, 'unknown': unkp }
+
 
     @classmethod
     def total_at_risk(cls):
@@ -960,116 +1275,259 @@ class OperationalReport():
     columns = []
 
     def __init__(self):
+        percentage_template = lambda field_name: \
+            ''.join(['{% ifequal object.', 
+                    field_name,
+                    ' None %}-{%else%}'\
+                    '{{ object.',
+                    field_name,
+                    ' }}%{% endifequal %}'])
+
         columns = []
         columns.append({ \
             'name': _("CHW"),
             'abbr': _("CHW"),
-            'bit': '{{object}}'})
+            'bit': '{{object}}',
+            'col': 'name'})
         columns.append({ \
             'name': _("# of Households"), \
             'abbr': _("#HH"), \
-            'bit': '{{object.number_of_households}}'})
+            'bit': '{{object.number_of_households}}',
+            'col': 'A1'})
         columns.append({ \
-            'name': _("# of Household Visits"), \
+            'name': _("# of Household Visits (in last 90 days)"), \
             'abbr': _("#HH-V"), \
-            'bit': '{{object.num_of_householdvisits}}'})
+            'bit': '{{object.num_of_householdvisits_90_days}}',
+            'col': 'A2'})
         columns.append({
             'name': _("% of HHs receiving on-time routine visit "\
                                     "(within 90 days) [S23]"), \
             'abbr': _("%OTV"), \
-            'bit': '{% if object.percentage_ontime_visits %}' \
-                   '{{ object.percentage_ontime_visits }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_ontime_visits'),
+            'col': 'A3'})
         columns.append({ \
-            'name': _("# of Births"), \
+            'name': _("# of Birth Reports"), \
             'abbr': _('#Bir'), \
-            'bit': '{{object.num_of_births}}'})
+            'bit': '{{object.num_of_births}}',
+            'col': 'B1'})
         columns.append({ \
             'name': _("% Births delivered in "\
                                 "Health Facility [S4]"),
             'abbr': _('%BHF'), \
-            'bit': '{% if object.percentage_clinic_deliveries %}' \
-                   '{{ object.percentage_clinic_deliveries }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_clinic_deliveries'),
+            'col': 'B2'})
         columns.append({ \
             'name': _("% Newborns checked within 7 days of birth "\
                             "[S6]"), \
             'abbr': _('%NNV'), \
-            'bit': '{% if object.percentage_ontime_birth_visits %}' \
-                   '{{ object.percentage_ontime_birth_visits }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_ontime_birth_visits'),
+            'col': 'B3'})
         columns.append({ \
             'name': _("# of Under-5s"), \
             'abbr': _('#U5'), \
-            'bit': '{{object.num_of_underfive}}'})
+            'bit': '{{object.num_of_underfive}}',
+            'col': 'C1'})
         columns.append({
             'name': _("# Under-5 Referred for Danger Signs"), \
             'abbr': _('#U5-DS'), \
-            'bit': '{{object.num_underfive_refferred}}'})
+            'bit': '{{object.num_underfive_refferred}}',
+            'col': 'C2'})
         columns.append({ \
             'name': _("# Under-5 Treated for Malarias"), \
             'abbr': _('#U5-Mal'), \
-            'bit': '{{object.num_underfive_malaria}}'})
+            'bit': '{{object.num_underfive_malaria}}',
+            'col': 'C3'})
         columns.append({ \
             'name': _("# Under-5 Treated for Diarrhea"), \
             'abbr': _('#U5-Dia'), \
-            'bit': '{{object.num_underfive_diarrhea}}'})
+            'bit': '{{object.num_underfive_diarrhea}}',
+            'col': 'C4'})
         columns.append({ \
             'name': _("% Under-5 receiving on-time MUAC "\
                                     "(within 90 days) [S11]"), \
             'abbr': _('#U5-MUAC'), \
-            'bit': '{% if object.percentage_ontime_muac %}' \
-                   '{{ object.percentage_ontime_muac }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_ontime_muac'),
+            'col': 'C5'})
         columns.append({ \
-            'name': _("# of Active SAM cases"), \
-            'abbr': _('#U5-SAM'), \
-            'bit': '{{object.num_of_active_sam_cases}}'})
+            'name': _("# of Active GAM cases"), \
+            'abbr': _('#U5-GAM'), \
+            'bit': '{{object.num_of_active_gam_cases}}',\
+            'col': 'C6' })
         columns.append({ \
             'name': _("# of Pregnant Women"), \
             'abbr': _('#PW'), \
-            'bit': '{{object.num_of_pregnant_women}}'})
+            'bit': '{{object.num_of_pregnant_women}}',
+            'col': 'D1'})
         columns.append({ \
-            'name': _("# Pregnant Women Referred for "\
-                                    "Danger Signs"),
+            'name': _("# Pregnant Women Referred Urgently"),
             'abbr': _('#PW-DS'), \
-            'bit': '{{object.num_pregnant_refferred}}'})
+            'bit': '{{object.num_pregnant_refferred}}',
+            'col': 'D2'})
         columns.append({ \
             'name': _("% Pregnant receiving on-time visit"\
                         " (within 6 weeks) [S24]"), \
             'abbr': _('%PW-OTV'), \
-            'bit': '{% if object.percentage_pregnant_ontime_visits %}' \
-                   '{{ object.percentage_pregnant_ontime_visits }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_pregnant_ontime_visits'),
+            'col': 'D3'})
         columns.append({ \
-            'name': _("% Referred / Treated receiving on-time "\
+            'name': _("# Number of appointments"), \
+            'abbr': _('%NOA'), \
+            'bit': '{{ object.num_of_appointment }}',
+            'col': 'E1'})
+        columns.append({ \
+            'name': _("% of appointment reminders completed"), \
+            'abbr': _('%POA-RT'), \
+            'bit': percentage_template('percentage_reminded'),
+            'col': 'E2'})
+        columns.append({ \
+            'name': _("% Urgently referred receiving on-time "\
                             "follow-up (within 2 days) [S13]"),
             'abbr': _('%Ref'), \
-            'bit': '{% if object.percentage_ontime_followup %}' \
-                   '{{ object.percentage_ontime_followup }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('percentage_ontime_followup'),
+            'col': 'F1'})
         columns.append({ \
             'name': _("Median # of days for follow-up [S25]"), \
             'abbr': _('#Fol'), \
-            'bit': '{{object.median_number_of_followup_days}}'})
+            'bit': '{{object.median_number_of_followup_days}}',
+            'col': 'F2'})
         columns.append({ \
             'name': _("SMS Error Rate %"), \
             'abbr': _('%Err'), \
-            'bit': '{% if object.sms_error_rate %}' \
-                   '{{ object.sms_error_rate }}%'\
-                   '{% else %}-{% endif %}'})
+            'bit': percentage_template('sms_error_rate'),
+            'col': 'G1'})
         columns.append({ \
             'name': _("Days since last SMS transmission"), \
             'abbr': _('#Days'), \
-            'bit': '{{object.days_since_last_sms}}'})
+            'bit': '{{ object.days_since_last_sms|default_if_none:"-" }}',
+            'col': 'G2'})
+        columns.append({ \
+            'name': _("Calculated overall CHW performance indicator"), \
+            'abbr': _('SCORE'), \
+            'bit': percentage_template('score'),
+            'col': 'H1'})
         self.columns = columns
 
     def get_columns(self):
         return self.columns
 
 
-class ClinicReport(Clinic):
+class GraphicalClinicReport(Clinic):
+    class Meta:
+        verbose_name = _("Graphical Clinic Report")
+        proxy = True
 
+    # This is not good. We need to be able to get the
+    # number of indicators from the class, but can't
+    # look at .indicators() directly unless the object
+    # is instantiated
+    @classmethod
+    def n_indicators(self):
+        return 4
+
+    def indicators(self):
+        return [\
+            Indicator(_(u'Percentage of Children 6m-59m Old '\
+                        'Getting at Least 1 MUAC in the Last '\
+                        '3 Months (or 1 month for SAM/MAM cases)'),\
+                        self.percentage_ontime_muac,\
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+                        self.percentage_known_immunized,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage of Pregnant Women Having '\
+                        'at Least 4 ANC Visits by 3rd Trimester'),\
+                        self.percentage_with_four_anc,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+            Indicator(_(u'Percentage On-Time Follow-Up '\
+                        '(within 2 days of a Basic, Emergency, or '\
+                        'Ambulance referral)'),\
+                        self.percentage_ontime_follow_up,
+                        Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
+        ]
+
+    def _aggregate_clinic_percentage(self, agg_func):
+        chws = MonthlyCHWReport\
+            .objects\
+            .filter(clinic=self, is_active=True)
+
+        if chws.count() == 0:
+            return None
+
+        num = 0
+        den = 0
+        for c in chws:
+            out = agg_func(c)
+            if out is None: continue
+
+            (n,d) = out
+            num += n
+            den += d
+
+        print (num, den)
+        if den == 0:
+            return None
+        return (num, den)
+ 
+
+    def percentage_with_four_anc(self, per_cls, per_num):
+        return self._aggregate_clinic_percentage(\
+            lambda c: c.perc_with_anc_third(per_cls, per_num))
+           
+    def percentage_ontime_follow_up(self, per_cls, per_num):
+        return self._aggregate_clinic_percentage(\
+            lambda c: \
+                c.percentage_ontime_followup(\
+                    per_cls.period_start_date(per_num),\
+                    per_cls.period_end_date(per_num), \
+                    True))
+
+    def _underfive_at_per(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+
+        # Get active patients for this CHW who were aged 6-59m
+        # during the time period we're talking about
+        return ThePatient.objects.filter(\
+            chw__clinic=self, \
+            chw__is_active=True, \
+            status=Patient.STATUS_ACTIVE, \
+            dob__lte = end_date - timedelta(30.475 * 6),
+            dob__gte = end_date - timedelta(30.475 * 59))
+
+    def percentage_known_immunized(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+        try:
+            patients = self._underfive_at_per(per_cls, per_num)
+        except ThePatient.DoesNotExist:
+            return None
+
+        if patients.count() == 0:
+            return None
+
+        count = 0
+        for p in patients:
+            if p.is_immunized():
+                count += 1
+
+        return (count, patients.count())
+
+    def percentage_ontime_muac(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+        try:
+            patients = self._underfive_at_per(per_cls, per_num)
+        except ThePatient.DoesNotExist:
+            return None
+
+        if patients.count() == 0:
+            return None
+
+        ontimes = 0
+        for patient in patients:
+            if patient.ontime_muac(end_date):
+                ontimes += 1
+
+        return (ontimes, patients.count())
+
+class ClinicReport(Clinic):
     class Meta:
         verbose_name = _("Clinic Report")
         proxy = True
@@ -1258,7 +1716,7 @@ class WeekSummaryReport():
         return c
 
     @classmethod
-    def summary(cls):
+    def savgummary(cls):
         sr = cls()
         endDate = datetime.today()
         startDate = endDate - timedelta(endDate.weekday())
@@ -1295,6 +1753,10 @@ class MonthSummaryReport():
                             encounter__encounter_date__lte=endDate).count()
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE, \
+                            encounter__encounter_date__gte=startDate, \
+                            encounter__encounter_date__lte=endDate).count()
+        num += NutritionReport.objects.filter(\
+                            status=NutritionReport.STATUS_MODERATE, \
                             encounter__encounter_date__gte=startDate, \
                             encounter__encounter_date__lte=endDate).count()
 
@@ -1351,9 +1813,12 @@ class GeneralSummaryReport():
 
     def num_of_muac(self, startDate=None, endDate=None):
         num = NutritionReport.objects.filter(\
-                            status=NutritionReport.STATUS_SEVERE_COMP).count()
+                            status=NutritionReport.STATUS_MODERATE).count()
         num += NutritionReport.objects.filter(\
                                 status=NutritionReport.STATUS_SEVERE).count()
+        num += NutritionReport.objects.filter(\
+                                status=NutritionReport.STATUS_SEVERE_COMP).count()
+
 
         return num
 
@@ -1451,3 +1916,1207 @@ class TheBHSurveyReport(TheCHWReport):
                                         .values('encounter__patient')
         not_surveyed = self.households().exclude(id__in=surveyed)
         return not_surveyed
+
+'''
+    The monthly report for CHWs requested
+    by Dr. Emma.  The code is not great
+    but I don't have any good ideas for
+    how to shrink the size.
+'''
+
+class MonthlyCHWReport(TheCHWReport):
+    class Meta:
+        proxy = True
+
+    # The report rows.  Returns a list of tuples
+    # that can be used to instantiate Indicator objects
+    def report_indicators(self):
+        return [
+            #Indicator('Households',\
+            #    self.num_of_hhs, Indicator.AVG, \
+            #    col_agg_func = Indicator.SUM),
+            Indicator('Unique HH Visits',\
+                self.num_of_hh_visits, Indicator.SUM),
+            INDICATOR_EMPTY,
+            #Indicator('Num of Women 15-49 Seen',\
+            #    self.num_of_women_under50_seen, Indicator.SUM),
+            Indicator('Num of Women using FP',\
+                self.num_of_women_under50_using_fp, Indicator.SUM),
+            #Indicator('% of Women using FP',\
+            #    self.perc_of_women_under50_using_fp, \
+            #        Indicator.AGG_PERCS, \
+            #        Indicator.PERC_PRINT),
+            #Indicator('Num of Women using FP: Condom',\
+            #    self.num_fp_usage_condom, Indicator.SUM),
+            #Indicator('Num of Women using FP: Injectable',\
+            #    self.num_fp_usage_injectable, Indicator.SUM),
+            #Indicator('Num of Women using FP: IUD',\
+            #    self.num_fp_usage_iud, Indicator.SUM),
+            #Indicator('Num of Women using FP: Implant',\
+            #    self.num_fp_usage_implant, Indicator.SUM),
+            #Indicator('Num of Women using FP: Pill',\
+            #    self.num_fp_usage_pill, Indicator.SUM),
+            #Indicator('Num of Women using FP: Ster.',\
+            #    self.num_fp_usage_sterilization, Indicator.SUM),
+            Indicator('Num of Women Starting FP or Never Registered',\
+                self.num_starting_fp, Indicator.SUM),
+            #Indicator('Num of Women Remaining on FP',\
+            #    self.num_still_on_fp, Indicator.SUM),
+            #Indicator('Num of Women Stopping FP',\
+            #    self.num_ending_fp, Indicator.SUM),
+            INDICATOR_EMPTY,
+            Indicator('People with DSs',\
+                self.num_danger_signs, Indicator.SUM),
+            Indicator('Urgent (non-convenient) Referrals',\
+                self.num_referred, Indicator.SUM),
+            Indicator('Num Follow Up Within 3 Days',\
+                self.num_ontime_follow_up, Indicator.SUM),
+            Indicator('% Follow Up Within 3 Days',\
+                self.perc_ontime_follow_up,
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            INDICATOR_EMPTY,
+            Indicator('Num Pregnant Women',\
+                self.num_pregnant_by_period, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            #Indicator('% Getting 1 ANC by 1st Trim.',\
+            #    self.perc_with_anc_first,
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            #Indicator('% Getting 3 ANC by 2nd Trim.',\
+            #    self.perc_with_anc_second,
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('% Getting 4 ANC by 3rd Trim.',\
+                self.perc_with_anc_third,
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('Num Birth *Reports*',\
+                self.num_births, Indicator.SUM),
+            Indicator('Num Births Rpts with 4 ANC',\
+                self.num_births_with_anc, Indicator.SUM),
+            Indicator('Num Neonatal Rpts (<7 days)',\
+                self.num_neonatal, Indicator.SUM),
+            INDICATOR_EMPTY,
+            Indicator('Num Children U5',\
+                self.num_underfive, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num U5 Known Immunized',\
+                self.num_underfive_imm, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num MUACs Taken',\
+                self.num_muacs_taken, Indicator.SUM),
+            Indicator('Num active GAM Cases',\
+                self.num_active_sam_cases, Indicator.AVG,\
+                col_agg_func=Indicator.SUM),
+            Indicator('Num Tested RDTs',\
+                self.num_tested_rdts, Indicator.SUM),
+            Indicator('Num Positive RDTs',\
+                self.num_positive_rdts, Indicator.SUM),
+            Indicator('Num Anti-Malarials Given',\
+                self.num_antimalarials_given, Indicator.SUM),
+            Indicator('Num Diarrhea Cases',\
+                self.num_diarrhea, Indicator.SUM),
+            Indicator('Num ORS Given',\
+                self.num_ors_given, Indicator.SUM),
+        ]
+
+    #
+    # HH Visit section
+    #
+
+    def num_of_hhs(self, per_cls, per_num):
+        return self.households(\
+            per_cls.period_end_date(per_num)).count()
+
+    def num_diarrhea(self, per_cls, per_num):
+        return DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(danger_signs__code='dr')\
+            .count()
+
+    def num_ors_given(self, per_cls, per_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(medicines__code='r')\
+            .count()
+
+    # We're going for distinct households, not
+    # just raw household visits
+    def num_of_hh_visits(self, per_cls, per_num):
+        return HouseholdVisitReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .values('encounter__patient__household__pk')\
+            .distinct()\
+            .count()
+
+    #
+    # Family planning section
+    #
+
+    def num_of_women_under50_seen(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women')
+
+    def num_of_women_under50_using_fp(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women_using')
+
+    def perc_of_women_under50_using_fp(self, per_cls, per_num):
+        u50 = self.num_of_women_under50_seen(per_cls, per_num)
+        return (self.num_of_women_under50_using_fp(per_cls, per_num), u50)
+
+    def _num_of_women_count(self, per_cls, per_num, count_str):
+        if count_str not in ['women','women_using']:
+            raise ValueError('Invalid aggregation string.')
+
+        count = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .aggregate(Sum(count_str))[count_str+'__sum']
+        return 0 if count is None else count
+
+    def num_fp_usage_condom(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'c')
+
+    def num_fp_usage_injectable(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'i')
+
+    def num_fp_usage_iud(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'iud')
+
+    def num_fp_usage_implant(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'n')
+
+    def num_fp_usage_pill(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'p')
+
+    def num_fp_usage_sterilization(self, per_cls, per_num):
+        return self._fp_usage_count(per_cls, per_num, 'st')
+
+    def _fp_usage_count(self, per_cls, per_num, code):
+        fp = CodedItem\
+            .objects\
+            .filter(type=CodedItem.TYPE_FAMILY_PLANNING)\
+            .get(code=code)
+
+        count = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(familyplanningusage__method__code=fp.code)\
+            .aggregate(Sum('familyplanningusage__count'))\
+            ['familyplanningusage__count__sum']
+        return 0 if count is None else count
+
+    def num_starting_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[0]
+
+    def num_still_on_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[1]
+
+    def num_ending_fp(self, per_cls, per_num):
+        return self._fp_change_stats(per_cls, per_num)[2]
+
+    def _fp_change_stats(self, per_cls, per_num):
+        reps = FamilyPlanningReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .order_by('-encounter__encounter_date')
+
+        start_count = 0
+        same_count = 0
+        end_count = 0
+
+        seen = []
+
+        # Get all FP reports in this week
+        for r in reps:
+            # Count each household only once
+            if r.encounter.patient.pk in seen:
+                continue
+            else:
+                seen.append(r.encounter.patient.pk)
+
+            try:
+                # Check if there's a previous FP report for this HH
+                old_rep = FamilyPlanningReport\
+                    .indicators\
+                    .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                        encounter__encounter_date__lt=r.encounter.encounter_date)\
+                    .exclude(pk=r.pk)\
+                    .latest('encounter__encounter_date')
+            except FamilyPlanningReport.DoesNotExist:
+                # If not, count all women as new to FP
+                if r.women_using is not None:
+                    start_count += r.women_using
+            else:
+                if r.women_using is None:
+                    if old_rep.women_using is None: continue
+                    end_count += old_rep.women_using
+                elif old_rep.women_using is None:
+                    if r.women_using is None: continue
+                    start_count += r.women_using
+                else:
+                    # Otherwise calculate change from last FP report
+                    if r.women_using > old_rep.women_using:
+                        start_count += (r.women_using - old_rep.women_using)
+                    elif r.women_using < old_rep.women_using:
+                        end_count += (old_rep.women_using - r.women_using)
+                    else:
+                        same_count += r.women_using
+
+        return (start_count, same_count, end_count)
+
+    #
+    # Danger signs section
+    #
+
+    def num_danger_signs(self, per_cls, per_num):
+        count = DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .count()
+        return 0 if count is None else count
+
+    def num_referred(self, per_cls, per_num):
+        return ReferralReport\
+                .indicators\
+                .for_chw(self)\
+                .for_period(per_cls, per_num)\
+                .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)\
+                .count()
+
+    def num_ontime_follow_up(self, per_cls, per_num):
+        count = 0
+        for r in ReferralReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .exclude(urgency=ReferralReport.URGENCY_CONVENIENT):
+
+            due_by = r.encounter.encounter_date + timedelta(2)
+            f = FollowUpReport\
+                .indicators\
+                .for_chw(self)\
+                .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                    encounter__encounter_date__lte=due_by,
+                    encounter__encounter_date__gt=\
+                        r.encounter.encounter_date)\
+                .count()
+
+            if f is None or f == 0:
+                continue
+            else:
+                count += 1
+        return count
+
+    def perc_ontime_follow_up(self, per_cls, per_num):
+        return (self.num_ontime_follow_up(per_cls, per_num),\
+            self.num_referred(per_cls, per_num))
+
+    #
+    # Pregnancy section
+    #
+
+    def pregnant_by_period(self, per_cls, per_num):
+        return self.pregnant_women(per_cls.period_end_date(per_num))
+
+    def num_pregnant_by_period(self, per_cls, per_num):
+        return len(self.pregnant_by_period(per_cls, per_num))
+
+    # % of women getting at least 1 ANC visit by 1st trimester
+    def perc_with_anc_first(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 1, 1)
+
+    # % of women getting at least 3 ANC visits by 2nd trimester
+    def perc_with_anc_second(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 3, 2)
+
+    # % of women getting at least 4 ANC visits by 3rd trimester
+    def perc_with_anc_third(self, per_cls, per_num):
+        return self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
+
+    def _women_getting_n_anc_by_tot(self, per_cls, \
+            n_anc, trimester):
+
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        women = []
+        for period in xrange(0, per_cls.num_periods):
+            for w in self._women_in_month_of_preg(per_cls, per_num, trimester):
+                if w not in women:
+                    women.append(w)
+        have_anc = filter(lambda w: w.anc_visits > n_anc, women)
+
+        return (len(have_anc), len(women))
+
+    def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        women = self._women_in_month_of_preg(per_cls, per_num, trimester)
+        for w in women:
+            print (w, w.anc_visits)
+        have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
+
+        return (len(have_anc), len(women))
+
+
+    def _women_in_month_of_preg(self, per_cls, per_num, trimester):
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        # e.g., 2nd trimester is range(4, 7)
+        end_mo = (trimester*3)+1
+        start_mo = end_mo - 3
+        month_range = xrange(start_mo, end_mo)
+
+        women = self.pregnant_by_period(per_cls, per_num)
+
+        # Get latest pregnancy report for woman
+        pregreps = []
+        for w in women:
+            try:
+                rep = PregnancyReport\
+                    .objects\
+                    .filter(encounter__patient=w, \
+                        encounter__encounter_date__gte=\
+                            per_cls.period_start_date(per_num) - \
+                                timedelta(30.4375 * 10))\
+                    .latest('encounter__encounter_date')
+            except PregnancyReport.DoesNotExist:
+                continue
+            else:
+                pregreps.append(rep)
+
+        # See how many women fall in this trimester
+        targets = []
+        for p in pregreps:
+            days_ago = (per_cls.period_end_date(per_num) - \
+                p.encounter.encounter_date.date()).days
+            months_ago = days_ago / 30.4375
+            months_of_preg = p.pregnancy_month + months_ago
+
+            if round(months_of_preg) in month_range:
+                print "women %d days from %s was in m%d" % \
+                    (days_ago, per_cls.period_end_date(per_num),
+                        p.pregnancy_month)
+                targets.append(p)
+
+        return targets
+
+    def _births(self, per_cls, per_num):
+        return BirthReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+
+    def num_births(self, per_cls, per_num):
+        return self._births(per_cls, per_num).count()
+
+    def num_births_with_anc(self, per_cls, per_num):
+        births = self._births(per_cls, per_num)
+        count = 0
+        for b in births:
+            if b.encounter.patient.mother is None:
+                continue
+            mother = b.encounter.patient.mother
+
+            try:
+                prep = PregnancyReport\
+                    .objects\
+                    .filter(encounter__patient=mother)\
+                    .filter(encounter__encounter_date__gte=\
+                        datetime.today() - timedelta(30.4375 * 10))\
+                    .latest('encounter__encounter_date')
+            except PregnancyReport.DoesNotExist:
+                continue
+
+            # 4 is number of ANC visits to have at term
+            if prep.anc_visits >= 4:
+                count += 1
+
+        return count
+
+    def num_neonatal(self, per_cls, per_num):
+        count = 0
+        rpts = NeonatalReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)
+
+        for r in rpts:
+            if r.encounter.encounter_date.date() - timedelta(7) < \
+                r.encounter.patient.dob:
+                count += 1
+
+        return count
+
+    def num_underfive(self, per_cls, per_num):
+        return self.patients_under_five(\
+            per_cls.period_end_date(per_num)).count()
+
+    def num_underfive_imm(self, per_cls, per_num):
+        return self._num_underfive_imm_pks(per_cls, per_num).count()
+
+    def _num_underfive_imm_pks(self, per_cls, per_num):
+        return UnderOneReport\
+            .indicators\
+            .for_chw(self)\
+            .before_period(per_cls, per_num)\
+            .filter(\
+                encounter__patient__dob__gte=\
+                    per_cls.period_start_date(per_num)-timedelta(5*365.25),\
+                immunized=UnderOneReport.IMMUNIZED_YES)\
+            .values('encounter__patient__pk')\
+            .distinct()
+
+    def num_muacs_taken(self, per_cls, per_num):
+        return NutritionReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .count()
+
+    def num_active_sam_cases(self, per_cls, per_num):
+        return self.num_of_active_sam_cases(\
+            per_cls.period_end_date(per_num))
+
+    def num_tested_rdts(self, per_cls, per_num):
+        return FeverReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
+            .count()
+
+    def num_positive_rdts(self, per_cls, per_num):
+        return FeverReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(rdt_result=FeverReport.RDT_POSITIVE)\
+            .count()
+
+    def num_antimalarials_given(self, per_cls, per_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(medicines__code='act')\
+            .count()
+
+    def num_diarrhea(self, per_cls, per_num):
+        return DangerSignsReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(danger_signs__code='dr')\
+            .count()
+
+    def num_ors_given(self, per_cls, per_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(medicines__code='r')\
+            .count()
+
+    #
+    # Lists
+    #
+
+    # People lacking follow-up in last 45 days
+    def lacking_follow_up(self):
+        out = self.people_without_followup(date.today() - timedelta(45))
+        if out is None:
+            return []
+        (fup, nofup) = out
+
+        entries = []
+        for ref in nofup:
+            entries.append(self._dict_for_follow_up(ref))
+
+        return entries
+
+    def _dict_for_follow_up(self, ref):
+        e = ref.encounter
+        all_ds = DangerSignsReport.objects.filter(encounter=e)
+        ds = all_ds[0] if (all_ds.count() > 0) else None
+
+        all_fu = FollowUpReport\
+            .objects\
+            .filter(encounter__patient=e.patient, \
+                encounter__encounter_date__gt=\
+                    ref.encounter.encounter_date)\
+            .order_by('encounter__encounter_date')
+        fu = all_fu[0] if (all_fu.count() > 0) else None
+
+        return {
+            'referral': ref,
+            'danger_signs': ds,
+            'follow_up': fu,
+            }
+        
+    # Kids under 5 yrs needing immunizations
+    def needing_immunizations(self):
+        imm_pks = map(lambda i: i['encounter__patient__pk'],\
+            self._num_underfive_imm_pks(MonthlyPeriodSet, 3))
+
+        return Patient\
+            .objects\
+            .exclude(pk__in=imm_pks)\
+            .filter(chw=self,\
+                dob__gte = date.today()-timedelta(5*365.25))\
+            .order_by('location__code')
+
+    # Pregnant women in 2nd or 3rd trimester who haven't had
+    # ANC visits in last 5 five weeks
+    def pregnant_needing_anc(self):
+        pregs = PregnancyReport\
+            .indicators\
+            .for_chw(self)\
+            .filter(encounter__encounter_date__gt = \
+                date.today() - timedelta(10 * 30.4375))\
+            .order_by('-encounter__encounter_date')
+
+        seen = []
+        no_anc = []
+        women = []
+        for p in pregs:
+            if p.encounter.patient.pk in seen:
+                continue
+            else:
+                seen.append(p.encounter.patient.pk)
+
+            days_ago = (datetime.today() - p.encounter.encounter_date).days
+            weeks_ago = days_ago / 7.0
+            months_ago = days_ago / 30.4375
+
+            # Current month of pregnancy
+            preg_month = p.pregnancy_month + months_ago
+            if preg_month > 9.0 or preg_month < 3.0:
+                continue
+
+            print "%s %d %d" % (p.encounter.encounter_date, p.pregnancy_month, preg_month)
+            months_left = 9 - preg_month
+            days_left = months_left * 30.475
+            due_date = date.today() + timedelta(days_left)
+
+            # Current weeks since ANC
+            if p.weeks_since_anc is None:
+                no_anc.append((p.encounter.patient, \
+                    None,\
+                    due_date))
+            else:
+                weeks_since_anc = p.weeks_since_anc + weeks_ago
+                if weeks_since_anc > 5.0:
+                    women.append((p.encounter.patient, \
+                        p.encounter.encounter_date - \
+                            timedelta(7 * p.weeks_since_anc), \
+                        due_date))
+
+        women.sort(lambda x,y: cmp(x[1],y[1]))
+        return (no_anc + women)
+
+    def kids_needing_muac(self):
+        # people eligible for MUAC
+        muac_list = self.muac_list()\
+            .order_by('encounter__patient__location__code')
+
+        seen = []
+        need_muac = []
+        no_muac = []
+
+        one_month_ago = datetime.today() - timedelta(30.4375)
+        three_months_ago = datetime.today() - timedelta(3 * 30.4375)
+
+        danger = (NutritionReport.STATUS_SEVERE, \
+                        NutritionReport.STATUS_SEVERE_COMP)
+        for p in muac_list:
+            if p.pk in seen:
+                continue
+            else:
+                seen.append(p.pk)
+
+            try:
+                nut = NutritionReport\
+                    .objects\
+                    .filter(encounter__patient__pk=p.pk)\
+                    .latest('encounter__encounter_date')
+            except NutritionReport.DoesNotExist:
+                no_muac.append((p, None))
+                continue
+
+            if nut.status in danger and \
+                    nut.encounter.encounter_date < one_month_ago:
+                need_muac.append((p, nut))
+            elif nut.encounter.encounter_date < three_months_ago:
+                need_muac.append((p, nut))
+            else:
+                pass
+
+        need_muac.sort(lambda x,y:\
+            cmp(x[1].encounter.encounter_date, \
+                y[1].encounter.encounter_date))
+        return no_muac + need_muac
+
+
+class HealthCoordinatorReport():
+    # The report rows.  Returns a list of tuples
+    # that can be used to instantiate Indicator objects
+    def report_indicators(self):
+        return [
+            Indicator('Health Outcome Indicators',\
+                Indicator.empty_func, Indicator.empty_func),
+            Indicator('% of Women using FP',\
+                self.perc_of_women_under50_using_fp, \
+                    Indicator.AGG_PERCS, \
+                    Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_of_women_under50_seen, Indicator.SUM),
+            Indicator('% Getting 1 ANC by 2nd Trim.',\
+                self.perc_with_anc_second, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_women_in_second, Indicator.SUM),
+            Indicator('% Getting 4 ANC by 3rd Trim.',\
+                self.perc_with_anc_third, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_women_in_third, Indicator.SUM),
+            Indicator('% Births Delivered in Health Facility',\
+                self.perc_births_delivered_in_facility, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_births, Indicator.SUM),
+            Indicator('% Births with Low birth Weight',\
+                self.perc_births_with_low_weight, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_births_delivered_in_facility, Indicator.SUM),
+            Indicator('% Under 1 Exclusively Breast Fed',\
+                self.perc_underone_exclusively_bf,
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_underone_visited_exclude_bfunknown, Indicator.SUM),
+            Indicator('% Under 1 Upto Date Immunization',\
+                self.perc_uptodate_immunization, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_underone_exclude_imm_unknown, Indicator.SUM),
+            Indicator('% 6m-59m with MUAC < 125',\
+                self.perc_muac_below125, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]',\
+                self.num_nutrition_rpts, Indicator.SUM),
+            Indicator('# of Infant Deaths (0-11 months)',\
+                self.num_infant_deaths, Indicator.SUM),
+            Indicator('# of Under 5 Deaths (0-59 months)',\
+                self.num_under5_deaths, Indicator.SUM),
+            Indicator('# of Over 5 Deaths (0-59 months)',\
+                self.num_over5_deaths, Indicator.SUM),
+            Indicator('# of Under 5 with Positive RDT',\
+                self.num_positive_rdts, Indicator.SUM),
+            Indicator('Performance Indicators',\
+                Indicator.empty_func, Indicator.empty_func),
+            Indicator('% Households Visited',\
+                self.perc_household_visits, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]', self.num_of_hhs, Indicator.SUM),
+            Indicator('% Newborns Check-up within 7 Days of Birth',\
+                self.perc_within7day_checkup, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]', self.num_births, Indicator.SUM),
+            Indicator('% HHs Receiving Ontime Routine HHs Visits '\
+                '(within last 90 days)', self.perc_ontime_hh_visits, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]', self.num_of_hhs, Indicator.SUM),
+            Indicator('% Under-5 Receiving antimalarial/ACT Medications '\
+                'with positive RDT result)', \
+                self.perc_receiving_am_with_positive_rdts, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]', self.num_positive_rdts, Indicator.SUM),
+            Indicator('# of Under-5 receiving ORS with reported diarrhea', \
+                self.num_ors_given, Indicator.SUM),
+            Indicator('# of Under-5 receiving Zinc with reported diarrhea', \
+                self.num_zinc_given, Indicator.SUM),
+            Indicator('% Urgent Referrals Receiving On-time Follow-Up',\
+                self.perc_ontime_follow_up, \
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('[Denominator]', \
+                self.num_of_urgent_referrals, Indicator.SUM),
+            Indicator('Median number of days to follow-up referral / '\
+                'treatment during "time period"', \
+                self.median_number_of_followup_days, Indicator.SUM),
+        ]
+
+    def num_of_women_under50_seen(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women')
+
+    def num_of_women_under50_using_fp(self, per_cls, per_num):
+        return self._num_of_women_count(per_cls, per_num, 'women_using')
+
+    def perc_of_women_under50_using_fp(self, per_cls, per_num):
+        u50 = self.num_of_women_under50_seen(per_cls, per_num)
+        print u50, self.num_of_women_under50_using_fp(per_cls, per_num)
+        return (self.num_of_women_under50_using_fp(per_cls, per_num), u50)
+
+    def _num_of_women_count(self, per_cls, per_num, count_str):
+        if count_str not in ['women','women_using']:
+            raise ValueError('Invalid aggregation string.')
+
+        count = FamilyPlanningReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .aggregate(Sum(count_str))[count_str+'__sum']
+        return 0 if count is None else count
+
+    #
+    # Pregnancy section
+    #
+
+    def pregnant_by_period(self, per_cls, per_num):
+        return self.pregnant_women(per_cls.period_end_date(per_num))
+
+    def num_pregnant_by_period(self, per_cls, per_num):
+        return len(self.pregnant_by_period(per_cls, per_num))
+
+    # % of women getting at least 1 ANC visit by 2nd trimester
+    def perc_with_anc_second(self, per_cls, per_num):
+        a, b = self._women_getting_n_anc_by(per_cls, per_num, 1, 2)
+        print a, b
+        return a, b
+
+    # % of women getting at least  ANC visit by 2nd trimester
+    def perc_with_anc_third(self, per_cls, per_num):
+        a, b = self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
+        print a, b
+        return a, b
+
+    def _women_getting_n_anc_by_tot(self, per_cls, \
+            n_anc, trimester):
+
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        women = []
+        for period in xrange(0, per_cls.num_periods):
+            for w in self._women_in_month_of_preg(per_cls, per_num, trimester):
+                if w not in women:
+                    women.append(w)
+        have_anc = filter(lambda w: w.anc_visits > n_anc, women)
+
+        return (len(have_anc), len(women))
+
+    def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        women = self._women_in_month_of_preg(per_cls, per_num, trimester)
+        have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
+
+        return (len(have_anc), len(women))
+
+    def num_women_in_second(self, per_cls, per_num):
+        women = self._women_in_month_of_preg(per_cls, per_num, 2)
+        return len(women)
+
+    def num_women_in_third(self, per_cls, per_num):
+        women = self._women_in_month_of_preg(per_cls, per_num, 3)
+        return len(women)
+
+    def _women_in_month_of_preg(self, per_cls, per_num, trimester):
+        if trimester not in xrange(1,4):
+            raise ValueError('Trimester is out of range [1,3]')
+
+        # e.g., 2nd trimester is range(4, 7)
+        end_mo = (trimester*3)+1
+        start_mo = end_mo - 3
+        month_range = xrange(start_mo, end_mo)
+
+        women = self.pregnant_by_period(per_cls, per_num)
+
+        # Get latest pregnancy report for woman
+        preggers = []
+        for w in women:
+            try:
+                rpt = PregnancyReport\
+                        .objects\
+                        .filter(encounter__patient=w, \
+                            encounter__encounter_date__gte=\
+                                per_cls.period_start_date(per_num) - \
+                                    timedelta(30.4375 * 10))\
+                        .latest('encounter__encounter_date')
+            except PregnancyReport.DoesNotExist:
+                continue
+            preggers.append(rpt)
+        '''preggers = map(lambda w:
+            PregnancyReport\
+                .objects\
+                .filter(encounter__patient=w, \
+                    encounter__encounter_date__gte=\
+                        per_cls.period_start_date(per_num) - \
+                            timedelta(30.4375 * 10))
+                .latest('encounter__encounter_date'), women)'''
+
+        # See how many women fall in this trimester
+        targets = []
+        for p in preggers:
+            days_ago = (per_cls.period_end_date(per_num) - \
+                p.encounter.encounter_date.date()).days
+            months_ago = days_ago / 30.4375
+            months_of_preg = p.pregnancy_month + months_ago
+
+            if round(months_of_preg) in month_range:
+                targets.append(p)
+
+        return targets
+
+    def pregnant_women(self, today=datetime.today().date()):
+        c = []
+        # Need to use Sauri specific
+        # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
+        # does returns [], with values('encounter__patient').distinct()
+        # returns some values but they are different if SPregnancy is used
+        pregs = PregnancyReport\
+            .objects\
+            .filter(encounter__chw=self)\
+            .values('encounter__patient')\
+            .distinct()
+
+        for preg in pregs:
+            patient = Patient.objects.get(pk=preg['encounter__patient'])
+            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
+                                        .latest('encounter__encounter_date')
+            days = (pr.encounter.encounter_date.date() - today).days
+            months = round(days / 30.4375)
+            if pr.pregnancy_month + months < 9:
+                c.append(patient)
+
+        return c
+
+    def _births(self, per_cls, per_num):
+        return BirthReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+
+    def num_births(self, per_cls, per_num):
+        return self._births(per_cls, per_num).count()
+
+    def _births_delivered_in_facility(self, per_cls, per_num):
+        return self._births(per_cls, per_num)\
+            .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES)
+
+    def perc_births_delivered_in_facility(self, per_cls, per_num):
+        print 'births hf'
+        return self._births_delivered_in_facility(per_cls, per_num).count(), \
+            self.num_births(per_cls, per_num)
+
+    def _births_with_low_weight(self, per_cls, per_num):
+        return self._births_delivered_in_facility(per_cls, per_num)\
+            .filter(weight__lt=2.5)
+
+    def num_births_with_low_weight(self, per_cls, per_num):
+        return self._births_with_low_weight(per_cls, per_num).count()
+
+    def num_births_delivered_in_facility(self, per_cls, per_num):
+        return self._births_delivered_in_facility(per_cls, per_num).count()
+
+    def perc_births_with_low_weight(self, per_cls, per_num):
+        print "births lw"
+        return self.num_births_with_low_weight(per_cls, per_num), \
+            self.num_births_delivered_in_facility(per_cls, per_num)
+
+    def _underone_visited(self, per_cls, per_num):
+        return UnderOneReport\
+            .indicators\
+            .for_period(per_cls, per_num)
+
+    def num_underone_exclusively_bf(self, per_cls, per_num):
+        return self._underone_visited(per_cls, per_num)\
+            .filter(breast_only=UnderOneReport.BREAST_YES)\
+            .values('encounter__patient')\
+            .distinct().count()
+
+    def num_underone_visited_exclude_bfunknown(self, per_cls, per_num):
+        return self._underone_visited(per_cls, per_num)\
+            .exclude(breast_only=UnderOneReport.BREAST_UNKOWN)\
+            .values('encounter__patient')\
+            .distinct().count()
+
+    def perc_underone_exclusively_bf(self, per_cls, per_num):
+        print "underone ebf"
+        return self.num_underone_exclusively_bf(per_cls, per_num), \
+            self.num_underone_visited_exclude_bfunknown(per_cls, per_num)
+
+    def num_uptodate_immunization(self, per_cls, per_num):
+        return self._underone_visited(per_cls, per_num)\
+            .filter(immunized=UnderOneReport.IMMUNIZED_YES)\
+            .count()
+
+    def perc_uptodate_immunization(self, per_cls, per_num):
+        print "uptodate imm"
+        return self.num_uptodate_immunization(per_cls, per_num), \
+            self.num_underone_exclude_imm_unknown(per_cls, per_num)
+
+    def num_underone_exclude_imm_unknown(self, per_cls, per_num):
+        return self._underone_visited(per_cls, per_num)\
+                .exclude(immunized=UnderOneReport.IMMUNIZED_UNKOWN)\
+                .count()
+
+    def _6mto59m_patients(self, per_cls, per_num):
+        _6m_ago, _59m_ago = self._6mto59m_dates(per_cls, per_num)
+        return Patient.objects.filter(dob__lt=_6m_ago, \
+            dob__gt=_59m_ago)
+
+    def _6mto59m_dates(self, per_cls, per_num):
+        _6m_ago = per_cls.period_start_date(per_num) + relativedelta(months=-6)
+        _59m_ago = per_cls.period_start_date(per_num) + \
+            relativedelta(months=-59)
+        return _6m_ago, _59m_ago
+
+    def _nutrition_rpts(self, per_cls, per_num):
+        _6m_ago, _59m_ago = self._6mto59m_dates(per_cls, per_num)
+        return NutritionReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(encounter__patient__dob__lt=_6m_ago, \
+                encounter__patient__dob__gt=_59m_ago)
+
+    def num_muac_below125(self, per_cls, per_num):
+        return self._nutrition_rpts(per_cls, per_num)\
+            .filter(muac__lt=125)\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+    def perc_muac_below125(self, per_cls, per_num):
+        print "muac below"
+        return self.num_muac_below125(per_cls, per_num), \
+            self.num_nutrition_rpts(per_cls, per_num)
+
+    def num_nutrition_rpts(self, per_cls, per_num):
+        return self._nutrition_rpts(per_cls, per_num)\
+                .values('encounter__patient')\
+                .distinct()\
+                .count()
+
+    def _deaths(self, per_cls, per_num):
+        return DeathReport\
+            .indicators\
+            .for_period(per_cls, per_num)
+
+    def num_infant_deaths(self, per_cls, per_num):
+        print "infant"
+        cur_period = per_cls.period_end_date(per_num)
+        _11m = cur_period + relativedelta(months=-11)
+        return self._deaths(per_cls, per_num)\
+            .filter(encounter__patient__dob__gt=_11m, \
+                encounter__patient__dob__lt=cur_period)\
+            .count()
+
+    def num_under5_deaths(self, per_cls, per_num):
+        print "under5"
+        cur_period = per_cls.period_end_date(per_num)
+        _59m = cur_period + relativedelta(months=-59)
+        return self._deaths(per_cls, per_num)\
+            .filter(encounter__patient__dob__gt=_59m, \
+                encounter__patient__dob__lt=cur_period)\
+            .count()
+
+    def num_over5_deaths(self, per_cls, per_num):
+        print "over5"
+        cur_period = per_cls.period_end_date(per_num)
+        _59m = cur_period + relativedelta(months=-59)
+        return self._deaths(per_cls, per_num)\
+            .filter(encounter__patient__dob__lt=_59m)\
+            .count()
+
+    def num_tested_rdts(self, per_cls, per_num):
+        return FeverReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
+            .count()
+
+    def num_positive_rdts(self, per_cls, per_num):
+        return FeverReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(rdt_result=FeverReport.RDT_POSITIVE)\
+            .count()
+
+    def num_receiving_am_with_positive_rdts(self, per_cls, per_num):
+        c = 0
+        for r in MedicineGivenReport.indicators.for_period(per_cls, per_num):
+            if FeverReport.objects.filter(encounter=r.encounter, \
+                rdt_result=FeverReport.RDT_POSITIVE):
+                c += 1
+        return 0
+
+    def perc_receiving_am_with_positive_rdts(self, per_cls, per_num):
+        return self.num_receiving_am_with_positive_rdts(per_cls, per_num), \
+            self.num_positive_rdts(per_cls, per_num)
+
+    #
+    # HH Visit section
+    #
+
+    def households(self, today=None):
+        '''
+        List of households
+        '''
+        p = Patient.objects.filter(health_id=F('household__health_id'), \
+                status=Patient.STATUS_ACTIVE)
+        if today is None:
+            return p
+        else:
+            return p.filter(created_on__lte=today)
+
+    def num_of_hhs(self, per_cls, per_num):
+        return self.households(\
+            per_cls.period_end_date(per_num)).count()
+
+    def num_of_hh_visits(self, per_cls, per_num):
+        return HouseholdVisitReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+    def num_of_hh_visits_in_90days(self, per_cls, per_num):
+        _end_date = per_cls.period_end_date(per_num)
+        _start_date = _end_date + relativedelta(days=-90)
+        return HouseholdVisitReport\
+            .objects\
+            .filter(encounter__encounter_date__gte=_start_date, \
+                encounter__encounter_date__lte=_end_date)\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+    def perc_ontime_hh_visits(self, per_cls, per_num):
+        return self.num_of_hh_visits_in_90days(per_cls, per_num), \
+            self.num_of_hhs(per_cls, per_num)
+
+    def perc_household_visits(self, per_cls, per_num):
+        return self.num_of_hh_visits(per_cls, per_num), \
+            self.num_of_hhs(per_cls, per_num)
+
+    def num_ontime_muac(self, per_cls, per_num):
+        # patients due for muac received their last muac more than 75 days b4
+        # at the start of time period, or do have reached 6 months and are due
+        # for their muac visit
+        muac_patients = self._6mto59m_patients(per_cls, per_num)
+        pass
+
+    def _within7day_checkup(self, report):
+        '''report - NeonatalReport instance'''
+        if not isinstance(report, NeonatalReport):
+            raise ValueError("Report is not a Neonatal Report!")
+        try:
+            br = BirthReport\
+                .objects\
+                .filter(encounter__patient=report.encounter.patient)\
+                .latest()
+        except BirthReport.DoesNotExist:
+            return False
+        tdiff = (report.encounter.encounter_date - \
+            br.encounter.encounter_date).days
+        if tdiff >= 0 and tdiff <= 7:
+            return True
+        return False
+
+    def num_of_within7day_checkup(self, per_cls, per_num):
+        c = 0
+        for report in NeonatalReport.indicators.for_period(per_cls, per_num):
+            if self._within7day_checkup(report):
+                c += 1
+        return c
+
+    def perc_within7day_checkup(self, per_cls, per_num):
+        return self.num_of_within7day_checkup(per_cls, per_num), \
+            self.num_births(per_cls, per_num)
+
+    def num_diarrhea(self, per_cls, per_num):
+        return DangerSignsReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(danger_signs__code='dr')\
+            .count()
+
+    def num_ors_given(self, per_cls, per_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(medicines__code='r')\
+            .count()
+
+    def num_zinc_given(self, per_cls, per_num):
+        return MedicineGivenReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(medicines__code='z')\
+            .count()
+
+    def num_ontime_follow_up(self, per_cls, per_num):
+        count = 0
+        for r in ReferralReport\
+            .indicators\
+            .for_period(per_cls, per_num):
+
+            due_by = r.encounter.encounter_date + timedelta(2)
+            f = FollowUpReport\
+                .indicators\
+                .filter(encounter__patient__pk=r.encounter.patient.pk,\
+                    encounter__encounter_date__lte=due_by,
+                    encounter__encounter_date__gt=\
+                        r.encounter.encounter_date)\
+                .count()
+
+            if f is None or f == 0:
+                continue
+            else:
+                count += 1
+        return count
+
+    def num_of_urgent_referrals(self, per_cls, per_num):
+        return ReferralReport\
+            .indicators\
+            .for_period(per_cls, per_num)\
+            .filter(urgency__in=(ReferralReport.URGENCY_AMBULANCE, \
+                ReferralReport.URGENCY_EMERGENCY, \
+                ReferralReport.URGENCY_BASIC))\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+    def perc_ontime_follow_up(self, per_cls, per_num):
+        return self.num_ontime_follow_up(per_cls, per_num), \
+            self.num_of_urgent_referrals(per_cls, per_num)
+
+    def median_number_of_followup_days(self, per_cls, per_num):
+        referrals = ReferralReport\
+            .indicators\
+            .for_period(per_cls, per_num)
+        lsdays = []
+        for referral in referrals:
+            rdate = referral.encounter.encounter_date
+            fur = FollowUpReport\
+                .objects\
+                .filter(encounter__patient=referral.encounter.patient, \
+                    encounter__encounter_date__gt=rdate)\
+                .order_by('encounter__encounter_date')
+            if fur:
+                fdate = fur[0].encounter.encounter_date
+                lsdays.append((fdate - rdate).days)
+        if not lsdays:
+            return ''
+        return int(get_median(lsdays))
