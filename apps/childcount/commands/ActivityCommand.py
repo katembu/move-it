@@ -25,7 +25,7 @@ class ActivityCommand(CCCommand):
 
     @authenticated
     def process(self):
-        chw = self.message.persistant_connection.reporter.chw
+        chw = self.message.reporter.chw
         thechw = TheCHWReport.objects.get(id=chw.id)
         period = "week"
         summary = None
