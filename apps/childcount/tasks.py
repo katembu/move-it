@@ -20,6 +20,7 @@ from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
 from childcount.models import FollowUpReport
+from childcount.models import AppointmentReport
 
 from childcount.reports.report_framework import report_objects
 
@@ -270,6 +271,7 @@ def appointment_reminders():
                     " appointment on %(apt_date)s") % {
                     'patient': apt.encounter.patient, \
                     'apt_date': apt.appointment_date.strftime('%d-%m-%Y')}
+        print msg
         alert = SmsAlert(reporter=apt.encounter.patient.chw, msg=msg)
         try:
             sms_alert = alert.send()
@@ -328,6 +330,7 @@ def appointment_defaulter_reminders():
                     " failed appointment on %(apt_date)s") % {
                     'patient': apt.encounter.patient, \
                     'apt_date': apt.appointment_date.strftime('%d-%m-%Y')}
+        print msg
         alert = SmsAlert(reporter=apt.encounter.patient.chw, msg=msg)
         try:
             sms_alert = alert.send()
