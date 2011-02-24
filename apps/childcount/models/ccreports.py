@@ -2795,13 +2795,8 @@ class HealthCoordinatorReport():
 
     def pregnant_women(self, today=datetime.today().date()):
         c = []
-        # Need to use Sauri specific
-        # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
-        # does returns [], with values('encounter__patient').distinct()
-        # returns some values but they are different if SPregnancy is used
         pregs = PregnancyReport\
             .objects\
-            .filter(encounter__chw=self)\
             .values('encounter__patient')\
             .distinct()
 
