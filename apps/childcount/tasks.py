@@ -19,6 +19,7 @@ from childcount.models import FeverReport
 from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models.ccreports import TheCHWReport
+from childcount.models import FollowUpReport
 
 from childcount.reports.report_framework import report_objects
 
@@ -87,10 +88,17 @@ def daily_fever_reminder():
     current_reporter = None
     data = {}
     for report in frs:
+        fup = FollowUpReport.objects\
+            .filter(encounter__patient=report.encounter.patient, \
+                encounter__encounter_date__gt=report.encounter.encounter_date)
+        if fup:
+            continue
         if not current_reporter or current_reporter != report.encounter.chw:
             current_reporter = report.encounter.chw
             data[current_reporter] = []
-        data[current_reporter].append("%s +U F" % report.encounter.patient)
+        _msg = "%s +U F" % report.encounter.patient
+        data[current_reporter].append(_msg)
+        print current_reporter, _msg
 
     for key in data:
         msg = ', ' . join(data.get(key))
