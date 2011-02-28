@@ -10,29 +10,46 @@
 						<th class="scol">HTML</th>
 						<th class="scol">PDF</th>
 						<th class="scol">Excel</th>
-						<th class="scol">Other</th>
+						<th class="scol">CSV</th>
 					</tr>
 					{% for r in report_list.reports %}
 					<tr>
-						<td class="title-holder"><a href="#" class="changeDefaultClick">{{ r.title }}</a></td>
+						<td class="title-holder"><a href="#" class="changeDefaultClick">{{ r.title }}</a>
+                        </td>
 						<td class="scol">
-							{% if r.html %}
-							<a href="{{r.url}}.html" class="report-link html" title="{{r.title}} [Html]" target="_BLANK">&nbsp;</a>
+							{% if r.html.0 %}
+							<a href="{{r.url}}.html" class="report-link html" title="{{r.title}} [HTML]" target="_BLANK">
+                            {% if report_list.show_datestamp %}
+                            <span>{% if r.html.1 %}Generated on {{ r.html.1|date:"d N Y" }} at {{ r.html.1|date:"H:i" }}{% else %}Not yet generated{% endif %}</span>
+                            {% endif %}
+                            </a>
 							{% endif %}
 						</td>
 						<td class="scol">
-							{% if r.pdf %}
-							<a href="{{r.url}}.pdf" class="report-link pdf" title="{{r.title}} [PDF]">&nbsp;</a>
+							{% if r.pdf.0 %}
+							<a href="{{r.url}}.pdf" class="report-link pdf" title="{{r.title}} [PDF]">&nbsp;
+                            {% if report_list.show_datestamp %}
+                            <span>{% if r.pdf.1 %}Generated on {{ r.pdf.1|date:"d N Y" }} at {{ r.pdf.1|date:"H:i" }}{% else %}Not yet generated{% endif %}</span>
+                            {% endif %}
+                            </a>
 							{% endif %}
 						</td>
 						<td class="scol">
-							{% if r.xls %}
-							<a href="{{r.url}}.xls" class="report-link xls" title="{{r.title}} [Excel]">&nbsp;</a>
+							{% if r.xls.0 %}
+							<a href="{{r.url}}.xls" class="report-link xls" title="{{r.title}} [Excel]">&nbsp;
+                            {% if report_list.show_datestamp %}
+                            <span>{% if r.xls.1 %}Generated on {{ r.xls.1|date:"d N Y" }} at {{ r.xls.1|date:"H:i" }}{% else %}Not yet generated{% endif %}</span>
+                            {% endif %}
+                            </a>
 							{% endif %}
 						</td>
 						<td class="scol">
-							{% if r.csv %}
-							<a href="{{r.url}}.csv" class="report-link csv" title="{{r.title}} [CSV]">CSV</a>
+							{% if r.csv.0 %}
+							<a href="{{r.url}}.csv" class="report-link csv" title="{{r.title}} [CSV]">CSV&nbsp;
+                            {% if report_list.show_datestamp %}
+                            <span>{% if r.csv.1 %}Generated on {{ r.csv.1|date:"d N Y" }} at {{ r.csv.1|date:"H:i" }}{% else %}Not yet generated{% endif %}</span>
+                            {% endif %}
+                            </a>
 							{% endif %}
 						</td>
 					</tr>

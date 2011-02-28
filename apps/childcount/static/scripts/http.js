@@ -1,15 +1,50 @@
 
-$(document).ready( function() {
+$(document).ready(function() {
     $('#form').submit( function(){ send_message(); return false; });
+    $('#message').keyup(  parse_date );
     setInterval("get_message()", 5000);
 });
 
+function parse_date()
+{
+    var text = $('#message').val();
+    var raw_date = text.split(/\s+/, 1)[0].trim();
+
+    var d = Date.parse(raw_date);
+
+    if (d == null) {
+        $('#date_value').text('Cannot read date'); 
+        $('#date_value').addClass('date_bad'); 
+        $('#date_value').removeClass('date_okay'); 
+        $('#edate').val('');
+    } else if (Date.today().compareTo(d) < 0) {
+        $('#date_value').text('Encounter date (' + d.toString('dd-MMM-yyyy') + ') is in future'); 
+        $('#date_value').addClass('date_bad'); 
+        $('#date_value').removeClass('date_okay'); 
+        $('#edate').val('');
+    } else if (Date.today().add({'year': -1}).compareTo(d) > 1) {
+        $('#date_value').text('Encounter date (' + d.toString('dd-MMM-yyyy') + ') is too old'); 
+        $('#date_value').addClass('date_bad'); 
+        $('#date_value').removeClass('date_okay'); 
+        $('#edate').val('');
+    } else {
+        $('#date_value').text(d.toString('dd-MMM-yyyy'));
+        $('#date_value').addClass('date_okay'); 
+        $('#date_value').removeClass('date_bad'); 
+        $('#edate').val(d.toString("yyyy-MM-dd"));
+    }
+}
+
 function send_message()
 {
+    parse_date();
+
     var identity = $('#phone').val();
-    var text =  $('#message').val();
     var chw = $('#chw').val();
-    var encounter_date = $('#date').val() || null;
+    var encounter_date = $('#edate').val();
+    var text = $('#message').val();
+    var raw_date = text.split(/\s+/, 1)[0];
+    text = text.slice(raw_date.length).trim();
 
     if (identity.length < 3) {
         alert("Your name is not set! Fill it in yellow box."); return false;
@@ -23,7 +58,7 @@ function send_message()
 
     confstr = "Please confirm:\n\t";
     confstr += "Encounter Date: " + encounter_date + "\n\t";
-    confstr += "CHW: " + $('#chw option:selected').text();
+    confstr += "CHW: " + $('#chw option:selected').text() + "\n";
 
     if (confirm(confstr)) {
         res = proxy_send(data, on_proxy_send);

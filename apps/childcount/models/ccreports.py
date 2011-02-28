@@ -18,6 +18,7 @@ from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport
+from childcount.models import StillbirthMiscarriageReport
 from childcount.models import MedicineGivenReport
 from childcount.models import DangerSignsReport
 from childcount.models import NeonatalReport
@@ -90,6 +91,18 @@ class ThePatient(Patient):
             return False
         except HouseholdVisitReport.DoesNotExist:
             return False
+
+    def latest_imm_report(self, relative_to=date.today()):
+        try:
+            ir = UnderOneReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to)\
+                    .latest()
+        except UnderOneReport.DoesNotExist:
+            return None
+
+        return ir
 
     def is_immunized(self, relative_to=date.today()):
         try:
@@ -530,7 +543,9 @@ class TheCHWReport(CHW):
 
     def patients_under_five(self, today = date.today()):
         sixtym = today - timedelta(int(30.4375 * 59))
-        return Patient.objects.filter(chw=self, dob__gte=sixtym, \
+        return Patient.objects.filter(chw=self, \
+                            dob__gte=sixtym, \
+                            dob__lte=today,
                             status=Patient.STATUS_ACTIVE)
 
     @property
@@ -794,16 +809,64 @@ class TheCHWReport(CHW):
             prgclass = SPregnancy
         else:
             prgclass = PregnancyReport
-        pregs = prgclass.objects.filter(encounter__chw=self)\
-                                .values('encounter__patient').distinct()
+        pregs = prgclass\
+            .objects\
+            .filter(encounter__chw=self)\
+            .values('encounter__patient')\
+            .distinct()
+
         for preg in pregs:
-            patient = Patient.objects.get(id=preg['encounter__patient'])
+            patient = Patient.objects.get(pk=preg['encounter__patient'])
             pr = prgclass.objects.filter(encounter__patient=patient)\
-                                        .latest()
-            days = (pr.encounter.encounter_date.date() - today).days
+                                        .latest('encounter__encounter_date')
+
+            # Number of days since encounter
+            days = (today - pr.encounter.encounter_date.date()).days
+            # Number of months since encounter
             months = round(days / 30.4375)
-            if pr.pregnancy_month + months < 9:
-                c.append(patient)
+
+            #print 'PR submitted %s at month %d (ago: %d)' % \
+            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+
+            # If the pregnancy month plus months since encounter
+            # is greater than 9 and there's no birth report,
+            # then let's assume the lady is not pregnant
+            months_pregnant = pr.pregnancy_month + months
+            if months_pregnant > 9:
+                print 'too old %d in %s' % \
+                    (pr.pregnancy_month, pr.encounter.encounter_date)
+                continue
+
+            # Look for a baby since the pregnancy
+            b = Patient\
+                .objects\
+                .filter(mother__pk=pr.encounter.patient.pk,\
+                    dob__gte=today-timedelta(months_pregnant*30.4375),\
+                    dob__lte=today)
+
+            # If the birthreport has been found, then she's no longer
+            # pregnant
+            if b.count() > 0:
+                print 'birth at %d' % months_pregnant
+                continue
+
+            # Look for a stillbirth/miscarriage
+            s = StillbirthMiscarriageReport\
+                .objects\
+                .filter(encounter__patient__pk=pr.encounter.patient.pk,\
+                    incident_date__gte=\
+                        today-timedelta(months_pregnant*30.4375),\
+                    incident_date__lte=today)
+
+            # If there was a stillbirth/misscariage, then she's
+            # no longer pregnant
+            if s.count() > 0:
+                print 'stillbirth'
+                continue
+            
+            #print '*PR submitted %s at month %d (ago: %d)' % \
+            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+            c.append(patient)
         return c
 
     def num_pregnant_refferred(self):
@@ -1431,11 +1494,12 @@ class GraphicalClinicReport(Clinic):
                         '3 Months (or 1 month for SAM/MAM cases)'),\
                         self.percentage_ontime_muac,\
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
-            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+            Indicator(_(u'Percentage of Under-Fives with Known '\
+                        'Up-to-date Immunizations'),\
                         self.percentage_known_immunized,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage of Pregnant Women Having '\
-                        'at Least 4 ANC Visits by 3rd Trimester'),\
+                        'at Least 4 ANC Visits by Birth'),\
                         self.percentage_with_four_anc,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage On-Time Follow-Up '\
@@ -1935,6 +1999,8 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('Households',\
             #    self.num_of_hhs, Indicator.AVG, \
             #    col_agg_func = Indicator.SUM),
+            Indicator('Total HH Visits',\
+                self.total_hh_visits, Indicator.SUM),
             Indicator('Unique HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
             INDICATOR_EMPTY,
@@ -1984,7 +2050,7 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('% Getting 3 ANC by 2nd Trim.',\
             #    self.perc_with_anc_second,
             #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('% Getting 4 ANC by 3rd Trim.',\
+            Indicator('% Getting 4 ANC by Birth',\
                 self.perc_with_anc_third,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('Num Birth *Reports*',\
@@ -2002,7 +2068,7 @@ class MonthlyCHWReport(TheCHWReport):
                 col_agg_func=Indicator.SUM),
             Indicator('Num MUACs Taken',\
                 self.num_muacs_taken, Indicator.SUM),
-            Indicator('Num active GAM Cases',\
+            Indicator('Num active SAM/MAM Cases',\
                 self.num_active_sam_cases, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
             Indicator('Num Tested RDTs',\
@@ -2039,6 +2105,13 @@ class MonthlyCHWReport(TheCHWReport):
             .for_chw(self)\
             .for_period(per_cls, per_num)\
             .filter(medicines__code='r')\
+            .count()
+
+    def total_hh_visits(self, per_cls, per_num):
+        return HouseholdVisitReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
             .count()
 
     # We're going for distinct households, not
@@ -2238,13 +2311,13 @@ class MonthlyCHWReport(TheCHWReport):
 
     # % of women getting at least 4 ANC visits by 3rd trimester
     def perc_with_anc_third(self, per_cls, per_num):
-        return self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
+        return self._women_getting_n_anc_by(per_cls, per_num, 4, 4)
 
     def _women_getting_n_anc_by_tot(self, per_cls, \
             n_anc, trimester):
 
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = []
         for period in xrange(0, per_cls.num_periods):
@@ -2256,8 +2329,8 @@ class MonthlyCHWReport(TheCHWReport):
         return (len(have_anc), len(women))
 
     def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = self._women_in_month_of_preg(per_cls, per_num, trimester)
         for w in women:
@@ -2268,8 +2341,8 @@ class MonthlyCHWReport(TheCHWReport):
 
 
     def _women_in_month_of_preg(self, per_cls, per_num, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         # e.g., 2nd trimester is range(4, 7)
         end_mo = (trimester*3)+1
@@ -2362,25 +2435,61 @@ class MonthlyCHWReport(TheCHWReport):
             per_cls.period_end_date(per_num)).count()
 
     def num_underfive_imm(self, per_cls, per_num):
-        return self._num_underfive_imm_pks(per_cls, per_num).count()
+        return len(self._num_underfive_imm_pks(per_cls, per_num))
 
-    def _num_underfive_imm_pks(self, per_cls, per_num):
-        return UnderOneReport\
-            .indicators\
-            .for_chw(self)\
-            .before_period(per_cls, per_num)\
-            .filter(\
-                encounter__patient__dob__gte=\
-                    per_cls.period_start_date(per_num)-timedelta(5*365.25),\
-                immunized=UnderOneReport.IMMUNIZED_YES)\
-            .values('encounter__patient__pk')\
-            .distinct()
+    def _num_underfive_imm_pks(self, per_cls=None, per_num=None):
+        if per_cls is None:
+            end_date = date.today()
+        else:
+            end_date = per_cls.period_end_date(per_num)
+
+        immd = []
+
+        # Get all kids under five
+        kids = self.patients_under_five(end_date)
+
+        print "kids: %d" % kids.count()
+        for k in kids:
+            try:
+                imm = UnderOneReport\
+                    .indicators\
+                    .filter(encounter__patient=k)\
+                    .latest()
+            except UnderOneReport.DoesNotExist:
+                print 'no im'
+                continue
+
+            if imm.immunized != UnderOneReport.IMMUNIZED_YES:
+                continue
+
+            if k.dob + timedelta(365) <= end_date:
+                # logic for one-year-olds
+
+                # Make sure they've been checked to be up-to-date on
+                # immunizations in the last 3 months
+                print 'u1'
+                if imm.encounter.encounter_date.date() >= \
+                            end_date - timedelta(3 * 30.3475):
+                    immd.append(k.pk)
+                else:
+                    print 'too late: %s %s' % (k.dob, imm.encounter.encounter_date)
+                    
+            else:
+                # All kids over one year old with up-to-date
+                # immunizations are up-to-date
+                print 'u5'
+                immd.append(k.pk)
+
+        print immd
+        print len(immd)
+        return immd
 
     def num_muacs_taken(self, per_cls, per_num):
         return NutritionReport\
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
+            .filter(muac__isnull=False, status__isnull=False)\
             .count()
 
     def num_active_sam_cases(self, per_cls, per_num):
@@ -2465,10 +2574,9 @@ class MonthlyCHWReport(TheCHWReport):
         
     # Kids under 5 yrs needing immunizations
     def needing_immunizations(self):
-        imm_pks = map(lambda i: i['encounter__patient__pk'],\
-            self._num_underfive_imm_pks(MonthlyPeriodSet, 3))
+        imm_pks = self._num_underfive_imm_pks(MonthlyPeriodSet, 3)
 
-        return Patient\
+        return ThePatient\
             .objects\
             .exclude(pk__in=imm_pks)\
             .filter(chw=self,\
@@ -2547,7 +2655,9 @@ class MonthlyCHWReport(TheCHWReport):
             try:
                 nut = NutritionReport\
                     .objects\
-                    .filter(encounter__patient__pk=p.pk)\
+                    .filter(encounter__patient__pk=p.pk,
+                        muac__isnull=False,
+                        status__isnull=False)\
                     .latest('encounter__encounter_date')
             except NutritionReport.DoesNotExist:
                 no_muac.append((p, None))
@@ -2756,15 +2866,7 @@ class HealthCoordinatorReport():
             except PregnancyReport.DoesNotExist:
                 continue
             preggers.append(rpt)
-        '''preggers = map(lambda w:
-            PregnancyReport\
-                .objects\
-                .filter(encounter__patient=w, \
-                    encounter__encounter_date__gte=\
-                        per_cls.period_start_date(per_num) - \
-                            timedelta(30.4375 * 10))
-                .latest('encounter__encounter_date'), women)'''
-
+        
         # See how many women fall in this trimester
         targets = []
         for p in preggers:
@@ -2778,25 +2880,7 @@ class HealthCoordinatorReport():
 
         return targets
 
-    def pregnant_women(self, today=datetime.today().date()):
-        c = []
-        pregs = PregnancyReport\
-            .objects\
-            .values('encounter__patient')\
-            .distinct()
-
-        for preg in pregs:
-            patient = Patient.objects.get(pk=preg['encounter__patient'])
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
-                                        .latest('encounter__encounter_date')
-            days = (pr.encounter.encounter_date.date() - today).days
-            months = round(days / 30.4375)
-            if pr.pregnancy_month + months < 9:
-                c.append(patient)
-
-        return c
-
-    def _births(self, per_cls, per_num):
+   def _births(self, per_cls, per_num):
         return BirthReport\
             .indicators\
             .for_period(per_cls, per_num)\

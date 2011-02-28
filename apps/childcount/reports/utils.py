@@ -2,6 +2,7 @@ import time
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import os
+import os.path
 import shutil
 
 from django.http import HttpResponseRedirect
@@ -224,6 +225,12 @@ def report_filepath(rname, rformat):
                     'static',
                     REPORTS_DIR,
                     rname+'.'+rformat)
+
+def report_modified_on(rname, rformat):
+    fname = report_filepath(rname, rformat)
+    if not os.path.exists(fname):
+        return None
+    return datetime.fromtimestamp(os.path.getmtime(fname))
 
 def report_url(rname, rformat):
     return ''.join([\
