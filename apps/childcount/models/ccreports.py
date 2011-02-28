@@ -92,6 +92,18 @@ class ThePatient(Patient):
         except HouseholdVisitReport.DoesNotExist:
             return False
 
+    def latest_imm_report(self, relative_to=date.today()):
+        try:
+            ir = UnderOneReport\
+                    .objects\
+                    .filter(encounter__patient=self, \
+                        encounter__encounter_date__lte=relative_to)\
+                    .latest()
+        except UnderOneReport.DoesNotExist:
+            return None
+
+        return ir
+
     def is_immunized(self, relative_to=date.today()):
         try:
             ir = UnderOneReport\
@@ -531,7 +543,9 @@ class TheCHWReport(CHW):
 
     def patients_under_five(self, today = date.today()):
         sixtym = today - timedelta(int(30.4375 * 59))
-        return Patient.objects.filter(chw=self, dob__gte=sixtym, \
+        return Patient.objects.filter(chw=self, \
+                            dob__gte=sixtym, \
+                            dob__lte=today,
                             status=Patient.STATUS_ACTIVE)
 
     @property
@@ -1480,7 +1494,8 @@ class GraphicalClinicReport(Clinic):
                         '3 Months (or 1 month for SAM/MAM cases)'),\
                         self.percentage_ontime_muac,\
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
-            Indicator(_(u'Percentage of Under-Fives Known Immunized'),\
+            Indicator(_(u'Percentage of Under-Fives with Known '\
+                        'Up-to-date Immunizations'),\
                         self.percentage_known_immunized,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage of Pregnant Women Having '\
@@ -2420,19 +2435,54 @@ class MonthlyCHWReport(TheCHWReport):
             per_cls.period_end_date(per_num)).count()
 
     def num_underfive_imm(self, per_cls, per_num):
-        return self._num_underfive_imm_pks(per_cls, per_num).count()
+        return len(self._num_underfive_imm_pks(per_cls, per_num))
 
-    def _num_underfive_imm_pks(self, per_cls, per_num):
-        return UnderOneReport\
-            .indicators\
-            .for_chw(self)\
-            .before_period(per_cls, per_num)\
-            .filter(\
-                encounter__patient__dob__gte=\
-                    per_cls.period_start_date(per_num)-timedelta(5*365.25),\
-                immunized=UnderOneReport.IMMUNIZED_YES)\
-            .values('encounter__patient__pk')\
-            .distinct()
+    def _num_underfive_imm_pks(self, per_cls=None, per_num=None):
+        if per_cls is None:
+            end_date = date.today()
+        else:
+            end_date = per_cls.period_end_date(per_num)
+
+        immd = []
+
+        # Get all kids under five
+        kids = self.patients_under_five(end_date)
+
+        print "kids: %d" % kids.count()
+        for k in kids:
+            try:
+                imm = UnderOneReport\
+                    .indicators\
+                    .filter(encounter__patient=k)\
+                    .latest()
+            except UnderOneReport.DoesNotExist:
+                print 'no im'
+                continue
+
+            if imm.immunized != UnderOneReport.IMMUNIZED_YES:
+                continue
+
+            if k.dob + timedelta(365) <= end_date:
+                # logic for one-year-olds
+
+                # Make sure they've been checked to be up-to-date on
+                # immunizations in the last 3 months
+                print 'u1'
+                if imm.encounter.encounter_date.date() >= \
+                            end_date - timedelta(3 * 30.3475):
+                    immd.append(k.pk)
+                else:
+                    print 'too late: %s %s' % (k.dob, imm.encounter.encounter_date)
+                    
+            else:
+                # All kids over one year old with up-to-date
+                # immunizations are up-to-date
+                print 'u5'
+                immd.append(k.pk)
+
+        print immd
+        print len(immd)
+        return immd
 
     def num_muacs_taken(self, per_cls, per_num):
         return NutritionReport\
@@ -2524,10 +2574,9 @@ class MonthlyCHWReport(TheCHWReport):
         
     # Kids under 5 yrs needing immunizations
     def needing_immunizations(self):
-        imm_pks = map(lambda i: i['encounter__patient__pk'],\
-            self._num_underfive_imm_pks(MonthlyPeriodSet, 3))
+        imm_pks = self._num_underfive_imm_pks(MonthlyPeriodSet, 3)
 
-        return Patient\
+        return ThePatient\
             .objects\
             .exclude(pk__in=imm_pks)\
             .filter(chw=self,\
