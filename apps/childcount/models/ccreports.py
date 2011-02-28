@@ -2880,7 +2880,7 @@ class HealthCoordinatorReport():
 
         return targets
 
-   def _births(self, per_cls, per_num):
+    def _births(self, per_cls, per_num):
         return BirthReport\
             .indicators\
             .for_period(per_cls, per_num)\
