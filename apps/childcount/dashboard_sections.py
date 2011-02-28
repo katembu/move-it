@@ -98,9 +98,9 @@ def reports_list():
     report_sets = []
     
     for reports in report_sets_original:
-        rset_title = reports[0]
+        rset_title = reports['name']
         rset_reports = []
-        for rrr in reports[1]:
+        for rrr in reports['data']:
             
             temp_r = {
                 'title': rrr['title'],
@@ -118,6 +118,7 @@ def reports_list():
         
         report_sets.append({
             'title': rset_title,
+            'show_datestamp': reports['show_datestamp'],
             'reports': rset_reports
         })
     return report_sets

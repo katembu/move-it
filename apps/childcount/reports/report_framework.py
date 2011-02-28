@@ -221,15 +221,23 @@ def report_sets():
     for item in tmp:
         on_demand.extend(item)
 
-    report_sets.append(('On-Demand Reports', on_demand))
-
+    report_sets.append({
+        'name': 'On-Demand Reports',
+        'data': on_demand,
+        'show_datestamp': False,
+    })
+    
     tmp = map(
         lambda rep: rep().report_view_data('nightly'),
         report_objects('nightly'))
     nightly = []
     for item in tmp:
         nightly.extend(item)
-    report_sets.append(('Nightly Reports', nightly))
+    report_sets.append({
+        'name': 'Nightly Reports',
+        'data': nightly,
+        'show_datestamp': True,
+    })
 
     return report_sets
 
