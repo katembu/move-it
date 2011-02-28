@@ -16,6 +16,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 from childcount.exceptions import *
 from childcount.models import Encounter
+from childcount.forms import *
 
 
 class DOBProcessor:
@@ -660,7 +661,6 @@ def send_msg(reporter, text):
 
 def get_ccforms_by_name():
     ''' returns a list of childcount forms grouped Encounter type '''
-    from childcount.forms import *
     conf = settings.RAPIDSMS_APPS['childcount']
     formlist = conf['forms'].replace(' ', '').split(',')
     forms = {}
