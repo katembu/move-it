@@ -18,6 +18,7 @@ from childcount.models import Patient
 from locations.models import Location
 from childcount.models import CHW, Clinic
 from childcount.models import NutritionReport
+from childcount.models import StillbirthMiscarriageReport
 from childcount.models import MedicineGivenReport
 from childcount.models import DangerSignsReport
 from childcount.models import NeonatalReport
@@ -794,16 +795,64 @@ class TheCHWReport(CHW):
             prgclass = SPregnancy
         else:
             prgclass = PregnancyReport
-        pregs = prgclass.objects.filter(encounter__chw=self)\
-                                .values('encounter__patient').distinct()
+        pregs = prgclass\
+            .objects\
+            .filter(encounter__chw=self)\
+            .values('encounter__patient')\
+            .distinct()
+
         for preg in pregs:
-            patient = Patient.objects.get(id=preg['encounter__patient'])
+            patient = Patient.objects.get(pk=preg['encounter__patient'])
             pr = prgclass.objects.filter(encounter__patient=patient)\
-                                        .latest()
-            days = (pr.encounter.encounter_date.date() - today).days
+                                        .latest('encounter__encounter_date')
+
+            # Number of days since encounter
+            days = (today - pr.encounter.encounter_date.date()).days
+            # Number of months since encounter
             months = round(days / 30.4375)
-            if pr.pregnancy_month + months < 9:
-                c.append(patient)
+
+            #print 'PR submitted %s at month %d (ago: %d)' % \
+            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+
+            # If the pregnancy month plus months since encounter
+            # is greater than 9 and there's no birth report,
+            # then let's assume the lady is not pregnant
+            months_pregnant = pr.pregnancy_month + months
+            if months_pregnant > 9:
+                print 'too old %d in %s' % \
+                    (pr.pregnancy_month, pr.encounter.encounter_date)
+                continue
+
+            # Look for a baby since the pregnancy
+            b = Patient\
+                .objects\
+                .filter(mother__pk=pr.encounter.patient.pk,\
+                    dob__gte=today-timedelta(months_pregnant*30.4375),\
+                    dob__lte=today)
+
+            # If the birthreport has been found, then she's no longer
+            # pregnant
+            if b.count() > 0:
+                print 'birth at %d' % months_pregnant
+                continue
+
+            # Look for a stillbirth/miscarriage
+            s = StillbirthMiscarriageReport\
+                .objects\
+                .filter(encounter__patient__pk=pr.encounter.patient.pk,\
+                    incident_date__gte=\
+                        today-timedelta(months_pregnant*30.4375),\
+                    incident_date__lte=today)
+
+            # If there was a stillbirth/misscariage, then she's
+            # no longer pregnant
+            if s.count() > 0:
+                print 'stillbirth'
+                continue
+            
+            #print '*PR submitted %s at month %d (ago: %d)' % \
+            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+            c.append(patient)
         return c
 
     def num_pregnant_refferred(self):
@@ -2768,15 +2817,7 @@ class HealthCoordinatorReport():
             except PregnancyReport.DoesNotExist:
                 continue
             preggers.append(rpt)
-        '''preggers = map(lambda w:
-            PregnancyReport\
-                .objects\
-                .filter(encounter__patient=w, \
-                    encounter__encounter_date__gte=\
-                        per_cls.period_start_date(per_num) - \
-                            timedelta(30.4375 * 10))
-                .latest('encounter__encounter_date'), women)'''
-
+        
         # See how many women fall in this trimester
         targets = []
         for p in preggers:
@@ -2789,29 +2830,6 @@ class HealthCoordinatorReport():
                 targets.append(p)
 
         return targets
-
-    def pregnant_women(self, today=datetime.today().date()):
-        c = []
-        # Need to use Sauri specific
-        # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
-        # does returns [], with values('encounter__patient').distinct()
-        # returns some values but they are different if SPregnancy is used
-        pregs = PregnancyReport\
-            .objects\
-            .filter(encounter__chw=self)\
-            .values('encounter__patient')\
-            .distinct()
-
-        for preg in pregs:
-            patient = Patient.objects.get(pk=preg['encounter__patient'])
-            pr = PregnancyReport.objects.filter(encounter__patient=patient)\
-                                        .latest('encounter__encounter_date')
-            days = (pr.encounter.encounter_date.date() - today).days
-            months = round(days / 30.4375)
-            if pr.pregnancy_month + months < 9:
-                c.append(patient)
-
-        return c
 
     def _births(self, per_cls, per_num):
         return BirthReport\
