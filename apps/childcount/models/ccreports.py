@@ -557,6 +557,11 @@ class TheCHWReport(CHW):
         return Patient.objects.filter(chw=self, dob__gte=ninem, \
                             status=Patient.STATUS_ACTIVE)
 
+    def patients_underone(self):
+        oney = date.today() - timedelta(int(30.4375 * 12))
+        return Patient.objects.filter(chw=self, dob__gte=oney, \
+                            status=Patient.STATUS_ACTIVE)
+
     @property
     def num_of_sam(self):
         num = NutritionReport.objects.filter(created_by=self, \
@@ -970,6 +975,7 @@ class TheCHWReport(CHW):
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
         p['unine'] = self.num_of_under_nine
+        p['underone'] = self.patients_underone().count()
 
         return p
 
@@ -988,6 +994,7 @@ class TheCHWReport(CHW):
         p['tclient'] = self.num_of_patients
         p['ufive'] = self.num_of_underfive
         p['unine'] = self.num_of_under_nine
+        p['underone'] = self.patients_underone().count()
 
         return p
 
