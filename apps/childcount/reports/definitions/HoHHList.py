@@ -1,25 +1,21 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: tief
-
-from datetime import date
+# maintainer: rgaudin
 
 from django.utils.translation import gettext as _
 from django.db.models import Count
-
 from ccdoc import Document, Table, Text, Section
-
-from childcount.models import Patient
 from locations.models import Location
 
+from childcount.models import Patient
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
 import patients_toolbox as tb
 
 class Report(PrintedReport):
-    """ list all patients registered on the dashboard """
-    title = 'ID ASSIGNEMENT SHEET'
-    filename = 'Patient4Card'
+    """ list all HoHH  """
+    title = 'HouseHolds'
+    filename = 'HouseHolds'
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
@@ -42,7 +38,7 @@ class Report(PrintedReport):
             for patient_dict in patients:
                 patient = Patient.objects\
                                       .get(health_id=patient_dict['health_id'])
-                tb._add_patient_to_table(table, patient)
+                tb._add_patient_to_table(table, patient, only_hohh=True)
 
             doc.add_element(table)
 
