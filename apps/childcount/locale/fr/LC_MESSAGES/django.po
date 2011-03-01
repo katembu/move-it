@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-01 16:11+0000\n"
-"PO-Revision-Date: 2011-03-01 16:09-0000\n"
+"POT-Creation-Date: 2011-03-01 16:45+0000\n"
+"PO-Revision-Date: 2011-03-01 16:45-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -469,9 +469,9 @@ msgid "You successfuly reported the death of %(death)s."
 msgstr "Vous avez réussi à signaler le décès de %(death)s."
 
 #: commands/FamilyCommand.py:22
-#, fuzzy, python-format
+#, python-format
 msgid "Usage: %(com)s health_id"
-msgstr "Vous avez encore: %(health_id)s"
+msgstr "Instructions: %(com)s health_id"
 
 #: commands/FamilyCommand.py:28
 #, python-format
@@ -490,14 +490,14 @@ msgstr "Pas assez d'infos. Requis: %(keyword)s | code lieu |"
 
 #: commands/GetStockCommand.py:39 commands/StockInCommand.py:39
 #: commands/StockOutCommand.py:39
-#, fuzzy, python-format
+#, python-format
 msgid "Unknown location code %(loc)s."
-msgstr "Il n'y a personne avec cet numéro %(hid)s"
+msgstr "Code lieu inconnu %(loc)s."
 
 #: commands/GetStockCommand.py:48 commands/StockOutCommand.py:53
-#, fuzzy, python-format
+#, python-format
 msgid "No Stockin for %(loc)s."
-msgstr "Pas de compte-rendu pour %s."
+msgstr "Pas d'entrée de stock pour %(loc)s."
 
 #: commands/GetStockCommand.py:50
 #, python-format
@@ -641,9 +641,9 @@ msgid "Relocate command format: reloc LOC HEALTH_ID."
 msgstr "Commande de déplacement: reloc LOC ID_SANTE."
 
 #: commands/RelocateCommand.py:69
-#, fuzzy, python-format
+#, python-format
 msgid "There is no location with code %(code)s."
-msgstr "Il n'y a personne avec cet numéro %(hid)s"
+msgstr "Il n'y a pas de lieu ayant pour code %(code)s."
 
 #: commands/RelocateCommand.py:92
 #, python-format
@@ -658,9 +658,9 @@ msgid "Marked %(count)d patients as INACTIVE: "
 msgstr "%(count)d patients notés comme innactifs: "
 
 #: commands/StockInCommand.py:33 commands/StockOutCommand.py:33
-#, fuzzy, python-format
+#, python-format
 msgid "Not enough information. Expected:%(keyword)s locationcode quantity"
-msgstr "Pas assez d'infos. Requis: %(keyword)s noms de lieu"
+msgstr "Pas assez d'infos. Requis: %(keyword)s | code lieu | quantité |"
 
 #: commands/StockInCommand.py:42 commands/StockOutCommand.py:42
 #, python-format
@@ -805,7 +805,7 @@ msgstr "Pas de rendez-vous prochain: %(patient)s a terminé le programme"
 #: forms/BCPillForm.py:30
 msgid "Not enough info. Expected: number of women given BC pills."
 msgstr ""
-"Pas assez d'infos. Requis: nombre de femmes à qui l'on a donné la pillule."
+"Pas assez d'infos. Requis: nombre de femmes à qui l'on a donné la pilule."
 
 #: forms/BCPillForm.py:40
 msgid "| Number of women | must be a number."
@@ -878,17 +878,17 @@ msgid "Report Survey doesnt exist for %(patient)s "
 msgstr "Compte-rendu de l'enquête n'existe pas pour %(patient)s "
 
 #: forms/BednetDistributionForm.py:64
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "DO NOT ISSUE nets to %(patient)s, already received %(nets)d nets for %(site)"
 "d sleeping sites."
 msgstr ""
-"%(patient)s a déjà reçu %(nets)d moustiquaires pour %(site)d couchages."
+"NE PAS DONNER de moustiquaires à %(patient)s. A déjà reçu %(nets)d "
+"moustiquaires pour %(site)d couchages."
 
 #: forms/BednetDistributionForm.py:74 forms/BednetDistributionForm.py:89
-#, fuzzy
 msgid "Last received: None"
-msgstr "Résultats reçus"
+msgstr "Dernier recu: Aucun"
 
 #: forms/BednetDistributionForm.py:76 forms/BednetDistributionForm.py:91
 #, python-format
@@ -904,9 +904,9 @@ msgstr ""
 "(s)."
 
 #: forms/BednetDistributionForm.py:97
-#, fuzzy, python-format
+#, python-format
 msgid "Issued %(issued)s nets."
-msgstr "Dernière réception: %(last_issued)d moustiquaires."
+msgstr "Distribués: %(issued)s moustiquaires."
 
 #: forms/BednetIssuedForm.py:33
 #, python-format
@@ -1187,9 +1187,9 @@ msgid "Not enough info. Expected: | First Name | Last Name |"
 msgstr "Pas assez d'infos. Requis: | Prénom | Nom de famille |"
 
 #: forms/EditPatientForm.py:38
-#, fuzzy, python-format
+#, python-format
 msgid "Updated Patient info: %(patient)s"
-msgstr "Compte-rendu de l'enquête n'existe pas pour %(patient)s "
+msgstr "Mise à jour des infos du patient: %(patient)s"
 
 #: forms/FamilyPlanningForm.py:31
 msgid ""
@@ -1620,9 +1620,8 @@ msgid "SAM"
 msgstr "MAS"
 
 #: forms/NutritionForm.py:133
-#, fuzzy
 msgid "HEALTHY"
-msgstr "No de santé"
+msgstr "SAIN"
 
 #: forms/NutritionForm.py:141
 #, python-format
@@ -2390,9 +2389,8 @@ msgid "Dehydration"
 msgstr "déshydratation"
 
 #: models/CodedItem.py:30
-#, fuzzy
 msgid "dr"
-msgstr "r"
+msgstr "dr"
 
 #: models/CodedItem.py:31 models/CodedItem.py:81
 msgid "fp"
@@ -2628,18 +2626,16 @@ msgid "Zinc"
 msgstr "Zinc"
 
 #: models/CodedItem.py:67
-#, fuzzy
 msgid "pcm"
-msgstr "cm"
+msgstr "pcm"
 
 #: models/CodedItem.py:67
 msgid "Paracetamol"
 msgstr "Paracetamol"
 
 #: models/CodedItem.py:68
-#, fuzzy
 msgid "va"
-msgstr "Disp"
+msgstr "va"
 
 #: models/CodedItem.py:68
 msgid "Vitamin A"
@@ -2654,9 +2650,8 @@ msgid "Vitamin C"
 msgstr "Vitamine C"
 
 #: models/CodedItem.py:70
-#, fuzzy
 msgid "f"
-msgstr "fp"
+msgstr "f"
 
 #: models/CodedItem.py:70
 msgid "Fesolate"
@@ -2667,9 +2662,8 @@ msgid "bco"
 msgstr "bco"
 
 #: models/CodedItem.py:71
-#, fuzzy
 msgid "B Complex"
-msgstr "Complété?"
+msgstr "B Complex"
 
 #: models/CodedItem.py:72
 msgid "arv"
@@ -2680,9 +2674,8 @@ msgid "ARV"
 msgstr "ARV"
 
 #: models/CodedItem.py:73
-#, fuzzy
 msgid "azt"
-msgstr "act"
+msgstr "azt"
 
 #: models/CodedItem.py:73
 msgid "AZT"
@@ -3045,9 +3038,8 @@ msgid "Backend"
 msgstr "Backend"
 
 #: models/FormGroup.py:59
-#, fuzzy
 msgid "Total Household forms"
-msgstr "# de ménages"
+msgstr "Total Termes de ménages"
 
 #: models/FormGroup.py:66
 msgid "Total Consultation Forms"
@@ -3226,9 +3218,8 @@ msgstr "Dernier PB"
 #: models/ccreports.py:312 models/ccreports.py:334
 #: reports/definitions/RegisteredPatient.py:53
 #: reports/definitions/patients_toolbox.py:16
-#, fuzzy
 msgid "HID"
-msgstr "No. de santé du ménage"
+msgstr "HID"
 
 #: models/ccreports.py:328
 msgid "LOC"
@@ -3263,9 +3254,8 @@ msgid "Damaged Bednet"
 msgstr "Moustiquaires endommagées"
 
 #: models/ccreports.py:382
-#, fuzzy
 msgid "Required Bednets"
-msgstr "Moustiquaires récentes"
+msgstr "Moustiquaires nécessaires"
 
 #: models/ccreports.py:385
 msgid "#under five last night"
@@ -3344,23 +3334,20 @@ msgid "Reason"
 msgstr "Raison "
 
 #: models/ccreports.py:452
-#, fuzzy
 msgid "Primary SAN"
 msgstr "Conditions sanitaires primaires"
 
 #: models/ccreports.py:458
-#, fuzzy
 msgid "P. Water Source"
-msgstr "Source d'eau"
+msgstr "Source d'eau primaire"
 
 #: models/ccreports.py:461
 msgid "Treatment"
 msgstr "Méthode de traitement "
 
 #: models/ccreports.py:492
-#, fuzzy
 msgid "# Nets Issued"
-msgstr "délivré"
+msgstr "# Moustiquaires distribuées"
 
 #: models/ccreports.py:514
 msgid "Community Health Worker Report"
@@ -3409,18 +3396,16 @@ msgid "# of Birth Reports"
 msgstr "# Rapports de naissances"
 
 #: models/ccreports.py:1310
-#, fuzzy
 msgid "#Bir"
-msgstr "ir"
+msgstr "#Naiss"
 
 #: models/ccreports.py:1314
 msgid "% Births delivered in Health Facility [S4]"
 msgstr "% de naissances données dans un centre de santé"
 
 #: models/ccreports.py:1316
-#, fuzzy
 msgid "%BHF"
-msgstr "Lai"
+msgstr "%BHF"
 
 #: models/ccreports.py:1320
 msgid "% Newborns checked within 7 days of birth [S6]"
@@ -3468,19 +3453,16 @@ msgstr ""
 "% de moins de 5 ans recevant un PB dans les temps (dans les 90 jours) [S11]"
 
 #: models/ccreports.py:1348
-#, fuzzy
 msgid "#U5-MUAC"
-msgstr "#PB"
+msgstr "#-5a-PB"
 
 #: models/ccreports.py:1352
-#, fuzzy
 msgid "# of Active GAM cases"
-msgstr "# de cas de MAS actifs"
+msgstr "# de cas de MAG"
 
 #: models/ccreports.py:1353
-#, fuzzy
 msgid "#U5-GAM"
-msgstr "MAS"
+msgstr "#-5a-MAG"
 
 #: models/ccreports.py:1357
 msgid "# of Pregnant Women"
@@ -3491,9 +3473,8 @@ msgid "#PW"
 msgstr "#FE"
 
 #: models/ccreports.py:1362
-#, fuzzy
 msgid "# Pregnant Women Referred Urgently"
-msgstr "# de femmes enceintes référencées pour signes de danger"
+msgstr "# de femmes enceintes renvoyés en urgence"
 
 #: models/ccreports.py:1363
 msgid "#PW-DS"
@@ -3510,9 +3491,8 @@ msgid "%PW-OTV"
 msgstr "%FE-OTV"
 
 #: models/ccreports.py:1373
-#, fuzzy
 msgid "# Number of appointments"
-msgstr "Nombre de patients"
+msgstr "# de rendez-vous"
 
 #: models/ccreports.py:1374
 msgid "%NOA"
@@ -3570,9 +3550,8 @@ msgid "SCORE"
 msgstr "SCORE"
 
 #: models/ccreports.py:1416
-#, fuzzy
 msgid "Graphical Clinic Report"
-msgstr "Compte-rendu du centre de santé"
+msgstr "Rapport graphique de clinique "
 
 #: models/ccreports.py:1429
 msgid ""
@@ -3628,9 +3607,8 @@ msgid "# of HH Visits (Last two weeks)"
 msgstr "# visites de ménage (deux dernières semaines)"
 
 #: models/ccreports.py:1895
-#, fuzzy
 msgid "# of Households Surveyed"
-msgstr "# de ménages"
+msgstr "# de ménages questionnés"
 
 #: models/ccreports.py:1897
 msgid "# of Sleeping Sites"
@@ -3653,14 +3631,12 @@ msgid "# of Bednet Utilization Reports"
 msgstr "# de rapports d'utilisation des moustiquaires"
 
 #: models/ccreports.py:1907
-#, fuzzy
 msgid "# of Drinking Water Reports"
-msgstr "Comptes-rendus de la consommation d'eau"
+msgstr "# de rapports de consommation d'eau"
 
 #: models/ccreports.py:1909
-#, fuzzy
 msgid "# of Sanitation Reports"
-msgstr "Comptes-rendus de conditions sanitaires"
+msgstr "# de rapports de conditions sanitaires"
 
 #: models/reports.py:100
 msgid "ChildCount Report"
@@ -3940,11 +3916,11 @@ msgstr "ARV PTME"
 
 #: models/reports.py:624
 msgid "Birth Control Pill Report"
-msgstr "Compte-rendu de la contraception par pillule"
+msgstr "Compte-rendu de la contraception par pilule"
 
 #: models/reports.py:625
 msgid "Birth Control Pill Reports"
-msgstr "Comptes-rendus de la contraception par pillule"
+msgstr "Comptes-rendus de la contraception par pilule"
 
 #: models/reports.py:627
 msgid "Pills given"
@@ -4511,9 +4487,8 @@ msgid "DBS Results"
 msgstr "Résultats de TSS"
 
 #: models/reports.py:1491
-#, fuzzy
 msgid "Test Result"
-msgstr "Résultat de TDR"
+msgstr "Résulat du test"
 
 #: models/reports.py:1515
 msgid "CD4 Result"
@@ -4536,14 +4511,12 @@ msgid "Patients status Report"
 msgstr "Compte-rendu de la liste des patients"
 
 #: models/bednet/BednetStock.py:20 models/bednet/BednetStock.py:21
-#, fuzzy
 msgid "Bednet Stock"
-msgstr "Moustiquaire imprégnée"
+msgstr "Stock de moustiquaires"
 
 #: models/bednet/BednetStock.py:30
-#, fuzzy
 msgid "The bednet distribution site"
-msgstr "Compte-rendu de distribution des moustiquaires"
+msgstr "Le site de distribution des moustiquaires"
 
 #: models/bednet/BednetStock.py:32
 msgid "Facilitator"
@@ -4566,9 +4539,8 @@ msgid "Quantity"
 msgstr "Quantité"
 
 #: reports/bednet.py:20
-#, fuzzy
 msgid "Defaulters Report"
-msgstr "Compte-rendu de décès"
+msgstr "Rapport des défauts"
 
 #: reports/bednet.py:29 reports/pmtct.py:42 reports/pmtct.py:77
 #: reports/pmtct.py:113
@@ -4576,9 +4548,8 @@ msgid "Date"
 msgstr "Date"
 
 #: reports/bednet.py:31
-#, fuzzy
 msgid "# of Bednets Issued"
-msgstr "Moustiquaires précédentes"
+msgstr "# de moustiquaires distribués"
 
 #: reports/custom_reports.py:122 reports/definitions/PatientList.py:69
 #, python-format
@@ -4591,9 +4562,8 @@ msgid "CHW: %(loc)s: %(chw)s"
 msgstr "ASC: %(loc)s: %(chw)s"
 
 #: reports/performance.py:54
-#, fuzzy
 msgid "CHW Performance Report"
-msgstr "Compte-rendu de grossesse"
+msgstr "Rapport de performance ASC"
 
 #: reports/performance.py:69
 msgid "HH Visits Per Day (last month)"
@@ -4609,9 +4579,8 @@ msgid "No active pregnancies reported for %(chwname)s"
 msgstr "Pas de grossesse active rapporté par %(chwname)s"
 
 #: reports/performance.py:88
-#, fuzzy
 msgid "Latest Report"
-msgstr "Compte-rendu de la liste des patients"
+msgstr "Dernier rapport"
 
 #: reports/performance.py:89
 msgid ""
@@ -4639,14 +4608,12 @@ msgid "Reminded"
 msgstr "Rappelé"
 
 #: reports/pmtct.py:51
-#, fuzzy
 msgid "Not Reminded"
-msgstr "Non pour réactive"
+msgstr "Non rappelé"
 
 #: reports/pmtct.py:65
-#, fuzzy
 msgid "Appointments Report"
-msgstr "Rendez-vous"
+msgstr "Rapport de rendez-vous"
 
 #: reports/pmtct.py:71
 #, python-format
@@ -4654,9 +4621,8 @@ msgid "Appointments Report: Last 30 Days - %(from)s to %(to)s"
 msgstr "Rapport de rendez-vous: 30 derniers jours - Du %(from)s au %(to)s"
 
 #: reports/pmtct.py:78 reports/pmtct.py:155
-#, fuzzy
 msgid "Reminded?"
-msgstr "Rappelé"
+msgstr "Rappelé?"
 
 #: reports/pmtct.py:85 reports/pmtct.py:164
 #: templates/childcount/list_chw.html:31
@@ -4669,14 +4635,12 @@ msgid "N"
 msgstr "N"
 
 #: reports/pmtct.py:100
-#, fuzzy
 msgid "Error Report"
-msgstr "Compte-rendu de naissance"
+msgstr "Rapport d'erreur"
 
 #: reports/pmtct.py:139
-#, fuzzy
 msgid "Appointments Aggregates Report "
-msgstr "Compte-rendu de la liste des patients"
+msgstr "Rapport des rendez-vous aggregés"
 
 #: reports/pmtct.py:148
 #, python-format
@@ -4696,14 +4660,12 @@ msgstr ""
 "(to)s"
 
 #: reports/pmtct.py:199
-#, fuzzy
 msgid "Total number of appointments made"
-msgstr "Nombre de patients en dessous de 5 ans"
+msgstr "Nombre total de rendez-vous effectués"
 
 #: reports/pmtct.py:200
-#, fuzzy
 msgid "Number of defaulters"
-msgstr "Nombre de patients"
+msgstr "Nombre en défaut"
 
 #: reports/pmtct.py:201
 msgid "Percentage defaulting (defaulters/total appointments)"
@@ -4718,9 +4680,8 @@ msgid "Upcoming Deliveries"
 msgstr "Les livraisons à venir"
 
 #: reports/pmtct.py:305
-#, fuzzy
 msgid "New Registrations"
-msgstr "Enregistrement"
+msgstr "Nouveaux enregistrement"
 
 #: reports/pmtct.py:332
 msgid "Mothers Being followed"
@@ -4766,9 +4727,9 @@ msgstr "Clinique %(location)s inconnue."
 
 #: reports/definitions/BednetCoverageReport.py:83
 #: reports/definitions/BednetSurvey.py:83
-#, fuzzy, python-format
+#, python-format
 msgid "Bednet Report - %(loc)s: %(chw)s"
-msgstr "ASC: %(loc)s: %(chw)s"
+msgstr "Rapport moustiquaire - %(loc)s: %(chw)s"
 
 #: reports/definitions/CHWList.py:40 templates/childcount/forms/a.json:4
 #: templates/childcount/forms/b.json:4 templates/childcount/forms/b21.json:4
@@ -4778,24 +4739,20 @@ msgid "ID"
 msgstr "No"
 
 #: reports/definitions/CHWList.py:43 templates/childcount/list_chw.html:20
-#, fuzzy
 msgid "Username"
-msgstr "Utilisateur"
+msgstr "Identifiant"
 
 #: reports/definitions/CHWList.py:44
-#, fuzzy
 msgid "Lang"
 msgstr "Langue"
 
 #: reports/definitions/CHWManagerReport.py:23
-#, fuzzy
 msgid "CHW Manager Report: "
-msgstr "Compte-rendu de grossesse"
+msgstr "Rapport Coordinateur ASC"
 
 #: reports/definitions/CHWManagerReport.py:95
-#, fuzzy
 msgid "Report"
-msgstr "Comptes-rendus"
+msgstr "Rapport"
 
 #: reports/definitions/CHWManagerReport.py:116
 msgid "Millennium Village: "
@@ -4818,9 +4775,9 @@ msgstr ""
 "commence par suivante."
 
 #: reports/definitions/ClientReport.py:218
-#, fuzzy, python-format
+#, python-format
 msgid "%(clinic)s - %(full_name)s"
-msgstr "%(fname)s %(lname)s "
+msgstr "%(clinic)s - %(full_name)s"
 
 #: reports/definitions/ClientReport.py:240
 #: reports/definitions/ClientReport.py:418
@@ -4829,9 +4786,8 @@ msgid "#"
 msgstr "#"
 
 #: reports/definitions/ClientReport.py:244
-#, fuzzy
 msgid "Mother"
-msgstr "Autre"
+msgstr "Mère"
 
 #: reports/definitions/ClientReport.py:245
 #: reports/definitions/ClientReport.py:421
@@ -4858,7 +4814,6 @@ msgstr "Visite"
 #: reports/definitions/ClientReport.py:249
 #: reports/definitions/ClientReport.py:427
 #: reports/definitions/ClientReport.py:550
-#, fuzzy
 msgid "PID"
 msgstr "No"
 
@@ -4873,9 +4828,8 @@ msgid "CHILDREN"
 msgstr "ENFANTS"
 
 #: reports/definitions/ClientReport.py:364
-#, fuzzy
 msgid "Nutrition consult"
-msgstr "Nutrition"
+msgstr "Consultation nutrition"
 
 #: reports/definitions/ClientReport.py:423
 #: reports/definitions/ClientReport.py:547 templates/childcount/forms/b.json:7
@@ -4897,9 +4851,8 @@ msgid "-"
 msgstr "-"
 
 #: reports/definitions/ClientReport.py:496
-#, fuzzy
 msgid "Review birth plan"
-msgstr "Plan de grossesse"
+msgstr "Vérifier le suivi de grossesse"
 
 #: reports/definitions/ClientReport.py:500
 #, python-format
@@ -4920,9 +4873,8 @@ msgid "HH Health ID"
 msgstr "No. de santé du ménage"
 
 #: reports/definitions/MonthlyCHWReport.py:24
-#, fuzzy
 msgid "Monthly CHW Report: "
-msgstr "Compte-rendu prénatal"
+msgstr "Rapport mensuel ASC"
 
 #: reports/definitions/MonthlyCHWReport.py:48
 #, python-format
@@ -4970,51 +4922,44 @@ msgid "Household Head"
 msgstr "Chef de Ménage"
 
 #: reports/definitions/MonthlyCHWReport.py:100
-#, fuzzy
 msgid "Referral Type / Date"
-msgstr "Numéro de renvoi"
+msgstr "Type / Date de renvoi"
 
 #: reports/definitions/MonthlyCHWReport.py:101
-#, fuzzy
 msgid "Referred For"
-msgstr "Compte-rendu de référence"
+msgstr "Renvoyé pour"
 
 #: reports/definitions/MonthlyCHWReport.py:102
-#, fuzzy
 msgid "Follow-Up Date"
-msgstr "Compte-rendu de suivi"
+msgstr "Date de suivi"
 
 #: reports/definitions/MonthlyCHWReport.py:120
-#, fuzzy
 msgid " on "
-msgstr " ou "
+msgstr " le "
 
 #: reports/definitions/MonthlyCHWReport.py:126
 msgid "[No DSs Reported]"
 msgstr "[Pas de S.D signalé]"
 
 #: reports/definitions/MonthlyCHWReport.py:127
-#, fuzzy
 msgid "Late: "
-msgstr "Date"
+msgstr "Retard: "
 
 #: reports/definitions/MonthlyCHWReport.py:131
 msgid "[No Follow-Up]"
 msgstr "[Pas de suivi]"
 
 #: reports/definitions/MonthlyCHWReport.py:138
-#, fuzzy
 msgid "Children Under 5 Needing Immunizations"
-msgstr "L'enfant est-il à jour de ses vaccinations ? (O-N)"
+msgstr "Enfants de moins de 5a nécessitant des vaccins"
 
 #: reports/definitions/MonthlyCHWReport.py:158
 msgid "Women in 2nd and 3rd Trimester who haven't had ANC in 5 Weeks"
 msgstr "Femmes en 2e et 3e trimestre n'ayant pas eu de VPN depuis 5 semaines"
 
 #: reports/definitions/MonthlyCHWReport.py:163
-#, fuzzy
 msgid "Last ANC"
-msgstr "Dernier PB"
+msgstr "Derniere VPN"
 
 #: reports/definitions/MonthlyCHWReport.py:164
 msgid "Approx Due Date"
@@ -5025,9 +4970,8 @@ msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
 msgstr "Enfants sans PBC depuis 1 mois (SAM) ou 3 mois (sain)"
 
 #: reports/definitions/MonthlyCHWReport.py:195
-#, fuzzy
 msgid "MUAC Status"
-msgstr "Statut"
+msgstr "Statut PB"
 
 #: reports/definitions/MonthlyCHWReport.py:208
 #: reports/definitions/MonthlyCHWReport.py:210
@@ -5035,9 +4979,8 @@ msgid "[No MUAC]"
 msgstr "[Pas de PB]"
 
 #: reports/definitions/MonthlyCHWReport.py:219
-#, fuzzy
 msgid "Week of "
-msgstr "Semaines"
+msgstr "Semaine du "
 
 #: reports/definitions/MonthlyClinicSummary.py:34
 msgid "Clinic/Health Facility"
@@ -5068,9 +5011,8 @@ msgid "(No data)"
 msgstr "(vide)"
 
 #: reports/definitions/MonthlyPerformanceCharts.py:71
-#, fuzzy
 msgid "Monthly Performance Charts"
-msgstr "Compte-rendu de grossesse"
+msgstr "Graphiques mensuels de performance"
 
 #: reports/definitions/MonthlyPerformanceCharts.py:79
 msgid "Can only generate PDF for performance charts"
@@ -5329,32 +5271,28 @@ msgid "Enter a health ID to edit a patient."
 msgstr "Renseignez un ID de santé pour modifier un patient."
 
 #: templates/childcount/edit_patient.html:38
-#, fuzzy
 msgid "A patient with health ID"
-msgstr "Pas de patient avec no. de santé %(health_id)s"
+msgstr "Un patient avec le No. de santé"
 
 #: templates/childcount/edit_patient.html:39
 msgid "was not found."
 msgstr "introuvable."
 
 #: templates/childcount/edit_patient.html:46
-#, fuzzy
 msgid "Patient information for"
-msgstr "Compte-rendu de la liste des patients"
+msgstr "Informations du patient"
 
 #: templates/childcount/edit_patient.html:48
-#, fuzzy
 msgid "saved."
-msgstr "Utilisé"
+msgstr "enregistrés."
 
 #: templates/childcount/edit_patient.html:49
 msgid "Edit"
 msgstr "Modifier"
 
 #: templates/childcount/edit_patient.html:49
-#, fuzzy
 msgid "again"
-msgstr "Lieu"
+msgstr "encore"
 
 #: templates/childcount/index.html:122
 msgid "No. Of Households"
@@ -5373,37 +5311,32 @@ msgid "No. Of Pregnant Women"
 msgstr "Nb. de femmes enceintes"
 
 #: templates/childcount/index.html:145
-#, fuzzy
 msgid "Report Name"
-msgstr "Comptes-rendus"
+msgstr "Nom du rapport"
 
 #: templates/childcount/index.html:211
 msgid "Useful Links"
 msgstr "Liens utiles"
 
 #: templates/childcount/index.html:228
-#, fuzzy
 msgid "Form A Registrations"
-msgstr "Enregistrement"
+msgstr "Enregistrement Form A"
 
 #: templates/childcount/index.html:251
 msgid "This Week"
 msgstr "Cette semaine"
 
 #: templates/childcount/index.html:260
-#, fuzzy
 msgid "This Month"
-msgstr "Mois"
+msgstr "Ce mois"
 
 #: templates/childcount/index.html:267
-#, fuzzy
-msgid "Genera"
-msgstr "Genre"
+msgid "General"
+msgstr "Général"
 
 #: templates/childcount/index.html:284
-#, fuzzy
 msgid "Nutrition Graph"
-msgstr "Nutrition"
+msgstr "Graph Nutrition"
 
 #: templates/childcount/list_chw.html:8
 msgid "CHW List"
@@ -5714,9 +5647,8 @@ msgid "Number of RDT positive cases for other sick members"
 msgstr "Nombre de cas de TDR positifs pour d'autres membres du ménage malades"
 
 #: templates/childcount/forms/b21.json:13
-#, fuzzy
 msgid "#mal"
-msgstr "Femme"
+msgstr "#mal"
 
 #: templates/childcount/forms/b21.json:13
 msgid "Number of other sick members receiving anti-malarial treatment"
@@ -5728,24 +5660,21 @@ msgid "L"
 msgstr "L"
 
 #: templates/childcount/forms/b21.json:14
-#, fuzzy
 msgid "Birth Control Pill Given Section"
-msgstr "Compte-rendu de la contraception par pillule"
+msgstr "Section Pillules données"
 
 #: templates/childcount/forms/b21.json:15
-#, fuzzy
 msgid "#bcp"
-msgstr "bp"
+msgstr "#bcp"
 
 #: templates/childcount/forms/b21.json:15
-#, fuzzy
 msgid "Number of Women given birth control Pills by CHW during visit"
-msgstr "Nombres de femmes entre 15 et 49 ans vues lors de la visite"
+msgstr ""
+"Nombre de femmes ayant reçu des pilules contraceptives durant la visite"
 
 #: templates/childcount/forms/b21.json:16
-#, fuzzy
 msgid "K"
-msgstr "KG"
+msgstr "K"
 
 #: templates/childcount/forms/c.json:5
 msgid "U"
@@ -5965,9 +5894,8 @@ msgid "Number of of RDT Positive Cases for Other Sick Members"
 msgstr "Nombre de cas de TDR positifs pour d'autres membres du ménage malades"
 
 #: templates/childcount/forms/ruhiira-b.json:24
-#, fuzzy
 msgid "#antm"
-msgstr "#mou"
+msgstr "#antm"
 
 #: templates/childcount/forms/ruhiira-b.json:25
 msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
