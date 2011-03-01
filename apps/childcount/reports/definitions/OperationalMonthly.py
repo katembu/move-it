@@ -2,12 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+from datetime import datetime
 import copy
 import numpy
 
-from django.utils.translation import gettext_lazy as _
-from django.template import Template, Context
-from locations.models import Location
+from django.utils.translation import gettext as _
 
 try:
     from reportlab.lib.styles import getSampleStyleSheet
@@ -37,7 +36,7 @@ styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
 class Report(PrintedReport):
-    title = 'Operational Report - Monthly'
+    title = 'Operational Report - Monthly (EXPERIMENTAL)'
     filename = 'operational_report_monthly'
     formats = ('pdf',)
 
@@ -54,13 +53,13 @@ class Report(PrintedReport):
 
         story = []
         locations = Clinic.objects.filter(\
-            pk__in=CHW.objects.values('clinic').distinct())[0:1]
+            pk__in=CHW.objects.values('clinic').distinct())
 
         for location in locations:
             rowCHWs = MonthlyCHWReport\
                         .objects\
                         .filter(is_active=True)\
-                        .filter(clinic=location)[0:1]
+                        .filter(clinic=location)
             if rowCHWs.count() == 0:
                 continue
 
@@ -77,6 +76,8 @@ class Report(PrintedReport):
         f.close()
 
     def _operationalreportable(self,title, indata=None):
+        tStyle = [('INNERGRID', (0, 0), (-1, -1), 0.1, colors.lightgrey),\
+                ('BOX', (0, 0), (-1, -1), 0.1, colors.lightgrey)]
         rowHeights = []
         styleH3.fontName = 'Times-Bold'
         styleH3.alignment = TA_CENTER
@@ -90,10 +91,41 @@ class Report(PrintedReport):
         cols = filter(lambda i: i != INDICATOR_EMPTY, chw.report_indicators())
 
         ''' Header data '''
-        hdata = [Paragraph('%s' % title, styleH3)]
+        sdate = MonthlyPeriodSet.period_start_date(0)
+        edate = MonthlyPeriodSet.period_end_date(MonthlyPeriodSet.num_periods-1)
+        now = datetime.now()
+        hdata = [Paragraph(_(u'%(name)s - For dates: %(start_date)s '\
+                                'to %(end_date)s (Generated on '\
+                                '%(gen_date)s at %(gen_time)s)') % \
+                                {'name': title,\
+                                'start_date': sdate.strftime('%d %b'),\
+                                'end_date': edate.strftime('%d %b'),\
+                                'gen_date': now.strftime('%d %b %Y'),\
+                                'gen_time': now.strftime('%H:%M')}, \
+                styleH3)]
+        tStyle.append(('SPAN', (0, 0), (-1, 0)))
         hdata.extend((len(cols) - 1) * [''])
         rowHeights.append(None)
         data = [hdata]
+
+
+        groups = chw.report_groups()
+        group_row = ['']
+        index = 1
+        i = 0
+        for g in groups:
+            group_row.append(Paragraph(g['title'], styleH3))
+            group_row.extend([''] * (g['length'] - 1))
+            if i % 2 == 1:
+                tStyle.append(('BOX', (index, 1), (index + g['length'] - 1, -1), \
+                                        2, colors.lightgrey))
+            tStyle.append(('SPAN', (index, 1), (index + g['length'] - 1, 1)))
+            index += g['length']
+            i += 1
+
+        data.append(group_row)
+        rowHeights.append(None)
+            
         ''' 
         data.append(['', Paragraph('Household', styleH3), '', '', \
                 Paragraph('Newborn', styleH3), '', '', \
@@ -145,25 +177,16 @@ class Report(PrintedReport):
 
             # Add data to table
             data.extend(rows)
+            tStyle.append(('LINEABOVE', (0, 3), (-1, 3), 0.5, colors.black))
+            tStyle.append(('LINEABOVE', (0, -1), (-1, -1), 0.5, colors.black))
             data.append(agg_data[0])
 
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
-        tb.setStyle(TableStyle([('SPAN', (0, 0), (22, 0)),
-                                ('INNERGRID', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey),\
-                                ('BOX', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey), \
-                                ('BOX', (1, 1), (3, -1), 2, \
-                                colors.lightgrey),\
-                                ('BOX', (7, 1), (12, -1), 2, \
-                                colors.lightgrey),\
-                                ('BOX', (16, 1), (17, -1), 2, \
-                                colors.lightgrey),\
-                                ('BOX', (20, 1), (21, -1), 2, \
-                                colors.lightgrey),
-                                ('LINEABOVE', (0, -3), (-1, -3), 1, \
-                                colors.black)
-                    ]))
+
+
+
+        tb.setStyle(TableStyle(tStyle)) 
+        
         return tb
 
     def _generate_stats(self, cols, indata):
@@ -194,6 +217,7 @@ class Report(PrintedReport):
 
                 elif val.is_percentage:
                     (n,d) = val.for_total_raw(MonthlyPeriodSet)
+                    if d == 0: continue
                     calc = float(n)/float(d)
                 else:
                     calc = val.for_total_raw(MonthlyPeriodSet)

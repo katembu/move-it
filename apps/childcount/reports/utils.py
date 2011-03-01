@@ -93,10 +93,10 @@ class TwoMonthPeriodSet(PeriodSet):
             raise NotImplementedError(_(u'I can\'t deal with'\
                                     'negative period numbers'))
 
-        first_day_of_month = (date.today() - timedelta(14)).replace(day=1)
+        first_day_of_month = (date.today() - timedelta(7)).replace(day=1)
 
         return_date = first_day_of_month
-        for i in xrange(0, period_num):
+        for i in xrange(0, period_num+1):
             return_date = (return_date - timedelta(1)).replace(day=1)
 
         return return_date

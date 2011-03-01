@@ -2017,6 +2017,17 @@ class MonthlyCHWReport(TheCHWReport):
     class Meta:
         proxy = True
 
+    def report_groups(self):
+        return [
+            {'title': _(u'Household'), 'length': 2},
+            {'title': _(u'Family Planning'), 'length': 2},
+            {'title': _(u'Follow Up'), 'length': 4},
+            {'title': _(u'Pregnancy'), 'length': 5},
+            {'title': _(u'Under Five'), 'length': 4},
+            {'title': _(u'Malaria'), 'length': 3},
+            {'title': _(u'Diarrhea'), 'length': 2},
+        ]
+
     # The report rows.  Returns a list of tuples
     # that can be used to instantiate Indicator objects
     def report_indicators(self):
@@ -2060,9 +2071,9 @@ class MonthlyCHWReport(TheCHWReport):
                 self.num_danger_signs, Indicator.SUM),
             Indicator('Urgent (non-convenient) Referrals',\
                 self.num_referred, Indicator.SUM),
-            Indicator('Num Follow Up Within 3 Days',\
+            Indicator('Num Follow Up Within 2 Days',\
                 self.num_ontime_follow_up, Indicator.SUM),
-            Indicator('% Follow Up Within 3 Days',\
+            Indicator('% Follow Up Within 2 Days',\
                 self.perc_ontime_follow_up,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             INDICATOR_EMPTY,
@@ -2075,14 +2086,14 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('% Getting 3 ANC by 2nd Trim.',\
             #    self.perc_with_anc_second,
             #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('% Getting 4 ANC by Birth',\
-                self.perc_with_anc_four,
-                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('Num Birth *Reports*',\
                 self.num_births, Indicator.SUM),
             Indicator('Num Births Rpts with 4 ANC',\
-                self.num_births_with_anc, Indicator.SUM),
-            Indicator('Num Neonatal Rpts (<7 days)',\
+                self.num_births_with_anc_four, Indicator.SUM),
+            Indicator('% Getting 4 ANC by Birth',\
+                self.perc_with_anc_four,
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('Num Neonatal Rpts (within 7 days)',\
                 self.num_neonatal, Indicator.SUM),
             INDICATOR_EMPTY,
             Indicator('Num Children U5',\
@@ -2334,39 +2345,9 @@ class MonthlyCHWReport(TheCHWReport):
     def perc_with_anc_second(self, per_cls, per_num):
         return self._women_getting_n_anc_by(per_cls, per_num, 3, 2)
 
-    # % of women getting at least 4 ANC visits by Birth
     def perc_with_anc_four(self, per_cls, per_num):
-        start = per_cls.period_start_date(per_num)
-        end = per_cls.period_end_date(per_num)
-
-        reports = PregnancyReport\
-            .objects\
-            .filter(encounter__chw=self,\
-                encounter__encounter_date__lte=end,\
-                encounter__encounter_date__gt=start - timedelta(365))\
-            .order_by('-encounter__encounter_date')
-
-        seen = []
-        women = []
-        for pr in reports:
-            if pr.encounter.patient.pk in seen:
-                continue
-            seen.append(pr.encounter.patient.pk)
-            
-            # We're looking for pregnancies that ended
-            # during this reporting period
-            estimated_dd = pr.estimated_dd()
-
-            print "[%s] edd:%s" % (pr, estimated_dd)
-            if estimated_dd.date() >= start and estimated_dd.date() <= end:
-                women.append(pr)
-
-        have_anc = filter(lambda w: w.anc_visits >= 4, women)
-
-        print map(lambda w:w.encounter.patient.health_id, women)
-        print map(lambda w:w.encounter.patient.health_id, have_anc)
-        return (len(have_anc), len(women))
-
+        return (self.num_births_with_anc_four(per_cls, per_num), \
+            self.num_births(per_cls, per_num))
 
     def _women_getting_n_anc_by_tot(self, per_cls, \
             n_anc, trimester):
@@ -2445,28 +2426,45 @@ class MonthlyCHWReport(TheCHWReport):
         return targets
 
     def _births(self, per_cls, per_num):
-        return BirthReport\
+        seen = []
+        rpts = BirthReport\
             .indicators\
             .for_chw(self)\
-            .for_period(per_cls, per_num)\
+            .for_period(per_cls, per_num)
+        for r in rpts:
+            if r.encounter.patient.pk not in seen:
+                seen.append(r.encounter.patient.pk)
+
+        patients = Patient\
+            .objects\
+            .filter(chw=self, \
+                dob__gte=per_cls.period_start_date(per_num), \
+                dob__lte=per_cls.period_end_date(per_num))
+        for p in patients:
+            if p.pk not in seen:
+                seen.append(p.pk)
+
+        return Patient.objects.filter(pk__in=seen)
 
     def num_births(self, per_cls, per_num):
         return self._births(per_cls, per_num).count()
 
-    def num_births_with_anc(self, per_cls, per_num):
-        births = self._births(per_cls, per_num)
+    def num_births_with_anc_four(self, per_cls, per_num):
+        babies = self._births(per_cls, per_num)
         count = 0
-        for b in births:
-            if b.encounter.patient.mother is None:
+        sdate = per_cls.period_start_date(per_num)
+        edate = per_cls.period_end_date(per_num)
+        for b in babies:
+            if b.mother is None:
                 continue
-            mother = b.encounter.patient.mother
+            mother = b.mother
 
             try:
                 prep = PregnancyReport\
                     .objects\
                     .filter(encounter__patient=mother)\
-                    .filter(encounter__encounter_date__gte=\
-                        datetime.today() - timedelta(30.4375 * 10))\
+                    .filter(encounter__encounter_date__gte=sdate-timedelta(30.4375 * 10),\
+                        encounter__encounter_date__lte=edate)\
                     .latest('encounter__encounter_date')
             except PregnancyReport.DoesNotExist:
                 continue
@@ -2485,7 +2483,7 @@ class MonthlyCHWReport(TheCHWReport):
             .for_period(per_cls, per_num)
 
         for r in rpts:
-            if r.encounter.encounter_date.date() - timedelta(7) < \
+            if r.encounter.encounter_date.date() - timedelta(7) <= \
                 r.encounter.patient.dob:
                 count += 1
 
