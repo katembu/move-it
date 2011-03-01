@@ -285,7 +285,7 @@ class Report(PrintedReport):
 
                     rate_muac = u''
 
-                    if len(nutrition_report) > 1:
+                    if nutrition_report.count() > 1:
                         rate_muac = ((nutrition_report[0].muac \
                                     - nutrition_report[1].muac) * 100)\
                                     / (nutrition_report[0].muac \
@@ -297,8 +297,8 @@ class Report(PrintedReport):
                     # geting the muac
                     try:
                         muac = NutritionReport.objects.\
-                            filter(encounter__patient__health_id=child.\
-                            health_id)\
+                            filter(encounter__patient__health_id=child.health_id, \
+                                muac__gt=0, muac__isnull=False)\
                             .order_by('-encounter__encounter_date')[0]\
                             .muac
                     except NutritionReport.DoesNotExist:
@@ -354,8 +354,9 @@ class Report(PrintedReport):
 
                     try:
                         child_muac = NutritionReport.objects\
-                                .filter(encounter__patient__health_id=child.\
-                                                        health_id).latest()
+                                .filter(encounter__patient__health_id=child.health_id,\
+                                    muac__gt=0, muac__isnull=False)\
+                                .latest()
 
                         if child_muac.status != 4:
                             b_muac = b_FullName = True
@@ -490,9 +491,9 @@ class Report(PrintedReport):
                         all_instructions.append(rdt_instruction)
 
                     instruction = icon_ = u''
-                    if (data['date']- estimate_date).days < 30:
+                    if (estimate_date - data['date']).days < (7 * 7):
                         icon_ = ICON_FACE
-                        instruction = _(u'go over personalized birth plan')
+                        instruction = _(u'Review birth plan')
                         all_instructions.append(instruction)
 
                     table2.add_row([
