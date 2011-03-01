@@ -72,9 +72,17 @@ class ThePatient(Patient):
         hvr = HouseholdVisitReport.objects\
                 .filter(encounter__encounter_date__gt=self.dob, \
                     encounter__encounter_date__lte=seven_days_after_birth, \
-                    encounter__patient=self)\
+                    encounter__patient=self.household.health_id)\
                 .count()
-        return hvr
+
+        nn = NeonatalReport\
+            .objects\
+            .filter(encounter__encounter_date__gt=self.dob, \
+                encounter__encounter_date__lte=seven_days_after_birth, \
+                encounter__patient=self)\
+            .count()
+
+        return hvr + nn
 
     def visit_within_90_days_of_last_visit(self):
         try:
@@ -670,10 +678,20 @@ class TheCHWReport(CHW):
         today = datetime.today().date()
         return self.household_visit(today - timedelta(90), today)
 
+    def num_of_uniq_householdvisits_90_days(self):
+        today = datetime.today().date()
+        return self._household_visit(today - timedelta(90), today)\
+            .values('household__health_id')\
+            .distinct()\
+            .count()
+    
     def household_visit(self, startDate=None, endDate=None):
+        return self._household_visit(startDate, endDate).count()
+    
+    def _household_visit(self, startDate=None, endDate=None):
         return HouseholdVisitReport.objects.filter(encounter__chw=self, \
                                 encounter__encounter_date__gte=startDate, \
-                                encounter__encounter_date__lte=endDate).count()
+                                encounter__encounter_date__lte=endDate)
 
     def household_visits_for_month(self, offset=0):
         # This list comprehension deserves some explanation.
@@ -1339,7 +1357,6 @@ class TheCHWReport(CHW):
                          'correcct_sm': csms, 'wrong_sms': total_error_sms, \
                          'muac': nutr, 'rdt': fr, 'householdv': hvr})
         return data
-
 
 class OperationalReport():
     columns = []
