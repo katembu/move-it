@@ -3,7 +3,7 @@
         "pk": 10, 
         "model": "childcount.configuration", 
         "fields": {
-            "value": "ClientReport Operational UtilizationReport RegisteredPatient HoHHList", 
+            "value": "ClientReport Operational UtilizationReport CoordinatorReport RegisteredPatient HoHHList", 
             "key": "nightly_reports", 
             "description": "Whitespace-separated list of report modules to generate every night."
         }
