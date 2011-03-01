@@ -811,22 +811,29 @@ class TheCHWReport(CHW):
             prgclass = PregnancyReport
         pregs = prgclass\
             .objects\
-            .filter(encounter__chw=self)\
+            .filter(encounter__chw=self, \
+                encounter__encounter_date__gt=today-timedelta(365.25),\
+                encounter__encounter_date__lte=today)\
             .values('encounter__patient')\
             .distinct()
+        print "got %d pregs" % pregs.count()
 
         for preg in pregs:
             patient = Patient.objects.get(pk=preg['encounter__patient'])
-            pr = prgclass.objects.filter(encounter__patient=patient)\
-                                        .latest('encounter__encounter_date')
+            pr = prgclass\
+                .objects\
+                .filter(encounter__patient=patient,\
+                    encounter__encounter_date__lte=today,\
+                    encounter__encounter_date__gt=today-timedelta(365.25))\
+                .latest('encounter__encounter_date')
 
             # Number of days since encounter
             days = (today - pr.encounter.encounter_date.date()).days
             # Number of months since encounter
             months = round(days / 30.4375)
 
-            #print 'PR submitted %s at month %d (ago: %d)' % \
-            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+            print 'PR submitted %s at month %d (ago: %d)' % \
+                (pr.encounter.encounter_date, pr.pregnancy_month, months)
 
             # If the pregnancy month plus months since encounter
             # is greater than 9 and there's no birth report,
@@ -864,8 +871,8 @@ class TheCHWReport(CHW):
                 print 'stillbirth'
                 continue
             
-            #print '*PR submitted %s at month %d (ago: %d)' % \
-            #    (pr.encounter.encounter_date, pr.pregnancy_month, months)
+            print '*PR submitted %s at month %d (ago: %d)' % \
+                (pr.encounter.encounter_date, pr.pregnancy_month, months)
             c.append(patient)
         return c
 
@@ -1521,6 +1528,7 @@ class GraphicalClinicReport(Clinic):
         den = 0
         for c in chws:
             out = agg_func(c)
+            print out
             if out is None: continue
 
             (n,d) = out
@@ -1535,7 +1543,7 @@ class GraphicalClinicReport(Clinic):
 
     def percentage_with_four_anc(self, per_cls, per_num):
         return self._aggregate_clinic_percentage(\
-            lambda c: c.perc_with_anc_third(per_cls, per_num))
+            lambda c: c.perc_with_anc_four(per_cls, per_num))
            
     def percentage_ontime_follow_up(self, per_cls, per_num):
         return self._aggregate_clinic_percentage(\
@@ -2051,7 +2059,7 @@ class MonthlyCHWReport(TheCHWReport):
             #    self.perc_with_anc_second,
             #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('% Getting 4 ANC by Birth',\
-                self.perc_with_anc_third,
+                self.perc_with_anc_four,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('Num Birth *Reports*',\
                 self.num_births, Indicator.SUM),
@@ -2309,9 +2317,39 @@ class MonthlyCHWReport(TheCHWReport):
     def perc_with_anc_second(self, per_cls, per_num):
         return self._women_getting_n_anc_by(per_cls, per_num, 3, 2)
 
-    # % of women getting at least 4 ANC visits by 3rd trimester
-    def perc_with_anc_third(self, per_cls, per_num):
-        return self._women_getting_n_anc_by(per_cls, per_num, 4, 4)
+    # % of women getting at least 4 ANC visits by Birth
+    def perc_with_anc_four(self, per_cls, per_num):
+        start = per_cls.period_start_date(per_num)
+        end = per_cls.period_end_date(per_num)
+
+        reports = PregnancyReport\
+            .objects\
+            .filter(encounter__chw=self,\
+                encounter__encounter_date__lte=end,\
+                encounter__encounter_date__gt=start - timedelta(365))\
+            .order_by('-encounter__encounter_date')
+
+        seen = []
+        women = []
+        for pr in reports:
+            if pr.encounter.patient.pk in seen:
+                continue
+            seen.append(pr.encounter.patient.pk)
+            
+            # We're looking for pregnancies that ended
+            # during this reporting period
+            estimated_dd = pr.estimated_dd()
+
+            print "[%s] edd:%s" % (pr, estimated_dd)
+            if estimated_dd.date() >= start and estimated_dd.date() <= end:
+                women.append(pr)
+
+        have_anc = filter(lambda w: w.anc_visits >= 4, women)
+
+        print map(lambda w:w.encounter.patient.health_id, women)
+        print map(lambda w:w.encounter.patient.health_id, have_anc)
+        return (len(have_anc), len(women))
+
 
     def _women_getting_n_anc_by_tot(self, per_cls, \
             n_anc, trimester):
@@ -2324,6 +2362,7 @@ class MonthlyCHWReport(TheCHWReport):
             for w in self._women_in_month_of_preg(per_cls, per_num, trimester):
                 if w not in women:
                     women.append(w)
+        print women
         have_anc = filter(lambda w: w.anc_visits > n_anc, women)
 
         return (len(have_anc), len(women))
@@ -2333,12 +2372,12 @@ class MonthlyCHWReport(TheCHWReport):
             raise ValueError('Trimester is out of range [1,4]')
 
         women = self._women_in_month_of_preg(per_cls, per_num, trimester)
+        print women
         for w in women:
             print (w, w.anc_visits)
         have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
 
         return (len(have_anc), len(women))
-
 
     def _women_in_month_of_preg(self, per_cls, per_num, trimester):
         if trimester not in xrange(1,5):
@@ -2350,6 +2389,7 @@ class MonthlyCHWReport(TheCHWReport):
         month_range = xrange(start_mo, end_mo)
 
         women = self.pregnant_by_period(per_cls, per_num)
+        print women
 
         # Get latest pregnancy report for woman
         pregreps = []
@@ -2359,12 +2399,15 @@ class MonthlyCHWReport(TheCHWReport):
                     .objects\
                     .filter(encounter__patient=w, \
                         encounter__encounter_date__gte=\
-                            per_cls.period_start_date(per_num) - \
-                                timedelta(30.4375 * 10))\
+                            per_cls.period_end_date(per_num) - \
+                                timedelta(30.4375 * 10),
+                        encounter__encounter_date__lte=\
+                            per_cls.period_end_date(per_num))\
                     .latest('encounter__encounter_date')
             except PregnancyReport.DoesNotExist:
                 continue
             else:
+                print "> found %s" % rep
                 pregreps.append(rep)
 
         # See how many women fall in this trimester
@@ -2375,10 +2418,11 @@ class MonthlyCHWReport(TheCHWReport):
             months_ago = days_ago / 30.4375
             months_of_preg = p.pregnancy_month + months_ago
 
+            print "women %d days from %s was in m%d => now %d" % \
+                (days_ago, per_cls.period_end_date(per_num),
+                    p.pregnancy_month, months_of_preg)
             if round(months_of_preg) in month_range:
-                print "women %d days from %s was in m%d" % \
-                    (days_ago, per_cls.period_end_date(per_num),
-                        p.pregnancy_month)
+                print "ok"
                 targets.append(p)
 
         return targets
@@ -2695,8 +2739,8 @@ class HealthCoordinatorReport():
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('[Denominator]',\
                 self.num_women_in_second, Indicator.SUM),
-            Indicator('% Getting 4 ANC by 3rd Trim.',\
-                self.perc_with_anc_third, \
+            Indicator('% Getting 4 ANC by Birth',\
+                self.perc_with_anc_four, \
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             Indicator('[Denominator]',\
                 self.num_women_in_third, Indicator.SUM),
@@ -2803,14 +2847,13 @@ class HealthCoordinatorReport():
         print a, b
         return a, b
 
-    # % of women getting at least  ANC visit by 2nd trimester
-    def perc_with_anc_third(self, per_cls, per_num):
-        a, b = self._women_getting_n_anc_by(per_cls, per_num, 4, 3)
+    # % of women getting at least 4 ANC visit by birth
+    def perc_with_anc_four(self, per_cls, per_num):
+        a, b = self._women_getting_n_anc_by(per_cls, per_num, 4, 4)
         print a, b
         return a, b
 
-    def _women_getting_n_anc_by_tot(self, per_cls, \
-            n_anc, trimester):
+    def _women_getting_n_anc_by_tot(self, per_cls, n_anc, trimester):
 
         if trimester not in xrange(1,4):
             raise ValueError('Trimester is out of range [1,3]')

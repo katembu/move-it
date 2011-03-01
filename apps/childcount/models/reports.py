@@ -531,6 +531,10 @@ class PregnancyReport(CCReport):
              self.weeks_since_anc)
         return string
 
+    def estimated_dd(self):
+        return self.encounter.encounter_date + \
+            timedelta(30.3475 * (9 - self.pregnancy_month))
+
     def get_omrs_dict(self):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
