@@ -55,12 +55,12 @@
 <table>
 {{ form }}
 </table>
-<input type="submit" value="Save">
+<input type="submit" value="{% trans "Save" %}">
 </form>
 {% else %}
 <form id='editform' action='/childcount/patients/edit/' method='GET'>
-    Health ID: <input name='hid' type='text'></input>
-    <input type="submit" value="Edit"></input>
+    {% trans "Health ID" %}: <input name='hid' type='text'></input>
+    <input type="submit" value="{% trans "Edit" %}"></input>
 </form>
 {% endif %}
 

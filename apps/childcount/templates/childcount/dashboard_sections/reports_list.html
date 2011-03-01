@@ -1,3 +1,4 @@
+{% load i18n %}
 {% for report_list in dashboard_data.reports_list %}
 <div class="dashboard-section">
 	<h2 class="title">{{report_list.title}}</h2>
@@ -6,11 +7,11 @@
 			<table class="report-list cclist">
 				<tbody>
 					<tr>
-						<th>Report Name</th>
-						<th class="scol">HTML</th>
-						<th class="scol">PDF</th>
-						<th class="scol">Excel</th>
-						<th class="scol">Other</th>
+						<th>{% trans "Report Name" %}</th>
+						<th class="scol">{% trans "HTML" %}</th>
+						<th class="scol">{% trans "PDF" %}</th>
+						<th class="scol">{% trans "Excel" %}</th>
+						<th class="scol">{% trans "Other" %}</th>
 					</tr>
 					{% for r in report_list.reports %}
 					<tr>
