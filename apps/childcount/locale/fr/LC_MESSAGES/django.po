@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-01 17:35+0000\n"
-"PO-Revision-Date: 2011-03-01 17:36-0000\n"
+"POT-Creation-Date: 2011-03-01 17:46+0000\n"
+"PO-Revision-Date: 2011-03-01 17:46-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2331,6 +2331,7 @@ msgstr "z"
 #: models/reports.py:1222
 #: models/reports.py:1265
 #: models/reports.py:1284
+#: templates/childcount/dashboard_sections/reports_list.html:13
 msgid "Other"
 msgstr "Autre"
 
@@ -4540,6 +4541,14 @@ msgstr "Titre ou nom de fichier du rapport non défini."
 msgid "Report filename is unset."
 msgstr "Le nom de fichier du rapport n'est pas défini."
 
+#: reports/report_framework.py:223
+msgid "On-Demand Reports"
+msgstr "Rapports instantanés"
+
+#: reports/report_framework.py:231
+msgid "Nightly Reports"
+msgstr "Rapports journaliers"
+
 #: reports/utils.py:83
 #: reports/utils.py:92
 #: reports/utils.py:112
@@ -5166,6 +5175,7 @@ msgid "No. Of Pregnant Women"
 msgstr "Nb. de femmes enceintes"
 
 #: templates/childcount/index.html:145
+#: templates/childcount/dashboard_sections/reports_list.html:9
 msgid "Report Name"
 msgstr "Nom du rapport"
 
@@ -5327,6 +5337,18 @@ msgstr "Il y a x jours"
 #: templates/childcount/dashboard_sections/registration_chart.html:23
 msgid "Total number of patients"
 msgstr "Nombre total de patients"
+
+#: templates/childcount/dashboard_sections/reports_list.html:10
+msgid "HTML"
+msgstr "HTML"
+
+#: templates/childcount/dashboard_sections/reports_list.html:11
+msgid "PDF"
+msgstr "PDF"
+
+#: templates/childcount/dashboard_sections/reports_list.html:12
+msgid "Excel"
+msgstr "Excel"
 
 #: templates/childcount/forms/a.json:4
 #: templates/childcount/forms/c.json:4
