@@ -1,0 +1,65 @@
+[
+    {
+        "pk": 10, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "ClientReport Operational UtilizationReport RegisteredPatient HoHHList", 
+            "key": "nightly_reports", 
+            "description": "Whitespace-separated list of report modules to generate every night."
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "true", 
+            "key": "allow_third_party_submissions", 
+            "description": "If \"true\" then a CHW can submit reports for patients belonging to another CHW."
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "en fr", 
+            "key": "languages", 
+            "description": "Whitespace-separated list of languages available."
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "highlight_stats_bar registration_chart recent_numbers nutrition_chart reports_list", 
+            "key": "dashboard_sections", 
+            "description": "Whitespace-separated list of sections to include in the Dashboard"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "false", 
+            "key": "inputs_ethiopian_date", 
+            "description": "True or False ; whether or not users ALL uses the Ethiopian calendar dates for input."
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "12", 
+            "key": "accept_under_one_report_until_months", 
+            "description": "Age beyond which the Under-One report is rejected."
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "childcount.configuration", 
+        "fields": {
+            "value": "StatsFormA StatsFormB StatsFormC CHWList", 
+            "key": "ondemand_reports", 
+            "description": "Whitespace-separated list of report modules to generate when requested by a user"
+        }
+    }
+]
