@@ -10,6 +10,7 @@ from django.template import Template, Context
 from locations.models import Location
 
 try:
+    import reportlab
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import landscape, A4
     from reportlab.platypus import Paragraph, SimpleDocTemplate, PageBreak
@@ -97,6 +98,7 @@ class Report(PrintedReport):
         except Exception as e:
             doc.build([message_text(_(u"There has been an error generating " \
                                    u"this report: %s") % e)])
+            raise
 
         f.close()
 
@@ -205,29 +207,31 @@ class Report(PrintedReport):
             rowHeights.extend(3 * [0.25 * inch])
 
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
-        tb.setStyle(TableStyle([('SPAN', (0, 0), (22, 0)),
-                                ('INNERGRID', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey),\
-                                ('BOX', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey), \
-                                ('BOX', (1, 1), (3, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (1, 1), (3, 1)), \
-                                ('SPAN', (4, 1), (6, 1)), \
-                                ('BOX', (7, 1), (12, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (7, 1), (12, 1)), \
-                                ('SPAN', (13, 1), (15, 1)), \
-                                ('BOX', (16, 1), (17, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (16, 1), (17, 1)), \
-                                ('SPAN', (18, 1), (19, 1)), \
-                                ('SPAN', (20, 1), (21, 1)), \
-                                ('BOX', (20, 1), (21, -1), 2, \
-                                colors.lightgrey),
-                                ('LINEABOVE', (0, -3), (-1, -3), 1, \
-                                colors.black)
-                    ]))
+        tstyles = []
+            
+            
+        tstyles = [('INNERGRID', (0, 0), (-1, -1), 0.1, colors.lightgrey),
+                   ('BOX', (0, 0), (-1, -1), 0.1, colors.lightgrey),
+                   ('BOX', (1, 1), (3, -1), 2, colors.lightgrey),
+                   ('BOX', (7, 1), (12, -1), 2, colors.lightgrey),
+                   ('BOX', (16, 1), (17, -1), 2, colors.lightgrey),
+                   ('BOX', (20, 1), (21, -1), 2, colors.lightgrey),
+                   ('LINEABOVE', (0, -3), (-1, -3), 1, colors.black),]
+
+        if float(reportlab.Version) >= 2.4:
+
+            tstyles.extend([
+                ('SPAN', (0, 0), (22, 0)),
+                ('SPAN', (1, 1), (3, 1)), 
+                ('SPAN', (4, 1), (6, 1)), 
+                ('SPAN', (7, 1), (12, 1)),
+                ('SPAN', (13, 1), (15, 1)),
+                ('SPAN', (16, 1), (17, 1)),
+                ('SPAN', (18, 1), (19, 1)),
+                ('SPAN', (20, 1), (21, 1))])
+
+        tbs = TableStyle(tstyles)
+        tb.setStyle(tbs)
         return tb
 
     def _generate_stats(self, cols, indata):
