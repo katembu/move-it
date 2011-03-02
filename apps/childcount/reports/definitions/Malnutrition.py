@@ -59,7 +59,6 @@ class Report(PrintedReport):
                 if r.muac is None:
                     no_report.append(u)
                 if r.muac is None and r.oedema == NutritionReport.OEDEMA_UNKOWN:
-                    no_report.append(u)
                     continue
 
                 if r.status != NutritionReport.STATUS_HEALTHY:
