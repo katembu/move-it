@@ -58,6 +58,9 @@ class Report(PrintedReport):
             else:
                 if r.muac is None:
                     no_report.append(u)
+                if r.muac is None and r.oedema == NutritionReport.OEDEMA_UNKOWN:
+                    no_report.append(u)
+                    continue
 
                 if r.status != NutritionReport.STATUS_HEALTHY:
                     output.append(r)
@@ -88,8 +91,10 @@ class Report(PrintedReport):
             (kid, nut) = (r.encounter.patient, r)
 
             muac_str = nut.encounter.encounter_date.strftime("%d-%b-%Y")
-            status_str = filter(lambda c: c[0] == nut.status, \
-                            NutritionReport.STATUS_CHOICES)[0][1]
+            if nut.status is not None:
+                status_str = nut.verbose_state
+            else:
+                status_str = _(u'Unknown')
 
             if nut.muac:
                 status_str += u' [%d]' % nut.muac
