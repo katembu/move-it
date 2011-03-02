@@ -10,7 +10,8 @@ from django.db.models import Q
 from ccdoc import Document, Table, Paragraph, \
     Text, Section, PageBreak
 
-from childcount.models import CHW, Clinic, Patient
+from childcount.models import CHW, Clinic
+from childcount.models.ccreports import ThePatient
 from childcount.models.reports import NutritionReport
 
 from childcount.reports.utils import render_doc_to_file
@@ -38,9 +39,9 @@ class Report(PrintedReport):
         return render_doc_to_file(filepath, rformat, doc)
 
     def _malnourished_by_clinic(self, clinic):
-        under_fives = Patient\
+        under_fives = ThePatient\
             .objects\
-            .filter(status=Patient.STATUS_ACTIVE,\
+            .filter(status=ThePatient.STATUS_ACTIVE,\
                 chw__clinic=clinic,\
                 dob__gte=date.today()-timedelta(5*265.25))\
             .order_by('location__code')
@@ -49,31 +50,35 @@ class Report(PrintedReport):
         no_report = []
         for u in under_fives:
             try:
+                # Get reports with a non-null MUAC or
+                # a "YES" Oedema value. Reports with a "NO"
+                # oedma value and no MUAC are not helpful.
                 r = NutritionReport\
                     .objects\
                     .filter(encounter__chw__clinic=clinic,\
                         encounter__patient=u)\
+                    .filter((Q(muac__isnull=False)&Q(muac__gt=0)) | \
+                            Q(oedema__in=NutritionReport.OEDEMA_YES))\
                     .latest()
             except NutritionReport.DoesNotExist:
                 no_report.append(u)
             else:
-                if r.muac is None:
+                # If there's no muac, flag child for muac
+                if r.muac is None or r.status is None:
                     no_report.append(u)
                     continue
 
-                if (r.muac is None or r.muac == 0) and \
-                                r.oedema == NutritionReport.OEDEMA_UNKOWN:
-                    no_report.append(u)
-                    continue
-
-                if r.status is None:
-                    no_report.append(u)
-                elif r.status != NutritionReport.STATUS_HEALTHY:
+                if r.status != NutritionReport.STATUS_HEALTHY:
                     output.append(r)
                 else:
-                    # Healthy
+                    # Child is healthy
                     pass
 
+                # If the muac figure is old, add this report to the To-do
+                # list.
+                if (r.encounter.encounter_date + timedelta(90)).date() <= date.today():
+                    no_report.append(u)
+        
         return (output, no_report)
 
     def _malnutrition_table(self, clinic):
@@ -123,23 +128,25 @@ class Report(PrintedReport):
                 Text(kid.chw.full_name())
             ])
         
-        table2 = Table(5, \
-            Text(_(u"Children U5 without MUAC")))
+        table2 = Table(6, \
+            Text(_(u"Children U5 without MUAC in Past 90 Days")))
 
         table2.add_header_row([
             Text(_(u"Loc Code")),
             Text(_(u"Health ID")),
             Text(_(u"Name / Age")),
+            Text(_(u"Latest MUAC")),
             Text(_(u"Household Head")),
             Text(_(u"CHW")),
         ])
-        table2.set_column_width(10, 0)
-        table2.set_column_width(10, 1)
+        table2.set_column_width(7, 0)
+        table2.set_column_width(7, 1)
         for kid in unknown:
             table2.add_row([
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
+                Text(kid.latest_muac_date()),
                 Text(kid.household.full_name()),
                 Text(kid.chw.full_name())
             ])

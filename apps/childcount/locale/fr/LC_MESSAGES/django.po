@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-02 10:07+0300\n"
+"POT-Creation-Date: 2011-03-02 11:54+0300\n"
 "PO-Revision-Date: 2010-11-10 16:20-0000\n"
 "Last-Translator: aboubacar <diarra.aboubacar@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
@@ -2214,7 +2214,7 @@ msgstr "Ouvert"
 msgid "Closed"
 msgstr "Fermé"
 
-#: models/Case.py:47 models/ccreports.py:2025
+#: models/Case.py:47 models/ccreports.py:2047
 #: reports/definitions/ClientReport.py:422
 msgid "Pregnancy"
 msgstr "Grossesse"
@@ -2227,7 +2227,7 @@ msgstr "Malnutrition"
 msgid "Fever"
 msgstr "Fièvre"
 
-#: models/Case.py:50 models/CodedItem.py:30 models/ccreports.py:2028
+#: models/Case.py:50 models/CodedItem.py:30 models/ccreports.py:2050
 msgid "Diarrhea"
 msgstr "Diarrhée"
 
@@ -2244,7 +2244,7 @@ msgid "Type of case"
 msgstr "Sorte de cas"
 
 #: models/Case.py:57 models/HealthId.py:39 models/Patient.py:94
-#: models/Referral.py:39 models/ccreports.py:371 models/reports.py:788
+#: models/Referral.py:39 models/ccreports.py:393 models/reports.py:788
 #: models/reports.py:1355 models/reports.py:1550 reports/pmtct.py:44
 #: reports/pmtct.py:114 templates/childcount/data_entry.html:49
 msgid "Status"
@@ -2919,9 +2919,9 @@ msgstr "%(months)sm"
 msgid "%(years)sy"
 msgstr "%(years)sy"
 
-#: models/DeadPerson.py:128 models/Patient.py:205 models/ccreports.py:310
-#: models/ccreports.py:336 models/ccreports.py:361 models/ccreports.py:1256
-#: models/ccreports.py:1293 reports/performance.py:87
+#: models/DeadPerson.py:128 models/Patient.py:205 models/ccreports.py:332
+#: models/ccreports.py:358 models/ccreports.py:383 models/ccreports.py:1278
+#: models/ccreports.py:1315 reports/performance.py:87
 #: reports/definitions/CHWList.py:41 reports/definitions/ClientReport.py:241
 #: reports/definitions/ClientReport.py:419
 #: reports/definitions/ClientReport.py:544
@@ -2930,8 +2930,8 @@ msgstr "%(years)sy"
 msgid "Name"
 msgstr "Nom"
 
-#: models/DeadPerson.py:134 models/Patient.py:211 models/ccreports.py:317
-#: models/ccreports.py:368 reports/definitions/ClientReport.py:243
+#: models/DeadPerson.py:134 models/Patient.py:211 models/ccreports.py:339
+#: models/ccreports.py:390 reports/definitions/ClientReport.py:243
 #: reports/definitions/ClientReport.py:420
 #: reports/definitions/ClientReport.py:545
 #: reports/definitions/RegisteredPatient.py:59
@@ -2947,7 +2947,7 @@ msgstr "Consultation"
 msgid "Encounters"
 msgstr "Consultations"
 
-#: models/Encounter.py:34 models/ccreports.py:2022
+#: models/Encounter.py:34 models/ccreports.py:2044
 msgid "Household"
 msgstr "Ménage"
 
@@ -2955,12 +2955,12 @@ msgstr "Ménage"
 msgid "Encounter date"
 msgstr "Date de consultation"
 
-#: models/Encounter.py:40 models/ccreports.py:1375 models/ccreports.py:1376
-#: models/ccreports.py:1978 reports/bednet.py:32 reports/pmtct.py:45
+#: models/Encounter.py:40 models/ccreports.py:1397 models/ccreports.py:1398
+#: models/ccreports.py:2000 reports/bednet.py:32 reports/pmtct.py:45
 #: reports/pmtct.py:80 reports/pmtct.py:116 reports/pmtct.py:260
 #: reports/pmtct.py:316 reports/pmtct.py:346 reports/pmtct.py:376
-#: reports/definitions/Malnutrition.py:93
-#: reports/definitions/Malnutrition.py:134
+#: reports/definitions/Malnutrition.py:98
+#: reports/definitions/Malnutrition.py:140
 #: reports/definitions/RegisteredPatient.py:58
 msgid "CHW"
 msgstr "ASC"
@@ -3038,8 +3038,8 @@ msgstr ""
 
 #: models/HealthId.py:18 models/HealthId.py:32 models/Patient.py:53
 #: reports/definitions/GeoPatientList.py:32
-#: reports/definitions/Malnutrition.py:87
-#: reports/definitions/Malnutrition.py:131
+#: reports/definitions/Malnutrition.py:92
+#: reports/definitions/Malnutrition.py:136
 #: reports/definitions/MonthlyCHWReport.py:98
 #: reports/definitions/MonthlyCHWReport.py:142
 #: reports/definitions/MonthlyCHWReport.py:174
@@ -3203,156 +3203,166 @@ msgstr "Vaccins"
 msgid "Patient List Report"
 msgstr "Compte-rendu de la liste des patients"
 
-#: models/ccreports.py:320 models/ccreports.py:340
-#: reports/definitions/Malnutrition.py:89
+#: models/ccreports.py:78 reports/definitions/MonthlyCHWReport.py:220
+#, fuzzy
+msgid "[No MUAC]"
+msgstr "MPB"
+
+#: models/ccreports.py:81
+#, python-format
+msgid "%(date)s [%(muac)s,Oed:%(oedema)s]"
+msgstr ""
+
+#: models/ccreports.py:342 models/ccreports.py:362
+#: reports/definitions/Malnutrition.py:94
 #: reports/definitions/MonthlyCHWReport.py:207
 msgid "Last MUAC"
 msgstr "Dernier PB"
 
-#: models/ccreports.py:333 models/ccreports.py:355
+#: models/ccreports.py:355 models/ccreports.py:377
 #: reports/definitions/RegisteredPatient.py:53
 #: reports/definitions/patients_toolbox.py:16
 #, fuzzy
 msgid "HID"
 msgstr "No. de santé du ménage"
 
-#: models/ccreports.py:349
+#: models/ccreports.py:371
 msgid "LOC"
 msgstr ""
 
-#: models/ccreports.py:365
+#: models/ccreports.py:387
 msgid "Gen."
 msgstr "Genre "
 
-#: models/ccreports.py:382
+#: models/ccreports.py:404
 msgid "Household "
 msgstr "Ménage"
 
-#: models/ccreports.py:388
+#: models/ccreports.py:410
 msgid "Household Name"
 msgstr "Nom du ménage"
 
-#: models/ccreports.py:391
+#: models/ccreports.py:413
 msgid "No. Sleeping site"
 msgstr "Nombre de sites de couchage"
 
-#: models/ccreports.py:394
+#: models/ccreports.py:416
 msgid "Functioning Bednet"
 msgstr "Moustiquaires fonctionnelles"
 
-#: models/ccreports.py:397 models/reports.py:1133
+#: models/ccreports.py:419 models/reports.py:1133
 msgid "Earlier Bednets"
 msgstr "Moustiquaires précédentes"
 
-#: models/ccreports.py:400
+#: models/ccreports.py:422
 msgid "Damaged Bednet"
 msgstr "Moustiquaires endommagées"
 
-#: models/ccreports.py:403
+#: models/ccreports.py:425
 #, fuzzy
 msgid "Required Bednets"
 msgstr "Moustiquaires récentes"
 
-#: models/ccreports.py:406
+#: models/ccreports.py:428
 msgid "#under five last night"
 msgstr ""
 
-#: models/ccreports.py:409
+#: models/ccreports.py:431
 msgid "#slept on Bednet"
 msgstr "dormi sous une moustiquaire"
 
-#: models/ccreports.py:412
+#: models/ccreports.py:434
 msgid "Hanging Bednet"
 msgstr "Moustiquaires fonctionnelles"
 
-#: models/ccreports.py:415 models/reports.py:1187
+#: models/ccreports.py:437 models/reports.py:1187
 msgid "Reason "
 msgstr "Raison"
 
-#: models/ccreports.py:418
+#: models/ccreports.py:440
 msgid "Primary Sanitation"
 msgstr "Conditions sanitaires primaires"
 
-#: models/ccreports.py:421 models/ccreports.py:476
+#: models/ccreports.py:443 models/ccreports.py:498
 msgid "Shared?"
 msgstr "Partagé?"
 
-#: models/ccreports.py:424
+#: models/ccreports.py:446
 msgid "Primary source of water"
 msgstr "Source d'eau primaire"
 
-#: models/ccreports.py:427
+#: models/ccreports.py:449
 msgid "Treatment Method "
 msgstr "Méthode de traitement"
 
-#: models/ccreports.py:437 models/ccreports.py:492
+#: models/ccreports.py:459 models/ccreports.py:514
 msgid "HH"
 msgstr "Ménage"
 
-#: models/ccreports.py:443 models/ccreports.py:498
+#: models/ccreports.py:465 models/ccreports.py:520
 msgid "HH Name"
 msgstr "Nom du ménage"
 
-#: models/ccreports.py:446 models/ccreports.py:501
+#: models/ccreports.py:468 models/ccreports.py:523
 msgid "# SSs"
 msgstr ""
 
-#: models/ccreports.py:449 models/ccreports.py:504
+#: models/ccreports.py:471 models/ccreports.py:526
 msgid "# Func. Nets"
 msgstr ""
 
-#: models/ccreports.py:452 models/ccreports.py:507
+#: models/ccreports.py:474 models/ccreports.py:529
 msgid "# Elr. Nets"
 msgstr ""
 
-#: models/ccreports.py:455 models/ccreports.py:510
+#: models/ccreports.py:477 models/ccreports.py:532
 msgid "# Dmgd. Nets"
 msgstr ""
 
-#: models/ccreports.py:458 models/ccreports.py:516
+#: models/ccreports.py:480 models/ccreports.py:538
 msgid "# Rqrd. Nets"
 msgstr ""
 
-#: models/ccreports.py:461 models/ccreports.py:519
+#: models/ccreports.py:483 models/ccreports.py:541
 msgid "# U5 LN"
 msgstr ""
 
-#: models/ccreports.py:464 models/ccreports.py:522
+#: models/ccreports.py:486 models/ccreports.py:544
 msgid "# Slept on Net"
 msgstr "# Dormi sous le moustiquaire"
 
-#: models/ccreports.py:467 models/ccreports.py:525
+#: models/ccreports.py:489 models/ccreports.py:547
 msgid "# Hanging Nets"
 msgstr ""
 
-#: models/ccreports.py:470 models/ccreports.py:528 models/reports.py:1551
+#: models/ccreports.py:492 models/ccreports.py:550 models/reports.py:1551
 msgid "Reason"
 msgstr "Raison "
 
-#: models/ccreports.py:473
+#: models/ccreports.py:495
 #, fuzzy
 msgid "Primary SAN"
 msgstr "Conditions sanitaires primaires"
 
-#: models/ccreports.py:479
+#: models/ccreports.py:501
 #, fuzzy
 msgid "P. Water Source"
 msgstr "Source d'eau"
 
-#: models/ccreports.py:482
+#: models/ccreports.py:504
 msgid "Treatment"
 msgstr "Méthode de traitement "
 
-#: models/ccreports.py:513
+#: models/ccreports.py:535
 #, fuzzy
 msgid "# Nets Issued"
 msgstr "délivré"
 
-#: models/ccreports.py:535
+#: models/ccreports.py:557
 msgid "Community Health Worker Report"
 msgstr "Compte-rendu de l'Agent de santé communautaire"
 
-#: models/ccreports.py:1191
+#: models/ccreports.py:1213
 #, python-format
 msgid ""
 "[%(hel)d, %(mmod)d, %(sev)d, %(sevcomp)d, %(unkwn)d], {legend: [\"%(hp)d%% "
@@ -3363,310 +3373,310 @@ msgstr ""
 "Healthy\", \"%(mp)d%% Moderate\",\"%(svp)d%% Severe\", \"%(scm)d%% Severe  "
 "Completely\", \"%(unkp)d%% Unknown\"]"
 
-#: models/ccreports.py:1380 models/ccreports.py:1980
+#: models/ccreports.py:1402 models/ccreports.py:2002
 msgid "# of Households"
 msgstr "# de ménages"
 
-#: models/ccreports.py:1381
+#: models/ccreports.py:1403
 msgid "#HH"
 msgstr "#Ménage"
 
-#: models/ccreports.py:1385
+#: models/ccreports.py:1407
 #, fuzzy
 msgid "# of Household Visits (in last 90 days)"
 msgstr "# de visites rendues au ménage"
 
-#: models/ccreports.py:1386
+#: models/ccreports.py:1408
 msgid "#HH-V"
 msgstr ""
 
-#: models/ccreports.py:1390
+#: models/ccreports.py:1412
 #, python-format
 msgid "% of HHs receiving on-time routine visit (within 90 days) [S23]"
 msgstr ""
 "% de ménages recevant des visites de routines à temps (dans les 90 jours) "
 "[S23]"
 
-#: models/ccreports.py:1392
+#: models/ccreports.py:1414
 msgid "%OTV"
 msgstr ""
 
-#: models/ccreports.py:1396
+#: models/ccreports.py:1418
 #, fuzzy
 msgid "# of Birth Reports"
 msgstr "Comptes-rendus de naissances"
 
-#: models/ccreports.py:1397
+#: models/ccreports.py:1419
 #, fuzzy
 msgid "#Bir"
 msgstr "ir"
 
-#: models/ccreports.py:1401
+#: models/ccreports.py:1423
 msgid "% Births delivered in Health Facility [S4]"
 msgstr "% de naissances données dans un centre de santé"
 
-#: models/ccreports.py:1403
+#: models/ccreports.py:1425
 #, fuzzy
 msgid "%BHF"
 msgstr "Lai"
 
-#: models/ccreports.py:1407
+#: models/ccreports.py:1429
 msgid "% Newborns checked within 7 days of birth [S6]"
 msgstr "% de nouveau-nés vérifiés dans les 7 jours suivant la naissance [S6]"
 
-#: models/ccreports.py:1409
+#: models/ccreports.py:1431
 msgid "%NNV"
 msgstr ""
 
-#: models/ccreports.py:1413
+#: models/ccreports.py:1435
 msgid "# of Under-5s"
 msgstr "# de moins de 5 ans"
 
-#: models/ccreports.py:1414
+#: models/ccreports.py:1436
 msgid "#U5"
 msgstr ""
 
-#: models/ccreports.py:1418
+#: models/ccreports.py:1440
 msgid "# Under-5 Referred for Danger Signs"
 msgstr "# de moins de 5 ans référencés pour signes de danger"
 
-#: models/ccreports.py:1419
+#: models/ccreports.py:1441
 msgid "#U5-DS"
 msgstr ""
 
-#: models/ccreports.py:1423
+#: models/ccreports.py:1445
 msgid "# Under-5 Treated for Malarias"
 msgstr "# de moins de 5 and sous traitement pour le paludisme"
 
-#: models/ccreports.py:1424
+#: models/ccreports.py:1446
 msgid "#U5-Mal"
 msgstr ""
 
-#: models/ccreports.py:1428
+#: models/ccreports.py:1450
 msgid "# Under-5 Treated for Diarrhea"
 msgstr "# de moins de 5 ans sous traitement pour la diarrhée"
 
-#: models/ccreports.py:1429
+#: models/ccreports.py:1451
 msgid "#U5-Dia"
 msgstr ""
 
-#: models/ccreports.py:1433
+#: models/ccreports.py:1455
 msgid "% Under-5 receiving on-time MUAC (within 90 days) [S11]"
 msgstr ""
 "% de moins de 5 ans recevant un PB dans les temps (dans les 90 jours) [S11]"
 
-#: models/ccreports.py:1435
+#: models/ccreports.py:1457
 #, fuzzy
 msgid "#U5-MUAC"
 msgstr "#PB"
 
-#: models/ccreports.py:1439
+#: models/ccreports.py:1461
 #, fuzzy
 msgid "# of Active GAM cases"
 msgstr "# de cas de MAS actifs"
 
-#: models/ccreports.py:1440
+#: models/ccreports.py:1462
 #, fuzzy
 msgid "#U5-GAM"
 msgstr "MAS"
 
-#: models/ccreports.py:1444
+#: models/ccreports.py:1466
 msgid "# of Pregnant Women"
 msgstr "# de femmes enceintes"
 
-#: models/ccreports.py:1445
+#: models/ccreports.py:1467
 msgid "#PW"
 msgstr ""
 
-#: models/ccreports.py:1449
+#: models/ccreports.py:1471
 #, fuzzy
 msgid "# Pregnant Women Referred Urgently"
 msgstr "# de femmes enceintes référencées pour signes de danger"
 
-#: models/ccreports.py:1450
+#: models/ccreports.py:1472
 msgid "#PW-DS"
 msgstr ""
 
-#: models/ccreports.py:1454
+#: models/ccreports.py:1476
 msgid "% Pregnant receiving on-time visit (within 6 weeks) [S24]"
 msgstr ""
 "% des femmes enceintes recevant des visites dans les temps (dans les 6 "
 "semaines) [S24]"
 
-#: models/ccreports.py:1456
+#: models/ccreports.py:1478
 msgid "%PW-OTV"
 msgstr ""
 
-#: models/ccreports.py:1460
+#: models/ccreports.py:1482
 #, fuzzy
 msgid "# Number of appointments"
 msgstr "Nombre de patients"
 
-#: models/ccreports.py:1461
+#: models/ccreports.py:1483
 msgid "%NOA"
 msgstr ""
 
-#: models/ccreports.py:1465
+#: models/ccreports.py:1487
 #, python-format
 msgid "% of appointment reminders completed"
 msgstr ""
 
-#: models/ccreports.py:1466
+#: models/ccreports.py:1488
 msgid "%POA-RT"
 msgstr ""
 
-#: models/ccreports.py:1470
+#: models/ccreports.py:1492
 #, fuzzy
 msgid "% Urgently referred receiving on-time follow-up (within 2 days) [S13]"
 msgstr ""
 "% Référencé / Traité recevant un suivi dans les temps (en 2 jours) [S13]"
 
-#: models/ccreports.py:1472
+#: models/ccreports.py:1494
 #, fuzzy
 msgid "%Ref"
 msgstr "Ref"
 
-#: models/ccreports.py:1476
+#: models/ccreports.py:1498
 msgid "Median # of days for follow-up [S25]"
 msgstr "# median de jours depuis le suivi [25]"
 
-#: models/ccreports.py:1477
+#: models/ccreports.py:1499
 msgid "#Fol"
 msgstr ""
 
-#: models/ccreports.py:1481
+#: models/ccreports.py:1503
 msgid "SMS Error Rate %"
 msgstr "% d'erreurs SMS"
 
-#: models/ccreports.py:1482
+#: models/ccreports.py:1504
 #, python-format
 msgid "%Err"
 msgstr ""
 
-#: models/ccreports.py:1486
+#: models/ccreports.py:1508
 msgid "Days since last SMS transmission"
 msgstr "Jours depuis la dernière transmission SMS"
 
-#: models/ccreports.py:1487
+#: models/ccreports.py:1509
 msgid "#Days"
 msgstr "Jours "
 
-#: models/ccreports.py:1491
+#: models/ccreports.py:1513
 msgid "Calculated overall CHW performance indicator"
 msgstr ""
 
-#: models/ccreports.py:1492
+#: models/ccreports.py:1514
 msgid "SCORE"
 msgstr ""
 
-#: models/ccreports.py:1503
+#: models/ccreports.py:1525
 #, fuzzy
 msgid "Graphical Clinic Report"
 msgstr "Compte-rendu du centre de santé"
 
-#: models/ccreports.py:1516
+#: models/ccreports.py:1538
 msgid ""
 "Percentage of Children 6m-59m Old Getting at Least 1 MUAC in the Last 3 "
 "Months (or 1 month for SAM/MAM cases)"
 msgstr ""
 
-#: models/ccreports.py:1521
+#: models/ccreports.py:1543
 msgid "Percentage of Under-Fives with Known Up-to-date Immunizations"
 msgstr ""
 
-#: models/ccreports.py:1525
+#: models/ccreports.py:1547
 msgid "Percentage of Pregnant Women Having at Least 4 ANC Visits by Birth"
 msgstr ""
 
-#: models/ccreports.py:1529
+#: models/ccreports.py:1551
 msgid ""
 "Percentage On-Time Follow-Up (within 2 days of a Basic, Emergency, or "
 "Ambulance referral)"
 msgstr ""
 
-#: models/ccreports.py:1621
+#: models/ccreports.py:1643
 msgid "Clinic Report"
 msgstr "Compte-rendu du centre de santé"
 
-#: models/ccreports.py:1700
+#: models/ccreports.py:1722
 msgid "# of Household"
 msgstr "# de ménages"
 
-#: models/ccreports.py:1703
+#: models/ccreports.py:1725
 msgid "#House visits"
 msgstr "# de visites à domicile"
 
-#: models/ccreports.py:1706
+#: models/ccreports.py:1728
 msgid "#Patients"
 msgstr "#Patients"
 
-#: models/ccreports.py:1709
+#: models/ccreports.py:1731
 msgid "#MUAC"
 msgstr "#PB"
 
-#: models/ccreports.py:1950
+#: models/ccreports.py:1972
 msgid "The Bednet Household Healthy Survey Report"
 msgstr ""
 
-#: models/ccreports.py:1982
+#: models/ccreports.py:2004
 msgid "# of HH Visits (Last two weeks)"
 msgstr "# visites de ménage (deux dernières semaines)"
 
-#: models/ccreports.py:1984
+#: models/ccreports.py:2006
 #, fuzzy
 msgid "# of Households Surveyed"
 msgstr "# de ménages"
 
-#: models/ccreports.py:1986
+#: models/ccreports.py:2008
 #, fuzzy
 msgid "# of Sleeping Sites"
 msgstr "Nombre de places pour moustiquaires"
 
-#: models/ccreports.py:1988
+#: models/ccreports.py:2010
 msgid "# of Functioning Bednets"
 msgstr "# Moustiquaires fonctionnelles "
 
-#: models/ccreports.py:1990
+#: models/ccreports.py:2012
 #, fuzzy
 msgid "# of damaged"
 msgstr "Moustiquaire abîmée"
 
-#: models/ccreports.py:1992
+#: models/ccreports.py:2014
 #, fuzzy
 msgid "# of Earlier Bednets"
 msgstr "Moustiquaires précédentes"
 
-#: models/ccreports.py:1994
+#: models/ccreports.py:2016
 #, fuzzy
 msgid "# of Bednet Utilization Reports"
 msgstr "Compte-rendu de l'utilisation des moustiquaires"
 
-#: models/ccreports.py:1996
+#: models/ccreports.py:2018
 #, fuzzy
 msgid "# of Drinking Water Reports"
 msgstr "Comptes-rendus de la consommation d'eau"
 
-#: models/ccreports.py:1998
+#: models/ccreports.py:2020
 #, fuzzy
 msgid "# of Sanitation Reports"
 msgstr "Comptes-rendus de conditions sanitaires"
 
-#: models/ccreports.py:2023
+#: models/ccreports.py:2045
 #, fuzzy
 msgid "Family Planning"
 msgstr "Planning familial"
 
-#: models/ccreports.py:2024
+#: models/ccreports.py:2046
 #, fuzzy
 msgid "Follow Up"
 msgstr "Compte-rendu de suivi"
 
-#: models/ccreports.py:2026
+#: models/ccreports.py:2048
 #, fuzzy
 msgid "Under Five"
 msgstr "Enfants de moins de 5 ans"
 
-#: models/ccreports.py:2027
+#: models/ccreports.py:2049
 #, fuzzy
 msgid "Malaria"
 msgstr "Anti-paludique"
@@ -3706,7 +3716,7 @@ msgstr "Non"
 #: models/reports.py:192 models/reports.py:695 models/reports.py:782
 #: models/reports.py:866 models/reports.py:1175 models/reports.py:1292
 #: models/reports.py:1394 models/reports.py:1446 models/reports.py:1454
-#: reports/definitions/Malnutrition.py:107
+#: reports/definitions/Malnutrition.py:112
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -4934,17 +4944,17 @@ msgstr ""
 msgid "HH Health ID"
 msgstr "No. de santé du ménage"
 
-#: reports/definitions/Malnutrition.py:20
+#: reports/definitions/Malnutrition.py:21
 #, fuzzy
 msgid "Malnutrition Report"
 msgstr "Compte-rendu de nutrition"
 
-#: reports/definitions/Malnutrition.py:83
+#: reports/definitions/Malnutrition.py:88
 msgid "Children U5 Flagged as Malnourished"
 msgstr ""
 
-#: reports/definitions/Malnutrition.py:86
-#: reports/definitions/Malnutrition.py:130
+#: reports/definitions/Malnutrition.py:91
+#: reports/definitions/Malnutrition.py:135
 #: reports/definitions/MonthlyCHWReport.py:97
 #: reports/definitions/MonthlyCHWReport.py:141
 #: reports/definitions/MonthlyCHWReport.py:173
@@ -4953,8 +4963,8 @@ msgstr ""
 msgid "Loc Code"
 msgstr "Code"
 
-#: reports/definitions/Malnutrition.py:88
-#: reports/definitions/Malnutrition.py:132
+#: reports/definitions/Malnutrition.py:93
+#: reports/definitions/Malnutrition.py:137
 #: reports/definitions/MonthlyCHWReport.py:99
 #: reports/definitions/MonthlyCHWReport.py:143
 #: reports/definitions/MonthlyCHWReport.py:175
@@ -4962,20 +4972,20 @@ msgstr "Code"
 msgid "Name / Age"
 msgstr ""
 
-#: reports/definitions/Malnutrition.py:90
+#: reports/definitions/Malnutrition.py:95
 #: reports/definitions/MonthlyCHWReport.py:208
 #, fuzzy
 msgid "MUAC Status"
 msgstr "Statut"
 
-#: reports/definitions/Malnutrition.py:91
+#: reports/definitions/Malnutrition.py:96
 #: reports/definitions/MonthlyCHWReport.py:209
 #, fuzzy
 msgid "Od."
 msgstr "Oed"
 
-#: reports/definitions/Malnutrition.py:92
-#: reports/definitions/Malnutrition.py:133
+#: reports/definitions/Malnutrition.py:97
+#: reports/definitions/Malnutrition.py:139
 #: reports/definitions/MonthlyCHWReport.py:100
 #: reports/definitions/MonthlyCHWReport.py:145
 #: reports/definitions/MonthlyCHWReport.py:178
@@ -4984,13 +4994,18 @@ msgstr "Oed"
 msgid "Household Head"
 msgstr "Ménage"
 
-#: reports/definitions/Malnutrition.py:112
+#: reports/definitions/Malnutrition.py:117
 msgid " -- No MUAC"
 msgstr ""
 
-#: reports/definitions/Malnutrition.py:127
-msgid "Children U5 without MUAC"
+#: reports/definitions/Malnutrition.py:132
+msgid "Children U5 without MUAC in Past 90 Days"
 msgstr ""
+
+#: reports/definitions/Malnutrition.py:138
+#, fuzzy
+msgid "Latest MUAC"
+msgstr "Dernier PB"
 
 #: reports/definitions/MonthlyCHWReport.py:25
 #, fuzzy
@@ -5089,11 +5104,6 @@ msgstr ""
 #: reports/definitions/MonthlyCHWReport.py:200
 msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
 msgstr ""
-
-#: reports/definitions/MonthlyCHWReport.py:220
-#, fuzzy
-msgid "[No MUAC]"
-msgstr "MPB"
 
 #: reports/definitions/MonthlyCHWReport.py:221
 #: templates/childcount/forms/c.json:5

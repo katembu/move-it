@@ -61,9 +61,31 @@ class ThePatient(Patient):
         verbose_name = _("Patient List Report")
         proxy = True
 
+    def latest_muac_raw(self):
+        try:
+            n = NutritionReport\
+                .objects\
+                .filter(encounter__patient=self, \
+                    muac__isnull=False,
+                    muac__gt=0).latest()
+        except NutritionReport.DoesNotExist:
+            return None
+        return n
+
+    def latest_muac_date(self):
+        n = self.latest_muac_raw()
+        if n is None:
+            return _(u"[No MUAC]")
+        
+        ''' Oed = Oedema '''
+        return _(u"%(date)s [%(muac)s,Oed:%(oedema)s]") % \
+            {'date': n.encounter.encounter_date.strftime('%d %b %Y'),
+            'muac': n.muac or '--',
+            'oedema': n.oedema}
+
     def latest_muac(self):
-        muac = NutritionReport.objects.filter(encounter__patient=self).latest()
-        if not None:
+        muac = self.latest_muac_raw()
+        if muac is not None:
             return u"%smm %s" % (muac.muac, muac.verbose_state)
         return u""
 
