@@ -36,6 +36,10 @@ styleN = styles['Normal']
 styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
+
+def message_text(text):
+    return Paragraph(text, styleN)
+
 class Report(PrintedReport):
     title = 'CHW Management Report'
     filename = 'operational_report'
@@ -52,11 +56,6 @@ class Report(PrintedReport):
         '''
         Generate OperationalReport and write it to file
         '''
-
-        error_msg = Paragraph(_(u"There has been an error generating " \
-                                   u"this report."), styleN)
-        empty_msg = Paragraph(_(u"There is no data mathcing this report."), \
-                              styleN)
         
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
@@ -90,12 +89,14 @@ class Report(PrintedReport):
 
         # add blank page if no data
         # so that pdf is valid
-        if story.__len__() == 0: story.append(empty_msg)
+        if story.__len__() == 0: story.append(message_text(\
+                                 _(u"There is no data mathcing this report.")))
 
         try:
             doc.build(story)
-        except:
-            doc.build([error_msg])          
+        except Exception as e:
+            doc.build([message_text(_(u"There has been an error generating " \
+                                   u"this report: %s") % e)])
 
         f.close()
 
