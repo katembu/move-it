@@ -58,18 +58,27 @@ class Report(PrintedReport):
             else:
                 if r.muac is None:
                     no_report.append(u)
-                if r.muac is None and r.oedema == NutritionReport.OEDEMA_UNKOWN:
                     continue
 
-                if r.status != NutritionReport.STATUS_HEALTHY:
+                if (r.muac is None or r.muac == 0) and \
+                                r.oedema == NutritionReport.OEDEMA_UNKOWN:
+                    no_report.append(u)
+                    continue
+
+                if r.status is None:
+                    no_report.append(u)
+                elif r.status != NutritionReport.STATUS_HEALTHY:
                     output.append(r)
+                else:
+                    # Healthy
+                    pass
 
         return (output, no_report)
 
     def _malnutrition_table(self, clinic):
         (malnourished, unknown) = self._malnourished_by_clinic(clinic)
 
-        table = Table(7, \
+        table = Table(8, \
             Text(_(u"Children U5 Flagged as Malnourished")))
 
         table.add_header_row([
@@ -80,12 +89,13 @@ class Report(PrintedReport):
             Text(_(u"MUAC Status")),
             Text(_(u"Od.")),
             Text(_(u"Household Head")),
+            Text(_(u"CHW")),
         ])
-        table.set_column_width(10, 0)
-        table.set_column_width(10, 1)
-        table.set_column_width(15, 3)
+        table.set_column_width(7, 0)
+        table.set_column_width(7, 1)
+        table.set_column_width(12, 3)
         table.set_column_width(15, 4)
-        table.set_column_width(5, 5)
+        table.set_column_width(4, 5)
         for r in malnourished:
             (kid, nut) = (r.encounter.patient, r)
 
@@ -108,10 +118,11 @@ class Report(PrintedReport):
                 Text(muac_str),
                 Text(status_str),
                 Text(oedema_str),
-                Text(kid.household.full_name())
+                Text(kid.household.full_name()),
+                Text(kid.chw.full_name())
             ])
         
-        table2 = Table(4, \
+        table2 = Table(5, \
             Text(_(u"Children U5 without MUAC")))
 
         table2.add_header_row([
@@ -119,6 +130,7 @@ class Report(PrintedReport):
             Text(_(u"Health ID")),
             Text(_(u"Name / Age")),
             Text(_(u"Household Head")),
+            Text(_(u"CHW")),
         ])
         table2.set_column_width(10, 0)
         table2.set_column_width(10, 1)
@@ -127,7 +139,8 @@ class Report(PrintedReport):
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
-                Text(kid.household.full_name())
+                Text(kid.household.full_name()),
+                Text(kid.chw.full_name())
             ])
 
         return (table, table2)
