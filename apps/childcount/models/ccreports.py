@@ -2047,7 +2047,7 @@ class MonthlyCHWReport(TheCHWReport):
     def report_groups(self):
         return [
             {'title': _(u'Household'), 'length': 3},
-            {'title': _(u'Family Planning'), 'length': 2},
+            {'title': _(u'Family Planning'), 'length': 3},
             {'title': _(u'Follow Up'), 'length': 5},
             {'title': _(u'Pregnancy'), 'length': 5},
             {'title': _(u'Under Five'), 'length': 4},
@@ -2070,8 +2070,8 @@ class MonthlyCHWReport(TheCHWReport):
                 self.perc_ontime_hh_visits,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT_SHORT),
             INDICATOR_EMPTY,
-            #Indicator('Num of Women 15-49 Seen',\
-            #    self.num_of_women_under50_seen, Indicator.SUM),
+            Indicator('Num of Women 15-49 Seen',\
+                self.num_of_women_under50_seen, Indicator.SUM),
             Indicator('Women using FP',\
                 self.num_of_women_under50_using_fp, Indicator.SUM),
             #Indicator('% of Women using FP',\
