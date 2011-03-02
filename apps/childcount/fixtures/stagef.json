@@ -30,7 +30,7 @@
         "pk": 13, 
         "model": "childcount.configuration", 
         "fields": {
-            "value": "highlight_stats_bar registration_chart recent_numbers reports_list", 
+            "value": "highlight_stats_bar reports_list recent_numbers registration_chart", 
             "key": "dashboard_sections", 
             "description": "Whitespace-separated list of sections to include in the Dashboard"
         }
