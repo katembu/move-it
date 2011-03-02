@@ -968,7 +968,7 @@ class TheCHWReport(CHW):
             .objects\
             .filter(encounter__chw=self, \
                 encounter__encounter_date__lte=end_date,\
-                encounter__encounter_date__gt=start_date)\
+                encounter__encounter_date__gte=start_date)\
             .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
 
         num_referrals = referrals.count()
@@ -980,7 +980,7 @@ class TheCHWReport(CHW):
         nofup = []
         for referral in referrals:
             rdate = referral.encounter.encounter_date
-            day2later = day_end(rdate + timedelta(2))
+            day2later = day_end(rdate + timedelta(3))
             try:
                 fur = FollowUpReport.objects.filter(encounter__chw=self, \
                             encounter__patient=referral.encounter.patient, \
@@ -2050,7 +2050,7 @@ class MonthlyCHWReport(TheCHWReport):
             {'title': _(u'Family Planning'), 'length': 2},
             {'title': _(u'Follow Up'), 'length': 5},
             {'title': _(u'Pregnancy'), 'length': 5},
-            {'title': _(u'Under Five'), 'length': 3},
+            {'title': _(u'Under Five'), 'length': 4},
             {'title': _(u'Malaria'), 'length': 3},
             {'title': _(u'Diarrhea'), 'length': 2},
         ]
