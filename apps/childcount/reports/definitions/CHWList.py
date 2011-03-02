@@ -16,7 +16,7 @@ from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
     """ list all CHW """
-    title = 'CHW List'
+    title = _(u"CHW List")
     filename = 'CHWList'
     formats = ['html', 'pdf', 'xls']
     argvs = []

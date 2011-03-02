@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-01 17:46+0000\n"
-"PO-Revision-Date: 2011-03-01 17:46-0000\n"
+"POT-Creation-Date: 2011-03-02 15:53+0000\n"
+"PO-Revision-Date: 2011-03-02 15:55-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -264,6 +264,10 @@ msgstr "Vous avez tenté de charger %(cls)s sans définir %(k)s."
 #, python-format
 msgid "%(k)s must be a dictionary in %(cls)s."
 msgstr "Une erreur s'est produite: %(k)s must be a dictionary in %(cls)s."
+
+#: views.py:92
+msgid "ChildCount+ Dashboard"
+msgstr "Tableau de bord ChildCount+"
 
 #: commands/ActivityCommand.py:48
 #, python-format
@@ -2331,7 +2335,7 @@ msgstr "z"
 #: models/reports.py:1222
 #: models/reports.py:1265
 #: models/reports.py:1284
-#: templates/childcount/dashboard_sections/reports_list.html:13
+#: templates/childcount/dashboard_sections/reports_list.html:14
 msgid "Other"
 msgstr "Autre"
 
@@ -2695,7 +2699,7 @@ msgstr "Le principal dispensateur de soins dans le ménage de cette personne (lu
 #: reports/pmtct.py:377
 #: reports/definitions/CHWList.py:42
 #: reports/definitions/GeoPatientList.py:30
-#: reports/definitions/patients_toolbox.py:20
+#: reports/definitions/patients_toolbox.py:19
 #: templates/childcount/list_chw.html:21
 #: templates/childcount/patient.html:43
 msgid "Location"
@@ -2758,7 +2762,7 @@ msgstr "%(years)sy"
 #: reports/definitions/ClientReport.py:419
 #: reports/definitions/ClientReport.py:544
 #: reports/definitions/GeoPatientList.py:33
-#: reports/definitions/patients_toolbox.py:17
+#: reports/definitions/patients_toolbox.py:16
 msgid "Name"
 msgstr "Nom"
 
@@ -2786,6 +2790,7 @@ msgid "Encounters"
 msgstr "Consultations"
 
 #: models/Encounter.py:34
+#: reports/definitions/Operational.py:120
 msgid "Household"
 msgstr "Ménage"
 
@@ -3063,7 +3068,7 @@ msgstr "Dernier PB"
 #: models/ccreports.py:312
 #: models/ccreports.py:334
 #: reports/definitions/RegisteredPatient.py:53
-#: reports/definitions/patients_toolbox.py:16
+#: reports/definitions/patients_toolbox.py:15
 msgid "HID"
 msgstr "HID"
 
@@ -4232,6 +4237,7 @@ msgid "Expected Date of Delivery"
 msgstr "Date prévue de l'accouchement"
 
 #: models/reports.py:1333
+#: reports/definitions/Operational.py:124
 msgid "Appointment"
 msgstr "Rendez-vous"
 
@@ -4571,6 +4577,11 @@ msgstr "Clinique %(location)s inconnue."
 msgid "Bednet Report - %(loc)s: %(chw)s"
 msgstr "Rapport moustiquaire - %(loc)s: %(chw)s"
 
+#: reports/definitions/CHWList.py:19
+#: templates/childcount/list_chw.html:8
+msgid "CHW List"
+msgstr "Liste des ASC"
+
 #: reports/definitions/CHWList.py:40
 #: templates/childcount/patient.html:39
 #: templates/childcount/forms/a.json:4
@@ -4592,7 +4603,19 @@ msgstr "Langue"
 
 #: reports/definitions/CHWManagerReport.py:23
 msgid "CHW Manager Report: "
-msgstr "Rapport Coordinateur ASC"
+msgstr "Rapport Coordinateur ASC: "
+
+#: reports/definitions/CHWManagerReport.py:27
+msgid "Monthly"
+msgstr "mensuel"
+
+#: reports/definitions/CHWManagerReport.py:29
+msgid "Quarterly"
+msgstr "trimestriel"
+
+#: reports/definitions/CHWManagerReport.py:31
+msgid "Annual"
+msgstr "annuel"
 
 #: reports/definitions/CHWManagerReport.py:95
 msgid "Report"
@@ -4610,6 +4633,24 @@ msgstr "au "
 msgid "CHW Name"
 msgstr "Nom du ASC"
 
+#: reports/definitions/ClientReport.py:100
+#: reports/definitions/ClientReport.py:146
+msgid "Visit HH by %d %b"
+msgstr "Visiter ménage avant le %d %b"
+
+#: reports/definitions/ClientReport.py:103
+#: reports/definitions/ClientReport.py:149
+msgid "Overdue"
+msgstr "Retard"
+
+#: reports/definitions/ClientReport.py:167
+msgid "check bednet"
+msgstr "vérifier moustiquaire"
+
+#: reports/definitions/ClientReport.py:175
+msgid "ClientReport"
+msgstr "Rapport des patients"
+
 #: reports/definitions/ClientReport.py:213
 msgid "CHW reports one-per page                                                starting next page."
 msgstr "Rapports ASC un par page                                                 commence par suivante."
@@ -4618,6 +4659,10 @@ msgstr "Rapports ASC un par page                                                
 #, python-format
 msgid "%(clinic)s - %(full_name)s"
 msgstr "%(clinic)s - %(full_name)s"
+
+#: reports/definitions/ClientReport.py:223
+msgid "Data from %b. 1 to %b. %d %Y"
+msgstr "Date du %b. 1 au %b. %d %Y"
 
 #: reports/definitions/ClientReport.py:240
 #: reports/definitions/ClientReport.py:418
@@ -4672,6 +4717,21 @@ msgstr "ENFANTS"
 msgid "Nutrition consult"
 msgstr "Consultation nutrition"
 
+#: reports/definitions/ClientReport.py:377
+#, python-format
+msgid "%(status)s %(sign)s %(muac)s                                        %(rate_muac)s %(sign)s "
+msgstr "%(status)s %(sign)s %(muac)s                                        %(rate_muac)s %(sign)s "
+
+#: reports/definitions/ClientReport.py:383
+#, python-format
+msgid "%(status)s %(sign)s %(muac)s                                         (%(rate_muac)s) %(sign)s "
+msgstr "%(status)s %(sign)s %(muac)s                                         (%(rate_muac)s) %(sign)s "
+
+#: reports/definitions/ClientReport.py:390
+#, python-format
+msgid "%(icon)s %(icon_rate)s %(icon_)s"
+msgstr "%(icon)s %(icon_rate)s %(icon_)s"
+
 #: reports/definitions/ClientReport.py:423
 #: reports/definitions/ClientReport.py:547
 #: templates/childcount/forms/b.json:7
@@ -4705,6 +4765,10 @@ msgstr "%(icon)s %(icon_)s"
 msgid "WOMEN"
 msgstr "FEMMES"
 
+#: reports/definitions/CoordinatorReport.py:17
+msgid "CC+ Health Coordinator Report"
+msgstr "Rapport du coordinateur de santé"
+
 #: reports/definitions/CoordinatorReport.py:38
 #, python-format
 msgid "For year %(year)s"
@@ -4713,6 +4777,10 @@ msgstr "Pour l'année %(year)s"
 #: reports/definitions/GeoPatientList.py:31
 msgid "HH Health ID"
 msgstr "No. de santé du ménage"
+
+#: reports/definitions/HoHHList.py:17
+msgid "House holds list"
+msgstr "Liste des ménages"
 
 #: reports/definitions/MonthlyCHWReport.py:24
 msgid "Monthly CHW Report: "
@@ -4862,15 +4930,191 @@ msgstr "Graphs de performance disponibles uniquement en PDF"
 msgid "For months %(first)s and %(second)s"
 msgstr "De %(first)s à %(second)s"
 
+#: reports/definitions/Operational.py:45
+msgid "CHW Management Report"
+msgstr "Rapport Coordinateur ASC"
+
+#: reports/definitions/Operational.py:50
+msgid " (By Clinic)"
+msgstr " (par cliniques)"
+
+#: reports/definitions/Operational.py:52
+msgid " (By Location)"
+msgstr " (par villages)"
+
+#: reports/definitions/Operational.py:94
+msgid "There is no data mathcing this report."
+msgstr "Il n'y a pas de donnée pour ce rapport."
+
+#: reports/definitions/Operational.py:99
+#, python-format
+msgid "There has been an error generating this report: %s"
+msgstr "Une erreur s'est produite durant la génération du rapport: %s"
+
+#: reports/definitions/Operational.py:121
+msgid "Newborn"
+msgstr "Nouveau né"
+
+#: reports/definitions/Operational.py:122
+msgid "Under-5's"
+msgstr "- de 5ans"
+
+#: reports/definitions/Operational.py:123
+msgid "Pregnant"
+msgstr "Enceinte"
+
+#: reports/definitions/Operational.py:125
+msgid "Follow-up"
+msgstr "Suivi"
+
+#: reports/definitions/Operational.py:126
+msgid "SMS"
+msgstr "SMS"
+
+#: reports/definitions/Operational.py:129
+msgid "A1"
+msgstr "A1"
+
+#: reports/definitions/Operational.py:129
+msgid "A2"
+msgstr "A2"
+
+#: reports/definitions/Operational.py:130
+msgid "A3"
+msgstr "A3"
+
+#: reports/definitions/Operational.py:130
+msgid "B1"
+msgstr "B1"
+
+#: reports/definitions/Operational.py:131
+msgid "B2"
+msgstr "B2"
+
+#: reports/definitions/Operational.py:131
+msgid "B3"
+msgstr "B3"
+
+#: reports/definitions/Operational.py:132
+msgid "C1"
+msgstr "C1"
+
+#: reports/definitions/Operational.py:132
+msgid "C2"
+msgstr "C2"
+
+#: reports/definitions/Operational.py:133
+msgid "C3"
+msgstr "C3"
+
+#: reports/definitions/Operational.py:133
+msgid "C4"
+msgstr "C4"
+
+#: reports/definitions/Operational.py:134
+msgid "C5"
+msgstr "C5"
+
+#: reports/definitions/Operational.py:134
+msgid "C6"
+msgstr "C6"
+
+#: reports/definitions/Operational.py:135
+msgid "D1"
+msgstr "D1"
+
+#: reports/definitions/Operational.py:135
+msgid "D2"
+msgstr "D2"
+
+#: reports/definitions/Operational.py:136
+msgid "D3"
+msgstr "D3"
+
+#: reports/definitions/Operational.py:136
+msgid "E1"
+msgstr "E1"
+
+#: reports/definitions/Operational.py:137
+msgid "E2"
+msgstr "E2"
+
+#: reports/definitions/Operational.py:137
+msgid "F1"
+msgstr "F1"
+
+#: reports/definitions/Operational.py:138
+msgid "F2"
+msgstr "F2"
+
+#: reports/definitions/Operational.py:138
+msgid "G1"
+msgstr "G1"
+
+#: reports/definitions/Operational.py:139
+msgid "G2"
+msgstr "G2"
+
+#: reports/definitions/Operational.py:139
+msgid "H1"
+msgstr "H1"
+
+#: reports/definitions/Operational.py:153
+msgid "<u>List of CHWs</u>"
+msgstr "<u>Liste des ASCs</u>"
+
+#: reports/definitions/Operational.py:261
+#: reports/definitions/UtilizationReport.py:187
+msgid "Average"
+msgstr "Moyenne"
+
+#: reports/definitions/Operational.py:261
+msgid "Standard Deviation"
+msgstr "Déviation standard"
+
+#: reports/definitions/Operational.py:261
+#: reports/definitions/UtilizationReport.py:188
+msgid "Median"
+msgstr "Médiane"
+
+#: reports/definitions/RegisteredPatient.py:20
+msgid "Registered Patients"
+msgstr "Patients enregistrés"
+
 #: reports/definitions/RegisteredPatient.py:54
-#: reports/definitions/patients_toolbox.py:21
+#: reports/definitions/patients_toolbox.py:20
 msgid "HoHH"
 msgstr "CdMenage"
 
 #: reports/definitions/RegisteredPatient.py:57
-#: reports/definitions/patients_toolbox.py:22
+#: reports/definitions/patients_toolbox.py:21
 msgid "Village"
 msgstr "Village"
+
+#: reports/definitions/StatsFormA.py:8
+msgid "Form A (Registration) per Day"
+msgstr "Form A (enregistrements) par jour"
+
+#: reports/definitions/StatsFormA.py:17
+msgid "You successfuly registered "
+msgstr "Vous avez réussi à enregistrer "
+
+#: reports/definitions/StatsFormB.py:8
+msgid "Form B (HH Visit) per Day"
+msgstr "Form B (Visites ménages) par jour"
+
+#: reports/definitions/StatsFormB.py:18
+#: reports/definitions/StatsFormC.py:27
+msgid "Successfully processed: ["
+msgstr " Traité avec succès: ["
+
+#: reports/definitions/StatsFormC.py:8
+msgid "Form C (Consultation) per Day"
+msgstr "Form C (consultations) par jour"
+
+#: reports/definitions/UtilizationReport.py:156
+msgid "Utilization Report"
+msgstr "Rapport d'utilisation CC+"
 
 #: reports/definitions/UtilizationReport.py:178
 msgid "Indicator:"
@@ -4879,14 +5123,6 @@ msgstr "Indicateur:"
 #: reports/definitions/UtilizationReport.py:186
 msgid "Total"
 msgstr "Total"
-
-#: reports/definitions/UtilizationReport.py:187
-msgid "Average"
-msgstr "Moyenne"
-
-#: reports/definitions/UtilizationReport.py:188
-msgid "Median"
-msgstr "Médiane"
 
 #: reports/definitions/UtilizationReport.py:206
 msgid "Total Clients Reg."
@@ -5009,12 +5245,12 @@ msgstr "Taux d'erreurs SMS"
 msgid "% of days with SMS / month."
 msgstr "% de jour avec SMS / mois."
 
-#: reports/definitions/patients_toolbox.py:18
+#: reports/definitions/patients_toolbox.py:17
 #: templates/childcount/patient.html:42
 msgid "DOB"
 msgstr "DDN"
 
-#: reports/definitions/patients_toolbox.py:19
+#: reports/definitions/patients_toolbox.py:18
 #: templates/childcount/forms/a.json:9
 #: templates/childcount/forms/d.json:7
 msgid "Sex"
@@ -5175,7 +5411,7 @@ msgid "No. Of Pregnant Women"
 msgstr "Nb. de femmes enceintes"
 
 #: templates/childcount/index.html:145
-#: templates/childcount/dashboard_sections/reports_list.html:9
+#: templates/childcount/dashboard_sections/reports_list.html:10
 msgid "Report Name"
 msgstr "Nom du rapport"
 
@@ -5198,10 +5434,6 @@ msgstr "Général"
 #: templates/childcount/index.html:284
 msgid "Nutrition Graph"
 msgstr "Graph Nutrition"
-
-#: templates/childcount/list_chw.html:8
-msgid "CHW List"
-msgstr "Liste des ASC"
 
 #: templates/childcount/list_chw.html:15
 msgid "All Community Health Workers"
@@ -5338,15 +5570,15 @@ msgstr "Il y a x jours"
 msgid "Total number of patients"
 msgstr "Nombre total de patients"
 
-#: templates/childcount/dashboard_sections/reports_list.html:10
+#: templates/childcount/dashboard_sections/reports_list.html:11
 msgid "HTML"
 msgstr "HTML"
 
-#: templates/childcount/dashboard_sections/reports_list.html:11
+#: templates/childcount/dashboard_sections/reports_list.html:12
 msgid "PDF"
 msgstr "PDF"
 
-#: templates/childcount/dashboard_sections/reports_list.html:12
+#: templates/childcount/dashboard_sections/reports_list.html:13
 msgid "Excel"
 msgstr "Excel"
 
