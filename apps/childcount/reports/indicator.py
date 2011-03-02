@@ -33,7 +33,17 @@ class Indicator(object):
             return frac
         
         return "%2.1f%% (%d/%d)" % (100.0*frac, num, den)
-    
+   
+    @classmethod
+    def PERC_PRINT_SHORT(cls, (num, den), excel):
+        if den == 0: return '--'
+   
+        frac = float(num)/float(den)
+        if excel:
+            return frac
+        
+        return "%d%%" % int(round(100.0*frac))
+
     """ Default print function.  Tries to 
         convert to int or float for the benefit
         of doing Excel calculations, then 

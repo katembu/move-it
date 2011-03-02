@@ -106,10 +106,11 @@ class ThePatient(Patient):
 
         return hvr + nn
 
-    def visit_within_90_days_of_last_visit(self):
+    def visit_within_90_days_of_last_visit(self, relative_to=date.today()):
         try:
             hvr = HouseholdVisitReport.objects\
-                        .filter(encounter__patient=self.household).latest()
+                        .filter(encounter__patient=self.household,\
+                            encounter__encounter_date__lte=relative_to).latest()
             latest_date = hvr.encounter.encounter_date
             old_date = latest_date - timedelta(90)
             hvr = HouseholdVisitReport.objects\
@@ -727,19 +728,23 @@ class TheCHWReport(CHW):
                 for i in xrange(-30 - offset, -offset)]
 
     def percentage_ontime_visits(self):
-        households = self.households()
-        num_on_time = 0
-        for household in households:
-            thepatient = ThePatient.objects.get(health_id=household.health_id)
-            if thepatient.visit_within_90_days_of_last_visit():
-                num_on_time += 1
-        if households.count() == 0:
+        (num_on_time, total_households) = \
+            self._percentage_ontime_visits_raw()
+        if total_households == 0:
             return None
         if num_on_time is 0:
             return 0
         else:
-            total_households = households.count()
             return int(100.0 * num_on_time / float(total_households))
+
+    def _percentage_ontime_visits_raw(self, relative_to=date.today()):
+        households = self.households()
+        num_on_time = 0
+        for household in households:
+            thepatient = ThePatient.objects.get(health_id=household.health_id)
+            if thepatient.visit_within_90_days_of_last_visit(relative_to):
+                num_on_time += 1
+        return (num_on_time, households.count())
 
     def num_of_births(self):
         return BirthReport.objects.filter(encounter__chw=self).count()
@@ -1549,7 +1554,7 @@ class GraphicalClinicReport(Clinic):
                         self.percentage_with_four_anc,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
             Indicator(_(u'Percentage On-Time Follow-Up '\
-                        '(within 2 days of a Basic, Emergency, or '\
+                        '(within 3 days of a Basic, Emergency, or '\
                         'Ambulance referral)'),\
                         self.percentage_ontime_follow_up,
                         Indicator.AGG_PERCS, Indicator.PERC_PRINT),\
@@ -2041,11 +2046,11 @@ class MonthlyCHWReport(TheCHWReport):
 
     def report_groups(self):
         return [
-            {'title': _(u'Household'), 'length': 2},
+            {'title': _(u'Household'), 'length': 3},
             {'title': _(u'Family Planning'), 'length': 2},
-            {'title': _(u'Follow Up'), 'length': 4},
+            {'title': _(u'Follow Up'), 'length': 5},
             {'title': _(u'Pregnancy'), 'length': 5},
-            {'title': _(u'Under Five'), 'length': 4},
+            {'title': _(u'Under Five'), 'length': 3},
             {'title': _(u'Malaria'), 'length': 3},
             {'title': _(u'Diarrhea'), 'length': 2},
         ]
@@ -2061,10 +2066,13 @@ class MonthlyCHWReport(TheCHWReport):
                 self.total_hh_visits, Indicator.SUM),
             Indicator('Unique HH Visits',\
                 self.num_of_hh_visits, Indicator.SUM),
+            Indicator('Percentage of HHs Getting Visit in Last 90 Days',\
+                self.perc_ontime_hh_visits,
+                Indicator.AGG_PERCS, Indicator.PERC_PRINT_SHORT),
             INDICATOR_EMPTY,
             #Indicator('Num of Women 15-49 Seen',\
             #    self.num_of_women_under50_seen, Indicator.SUM),
-            Indicator('Num of Women using FP',\
+            Indicator('Women using FP',\
                 self.num_of_women_under50_using_fp, Indicator.SUM),
             #Indicator('% of Women using FP',\
             #    self.perc_of_women_under50_using_fp, \
@@ -2082,7 +2090,7 @@ class MonthlyCHWReport(TheCHWReport):
             #    self.num_fp_usage_pill, Indicator.SUM),
             #Indicator('Num of Women using FP: Ster.',\
             #    self.num_fp_usage_sterilization, Indicator.SUM),
-            Indicator('Num of Women Starting FP or Never Registered',\
+            Indicator('Women Starting FP or Never Registered',\
                 self.num_starting_fp, Indicator.SUM),
             #Indicator('Num of Women Remaining on FP',\
             #    self.num_still_on_fp, Indicator.SUM),
@@ -2093,13 +2101,17 @@ class MonthlyCHWReport(TheCHWReport):
                 self.num_danger_signs, Indicator.SUM),
             Indicator('Urgent (non-convenient) Referrals',\
                 self.num_referred, Indicator.SUM),
-            Indicator('Num Follow Up Within 2 Days',\
+            Indicator('On-Time Follow Up Visits (within 3 days)',\
                 self.num_ontime_follow_up, Indicator.SUM),
-            Indicator('% Follow Up Within 2 Days',\
-                self.perc_ontime_follow_up,
-                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('Late Follow Up Visits (within 7 days)',\
+                self.num_late_follow_up, Indicator.SUM),
+            Indicator('No Follow Up Visits (never or after 7 days)',\
+                self.num_never_follow_up, Indicator.SUM),
+            #Indicator('% Follow Up Within 3 Days',\
+            #    self.perc_ontime_follow_up,
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
             INDICATOR_EMPTY,
-            Indicator('Num Pregnant Women',\
+            Indicator('Pregnant Women',\
                 self.num_pregnant_by_period, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
             #Indicator('% Getting 1 ANC by 1st Trim.',\
@@ -2108,36 +2120,38 @@ class MonthlyCHWReport(TheCHWReport):
             #Indicator('% Getting 3 ANC by 2nd Trim.',\
             #    self.perc_with_anc_second,
             #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('Num Birth *Reports*',\
+            Indicator('Births',\
                 self.num_births, Indicator.SUM),
-            Indicator('Num Births Rpts with 4 ANC',\
+            Indicator('Births with 4 ANC',\
                 self.num_births_with_anc_four, Indicator.SUM),
-            Indicator('% Getting 4 ANC by Birth',\
-                self.perc_with_anc_four,
-                Indicator.AGG_PERCS, Indicator.PERC_PRINT),
-            Indicator('Num Neonatal Rpts (within 7 days)',\
+            Indicator('Babies Known Delivered in Clinic',\
+                self.num_births_delivered_in_facility, Indicator.SUM),
+            #Indicator('% Getting 4 ANC by Birth',\
+            #    self.perc_with_anc_four,
+            #    Indicator.AGG_PERCS, Indicator.PERC_PRINT),
+            Indicator('Neonatal Reports (within 7 days)',\
                 self.num_neonatal, Indicator.SUM),
             INDICATOR_EMPTY,
-            Indicator('Num Children U5',\
+            Indicator('Children U5',\
                 self.num_underfive, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
-            Indicator('Num U5 Known Immunized',\
+            Indicator('Children U5 Known Immunized',\
                 self.num_underfive_imm, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
-            Indicator('Num MUACs Taken',\
+            Indicator('MUACs Taken',\
                 self.num_muacs_taken, Indicator.SUM),
-            Indicator('Num active SAM/MAM Cases',\
+            Indicator('Active SAM/MAM Cases',\
                 self.num_active_sam_cases, Indicator.AVG,\
                 col_agg_func=Indicator.SUM),
-            Indicator('Num Tested RDTs',\
+            Indicator('Tested RDTs',\
                 self.num_tested_rdts, Indicator.SUM),
-            Indicator('Num Positive RDTs',\
+            Indicator('Positive RDTs',\
                 self.num_positive_rdts, Indicator.SUM),
-            Indicator('Num Anti-Malarials Given',\
+            Indicator('Anti-Malarials Given',\
                 self.num_antimalarials_given, Indicator.SUM),
-            Indicator('Num Diarrhea Cases',\
+            Indicator('Diarrhea Cases',\
                 self.num_diarrhea, Indicator.SUM),
-            Indicator('Num ORS Given',\
+            Indicator('ORS Given',\
                 self.num_ors_given, Indicator.SUM),
         ]
 
@@ -2182,6 +2196,26 @@ class MonthlyCHWReport(TheCHWReport):
             .values('encounter__patient__household__pk')\
             .distinct()\
             .count()
+
+    def num_of_hhs(self, per_cls, per_num):
+        return self.households(\
+            per_cls.period_end_date(per_num)).count()
+
+    def num_of_hh_visits_in_90days(self, per_cls, per_num):
+        end_date = per_cls.period_end_date(per_num)
+        start_date = end_date - timedelta(90)
+        return HouseholdVisitReport\
+            .indicators\
+            .filter(encounter__patient__chw=self,\
+                encounter__encounter_date__gte=start_date, \
+                encounter__encounter_date__lte=end_date)\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+    def perc_ontime_hh_visits(self, per_cls, per_num):
+        return (self.num_of_hh_visits_in_90days(per_cls, per_num), \
+            self.num_of_hhs(per_cls, per_num))
 
     #
     # Family planning section
@@ -2322,28 +2356,49 @@ class MonthlyCHWReport(TheCHWReport):
                 .count()
 
     def num_ontime_follow_up(self, per_cls, per_num):
-        count = 0
+        ontime, late, never = self._calc_ontime_follow_up(per_cls, per_num)
+        return ontime
+
+    def num_late_follow_up(self, per_cls, per_num):
+        ontime, late, never = self._calc_ontime_follow_up(per_cls, per_num)
+        return late
+
+    def num_never_follow_up(self, per_cls, per_num):
+        ontime, late, never = self._calc_ontime_follow_up(per_cls, per_num)
+        return never
+
+    def _calc_ontime_follow_up(self, per_cls, per_num):
+        ontime = 0
+        late = 0
+        never = 0
         for r in ReferralReport\
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
             .exclude(urgency=ReferralReport.URGENCY_CONVENIENT):
 
-            due_by = r.encounter.encounter_date + timedelta(2)
             f = FollowUpReport\
                 .indicators\
                 .for_chw(self)\
                 .filter(encounter__patient__pk=r.encounter.patient.pk,\
-                    encounter__encounter_date__lte=due_by,
                     encounter__encounter_date__gt=\
                         r.encounter.encounter_date)\
-                .count()
+                .order_by('encounter__encounter_date')
 
-            if f is None or f == 0:
-                continue
+            due_by = r.encounter.encounter_date + timedelta(2)
+            late_before = r.encounter.encounter_date + timedelta(7)
+            if f.count() == 0:
+                never += 1
+            elif f[0].encounter.encounter_date <= due_by:
+                ontime += 1
+            elif f[0].encounter.encounter_date > due_by and \
+                    f[0].encounter.encounter_date <= late_before:
+                late += 1
             else:
-                count += 1
-        return count
+                # If FU visit doesn't happen with 1 week,
+                # then it's not a follow-up visit at all
+                never += 1
+        return (ontime, late, never)
 
     def perc_ontime_follow_up(self, per_cls, per_num):
         return (self.num_ontime_follow_up(per_cls, per_num),\
@@ -2496,6 +2551,13 @@ class MonthlyCHWReport(TheCHWReport):
                 count += 1
 
         return count
+
+    def num_births_delivered_in_facility(self, per_cls, per_num):
+         return BirthReport\
+            .indicators\
+            .for_chw(self)\
+            .for_period(per_cls, per_num)\
+            .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def num_neonatal(self, per_cls, per_num):
         count = 0
@@ -2968,13 +3030,14 @@ class HealthCoordinatorReport():
     def num_births(self, per_cls, per_num):
         return self._births(per_cls, per_num).count()
 
-    def _births_delivered_in_facility(self, per_cls, per_num):
+    def num_births_delivered_in_facility(self, per_cls, per_num):
         return self._births(per_cls, per_num)\
             .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES)
 
     def perc_births_delivered_in_facility(self, per_cls, per_num):
         print 'births hf'
-        return self._births_delivered_in_facility(per_cls, per_num).count(), \
+        return self.num_births_delivered_in_facility(\
+                per_cls, per_num).count(), \
             self.num_births(per_cls, per_num)
 
     def _births_with_low_weight(self, per_cls, per_num):
@@ -3231,7 +3294,7 @@ class HealthCoordinatorReport():
             .indicators\
             .for_period(per_cls, per_num):
 
-            due_by = r.encounter.encounter_date + timedelta(2)
+            due_by = r.encounter.encounter_date + timedelta(3)
             f = FollowUpReport\
                 .indicators\
                 .filter(encounter__patient__pk=r.encounter.patient.pk,\

@@ -4,7 +4,6 @@
 
 from datetime import datetime
 import copy
-import numpy
 
 from django.utils.translation import gettext as _
 
@@ -198,10 +197,10 @@ class Report(PrintedReport):
         if not indata:
             return ([], [], [])
 
+
         for chw in indata:
             indicators = filter(lambda i: i != INDICATOR_EMPTY,
-                chw.report_indicators())
-
+                    chw.report_indicators())
             # Render column values into strings
             row_values = []
             for ind in indicators:
@@ -225,25 +224,19 @@ class Report(PrintedReport):
                 aggregate_data[i].append(calc)
 
         thresholds = []
-        aggregates = [[u'Average'], [u'Standard Deviation'], [u'Median']]
-        for points in aggregate_data:
+        aggregates = [[u'Total/Average']]
+
+        indicators = filter(lambda i: i != INDICATOR_EMPTY,
+                indata[0].report_indicators())
+        for i,points in enumerate(aggregate_data):
             if points:
-                print points
-                avg = numpy.average(points)
-                std = numpy.std(points)
-                med = numpy.median(points)
-       
+                indicators[i].set_excel(False)
+                med = indicators[i].aggregate_col(points)
+                aggregates[0].append(Paragraph(unicode(med), styleN))
 
-                aggregates[0].append(Paragraph(u"%0.1f" % avg, styleN))
-                aggregates[1].append(Paragraph(u"%0.1f" % std, styleN))
-                aggregates[2].append(Paragraph(u"%0.1f" % med, styleN))
-
-                if int(std) == 0:
-                    thresholds.append((float('-inf'), float('inf')))
-                else:
-                    thresholds.append((avg - (2*std), avg + (2*std)))
+                thresholds.append((float('-inf'), float('inf')))
             else:
-                for i in xrange(0,3):
+                for i in xrange(0,len(aggregates)):
                     aggregates[i].append(u'-') 
                 thresholds.append(None)
 
