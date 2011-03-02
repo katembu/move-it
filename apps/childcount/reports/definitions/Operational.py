@@ -5,7 +5,7 @@
 import copy
 import numpy
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.template import Template, Context
 from locations.models import Location
 
@@ -52,6 +52,11 @@ class Report(PrintedReport):
         '''
         Generate OperationalReport and write it to file
         '''
+
+        error_msg = Paragraph(_(u"There has been an error generating " \
+                                   u"this report."), styleN)
+        empty_msg = Paragraph(_(u"There is no data mathcing this report."), \
+                              styleN)
         
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
@@ -74,14 +79,23 @@ class Report(PrintedReport):
                     .filter(**filter_on).count():
                 continue
             tb = self._operationalreportable(location, \
-                    TheCHWReport.objects.filter(is_active=True).filter(**filter_on))
+                                   TheCHWReport.objects.filter(is_active=True)\
+                                                       .filter(**filter_on))
             story.append(tb)
             story.append(PageBreak())
 
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
                                 bottomMargin=(0 * inch))
-        doc.build(story)
+
+        # add blank page if no data
+        # so that pdf is valid
+        if story.__len__() == 0: story.append(empty_msg)
+
+        try:
+            doc.build(story)
+        except:
+            doc.build([error_msg])          
 
         f.close()
 
