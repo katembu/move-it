@@ -41,7 +41,7 @@ class Report(PrintedReport):
         under_fives = Patient\
             .objects\
             .filter(status=Patient.STATUS_ACTIVE,\
-                clinic=clinic,\
+                chw__clinic=clinic,\
                 dob__gte=date.today()-timedelta(5*265.25))\
             .order_by('location__code')
 
