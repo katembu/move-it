@@ -42,7 +42,8 @@ class Report(PrintedReport):
             .objects\
             .filter(status=Patient.STATUS_ACTIVE,\
                 clinic=clinic,\
-                dob__gte=date.today()-timedelta(5*265.25))
+                dob__gte=date.today()-timedelta(5*265.25))\
+            .order_by('location__code')
 
         output = []
         no_report = []
