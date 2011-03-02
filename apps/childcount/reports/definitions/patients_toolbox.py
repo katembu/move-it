@@ -7,7 +7,6 @@ from django.utils.translation import gettext as _
 from ccdoc import Document, Table, Text, Section
 
 from childcount.models import Patient
-from locations.models import Location
 
 
 def _create_patient_table():

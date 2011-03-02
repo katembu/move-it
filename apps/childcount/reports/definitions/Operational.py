@@ -5,11 +5,12 @@
 import copy
 import numpy
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.template import Template, Context
 from locations.models import Location
 
 try:
+    import reportlab
     from reportlab.lib.styles import getSampleStyleSheet
     from reportlab.lib.pagesizes import landscape, A4
     from reportlab.platypus import Paragraph, SimpleDocTemplate, PageBreak
@@ -36,15 +37,19 @@ styleN = styles['Normal']
 styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
+
+def message_text(text):
+    return Paragraph(text, styleN)
+
 class Report(PrintedReport):
-    title = 'CHW Management Report'
+    title = _(u"CHW Management Report")
     filename = 'operational_report'
     formats = ('pdf',)
 
     variants = [ \
-        (' (By Clinic)', '_clinic', \
+        (_(u" (By Clinic)"), '_clinic', \
             {'type_str': 'clinic', 'type_obj': Clinic}), \
-        (' (By Location)', '_location', 
+        (_(" (By Location)"), '_location', 
             {'type_str': 'location', 'type_obj': Location}), \
     ]
 
@@ -74,14 +79,26 @@ class Report(PrintedReport):
                     .filter(**filter_on).count():
                 continue
             tb = self._operationalreportable(location, \
-                    TheCHWReport.objects.filter(is_active=True).filter(**filter_on))
+                                   TheCHWReport.objects.filter(is_active=True)\
+                                                       .filter(**filter_on))
             story.append(tb)
             story.append(PageBreak())
 
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
                                 bottomMargin=(0 * inch))
-        doc.build(story)
+
+        # add blank page if no data
+        # so that pdf is valid
+        if story.__len__() == 0: story.append(message_text(\
+                                 _(u"There is no data mathcing this report.")))
+
+        try:
+            doc.build(story)
+        except Exception as e:
+            doc.build([message_text(_(u"There has been an error generating " \
+                                   u"this report: %s") % e)])
+            raise
 
         f.close()
 
@@ -100,26 +117,26 @@ class Report(PrintedReport):
         ''' Header data '''
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
-        data = [hdata, ['', Paragraph('Household', styleH3), '', '', \
-                Paragraph('Newborn', styleH3), '', '', \
-                Paragraph('Under-5\'s', styleH3), '', \
-                '', '', '', '', Paragraph('Pregnant', styleH3), '', '', \
-                Paragraph('Appointment', styleH3), '', \
-                Paragraph('Follow-up', styleH3), '', \
-                Paragraph('SMS', styleH3), '', \
+        data = [hdata, ['', Paragraph(_(u"Household"), styleH3), '', '', \
+                Paragraph(_(u"Newborn"), styleH3), '', '', \
+                Paragraph(_(u"Under-5's"), styleH3), '', \
+                '', '', '', '', Paragraph(_(u"Pregnant"), styleH3), '', '', \
+                Paragraph(_(u"Appointment"), styleH3), '', \
+                Paragraph(_(u"Follow-up"), styleH3), '', \
+                Paragraph(_(u"SMS"), styleH3), '', \
                 Paragraph('',
                             styleH3)], \
-                ['', Paragraph('A1', styleH3), Paragraph('A2', styleH3), \
-                Paragraph('A3', styleH3), Paragraph('B1', styleH3), \
-                Paragraph('B2', styleH3), Paragraph('B3', styleH3), \
-                Paragraph('C1', styleH3), Paragraph('C2', styleH3), \
-                Paragraph('C3', styleH3), Paragraph('C4', styleH3), \
-                Paragraph('C5', styleH3), Paragraph('C6', styleH3), \
-                Paragraph('D1', styleH3), Paragraph('D2', styleH3), \
-                Paragraph('D3', styleH3), Paragraph('E1', styleH3),
-                Paragraph('E2', styleH3), Paragraph('F1', styleH3), \
-                Paragraph('F2', styleH3), Paragraph('G1', styleH3), \
-                Paragraph('G2', styleH3), Paragraph('H1', styleH3)]]
+                ['', Paragraph(_(u"A1"), styleH3), Paragraph(_(u"A2"), styleH3), \
+                Paragraph(_(u"A3"), styleH3), Paragraph(_(u"B1"), styleH3), \
+                Paragraph(_(u"B2"), styleH3), Paragraph(_(u"B3"), styleH3), \
+                Paragraph(_(u"C1"), styleH3), Paragraph(_(u"C2"), styleH3), \
+                Paragraph(_(u"C3"), styleH3), Paragraph(_(u"C4"), styleH3), \
+                Paragraph(_(u"C5"), styleH3), Paragraph(_(u"C6"), styleH3), \
+                Paragraph(_(u"D1"), styleH3), Paragraph(_(u"D2"), styleH3), \
+                Paragraph(_(u"D3"), styleH3), Paragraph(_(u"E1"), styleH3),
+                Paragraph(_(u"E2"), styleH3), Paragraph(_(u"F1"), styleH3), \
+                Paragraph(_(u"F2"), styleH3), Paragraph(_(u"G1"), styleH3), \
+                Paragraph(_(u"G2"), styleH3), Paragraph(_(u"H1"), styleH3)]]
 
         thirdrow = [Paragraph(cols[0]['name'], styleH3)]
         thirdrow.extend([RotatedParagraph(Paragraph(col['name'], styleN), \
@@ -133,7 +150,7 @@ class Report(PrintedReport):
                             '-', '100']])
         data.append(fourthrow)
 
-        fifthrow = [Paragraph('<u>List of CHWs</u>', styleH3)]
+        fifthrow = [Paragraph(_(u"<u>List of CHWs</u>"), styleH3)]
         fifthrow.extend([Paragraph(item, styleN) for item in [''] * 19])
         data.append(fifthrow)
 
@@ -190,29 +207,31 @@ class Report(PrintedReport):
             rowHeights.extend(3 * [0.25 * inch])
 
         tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=6)
-        tb.setStyle(TableStyle([('SPAN', (0, 0), (22, 0)),
-                                ('INNERGRID', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey),\
-                                ('BOX', (0, 0), (-1, -1), 0.1, \
-                                colors.lightgrey), \
-                                ('BOX', (1, 1), (3, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (1, 1), (3, 1)), \
-                                ('SPAN', (4, 1), (6, 1)), \
-                                ('BOX', (7, 1), (12, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (7, 1), (12, 1)), \
-                                ('SPAN', (13, 1), (15, 1)), \
-                                ('BOX', (16, 1), (17, -1), 2, \
-                                colors.lightgrey),\
-                                ('SPAN', (16, 1), (17, 1)), \
-                                ('SPAN', (18, 1), (19, 1)), \
-                                ('SPAN', (20, 1), (21, 1)), \
-                                ('BOX', (20, 1), (21, -1), 2, \
-                                colors.lightgrey),
-                                ('LINEABOVE', (0, -3), (-1, -3), 1, \
-                                colors.black)
-                    ]))
+        tstyles = []
+            
+            
+        tstyles = [('INNERGRID', (0, 0), (-1, -1), 0.1, colors.lightgrey),
+                   ('BOX', (0, 0), (-1, -1), 0.1, colors.lightgrey),
+                   ('BOX', (1, 1), (3, -1), 2, colors.lightgrey),
+                   ('BOX', (7, 1), (12, -1), 2, colors.lightgrey),
+                   ('BOX', (16, 1), (17, -1), 2, colors.lightgrey),
+                   ('BOX', (20, 1), (21, -1), 2, colors.lightgrey),
+                   ('LINEABOVE', (0, -3), (-1, -3), 1, colors.black),]
+
+        if float(reportlab.Version) >= 2.4:
+
+            tstyles.extend([
+                ('SPAN', (0, 0), (22, 0)),
+                ('SPAN', (1, 1), (3, 1)), 
+                ('SPAN', (4, 1), (6, 1)), 
+                ('SPAN', (7, 1), (12, 1)),
+                ('SPAN', (13, 1), (15, 1)),
+                ('SPAN', (16, 1), (17, 1)),
+                ('SPAN', (18, 1), (19, 1)),
+                ('SPAN', (20, 1), (21, 1))])
+
+        tbs = TableStyle(tstyles)
+        tb.setStyle(tbs)
         return tb
 
     def _generate_stats(self, cols, indata):
@@ -239,7 +258,7 @@ class Report(PrintedReport):
 
 
         thresholds = []
-        aggregates = [[u'Average'], [u'Standard Deviation'], [u'Median']]
+        aggregates = [[_(u"Average")], [_(u"Standard Deviation")], [_(u"Median")]]
         for points in aggregate_data:
             if points:
                 avg = numpy.average(points)
@@ -265,5 +284,3 @@ class Report(PrintedReport):
         if v == '':
             return None
         return float(v)
-
-

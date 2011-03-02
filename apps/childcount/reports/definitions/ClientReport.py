@@ -97,10 +97,10 @@ def encounter_alert(visited_days_ago, b_FullName):
 
         date_before_overdue = date.today() + timedelta(90 - visited_days_ago)
         b_FullName = b_LastVisit = True
-        instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
+        instruction_text = date_before_overdue.strftime(_(u"Visit HH by %d %b"))
 
     if visited_days_ago >= 90:
-        visited_days_ago = u'! %s !' % 'Overdue'
+        visited_days_ago = u'! %s !' % _(u"Overdue")
         b_FullName = b_LastVisit = True
         icon = ICON_DANGER
 
@@ -143,10 +143,10 @@ def preg_WomenEncounterAlert(nbr_DayAfterEncounter, b_FullName):
                 date_before_overdue = date(year_deadline, month_deadline, \
                                            day_deadline)
 
-        instruction_text = date_before_overdue.strftime(u'Visit HH by %d %b')
+        instruction_text = date_before_overdue.strftime(_(u"Visit HH by %d %b"))
 
     if nbr_DayAfterEncounter >= 45:
-        last_visit = u'! %s !' % 'Overdue'
+        last_visit = u'! %s !' % _(u"Overdue")
         b_FullName = b_LastVisit = True
         icon = ICON_DANGER
 
@@ -164,7 +164,7 @@ def rdt_alert(nb_times_rdt, b_FullName):
         b_FullName = b_rdt = True
         rdt_result = u'! %s !' % rdt_result
         icon = ICON_DANGER
-        rdt_instruction = 'check bednet'
+        rdt_instruction = _(u"check bednet")
 
     return icon, rdt_result, b_FullName, b_rdt, rdt_instruction
 
@@ -172,7 +172,7 @@ this_month = datetime.today()
 last_month = (this_month.replace(day=1) - timedelta(1))
 
 class Report(PrintedReport):
-    title = 'ClientReport'
+    title = _(u"ClientReport")
     filename = 'ClientReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
@@ -220,7 +220,7 @@ class Report(PrintedReport):
                       'full_name': chw.full_name()})
             else:
                 section_name = chw.full_name() + ' ' + \
-                                time.strftime(u'Data from %b. 1 to %b. %d %Y')
+                                time.strftime(_(u'Data from %b. 1 to %b. %d %Y'))
 
             doc.add_element(Section(section_name))
 
@@ -374,20 +374,20 @@ class Report(PrintedReport):
                     #if the muac have a value it take a parentheses
                     #if the muac is null it don't take a parentheses
                     if rate_muac == '':
-                        texte_muac = (u'%(status)s %(sign)s %(muac)s\
-                                        %(rate_muac)s %(sign)s ' % \
+                        texte_muac = (_(u"%(status)s %(sign)s %(muac)s\
+                                        %(rate_muac)s %(sign)s ") % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac, 'sign': sign,
                                              'status': status})
                     else:
-                        texte_muac = (u'%(status)s %(sign)s %(muac)s \
-                                        (%(rate_muac)s) %(sign)s ' % \
+                        texte_muac = (_(u"%(status)s %(sign)s %(muac)s \
+                                        (%(rate_muac)s) %(sign)s ") % \
                                             {'rate_muac': rate_muac, \
                                              'muac': muac, 'sign': sign,
                                              'status': status})
 
                     table1.add_row([
-                        Text((u'%(icon)s %(icon_rate)s %(icon_)s' % \
+                        Text((_(u"%(icon)s %(icon_rate)s %(icon_)s") % \
                                         {'icon':icon, 'icon_': icon_,\
                                             'icon_rate': icon_rate})),
                         Text(num),
@@ -444,7 +444,7 @@ class Report(PrintedReport):
                 table2.set_alignment(Table.ALIGN_LEFT, column=2)
                 table2.set_alignment(Table.ALIGN_LEFT, column=11)
 
-                doc.add_element(Paragraph(_(u'PREGNANT WOMEN')))
+                doc.add_element(Paragraph(_(u"PREGNANT WOMEN")))
 
                 num = 0
 

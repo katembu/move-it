@@ -1,9 +1,11 @@
 
+from django.utils.translation import gettext as _
+
 from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form C (Consultation) per Day'
+    title = _(u"Form C (Consultation) per Day")
     filename = 'form_c_entered'
     formats = ['pdf','xls','html']
     argvs = []
@@ -22,6 +24,6 @@ class Report(PrintedReport):
                   `text` LIKE "%%+F %%" OR \
                   `text` LIKE "%%+G %%" OR \
                   `text` LIKE "%%+R %%" AND \
-                `text` LIKE "%%Successfully processed: [%%%%" AND \
+                `text` LIKE "%%' + _(u"Successfully processed: [") + '%%%%" AND \
                 `backend` = "debackend" '),
                 filepath)

@@ -10,11 +10,11 @@ from locations.models import Location
 from childcount.models import Patient
 from childcount.reports.utils import render_doc_to_file
 from childcount.reports.report_framework import PrintedReport
-import patients_toolbox as tb
+from childcount.reports.definitions import patients_toolbox as tb
 
 class Report(PrintedReport):
     """ list all HoHH  """
-    title = 'HouseHolds'
+    title = _(u"House holds list")
     filename = 'HouseHolds'
     formats = ['html', 'pdf', 'xls']
     argvs = []
