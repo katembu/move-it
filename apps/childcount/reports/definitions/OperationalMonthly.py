@@ -35,7 +35,7 @@ styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
 class Report(PrintedReport):
-    title = 'Operational Report - Monthly (EXPERIMENTAL)'
+    title = 'Operational Report - Monthly'
     filename = 'operational_report_monthly'
     formats = ('pdf',)
 

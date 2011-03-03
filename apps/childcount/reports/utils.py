@@ -69,9 +69,7 @@ class MonthlyPeriodSet(PeriodSet):
 
     @classmethod
     def period_start_date(cls, week_num):
-        first_day_of_month = date.today() - \
-                timedelta(35) - \
-                relativedelta(day=1)
+        first_day_of_month = date.today() - timedelta(6*7)
         return first_date_of_week(first_day_of_month) + \
             timedelta(week_num * 7)
 
