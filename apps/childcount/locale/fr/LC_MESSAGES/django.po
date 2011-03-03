@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-02 16:44+0000\n"
-"PO-Revision-Date: 2011-03-02 16:43-0000\n"
+"POT-Creation-Date: 2011-03-03 12:42+0000\n"
+"PO-Revision-Date: 2011-03-03 12:41-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -4785,7 +4785,7 @@ msgstr "Rapport moustiquaire - %(loc)s: %(chw)s"
 
 #: reports/definitions/CHWList.py:19 templates/childcount/list_chw.html:8
 msgid "CHW List"
-msgstr "Liste des ASC"
+msgstr "Liste des ASCs"
 
 #: reports/definitions/CHWList.py:40 templates/childcount/patient.html:39
 #: templates/childcount/forms/a.json:4 templates/childcount/forms/b.json:4
@@ -5703,7 +5703,7 @@ msgstr "Oops. Vous n'êtes pas autorisés à consulter cette section"
 
 #: templates/childcount/login.html:15
 msgid "Please log in to ChildCount+"
-msgstr "Veiullez vous connecter à ChildCount+"
+msgstr "Veuillez vous connecter à ChildCount+"
 
 #: templates/childcount/patient.html:17
 msgid "Patient List"
