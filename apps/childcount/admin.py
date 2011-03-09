@@ -76,7 +76,12 @@ admin.site.register(BednetIssuedReport, BednetIssuedReportAdmin)
 admin.site.register(DrinkingWaterReport, VersionAdmin)
 #PMTCT
 admin.site.register(AntenatalVisitReport, VersionAdmin)
-admin.site.register(AppointmentReport, VersionAdmin)
+
+
+class AppointmentReportAdmin(VersionAdmin):
+    list_filter = ('status', )
+    search_fields = ['encounter__patient__health_id',]
+admin.site.register(AppointmentReport, AppointmentReportAdmin)
 admin.site.register(PregnancyRegistrationReport, VersionAdmin)
 admin.site.register(HIVTestReport, VersionAdmin)
 #Immunization
