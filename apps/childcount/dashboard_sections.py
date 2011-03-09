@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: mvpdev
 
+from django.utils.translation import gettext as _
+
 from childcount.models import Patient
 from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 
@@ -25,7 +27,8 @@ def registration_chart():
     
     days_past, num_registrations = Patient.registrations_by_date()
     
-    reg_chart_data = { 'yAxis': "Total Number of Patients", 'xAxis': "Number of days ago",
+    reg_chart_data = { 'yAxis': _(u"Total Number of Patients"), \
+                       'xAxis': _(u"Number of days ago"),
             'daysPast' : days_past, 'regCount': num_registrations }
     
     return simplejson.dumps(reg_chart_data)
@@ -37,8 +40,8 @@ def highlight_stats_bar():
     
     This Dict is structured to easily pump into an html table.
     """
-    return {'titles': ['# of Households', '# of Patients', \
-                        '# of Underfives', '# of Pregnant Women'], \
+    return {'titles': [_(u"# of Households"), _(u"# of Patients"), \
+                       _(u"# of Underfives"), _(u"# of Pregnant Women")], \
                         'data': [532, 1521, 534, 0] }
 
 def nutrition_chart():
@@ -53,9 +56,9 @@ def nutrition_chart():
     
     I'm pushing to a new branch with dummy data as an example.
     """
-    nutrition_data_for_dashboard = [["Unknown", 80], \
-                                    ["Healthy", 17], \
-                                    ["Moderate", 3]]
+    nutrition_data_for_dashboard = [[_(u"Unknown"), 80], \
+                                    [_(u"Healthy"), 17], \
+                                    [_(u"Moderate"), 3]]
     
     return simplejson.dumps(nutrition_data_for_dashboard)
 
@@ -70,8 +73,8 @@ def recent_numbers():
     generated_report_data = {'month': MonthSummaryReport.summary()['month_report'], \
                             'general': GeneralSummaryReport.summary()['general_summary_report'] }
     
-    recent_numbers_columns = [["This Month", 'month'], ["Overall", 'general']]
-    named_rows = [["+SAM / MAM","num_mam_sam"], ["Malaria", 'num_rdt'], ["Pregnancy", 'num_pregnant']]
+    recent_numbers_columns = [[_(u"This Month"), 'month'], [_(u"Overall"), 'general']]
+    named_rows = [[_(u"+SAM / MAM"),"num_mam_sam"], [_(u"Malaria"), 'num_rdt'], [_(u"Pregnancy"), 'num_pregnant']]
     
     recent_numbers_data = []
     for row in named_rows:

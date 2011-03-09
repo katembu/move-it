@@ -1,9 +1,11 @@
 
+from django.utils.translation import gettext as _
+
 from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form B (HH Visit) per Day'
+    title = _(u"Form B (HH Visit) per Day")
     filename = 'form_b_entered'
     formats = ['pdf','xls','html']
     argvs = []
@@ -13,7 +15,7 @@ class Report(PrintedReport):
             rformat,
             title,
             matching_message_stats(\
-                ' `text` LIKE "%%+V%% Successfully processed: [%%" \
+                ' `text` LIKE "%%+V%% ' + _(u"Successfully processed: [") + '%%" \
                 AND `backend` = "debackend" '),
             filepath)
 

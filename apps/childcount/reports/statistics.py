@@ -48,7 +48,11 @@ def form_reporting(\
         filepath):
     print rformat
     print 'Creating doc'
-    doc = Document(unicode(report_title), '')
+    try:
+        report_title = unicode(report_title)
+    except UnicodeDecodeError:
+        pass
+    doc = Document(report_title, '')
 
     t = Table(3)
     t.add_header_row([

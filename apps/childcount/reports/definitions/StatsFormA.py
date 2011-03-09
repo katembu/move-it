@@ -1,9 +1,11 @@
 
+from django.utils.translation import gettext as _
+
 from childcount.reports.statistics import form_reporting, matching_message_stats
 from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
-    title = 'Form A (Registration) per Day'
+    title = _(u"Form A (Registration) per Day")
     filename = 'form_a_entered'
     formats = ['pdf','xls','html']
 
@@ -12,7 +14,7 @@ class Report(PrintedReport):
             rformat,
             title,
             matching_message_stats(\
-                ['You successfuly registered ']),
+                [_(u"You successfuly registered ")]),
             filepath) 
             
 

@@ -24,11 +24,11 @@ class Report(PrintedReport):
     filename = 'chw_manager_report_'
     formats = ['xls']
     variants = [
-        (u"Monthly", 'monthly', \
+        (_(u"Monthly"), 'monthly', \
             {'period_cls': MonthlyPeriodSet}),
-        (u"Quarterly", 'quarterly', \
+        (_(u"Quarterly"), 'quarterly', \
             {'period_cls': QuarterlyPeriodSet}),
-        (u"Annual", 'annual', \
+        (_(u"Annual"), 'annual', \
             {'period_cls': AnnualPeriodSet}),
     ]
 
