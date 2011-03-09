@@ -40,18 +40,6 @@ class PatientForm(ModelForm):
         self.fields['household'].choices = [(p.id, p.__unicode__()) \
                                  for p in patients if p.is_head_of_household()]
         # potential mothers are female aged 13+ from same village
-        self.fields['mother'].choices = [(None,'---------')] + \
+        self.fields['mother'].choices = [('','---------')] + \
                                         [(p.id, p.__unicode__()) for p in \
               patients.filter(gender=Patient.GENDER_FEMALE) if p.years() >= 13]
-
-    '''
-    household = HealthIdField(\
-        max_length=6, \
-        widget=JQueryAutoComplete('/childcount/patients/autocomplete/'))
-    mother = HealthIdField(\
-        max_length=6, \
-        widget=JQueryAutoComplete('/childcount/patients/autocomplete/'), \
-        required=False)
-    '''
-    
-

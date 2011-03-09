@@ -153,7 +153,7 @@ def busy_month_indexes():
 VALID_MONTH_INDEXES = busy_month_indexes()
 
 class Report(PrintedReport):
-    title = 'Utilization Report'
+    title = _(u"Utilization Report")
     filename = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []

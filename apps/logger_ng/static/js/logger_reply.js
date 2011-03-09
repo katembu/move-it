@@ -227,8 +227,7 @@ var SmsExchange = (function($){
 				}
 				postMsg = {
 					id: _r.id,
-					msg: $(this).find('textarea').val(),
-					token: ExchangeSettings.token
+					msg: $(this).find('textarea').val()
 				};
 				_r.respMessage = "";
 				_r.responses.push(postMsg.msg);

@@ -3,7 +3,7 @@
 # maintainer: ukanga
 from datetime import datetime
 
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as _
 from django.template import Template, Context
 
 from ccdoc import Document, Table, Paragraph, \
@@ -14,7 +14,7 @@ from childcount.reports.report_framework import PrintedReport
 from childcount.models.ccreports import HealthCoordinatorReport
 
 class Report(PrintedReport):
-    title = 'CC+ Health Coordinator Report'
+    title = _(u"CC+ Health Coordinator Report")
     filename = 'health_coordinator'
     formats = ['xls', 'pdf', 'html']
     variants = [(u'2010', '2010', {'year': 2010}), \

@@ -17,7 +17,7 @@ from childcount.reports.report_framework import PrintedReport
 
 class Report(PrintedReport):
     """ list all patients registered on the dashboard """
-    title = 'Registered Patients'
+    title = _(u"Registered Patients")
     filename = 'RegisteredPatient'
     formats = ['html', 'pdf', 'xls']
     argvs = []

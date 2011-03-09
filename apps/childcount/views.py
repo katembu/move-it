@@ -89,7 +89,7 @@ def dashboard_gather_data(dashboard_template_names):
 @login_required
 def index(request):
     '''Dashboard page '''
-    info = {'title':"ChildCount+ Dashboard"}
+    info = {'title': _(u"ChildCount+ Dashboard")}
 
     try:
         dashboard_template_names = Configuration.objects.get(key='dashboard_sections').value.split()

@@ -9,18 +9,18 @@
 {{ block.super }}
 {% endblock page_stylesheets %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% trans "Patient List" %}{% endblock %}
 
 {% block content %}
 
 <div class="list-header">
-<h2 class="ptitle">Patient List{% if search %}: <em>{{ search }}</em>{% endif %}</h2>
+<h2 class="ptitle">{% trans "Patient List" %}{% if search %}: <em>{{ search }}</em>{% endif %}</h2>
 <div class="searchbox">
 	<form action="/childcount/patients" method="get">
 	<input type="text" id="patient_search" name="patient_search">
 	</form>
 </div>
-<a href="#" class="send">Search</a>
+<a href="#" class="send">{% trans "Search" %}</a>
 </div>
 <script type="text/javascript">
 $('div.list-header a.send').click(function(evt){
@@ -36,12 +36,12 @@ $('div.list-header a.send').click(function(evt){
 <table style="width:100%" class="patient-list cclist">
 <thead>
 <tr>
-<th>ID</th>
-<th>Patient Name</th>
+<th>{% trans "ID" %}</th>
+<th>{% trans "Patient Name" %}</th>
 <th></th>
-<th>DOB</th>
-<th>Location</th>
-<th>CHW</th>
+<th>{% trans "DOB" %}</th>
+<th>{% trans "Location" %}</th>
+<th>{% trans "CHW" %}</th>
 </thead>
 <tbody>
 {% for patient in patients.object_list %}
@@ -54,7 +54,7 @@ $('div.list-header a.send').click(function(evt){
 <td>{{patient.chw}}</td>
 </tr>
 {% endfor %}
-<tr colspan='6'><p class='it info'>{{rcount}} results found. <!-- Displaying results {{rstart}}-{{rend}}. --></p></tr>
+<tr colspan='6'><p class='it info'>{% blocktrans %}{{rcount}} results found.{% endblocktrans %} <!-- Displaying results {{rstart}}-{{rend}}. --></p></tr>
 </tbody>
 <script type="text/javascript">
 <!--
@@ -71,10 +71,10 @@ $('table.patient-list tbody tr').click(function(evt){
 <hr>
 <div class="paginator" id ='paginator'>
   {% ifnotequal  page 1 %}
-<span class="next"><a href="/childcount/patients?page=1" title="First Page">First</a></span>
+<span class="next"><a href="/childcount/patients?page=1" title="{% trans "First Page" %}">{% trans "First" %}</a></span>
  {%endifnotequal%}
  
-{% if has_previous %}<span class="prev"><a href="/childcount/patients?page={{previous}}" title="Previous Page">&laquo; Previous</a></span>{% else %}<span class="prev-na">&laquo; Previous</span>{% endif %}
+{% if has_previous %}<span class="prev"><a href="/childcount/patients?page={{previous}}" title="{% trans "Previous Page" %}">&laquo; {% trans "Previous" %}</a></span>{% else %}<span class="prev-na">&laquo; {% trans "Previous" %}</span>{% endif %}
  
 {% if not in_leading_range %}
     {% for num in pages_outside_trailing_range %}
@@ -87,7 +87,7 @@ $('table.patient-list tbody tr').click(function(evt){
   {% ifequal num page %}
     <span class="curr" title="Current Page">{{ num }}</span>
   {% else %}
-    <span class="page"><a href="/childcount/patients?page={{ num }}" title="Page {{ num }}">{{ num }}</a></span>
+    <span class="page"><a href="/childcount/patients?page={{ num }}" title="{% blocktrans %}Page {{ num }}{% endblocktrans %}">{{ num }}</a></span>
   {% endifequal %}
 {% endfor %}
  
@@ -99,10 +99,10 @@ $('table.patient-list tbody tr').click(function(evt){
 
 {% endif %}
  
-{% if has_next %}<span class="next"><a href="/childcount/patients?page={{ next }}" title="Next Page">Next &raquo;</a></span>{% else %}<span class="next-na">Next &raquo;</span>{% endif %}
+{% if has_next %}<span class="next"><a href="/childcount/patients?page={{ next }}" title="{% trans "Next Page" %}">{% trans "Next" %} &raquo;</a></span>{% else %}<span class="next-na">{% trans "Next" %} &raquo;</span>{% endif %}
 
   {% ifnotequal  page  last_page %}
-<span class="next"><a href="/childcount/patients?page={{last_page}}" title="Last Page"> Last</a></span>
+<span class="next"><a href="/childcount/patients?page={{last_page}}" title="{% trans "Last Page" %}"> {% trans "Last" %}</a></span>
  {%endifnotequal%}
 
 </div> 
