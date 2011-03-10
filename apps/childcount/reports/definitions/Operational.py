@@ -41,17 +41,33 @@ styleH3 = styles['Heading3']
 def message_text(text):
     return Paragraph(text, styleN)
 
+_variants = map(lambda c: \
+        (unicode(c), '_' + c.code + '_clinic', {'clinic_pk': c.pk, \
+                                          'type_str': 'clinic', \
+                                          'type_obj': Clinic}),
+        Clinic.objects.all())
+
+_variants += map(lambda c: \
+        (unicode(c), '_' + c.code + '_location', {'clinic_pk': c.pk, \
+                                          'type_str': 'clinic', \
+                                          'type_obj': Location}),
+        Location.objects\
+            .filter(pk__in=CHW.objects\
+                                .values('location').distinct('location')))
+
+
 class Report(PrintedReport):
     title = _(u"CHW Management Report")
     filename = 'operational_report'
     formats = ('pdf',)
-
+    '''
     variants = [ \
         (_(u" (By Clinic)"), '_clinic', \
             {'type_str': 'clinic', 'type_obj': Clinic}), \
         (_(" (By Location)"), '_location', 
             {'type_str': 'location', 'type_obj': Location}), \
-    ]
+    ]'''
+    variants = _variants
 
     def generate(self, rformat, title, filepath, data):
         '''
@@ -60,16 +76,17 @@ class Report(PrintedReport):
         
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for operational report')
-
-
+        print "in here", data
+        if 'clinic_pk' not in data:
+            raise ValueError('You must pass a clinic PK as data')
+        clinic_pk = data['clinic_pk']
         f = open(filepath, 'w')
 
         type_str = data['type_str']
         type_obj = data['type_obj']
 
         story = []
-        locations = type_obj.objects.filter(pk__in=CHW.objects.values(type_str)\
-                                                        .distinct(type_str))
+        locations = type_obj.objects.filter(pk=clinic_pk)
 
         for location in locations:
             filter_on = {type_str: location}
