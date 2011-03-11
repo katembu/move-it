@@ -151,7 +151,8 @@ class Report(PrintedReport):
         data.append(fourthrow)
 
         fifthrow = [Paragraph(_(u"<u>List of CHWs</u>"), styleH3)]
-        fifthrow.extend([Paragraph(item, styleN) for item in [''] * 19])
+        fifthrow.extend([Paragraph(item, styleN) for item in [''] * \
+                         (cols.__len__() - 1)])
         data.append(fifthrow)
 
         rowHeights = [None, None, None, 2.3 * inch, 0.25 * inch, 0.25 * inch]
@@ -218,16 +219,14 @@ class Report(PrintedReport):
                    ('BOX', (20, 1), (21, -1), 2, colors.lightgrey),
                    ('LINEABOVE', (0, -3), (-1, -3), 1, colors.black),]
 
-        if float(reportlab.Version) >= 2.4:
-
-            tstyles.extend([
-                ('SPAN', (0, 0), (22, 0)),
-                ('SPAN', (1, 1), (3, 1)), 
-                ('SPAN', (4, 1), (6, 1)), 
-                ('SPAN', (7, 1), (12, 1)),
-                ('SPAN', (13, 1), (15, 1)),
-                ('SPAN', (16, 1), (17, 1)),
-                ('SPAN', (18, 1), (19, 1)),
+        tstyles.extend([
+            ('SPAN', (0, 0), (22, 0)),
+            ('SPAN', (1, 1), (3, 1)),
+            ('SPAN', (4, 1), (6, 1)),
+            ('SPAN', (7, 1), (12, 1)),
+            ('SPAN', (13, 1), (15, 1)),
+            ('SPAN', (16, 1), (17, 1)),
+            ('SPAN', (18, 1), (19, 1)),
                 ('SPAN', (20, 1), (21, 1))])
 
         tbs = TableStyle(tstyles)
