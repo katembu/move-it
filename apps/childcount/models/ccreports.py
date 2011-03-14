@@ -2385,7 +2385,7 @@ class MonthlyCHWReport(TheCHWReport):
                         r.encounter.encounter_date)\
                 .order_by('encounter__encounter_date')
 
-            due_by = r.encounter.encounter_date + timedelta(2)
+            due_by = r.encounter.encounter_date + timedelta(3)
             late_before = r.encounter.encounter_date + timedelta(7)
             if f.count() == 0:
                 never += 1
