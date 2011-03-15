@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 
-from django.utils.translation import ugettext as _, activate
+from django.utils.translation import ugettext as _
 
 import rapidsms
 
@@ -13,6 +13,16 @@ class App(rapidsms.app.App):
     
     def handle(self, msg):
         if not msg.responses:
-            
-            msg.respond(_("Sorry, we didn't understand that message."), 'error')
+            error_str = _(u"Sorry, we didn't understand that message. " \
+                            "(Your message: \"")
+            end_str = u"\")"
+            more_str = u"..."
+
+            max_len= 140 - len(error_str) - len(end_str) - len(more_str)
+
+            text = msg.text[0:max_len]
+            if text != msg.text:
+                text += more_str
+
+            msg.respond(error_str+text+end_str, 'error')
             return True
