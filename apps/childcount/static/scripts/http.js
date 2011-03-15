@@ -54,6 +54,10 @@ function send_message()
         alert("Can't send empty message."); return false;
     }
 
+    if (encounter_date == '') {
+        alert("Please enter an encounter date in DD/MM[/YYYY] format."); return false;
+    }
+
     data = {'identity': identity, 'message': text, 'chw': chw, 'encounter_date': encounter_date};
 
     confstr = "Please confirm:\n\t";
