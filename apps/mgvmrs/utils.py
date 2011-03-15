@@ -71,7 +71,7 @@ def transmit_form(form):
     response = conn.getresponse()
     # we assume only 200 is ok
     if response.status != 200:
-        raise OpenMRSTransmissionError("%(code)s. %(reason)s" \
+        raise OpenMRSXFormsModuleError("%(code)s. %(reason)s" \
                                        % {'code': response.status, \
                                           'reason': response.reason})
     # data is useless right now

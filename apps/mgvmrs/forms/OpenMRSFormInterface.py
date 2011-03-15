@@ -19,6 +19,8 @@ class UnexpectedValueError(ValueError):
 class OpenMRSTransmissionError(Exception):
     pass
 
+class OpenMRSXFormsModuleError(Exception):
+    pass
 
 class OpenMRSFormInterface(object):
 

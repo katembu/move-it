@@ -61,7 +61,7 @@ def send_to_omrs(router, *args, **kwargs):
 
     # request all non-synced Encounter
     encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
-                                          Q(sync_omrs__in=(None, False)))
+                                          Q(sync_omrs=None))
 
     for encounter in encounters:
         # loop only on closed Encounters
@@ -137,9 +137,19 @@ def send_to_omrs(router, *args, **kwargs):
             router.log('DEBUG', \
                           u"Successfuly sent XForm to OpenMRS: %s" % encounter)
         except OpenMRSTransmissionError, e:
-            #TODO : Log this error
+            router.log('DEBUG', '==> Transmission error')
             router.log('DEBUG', omrsform.render())
             router.log('DEBUG', e)
+           
+            # Don't modify this encounter, just let 
+            # it get sent later on
+        except OpenMRSXFormsModuleError, e:
+            router.log('DEBUG', '==> XForms Module error')
+            router.log('DEBUG', omrsform.render())
+            router.log('DEBUG', e)
+
+            # Mark this encounter sync_omrs=False
+            # so that we don't try to send it again.
             encounter.sync_omrs = False
             encounter.save()
             continue
