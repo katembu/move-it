@@ -11,8 +11,12 @@
     <patient.birthdate_estimated openmrs_table="patient" openmrs_attribute="birthdate_estimated">{{ patient___birthdate_estimated }}</patient.birthdate_estimated>
     <patient.family_name openmrs_table="patient_name" openmrs_attribute="family_name">{{ patient___family_name }}</patient.family_name>
     <patient.given_name openmrs_table="patient_name" openmrs_attribute="given_name">{{ patient___given_name }}</patient.given_name>
+    {% if patient___middle_name %}
     <patient.middle_name openmrs_table="patient_name" openmrs_attribute="middle_name">{{ patient___middle_name }}</patient.middle_name>
+    {% endif %}
+    {% if patient___patient_id %}
     <patient.patient_id openmrs_table="patient" openmrs_attribute="patient_id">{{ patient___patient_id }}</patient.patient_id>
+    {% endif %}
     <patient_identifier.identifier_type openmrs_table="patient_identifier" openmrs_attribute="identifier_type">{{ patient___identifier_type }}</patient_identifier.identifier_type>
     <patient.medical_record_number openmrs_table="patient_identifier" openmrs_attribute="identifier">{{ patient___medical_record_number }}</patient.medical_record_number>
     <patient.sex openmrs_table="patient" openmrs_attribute="gender">{{ patient___sex }}</patient.sex>
@@ -79,6 +83,8 @@
         <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ other_sick_members_on_treatment }}</value>
     </number_of_other_sick_members_of_household_receiving_antimalarials_during_visit>
     {% endif %}
+   
+    {% if False %}
     {% if number_of_women_given_bc_pills %}
     <number_of_women_given_oral_contraceptives_in_household openmrs_concept="1915^Number of women given oral contraceptives in household^99DCT" openmrs_datatype="NM">
         <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></date>
@@ -86,6 +92,8 @@
         <value xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{{ number_of_women_given_bc_pills }}</value>
     </number_of_women_given_oral_contraceptives_in_household>
     {% endif %}
+    {% endif %}
+
     {% if women_seen %}
     <total_women_15-49yo_seen_in_household openmrs_concept="1901^TOTAL WOMEN 15-49YO SEEN IN HOUSEHOLD^99DCT" openmrs_datatype="NM">
         <date xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
