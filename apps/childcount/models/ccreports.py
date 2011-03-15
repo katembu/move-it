@@ -2059,13 +2059,13 @@ class MonthlyCHWReport(TheCHWReport):
     # that can be used to instantiate Indicator objects
     def report_indicators(self):
         return [
-            #Indicator('Households',\
-            #    self.num_of_hhs, Indicator.AVG, \
-            #    col_agg_func = Indicator.SUM),
+            Indicator('Households',\
+                self.num_of_hhs, Indicator.AVG, \
+                col_agg_func = Indicator.SUM),
             Indicator('Total HH Visits',\
                 self.total_hh_visits, Indicator.SUM),
-            Indicator('Unique HH Visits',\
-                self.num_of_hh_visits, Indicator.SUM),
+            #Indicator('Unique HH Visits',\
+            #    self.num_of_hh_visits, Indicator.SUM),
             Indicator('Percentage of HHs Getting Visit in Last 90 Days',\
                 self.perc_ontime_hh_visits,
                 Indicator.AGG_PERCS, Indicator.PERC_PRINT_SHORT),
