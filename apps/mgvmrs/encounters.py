@@ -11,7 +11,8 @@ from childcount.models import Encounter, Patient
 from childcount.models.reports import CCReport, PregnancyReport, PregnancyRegistrationReport, AppointmentReport
 
 from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
-                         OpenMRSHouseholdForm, OpenMRSANCForm
+                         OpenMRSHouseholdForm, OpenMRSANCForm, \
+                         OpenMRSXFormsModuleError
 from mgvmrs.utils import transmit_form
 from mgvmrs.models import User
 
