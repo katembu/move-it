@@ -69,13 +69,17 @@ def transmit_form(form):
         raise OpenMRSTransmissionError("Unable to query URI path.")
 
     response = conn.getresponse()
+    data = response.read()
+
     # we assume only 200 is ok
     if response.status != 200:
-        raise OpenMRSXFormsModuleError("%(code)s. %(reason)s" \
+        raise OpenMRSXFormsModuleError("%(code)s. %(reason)s\n" \
+                                       "=========== DATA ===========\n" \
+                                       "%(data)s\n" \
+                                       "============================\n"
                                        % {'code': response.status, \
-                                          'reason': response.reason})
-    # data is useless right now
-    data = response.read()
+                                          'reason': response.reason,\
+                                          'data': data})
     conn.close()
 
     # we assume data went to OMRS now ; we shoult thus record the file.
