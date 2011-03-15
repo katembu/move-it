@@ -216,7 +216,7 @@ class PDFGenerator(Generator):
             for c in row[1]:
                 if row[0]:
                     j = 1; c.bold = True
-                    tabstyle.append(('LINEBELOW', (0, i), (-1, i), 0.5, colors.black))
+                    tabstyle.append(('LINEBELOW', (0, i-1), (-1, i-1), 0.5, colors.black))
                 # Paragraph style is dynamic
                 rowdata.append(Paragraph(self._render_text(c), \
                                           self.get_row_style(table, column=k)))
