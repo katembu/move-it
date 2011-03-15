@@ -60,9 +60,13 @@ def send_to_omrs(router, *args, **kwargs):
         # for the time being, not in use
         pass 
 
-    # request all non-synced Encounter
-    encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
-                                          Q(sync_omrs=None))
+    # request 200 non-synced Encounters
+    # Order by random so that one screwed up encounter
+    # doesn't block the whole queue
+    encounters = Encounter\
+        .objects\
+        .filter(Q(sync_omrs__isnull=True) | Q(sync_omrs=None))\
+        .order_by('?')[0:200]
 
     for encounter in encounters:
         # loop only on closed Encounters
@@ -107,6 +111,10 @@ def send_to_omrs(router, *args, **kwargs):
             provider = provider_id
 
         # create form
+	router.log('DEBUG', 'mgvmrs: Starting encounter processing...')
+	router.log('DEBUG', encounter.pk)
+	router.log('DEBUG', encounter.patient)
+	router.log('DEBUG', encounter.patient.health_id)
         omrsform = omrsformclass(create, encounter.patient.health_id, \
                                     location_id,
                                     provider,
