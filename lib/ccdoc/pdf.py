@@ -94,9 +94,12 @@ class PDFGenerator(Generator):
         self.elements = []
 
         ''' Overall document object describing PDF '''
+        title = self.title
+        if not title.__class__ == unicode:
+            title = unicode(title)
         self.doc = CustomDocTemplate(self._filename,
             showBoundary=0, pagesize=pagesize, 
-            title = unicode(self.title))
+            title = title)
         self.doc.stick_sections = self.stick_sections
 
         ''' Frame template defining page size, margins, etc '''
@@ -160,7 +163,11 @@ class PDFGenerator(Generator):
         if text.size != text.DEFAULT_SIZE:
             output += "<font size=%d>" % text.size
 
-        c = template.Context({'text': unicode(text.text)})
+        tt = text.text
+        if tt.__class__ != unicode:
+            print 'converting to unicode %s' % tt.__class__
+            tt = unicode(tt)
+        c = template.Context({'text': tt})
         ''' 
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
