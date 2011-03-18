@@ -9,7 +9,7 @@ from django.db.models import Count
 
 from ccdoc import Document, Table, Text, Section
 
-from childcount.models import Patient
+from childcount.models import Patient, CHW
 from locations.models import Location
 
 from childcount.reports.utils import render_doc_to_file
@@ -23,26 +23,23 @@ class Report(PrintedReport):
     argvs = []
 
     def generate(self, rformat, title, filepath, data):
+
         doc = Document(title, landscape=True, stick_sections=True)
-        locations = Location.objects.all()
-        for location in locations:
 
-            patients = Patient.objects.filter(location=location)\
-                                      .values('health_id', 'household')\
-                                      .annotate(dcount=Count('household'))
+        chews = CHW.objects.all()
+        for chw in chews:
 
+            patients = Patient.objects.filter(chw=chw)\
+                                      .order_by('household', 'id')
             if patients.count() == 0:
                 continue
 
-            doc.add_element(Section(location.__unicode__()))
-
+            doc.add_element(Section(chw.__unicode__()))
             table = self._create_patient_table()
 
-            for patient_dict in patients:
-                patient = Patient.objects\
-                                      .get(health_id=patient_dict['health_id'])
+            for patient in patients:
                 self._add_patient_to_table(table, patient)
-
+            
             doc.add_element(table)
 
         return render_doc_to_file(filepath, rformat, doc)
