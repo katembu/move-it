@@ -21,3 +21,4 @@ from childcount.commands.FamilyCommand import FamilyCommand
 from childcount.commands.StockInCommand import StockInCommand
 from childcount.commands.GetStockCommand import GetStockCommand
 from childcount.commands.StockOutCommand import StockOutCommand
+from childcount.commands.HouseholdHeadCommand import HouseholdHeadCommand 
