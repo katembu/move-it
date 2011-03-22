@@ -161,7 +161,8 @@ class Indicator(object):
 
     @property
     def is_percentage(self):
-        return self._print_func == Indicator.PERC_PRINT
+        return self._print_func in \
+            (Indicator.PERC_PRINT, Indicator.PERC_PRINT_SHORT)
 
     @classmethod
     def empty_func(self, *vargs):
