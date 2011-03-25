@@ -2723,6 +2723,7 @@ class MonthlyCHWReport(TheCHWReport):
             .objects\
             .exclude(pk__in=imm_pks)\
             .filter(chw=self,\
+                status=Patient.STATUS_ACTIVE,\
                 dob__gte = date.today()-timedelta(5*365.25))\
             .order_by('location__code')
 
