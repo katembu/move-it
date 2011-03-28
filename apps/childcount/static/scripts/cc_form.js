@@ -97,12 +97,32 @@ function build_id_for(section, field, id)
 }
 
 
+function update_checkmark() {
+    var txt = $('#message')[0].value;
+
+    var parts = txt.split(/\s/);
+    var value = false;
+    for(p in parts) {
+        value |= Checksum.is_valid_identifier(parts[p]);
+        if(value) break;
+    }
+
+    if(value) {
+        $("#checkmark").show();
+    } else {
+        $("#checkmark").hide();
+    }
+    return;
+}
+
 /*
  * Parse input text
  * copy values into table
  */
 function parse_message()
 {
+    update_checkmark();
+
     // reset fields
     var doc = document.getElementById('sms_'+current);
     tds = doc.getElementsByTagName('td');
