@@ -82,7 +82,8 @@ class Indicator(object):
         # Separate the numerators and denominators
         if len(lst) == 0:
             return (0,0)
-
+        
+        print lst
         (nums, dens) = zip(*lst)
         print (nums, dens)
         return (sum(nums), sum(dens))
@@ -163,6 +164,10 @@ class Indicator(object):
     def is_percentage(self):
         return self._print_func in \
             (Indicator.PERC_PRINT, Indicator.PERC_PRINT_SHORT)
+
+    @property
+    def is_full_percentage(self):
+        return self._print_func == Indicator.PERC_PRINT
 
     @classmethod
     def empty_func(self, *vargs):

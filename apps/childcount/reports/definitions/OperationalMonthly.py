@@ -148,7 +148,7 @@ class Report(PrintedReport):
 
         colWidths = [1.4 * inch]
         for c in cols:
-            if c.is_percentage:
+            if c.is_full_percentage:
                 colWidths.append(1.0 * inch)
             else:
                 colWidths.append(0.4 * inch)
@@ -214,14 +214,15 @@ class Report(PrintedReport):
                 if val is None: continue
                 if val == INDICATOR_EMPTY: continue
 
+                '''
                 elif val.is_percentage:
                     (n,d) = val.for_total_raw(MonthlyPeriodSet)
                     if d == 0: continue
                     calc = float(n)/float(d)
                 else:
                     calc = val.for_total_raw(MonthlyPeriodSet)
-
-                aggregate_data[i].append(calc)
+                '''
+                aggregate_data[i].append(val.for_total_raw(MonthlyPeriodSet))
 
         thresholds = []
         aggregates = [[u'Total/Average']]
@@ -231,6 +232,7 @@ class Report(PrintedReport):
         for i,points in enumerate(aggregate_data):
             if points:
                 indicators[i].set_excel(False)
+                print indicators[i].title
                 med = indicators[i].aggregate_col(points)
                 aggregates[0].append(Paragraph(unicode(med), styleN))
 

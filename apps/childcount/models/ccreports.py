@@ -588,6 +588,7 @@ class TheCHWReport(CHW):
         return Patient.objects.filter(chw=self, dob__gte=ninem, \
                             status=Patient.STATUS_ACTIVE)
 
+
     @property
     def num_of_sam(self):
         num = NutritionReport.objects.filter(created_by=self, \
@@ -809,15 +810,15 @@ class TheCHWReport(CHW):
         else:
             return int(round(100 * (num/ float(den))))
 
-    def fraction_ontime_muac(self):
+    def fraction_ontime_muac(self, relativeTo=date.today()):
         # Consider only kids over 6 months
-        underfives = self.patients_under_five()
-        underfives.filter(dob__lte=(date.today()-timedelta(180)))
+        underfives = self.patients_under_five(relativeTo)
+        underfives.filter(dob__lte=(relativeTo-timedelta(180)))
 
         count = 0
         for achild in underfives:
             thepatient = ThePatient.objects.get(id=achild.id)
-            if thepatient.ontime_muac():
+            if thepatient.ontime_muac(relativeTo):
                 count += 1
 
         return (count, underfives.count())
