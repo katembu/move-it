@@ -190,6 +190,7 @@ class PDFGenerator(Generator):
         tabdata = []
         tabstyle = []
 
+        i = 1; j=1
         if table.title != None:
             title_row = [u''] * table.ncols
 
@@ -204,10 +205,10 @@ class PDFGenerator(Generator):
             tabstyle.append(('SPAN', (0,0), (-1, 0)))
             tabstyle.append(('GRID', (0,1), (-1,-1), 0.25, colors.black))
             tabstyle.append(('BOTTOMPADDING', (0,0), (0, 0), 6))
+            i += 1
         
 
         ''' Iterate through each table row '''
-        i = 1; j=1
         for row in table.rows:
             rowdata = []
 
