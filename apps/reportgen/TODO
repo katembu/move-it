@@ -1,0 +1,83 @@
+=================
+= reportgen App =
+=================
+
+Goal: Replace ChildCount "reporting framework"
+and separate the reporting code from the main
+ChildCount code.
+
+== Classes/Models ==
+
+Report
+- basename
+- title
+- classname (for finding definition file)
+
+ReportDefinition
+- same as the old PrintedReport
+
+PeriodType (e.g., "Monthly")
+- name
+- description
+- periodgen :: Int (PeriodIndex) -> Period
+
+Period (e.g., "January 2011")
+- start
+- end
+- subperiodgen :: Int (SubPeriodIndex) -> Period
+- name
+
+SubPeriod (e.g., "Week of 5 Jan. 2011")
+- start
+- end
+- name
+
+FileFormat
+- name ("PDF")
+- extension ("pdf")
+
+NightlyReports
+- report_id
+- period_id
+- period_index
+- /* For example, we might want to generate
+   * the OperationalReport for last month
+   * every night. Then the period_index for
+   * (today - 4 weeks) might be "4", so 
+   * period_index=4
+   */
+
+GeneratedReports
+- filename
+- title
+- format
+- period_description (e.g., "January 2011")
+- variant_description (e.g., "Ntungu Clinic")
+- generated_on
+
+== Pages ==
+
+Nightly Reports
+- List of all reports (with links) that are
+  generated overnight. 
+- Should list the time at which each report
+  was generated.
+
+Generated Reports
+- List of reports in reverse chronological order
+  that have already been generated (with links)
+
+Settings
+- Add/remove/modify NightlyReports
+
+== Tasks ==
+nightly_reports
+- Same as childcount.tasks.gen_framework_nightly_reports
+- Loop through all NightlyReports and generates
+  the reports for all variants and formats for
+  the selected period
+
+purge_reports
+- Wipe out generated reports that are more than X days old
+
+
