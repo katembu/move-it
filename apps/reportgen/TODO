@@ -6,35 +6,11 @@ Goal: Replace ChildCount "reporting framework"
 and separate the reporting code from the main
 ChildCount code.
 
-== Classes/Models ==
+== Models ==
 
 Report
-- basename
 - title
 - classname (for finding definition file)
-
-ReportDefinition
-- same as the old PrintedReport
-
-PeriodType (e.g., "Monthly")
-- name
-- description
-- periodgen :: Int (PeriodIndex) -> Period
-
-Period (e.g., "January 2011")
-- start
-- end
-- subperiodgen :: Int (SubPeriodIndex) -> Period
-- name
-
-SubPeriod (e.g., "Week of 5 Jan. 2011")
-- start
-- end
-- name
-
-FileFormat
-- name ("PDF")
-- extension ("pdf")
 
 NightlyReports
 - report_id
@@ -50,11 +26,34 @@ NightlyReports
 GeneratedReports
 - filename
 - title
-- format
-- period_description (e.g., "January 2011")
-- variant_description (e.g., "Ntungu Clinic")
-- generated_on
+- fileformat
+- period_title (e.g., "January 2011")
+- variant_title (e.g., "Ntungu Clinic")
+- started_at
+- finished_at
+- error_message
 
+== Classes ==
+
+ReportDefinition
+- same as the old PrintedReport
+
+PeriodType (e.g., "Monthly")
+- title
+- description
+- periods :: [Period]
+
+Period (e.g., "3 Jan - 2 Feb 2011")
+- title ("3 Jan - 2 Feb 2011")
+- relative_title ("Monday 2 weeks ago")
+- start
+- end
+- sub_periods :: [SubPeriod]
+
+SubPeriod (e.g., "Week of 5 Jan. 2011")
+- title
+- start
+- end
 == Pages ==
 
 Nightly Reports
