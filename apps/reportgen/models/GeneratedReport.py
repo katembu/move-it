@@ -5,6 +5,19 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 class GeneratedReport(models.Model):
+    TASK_STATE_PENDING  = 1
+    TASK_STATE_STARTED  = 2
+    TASK_STATE_RETRYING = 3
+    TASK_STATE_FAILED   = 4
+    TASK_STATE_SUCCEEDED = 5
+
+    TASK_STATE_CHOICES = (
+        (TASK_STATE_PENDING,    _("Pending")),
+        (TASK_STATE_STARTED,    _("Started")),
+        (TASK_STATE_RETRYING,   _("Retrying")),
+        (TASK_STATE_FAILED,     _("Failed")),
+        (TASK_STATE_SUCCEEDED,  _("Succeed")),
+    )
 
     class Meta:
         app_label = 'reportgen'
@@ -31,6 +44,10 @@ class GeneratedReport(models.Model):
                                 null=False, db_index=True, unique=False, \
                                 help_text=_(u"Description of the variant for "\
                                             "the report (e.g., \"Ntungu Clinic\""))
+    task_progress = models.PositiveSmallIntegerField(_("Progress"), blank=False,
+                                null=False, unique=False)
+    task_state = models.PositiveSmallIntegerField(_("Task state"), blank=False,
+                                null=False, unique=False, choices=TASK_STATE_CHOICES)
     started_at = models.DateTimeField(_("Started at"))
     finished_at = models.DateTimeField(_("Finished at"))
     error_message = models.TextField(_("Error message"))
