@@ -13,7 +13,7 @@ from ccdoc import Document, Table, Paragraph, Text, Section
 from logger_ng.models import LoggedMessage
 
 from childcount.models import Patient, DeadPerson, Encounter
-from childcount.reports.utils import render_doc_to_file
+from reportgen.utils import render_doc_to_file
 from childcount.models.reports import (BirthReport, FollowUpReport,
                                    HouseholdVisitReport, DeathReport,
                                    MedicineGivenReport, PregnancyReport,
@@ -26,7 +26,7 @@ from childcount.models.reports import (BirthReport, FollowUpReport,
                                    DangerSignsReport, FeverReport,
                                    AppointmentReport, CD4ResultReport,
                                    StillbirthMiscarriageReport)
-from childcount.reports.report_framework import PrintedReport
+from reportgen.PrintedReport import PrintedReport
 
 
 def list_average(values, valid_indexes_only=False):
@@ -158,7 +158,7 @@ class Report(PrintedReport):
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
-    def generate(self, rformat, title, filepath, data):
+    def generate(self, time_period, rformat, title, filepath, data):
 
         """ Display a statistic per month about:
 

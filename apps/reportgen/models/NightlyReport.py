@@ -40,8 +40,11 @@ class NightlyReport(models.Model):
         for p in PERIOD_TYPES:
             if p.code == self.time_period:
                 return p
-        return IntegrityError(_("Time period code does not match " \
+        raise IntegrityError(_("Time period code does not match " \
                                 "any PeriodType object."))
+
+    def period(self):
+        return self.period_type().periods()[self.time_period_index]
 
     def time_period_str(self):
         return self\

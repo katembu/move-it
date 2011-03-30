@@ -8,5 +8,7 @@ import webapp
 import reportgen.views
 
 urlpatterns = patterns('',
-    (r'^reportgen/$', reportgen.views.index)
+    (r'^reportgen/$', reportgen.views.index),
+    url(r'^static/reportgen/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root': 'apps/reportgen/static', 'show_indexes': True}),
 )

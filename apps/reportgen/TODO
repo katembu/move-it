@@ -54,6 +54,7 @@ SubPeriod (e.g., "Week of 5 Jan. 2011")
 - title
 - start
 - end
+
 == Pages ==
 
 Nightly Reports
@@ -80,3 +81,8 @@ purge_reports
 - Wipe out generated reports that are more than X days old
 
 
+== PrintedReport API ==
+
+title
+filenames
+set_status()

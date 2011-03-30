@@ -28,7 +28,7 @@ class Report(models.Model):
     def get_definition(self):
         return __import__(\
                 ''.join(['reportgen.definitions.', self.classname]),
-                globals(), locals(), ['PrintedReport'], -1)
+                globals(), locals(), ['Report'], -1).Report
 
 def validate_report(sender, **kwargs):
     report = kwargs['instance']
