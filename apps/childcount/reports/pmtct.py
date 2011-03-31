@@ -65,33 +65,36 @@ def appointments(request, rformat="html"):
     doc = Document(unicode(_(u"Appointments Report")))
     today = datetime.today()
     last_30_days = today + relativedelta(days=-30)
-    df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days,
-                                            appointment_date__lte=today)
-    df = df.order_by('encounter__chw__location', 'appointment_date')
     doc.subtitle = unicode(_(u"Appointments Report: Last 30 Days - %(from)s"
                             " to %(to)s" % {"from":
                                         last_30_days.strftime('%d %B, %Y'),
                                         "to": today.strftime('%d %B, %Y')}))
-    t = Table(5)
-    t.add_header_row([
-        Text(unicode(_(u"Date"))),
-        Text(unicode(_(u"Reminded?"))),
-        Text(unicode(_(u"Patient"))),
-        Text(unicode(_(u"CHW"))),
-        Text(unicode(_(u"Location")))])
-    for row in df:
-        if row.status in (AppointmentReport.STATUS_PENDING_CV,
-                            AppointmentReport.STATUS_CLOSED):
-            statustxt = _("Y")
-        else:
-            statustxt = _("N")
-        t.add_row([
-            Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
-            Text(unicode(statustxt)),
-            Text(unicode(row.encounter.patient)),
-            Text(unicode(row.encounter.patient.chw)),
-            Text(unicode(row.encounter.chw.location))])
-    doc.add_element(t)
+    for clinic in Clinic.objects.all():
+        df = AppointmentReport.objects.filter(appointment_date__gte=last_30_days,
+                                appointment_date__lte=today,
+                                encounter__patient__chw__clinic=clinic)
+        df = df.order_by('encounter__chw__location', 'appointment_date')
+        t = Table(5)
+        t.add_header_row([
+            Text(unicode(_(u"Date"))),
+            Text(unicode(_(u"Reminded?"))),
+            Text(unicode(_(u"Patient"))),
+            Text(unicode(_(u"CHW"))),
+            Text(unicode(_(u"Location")))])
+        for row in df:
+            if row.status in (AppointmentReport.STATUS_PENDING_CV,
+                                AppointmentReport.STATUS_CLOSED):
+                statustxt = _("Y")
+            else:
+                statustxt = _("N")
+            t.add_row([
+                Text(unicode(row.appointment_date.strftime('%d-%m-%Y'))),
+                Text(unicode(statustxt)),
+                Text(unicode(row.encounter.patient)),
+                Text(unicode(row.encounter.patient.chw)),
+                Text(unicode(row.encounter.chw.location))])
+        doc.add_element(Section(u"%s" % clinic))
+        doc.add_element(t)
 
     return render_doc_to_response(request, rformat, doc, 'pmtct-appointments')
 
@@ -355,6 +358,12 @@ def active_mothers(request, rformat="html"):
 
     return render_doc_to_response(request, rformat, doc,
                                     'pmtct-mothers-onfollowup')
+
+
+def u_apts(request, rformat='html'):
+    doc = upcoming_appointments()
+    return render_doc_to_response(request, rformat, doc, \
+                                    'pmtct-upcoming-appointments')
 
 
 def upcoming_appointments(title=_(u'Upcoming Apointments')):
