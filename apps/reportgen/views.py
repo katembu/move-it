@@ -5,8 +5,10 @@ from django.contrib.auth.decorators import login_required
 
 from rapidsms.webui.utils import render_to_response
 
+from reportgen.models import Report
 from reportgen.models import NightlyReport
 from reportgen.models import GeneratedReport
+from reportgen.timeperiods import PERIOD_TYPES
 from reportgen.utils import nightly_report_data
 
 PAGES = (
@@ -34,6 +36,8 @@ def nightly(request):
 @login_required
 def ondemand(request):
     data['title'] = 'On-Demand Reports'
+    data['reports'] = Report.objects.order_by('title')
+    data['periods'] = PERIOD_TYPES
     data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:30]
     return render_to_response(request, "ondemand.html", data)
 

@@ -1,5 +1,45 @@
 {% extends "frame.html" %}
 {% block center %}
+
+<script>
+    report_data = [
+        {% for rep in reports %}
+        {
+            "title":"{{rep.title|escapejs}}",
+            "variants": 
+                [{% for v in rep.variants %}
+                    "{{v.0|escapejs}}"{% if not forloop.last %},{%endif%}
+                {% endfor %}],
+            "formats":
+                [{% for f in rep.formats %}
+                    "{{f|escapejs}}"{% if not forloop.last %},{%endif%}
+                    {% endfor %}]
+        }{% if not forloop.last %},{% endif %} 
+        {% endfor %}
+    ];
+    time_periods = [
+        {% for p in periods %}
+        {
+            "title": "{{ p.title|escapejs }}",
+            "values": [
+                {% for item in p.periods %}
+                    "{{ item.title|escapejs }}"{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+
+<form>
+    <select><option>Operational</option></select>
+    <select><option>Bugongi</option></select>
+    <select><option>PDF</option></select>
+    <select><option>Months</option></select>
+    <select><option>April 2011</option></select>
+    <input type="submit" value="Generate!"></input>
+</form>
+
 <p><em>Note: Only the latest 30 reports are shown.</em></p>
 <table style="width:100%">
     <tr>    
@@ -22,8 +62,8 @@
             {% if rep.is_running %}
                 <strong>({{ rep.task_progress }}%)</strong>
             {% endif %}</td>
-        <td>{{ rep.finished_at|date:"d-M-Y" }} at 
-            {{ rep.finished_at|date:"H:i" }}</td>
+        <td>{% if rep.is_finished %}{{ rep.finished_at|date:"d-M-Y" }} at 
+            {{ rep.finished_at|date:"H:i" }}{% endif %}</td>
     </tr>
     {% endfor %}
 </table>

@@ -41,6 +41,17 @@ class Report(models.Model):
             variant, \
             keystr, '.', rformat])
 
+    @property
+    def formats(self):
+        return self.get_definition().formats
+
+    @property
+    def variants(self):
+        var = self.get_definition().variants
+        if len(var) > 0: return var
+        else:
+            var = [("--","", {})]
+
 def validate_report(sender, **kwargs):
     report = kwargs['instance']
     try:
