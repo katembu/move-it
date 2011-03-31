@@ -6,6 +6,8 @@ import calendar
 
 from datetime import datetime, date
 
+import numpy 
+
 from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section
@@ -28,56 +30,16 @@ from childcount.models.reports import (BirthReport, FollowUpReport,
                                    StillbirthMiscarriageReport)
 from reportgen.PrintedReport import PrintedReport
 
+def agg_lst(agg_fun, lst, exclude_zeros=False):
+    lst = map(lambda x: x if (type(x) in [int, float]) else 0, lst)
+    if len(lst) == 0: return '-'
+    return int(agg_fun(lst))
 
-def list_average(values, valid_indexes_only=False):
-    """ returns the average value of a list of int
+def list_average(lst, exclude_zeros=False):
+    return agg_lst(numpy.average, lst, exclude_zeros)
 
-    * valid_indexes_only: boolean
-    specify wether or not to exclude
-    values not matching VALID_MONTH_INDEXES """
-    values = clean_list(values)
-    total = 0
-    for index in xrange(0, values.__len__()):
-        if valid_indexes_only:
-            if index in VALID_MONTH_INDEXES:
-                total += values[index]
-        else:
-            total += values[index]
-    nb_months = VALID_MONTH_INDEXES.__len__() if valid_indexes_only \
-                                              else values.__len__()
-    return int(total / nb_months)
-
-def list_median(values, valid_indexes_only=False):
-    """ returns the median value of a list of int
-
-    * valid_indexes_only: boolean
-    specify wether or not to exclude
-    values not matching VALID_MONTH_INDEXES """
-
-    values = clean_list(values)
-
-    if valid_indexes_only:
-        valid_values = []
-        for index in xrange(0, values.__len__()):
-            if index in VALID_MONTH_INDEXES:
-                valid_values.append(values[index])
-    else:
-        valid_values = values
-
-    sorted_values = valid_values
-    sorted_values.sort()
-    num = sorted_values.__len__()
-    if num % 2 == 0:
-        half = num / 2
-        center = sorted_values[num / 2: (num / 2) + 2]
-        avg = list_average(center)
-    else:
-        try:
-            avg = sorted_values[(num + 1) / 2]
-        except IndexError:
-            avg = sorted_values[0]
-    return avg
-
+def list_median(lst, exclude_zeros=False):
+    return agg_lst(numpy.median, lst, exclude_zeros)
 
 def date_under_five():
     """ Returns the date reduced by five years """
@@ -85,13 +47,11 @@ def date_under_five():
     date_under_five = date(today.year - 5, today.month, today.day)
     return date_under_five
 
-
 def clean_list(values):
     """ Cleans a list """
     if '-' in values:
         values = [0 if v == '-' else v for v in values]
     return values
-
 
 def convert_string(va1, va2):
     if va1 == 0 and va2 == 0:
@@ -113,53 +73,15 @@ def textify_list(cells):
         nl.append(elem)
     return nl
 
-# global static list of months
-def month_nums():
-
-    months = range(1, 13)
-
-    today = date.today()
-    last_month = today.month
-
-    table_list = [(index, today.year - 1) \
-                  for index in months[last_month:]]
-    table_list += [(index, today.year) \
-                    for index in months[:last_month]]
-
-    return table_list
-ALL_MONTHS = month_nums()
-
-# global static list of months with data
-def busy_months():
-
-    months = []
-    for month in ALL_MONTHS:
-        if Encounter.objects.filter(encounter_date__month=month[0], \
-                                    encounter_date__year=month[1]).count() \
-           or LoggedMessage.objects.filter(date__month=month[0], \
-                                           date__year=month[1]).count():
-            months.append(month)
-    return months
-VALID_MONTHS = busy_months()
-
-# global static list of month-indexes with data
-def busy_month_indexes():
-
-    indexes = []
-    for index in xrange(0, ALL_MONTHS.__len__()):
-        if ALL_MONTHS[index] in VALID_MONTHS:
-            indexes.append(index)
-    return indexes
-VALID_MONTH_INDEXES = busy_month_indexes()
-
-class Report(PrintedReport):
+class ReportDefinition(PrintedReport):
     title = 'Utilization Report'
     filename = 'UtilizationReport'
+    classname = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
 
     def generate(self, time_period, rformat, title, filepath, data):
-
+        raise Exception("Oh No!")
         """ Display a statistic per month about:
 
             * sms number
@@ -172,15 +94,15 @@ class Report(PrintedReport):
             * +NEW, BIR, DDA, DDB, SBM, V, E, L, K, U, S, P, N, T, M, F,
             G, R, PD, PF, HT, AP, CD, DB """
 
-
-        doc = Document(title, landscape=True)
-
+        doc = Document("%s (%s)" % (title, time_period.title), landscape=True)
+        self.period = time_period
+        print self.period.title
+        print self.period.sub_periods()
+    
         header_row = [Text(_(u'Indicator:'))]
 
-        for month_num, year in ALL_MONTHS:
-            month = date(year=year, month=month_num,\
-                                                day=1).strftime("%b %y")
-            header_row.append(Text(month.title()))
+        for sub_period in time_period.sub_periods():
+            header_row.append(Text(sub_period.title))
 
         header_row += [
             Text(_(u'Total')),
@@ -309,11 +231,11 @@ class Report(PrintedReport):
 
         list_sms.append("SMS sent(SMS/Dataentry).")
 
-        for month_num, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             sms_month_pygsm = LoggedMessage.incoming.\
-                        filter(backend='pygsm', date__month=month_num, date__year=year)
+                        filter(backend='pygsm', date__gte=sp.start, date__lte=sp.end)
             sms_month_debackend = LoggedMessage.incoming.\
-                        filter(backend='debackend', date__month=month_num, date__year=year)
+                        filter(backend='debackend', date__gte=sp.start, date__lte=sp.end)
 
             list_sms_month.append(convert_string(sms_month_pygsm.count(),
                                        sms_month_debackend.count()))
@@ -352,10 +274,9 @@ class Report(PrintedReport):
         list_patient.append(line)
 
         list_patient_month = []
-        for month_num, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             patient_month = name.objects.\
-                filter(created_on__month=month_num,\
-                created_on__year=year)
+                filter(created_on__gte=sp.start, created_on__lte=sp.end)
             list_patient_month.append(patient_month.count())
 
         list_patient += list_patient_month
@@ -383,10 +304,11 @@ class Report(PrintedReport):
         list_.append(line)
 
         list_month = []
-        for month_num, year in ALL_MONTHS:
-            month = name.objects.\
-            filter(encounter__encounter_date__month=month_num,\
-                   encounter__encounter_date__year=year)
+        for sp in self.period.sub_periods():
+            month = name\
+                .objects\
+                .filter(encounter__encounter_date__gte=sp.start,\
+                       encounter__encounter_date__lte=sp.end)
             list_month.append(month.count())
 
         list_ += list_month
@@ -412,10 +334,10 @@ class Report(PrintedReport):
         list_sms.append("Days since last SMS.")
         date_ = datetime.today()
 
-        for nb_month, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             sms_per_month = \
-                    LoggedMessage.incoming.filter(date__month=nb_month,\
-                                                        date__year=year)
+                    LoggedMessage.incoming.filter(date__gte=sp.start,\
+                                                        date__lte=sp.end)
 
             try:
                 lastsms = sms_per_month.order_by("-date")[0]
@@ -453,10 +375,10 @@ class Report(PrintedReport):
         else:
             return
 
-        for month_num, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             adult_month = Patient.objects.filter(gender=gender,
-                                        created_on__month=month_num,\
-                                        created_on__year=year,
+                                        created_on__gte=sp.start,\
+                                        created_on__lte=sp.end,
                                         dob__lt=self.date_five)
             list_adult_month.append(adult_month.count())
 
@@ -482,10 +404,10 @@ class Report(PrintedReport):
         under_five_list.append(_(u"Under 5 Registered."))
         u = date_under_five()
         list_of_under_five_per_month = []
-        for month_num, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             under_five = Patient.objects.filter(dob__gt=u,
-                                        created_on__month=month_num,\
-                                        created_on__year=year)
+                                        created_on__gte=sp.start,\
+                                        created_on__lte=sp.end)
 
             list_of_under_five_per_month.append(under_five.count())
 
@@ -511,13 +433,13 @@ class Report(PrintedReport):
 
         list_error.append(_(u"SMS error rate."))
 
-        for month_num, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
 
             error_month = LoggedMessage.outgoing.\
-                        filter(date__month=month_num, date__year=year,\
+                        filter(date__gte=sp.start, date__lte=sp.end,\
                         status="error")
             total_sms_month = LoggedMessage.incoming.\
-                              filter(date__month=month_num).count()
+                              filter(date__gte=sp.start, date__lte=sp.end).count()
             try:
                 list_sms_error_rate_month.append((error_month.count()\
                                             * 100) / total_sms_month)
@@ -548,29 +470,26 @@ class Report(PrintedReport):
         total_day = 0
         list_sms.append(_(u"% of days with SMS / month."))
 
-        for nb_month, year in ALL_MONTHS:
+        for sp in self.period.sub_periods():
             liste_day_month = []
             sms_per_month =\
-                    LoggedMessage.incoming.filter(date__month=nb_month,\
-                                                        date__year=year)
+                    LoggedMessage.incoming.filter(date__gte=sp.start,\
+                                                        date__lte=sp.end)
             for sms in sms_per_month:
                 liste_day_month.append(sms.date.day)
 
             list_nb_day_month = dict().fromkeys(liste_day_month).keys()
             nb_day_per_month = len(list_nb_day_month)
-            rate_day = (nb_day_per_month * 100) / calendar.monthrange(year,\
-                                                            nb_month)[1]
+            rate_day = (nb_day_per_month * 100) / (sp.end-sp.start).days
             total_day += nb_day_per_month
             print total_day
             liste_day_rate.append(rate_day)
 
-        sms_per_year = LoggedMessage.incoming.filter(date__year=year)
-        total_day_per_year = 0
-        for nb_month, year in ALL_MONTHS:
-            total_day_per_year += calendar.monthrange(year, nb_month)[1]
+        sms_per_year = LoggedMessage.incoming.filter(date__gte=self.period.start,\
+                            date__lte=self.period.end)
 
         list_sms += liste_day_rate
-        total_rate = (total_day * 100) / total_day_per_year
+        total_rate = (total_day * 100) / (self.period.end - self.period.start).days
         list_sms.append(total_rate)
 
         average_date = list_average(liste_day_rate, True)

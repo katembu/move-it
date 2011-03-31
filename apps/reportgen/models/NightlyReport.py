@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
+import os
+import os.path
+
 from django.db import models, IntegrityError
 from django.db.models.signals import pre_save
 from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PERIOD_CHOICES, PERIOD_TYPES
+
+NIGHTLY_REPORTS_DIR = 'nightly'
 
 class NightlyReport(models.Model):
 
@@ -51,6 +56,17 @@ class NightlyReport(models.Model):
             .period_type()\
             .periods()[self.time_period_index]\
             .relative_title
+
+    def get_filename(self, variant, rformat):
+        return self.report.get_filename(variant, rformat, self.pk)
+    
+    def get_filepath(self, variant, rformat):
+        return os.path.join(\
+            os.path.dirname(__file__),\
+            '..',\
+            'static',\
+            NIGHTLY_REPORTS_DIR,\
+            self.get_filename(variant, rformat))
 
 def validate_nightly_report(sender, **kwargs):
     rep = kwargs['instance']

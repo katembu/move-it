@@ -24,13 +24,7 @@ def render_doc_to_file(filename, rformat, doc):
     h.render_document()
     print 'Done rendering'
     print filename
-
-def report_filepath(rdir, rname, rformat):
-    return os.path.join(\
-                    os.path.dirname(__file__), \
-                    'static',
-                    rdir, rname+'.'+rformat)
-
+'''
 def report_modified_on(rdir, rname, rformat):
     fname = report_filepath(rdir, rname, rformat)
     if not os.path.exists(fname):
@@ -42,3 +36,4 @@ def report_url(rdir, rname, rformat):
         '/static/reportgen/',
         rdir,'/', rname,'.',rformat
     ])
+'''

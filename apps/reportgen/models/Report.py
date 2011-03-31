@@ -28,7 +28,18 @@ class Report(models.Model):
     def get_definition(self):
         return __import__(\
                 ''.join(['reportgen.definitions.', self.classname]),
-                globals(), locals(), ['Report'], -1).Report
+                globals(), locals(), ['ReportDefinition'], -1).ReportDefinition
+
+    def get_filename(self, variant, rformat, key=None):
+        if variant is None: variant = ''
+
+        if key is None:     keystr = ''
+        else:               keystr = "_%d" % key
+
+        return ''.join([\
+            self.get_definition().filename, \
+            variant, \
+            keystr, '.', rformat])
 
 def validate_report(sender, **kwargs):
     report = kwargs['instance']

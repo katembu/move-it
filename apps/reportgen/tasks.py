@@ -23,7 +23,7 @@ def nightly_reports():
         # Run the report
         results.append(report_cls.apply(kwargs=\
             {'time_period':time_period, 
-            'nightly':True}))
+            'nightly': record}))
 
     print ">> Done <<"
     return results

@@ -11,8 +11,7 @@ from celery.task.schedules import crontab
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
-from reportgen.utils import report_filepath, report_url
-from reportgen.models import GeneratedReport
+from reportgen.models import Report, GeneratedReport
 
 NIGHTLY_DIR = 'nightly'
 ONDEMAND_DIR = 'ondemand'
@@ -31,6 +30,9 @@ class PrintedReport(Task):
     title = None
     # Filename alphanumeric, underscore, and hyphen are ok
     filename = None
+    # Name of the file where this report is defined (e.g., Operational
+    # if the file is Operational.py)
+    classname = None
     # A list of file formats to use, e.g., ['pdf','html','xls']
     formats = []
 
@@ -60,36 +62,47 @@ class PrintedReport(Task):
     def run(self, *args, **kwargs):
         self._check_sanity()
 
-        self._nightly = kwargs.get('nightly')
-        if self._nightly is None:
+        if 'nightly' not in kwargs:
             raise ValueError(_('No nightly value passed in'))
+
+        # nightly should be None or a NightlyReport object
+        self._nightly = kwargs['nightly']
+
+        # get Report object for this report
+        try:
+            self._report = Report.objects.get(classname=self.classname)
+        except Report.DoesNotExist:
+            raise DBConfigurationError(_("Could not find DB record "\
+                "for a report with classname %s" % self.classname))
+
         self._time_period = kwargs.get('time_period')
         if self._time_period is None:
             raise ValueError(_('No time period value passed in'))
 
-        if self._nightly:
-            print "Running nightly (%s)" % self.formats
-            self._dir = NIGHTLY_DIR
-            self._run_nightly(*args, **kwargs)
-        else:
+        if self._nightly is None:
             print "Running ondemand"
             self.run = self._run_ondemand
             self._dir = ONDEMAND_DIR
             self._run_ondemand(*args, **kwargs)
+        else:
+            print "Running nightly (%s)" % self.formats
+            self._dir = NIGHTLY_DIR
+            self._run_nightly(*args, **kwargs)
 
     def _run_nightly(self, *args, **kwargs):
         # Run report for all formats
         # ...and all variants
 
-        # Save in static/nightly/basename_variant.format
+        # Save in static/nightly/basename_variant_rptpk.format
         for rformat in self.formats:
-            print "xRunning format %s" % rformat
+            print "Running format %s" % rformat
             if len(self.variants) == 0:
                 print "Finished only variant"
+                print "FP: %s" % self.get_filepath(None, rformat)
                 self.generate(self._time_period,
                     rformat,
                     self.title,
-                    self.get_filepath(rformat),
+                    self.get_filepath(None, rformat),
                     {})
                 continue
             print "midloop"
@@ -99,7 +112,7 @@ class PrintedReport(Task):
                 self.generate(self._time_period,
                     rformat,
                     self.title + variant[0],
-                    self.get_filepath(rformat, variant[1]),
+                    self.get_filepath(variant[1], rformat),
                     variant[2])
 
     def _check_sanity(self):
@@ -107,7 +120,8 @@ class PrintedReport(Task):
             raise ValueError(\
                 _(u'This report has no formats specified.'))
         
-        if self.title is None or self.filename is None:
+        if self.title is None or self.filename is None \
+                or len(self.title) == 0 or len(self.filename) == 0:
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
  
@@ -131,50 +145,65 @@ class PrintedReport(Task):
         # Check if a variant was passed in
         variant = kwargs.get('variant')
         if variant is None:
-            variant = ('','',{})
+            variant = ('', None, {})
 
         this_data = variant[2]
    
         # Create GeneratedReport record
         # and set to self._generated_report
         gr = GeneratedReport()
-        gr.filename = self.get_filename(rformat, variant[1])
+        gr.filename = ''
         gr.title = self.title
+        gr.report = self._report
         gr.fileformat = rformat
         gr.period_title = self._time_period.title
-        gr.variant_title = self.variant[0]
+        gr.variant_title = variant[0]
         gr.task_progress = 0
         gr.task_state = GeneratedReport.TASK_STATE_PENDING
         gr.started_at = datetime.now()
         gr.save()
 
+        # Once the PK is set, we can get the filename for 
+        # the report
         self._generated_report = gr
+        gr.filename = self.get_filename(variant[1], rformat)
+        gr.save()
+
 
         # Generate the report
-        self.generate(rformat, \
-                    self._time_period,
+        self.generate(self._time_period,
+                    rformat,
                     self.title + variant[0],
-                    self.get_filepath(rformat, variant[1]),
-                    this_filepath,
+                    self.get_filepath(variant[1], rformat),
                     this_data)
 
-    def get_filepath(self, rformat, file_suffix = ''):
-        if self.filename is None:
-            raise ValueError(\
-                _(u'Report filename is unset.'))
+    def on_success(self, retval, task_id, args, kwargs):
+        self._generated_report.finished_at = datetime.now()
+        self._generated_report.task_state = GeneratedReport.TASK_STATE_SUCCEEDED
+        self._generated_report.task_progress = 100
+        print "SUCCESS!!!"
+        self._generated_report.save()
+        
+    def on_failure(self, exc, task_id, args, kwargs, einfo=None):
+        print "FAILED!!!"
+        self._generated_report.finished_at = datetime.now()
+        self._generated_report.task_state = GeneratedReport.TASK_STATE_FAILED
+        self._generated_report.task_progress = 0
+        if einfo is not None:
+            self._generated_report.error_message = einfo.traceback
+        self._generated_report.save()
+        
+    def get_filename(self, suffix, rformat):
+        if self._nightly: 
+            return self._nightly.get_filename(suffix, rformat)
+        else:
+            return self._generated_report.get_filename(suffix, rformat)
 
-        task_pk = ''
-        if not self._nightly: 
-            if self._generated_report is None:
-                raise ValueError(\
-                    _('Generated report DB record is not set'))
-            else:
-                task_pk = "%d" % self._generated_report.pk
+    def get_filepath(self, suffix, rformat):
+        if self._nightly: 
+            return self._nightly.get_filepath(suffix, rformat)
+        else:
+            return self._generated_report.get_filepath(suffix, rformat)
 
-        return report_filepath(self._dir, \
-            self.filename + file_suffix + task_pk, rformat)
-
-    def get_filename(self, rformat, file_suffix=''):
-        return self.filename+file_suffix_task_pk+'.'+rformat
-
-
+class DBConfigurationError(Exception):
+    pass

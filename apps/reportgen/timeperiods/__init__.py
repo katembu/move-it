@@ -6,8 +6,9 @@ from reportgen.timeperiods.SubPeriod import SubPeriod
 
 from reportgen.timeperiods.definitions.FourWeeks import FourWeeks
 from reportgen.timeperiods.definitions.Month import Month
+from reportgen.timeperiods.definitions.TwelveMonths import TwelveMonths
 
-PERIOD_TYPES = [FourWeeks, Month]
+PERIOD_TYPES = [FourWeeks, Month, TwelveMonths]
 PERIOD_CHOICES = [(pt.code, "%s (0-%d)" % (pt.title, pt.n_periods-1)) \
                             for pt in PERIOD_TYPES]
 
