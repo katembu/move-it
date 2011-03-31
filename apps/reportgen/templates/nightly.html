@@ -1,0 +1,64 @@
+{% extends "frame.html" %}
+{% block center %}
+
+{% for n in nightly %}
+<h2 style="font-weight:normal;color:black;background:none;font-size:1.5em;border-bottom:0; border-top:2px solid #ccc;"><strong>{{ n.obj.report.title }}</strong>
+    ({{ n.obj.period_type.title }}: {{ n.obj.time_period_current }})</h2>
+<table style="width:100%">
+    <tr>
+        <th>Variant</th>
+        <th>HTML</th>
+        <th>PDF</th>
+        <th>Excel</th>
+        <th>Other</th>
+    </tr>
+    {% for v in n.variants %}
+        <tr>
+            <td>{{ v.title|default:"Report" }}</td>
+            <td>
+            {% if v.formats.html %}
+                <a href="/static/reportgen/nightly/{{v.formats.html.filename}}">HTML</a>
+                ({{ v.formats.html.finished_at|date:"d-M-Y" }} at
+                {{ v.formats.html.finished_at|date:"H:i" }})
+            {% else %}
+                &nbsp;
+            {% endif %}
+            </td>
+            <td>
+            {% if v.formats.pdf %}
+                <a href="/static/reportgen/nightly/{{v.formats.pdf.filename}}">PDF</a>
+                ({{ v.formats.pdf.finished_at|date:"d-M-Y" }} at
+                {{ v.formats.pdf.finished_at|date:"H:i" }})
+            {% else %}
+                &nbsp;
+            {% endif %}
+            </td>
+            <td>
+            {% if v.formats.xls %}
+                <a href="/static/reportgen/nightly/{{v.formats.xls.filename}}">XLS</a>
+                ({{ v.formats.xls.finished_at|date:"d-M-Y" }} at
+                {{ v.formats.xls.finished_at|date:"H:i" }})
+            {% else %}
+                &nbsp;
+            {% endif %}
+            </td>
+            <td>
+            {% for f in v.formats %}
+                {% ifnotequal f "html" %}
+                {% ifnotequal f "pdf" %}
+                {% ifnotequal f "xls" %}
+                <a href="/static/reportgen/nightly/{{ f.filename }}">{{ f.upper }}</a> 
+                ({{ f.finished_at|date:"d-M-Y" }} at {{ f.finished_at|date:"H:i" }}){% if forloop.last %}{% else %} 
+                | {% endif %}
+                {% endifnotequal %}
+                {% endifnotequal %}
+                {% endifnotequal %}
+            {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+    <br><br>
+{% endfor %}
+
+{% endblock %}

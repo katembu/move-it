@@ -126,9 +126,15 @@ class PrintedReport(Task):
                 _(u'Report title or filename is unset.'))
  
     _generated_report = None
-    def set_status(self, status):
-        # Do stuff to update DB record here        
-        pass
+    def set_progress(self, progress):
+        print "> Progress %d%%" % progress
+
+        # Don't need status updates for nightly report
+        if self._nightly: return
+
+        self._generated_report.task_state = GeneratedReport.TASK_STATE_STARTED
+        self._generated_report.task_progress = progress
+        self._generated_report.save()
 
     def _run_ondemand(self, *args, **kwargs):
         # Run report for a single format and
@@ -178,6 +184,8 @@ class PrintedReport(Task):
                     this_data)
 
     def on_success(self, retval, task_id, args, kwargs):
+        if not self._generated_report: return
+
         self._generated_report.finished_at = datetime.now()
         self._generated_report.task_state = GeneratedReport.TASK_STATE_SUCCEEDED
         self._generated_report.task_progress = 100
@@ -186,9 +194,12 @@ class PrintedReport(Task):
         
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         print "FAILED!!!"
+
+        if not self._generated_report: return 
         self._generated_report.finished_at = datetime.now()
         self._generated_report.task_state = GeneratedReport.TASK_STATE_FAILED
         self._generated_report.task_progress = 0
+        
         if einfo is not None:
             self._generated_report.error_message = einfo.traceback
         self._generated_report.save()

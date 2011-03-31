@@ -3,6 +3,7 @@
 
 import os
 import os.path
+from datetime import datetime
 
 from django.db import models, IntegrityError
 from django.db.models.signals import pre_save
@@ -51,6 +52,12 @@ class NightlyReport(models.Model):
     def period(self):
         return self.period_type().periods()[self.time_period_index]
 
+    def time_period_current(self):
+        return self\
+            .period_type()\
+            .periods()[self.time_period_index]\
+            .title
+
     def time_period_str(self):
         return self\
             .period_type()\
@@ -67,6 +74,12 @@ class NightlyReport(models.Model):
             'static',\
             NIGHTLY_REPORTS_DIR,\
             self.get_filename(variant, rformat))
+    
+    def finished_at(self, variant, rformat):
+        fname = self.get_filepath(variant, rformat)
+        if not os.path.exists(fname):
+            return None
+        return datetime.fromtimestamp(os.path.getmtime(fname))
 
 def validate_nightly_report(sender, **kwargs):
     rep = kwargs['instance']

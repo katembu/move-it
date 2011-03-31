@@ -24,16 +24,25 @@ def render_doc_to_file(filename, rformat, doc):
     h.render_document()
     print 'Done rendering'
     print filename
-'''
-def report_modified_on(rdir, rname, rformat):
-    fname = report_filepath(rdir, rname, rformat)
-    if not os.path.exists(fname):
-        return None
-    return datetime.fromtimestamp(os.path.getmtime(fname))
 
-def report_url(rdir, rname, rformat):
-    return ''.join([\
-        '/static/reportgen/',
-        rdir,'/', rname,'.',rformat
-    ])
-'''
+def nightly_report_data(nrpt):
+    rep = nrpt.report.get_definition()
+    variants = rep.variants
+    if len(variants) == 0:
+        variants.append(('','',{}))
+       
+    data = {'obj':nrpt, 'variants':[]}
+    for v in variants:
+        rowdata = {
+            'title': v[0],
+            'formats': {},
+        }
+        for r in rep.formats:
+            rowdata['formats'][r] = \
+                {'filename': nrpt.get_filename(v[1], r),
+                 'finished_at': nrpt.finished_at(v[1], r)}
+        data['variants'].append(rowdata)
+    return data
+        
+
+

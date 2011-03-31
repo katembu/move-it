@@ -3,14 +3,38 @@
 # maintainer: ukanga
 from django.contrib.auth.decorators import login_required
 
-from django.http import HttpResponseBadRequest
-from django.http import HttpResponseRedirect, HttpResponse
-from django.http import HttpResponseNotFound
-
 from rapidsms.webui.utils import render_to_response
+
+from reportgen.models import NightlyReport
+from reportgen.models import GeneratedReport
+from reportgen.utils import nightly_report_data
+
+PAGES = (
+    {'name': 'Report Generation', \
+        'url': '/reportgen/', 'slug': 'index'},
+    {'name': 'Nightly Reports', \
+        'url': '/reportgen/nightly/', 'slug': 'nightly'},
+    {'name': 'On-Demand Reports', \
+        'url': '/reportgen/ondemand/', 'slug': 'ondemand'},
+)
+
+data = {'pages': PAGES}
 
 @login_required
 def index(request):
-    return render_to_response(request, "index.html", {})
+    data['title'] = 'Report Generation'
+    return render_to_response(request, "index.html", data)
+
+@login_required
+def nightly(request):
+    data['title'] = 'Nightly Reports'
+    data['nightly'] = [nightly_report_data(n) for n in NightlyReport.objects.all()]
+    return render_to_response(request, "nightly.html", data)
+
+@login_required
+def ondemand(request):
+    data['title'] = 'On-Demand Reports'
+    data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:30]
+    return render_to_response(request, "ondemand.html", data)
 
 

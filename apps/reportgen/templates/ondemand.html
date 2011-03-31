@@ -1,0 +1,30 @@
+{% extends "frame.html" %}
+{% block center %}
+<p><em>Note: Only the latest 30 reports are shown.</em></p>
+<table style="width:100%">
+    <tr>    
+        <th>&nbsp;</th>
+        <th>Title</th>
+        <th>Variant</th>
+        <th>Time Period</th>
+        <th>Status</th>
+        <th>Finished at</th>
+    </tr>
+    {% for rep in gen %}
+    <tr>
+        <td>{% if rep.is_finished %}
+            <a href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            {% endif %}</td>
+        <td>{{ rep.title }}</td>
+        <td>{{ rep.variant_title|default:"--" }}</td>
+        <td>{{ rep.period_title }}</td>
+        <td>{{ rep.task_state_str }}
+            {% if rep.is_running %}
+                <strong>({{ rep.task_progress }}%)</strong>
+            {% endif %}</td>
+        <td>{{ rep.finished_at|date:"d-M-Y" }} at 
+            {{ rep.finished_at|date:"H:i" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -79,9 +79,10 @@ class ReportDefinition(PrintedReport):
     classname = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
+    variants = [('First','_first', {}),
+        ('Second', '_second', {})]
 
     def generate(self, time_period, rformat, title, filepath, data):
-        raise Exception("Oh No!")
         """ Display a statistic per month about:
 
             * sms number
@@ -94,7 +95,10 @@ class ReportDefinition(PrintedReport):
             * +NEW, BIR, DDA, DDB, SBM, V, E, L, K, U, S, P, N, T, M, F,
             G, R, PD, PF, HT, AP, CD, DB """
 
-        doc = Document("%s (%s)" % (title, time_period.title), landscape=True)
+        self.set_progress(0)
+        doc = Document(title,
+            subtitle = time_period.title, \
+            landscape=True)
         self.period = time_period
         print self.period.title
         print self.period.sub_periods()
@@ -112,6 +116,8 @@ class ReportDefinition(PrintedReport):
         self.table = Table(header_row.__len__())
         self.table.add_header_row(header_row)
 
+        self.set_progress(10)
+
         # first column is left aligned
         self.table.set_alignment(Table.ALIGN_LEFT, column=0)
         # first column has width of 20%
@@ -123,6 +129,8 @@ class ReportDefinition(PrintedReport):
         # SMS number per month
         self._add_sms_number_per_month_row()
 
+        self.set_progress(20)
+
         # NUMBER of Patient registered PER MONTH
         self._add_number_patient_reg_month_row(Patient, \
                                                       _(u"Total Clients Reg."))
@@ -132,6 +140,8 @@ class ReportDefinition(PrintedReport):
 
         # % of days with SMS / month
         self._of_days_with_SMS_month_row()
+
+        self.set_progress(30)
 
         # Adult Women registered
         self._add_adult_registered_row('F')
@@ -145,6 +155,7 @@ class ReportDefinition(PrintedReport):
         # Number of sms error per month
         self._add_sms_error_per_month_row()
 
+        self.set_progress(40)
         # +NEW
         self._add_number_patient_reg_month_row(Patient, _(u"+NEW (Patient)"))
 
@@ -166,6 +177,7 @@ class ReportDefinition(PrintedReport):
         # +E
         self._add_reg_report_row(SickMembersReport, _(u"+E (Sick Members)"))
 
+        self.set_progress(50)
         # +L
         self._add_reg_report_row(BCPillReport, _(u"+L (BC Pill)"))
 
@@ -187,6 +199,7 @@ class ReportDefinition(PrintedReport):
         # +T
         self._add_reg_report_row(UnderOneReport, _(u"+T (Under One)"))
 
+        self.set_progress(60)
         # +MFeverReport
         self._add_reg_report_row(NutritionReport, _(u"+M (Nutrition)"))
 
@@ -208,6 +221,7 @@ class ReportDefinition(PrintedReport):
         # +Ht
         self._add_reg_report_row(HIVTestReport, _(u"+HT (HIV Test)"))
 
+        self.set_progress(70)
         # +AP
         self._add_reg_report_row(AppointmentReport, _(u"+AP (Appointment)"))
 
@@ -219,6 +233,7 @@ class ReportDefinition(PrintedReport):
 
         doc.add_element(self.table)
 
+        self.set_progress(80)
         return render_doc_to_file(filepath, rformat, doc)
 
     def _add_sms_number_per_month_row(self):

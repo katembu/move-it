@@ -57,11 +57,11 @@ class GeneratedReport(models.Model):
     period_title = models.CharField(_(u"Period title"), max_length=100, blank=False, \
                                 null=False, db_index=True, unique=False, \
                                 help_text=_(u"Description of the time period for "\
-                                            "the report (e.g., \"January 2011\""))
+                                            "the report (e.g., \"January 2011\")"))
     variant_title = models.CharField(_(u"Variant title"), max_length=100, blank=False, \
                                 null=False, db_index=True, unique=False, \
                                 help_text=_(u"Description of the variant for "\
-                                            "the report (e.g., \"Ntungu Clinic\""))
+                                            "the report (e.g., \"Ntungu Clinic\")"))
     task_progress = models.PositiveSmallIntegerField(_("Progress"), blank=False,
                                 null=False, unique=False)
     task_state = models.PositiveSmallIntegerField(_("Task state"), blank=False,
@@ -70,6 +70,19 @@ class GeneratedReport(models.Model):
     finished_at = models.DateTimeField(_("Finished at"), null=True)
     error_message = models.TextField(_("Error message"), null=True)
     updated_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return _("<Generated: %(title)s, (%(fname)s), ID: %(pk)d>") % \
+            {'title': self.title, 'fname': self.filename, 'pk': self.pk}
+
+    @property
+    def is_finished(self):
+        return self.task_state == self.TASK_STATE_SUCCEEDED and \
+            self.filename != ''
+
+    @property
+    def is_running(self):
+        return self.task_state == self.TASK_STATE_STARTED
 
     @property
     def task_state_str(self):
