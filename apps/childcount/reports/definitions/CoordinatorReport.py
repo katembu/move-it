@@ -12,13 +12,14 @@ from childcount.reports.utils import render_doc_to_file
 from childcount.reports.utils import YearlyPeriodSet
 from childcount.reports.report_framework import PrintedReport
 from childcount.models.ccreports import HealthCoordinatorReport
+from  childcount.models import Encounter
+
 
 class Report(PrintedReport):
-    title = _(u"CC+ Health Coordinator Report")
+    title = _(u"CC+ HC Report")
     filename = 'health_coordinator'
-    formats = ['xls', 'pdf', 'html']
-    variants = [(u'2010', '2010', {'year': 2010}), \
-                (u'2011', '2011', {'year': 2011}),]
+    formats = ['xls', 'html']
+    variants = [ (u'%s' % dt.year, u'%s' % dt.year, {'year': dt.year}) for dt in Encounter.objects.dates('encounter_date', 'year')]
 
     def generate(self, rformat, title, filepath, data):
         doc = Document(title)
