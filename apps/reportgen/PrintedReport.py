@@ -5,7 +5,7 @@
 import shutil
 from datetime import datetime
 
-from celery.task import Task
+from celery.task import Task, tasks
 from celery.task.schedules import crontab
 
 from django.utils.translation import gettext as _
@@ -25,7 +25,6 @@ ONDEMAND_DIR = 'ondemand'
 #    in the DB
 
 class PrintedReport(Task):
-   
     # Human-readable title of report
     title = None
     # Filename alphanumeric, underscore, and hyphen are ok
