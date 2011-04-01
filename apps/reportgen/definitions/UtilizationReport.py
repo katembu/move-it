@@ -8,8 +8,6 @@ from datetime import datetime, date
 
 import numpy 
 
-from celery.task import tasks
-
 from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, Text, Section
@@ -518,4 +516,3 @@ class ReportDefinition(PrintedReport):
         list_rate = textify_list(list_sms)
         self.table.add_row(list_rate)
 
-tasks.register(PrintedReport)

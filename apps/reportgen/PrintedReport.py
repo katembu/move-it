@@ -5,7 +5,7 @@
 import shutil
 from datetime import datetime
 
-from celery.task import Task, tasks
+from celery.task import Task
 from celery.task.schedules import crontab
 
 from django.utils.translation import gettext as _
