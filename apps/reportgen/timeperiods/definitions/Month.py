@@ -60,9 +60,9 @@ class Month(PeriodType):
         start_date = period_start_date + relativedelta(weeks=index)
         end_date = start_date + relativedelta(day=(start_date.day+6))
 
-        title = _("%(start)s to %(end)%s") % \
+        title = _("%(start)s to %(end)s") % \
             {'start': start_date.strftime("%d %b"),
-            'end': start_date.strftime("%d %b")}
+            'end': end_date.strftime("%d %b")}
         return SubPeriod(\
             title,
             start_date,

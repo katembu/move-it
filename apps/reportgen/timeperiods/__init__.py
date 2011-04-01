@@ -12,3 +12,8 @@ PERIOD_TYPES = [FourWeeks, Month, TwelveMonths]
 PERIOD_CHOICES = [(pt.code, "%s (0-%d)" % (pt.title, pt.n_periods-1)) \
                             for pt in PERIOD_TYPES]
 
+def period_type_for(code):
+    for pt in PERIOD_TYPES:
+        if pt.code == code: return pt
+    raise RuntimeError(_("No period type with code %s")%code)
+

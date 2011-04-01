@@ -79,9 +79,9 @@ class ReportDefinition(PrintedReport):
     classname = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
-    variants = [('First','_first', {}),
-        ('Second', '_second', {})]
-
+    #variants = [('First','_first', {}),
+    #    ('Second', '_second', {})]
+    variants = []
     def generate(self, time_period, rformat, title, filepath, data):
         """ Display a statistic per month about:
 

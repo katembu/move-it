@@ -26,9 +26,14 @@ class Report(models.Model):
         return self.title
 
     def get_definition(self):
-        return __import__(\
+        m = __import__(\
                 ''.join(['reportgen.definitions.', self.classname]),
-                globals(), locals(), ['ReportDefinition'], -1).ReportDefinition
+                globals(), locals(), ['ReportDefinition'], -1)
+        # We need to force a reload to destroy objects
+        # referenced by ReportDefinition
+        reload(m)
+        return m.ReportDefinition
+
 
     def get_filename(self, variant, rformat, key=None):
         if variant is None: variant = ''

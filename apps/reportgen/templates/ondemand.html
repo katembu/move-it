@@ -2,44 +2,142 @@
 {% block center %}
 
 <script>
-    report_data = [
-        {% for rep in reports %}
-        {
-            "title":"{{rep.title|escapejs}}",
-            "variants": 
-                [{% for v in rep.variants %}
-                    "{{v.0|escapejs}}"{% if not forloop.last %},{%endif%}
-                {% endfor %}],
-            "formats":
-                [{% for f in rep.formats %}
-                    "{{f|escapejs}}"{% if not forloop.last %},{%endif%}
-                    {% endfor %}]
-        }{% if not forloop.last %},{% endif %} 
-        {% endfor %}
-    ];
-    time_periods = [
-        {% for p in periods %}
-        {
-            "title": "{{ p.title|escapejs }}",
-            "values": [
-                {% for item in p.periods %}
-                    "{{ item.title|escapejs }}"{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ]
-        }{% if not forloop.last %},{% endif %}
-        {% endfor %}
-    ];
+{% autoescape off %}
+var data = {{ data }};
+{% endautoescape %}
+
+var elms = [
+    "#report",
+    "#variant",
+    "#rformat",
+    "#period_type",
+    "#period"
+];
+
+function count(eobj) {
+    var c = 0;
+    for(e in eobj) {
+        c++;
+    }       
+    return c;
+}
+
+function check_finished(eventObj) {
+    var okay = true;
+    for(e in elms) {
+        if($(elms[e]).val() == "") {
+            okay = false;
+            break;
+        }
+    }
+
+    if(okay) {
+        $("#submit").removeAttr('disabled');
+    } else {
+        $("#submit").attr('disabled', 'true');
+    }
+}
+
+function set_report() {
+    r = $("#report");
+    if(r.val()) {
+        // Enable the report format select box
+        $("#rformat").removeAttr('disabled');
+        $("#rformat").empty();
+
+        // Populate new options
+        $("#rformat").append("<option value=''>[File Type]</option>");
+        for(i in data['formats'][r.val()]) {
+            $("#rformat").append("<option value="+i+">" + 
+                data['formats'][r.val()][i]+"</option>");
+        }
+        
+        // Enable the report variant select box
+        $("#variant").removeAttr('disabled');
+        $("#variant").empty();
+       
+        if(count(data['variants'][r.val()]) == 0) {
+            $("#variant").append("<option value='X'>--</option>");
+        } else {
+            // Populate new options
+            $("#variant").append("<option value=''>[Variant]</option>");
+            for(i in data['variants'][r.val()]) {
+                $("#variant").append("<option value="+i+">" + 
+                    data['variants'][r.val()][i]+"</option>");
+            }
+        }
+    } else {
+        $("#variant").attr('disabled','true');
+        $("#variant").empty();
+        $("#variant").append("<option value=''>[Variant]</option>");
+
+        $("#rformat").attr('disabled','true');
+        $("#rformat").empty();
+        $("#rformat").append("<option value=''>[File Type]</option>");
+    }
+}
+
+function set_dates() {
+    pt = $("#period_type").val();
+    if(pt) {
+        $("#period").removeAttr('disabled');
+        $("#period").empty();
+        
+        $("#period").append("<option value=''>[Dates]</option>");
+            for(i in data['time_periods'][pt]) {
+                $("#period").append("<option value="+i+">" + 
+                    data['time_periods'][pt][i]+"</option>");
+            }
+    } else {
+        $("#period").attr('disabled', 'true');
+        $("#period").empty();
+        $("#period").append("<option value=''>[Dates]</option>");
+    }
+}
+
+function init() {
+    for(i in data['rpts']) {
+        $("#report").append("<option value="+i+">" + 
+            data['rpts'][i]+"</option>");
+    }
+
+    for(t in data['time_types']) {
+        $("#period_type").append("<option value="+t+">" + 
+            data['time_types'][t]+"</option>");
+    }
+    for(e in elms) {
+        $(elms[e]).change(check_finished);
+    }
+    $("#report").change(set_report);
+    $("#period_type").change(set_dates);
+}
+
+$(document).ready(init);
+
 </script>
 
-<form>
-    <select><option>Operational</option></select>
-    <select><option>Bugongi</option></select>
-    <select><option>PDF</option></select>
-    <select><option>Months</option></select>
-    <select><option>April 2011</option></select>
-    <input type="submit" value="Generate!"></input>
+<form id="gen_form" method="POST">
+    <select id="report" name="report_pk">
+        <option value="">[Report]</option>
+    </select>
+    <select id="variant" disabled="true" name="variant_index">
+        <option value="">[Variant]</option>
+    </select>
+    <select id="rformat" disabled="true" name="rformat">
+        <option value="">[File Type]</option>
+    </select>
+    <select id="period_type" name="period_type_code">
+        <option value="">[Time Period Type]</option>
+    </select>
+    <select id="period" disabled="true" name="period_index">
+        <option value="">[Dates]</option>
+    </select>
+    <input id="submit" type="submit" disabled="true" value="Generate!"></input>
 </form>
 
+{% if data.msg %}
+    <strong>{{ data.msg }}</strong>
+{% endif %}
 <p><em>Note: Only the latest 30 reports are shown.</em></p>
 <table style="width:100%">
     <tr>    

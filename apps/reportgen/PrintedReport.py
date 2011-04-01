@@ -175,7 +175,6 @@ class PrintedReport(Task):
         gr.filename = self.get_filename(variant[1], rformat)
         gr.save()
 
-
         # Generate the report
         self.generate(self._time_period,
                     rformat,
