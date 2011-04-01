@@ -63,7 +63,7 @@ def ondemand(request):
         args['time_period'] = period_type\
             .periods()[int(request.POST['period_index'])]
 
-        r = d.apply(kwargs=args)
+        r = d.apply_async(kwargs=args)
         print r
         data['msg'] = _('Report generation started!')
         
