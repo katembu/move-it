@@ -91,6 +91,8 @@ class PrintedReport(Task):
         print "[Nightly args] %s" % str(args)
         print "[Nightly kwargs] %s" % str(kwargs)
 
+        self._kwargs = kwargs
+
         # Run report for all formats
         # ...and all variants
 
@@ -127,15 +129,18 @@ class PrintedReport(Task):
                 _(u'Report title or filename is unset.'))
  
     def set_progress(self, progress):
+        kwargs = self._kwargs
+
         print "> Progress %d%% (at %s)" % (progress, datetime.now())
-        print "PROGRESS IS DISABLED"
 
         # Don't need status updates for nightly report
-        #if kwargs['nightly']: return
+        if kwargs['nightly']: return
+        print "++> %s" % repr(kwargs['nightly'])
 
-        #kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_STARTED
-        #kwargs['generated_report'].task_progress = progress
-        #kwargs['generated_report'].save()
+        print "Working on saving"
+        kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_STARTED
+        kwargs['generated_report'].task_progress = progress
+        kwargs['generated_report'].save()
 
     def _run_ondemand(self, *args, **kwargs):
         print "[Ondemand args] %s" % str(args)
@@ -160,6 +165,8 @@ class PrintedReport(Task):
         # Once the PK is set, we can get the filename for the report
         kwargs['generated_report'].filename = self.get_filename(kwargs, variant[1], rformat)
         kwargs['generated_report'].save()
+
+        self._kwargs = kwargs
 
         # Generate the report
         self.generate(kwargs['time_period'],

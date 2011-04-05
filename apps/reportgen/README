@@ -2,6 +2,13 @@
 = reportgen App =
 =================
 
+== Requirements ==
+Celery >= 2.2.5
+django-celery >= 2.2.4
+RabbitMQ >= 1.7.2
+
+== Introduction ==
+
 Goal: Replace ChildCount "reporting framework"
 and separate the reporting code from the main
 ChildCount code.
