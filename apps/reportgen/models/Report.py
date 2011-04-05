@@ -27,11 +27,8 @@ class Report(models.Model):
 
     def get_definition(self):
         m = __import__(\
-                ''.join(['reportgen.tasks.', self.classname]),
+                ''.join(['reportgen.definitions.', self.classname]),
                 globals(), locals(), ['ReportDefinition'], -1)
-        # We need to force a reload to destroy objects
-        # referenced by ReportDefinition
-        reload(m)
         return m.ReportDefinition
 
 

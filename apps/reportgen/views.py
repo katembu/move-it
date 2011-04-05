@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
+
+from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 
@@ -63,6 +66,23 @@ def ondemand(request):
         args['time_period'] = period_type\
             .periods()[int(request.POST['period_index'])]
 
+        if args['rformat'] not in d.formats:
+            raise ValueError('Invalid report format')
+
+        gr = GeneratedReport()
+        gr.filename = ''
+        gr.title = d.title
+        gr.report = report
+        gr.fileformat = args['rformat']
+        gr.period_title = args['time_period'].title
+        gr.task_progress = 0
+        gr.task_state = GeneratedReport.TASK_STATE_PENDING
+        gr.started_at = datetime.now()
+        gr.save()
+
+        args['generated_report'] = gr
+
+        print args
         r = d.apply_async(kwargs=args)
         print r
         data['msg'] = _('Report generation started!')

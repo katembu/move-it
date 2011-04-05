@@ -14,8 +14,9 @@ from ccdoc import Document, Table, Paragraph, Text, Section
 
 from logger_ng.models import LoggedMessage
 
-from childcount.models import Patient, DeadPerson, Encounter
 from reportgen.utils import render_doc_to_file
+
+from childcount.models import Patient, DeadPerson, Encounter
 from childcount.models.reports import (BirthReport, FollowUpReport,
                                    HouseholdVisitReport, DeathReport,
                                    MedicineGivenReport, PregnancyReport,

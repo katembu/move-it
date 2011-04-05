@@ -81,6 +81,10 @@ class GeneratedReport(models.Model):
             self.filename != ''
 
     @property
+    def is_failed(self):
+        return self.task_state == self.TASK_STATE_FAILED
+
+    @property
     def is_running(self):
         return self.task_state == self.TASK_STATE_STARTED
 

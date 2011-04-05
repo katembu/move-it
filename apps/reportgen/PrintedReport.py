@@ -59,36 +59,38 @@ class PrintedReport(Task):
     track_started = True
     abstract = True
     def run(self, *args, **kwargs):
+        print "Args: %s" % str(args)
+        print "Kwargs: %s" % str(kwargs)
+
         self._check_sanity()
 
         if 'nightly' not in kwargs:
             raise ValueError(_('No nightly value passed in'))
 
-        # nightly should be None or a NightlyReport object
-        self._nightly = kwargs['nightly']
-
         # get Report object for this report
         try:
-            self._report = Report.objects.get(classname=self.classname)
+            kwargs['report'] = Report.objects.get(classname=self.classname)
         except Report.DoesNotExist:
             raise DBConfigurationError(_("Could not find DB record "\
                 "for a report with classname %s" % self.classname))
 
-        self._time_period = kwargs.get('time_period')
-        if self._time_period is None:
+        if 'time_period' not in kwargs:
             raise ValueError(_('No time period value passed in'))
 
-        if self._nightly is None:
+        if kwargs['nightly'] is None:
             print "Running ondemand"
-            self.run = self._run_ondemand
-            self._dir = ONDEMAND_DIR
+            kwargs['run'] = self._run_ondemand
+            kwargs['dir'] = ONDEMAND_DIR
             self._run_ondemand(*args, **kwargs)
         else:
             print "Running nightly (%s)" % self.formats
-            self._dir = NIGHTLY_DIR
+            kwargs['dir'] = NIGHTLY_DIR
             self._run_nightly(*args, **kwargs)
 
     def _run_nightly(self, *args, **kwargs):
+        print "[Nightly args] %s" % str(args)
+        print "[Nightly kwargs] %s" % str(kwargs)
+
         # Run report for all formats
         # ...and all variants
 
@@ -97,21 +99,21 @@ class PrintedReport(Task):
             print "Running format %s" % rformat
             if len(self.variants) == 0:
                 print "Finished only variant"
-                print "FP: %s" % self.get_filepath(None, rformat)
-                self.generate(self._time_period,
+                print "FP: %s" % self.get_filepath(kwargs, None, rformat)
+                self.generate(kwargs['time_period'],
                     rformat,
                     self.title,
-                    self.get_filepath(None, rformat),
+                    self.get_filepath(kwargs, None, rformat),
                     {})
                 continue
             print "midloop"
 
             for variant in self.variants:
                 print variant
-                self.generate(self._time_period,
+                self.generate(kwargs['time_period'],
                     rformat,
                     self.title + variant[0],
-                    self.get_filepath(variant[1], rformat),
+                    self.get_filepath(kwargs, variant[1], rformat),
                     variant[2])
 
     def _check_sanity(self):
@@ -124,18 +126,20 @@ class PrintedReport(Task):
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
  
-    _generated_report = None
     def set_progress(self, progress):
-        print "> Progress %d%%" % progress
+        print "> Progress %d%% (at %s)" % (progress, datetime.now())
+        print "PROGRESS IS DISABLED"
 
         # Don't need status updates for nightly report
-        if self._nightly: return
+        #if kwargs['nightly']: return
 
-        self._generated_report.task_state = GeneratedReport.TASK_STATE_STARTED
-        self._generated_report.task_progress = progress
-        self._generated_report.save()
+        #kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_STARTED
+        #kwargs['generated_report'].task_progress = progress
+        #kwargs['generated_report'].save()
 
     def _run_ondemand(self, *args, **kwargs):
+        print "[Ondemand args] %s" % str(args)
+        print "[Ondemand kwargs] %s" % str(kwargs)
         # Run report for a single format and
         # a single variant for a single time
         # period
@@ -153,66 +157,55 @@ class PrintedReport(Task):
             variant = ('', None, {})
 
         this_data = variant[2]
-   
-        # Create GeneratedReport record
-        # and set to self._generated_report
-        gr = GeneratedReport()
-        gr.filename = ''
-        gr.title = self.title
-        gr.report = self._report
-        gr.fileformat = rformat
-        gr.period_title = self._time_period.title
-        gr.variant_title = variant[0]
-        gr.task_progress = 0
-        gr.task_state = GeneratedReport.TASK_STATE_PENDING
-        gr.started_at = datetime.now()
-        gr.save()
-
-        # Once the PK is set, we can get the filename for 
-        # the report
-        self._generated_report = gr
-        gr.filename = self.get_filename(variant[1], rformat)
-        gr.save()
+        # Once the PK is set, we can get the filename for the report
+        kwargs['generated_report'].filename = self.get_filename(kwargs, variant[1], rformat)
+        kwargs['generated_report'].save()
 
         # Generate the report
-        self.generate(self._time_period,
+        self.generate(kwargs['time_period'],
                     rformat,
                     self.title + variant[0],
-                    self.get_filepath(variant[1], rformat),
+                    self.get_filepath(kwargs, variant[1], rformat),
                     this_data)
 
     def on_success(self, retval, task_id, args, kwargs):
-        if not self._generated_report: return
+        if not kwargs['generated_report']:
+            print "Couldn't find generated report record"
+            return
 
-        self._generated_report.finished_at = datetime.now()
-        self._generated_report.task_state = GeneratedReport.TASK_STATE_SUCCEEDED
-        self._generated_report.task_progress = 100
+        kwargs['generated_report'].finished_at = datetime.now()
+        kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_SUCCEEDED
+        kwargs['generated_report'].task_progress = 100
         print "SUCCESS!!!"
-        self._generated_report.save()
+        kwargs['generated_report'].save()
         
     def on_failure(self, exc, task_id, args, kwargs, einfo=None):
         print "FAILED!!!"
+        print einfo
 
-        if not self._generated_report: return 
-        self._generated_report.finished_at = datetime.now()
-        self._generated_report.task_state = GeneratedReport.TASK_STATE_FAILED
-        self._generated_report.task_progress = 0
+        print "Failed kwargs: (%s)" % (str(kwargs))
+        if not kwargs.get('generated_report'):
+            print "No generated report found"
+            return 
+        kwargs['generated_report'].finished_at = datetime.now()
+        kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_FAILED
+        kwargs['generated_report'].task_progress = 0
         
         if einfo is not None:
-            self._generated_report.error_message = einfo.traceback
-        self._generated_report.save()
+            kwargs['generated_report'].error_message = einfo.traceback
+        kwargs['generated_report'].save()
         
-    def get_filename(self, suffix, rformat):
-        if self._nightly: 
-            return self._nightly.get_filename(suffix, rformat)
+    def get_filename(self, kwargs, suffix, rformat):
+        if kwargs['nightly']: 
+            return kwargs['nightly'].get_filename(suffix, rformat)
         else:
-            return self._generated_report.get_filename(suffix, rformat)
+            return kwargs['generated_report'].get_filename(suffix, rformat)
 
-    def get_filepath(self, suffix, rformat):
-        if self._nightly: 
-            return self._nightly.get_filepath(suffix, rformat)
+    def get_filepath(self, kwargs, suffix, rformat):
+        if kwargs['nightly']: 
+            return kwargs['nightly'].get_filepath(suffix, rformat)
         else:
-            return self._generated_report.get_filepath(suffix, rformat)
+            return kwargs['generated_report'].get_filepath(suffix, rformat)
 
 class DBConfigurationError(Exception):
     pass

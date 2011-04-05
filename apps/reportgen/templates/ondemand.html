@@ -1,6 +1,26 @@
 {% extends "frame.html" %}
 {% block center %}
 
+<style type="text/css">
+    tr.error_row {
+        border-top:0;
+        margin:0;
+        padding:0;
+    }
+    tr.error_row td {
+        border-top:0;
+        margin:0;
+        padding:0;
+    }
+
+    tr.error_row td pre {
+        margin: 0;
+        display: none;
+        padding: 1em;
+        border: 2px solid red;
+    }
+</style>
+
 <script>
 {% autoescape off %}
 var data = {{ data }};
@@ -110,6 +130,12 @@ function init() {
     }
     $("#report").change(set_report);
     $("#period_type").change(set_dates);
+
+    $("a.err_link").click(toggle_text);
+}
+
+function toggle_text(evt) { 
+    $("#error_"+evt.target.id.substring(5)).slideToggle(500);
 }
 
 $(document).ready(init);
@@ -156,13 +182,26 @@ $(document).ready(init);
         <td>{{ rep.title }}</td>
         <td>{{ rep.variant_title|default:"--" }}</td>
         <td>{{ rep.period_title }}</td>
-        <td>{{ rep.task_state_str }}
+        <td>
+            {% if rep.is_failed %}
+            <a href="#" class="err_link" id="link_{{ rep.pk }}" onclick="return false">{{ rep.task_state_str }}</a>
+            {% else %}
+            {{ rep.task_state_str }}
             {% if rep.is_running %}
                 <strong>({{ rep.task_progress }}%)</strong>
-            {% endif %}</td>
+            {% endif %}
+            {% endif %}
+        </td>
         <td>{% if rep.is_finished %}{{ rep.finished_at|date:"d-M-Y" }} at 
             {{ rep.finished_at|date:"H:i" }}{% endif %}</td>
     </tr>
+    {% if rep.is_failed %}
+    <tr class="error_row" style="border-top:0;margin:0;padding:0">
+        <td colspan="6" style="border-top:0;margin:0;padding:0;">
+            <pre id="error_{{ rep.pk }}" style="margin:0;display:none;">{{ rep.error_message }}</pre>
+        </td>
+    </tr>
+    {% endif %}
     {% endfor %}
 </table>
 {% endblock %}

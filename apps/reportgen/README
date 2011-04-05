@@ -1,0 +1,36 @@
+=================
+= reportgen App =
+=================
+
+Goal: Replace ChildCount "reporting framework"
+and separate the reporting code from the main
+ChildCount code.
+
+== Pages ==
+
+Nightly Reports
+- List of all reports (with links) that are
+  generated overnight. 
+- Should list the time at which each report
+  was generated.
+
+Generated Reports
+- List of reports in reverse chronological order
+  that have already been generated (with links)
+
+Settings
+- Add/remove/modify NightlyReports
+
+== Tasks ==
+nightly_reports
+- Same as childcount.tasks.gen_framework_nightly_reports
+- Loop through all NightlyReports and generates
+  the reports for all variants and formats for
+  the selected period
+
+purge_reports
+- Wipe out generated reports that are more than X days old
+
+== PrintedReport API ==
+
+
