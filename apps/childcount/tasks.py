@@ -44,6 +44,10 @@ def weekly_immunization_reminder():
 
     # send an sms to each CHW
     for chw, imms in chws:
+
+        # change to CHW language
+        activate(chw.language)
+
         msg = []
 
         # group notifications by immunization types
@@ -87,6 +91,10 @@ def daily_fever_reminder():
     current_reporter = None
     data = {}
     for report in frs:
+
+        # change to CHW language
+        activate(report.encounter.chw.language)
+
         if not current_reporter or current_reporter != report.encounter.chw:
             current_reporter = report.encounter.chw
             data[current_reporter] = []
@@ -125,6 +133,10 @@ def weekly_muac_reminder():
         data[chw] = reminder_list
 
     for chw in data:
+
+        # change to CHW language
+        activate(chw.language)
+
         p_list = data.get(chw)
         x = 0
         y = 20
@@ -171,6 +183,10 @@ def weekly_initial_anc_visit_reminder():
             alert_list[patient.chw].append(patient)
 
     for chw in  alert_list:
+
+        # change to CHW language
+        activate(chw.language)
+
         chw_list = alert_list.get(chw)
         w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
                                 for p in chw_list])
@@ -208,6 +224,10 @@ def weekly_anc_visit_reminder():
             alert_list[patient.chw].append(patient)
 
     for chw in  alert_list:
+
+        # change to CHW language
+        activate(chw.language)
+
         chw_list = alert_list.get(chw)
         w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
                                 for p in chw_list])
@@ -258,6 +278,10 @@ def appointment_reminders():
                             encounter__patient__status=Patient.STATUS_ACTIVE, \
                             status=AppointmentReport.STATUS_OPEN)
     for apt in apts:
+
+        # change to CHW language
+        activate(apt.encounter.patient.chw.language)
+
         msg = _(u"Please send %(patient)s to the health center for their" \
                     " appointment on %(apt_date)s") % {
                     'patient': apt.encounter.patient, \
@@ -316,6 +340,10 @@ def appointment_defaulter_reminders():
                             encounter__patient__status=Patient.STATUS_ACTIVE, \
                             status=AppointmentReport.STATUS_OPEN)
     for apt in apts:
+
+        # change to CHW language
+        activate(apt.encounter.patient.chw.language)
+
         msg = _(u"Please send %(patient)s to the health center on for their" \
                     " failed appointment on %(apt_date)s") % {
                     'patient': apt.encounter.patient, \
