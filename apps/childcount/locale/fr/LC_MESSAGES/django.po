@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-07 08:21+0000\n"
-"PO-Revision-Date: 2011-03-07 08:22-0000\n"
+"POT-Creation-Date: 2011-04-06 16:06+0000\n"
+"PO-Revision-Date: 2011-04-06 16:07-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -220,27 +220,27 @@ msgstr "ECHEC. Non valide."
 msgid "There is no patient with                 health ID %(hid)s"
 msgstr "Pas de patient avec no. de santé %(hid)s"
 
-#: tasks.py:138
+#: tasks.py:146
 #, python-format
 msgid "The following clients are due for +M: %(ids)s"
 msgstr "Les patients suivants requièrent un +M: %(ids)s"
 
-#: tasks.py:177
+#: tasks.py:189
 #, python-format
 msgid "Remind the following to go for their first clinic visit %(list)s."
 msgstr "Rappeler ceux qui suit d'aller faire leur première consultation %(list)s."
 
-#: tasks.py:214
+#: tasks.py:230
 #, python-format
 msgid "Remind the following to go for a clinic visit %(list)s."
 msgstr "Rappeler ceux qui suit d'aller faire leur consultation %(list)s."
 
-#: tasks.py:261
+#: tasks.py:281
 #, python-format
 msgid "Please send %(patient)s to the health center for their appointment on %(apt_date)s"
 msgstr "Veuillez envoyer %(patient)s vers un centre médical pour son rendez-vous du %(apt_date)s"
 
-#: tasks.py:319
+#: tasks.py:343
 #, python-format
 msgid "Please send %(patient)s to the health center on for their failed appointment on %(apt_date)s"
 msgstr "Veuillez envoyer %(patient)s vers un centre médical pour son rendez-vous manqué du %(apt_date)s"
@@ -2169,7 +2169,7 @@ msgstr "dr"
 #: models/CodedItem.py:31
 #: models/CodedItem.py:81
 msgid "fp"
-msgstr "fp"
+msgstr "pf"
 
 #: models/CodedItem.py:31
 msgid "Fever in first trimester"
@@ -2389,7 +2389,7 @@ msgstr "Stérilisation"
 
 #: models/CodedItem.py:64
 msgid "am"
-msgstr "am"
+msgstr "ap"
 
 #: models/CodedItem.py:64
 msgid "Anti-malarial"
@@ -2473,7 +2473,7 @@ msgstr "Plan de grossesse"
 
 #: models/CodedItem.py:78
 msgid "bf"
-msgstr "bf"
+msgstr "al"
 
 #: models/CodedItem.py:78
 msgid "Breast-feeding"
@@ -2481,7 +2481,7 @@ msgstr "Allaitement maternel"
 
 #: models/CodedItem.py:79
 msgid "bn"
-msgstr "bn"
+msgstr "mi"
 
 #: models/CodedItem.py:79
 msgid "Bednet"
@@ -2522,7 +2522,7 @@ msgstr "Santé publique"
 
 #: models/CodedItem.py:85
 msgid "im"
-msgstr "im"
+msgstr "va"
 
 #: models/CodedItem.py:85
 msgid "Immunisations"
@@ -2643,13 +2643,13 @@ msgstr "Quand le registre du patient a été créé"
 
 #: models/DeadPerson.py:48
 #: models/Patient.py:61
-#: reports/definitions/RegisteredPatient.py:56
+#: reports/definitions/RegisteredPatient.py:53
 msgid "First name"
 msgstr "Prénom"
 
 #: models/DeadPerson.py:49
 #: models/Patient.py:62
-#: reports/definitions/RegisteredPatient.py:55
+#: reports/definitions/RegisteredPatient.py:52
 msgid "Last name"
 msgstr "Nom de famille"
 
@@ -2661,7 +2661,7 @@ msgstr "Nom de famille ou prénom"
 #: models/DeadPerson.py:51
 #: models/Patient.py:64
 #: reports/definitions/ClientReport.py:242
-#: reports/definitions/RegisteredPatient.py:60
+#: reports/definitions/RegisteredPatient.py:57
 msgid "Gender"
 msgstr "Genre"
 
@@ -2773,7 +2773,7 @@ msgstr "Nom"
 #: reports/definitions/ClientReport.py:243
 #: reports/definitions/ClientReport.py:420
 #: reports/definitions/ClientReport.py:545
-#: reports/definitions/RegisteredPatient.py:59
+#: reports/definitions/RegisteredPatient.py:56
 #: templates/childcount/forms/a.json:10
 #: templates/childcount/forms/d.json:8
 msgid "Age"
@@ -2810,7 +2810,7 @@ msgstr "Date de consultation"
 #: reports/pmtct.py:316
 #: reports/pmtct.py:346
 #: reports/pmtct.py:376
-#: reports/definitions/RegisteredPatient.py:58
+#: reports/definitions/RegisteredPatient.py:55
 #: templates/childcount/patient.html:44
 msgid "CHW"
 msgstr "ASC"
@@ -2970,7 +2970,7 @@ msgid "Period type"
 msgstr "Type de période"
 
 #: models/ImmunizationSchedule.py:34
-#: models/ImmunizationSchedule.py:54
+#: models/ImmunizationSchedule.py:55
 msgid "Immunization"
 msgstr "Vaccinations"
 
@@ -2978,24 +2978,29 @@ msgstr "Vaccinations"
 msgid "Name of the immunization"
 msgstr "Nom du vaccin"
 
-#: models/ImmunizationSchedule.py:48
+#: models/ImmunizationSchedule.py:38
+#, python-format
+msgid "After %(period_nb)s %(period_type)s: %(immun)s"
+msgstr "Après %(period_nb)s %(period_type)s: %(immun)s"
+
+#: models/ImmunizationSchedule.py:49
 msgid "Immunization Notification"
 msgstr "Déclaration de vaccination"
 
-#: models/ImmunizationSchedule.py:49
+#: models/ImmunizationSchedule.py:50
 msgid "Immunization Notifications"
 msgstr "Déclarations de vaccinations"
 
-#: models/ImmunizationSchedule.py:55
+#: models/ImmunizationSchedule.py:56
 msgid "Notify on"
 msgstr "A signaler le"
 
-#: models/ImmunizationSchedule.py:56
+#: models/ImmunizationSchedule.py:57
 msgid "When to notify"
 msgstr "Quand signaler"
 
-#: models/ImmunizationSchedule.py:57
 #: models/ImmunizationSchedule.py:58
+#: models/ImmunizationSchedule.py:59
 msgid "Notified on"
 msgstr "Signalé le"
 
@@ -3067,7 +3072,7 @@ msgstr "Dernier PB"
 
 #: models/ccreports.py:312
 #: models/ccreports.py:334
-#: reports/definitions/RegisteredPatient.py:53
+#: reports/definitions/RegisteredPatient.py:50
 #: reports/definitions/patients_toolbox.py:15
 msgid "HID"
 msgstr "HID"
@@ -4779,6 +4784,7 @@ msgid "HH Health ID"
 msgstr "No. de santé du ménage"
 
 #: reports/definitions/HoHHList.py:17
+#: reports/definitions/HoHHList_tiby.py:29
 msgid "House holds list"
 msgstr "Liste des ménages"
 
@@ -5081,12 +5087,12 @@ msgstr "Médiane"
 msgid "Registered Patients"
 msgstr "Patients enregistrés"
 
-#: reports/definitions/RegisteredPatient.py:54
+#: reports/definitions/RegisteredPatient.py:51
 #: reports/definitions/patients_toolbox.py:20
 msgid "HoHH"
 msgstr "CdMenage"
 
-#: reports/definitions/RegisteredPatient.py:57
+#: reports/definitions/RegisteredPatient.py:54
 #: reports/definitions/patients_toolbox.py:21
 msgid "Village"
 msgstr "Village"
@@ -5257,6 +5263,7 @@ msgid "Sex"
 msgstr "Sexe"
 
 #: templates/childcount/add_chw.html:4
+#: templates/childcount/list_chw.html:15
 msgid "Add CHW"
 msgstr "Ajouter ASC"
 
@@ -5351,11 +5358,17 @@ msgstr "Message :"
 msgid "Response Log"
 msgstr "Messages reçus"
 
+#: templates/childcount/edit_number.html:5
 #: templates/childcount/edit_patient.html:17
 #: templates/childcount/edit_patient.html:23
 #: templates/childcount/dashboard_sections/nav_links.html:7
 msgid "Edit Patient"
 msgstr "Modifier un patient"
+
+#: templates/childcount/edit_number.html:29
+#: templates/childcount/edit_patient.html:58
+msgid "Save"
+msgstr "Enregistrer"
 
 #: templates/childcount/edit_patient.html:28
 msgid "Edit Another Patient (Make sure to save before clicking here)"
@@ -5389,10 +5402,6 @@ msgstr "Modifier"
 #: templates/childcount/edit_patient.html:49
 msgid "again"
 msgstr "encore"
-
-#: templates/childcount/edit_patient.html:58
-msgid "Save"
-msgstr "Enregistrer"
 
 #: templates/childcount/index.html:122
 msgid "No. Of Households"
