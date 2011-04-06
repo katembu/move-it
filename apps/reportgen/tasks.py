@@ -1,7 +1,7 @@
 from celery.decorators import periodic_task
 from celery.task.schedules import crontab
 
-from reportgen.models import NightlyReport
+from reportgen.models import NightlyReport, Report
 
 # This is one big task now... we need
 # to somehow split it up
@@ -85,4 +85,7 @@ def nightly_reports():
     print ">> Done <<"
     return results
 
-
+def ondemand_report(report_pk, kwargs):
+    r = Report.objects.get(pk=report_pk)
+    report_def = r.get_definition()
+    return report_def.apply_async(kwargs=kwargs)

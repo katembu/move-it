@@ -4,8 +4,6 @@
 
 from datetime import datetime
 
-import djcelery.views as dj_views
-
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
@@ -20,6 +18,8 @@ from reportgen.utils import nightly_report_data
 from reportgen.utils import ondemand_json_obj
 
 from reportgen.timeperiods import period_type_for
+
+from reportgen import tasks
 
 PAGES = (
     {'name': _('Report Generation'), \
@@ -91,7 +91,7 @@ def _process_gen(request):
 
     print args
     request.POST = args
-    r = dj_views.apply(request, d.name)
+    r = tasks.ondemand_report(gr.report.pk, args)
     #r = d.apply_async(kwargs=args)
     print r
     data['msg'] = _('Report generation started!')
