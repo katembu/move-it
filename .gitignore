@@ -70,9 +70,6 @@ settings.py
 # dev
 *.sqlite
 
-#reports
-apps/childcount/rpts
-
 #celery
 celerybeat-schedule
 
