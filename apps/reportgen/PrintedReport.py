@@ -176,7 +176,7 @@ class PrintedReport(Task):
                     this_data)
 
     def on_success(self, retval, task_id, args, kwargs):
-        if not kwargs['generated_report']:
+        if 'generated_report' not in kwargs:
             print "Couldn't find generated report record"
             return
 
