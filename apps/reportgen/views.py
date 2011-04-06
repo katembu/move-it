@@ -4,6 +4,8 @@
 
 from datetime import datetime
 
+import djcelery.views as dj_views
+
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
@@ -88,7 +90,9 @@ def _process_gen(request):
     args['generated_report'] = gr
 
     print args
-    r = d.apply_async(kwargs=args)
+    request.POST = args
+    r = dj_views.apply(request, d.name)
+    #r = d.apply_async(kwargs=args)
     print r
     data['msg'] = _('Report generation started!')
     return HttpResponseRedirect('/reportgen/ondemand/')
