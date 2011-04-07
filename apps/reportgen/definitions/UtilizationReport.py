@@ -77,12 +77,11 @@ def textify_list(cells):
 class ReportDefinition(PrintedReport):
     title = 'Utilization Report'
     filename = 'UtilizationReport'
-    classname = 'UtilizationReport'
     formats = ['html', 'pdf', 'xls']
     argvs = []
-    #variants = [('First','_first', {}),
-    #    ('Second', '_second', {})]
-    variants = []
+    variants = [('First','_first', {}),
+        ('Second', '_second', {})]
+    #variants = []
     def generate(self, time_period, rformat, title, filepath, data):
         """ Display a statistic per month about:
 

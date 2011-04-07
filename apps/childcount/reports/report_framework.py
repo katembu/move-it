@@ -5,7 +5,7 @@
 import shutil
 
 from celery.task import Task
-from celery.task.schedules import crontab
+from celery.schedules import crontab
 
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponseNotFound

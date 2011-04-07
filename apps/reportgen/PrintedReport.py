@@ -2,19 +2,18 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
+import os.path
 import shutil
+import inspect
 from datetime import datetime
 
 from celery.task import Task
-from celery.task.schedules import crontab
+from celery.schedules import crontab
 
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
-from reportgen.models import Report, GeneratedReport
-
-NIGHTLY_DIR = 'nightly'
-ONDEMAND_DIR = 'ondemand'
+from reportgen.models import Report, GeneratedReport, NightlyReport
 
 # CREATING A NEW REPORT:
 # 1) Subclass PrintedReport to create a new nightly
@@ -29,19 +28,20 @@ class PrintedReport(Task):
     title = None
     # Filename alphanumeric, underscore, and hyphen are ok
     filename = None
-    # Name of the file where this report is defined (e.g., Operational
-    # if the file is Operational.py)
-    classname = None
     # A list of file formats to use, e.g., ['pdf','html','xls']
     formats = []
 
+    # A list of report variants
+    # For example, you might have a patient register
+    # for Bugongi and Ruhiira health centers: 
     variants = [
         #(title_suffix, fn_suffix, variant_data)
 
-        # For example, you might have a patient register
-        # for Bugongi and Ruhiira health centers: 
         #(' Bugongi HC', '_BG', {'clinic_id': 13}),
         #(' Ruhiira HC', '_RH', {'clinic_id': 15}).
+
+        # Neither the title nor filename suffixes can be 
+        # the empty string ""
     ]
 
     # You should implement the generate method in a report
@@ -58,11 +58,18 @@ class PrintedReport(Task):
 
     track_started = True
     abstract = True
+
+    # Name of the file where this report is defined (e.g., Operational
+    # if the file is Operational.py)
+    @property
+    def classname(self):
+        return os.path.basename(inspect.getfile(self.generate))[0:-3]
+
     def run(self, *args, **kwargs):
         print "Args: %s" % str(args)
         print "Kwargs: %s" % str(kwargs)
 
-        self._check_sanity()
+        self.check_sanity()
 
         if 'nightly' not in kwargs:
             raise ValueError(_('No nightly value passed in'))
@@ -80,11 +87,11 @@ class PrintedReport(Task):
         if kwargs['nightly'] is None:
             print "Running ondemand"
             kwargs['run'] = self._run_ondemand
-            kwargs['dir'] = ONDEMAND_DIR
+            kwargs['dir'] = GeneratedReport.GENERATED_DIR
             self._run_ondemand(*args, **kwargs)
         else:
             print "Running nightly (%s)" % self.formats
-            kwargs['dir'] = NIGHTLY_DIR
+            kwargs['dir'] = NightlyReport.NIGHTLY_DIR
             self._run_nightly(*args, **kwargs)
 
     def _run_nightly(self, *args, **kwargs):
@@ -118,7 +125,7 @@ class PrintedReport(Task):
                     self.get_filepath(kwargs, variant[1], rformat),
                     variant[2])
 
-    def _check_sanity(self):
+    def check_sanity(self):
         if len(self.formats) == 0:
             raise ValueError(\
                 _(u'This report has no formats specified.'))
@@ -127,7 +134,16 @@ class PrintedReport(Task):
                 or len(self.title) == 0 or len(self.filename) == 0:
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
+
+        for v in self.variants:
+            if len(v[0]) == 0:
+                raise ValueError(\
+                    _("Report variant title cannot be empty"))
  
+            if len(v[1]) == 0:
+                raise ValueError(\
+                    _("Report variant filename cannot be empty"))
+
     def set_progress(self, progress):
         kwargs = self._kwargs
 

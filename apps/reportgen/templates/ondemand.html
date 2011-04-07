@@ -2,6 +2,13 @@
 {% block center %}
 
 <style type="text/css">
+    span.in_progress {
+        color: #999;
+    }
+
+    a.finished {
+    }
+
     tr.error_row {
         border-top:0;
         margin:0;
@@ -179,7 +186,9 @@ $(document).ready(init);
     {% for rep in gen %}
     <tr>
         <td>{% if rep.is_finished %}
-            <a href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            <a class="finished" href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            {% else %}
+            <span class="in_progress">{{ rep.fileformat.upper }}</span>
             {% endif %}</td>
         <td>{{ rep.title }}</td>
         <td>{{ rep.variant_title|default:"--" }}</td>

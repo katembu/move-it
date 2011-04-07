@@ -6,14 +6,13 @@ import os.path
 from datetime import datetime
 
 from django.db import models, IntegrityError
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, pre_delete
 from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PERIOD_CHOICES, PERIOD_TYPES
 
-NIGHTLY_REPORTS_DIR = 'nightly'
-
 class NightlyReport(models.Model):
+    NIGHTLY_DIR = 'nightly'
 
     class Meta:
         app_label = 'reportgen'
@@ -72,9 +71,24 @@ class NightlyReport(models.Model):
             os.path.dirname(__file__),\
             '..',\
             'static',\
-            NIGHTLY_REPORTS_DIR,\
+            self.NIGHTLY_DIR,\
             self.get_filename(variant, rformat))
-    
+
+    def get_filepaths(self):
+        ps = []
+        d = self.report.get_definition()
+
+        # Get all report variant filename suffixes
+        variants = [v[1] for v in d.variants]
+        if len(variants) == 0:
+            variants = [None]
+
+        # Loop through all report filepaths
+        for v in variants:
+            for r in d.formats:
+                ps.append(self.get_filepath(v,r))
+        return ps
+
     def finished_at(self, variant, rformat):
         fname = self.get_filepath(variant, rformat)
         if not os.path.exists(fname):
@@ -92,8 +106,28 @@ def validate_nightly_report(sender, **kwargs):
                     'n': pt.n_periods, \
                     'm': rep.time_period_index})
 
+def delete_files(sender, **kwargs):
+    nr = kwargs['instance']
+    ps = nr.get_filepaths()
+    print "All files |%s|" % ps
+    for p in ps:
+        if os.path.exists(p):
+            print "Unlinking <%s>" % p
+            os.unlink(p)
+        else:
+            print "Can't find <%s>" % p
+    return True
+
 # Tell Django to run the custom validation logic
 # on the NightlyReport before saving it
 pre_save.connect(validate_nightly_report, \
     dispatch_uid='validate_nightly_report',
+    weak=False,
+    sender=NightlyReport)
+
+# Delete generated report files when you 
+# delete this report from the DB
+pre_delete.connect(delete_files,\
+    dispatch_uid='delete_files',
+    weak=False,
     sender=NightlyReport)

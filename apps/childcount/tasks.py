@@ -11,7 +11,7 @@ from dateutil import relativedelta
 from datetime import date, timedelta, datetime, time
 
 from celery.decorators import periodic_task
-from celery.task.schedules import crontab
+from celery.schedules import crontab
 
 from childcount.models import ImmunizationSchedule, ImmunizationNotification
 from childcount.models import Patient, CHW

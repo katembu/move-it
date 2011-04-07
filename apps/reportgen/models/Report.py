@@ -29,6 +29,7 @@ class Report(models.Model):
         m = __import__(\
                 ''.join(['reportgen.definitions.', self.classname]),
                 globals(), locals(), ['ReportDefinition'], -1)
+        test = m.ReportDefinition().check_sanity()
         return m.ReportDefinition
 
 
@@ -66,5 +67,6 @@ def validate_report(sender, **kwargs):
 # on the Report before saving it
 pre_save.connect(validate_report, \
     dispatch_uid='validate_report',
+    weak=False,
     sender=Report)
 

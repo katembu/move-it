@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
+import os
 import os.path
 
 from django.db import models
+from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext as _
 
-GENERATED_REPORTS_DIR = 'ondemand'
-
 class GeneratedReport(models.Model):
+    GENERATED_DIR = 'ondemand'
+
     TASK_STATE_PENDING  = 1
     TASK_STATE_STARTED  = 2
     TASK_STATE_RETRYING = 3
@@ -100,6 +102,30 @@ class GeneratedReport(models.Model):
             os.path.dirname(__file__),\
             '..',\
             'static',\
-            GENERATED_REPORTS_DIR,\
+            self.GENERATED_DIR,\
             self.get_filename(variant, rformat))
+
+def delete_report(sender, **kwargs):
+    gr = kwargs['instance']
+    if gr.filename == '':
+        return True
+    fn = os.path.join(\
+            os.path.dirname(__file__),\
+            '..',\
+            'static',\
+            gr.GENERATED_DIR,\
+            gr.filename)
+    print "Looking for <%s>" % fn
+    if os.path.exists(fn):
+        print "Deleting <%s>" % fn
+        os.unlink(fn)
+    else:
+        print "no file found"
+
+    return True
+
+pre_delete.connect(delete_report,\
+    dispatch_uid='delete_report',
+    weak=False,
+    sender=GeneratedReport)
 
