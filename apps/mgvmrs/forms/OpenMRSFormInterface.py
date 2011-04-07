@@ -264,6 +264,11 @@ class OpenMRSFormInterface(object):
             value = eval("self." + field)
             form[field] = value
 
+        if self.patient___family_name == '':
+            nm = self.patient___given_name + ' ' + self.patient___middle_name
+            self.patient___family_name = nm.strip()
+            form['patient___family_name'] = nm.strip()
+
         tpl_dict = self.values
         tpl_dict.update(form)
 
