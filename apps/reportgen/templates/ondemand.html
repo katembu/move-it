@@ -37,6 +37,8 @@ var elms = [
 function count(eobj) {
     var c = 0;
     for(e in eobj) {
+        if(eobj[e] == "") continue;
+        if(e == "") continue;
         c++;
     }       
     return c;
