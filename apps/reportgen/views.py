@@ -19,8 +19,6 @@ from reportgen.utils import ondemand_json_obj
 
 from reportgen.timeperiods import period_type_for
 
-from reportgen import tasks
-
 PAGES = (
     {'name': _('Report Generation'), \
         'url': '/reportgen/', 'slug': 'index'},
@@ -90,9 +88,7 @@ def _process_gen(request):
     args['generated_report'] = gr
 
     print args
-    request.POST = args
-    r = tasks.ondemand_report(gr.report.pk, args)
-    #r = d.apply_async(kwargs=args)
+    r = d.apply_async(kwargs=args)
     print r
     data['msg'] = _('Report generation started!')
     return HttpResponseRedirect('/reportgen/ondemand/')

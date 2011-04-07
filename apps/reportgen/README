@@ -11,6 +11,11 @@ Carrot >= 0.10.7
 That you configure settings.py with
 all of the necessary CELERY_ flags
 
+== Steps to adding a new report ==
+1) Put definition in apps/reportgen/definitions
+2) Add report classname to apps/reportgen/definitions/__init__.py
+3) DB record
+
 == Introduction ==
 
 Goal: Replace ChildCount "reporting framework"

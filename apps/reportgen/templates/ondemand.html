@@ -76,9 +76,12 @@ function set_report() {
 
         // Populate new options
         $("#rformat").append("<option value=''>[File Type]</option>");
-        for(i in data['formats'][r.val()]) {
-            $("#rformat").append("<option value="+i+">" + 
-                data['formats'][r.val()][i]+"</option>");
+        
+        var s = sorted_keys(data['formats'][r.val()]);
+        for(i in s) {
+            var j = s[i];
+            $("#rformat").append("<option value="+j+">" + 
+                data['formats'][r.val()][j]+"</option>");
         }
         
         // Enable the report variant select box
@@ -90,9 +93,11 @@ function set_report() {
         } else {
             // Populate new options
             $("#variant").append("<option value=''>[Variant]</option>");
-            for(i in data['variants'][r.val()]) {
-                $("#variant").append("<option value="+i+">" + 
-                    data['variants'][r.val()][i]+"</option>");
+            var s = sorted_keys(data['variants'][r.val()]);
+            for(i in s) {
+                var j = s[i];
+                $("#variant").append("<option value="+j+">" + 
+                    data['variants'][r.val()][j]+"</option>");
             }
         }
     } else {
@@ -113,9 +118,11 @@ function set_dates() {
         $("#period").empty();
         
         $("#period").append("<option value=''>[Dates]</option>");
-            for(i in data['time_periods'][pt]) {
-                $("#period").append("<option value="+i+">" + 
-                    data['time_periods'][pt][i]+"</option>");
+            var s = sorted_keys(data['time_periods'][pt]);
+            for(i in s) {
+                var j = s[i];
+                $("#period").append("<option value="+j+">" + 
+                    data['time_periods'][pt][j]+"</option>");
             }
     } else {
         $("#period").attr('disabled', 'true');
@@ -125,14 +132,18 @@ function set_dates() {
 }
 
 function init() {
-    for(i in data['rpts']) {
-        $("#report").append("<option value="+i+">" + 
-            data['rpts'][i]+"</option>");
+    var s = sorted_keys(data['rpts']);
+    for(i in s) {
+        var j = s[i];
+        $("#report").append("<option value="+j+">" + 
+            data['rpts'][j]+"</option>");
     }
 
-    for(t in data['time_types']) {
-        $("#period_type").append("<option value="+t+">" + 
-            data['time_types'][t]+"</option>");
+    var s = sorted_keys(data['time_types']);
+    for(i in s) {
+        var j = s[i];
+        $("#period_type").append("<option value="+j+">" + 
+            data['time_types'][j]+"</option>");
     }
     for(e in elms) {
         $(elms[e]).change(check_finished);
@@ -141,6 +152,18 @@ function init() {
     $("#period_type").change(set_dates);
 
     $("a.err_link").click(toggle_text);
+}
+
+function sorted_keys(lst) {
+    var keys = [];
+    for(k in lst) {
+        keys.push(k);
+    }
+
+    keys.sort(function(a,b) {
+        return lst[a] > lst[b] ? 1 : -1;
+    });
+    return keys
 }
 
 function toggle_text(evt) { 

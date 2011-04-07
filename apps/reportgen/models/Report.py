@@ -29,7 +29,8 @@ class Report(models.Model):
         m = __import__(\
                 ''.join(['reportgen.definitions.', self.classname]),
                 globals(), locals(), ['ReportDefinition'], -1)
-        test = m.ReportDefinition().check_sanity()
+        t = m.ReportDefinition()
+        t.check_sanity()
         return m.ReportDefinition
 
 
