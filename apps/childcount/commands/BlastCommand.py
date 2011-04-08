@@ -12,7 +12,8 @@ from django.utils.translation import ugettext as _
 
 from reversion import revision
 from reversion.models import Revision, Version
-from childcount.models.ccreports import TheBHSurveyReport
+
+from childcount.models import CHW
 
 from childcount.commands import CCCommand
 from childcount.utils import authenticated
@@ -29,9 +30,11 @@ class BlastCommand(CCCommand):
 
     @authenticated
     def process(self):
+        print "Inside Blast Broadcaster"
         chw = self.message.persistant_connection.reporter.chw
         # TODO: limit reporters who can send this
         if self.params.__len__() > 1:
             msg = u' ' . join(self.params[1:])
+            print u"Got message %s." % msg
             for chw in CHW.objects.all():
                 send_msg(chw, msg)
