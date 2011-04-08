@@ -7,8 +7,13 @@ from reportgen.timeperiods.SubPeriod import SubPeriod
 from reportgen.timeperiods.definitions.FourWeeks import FourWeeks
 from reportgen.timeperiods.definitions.Month import Month
 from reportgen.timeperiods.definitions.TwelveMonths import TwelveMonths
+from reportgen.timeperiods.definitions.TwoMonths import TwoMonths
+from reportgen.timeperiods.definitions.FiveYears import FiveYears
+from reportgen.timeperiods.definitions.TwelveMonthsByQuarter \
+    import TwelveMonthsByQuarter
 
-PERIOD_TYPES = [FourWeeks, Month, TwelveMonths]
+PERIOD_TYPES = [FourWeeks, Month, TwelveMonths,\
+                TwelveMonthsByQuarter, TwoMonths, FiveYears]
 PERIOD_CHOICES = [(pt.code, "%s (0-%d)" % (pt.title, pt.n_periods-1)) \
                             for pt in PERIOD_TYPES]
 

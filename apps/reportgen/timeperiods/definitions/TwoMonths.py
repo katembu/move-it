@@ -8,11 +8,11 @@ from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PeriodType, Period, SubPeriod
 
-class TwelveMonths(PeriodType):
+class TwoMonths(PeriodType):
 
-    title       = _("12 Months (by Month)")
-    description = _("Twelve calendar months starting X months ago")
-    code        = 'TM'
+    title       = _("2 Months")
+    description = _("Two consecutive calendar months")
+    code        = '2M'
     n_periods   = 24
 
     @classmethod
@@ -25,32 +25,28 @@ class TwelveMonths(PeriodType):
         # Index == 0 means starting this month
         # Index == 1 means starting last month
 
-        # If we are in March, 12 month starts last April
-        # e.g., We go from April 1, 2010 to March 31, 2011
+        # First day of month X months ago
+        start_date = date.today() + relativedelta(day=1, months=-index)
 
-        # First day of next month, starting one year ago 
-        start_date = date.today() + \
-            relativedelta(day=1, months=1-index, years=-1)
-
-        # Last day of this month
-        end_date = start_date + relativedelta(years=1, days=-1)
+        # Last day of month after start month
+        end_date = start_date + relativedelta(months=2, days=-1)
       
         sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
-            for sub_index in xrange(0, 12)]
+            for sub_index in xrange(0, 2)]
 
-        title = _("%(start)s to %(end)s (Monthly)") % \
+        title = _("%(start)s and %(end)s") % \
             {'start': start_date.strftime("%b %Y"),
             'end': end_date.strftime("%b %Y")}
 
-        relative_title = _("12 months starting %(start)d months ago") % \
-                {'start': index+12}
+        relative_title = _("2 months starting %(start)d months ago") % \
+                {'start': index}
             
         return Period(title, relative_title, \
             start_date, end_date, sub_periods)
 
     @classmethod
-    def _monthly_subperiod(cls, period_start_date, index):
-        start_date = period_start_date + relativedelta(months=index, day=1)
+    def _monthly_subperiod(cls, period_start_date, sub_index):
+        start_date = period_start_date + relativedelta(months=sub_index,day=1)
         end_date = start_date + relativedelta(day=31)
 
         title = start_date.strftime("%b %Y")

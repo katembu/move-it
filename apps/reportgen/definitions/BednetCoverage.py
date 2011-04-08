@@ -28,7 +28,6 @@ from childcount.utils import RotatedParagraph
 from libreport.pdfreport import p
 from libreport.pdfreport import ScaledTable
 
-from childcount.reports.utils import report_filepath
 from reportgen.PrintedReport import PrintedReport
 
 styles = getSampleStyleSheet()

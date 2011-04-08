@@ -8,11 +8,11 @@ from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PeriodType, Period, SubPeriod
 
-class TwelveMonths(PeriodType):
+class TwelveMonthsByQuarter(PeriodType):
 
-    title       = _("12 Months (by Month)")
-    description = _("Twelve calendar months starting X months ago")
-    code        = 'TM'
+    title       = _("12 Months (by Quarter)")
+    description = _("Four quarters starting X months ago")
+    code        = 'TQ'
     n_periods   = 24
 
     @classmethod
@@ -35,10 +35,10 @@ class TwelveMonths(PeriodType):
         # Last day of this month
         end_date = start_date + relativedelta(years=1, days=-1)
       
-        sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
-            for sub_index in xrange(0, 12)]
+        sub_periods = [cls._quarterly_subperiod(start_date, sub_index) \
+            for sub_index in xrange(0, 4)]
 
-        title = _("%(start)s to %(end)s (Monthly)") % \
+        title = _("%(start)s to %(end)s (Quarterly)") % \
             {'start': start_date.strftime("%b %Y"),
             'end': end_date.strftime("%b %Y")}
 
@@ -49,14 +49,14 @@ class TwelveMonths(PeriodType):
             start_date, end_date, sub_periods)
 
     @classmethod
-    def _monthly_subperiod(cls, period_start_date, index):
-        start_date = period_start_date + relativedelta(months=index, day=1)
-        end_date = start_date + relativedelta(day=31)
+    def _quarterly_subperiod(cls, period_start_date, index):
+        start_date = period_start_date + relativedelta(months=3*index, day=1)
+        end_date = start_date + relativedelta(months=2,day=31)
 
-        title = start_date.strftime("%b %Y")
+        title = "%s - %s " % (start_date.strftime("%b %Y"),\
+                            end_date.strftime("%b %Y"))
         return SubPeriod(\
             title,
             start_date,
             end_date)
-
 

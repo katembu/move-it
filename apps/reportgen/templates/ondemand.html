@@ -144,11 +144,9 @@ function set_dates() {
         $("#period").empty();
         
         $("#period").append("<option value=''>[Dates]</option>");
-            var s = sorted_keys(data['time_periods'][pt]);
-            for(i in s) {
-                var j = s[i];
-                $("#period").append("<option value="+j+">" + 
-                    data['time_periods'][pt][j]+"</option>");
+            for(i in data['time_periods'][pt]) {
+                $("#period").append("<option value="+i+">" + 
+                    data['time_periods'][pt][i]+"</option>");
             }
     } else {
         $("#period").attr('disabled', 'true');
@@ -209,16 +207,16 @@ $(document).ready(init);
 </script>
 
 <form id="gen_form" method="POST">
-    <select id="report" name="report_pk">
+    <select id="report" class="sorted" name="report_pk">
         <option value="">[Report]</option>
     </select>
-    <select id="variant" disabled="true" name="variant_index">
+    <select id="variant" class="sorted" disabled="true" name="variant_index">
         <option value="">[Variant]</option>
     </select>
-    <select id="rformat" disabled="true" name="rformat">
+    <select id="rformat" class="sorted" disabled="true" name="rformat">
         <option value="">[File Type]</option>
     </select>
-    <select id="period_type" name="period_type_code">
+    <select id="period_type" class="sorted" name="period_type_code">
         <option value="">[Time Period Type]</option>
     </select>
     <select id="period" disabled="true" name="period_index">
