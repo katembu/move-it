@@ -2,8 +2,34 @@
 {% block center %}
 
 <style type="text/css">
+    p#status {
+        width: 100%;
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin: auto;
+    }
+
+    a.delete {
+        font-weight: bold;
+        color: #999;
+        font-size: 1.2em;
+    }
+
+    a.delete:hover {
+        color: red;
+        font-weight: bolder;
+    }
+
     span.in_progress {
         color: #999;
+    }
+
+    span.failed {
+        color: red;
+    }
+    
+    span.ok {
+        color: green;
     }
 
     a.finished {
@@ -152,6 +178,14 @@ function init() {
     $("#period_type").change(set_dates);
 
     $("a.err_link").click(toggle_text);
+
+    $("a.delete").click(process_delete);
+}
+
+function process_delete(eventObj) {
+    var pk = eventObj.target.id.substring(7);
+    return confirm("Are you sure you want to " + 
+                    "permanently delete this report?");
 }
 
 function sorted_keys(lst) {
@@ -198,7 +232,8 @@ $(document).ready(init);
 {% endif %}
 <p><em>Note: Only the latest 30 reports are shown.</em></p>
 <table style="width:100%">
-    <tr>    
+    <tr>
+        <th>&nbsp;</th>
         <th>&nbsp;</th>
         <th>Title</th>
         <th>Variant</th>
@@ -208,6 +243,12 @@ $(document).ready(init);
     </tr>
     {% for rep in gen %}
     <tr>
+        <td>
+            {% if rep.is_finished or rep.is_failed %}
+            <a class="delete" id="delete_{{ rep.pk }}" 
+                href="/reportgen/ondemand/delete/{{ rep.pk }}">&times;</a>
+            {% endif %}
+        </td>
         <td>{% if rep.is_finished %}
             <a class="finished" href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
             {% else %}
@@ -238,4 +279,23 @@ $(document).ready(init);
     {% endif %}
     {% endfor %}
 </table>
+
+<p id="status">
+    <strong>Generation status:</strong>
+    {% if workers.0 and workers.1 %}
+        <span class="ok">Message queue is OK</span>, 
+        <span class="ok">
+            {{ workers.1 }} worker{{ workers.1|pluralize }} 
+                {{ workers.1|pluralize:"is,are" }} running.
+        </span>
+    {% else %}
+        {% if not workers.0 %}
+            <span class="failed">RabbitMQ is down.</span>
+        {% else %}
+            RabbitMQ is up, 
+            but workers (celeryd) are down or busy.
+        {% endif %}
+    {% endif %}
+</p>
+
 {% endblock %}

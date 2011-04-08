@@ -4,9 +4,12 @@
 
 from datetime import datetime
 
+from celery.task.control import inspect
+
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
+from django.http import HttpResponseNotFound
 
 from rapidsms.webui.utils import render_to_response
 
@@ -48,6 +51,20 @@ def ondemand(request):
     data['title'] = _('On-Demand Reports')
     data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:30]
     data['data'] = ondemand_json_obj()
+
+    # Get status of celery workers
+    # Data workers is a tuple of (is_rabbitmq_up, n_workers)
+    i = inspect()
+    try:
+        p = i.ping()
+    except Exception as e:
+        data['workers'] = (False, e)
+
+    if p and len(p) > 0:
+        data['workers'] = (True, len(p))
+    else:
+        data['workers'] = (True, 0)
+
     return render_to_response(request, "ondemand.html", data)
 
 def _process_gen(request):
@@ -90,7 +107,10 @@ def _process_gen(request):
     print args
     r = d.apply_async(kwargs=args)
     print r
-    data['msg'] = _('Report generation started!')
     return HttpResponseRedirect('/reportgen/ondemand/')
-    
+
+def delete(request, pk):
+    r = GeneratedReport.objects.get(pk=pk)
+    r.delete()
+    return HttpResponseRedirect('/reportgen/ondemand/')
 

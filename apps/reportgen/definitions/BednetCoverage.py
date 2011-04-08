@@ -38,8 +38,8 @@ styleH = styles['Heading1']
 styleH3 = styles['Heading3']
 
 class ReportDefinition(PrintedReport):
-    title = u'Bednet Survey'
-    filename = 'bn_survey'
+    title = u'Bednet Coverage'
+    filename = 'bednet_coverage'
     formats = ['pdf']
     variants = [(c.name, '_'+c.code, {'clinic_pk': c.pk}) \
                          for c in Clinic.objects.order_by('code')]

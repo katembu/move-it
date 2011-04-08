@@ -13,8 +13,31 @@ all of the necessary CELERY_ flags
 
 == Steps to adding a new report ==
 1) Put definition in apps/reportgen/definitions
-2) Add report classname to apps/reportgen/definitions/__init__.py
-3) DB record
+2) Add progress indicator code with self.set_progress()
+3) Add report classname to apps/reportgen/definitions/__init__.py
+4) Create Report record in DB
+5) Restart celeryd
+
+== Steps to converting a CC+ Report ==
+1) Put definition in apps/reportgen/definitions
+2) Change definition name from Report to ReportDefinition
+3) Change line:
+        from childcount.reports.reports_framework import PrintedReport
+   to:
+        from reportgen.PrintedReport import PrintedReport
+4) Change other calls to childcount.reports.* to their
+    equivalents in reportgen
+5) Change definition from:
+        generate(self, ...)
+    to
+        generate(self, time_period, ...)
+6) Remove ": " from report title for reports with variants
+7) Make definition use the time_period object instead of one-off
+   time period code
+8) Add progress indicator code with self.set_progress()
+9) Add report classname to apps/reportgen/definitions/__init__.py
+10) Create Report record in DB
+11) Restart celeryd
 
 == Introduction ==
 
