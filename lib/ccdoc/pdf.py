@@ -160,7 +160,13 @@ class PDFGenerator(Generator):
         if text.size != text.DEFAULT_SIZE:
             output += "<font size=%d>" % text.size
 
-        c = template.Context({'text': unicode(text.text)})
+        datext = text.text
+        try:
+            datext = unicode(datext)
+        except:
+            pass
+        
+        c = template.Context({'text': datext})
         ''' 
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
