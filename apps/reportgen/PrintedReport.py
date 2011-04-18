@@ -135,16 +135,6 @@ class PrintedReport(Task):
             raise ValueError(\
                 _(u'Report title or filename is unset.'))
 
-        if len(self.variants) > 0:
-            for v in self.variants:
-                if len(v[0]) == 0:
-                    raise ValueError(\
-                        _("Report variant title cannot be empty"))
-     
-                if len(v[1]) == 0:
-                    raise ValueError(\
-                        _("Report variant filename cannot be empty"))
-
     def set_progress(self, progress):
         kwargs = self._kwargs
 
