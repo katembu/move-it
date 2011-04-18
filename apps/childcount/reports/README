@@ -33,12 +33,6 @@ same so that it's easy to change a report from one
 type to another.
 
 
-|| Todo ||
-
-- i18n on all reports
-- transition last reports to the framework
-
-
 || Installing Reports ||
 
 For starters, you need to add two Configurations
@@ -46,34 +40,30 @@ to your ChildCount+ database with keys:
 "ondemand_reports" and "nightly_reports" (no quotes)
 
 Each of these should contains a whitespace-separated
-list of modules that are in the folders:
-    apps/childcount/reports/ondemand
-        * and *
-    apps/childcount/reports/nightly
+list of modules that are in the folder:
+    apps/childcount/reports/definitions/
 
 For example if you have a nightly report in a file
-called DeathAuditReport.py, you would put that
+called DeathAudit.py, you would put that
 file in:
-    apps/childcount/reports/nightly/DeathAuditReport.py
-and add "DeathAuditReport" to the value of the
+    apps/childcount/reports/definitions/DeathAudit.py
+and add "DeathAudit" to the value of the
 Configuration entry that has key "nightly_reports."
 
 
 || Creating Reports ||
 
 To create a new report you must follow these steps:
-1) Create a file called YourReportName.py in either the
-      apps/childcount/reports/nightly/
-          * or *
-      apps/childcount/reports/ondemand/
-   directories.
+1) Create a file called YourReportName.py in the
+      apps/childcount/reports/definitions/
+   directory.
 2) In YourReportName.py, create a class called Report
    that inherits from:
       childcount.report_framework.PrintedReport
 3) Define the following mebers in your Report class:
       - title (the title of your report)
       - filename (the basename of your report filename,
-        WITHOUT an extension)
+        WITHOUT an extension, e.g., "patient_list")
       - formats (an array of file format strings that
         your Report class can generate, e.g., ['pdf','xls'])
 4) Define your Report.generate() method:
@@ -90,9 +80,10 @@ To create a new report you must follow these steps:
    debug reports as you're writing them.
 5) Add the name of your report to the childcount.Configuration
    model, either under the key "nightly_reports" or
-   "ondemand_reports" depending on where your report
-   is saved.
-6) That's it.
+   "ondemand_reports" depending on when you want your
+   reports to be generated.
+6) Run the command "sudo service celeryd restart" on your server.
+7) That's it.
 
 
 || Debugging ||

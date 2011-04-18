@@ -1,10 +1,10 @@
 from celery.decorators import periodic_task
 from celery.schedules import crontab
 
-from reportgen.models import NightlyReport, Report
+from reportgen.models import NightlyReport
+from reportgen.models import GeneratedReport
+from reportgen.models import Report
 
-# This is one big task now... we need
-# to somehow split it up
 @periodic_task(run_every=crontab(hour=0, minute=0))
 def nightly_reports():
     n = NightlyReport.objects.all()
@@ -24,5 +24,14 @@ def nightly_reports():
 
     print ">> Done <<"
     return results
+
+@periodic_task(run_every=crontab(hour=11,minute=0))
+def delete_old_reports():
+    # Get oldest reports
+    greps = GeneratedReport.objects.order_by('-started_at')[30:]
+
+    for g in greps:
+        g.delete()
+
 
 
