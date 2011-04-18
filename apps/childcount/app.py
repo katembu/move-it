@@ -416,11 +416,12 @@ class App (rapidsms.app.App):
                     # TODO: Log the exception, notify
                     pass
 
+            health_id_str = u"%s => " % health_id.upper()
             if successful_forms and not failed_forms:
-                message.respond(successful_string, 'success')
+                message.respond(health_id_str + successful_string, 'success')
                 return handled
             if failed_forms and not successful_forms:
-                message.respond(failed_string, 'error')
+                message.respond(health_id_str + failed_string, 'error')
                 return handled
             else:
                 if len(failed_forms) == 1:
@@ -433,7 +434,8 @@ class App (rapidsms.app.App):
                 else:
                     cnt_successful = _(u"%d forms successful.") % \
                                                         len(successful_forms)
-                response = u"%s, %s: %s, %s" % (cnt_failed, cnt_successful, \
+                response = u"%s %s, %s: %s, %s" % (health_id_str, \
+                                                cnt_failed, cnt_successful, \
                                                 failed_string, \
                                                 successful_string)
                 message.respond(response, 'warning')

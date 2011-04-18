@@ -2,6 +2,8 @@ import os
 import time
 import tempfile
 
+from django.utils.translation import gettext as _
+
 from paragraph import Paragraph
 from hline import HLine
 from section import Section, PageBreak
@@ -15,7 +17,10 @@ class Generator(object):
     def __init__(self, document, filename = None):
         self.user_file = filename is not None
         if filename is not None:
-            self._handle = open(filename, 'w')
+            try:
+                self._handle = open(filename, 'w')
+            except IOError as e:
+                raise IOError(_("Could not open file <%s>" % filename))
             self._filename = filename
         else:
             self._handle = tempfile.NamedTemporaryFile(delete=False)

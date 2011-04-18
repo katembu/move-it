@@ -2,6 +2,7 @@ import time
 from datetime import datetime, timedelta, date
 from dateutil.relativedelta import relativedelta
 import os
+import os.path
 import shutil
 
 from django.http import HttpResponseRedirect
@@ -68,9 +69,7 @@ class MonthlyPeriodSet(PeriodSet):
 
     @classmethod
     def period_start_date(cls, week_num):
-        first_day_of_month = date.today() - \
-                timedelta(35) - \
-                relativedelta(day=1)
+        first_day_of_month = date.today() - timedelta(7*7)
         return first_date_of_week(first_day_of_month) + \
             timedelta(week_num * 7)
 
@@ -92,10 +91,10 @@ class TwoMonthPeriodSet(PeriodSet):
             raise NotImplementedError(_(u'I can\'t deal with'\
                                     'negative period numbers'))
 
-        first_day_of_month = (date.today() - timedelta(14)).replace(day=1)
+        first_day_of_month = (date.today() - timedelta(7)).replace(day=1)
 
         return_date = first_day_of_month
-        for i in xrange(0, period_num):
+        for i in xrange(0, period_num+1):
             return_date = (return_date - timedelta(1)).replace(day=1)
 
         return return_date
@@ -224,6 +223,12 @@ def report_filepath(rname, rformat):
                     'static',
                     REPORTS_DIR,
                     rname+'.'+rformat)
+
+def report_modified_on(rname, rformat):
+    fname = report_filepath(rname, rformat)
+    if not os.path.exists(fname):
+        return None
+    return datetime.fromtimestamp(os.path.getmtime(fname))
 
 def report_url(rname, rformat):
     return ''.join([\

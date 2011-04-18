@@ -13,6 +13,7 @@ from childcount.models.reports import DangerSignsReport
 from childcount.models.reports import ReferralReport
 from childcount.models.reports import FamilyPlanningReport
 from childcount.models.reports import NutritionReport
+from childcount.models.reports import UnderOneReport
 from childcount.models.ccreports import MonthlyCHWReport
 
 from childcount.reports.utils import render_doc_to_file
@@ -134,21 +135,33 @@ class Report(PrintedReport):
 
 
     def _immunization_table(self, chw):
-        table = Table(4, \
-            Text(_(u"Children Under 5 Needing Immunizations")))
+        table = Table(5, \
+            Text(_(u"Children Under 5 Without Known Up-to-date Immunizations")))
         table.add_header_row([
             Text(_(u"Loc Code")),
             Text(_(u"Health ID")),
             Text(_(u"Name / Age")),
+            Text(_(u"Latest Imm. Report")),
             Text(_(u"Household Head")),
         ])
         table.set_column_width(10, 0)
         table.set_column_width(10, 1)
         for kid in chw.needing_immunizations():
+            im = kid.latest_imm_report()
+            if im is None:
+                im_str = _(u"[No Report]")
+            else:
+                im_stat = filter(lambda x: x[0] == im.immunized,\
+                    UnderOneReport.IMMUNIZED_CHOICES)[0][1]
+                im_str = _(u"Reported \"%(status)s\" on %(date)s") % \
+                    {'status': im_stat,\
+                    'date': im.encounter.encounter_date.strftime('%d %b %Y')}
+
             table.add_row([
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
+                Text(im_str),
                 Text(kid.household.full_name())])
                 
         return table
@@ -182,7 +195,7 @@ class Report(PrintedReport):
         return table                
 
     def _muac_table(self, chw):
-        table = Table(6, \
+        table = Table(7, \
             Text(_(
             u"Children without MUAC in past 1 month (SAM) " \
             "or 3 months (healthy)")))
@@ -193,23 +206,35 @@ class Report(PrintedReport):
             Text(_(u"Name / Age")),
             Text(_(u"Last MUAC")),
             Text(_(u"MUAC Status")),
+            Text(_(u"Od.")),
             Text(_(u"Household Head")),
         ])
         table.set_column_width(10, 0)
         table.set_column_width(10, 1)
         table.set_column_width(15, 3)
         table.set_column_width(15, 4)
+        table.set_column_width(5, 5)
         for row in chw.kids_needing_muac():
             (kid, nut) = row
+
+            muac_str = status_str = _(u'[No MUAC]')
+            oedema_str = _(u'U')
+            if nut is not None:
+                muac_str = nut.encounter.encounter_date.strftime("%d-%b-%Y")
+                status_str = _(u'%(status)s [%(muac)d]') % \
+                    {'status': filter(lambda c: c[0] == nut.status, \
+                                NutritionReport.STATUS_CHOICES)[0][1],
+                    'muac': nut.muac}
+                oedema_str = nut.oedema 
+                            
+
             table.add_row([
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
-                Text(_(u'[No MUAC]') if nut is None else \
-                    nut.encounter.encounter_date.strftime("%d-%b-%Y")),
-                Text(_(u'[No MUAC]') if nut is None else \
-                    filter(lambda c: c[0] == nut.status, \
-                        NutritionReport.STATUS_CHOICES)[0][1]),
+                Text(muac_str),
+                Text(status_str),
+                Text(oedema_str),
                 Text(kid.household.full_name())
             ])
 

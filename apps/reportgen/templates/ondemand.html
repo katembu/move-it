@@ -1,0 +1,299 @@
+{% extends "frame.html" %}
+{% block center %}
+
+<style type="text/css">
+    p#status {
+        width: 100%;
+        border: 1px solid #ccc;
+        padding: 5px;
+        margin: auto;
+    }
+
+    a.delete {
+        font-weight: bold;
+        color: #999;
+        font-size: 1.2em;
+    }
+
+    a.delete:hover {
+        color: red;
+        font-weight: bolder;
+    }
+
+    span.in_progress {
+        color: #999;
+    }
+
+    span.failed {
+        color: red;
+    }
+    
+    span.ok {
+        color: green;
+    }
+
+    a.finished {
+    }
+
+    tr.error_row {
+        border-top:0;
+        margin:0;
+        padding:0;
+    }
+    tr.error_row td {
+        border-top:0;
+        margin:0;
+        padding:0;
+    }
+
+    tr.error_row td pre {
+        margin: 0;
+        display: none;
+        padding: 1em;
+        border: 2px solid red;
+    }
+</style>
+
+<script>
+{% autoescape off %}
+var data = {{ data }};
+{% endautoescape %}
+
+var elms = [
+    "#report",
+    "#variant",
+    "#rformat",
+    "#period_type",
+    "#period"
+];
+
+function count(eobj) {
+    var c = 0;
+    for(e in eobj) {
+        if(eobj[e] == "") continue;
+        if(e == "") continue;
+        c++;
+    }       
+    return c;
+}
+
+function check_finished(eventObj) {
+    var okay = true;
+    for(e in elms) {
+        if($(elms[e]).val() == "") {
+            okay = false;
+            break;
+        }
+    }
+
+    if(okay) {
+        $("#submit").removeAttr('disabled');
+    } else {
+        $("#submit").attr('disabled', 'true');
+    }
+}
+
+function set_report() {
+    r = $("#report");
+    if(r.val()) {
+        // Enable the report format select box
+        $("#rformat").removeAttr('disabled');
+        $("#rformat").empty();
+
+        // Populate new options
+        $("#rformat").append("<option value=''>[File Type]</option>");
+        
+        var s = sorted_keys(data['formats'][r.val()]);
+        for(i in s) {
+            var j = s[i];
+            $("#rformat").append("<option value="+j+">" + 
+                data['formats'][r.val()][j]+"</option>");
+        }
+        
+        // Enable the report variant select box
+        $("#variant").removeAttr('disabled');
+        $("#variant").empty();
+       
+        if(count(data['variants'][r.val()]) == 0) {
+            $("#variant").append("<option value='X'>--</option>");
+        } else {
+            // Populate new options
+            $("#variant").append("<option value=''>[Variant]</option>");
+            var s = sorted_keys(data['variants'][r.val()]);
+            for(i in s) {
+                var j = s[i];
+                $("#variant").append("<option value="+j+">" + 
+                    data['variants'][r.val()][j]+"</option>");
+            }
+        }
+    } else {
+        $("#variant").attr('disabled','true');
+        $("#variant").empty();
+        $("#variant").append("<option value=''>[Variant]</option>");
+
+        $("#rformat").attr('disabled','true');
+        $("#rformat").empty();
+        $("#rformat").append("<option value=''>[File Type]</option>");
+    }
+}
+
+function set_dates() {
+    pt = $("#period_type").val();
+    if(pt) {
+        $("#period").removeAttr('disabled');
+        $("#period").empty();
+        
+        $("#period").append("<option value=''>[Dates]</option>");
+            for(i in data['time_periods'][pt]) {
+                $("#period").append("<option value="+i+">" + 
+                    data['time_periods'][pt][i]+"</option>");
+            }
+    } else {
+        $("#period").attr('disabled', 'true');
+        $("#period").empty();
+        $("#period").append("<option value=''>[Dates]</option>");
+    }
+}
+
+function init() {
+    var s = sorted_keys(data['rpts']);
+    for(i in s) {
+        var j = s[i];
+        $("#report").append("<option value="+j+">" + 
+            data['rpts'][j]+"</option>");
+    }
+
+    var s = sorted_keys(data['time_types']);
+    for(i in s) {
+        var j = s[i];
+        $("#period_type").append("<option value="+j+">" + 
+            data['time_types'][j]+"</option>");
+    }
+    for(e in elms) {
+        $(elms[e]).change(check_finished);
+    }
+    $("#report").change(set_report);
+    $("#period_type").change(set_dates);
+
+    $("a.err_link").click(toggle_text);
+
+    $("a.delete").click(process_delete);
+}
+
+function process_delete(eventObj) {
+    var pk = eventObj.target.id.substring(7);
+    return confirm("Are you sure you want to " + 
+                    "permanently delete this report?");
+}
+
+function sorted_keys(lst) {
+    var keys = [];
+    for(k in lst) {
+        keys.push(k);
+    }
+
+    keys.sort(function(a,b) {
+        return lst[a] > lst[b] ? 1 : -1;
+    });
+    return keys
+}
+
+function toggle_text(evt) { 
+    $("#error_"+evt.target.id.substring(5)).slideToggle(500);
+}
+
+$(document).ready(init);
+
+</script>
+
+<form id="gen_form" method="POST">
+    <select id="report" class="sorted" name="report_pk">
+        <option value="">[Report]</option>
+    </select>
+    <select id="variant" class="sorted" disabled="true" name="variant_index">
+        <option value="">[Variant]</option>
+    </select>
+    <select id="rformat" class="sorted" disabled="true" name="rformat">
+        <option value="">[File Type]</option>
+    </select>
+    <select id="period_type" class="sorted" name="period_type_code">
+        <option value="">[Time Period Type]</option>
+    </select>
+    <select id="period" disabled="true" name="period_index">
+        <option value="">[Dates]</option>
+    </select>
+    <input id="submit" type="submit" disabled="true" value="Generate!"></input>
+</form>
+
+{% if data.msg %}
+    <strong>{{ data.msg }}</strong>
+{% endif %}
+<p><em>Note: Only the latest 30 reports are shown.</em></p>
+<table style="width:100%">
+    <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>Title</th>
+        <th>Variant</th>
+        <th>Time Period</th>
+        <th>Status</th>
+        <th>Finished at</th>
+    </tr>
+    {% for rep in gen %}
+    <tr>
+        <td>
+            {% if rep.is_finished or rep.is_failed %}
+            <a class="delete" id="delete_{{ rep.pk }}" 
+                href="/reportgen/ondemand/delete/{{ rep.pk }}">&times;</a>
+            {% endif %}
+        </td>
+        <td>{% if rep.is_finished %}
+            <a class="finished" href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            {% else %}
+            <span class="in_progress">{{ rep.fileformat.upper }}</span>
+            {% endif %}</td>
+        <td>{{ rep.title }}</td>
+        <td>{{ rep.variant_title|default:"--" }}</td>
+        <td>{{ rep.period_title }}</td>
+        <td>
+            {% if rep.is_failed %}
+            <a href="#" class="err_link" id="link_{{ rep.pk }}" onclick="return false">{{ rep.task_state_str }}</a>
+            {% else %}
+            {{ rep.task_state_str }}
+            {% if rep.is_running %}
+                <strong>({{ rep.task_progress }}%)</strong>
+            {% endif %}
+            {% endif %}
+        </td>
+        <td>{% if rep.is_finished %}{{ rep.finished_at|date:"d-M-Y" }} at 
+            {{ rep.finished_at|date:"H:i" }}{% endif %}</td>
+    </tr>
+    {% if rep.is_failed %}
+    <tr class="error_row" style="border-top:0;margin:0;padding:0">
+        <td colspan="6" style="border-top:0;margin:0;padding:0;">
+            <pre id="error_{{ rep.pk }}" style="margin:0;display:none;">{{ rep.error_message }}</pre>
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+</table>
+
+<p id="status">
+    <strong>Generation status:</strong>
+    {% if workers.0 and workers.1 %}
+        <span class="ok">Message queue is OK</span>, 
+        <span class="ok">
+            {{ workers.1 }} worker{{ workers.1|pluralize }} 
+                {{ workers.1|pluralize:"is,are" }} running.
+        </span>
+    {% else %}
+        {% if not workers.0 %}
+            <span class="failed">RabbitMQ is down.</span>
+        {% else %}
+            RabbitMQ is up, 
+            but workers (celeryd) are down or busy.
+        {% endif %}
+    {% endif %}
+</p>
+
+{% endblock %}

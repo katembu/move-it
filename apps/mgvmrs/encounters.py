@@ -11,7 +11,8 @@ from childcount.models import Encounter, Patient
 from childcount.models.reports import CCReport, PregnancyReport, PregnancyRegistrationReport, AppointmentReport
 
 from mgvmrs.forms import OpenMRSTransmissionError, OpenMRSConsultationForm, \
-                         OpenMRSHouseholdForm, OpenMRSANCForm
+                         OpenMRSHouseholdForm, OpenMRSANCForm, \
+                         OpenMRSXFormsModuleError
 from mgvmrs.utils import transmit_form
 from mgvmrs.models import User
 
@@ -59,9 +60,13 @@ def send_to_omrs(router, *args, **kwargs):
         # for the time being, not in use
         pass 
 
-    # request all non-synced Encounter
-    encounters = Encounter.objects.filter(Q(sync_omrs__isnull=True) | \
-                                          Q(sync_omrs__in=(None, False)))
+    # request 200 non-synced Encounters
+    # Order by random so that one screwed up encounter
+    # doesn't block the whole queue
+    encounters = Encounter\
+        .objects\
+        .filter(Q(sync_omrs__isnull=True) | Q(sync_omrs=None))\
+        .order_by('?')[0:200]
 
     for encounter in encounters:
         # loop only on closed Encounters
@@ -106,6 +111,10 @@ def send_to_omrs(router, *args, **kwargs):
             provider = provider_id
 
         # create form
+	router.log('DEBUG', 'mgvmrs: Starting encounter processing...')
+	router.log('DEBUG', encounter.pk)
+	router.log('DEBUG', encounter.patient)
+	router.log('DEBUG', encounter.patient.health_id)
         omrsform = omrsformclass(create, encounter.patient.health_id, \
                                     location_id,
                                     provider,
@@ -137,9 +146,19 @@ def send_to_omrs(router, *args, **kwargs):
             router.log('DEBUG', \
                           u"Successfuly sent XForm to OpenMRS: %s" % encounter)
         except OpenMRSTransmissionError, e:
-            #TODO : Log this error
+            router.log('DEBUG', '==> Transmission error')
             router.log('DEBUG', omrsform.render())
             router.log('DEBUG', e)
+           
+            # Don't modify this encounter, just let 
+            # it get sent later on
+        except OpenMRSXFormsModuleError, e:
+            router.log('DEBUG', '==> XForms Module error')
+            router.log('DEBUG', omrsform.render())
+            router.log('DEBUG', e)
+
+            # Mark this encounter sync_omrs=False
+            # so that we don't try to send it again.
             encounter.sync_omrs = False
             encounter.save()
             continue

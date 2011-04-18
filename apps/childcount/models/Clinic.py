@@ -21,3 +21,4 @@ class Clinic(Location):
         db_table = 'cc_clinic'
         verbose_name = _(u"Clinic")
         verbose_name_plural = _(u"Clinics")
+        ordering = ('name',)

@@ -39,7 +39,6 @@ apps/airtime
 apps/bednets
 apps/censor
 apps/counter
-apps/default
 apps/django_extensions
 apps/echo
 apps/export
@@ -70,9 +69,6 @@ settings.py
 
 # dev
 *.sqlite
-
-#reports
-apps/childcount/rpts
 
 #celery
 celerybeat-schedule

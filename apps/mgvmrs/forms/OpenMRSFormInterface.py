@@ -19,6 +19,8 @@ class UnexpectedValueError(ValueError):
 class OpenMRSTransmissionError(Exception):
     pass
 
+class OpenMRSXFormsModuleError(Exception):
+    pass
 
 class OpenMRSFormInterface(object):
 
@@ -111,6 +113,11 @@ class OpenMRSFormInterface(object):
         if None in (dob, family_name, given_name, sex):
             raise UnexpectedValueError(_(u"Missing required patient field"))
 
+        if family_name == '':
+            raise UnexpectedValueError(_(u"Missing family name"))
+        if given_name == '':
+            raise UnexpectedValueError(_(u"Missing given name"))
+
         if not isinstance(dob, (date, datetime)):
             raise UnexpectedValueError(_(u"Date of Birth requires date"))
         dob = dob.strftime(XFORM_DATE_FMT)
@@ -147,7 +154,7 @@ class OpenMRSFormInterface(object):
             return None
 
         # if value is None, it's probably a non-filled optional one.
-        if value == None:
+        if value == None or value == '':
             return None
 
         # retrive field definition
