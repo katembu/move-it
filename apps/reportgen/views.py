@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: ukanga
+import sys
+import traceback
+import socket
 
 from datetime import datetime
 
@@ -59,11 +61,11 @@ def ondemand(request):
         p = i.ping()
     except Exception as e:
         data['workers'] = (False, e)
-
-    if p and len(p) > 0:
-        data['workers'] = (True, len(p))
     else:
-        data['workers'] = (True, 0)
+        if p and len(p) > 0:
+            data['workers'] = (True, len(p))
+        else:
+            data['workers'] = (True, 0)
 
     return render_to_response(request, "ondemand.html", data)
 
@@ -105,8 +107,15 @@ def _process_gen(request):
     args['generated_report'] = gr
 
     print args
-    r = d.apply_async(kwargs=args)
-    print r
+    try:
+        r = d.apply_async(kwargs=args)
+    except socket.error:
+        gr.task_state = GeneratedReport.TASK_STATE_FAILED
+        gr.finished_at = datetime.now()
+        gr.task_progress = 0
+        gr.error_message = ''.join(traceback.format_exception(*sys.exc_info()))
+        gr.save()
+    
     return HttpResponseRedirect('/reportgen/ondemand/')
 
 def delete(request, pk):
