@@ -1,6 +1,7 @@
 import calendar
-from datetime import datetime
+from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from dateutil import rrule
 
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Count
@@ -401,5 +402,69 @@ def upcoming_appointments(title=_(u'Upcoming Apointments')):
             'to': next_45days.strftime("%d %b")}))
         doc.add_element(t)
         doc.add_element(PageBreak())
+    doc.add_element(t)
+    return doc
+
+
+def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
+    MIN_PREG_AGE = 9
+    doc = Document(title)
+    if not AppointmentReport.objects.exists():
+        doc.add_element(Paragraph(u"No Appointments yet!"))
+        return doc
+    first_apt = AppointmentReport.objects\
+                                .filter()\
+                                .order_by('encounter__encounter_date')[0]
+    start_date = first_apt.encounter.encounter_date.date()
+    end_date = datetime.now().date()
+    col1 = u'# Week'
+    date_rule = rrule.rrule(rrule.WEEKLY, dtstart=start_date, until=end_date)
+    if wm == 'monthly':
+        date_rule = rrule.rrule(rrule.MONTHLY, dtstart=start_date, \
+            until=end_date)
+        col1 = u'Month'
+    t = Table(5)
+    t.add_header_row([
+        Text(unicode(col1)),
+        Text(unicode(_(u"Dates"))),
+        Text(unicode(_(u"# Apts for Under 18"))),
+        Text(unicode(_(u"# Apts for Pregnant Women"))),
+        Text(unicode(_(u"Total Appointments")))])
+    c = 0
+    for dt in date_rule:
+        if wm == 'monthly':
+            dtstart = dt + relativedelta(day=1)
+            dtend = dtstart + relativedelta(months=1, day=1)
+            dtend = dtend + relativedelta(days=-1)
+            period = dtstart.strftime("%b/%Y")
+            col1 = _("Month #%(month)s" % {'month': c})
+        else:
+            dtstart = dt + relativedelta(days=-7, weekday=calendar.MONDAY)
+            dtend = dtstart + timedelta(6)
+            period = "%(start)s to %(end)s" % \
+                                    {'start': dtstart.strftime('%d-%m-%Y'), \
+                                    'end': dtend.strftime('%d-%m-%Y')}
+            col1 = _("Week #%(week)s" % {'week': c})
+        apps = AppointmentReport.objects.filter(encounter__encounter_date__gte=dtstart, \
+                                            encounter__encounter_date__lte=dtend)
+        eighteen_months = dtend + relativedelta(months=-18)
+        dt_preg_women = dtend + relativedelta(years=-MIN_PREG_AGE)
+        preg_women = apps.filter(encounter__patient__dob__lte=dt_preg_women)
+        under_18 = apps.filter(encounter__patient__dob__lte=dtend, \
+            encounter__patient__dob__gte=eighteen_months)
+        if under_18:
+            print under_18[0].encounter.encounter_date
+        if c == 0 and apps.count() == 0:
+            continue
+        t.add_row([
+                Text(unicode(col1)),
+                Text(unicode(period)),
+                Text(unicode("%s" % under_18.count())),
+                Text(unicode("%s" % preg_women.count())),
+                Text(unicode("%s" % apps.count()))])
+        c += 1
+    # Table styling
+    t.set_column_width(10, column=0)
+    # add table to doc
     doc.add_element(t)
     return doc
