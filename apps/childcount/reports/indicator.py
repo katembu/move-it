@@ -33,7 +33,17 @@ class Indicator(object):
             return frac
         
         return "%2.1f%% (%d/%d)" % (100.0*frac, num, den)
-    
+   
+    @classmethod
+    def PERC_PRINT_SHORT(cls, (num, den), excel):
+        if den == 0: return '--'
+   
+        frac = float(num)/float(den)
+        if excel:
+            return frac
+        
+        return "%d%%" % int(round(100.0*frac))
+
     """ Default print function.  Tries to 
         convert to int or float for the benefit
         of doing Excel calculations, then 
@@ -72,7 +82,8 @@ class Indicator(object):
         # Separate the numerators and denominators
         if len(lst) == 0:
             return (0,0)
-
+        
+        print lst
         (nums, dens) = zip(*lst)
         print (nums, dens)
         return (sum(nums), sum(dens))
@@ -151,6 +162,11 @@ class Indicator(object):
 
     @property
     def is_percentage(self):
+        return self._print_func in \
+            (Indicator.PERC_PRINT, Indicator.PERC_PRINT_SHORT)
+
+    @property
+    def is_full_percentage(self):
         return self._print_func == Indicator.PERC_PRINT
 
     @classmethod

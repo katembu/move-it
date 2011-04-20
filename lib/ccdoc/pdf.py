@@ -160,7 +160,13 @@ class PDFGenerator(Generator):
         if text.size != text.DEFAULT_SIZE:
             output += "<font size=%d>" % text.size
 
-        c = template.Context({'text': unicode(text.text)})
+        datext = text.text
+        try:
+            datext = unicode(datext)
+        except:
+            pass
+        
+        c = template.Context({'text': datext})
         ''' 
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
@@ -190,6 +196,7 @@ class PDFGenerator(Generator):
         tabdata = []
         tabstyle = []
 
+        i = 1; j=1
         if table.title != None:
             title_row = [u''] * table.ncols
 
@@ -204,10 +211,10 @@ class PDFGenerator(Generator):
             tabstyle.append(('SPAN', (0,0), (-1, 0)))
             tabstyle.append(('GRID', (0,1), (-1,-1), 0.25, colors.black))
             tabstyle.append(('BOTTOMPADDING', (0,0), (0, 0), 6))
+            i += 1
         
 
         ''' Iterate through each table row '''
-        i = 1; j=1
         for row in table.rows:
             rowdata = []
 
@@ -216,7 +223,7 @@ class PDFGenerator(Generator):
             for c in row[1]:
                 if row[0]:
                     j = 1; c.bold = True
-                    tabstyle.append(('LINEBELOW', (0, i), (-1, i), 0.5, colors.black))
+                    tabstyle.append(('LINEBELOW', (0, i-1), (-1, i-1), 0.5, colors.black))
                 # Paragraph style is dynamic
                 rowdata.append(Paragraph(self._render_text(c), \
                                           self.get_row_style(table, column=k)))

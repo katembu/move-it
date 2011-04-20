@@ -1,0 +1,909 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-04-18 15:22+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: app.py:48
+#, python-format
+msgid "%s form not found."
+msgstr ""
+
+#: app.py:55
+#, python-format
+msgid "%s command not found."
+msgstr ""
+
+#: app.py:83
+msgid "Problem getting CHW from backend."
+msgstr ""
+
+#: app.py:127
+msgid "Invalid user logged in."
+msgstr ""
+
+#: app.py:132
+#, python-format
+msgid ""
+"%(fname)s, you must select a CHW other than yourself at the bottom of the "
+"data entry screen."
+msgstr ""
+
+#: app.py:145 app.py:185
+msgid "Problem getting encounter_date from backend."
+msgstr ""
+
+#: app.py:151
+msgid "You cannot select an encounter date that is in the future."
+msgstr ""
+
+#: app.py:172
+msgid "You must register before you can send reports."
+msgstr ""
+
+#: app.py:216
+#, python-format
+msgid ""
+"Error: Message not understood. Your message must start with a single health "
+"ID, followed by a space then a %(pre)s, then the keyword of the form you are "
+"sending."
+msgstr ""
+
+#: app.py:234
+msgid "Not a recognised form."
+msgstr ""
+
+#: app.py:248
+#, python-format
+msgid ""
+"Error occurred while processing %(frm)s: %(e)s Please correct and send all "
+"information again."
+msgstr ""
+
+#: app.py:262
+#, python-format
+msgid "%(id)s is not a valid health ID. Please correct and try again."
+msgstr ""
+
+#: app.py:268
+#, python-format
+msgid ""
+"Patient %(health_id)s is assigned to CHW %(real_chw)s.  You [%(fake_chw)s] "
+"can only submit forms for your own patients."
+msgstr ""
+
+#: app.py:286
+#, python-format
+msgid ""
+"Error: You tried to send househould forms for someone who is not head "
+"ofhousehold. You must send the forms with the head of household health ID."
+"Their head of household health ID is %(hoh)s (Health ID: %(hohid)s)"
+msgstr ""
+
+#: app.py:311
+msgid "This form is only for head of households."
+msgstr ""
+
+#: app.py:391
+msgid " Successfully processed:"
+msgstr ""
+
+#: app.py:406
+msgid " You must resend the form."
+msgstr ""
+
+#: app.py:408
+msgid " You must resend the forms."
+msgstr ""
+
+#: app.py:428
+msgid "One form failed."
+msgstr ""
+
+#: app.py:430
+#, python-format
+msgid "%d forms failed."
+msgstr ""
+
+#: app.py:433
+msgid "One successful."
+msgstr ""
+
+#: app.py:435
+#, python-format
+msgid "%d forms successful."
+msgstr ""
+
+#: app.py:465
+msgid "Database Error: please notify the system administrator"
+msgstr ""
+
+#: dashboard_sections.py:30
+msgid "Total Number of Patients"
+msgstr ""
+
+#: dashboard_sections.py:31
+msgid "Number of days ago"
+msgstr ""
+
+#: dashboard_sections.py:43
+msgid "# of Households"
+msgstr ""
+
+#: dashboard_sections.py:43
+msgid "# of Patients"
+msgstr ""
+
+#: dashboard_sections.py:44
+msgid "# of Underfives"
+msgstr ""
+
+#: dashboard_sections.py:44
+msgid "# of Pregnant Women"
+msgstr ""
+
+#: dashboard_sections.py:59
+msgid "Unknown"
+msgstr ""
+
+#: dashboard_sections.py:60
+msgid "Healthy"
+msgstr ""
+
+#: dashboard_sections.py:61
+msgid "Moderate"
+msgstr ""
+
+#: dashboard_sections.py:76
+msgid "This Month"
+msgstr ""
+
+#: dashboard_sections.py:76
+msgid "Overall"
+msgstr ""
+
+#: dashboard_sections.py:77
+msgid "+SAM / MAM"
+msgstr ""
+
+#: dashboard_sections.py:77
+msgid "Malaria"
+msgstr ""
+
+#: dashboard_sections.py:77
+msgid "Pregnancy"
+msgstr ""
+
+#: exceptions.py:9
+msgid "An error has occured."
+msgstr ""
+
+#: exceptions.py:28
+msgid "Error: You must first be registered."
+msgstr ""
+
+#: exceptions.py:34
+msgid "FAILED. Unable to understand message. "
+msgstr ""
+
+#: exceptions.py:40
+msgid "FAILED. Bad value. "
+msgstr ""
+
+#: exceptions.py:46
+msgid "FAILED. Not applicable."
+msgstr ""
+
+#: fields.py:27
+#, python-format
+msgid "There is no patient with                 health ID %(hid)s"
+msgstr ""
+
+#: tasks.py:147
+#, python-format
+msgid "The following clients are due for +M: %(ids)s"
+msgstr ""
+
+#: tasks.py:186
+#, python-format
+msgid "Remind the following to go for their first clinic visit %(list)s."
+msgstr ""
+
+#: tasks.py:223
+#, python-format
+msgid "Remind the following to go for a clinic visit %(list)s."
+msgstr ""
+
+#: tasks.py:270
+#, python-format
+msgid ""
+"Please send %(patient)s to the health center for their appointment on %"
+"(apt_date)s"
+msgstr ""
+
+#: tasks.py:329
+#, python-format
+msgid ""
+"Please send %(patient)s to the health center on for their failed appointment "
+"on %(apt_date)s"
+msgstr ""
+
+#: utils.py:455
+#, python-format
+msgid "%(number)s is not a registered number."
+msgstr ""
+
+#: utils.py:481
+#, python-format
+msgid "An error has occured: %(e)s"
+msgstr ""
+
+#: utils.py:499
+#, python-format
+msgid "You attempted to load %(cls)s without %(k)s defined."
+msgstr ""
+
+#: utils.py:504
+#, python-format
+msgid "%(k)s must be a dictionary in %(cls)s."
+msgstr ""
+
+#: views.py:92
+msgid "ChildCount+ Dashboard"
+msgstr ""
+
+#: charts/utils.py:14
+msgid "chart"
+msgstr ""
+
+#: commands/ActivityCommand.py:48
+#, python-format
+msgid ""
+"(%(sdate)s->%(edate)s): %(numhvisit)d household visit, %(muac)d MUAC(%"
+"(severemuac)d SAM/MAM) %(rdt)d RDT. You have %(household)d households, %"
+"(ufive)d under five, %(underone)d under 1y, %(unine)d under 9m,%(tclient)d "
+"total registerd clients"
+msgstr ""
+
+#: commands/CancelCommand.py:46
+msgid "Cancel failed. There is nothing to cancel."
+msgstr ""
+
+#: commands/CancelCommand.py:53
+#, python-format
+msgid "Cancel failed. You cannot cancel a report after %(num)d minutes."
+msgstr ""
+
+#: commands/CancelCommand.py:70
+msgid ""
+"Cancel failed. Another user has already modified one or more of your reports."
+msgstr ""
+
+#: commands/CancelCommand.py:107
+msgid "Previous message successfully canceled."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:32
+msgid "checkid command requires a health id"
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:38
+#, python-format
+msgid "SUCCESS: %(patient)s; Household: %(household)s; CHW: %(chw)s"
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:50
+#, python-format
+msgid "Health ID %(id)s does NOT exist in the database "
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:53
+msgid ""
+" but IS a valid identifier.  Check to make sure the database is current."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:56
+msgid ""
+" and is NOT a valid identifier.  You might have entered the ID incorrectly."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:61
+#, python-format
+msgid "Health ID %(id)s "
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:63 commands/CheckHealthIdCommand.py:66
+msgid " is valid but no patient has been registered with this ID."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:69
+msgid ""
+" is marked as belonging to a patient, but that                         "
+"patient is unknown."
+msgstr ""
+
+#: commands/CheckHealthIdCommand.py:72
+msgid " is in the database but is marked as UNUSABLE."
+msgstr ""
+
+#: commands/ChownCommand.py:36
+msgid ""
+"Cannot run chown command from cell phone. Use the computer interface instead."
+msgstr ""
+
+#: commands/ChownCommand.py:43
+msgid "Lookup command requires at least one health ID."
+msgstr ""
+
+#: commands/ChownCommand.py:51
+#, python-format
+msgid "CHW with ID %(id)d does not exist"
+msgstr ""
+
+#: commands/ChownCommand.py:70 commands/ChownCommand.py:89
+#, python-format
+msgid "There is no person with ID %(hid)s."
+msgstr ""
+
+#: commands/ChownCommand.py:77
+#, python-format
+msgid "Patient %(hid)s (%(name)s) assigned to CHW %(chwname)s."
+msgstr ""
+
+#: commands/ChownCommand.py:94
+#, python-format
+msgid ""
+"Patients %(first)s and %(last)s have different CHWs.  (First CHW: %(fchw)s "
+"Last CHW: %(lchw)s)"
+msgstr ""
+
+#: commands/ChownCommand.py:103
+#, python-format
+msgid ""
+"Patient %(fid)s was created AFTER patient %(lid)s. You should send the "
+"earlier ID first followed by the later ID."
+msgstr ""
+
+#: commands/ChownCommand.py:117
+#, python-format
+msgid ""
+"There were 0 patients created by CHW %(chw)s between %(fdate)s and %(ldate)s."
+msgstr ""
+
+#: commands/ChownCommand.py:136
+#, python-format
+msgid "Encounter date %(date)s is not valid"
+msgstr ""
+
+#: commands/ChownCommand.py:143
+#, python-format
+msgid ""
+"Changed CHW for %(n)d patients to %(chw)s with encounter date %(y)d-%(m)d-%"
+"(d)d."
+msgstr ""
+
+#: commands/DeathCommand.py:45
+msgid ""
+"dead person names | gender | age or DOB | date_of_death | [head_of_household]"
+msgstr ""
+
+#: commands/DeathCommand.py:48
+#, python-format
+msgid "Not enough information. Expected: %(keyword)s %(expected)s"
+msgstr ""
+
+#: commands/DeathCommand.py:64
+#, python-format
+msgid "You must indicate gender after the name with a %(choices)s."
+msgstr ""
+
+#: commands/DeathCommand.py:81
+#, python-format
+msgid "Message not understood. Expected: %(expected)s"
+msgstr ""
+
+#: commands/DeathCommand.py:89
+#, python-format
+msgid "Could not understand age or date_of_birth of %(string)s."
+msgstr ""
+
+#: commands/DeathCommand.py:100
+msgid "You must provide a patient name before their sex."
+msgstr ""
+
+#: commands/DeathCommand.py:117
+msgid "You must provide the date of death"
+msgstr ""
+
+#: commands/DeathCommand.py:119 commands/DeathCommand.py:127
+#, python-format
+msgid ""
+"Could not understand date_of_death of %(string)s. Please provide an exact "
+"date of death in the format DDMMYY."
+msgstr ""
+
+#: commands/DeathCommand.py:133
+#, python-format
+msgid "Could not understand date_of_death of %(string)s."
+msgstr ""
+
+#: commands/DeathCommand.py:154
+#, python-format
+msgid ""
+"Could not find head of household with health ID %(id)s. You must first "
+"register the head of household."
+msgstr ""
+
+#: commands/DeathCommand.py:161
+#, python-format
+msgid ""
+"The head of household you specified is too young to be a head of household (%"
+"(hh)s)."
+msgstr ""
+
+#: commands/DeathCommand.py:167
+#, python-format
+msgid ""
+"The head of household you specified (%(hh)s) is not a head of household. "
+"Their head of household is (%(hhhh)s). "
+msgstr ""
+
+#: commands/DeathCommand.py:181
+msgid "you"
+msgstr ""
+
+#: commands/DeathCommand.py:184
+#, python-format
+msgid "%(name)s %(sex)s/%(age)s was already reported by %(chw)s. "
+msgstr ""
+
+#: commands/DeathCommand.py:192
+#, python-format
+msgid "You successfuly reported the death of %(death)s."
+msgstr ""
+
+#: commands/FamilyCommand.py:22
+#, python-format
+msgid "Usage: %(com)s health_id"
+msgstr ""
+
+#: commands/FamilyCommand.py:28
+#, python-format
+msgid "No patient with health id %(hid)s"
+msgstr ""
+
+#: commands/FamilyCommand.py:36
+#, python-format
+msgid "Family of %(hid)s: "
+msgstr ""
+
+#: commands/GetStockCommand.py:33
+#, python-format
+msgid "Not enough information. Expected:%(keyword)s | locationcode |"
+msgstr ""
+
+#: commands/GetStockCommand.py:39
+#, python-format
+msgid "Unknown location code %(loc)s."
+msgstr ""
+
+#: commands/GetStockCommand.py:48
+#, python-format
+msgid "No Stockin for %(loc)s."
+msgstr ""
+
+#: commands/GetStockCommand.py:50
+#, python-format
+msgid "%(loc)s: Starting Point: %(sp)s, Balance: %(bal)s."
+msgstr ""
+
+#: commands/HHSurveySummaryCommand.py:34
+#, python-format
+msgid ""
+"# HHs covered: %(encounter__count)s, #SS: %(sleeping_sites__sum)s, "
+"#functioningN: %(function_nets__sum)s, #damagedN: %(damaged_nets__sum)s, "
+"#earlierN: %(earlier_nets__sum)s, #+BU: %(bednet_util__count)s, #+DW: %"
+"(drinking_water__count)s, #+SAN: %(sanitation__count)s. #HHs NOT covered: %"
+"(number_not_surveyed)s"
+msgstr ""
+
+#: commands/HHSurveySummaryCommand.py:45
+msgid "HHs NOT Covered"
+msgstr ""
+
+#: commands/HouseholdHeadCommand.py:25
+msgid ""
+"Cannot run chown command from cell phone. Use the computer interface instead."
+msgstr ""
+
+#: commands/HouseholdHeadCommand.py:32
+msgid "Use: changehh patient_id new_hh_id"
+msgstr ""
+
+#: commands/HouseholdHeadCommand.py:41 commands/HouseholdHeadCommand.py:51
+#, python-format
+msgid "Patient with ID %(hid)s does not exist"
+msgstr ""
+
+#: commands/HouseholdHeadCommand.py:62
+#, python-format
+msgid ""
+"Changed head of household for %(n)d patients from [%(old_hh)s] to [%(new_hh)"
+"s]."
+msgstr ""
+
+#: commands/IssueHealthIdCommand.py:31
+#, python-format
+msgid "You still have: %(health_id)s"
+msgstr ""
+
+#: commands/IssueHealthIdCommand.py:39
+msgid "No health Ids available now!"
+msgstr ""
+
+#: commands/IssueHealthIdCommand.py:51
+#, python-format
+msgid "Health IDs: %(health_id)s"
+msgstr ""
+
+#: commands/LLNSummaryCommand.py:109
+#, python-format
+msgid "You issued %(n)s bednets on %(date)s"
+msgstr ""
+
+#: commands/LangCommand.py:27
+#, python-format
+msgid ""
+"Your language preference is set to: %(lang)s. Change it by sending your new "
+"language preference code."
+msgstr ""
+
+#: commands/LangCommand.py:36
+#, python-format
+msgid "Your language preference is already set to: %(lang)s."
+msgstr ""
+
+#: commands/LangCommand.py:42
+#, python-format
+msgid "That language preference code (%(code)s) is not valid."
+msgstr ""
+
+#: commands/LangCommand.py:52
+#, python-format
+msgid "Your language preference has been changed from %(old)s to %(new)s. "
+msgstr ""
+
+#: commands/LocationCommand.py:31
+#, python-format
+msgid "There is no person with ID %(hid)s."
+msgstr ""
+
+#: commands/LocationCommand.py:41
+#, python-format
+msgid "Set location for %(n)d patient(s) [%(idstr)s] to %(loc)s"
+msgstr ""
+
+#: commands/LocationCommand.py:49
+msgid ""
+"Cannot run loc command from cell phone. Use the computer interface instead."
+msgstr ""
+
+#: commands/LocationCommand.py:56
+msgid "Location command requires at least a location code and household ID."
+msgstr ""
+
+#: commands/LocationCommand.py:65
+#, python-format
+msgid "Location with code %(code)s does not exist."
+msgstr ""
+
+#: commands/LookupCommand.py:35
+msgid "Lookup command requires at least a first or last name."
+msgstr ""
+
+#: commands/LookupCommand.py:99
+msgid "No matching patient found. Please retry with only first or last name."
+msgstr ""
+
+#: commands/LookupCommand.py:106
+#, python-format
+msgid "#%(id)s: %(name)s from %(location)s"
+msgstr ""
+
+#: commands/LookupCommand.py:121
+#, python-format
+msgid "%(total)s matches"
+msgstr ""
+
+#: commands/LookupCommand.py:123
+#, python-format
+msgid "%(total)s approx. matches"
+msgstr ""
+
+#: commands/LookupCommand.py:128
+#, python-format
+msgid "%(intro)s: %(list)s"
+msgstr ""
+
+#: commands/RegistrationCommand.py:38
+#, python-format
+msgid "Not enough info. Expected: %(keyword)s location names"
+msgstr ""
+
+#: commands/RegistrationCommand.py:46
+#, python-format
+msgid "Location %(location)s does not exist."
+msgstr ""
+
+#: commands/RegistrationCommand.py:96
+#, python-format
+msgid "You are now registered at %(location)s with alias @%(alias)s."
+msgstr ""
+
+#: commands/RelocateCommand.py:35
+msgid ""
+"Cannot run reloc command from cell phone. Use the computer interface instead."
+msgstr ""
+
+#: commands/RelocateCommand.py:42
+msgid "Relocate command format: reloc LOC HEALTH_ID."
+msgstr ""
+
+#: commands/RelocateCommand.py:51
+#, python-format
+msgid "CHW with ID %(id)d does not exist"
+msgstr ""
+
+#: commands/RelocateCommand.py:69
+#, python-format
+msgid "There is no location with code %(code)s."
+msgstr ""
+
+#: commands/RelocateCommand.py:77
+#, python-format
+msgid "There is no person with ID %(hid)s."
+msgstr ""
+
+#: commands/RelocateCommand.py:92
+#, python-format
+msgid ""
+"Made status ACTIVE and moved %(count)d people to %(loc)s with CHW %(chw)s: "
+msgstr ""
+
+#: commands/RelocateCommand.py:99
+#, python-format
+msgid "Marked %(count)d patients as INACTIVE: "
+msgstr ""
+
+#: commands/SimilarCommand.py:65
+msgid "Similar command requires a single health ID"
+msgstr ""
+
+#: commands/SimilarCommand.py:90
+msgid "No similar health IDs found."
+msgstr ""
+
+#: commands/SimilarCommand.py:95
+msgid "Patients: "
+msgstr ""
+
+#: commands/SimilarCommand.py:97
+msgid "Unused IDs: "
+msgstr ""
+
+#: commands/StockInCommand.py:33
+#, python-format
+msgid "Not enough information. Expected:%(keyword)s locationcode quantity"
+msgstr ""
+
+#: commands/StockInCommand.py:39
+#, python-format
+msgid "Unknown location code %(loc)s."
+msgstr ""
+
+#: commands/StockInCommand.py:42
+#, python-format
+msgid "Bad Value for quantity %(val)s"
+msgstr ""
+
+#: commands/StockInCommand.py:59
+msgid " additional "
+msgstr ""
+
+#: commands/StockInCommand.py:61
+#, python-format
+msgid ""
+"%(loc)s has received %(q)s%(additional)s nets for distribution. Starting "
+"Point:%(sp)s"
+msgstr ""
+
+#: commands/StockOutCommand.py:33
+#, python-format
+msgid "Not enough information. Expected:%(keyword)s locationcode quantity"
+msgstr ""
+
+#: commands/StockOutCommand.py:39
+#, python-format
+msgid "Unknown location code %(loc)s."
+msgstr ""
+
+#: commands/StockOutCommand.py:42
+#, python-format
+msgid "Bad Value for quantity %(val)s"
+msgstr ""
+
+#: commands/StockOutCommand.py:53
+#, python-format
+msgid "No Stockin for %(loc)s."
+msgstr ""
+
+#: commands/StockOutCommand.py:56
+#, python-format
+msgid ""
+"%(loc)s: %(q)s nets is greater than  Starting point quantity %(sp)s nets. "
+"Please check if your stock out quantity is correct."
+msgstr ""
+
+#: commands/StockOutCommand.py:66
+#, python-format
+msgid ""
+"%(loc)s's closing stock is %(q)s nets; Starting Point: %(sp)s; Issued: %"
+"(issued)s"
+msgstr ""
+
+#: commands/TestAlertsCommand.py:35
+msgid "alert command requires | username | delay[s/m/h) | message"
+msgstr ""
+
+#: commands/TestAlertsCommand.py:42
+#, python-format
+msgid "No patient with health id %(health_id)s"
+msgstr ""
+
+#: commands/TestAlertsCommand.py:51
+#, python-format
+msgid "Could not understand %(error)s delay."
+msgstr ""
+
+#: commands/TestAlertsCommand.py:57
+#, python-format
+msgid "Could not understand %(error)s delay"
+msgstr ""
+
+#: commands/TestAlertsCommand.py:73
+#, python-format
+msgid "%(chw)s will be notified at %(time)s"
+msgstr ""
+
+#: commands/WhoCommand.py:29
+#, python-format
+msgid ""
+"You are registered as %(full_name)s from %(location)s with alias @%(alias)s."
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:37
+msgid "Command requires atleast one health id"
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:63
+msgid "Configuration Error: Please contact system administrator."
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:82
+#, python-format
+msgid "Successful: %(patients)s. "
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:84
+#, python-format
+msgid "Over 59m: %(patients)s. "
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:87
+#, python-format
+msgid "Inactive: %(patients)s. "
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:90
+#, python-format
+msgid "Invalid HealthID: %(hid)s. "
+msgstr ""
+
+#: commands/nids/NIDSCommand.py:93
+#, python-format
+msgid "Already reported: %(patients)s. "
+msgstr ""
+
+#: commands/nids/PolioSummaryCommand.py:39
+msgid "Configuration Error: Please contact system administrator."
+msgstr ""
+
+#: commands/nids/PolioSummaryCommand.py:54
+#, python-format
+msgid "Vaccinated: %(count)s of %(total)s - %(percentage)s%%"
+msgstr ""
+
+#: commands/nids/PolioSummaryCommand.py:58
+msgid "Not Vaccinated: "
+msgstr ""
+
+#: commands/nids/PolioSummaryCommand.py:70
+#, python-format
+msgid "%(percentage)s%% coverage, Total Reports: %(total)s. "
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:35
+msgid "Not enough info."
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:58
+#, python-format
+msgid "Could not understand expected date of delivery: %(expected_on)s."
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:62
+#, python-format
+msgid ""
+"%(expected_on)s is already in the past, the expected delivery date should be "
+"a future date."
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:74
+#, python-format
+msgid "Expected date of delivery is %(expected_on)s."
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:82
+#, python-format
+msgid ""
+"Please send %(patient)s to the health center if  they have not visited the "
+"clinic in the last 2 weeks."
+msgstr ""
+
+#: forms/AntenatalVisitForm.py:87
+#, python-format
+msgid "Please send %(patient)s to the health center for their appointment"
+msgstr ""
+
+#: forms/AppointmentForm.py:42
+msgid "Not enough info. Expected: date of appointment."
+msgstr ""
+
+#: forms/AppointmentForm.py:50
+#, python-format
+msgid "Inapplicable: %(patient)s is not within required age bracket"
+msgstr ""
+
+#: forms/AppointmentForm.py:79
+#, python-format
+msgid "Could not understand the date of appointment %(expected_on)s"
+msgstr ""
+
+#: forms/AppointmentForm.py:85
+#, python-format
+msgid ""
+"%(expected_on)s is already in the past, please use a future date of "
+"appointment."
+msgstr ""
+
+#: forms/AppointmentForm.py:98
+#, python-format
+msgid "Next appointment is on %(expected_on)s."
+msgstr ""
+
+#: forms/AppointmentForm.py:102
+#, python-format
+msgid "No next appointment: %(patient)s has completed the program."
+msgstr ""

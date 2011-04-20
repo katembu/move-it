@@ -69,20 +69,34 @@ table.rsmsList tbody tr {
     height: 1.5em;
 }
 
+#msg_table {
+    margin:auto auto;
+    width:90%;
+    height:1.2em;
+}
+
+#check_box {
+    font-size:3em;
+    width:0.7em;
+    height:1.4em;
+    color:lime;
+}   
+
+#checkmark {
+    display:none;
+}
+
 #message {
     font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
-    margin: auto auto;
-    padding: 0.2em;
-
 	background-color: #dedede;
 	border: 2px solid #007;
 	border-color: #f4f4f4 #b9b9b9 #979797 #f1f1f1;
     -moz-border-radius: 13px;
 
-
-    width: 90%;
+    padding:0.2em;
     font-size: 1.5em;
-    height: 2.0em;
+    height: 1.4em;
+    width:100%;
     font-family: Lekton,"Courier New",Courier,monospace,sans-serif;
 }
 
@@ -119,6 +133,18 @@ table.rsmsList tbody tr {
 
 table.response thead td {
     text-align: left;
+}
+
+span#date_value {
+    background-color: white;
+    font-weight: bold;
+}
+
+.date_okay {
+    color: green;
+}
+.date_bad {
+    color: red;
 }
 
 #feedback tbody {

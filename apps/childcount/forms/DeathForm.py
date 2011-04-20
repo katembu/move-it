@@ -75,7 +75,24 @@ class DeathForm(CCForm):
         dr.death_date = dod
         dr.save()
 
+        msg = _("Died on %(dod)s.") % {'dod': dod}
+
+        if patient.is_head_of_household():
+            hh = Patient.objects\
+                .filter(household__pk=patient.pk)\
+                .exclude(pk=patient.pk)\
+                .order_by('dob')
+
+            new_head = hh[0]
+            n = hh.update(household=new_head)
+
+            msg += _(" Changed head of household for %(n)d family " \
+                    "member(s) to %(hid)s (%(hh)s)") % \
+                {'hh': new_head.full_name(), \
+                'hid':new_head.health_id.upper(),
+                'n': n}
+
         patient.status = Patient.STATUS_DEAD
         patient.save()
 
-        self.response = _("Died on %(dod)s") % {'dod': dod}
+        self.response = msg

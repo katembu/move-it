@@ -531,6 +531,10 @@ class PregnancyReport(CCReport):
              self.weeks_since_anc)
         return string
 
+    def estimated_dd(self):
+        return self.encounter.encounter_date + \
+            timedelta(30.3475 * (9 - self.pregnancy_month))
+
     def get_omrs_dict(self):
         igive = {
             'month_of_current_gestation': self.pregnancy_month,
@@ -787,10 +791,13 @@ class NutritionReport(CCReport):
     def diagnose(self):
         '''Diagnosis of the patient'''
         self.status = self.STATUS_HEALTHY
-        if self.oedema == 'Y' or self.muac < 110:
+        if self.muac is None or self.muac == 0:
+            self.status = None
+        elif self.oedema == 'Y' or self.muac < 110:
             self.status = self.STATUS_SEVERE
         elif self.muac < 125:
             self.status = self.STATUS_MODERATE
+        print (self.muac, self.oedema, self.status)
 
     def save(self, *args):
         if self.status is None:

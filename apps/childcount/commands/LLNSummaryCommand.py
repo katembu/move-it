@@ -106,8 +106,8 @@ class LLNSummaryCommand(CCCommand):
                     nets = inets['dc']
                 else:
                     nets = 0
-                msg = _(u"You issued %s bednets on %s" % (nets,
-                    dod.strftime("%d/%m/%Y")))
+                msg = _(u"You issued %(n)s bednets on %(date)s") % \
+                    {'n': nets, 'date': dod.strftime("%d/%m/%Y")}
                 try:
                     send_msg(chw, msg)
                 except:
