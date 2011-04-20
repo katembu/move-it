@@ -409,7 +409,7 @@ def upcoming_appointments(title=_(u'Upcoming Apointments')):
 def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
     MIN_PREG_AGE = 9
     doc = Document(title)
-    if not AppointmentReport.objects.exists():
+    if not AppointmentReport.objects.filter().count():
         doc.add_element(Paragraph(u"No Appointments yet!"))
         return doc
     first_apt = AppointmentReport.objects\
