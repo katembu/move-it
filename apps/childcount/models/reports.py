@@ -1474,9 +1474,9 @@ class HIVTestReport(CCReport):
         populate
         '''
         info = {'blood_drawn_for_cd4_count': self.blood_drawn}
-        if self.hiv == HIV_YES:
+        if self.hiv ==self.HIV_YES:
             info.update({'hiv_test': True})
-        if self.hiv == HIV_NO:
+        if self.hiv == self.HIV_NO:
             info.update({'hiv_test': False})
         return info
 reversion.register(HIVTestReport, follow=['ccreport_ptr'])

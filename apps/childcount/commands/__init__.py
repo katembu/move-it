@@ -24,4 +24,5 @@ from childcount.commands.StockInCommand import StockInCommand
 from childcount.commands.GetStockCommand import GetStockCommand
 from childcount.commands.StockOutCommand import StockOutCommand
 from childcount.commands.LLNSummaryCommand import LLNSummaryCommand
-from childcount.commands.HouseholdHeadCommand import HouseholdHeadCommand 
+from childcount.commands.BlastCommand import BlastCommand
+from childcount.commands.HouseholdHeadCommand import HouseholdHeadCommand
