@@ -1,7 +1,13 @@
 
-.errorlist {
+.error_title, .errorlist {
     color: red;
     font-weight: bold;
+}
+
+.error_title {
+    margin: 10px;
+    padding: 5px;
+    font-size: 13px;
 }
 
 body {
