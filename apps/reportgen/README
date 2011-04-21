@@ -5,7 +5,7 @@
 == Requirements ==
 Celery >= 2.2.5
 django-celery >= 2.2.4
-RabbitMQ >= 1.7.2
+RabbitMQ >= 1.6
 Carrot >= 0.10.7
 
 That you configure settings.py with

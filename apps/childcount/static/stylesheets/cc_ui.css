@@ -1,3 +1,9 @@
+
+.errorlist {
+    color: red;
+    font-weight: bold;
+}
+
 body {
   font: 9pt/1 "Lucida Grande", "Bitstream Vera Sans", Verdana, sans-serif;
   background-image: url("../images/body_shading.png");
