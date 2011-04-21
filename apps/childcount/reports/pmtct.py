@@ -449,7 +449,8 @@ def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
                                             encounter__encounter_date__lte=dtend)
         eighteen_months = dtend + relativedelta(months=-18)
         dt_preg_women = dtend + relativedelta(years=-MIN_PREG_AGE)
-        preg_women = apps.filter(encounter__patient__dob__lte=dt_preg_women)
+        preg_women = apps.filter(encounter__patient__dob__lte=dt_preg_women, \
+                            encounter__patient__gender=Patient.GENDER_FEMALE)
         under_18 = apps.filter(encounter__patient__dob__lte=dtend, \
             encounter__patient__dob__gte=eighteen_months)
         if under_18:
