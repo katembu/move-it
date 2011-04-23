@@ -15,6 +15,7 @@ from childcount.models import AntenatalVisitReport
 from childcount.models import Patient, Clinic
 
 from ccdoc import Document, Table, Paragraph, Text, Section, PageBreak
+from childcount.reports.indicator import Indicator
 from childcount.reports.utils import render_doc_to_response
 
 open_status = (AppointmentReport.STATUS_OPEN, \
@@ -406,9 +407,9 @@ def upcoming_appointments(title=_(u'Upcoming Apointments')):
     return doc
 
 
-def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
+def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly', excel=False):
     MIN_PREG_AGE = 9
-    doc = Document(title)
+    doc = Document(title, landscape=True)
     if not AppointmentReport.objects.filter().count():
         doc.add_element(Paragraph(u"No Appointments yet!"))
         return doc
@@ -423,13 +424,16 @@ def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
         date_rule = rrule.rrule(rrule.MONTHLY, dtstart=start_date, \
             until=end_date)
         col1 = u'Month'
-    t = Table(5)
+    t = Table(8)
     t.add_header_row([
         Text(unicode(col1)),
         Text(unicode(_(u"Dates"))),
         Text(unicode(_(u"# Apts for Under 18"))),
+        Text(unicode(_(u"% Closed"))),
         Text(unicode(_(u"# Apts for Pregnant Women"))),
-        Text(unicode(_(u"Total Appointments")))])
+        Text(unicode(_(u"% Closed"))),
+        Text(unicode(_(u"Total Appointments"))),
+        Text(unicode(_(u"% Closed")))])
     c = 0
     for dt in date_rule:
         if wm == 'monthly':
@@ -445,24 +449,35 @@ def appointments_per_week(title=_(u'Appointments Per Week'), wm='weekly'):
                                     {'start': dtstart.strftime('%d-%m-%Y'), \
                                     'end': dtend.strftime('%d-%m-%Y')}
             col1 = _("Week #%(week)s" % {'week': c})
-        apps = AppointmentReport.objects.filter(encounter__encounter_date__gte=dtstart, \
-                                            encounter__encounter_date__lte=dtend)
+        apps = AppointmentReport.objects\
+                            .filter(encounter__encounter_date__gte=dtstart, \
+                                        encounter__encounter_date__lte=dtend)
         eighteen_months = dtend + relativedelta(months=-18)
         dt_preg_women = dtend + relativedelta(years=-MIN_PREG_AGE)
         preg_women = apps.filter(encounter__patient__dob__lte=dt_preg_women, \
                             encounter__patient__gender=Patient.GENDER_FEMALE)
-        under_18 = apps.filter(encounter__patient__dob__lte=dtend, \
+        under18 = apps.filter(encounter__patient__dob__lte=dtend, \
             encounter__patient__dob__gte=eighteen_months)
-        if under_18:
-            print under_18[0].encounter.encounter_date
+        under18_closed = under18.filter(status=AppointmentReport.STATUS_CLOSED)
+        preg_women_closed = preg_women\
+                        .filter(status=AppointmentReport.STATUS_CLOSED)
+        apps_closed = apps.filter(status=AppointmentReport.STATUS_CLOSED)
+        if under18:
+            print under18[0].encounter.encounter_date
         if c == 0 and apps.count() == 0:
             continue
         t.add_row([
                 Text(unicode(col1)),
                 Text(unicode(period)),
-                Text(unicode("%s" % under_18.count())),
+                Text(unicode("%s" % under18.count())),
+                Text(Indicator.PERC_PRINT_SHORT((under18_closed.count(), \
+                    under18.count()), excel)),
                 Text(unicode("%s" % preg_women.count())),
-                Text(unicode("%s" % apps.count()))])
+                Text(Indicator.PERC_PRINT_SHORT((preg_women_closed.count(), \
+                    preg_women.count()), excel)),
+                Text(unicode("%s" % apps.count())),
+                Text(Indicator.PERC_PRINT_SHORT((apps_closed.count(), \
+                    apps.count()), excel))])
         c += 1
     # Table styling
     t.set_column_width(10, column=0)

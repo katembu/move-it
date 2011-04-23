@@ -18,5 +18,8 @@ class Report(PrintedReport):
 
     def generate(self, rformat, title, filepath, data):
         period_set = data['period_set']
-        doc = appointments_per_week(title, period_set)
+        excel = False
+        if rformat == 'xls':
+            excel = True
+        doc = appointments_per_week(title, period_set, excel)
         return render_doc_to_file(filepath, rformat, doc)
