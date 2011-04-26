@@ -7,9 +7,10 @@
 Patient - Patient model
 '''
 
-from datetime import date
+from datetime import date, timedelta
 
 from django.db import models
+from django.db.models import F
 from django.db import connection
 from django.db.models import Count
 from django.db.models.query import QuerySet
@@ -213,7 +214,7 @@ class Patient(models.Model):
 
         sub_columns = None
         return columns, sub_columns
-    
+
     #
     # BEGIN Indicator Code
     #
@@ -223,46 +224,98 @@ class Patient(models.Model):
     '''
     objects = PatientManager()
     class QuerySet(QuerySet):
-        def muac_eligible(self, start, end):
-            raise NotImplementedError()
-
+        def alive(self, start, end):
+            return self\
+                .exclude(status=Patient.STATUS_INACTIVE)\
+                .exclude(encounter__ccreport__deathreport__death_date__lte=end)
+        '''
+        Age-related filters
+        '''
         def neonatal(self, start, end):
-            raise NotImplementedError()
+            return self.age(start, end, 0, 28)
+        
+        def under_six_months(self, start, end):
+            return self.age(start, end, 0, 30*6)
+
+        def muac_eligible(self, start, end):
+            return self.age(start, end, 6*30, 5*365)
 
         def under_one(self, start, end):
-            raise NotImplementedError()
+            return self.age(start, end, 0, 365)
 
         def under_five(self, start, end):
-            raise NotImplementedError()
-
-        def over_five(self, start, end):
-            raise NotImplementedError()
-
-        def households(self, start, end):
-            raise NotImplementedError()
-
-        def alive(self, start, end):
-            raise NotImplementedError()
+            return self.age(start, end, 0, 5*365)
 
         def under_nine(self, start, end):
-            raise NotImplementedError()
+            return self.age(start, end, 0, 9*365)
 
+        def over_five(self, start, end):
+            return self.age(start, end, 5*365, None)
+
+        def age(self, start, end, min_days, max_days):
+            filter_on = {}
+            if min_days:
+                filter_on['dob__lte'] = end-timedelta(days=min_days)
+            if max_days:
+                filter_on['dob__gt'] = end-timedelta(days=max_days)
+
+            # We filter on dob__lte=end because we never want to 
+            # include people who were not born at date end
+            return self\
+                .alive(start, end)\
+                .filter(**filter_on)\
+                .filter(dob__lte=end)
+
+        '''
+        Household filter
+        '''
+        def households(self, start, end):
+            return self\
+                .alive(start, end)\
+                .filter(pk=F('household__pk'))
+
+
+        '''
+        Pregnancy filters
+        '''
         def pregnant(self, start, end):
-            raise NotImplementedError()
+            return self.pregnant_months(start, end, 1, 9)
 
         def pregnant_recently(self, start, end):
-            raise NotImplementedError()
+            return self.pregnant_months(start, end, 1, 10)
 
         def pregnant_months(self, start, end, start_month, end_month):
             raise NotImplementedError()
+            assert start_month > 0, _("Start month must be > 0")
 
+            # Filter out dead people, men, kids, and people 
+            # less than 10 yrs or more than 55 yrs old...
+            # Then look for women with PregnancyReports
+            fil = self\
+                .alive(start, end)\
+                .filter(gender=Patient.GENDER_FEMALE)\
+                .age(start, end, 10*365, 55*365)\
+                .filter(encounter__ccreport__pregnancyreport__encounter__encounter_date__gte=\
+                                        start-timedelta(days=365),
+                        encounter__ccreport__pregnancyreport__encounter__encounter_date__lte=\
+                                        end+timedelta(days=31*end_month))
+            pks = set()
+            for p in fil:
+                pregs = p\
+                    .encounter_set\
+                    .filter(encounter_date__gte=start-timedelta(days=365),\
+                            encounter_date__lte=end+timedelta(days=31*end_month))\
+                    .ccreport_set\
+                    .filter(polymorphic_ctype__model='pregnancyreport')\
+                    .latest('encounter__encounter_date')
+                print pregs
+            return []
+                
+                
+
+
+                 
         def over_five_not_pregnant_recently(self, start, end):
-            raise NotImplementedError()
-
-        def under_six_months(self, start, end):
-            raise NotImplementedError()
-
-        def age(self, start, end, min_days, max_days):
             raise NotImplementedError()
 
         def delivered(self, start, end):
