@@ -25,6 +25,11 @@ class Indicator(object):
 
     @classmethod
     def _check_type(cls, expected, value, s):
+        if expected is QuerySet:
+            raise TypeError(_("Expected %(str)s type cannot be a QuerySet. "\
+                            "Use an indicator.QuerySetType object instead.") % \
+                            {'str': s)
+
         # First, check if we're dealing with a QuerySetType object
         if isinstance(expected, QuerySetType):
             if not isinstance(value, QuerySet):
