@@ -71,6 +71,7 @@ class CodedItem(models.Model):
         'bco': (_('bco'), _(u"B Complex")),
         'arv': (_('arv'), _(u"ARV")),
         'azt': (_('azt'), _(u"AZT")),
+        'lb': (_('lb'), _(u"Albendazole")),
     }
 
     counseling = {
