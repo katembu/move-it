@@ -10,8 +10,9 @@ Patient - Patient model
 from datetime import date
 
 from django.db import models
-from django.db.models import Count
 from django.db import connection
+from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 from django.forms import CharField
 import reversion
@@ -22,11 +23,13 @@ from locations.models import Location
 import childcount.models.Clinic
 import childcount.models.CHW
 
+class PatientManager(models.Manager):
+    def get_query_set(self):
+        return self.model.QuerySet(self.model)
 
 class Patient(models.Model):
 
     '''Holds the patient details, properties and methods related to it'''
-
     class Meta:
         app_label = 'childcount'
         db_table = 'cc_patient'
@@ -50,6 +53,7 @@ class Patient(models.Model):
         (STATUS_INACTIVE, _(u"Relocated")),
         (STATUS_DEAD, _(u"Dead")))
 
+    objects = PatientManager()
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
                                 null=True, db_index=True, unique=True, \
                                 help_text=_(u"Unique Health ID"))
@@ -144,13 +148,6 @@ class Patient(models.Model):
         return u'%s %s %s/%s' % (self.health_id.upper(), self.full_name(), \
                                  self.gender, self.humanised_age())
 
-    def is_under_five(self):
-        days, weeks, months = self.age_in_days_weeks_months()
-        if months < 60:
-            return True
-        else:
-            return False
-
     @classmethod
     def is_valid_health_id(cls, health_id):
         MIN_LENGTH = 4
@@ -216,4 +213,60 @@ class Patient(models.Model):
 
         sub_columns = None
         return columns, sub_columns
+    
+    #
+    # BEGIN Indicator Code
+    #
+
+    ''' This enables us to extend patient QuerySets with
+        useful filters
+    '''
+    objects = PatientManager()
+    class QuerySet(QuerySet):
+        def muac_eligible(self, start, end):
+            raise NotImplementedError()
+
+        def neonatal(self, start, end):
+            raise NotImplementedError()
+
+        def under_one(self, start, end):
+            raise NotImplementedError()
+
+        def under_five(self, start, end):
+            raise NotImplementedError()
+
+        def over_five(self, start, end):
+            raise NotImplementedError()
+
+        def households(self, start, end):
+            raise NotImplementedError()
+
+        def alive(self, start, end):
+            raise NotImplementedError()
+
+        def under_nine(self, start, end):
+            raise NotImplementedError()
+
+        def pregnant(self, start, end):
+            raise NotImplementedError()
+
+        def pregnant_recently(self, start, end):
+            raise NotImplementedError()
+
+        def pregnant_months(self, start, end, start_month, end_month):
+            raise NotImplementedError()
+
+        def over_five_not_pregnant_recently(self, start, end):
+            raise NotImplementedError()
+
+        def under_six_months(self, start, end):
+            raise NotImplementedError()
+
+        def age(self, start, end, min_days, max_days):
+            raise NotImplementedError()
+
+        def delivered(self, start, end):
+            raise NotImplementedError()
+
+
 reversion.register(Patient)
