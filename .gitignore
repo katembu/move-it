@@ -27,7 +27,6 @@ nbproject
 apps/admin
 apps/ajax
 apps/httptester
-apps/locations
 apps/logger
 apps/messaging
 apps/patterns
