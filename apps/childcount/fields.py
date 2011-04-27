@@ -5,18 +5,30 @@ from django import forms
 from django.forms import TextInput
 from django.forms.util import ValidationError
 
-from childcount.widgets import JQueryAutoComplete
 from childcount.models.Patient import Patient
 
-class HealthIdField(CharField):
-    def __init__(self, *args, **kwargs):
-        super(HealthIdField, self).__init__(*args, **kwargs)
-        if self.initial != None:
-            self.initial = Patient\
-                .objects\
-                .get(pk=self.initial)\
+class HealthIdWidget(forms.TextInput):
+    def _format_value(self, value):
+        if value is None:
+            return ''
+        
+        if isinstance(value, (int, long)):
+            return Patient.objects.get(pk=value).health_id.upper()
+        return value.upper()
+
+    def render(self, name, value, attrs=None):
+        value = self._format_value(value)
+        return super(HealthIdWidget, self).render(name, value, attrs)
+
+    def _has_changed(self, initial, data):
+        return super(HealthIdWidget, self).has_changed(self._format_value(initial), data)
+
+class HealthIdField(forms.Field):
+    widget = HealthIdWidget
 
     def clean(self, value):
+        super(HealthIdField, self).clean(value)
+
         value = super(HealthIdField, self).clean(value).upper()
         value = value.strip()
 
@@ -29,6 +41,9 @@ class HealthIdField(CharField):
         return p
 
 class PatientForm(ModelForm):
+    household = HealthIdField(required=True)
+    mother = HealthIdField(required=False)
+
     class Meta:
         model = Patient
         exclude = ['health_id']

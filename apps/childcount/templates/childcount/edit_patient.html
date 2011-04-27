@@ -51,6 +51,12 @@
 {% endif %}
 
 {% if form %}
+    {% if form.errors %}
+        <div class='error_title'>
+            {{ form.errors|length }} error{{ form.errors|length|pluralize }} found! Please correct the error{{ form.errors|length|pluralize }} marked below and try saving the form again.
+        </div>
+    {% endif %}
+
 <form action="/childcount/patients/edit/{{ health_id }}/" method="POST">
 <table>
 {{ form }}
