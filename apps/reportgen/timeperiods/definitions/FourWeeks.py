@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
-from datetime import date
+from datetime import datetime
 from dateutil.relativedelta import *
 
 from django.utils.translation import ugettext as _
@@ -26,7 +26,8 @@ class FourWeeks(PeriodType):
         # start_date is a Monday, so this subperiod ends
         # on the following Sunday
         start_date = period_start_date + relativedelta(weeks=index)
-        end_date = start_date + relativedelta(weekday=SU)
+        end_date = start_date + relativedelta(weekday=SU,\
+            hour=23, minute=59, second=59, microsecond=999999)
 
         title = _("Week of %(start)s") % \
             {'start': start_date.strftime("%d %b.")}
@@ -39,7 +40,9 @@ class FourWeeks(PeriodType):
     def _monthly_period(cls, index):
         # Index 0 == last Monday
         # Index 1 == two Mondays ago
-        start_date = date.today() + relativedelta(weekday=MO(-index))
+        start_date = datetime.today() + \
+                    relativedelta(weekday=MO(-index), hour=0, minute=0,\
+                        second=0, microsecond=0)
         sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
             for sub_index in xrange(0,4)]
 

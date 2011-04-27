@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
-from datetime import date
+from datetime import datetime
 from dateutil.relativedelta import *
 
 from django.utils.translation import ugettext as _
@@ -29,11 +29,13 @@ class TwelveMonths(PeriodType):
         # e.g., We go from April 1, 2010 to March 31, 2011
 
         # First day of next month, starting one year ago 
-        start_date = date.today() + \
-            relativedelta(day=1, months=1-index, years=-1)
+        start_date = datetime.today() + \
+            relativedelta(day=1, months=1-index, years=-1, hour=0, \
+                minute=0, second=0, microsecond=0)
 
         # Last day of this month
-        end_date = start_date + relativedelta(years=1, days=-1)
+        end_date = start_date + relativedelta(years=1, days=-1,\
+            hour=23, minute=59, second=59, microsecond=999999)
       
         sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
             for sub_index in xrange(0, 12)]
@@ -51,7 +53,8 @@ class TwelveMonths(PeriodType):
     @classmethod
     def _monthly_subperiod(cls, period_start_date, index):
         start_date = period_start_date + relativedelta(months=index, day=1)
-        end_date = start_date + relativedelta(day=31)
+        end_date = start_date + relativedelta(day=31, hour=23,\
+            minute=59, second=59, microsecond=999999)
 
         title = start_date.strftime("%b %Y")
         return SubPeriod(\

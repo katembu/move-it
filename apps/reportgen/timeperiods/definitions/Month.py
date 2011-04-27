@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
-from datetime import date
+from datetime import datetime
 from dateutil.relativedelta import *
 
 from django.utils.translation import ugettext as _
@@ -26,11 +26,15 @@ class Month(PeriodType):
         # Index == 1 means this month
 
         # First day of month, starting next month
-        start_date = date.today() + \
-            relativedelta(day=1, months=-index)
+        start_date = datetime.today() + \
+            relativedelta(day=1, months=-index, hour=0, \
+                minute=0, second=0, microsecond=0)
+
 
         # Last day of calendar month
-        end_date = start_date + relativedelta(day=31)
+        end_date = start_date + \
+            relativedelta(day=31, hour=23, minute=59, second=59,\
+                microsecond=999999)
       
         # If we need five weeks to encompass the entire
         # month, then make it so
@@ -58,7 +62,9 @@ class Month(PeriodType):
     @classmethod
     def _monthly_subperiod(cls, period_start_date, index):
         start_date = period_start_date + relativedelta(weeks=index)
-        end_date = start_date + relativedelta(day=(start_date.day+6))
+        end_date = start_date + \
+            relativedelta(day=(start_date.day+6), hour=23, minute=59,\
+                second=59, microsecond=999999)
 
         title = _("%(start)s to %(end)s") % \
             {'start': start_date.strftime("%d %b"),
