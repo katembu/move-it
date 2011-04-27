@@ -285,11 +285,7 @@ class Patient(models.Model):
         def pregnant(self, start, end):
             return self.pregnant_months(start, end, 1, 9)
 
-        def pregnant_recently(self, start, end):
-            return self.pregnant_months(start, end, 1, 10)
-
         def pregnant_months(self, start, end, start_month, end_month):
-            #raise NotImplementedError()
             assert start_month > 0, _("Start month must be > 0")
             assert start_month <= end_month, \
                         _("Start month must be <= end_month")
@@ -372,6 +368,9 @@ class Patient(models.Model):
             f = fil.filter(pk__in=pks)
             return f
                  
+        def pregnant_recently(self, start, end):
+            raise NotImplementedError()
+
         def over_five_not_pregnant_recently(self, start, end):
             raise NotImplementedError()
 
