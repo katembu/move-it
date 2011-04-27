@@ -24,6 +24,10 @@ from locations.models import Location
 import childcount.models.Clinic
 import childcount.models.CHW
 
+def queries():
+    print len(connection.queries)
+    connection.queries = []
+
 class PatientManager(models.Manager):
     def get_query_set(self):
         return self.model.QuerySet(self.model)
@@ -285,8 +289,10 @@ class Patient(models.Model):
             return self.pregnant_months(start, end, 1, 10)
 
         def pregnant_months(self, start, end, start_month, end_month):
-            raise NotImplementedError()
+            #raise NotImplementedError()
             assert start_month > 0, _("Start month must be > 0")
+            assert start_month <= end_month, \
+                        _("Start month must be <= end_month")
 
             # Filter out dead people, men, kids, and people 
             # less than 10 yrs or more than 55 yrs old...
@@ -298,22 +304,73 @@ class Patient(models.Model):
                 .filter(encounter__ccreport__pregnancyreport__encounter__encounter_date__gte=\
                                         start-timedelta(days=365),
                         encounter__ccreport__pregnancyreport__encounter__encounter_date__lte=\
-                                        end+timedelta(days=31*end_month))
+                    end)
+
             pks = set()
             for p in fil:
-                pregs = p\
-                    .encounter_set\
+                prep = p.encounter_set\
                     .filter(encounter_date__gte=start-timedelta(days=365),\
-                            encounter_date__lte=end+timedelta(days=31*end_month))\
+                            encounter_date__lte=end,\
+                            ccreport__pregnancyreport__encounter__encounter_date__gte=\
+                                date(1900,01,01))\
+                    .latest('encounter_date')\
                     .ccreport_set\
                     .filter(polymorphic_ctype__model='pregnancyreport')\
                     .latest('encounter__encounter_date')
-                print pregs
-            return []
-                
-                
+               
+                # Number of days since encounter
+                days = (end - prep.encounter.encounter_date).days
 
+                # Number of months since encounter
+                months = round(days/30.4375)
 
+                # If the pregnancy month plus months since encounter
+                # is greater than 9 and there's no birth report,
+                # then let's assume the lady is not pregnant
+                months_pregnant = prep.pregnancy_month + months
+                if months_pregnant > 9:
+                    print 'too old %d in %s' % \
+                        (prep.pregnancy_month, prep.encounter.encounter_date)
+                    continue
+
+                if not (months_pregnant >= start_month and \
+                    months_pregnant <= end_month):
+                    print 'not in right month...'
+                    continue
+
+                # Look for a baby since the pregnancy
+                b = Patient\
+                    .objects\
+                    .filter(mother=p,\
+                        dob__gte=end-timedelta(months_pregnant*30.4375),\
+                        dob__lte=end)
+
+                # If the birthreport has been found, then she's no longer
+                # pregnant
+                if b.count() > 0:
+                    print 'birth at %d' % months_pregnant
+                    continue
+
+                # Look for a stillbirth/miscarriage
+                sbm = p.encounter_set\
+                    .filter(encounter_date__lte=end,
+                        ccreport__stillbirthmiscarriagereport__incident_date__gte=\
+                            end-timedelta(months_pregnant*30.4375),\
+                        ccreport__stillbirthmiscarriagereport__incident_date__lte=\
+                            end)\
+               
+                # If there was a stillbirth/misscariage, then she's
+                # no longer pregnant
+                if sbm.count() > 0:
+                    print 'stillbirth'
+                    continue
+                
+                print '*PR submitted %s at month %d (ago: %d)' % \
+                    (prep.encounter.encounter_date, \
+                        prep.pregnancy_month, months)
+                pks.add(p.pk)
+            f = fil.filter(pk__in=pks)
+            return f
                  
         def over_five_not_pregnant_recently(self, start, end):
             raise NotImplementedError()

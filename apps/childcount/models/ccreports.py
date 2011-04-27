@@ -865,7 +865,7 @@ class TheCHWReport(CHW):
         return len(self.pregnant_women())
 
     def pregnant_women(self, today=datetime.today().date()):
-        c = []
+            c = []
         # Need to use Sauri specific
         # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
         # does returns [], with values('encounter__patient').distinct()
