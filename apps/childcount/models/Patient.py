@@ -273,7 +273,7 @@ class Patient(models.Model):
         '''
         Household filter
         '''
-        def households(self, start, end):
+        def household(self, start, end):
             return self\
                 .alive(start, end)\
                 .filter(pk=F('household__pk'))

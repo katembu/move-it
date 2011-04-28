@@ -17,6 +17,8 @@ from celery.registry import tasks
 from celery.task.control import revoke
 
 from django.db import models
+from django.db import connection
+from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 import reversion
 from reversion.models import Version
@@ -84,6 +86,45 @@ class IndicatorManager(PolymorphicManager):
             .get_query_set()\
             .filter(encounter__patient__status=Patient.STATUS_ACTIVE)
 
+'''
+For filtering on age at time of encounter
+'''
+class AgeQuerySet(PolymorphicQuerySet):
+    '''
+    This custom SQL allows us easily to filter to find
+    CCReports that were recorded when the patient was between
+    START and END days old (inclusive).
+
+    The Django way to do this would be to use and F()+timedelta()
+    in a filter() call, but that operation isn't supported in
+    Django 1.1.
+    '''
+
+    def encounter_under_five(self):
+        return self.encounter_age(0, 365.25*5)
+    
+    def encounter_age(self, min_days, max_days):
+        cursor = connection.cursor()
+
+        n = cursor.execute(\
+        '''
+        SELECT  `cc_encounter`.`id`
+        FROM    `cc_encounter`
+
+        LEFT JOIN `cc_patient` ON 
+            (`cc_encounter`.`patient_id`=`cc_patient`.`id`)
+
+        WHERE
+            DATEDIFF(`cc_encounter`.`encounter_date`, `cc_patient`.`dob`)
+            BETWEEN "%(min_days)d" AND "%(max_days)d";
+        ''' % {'min_days': min_days, 'max_days': max_days})
+
+        # Result is a list of [(pk0,), (pk1,), ...]
+        pks = map(lambda x:x[0], cursor.fetchall())
+
+        # Filter on encounter PK
+        return self.filter(encounter__pk__in=pks)
+
 class CCReport(PolymorphicModel):
 
     '''
@@ -91,7 +132,7 @@ class CCReport(PolymorphicModel):
     inhereted by all other report classes
     '''
 
-    objects = PolymorphicManager()
+    objects = PolymorphicManager(AgeQuerySet)
     indicators = IndicatorManager(IndicatorQuerySet)
 
     class Meta:
