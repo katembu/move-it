@@ -38,10 +38,10 @@ class NutritionForm(CCForm):
         oedema_field = MultipleChoiceField()
         oedema_field.add_choice('en', NutritionReport.OEDEMA_YES, 'Y')
         oedema_field.add_choice('en', NutritionReport.OEDEMA_NO, 'N')
-        oedema_field.add_choice('en', NutritionReport.OEDEMA_UNKOWN, 'U')
+        oedema_field.add_choice('en', NutritionReport.OEDEMA_UNKNOWN, 'U')
         oedema_field.add_choice('fr', NutritionReport.OEDEMA_YES, 'O')
         oedema_field.add_choice('fr', NutritionReport.OEDEMA_NO, 'N')
-        oedema_field.add_choice('fr', NutritionReport.OEDEMA_UNKOWN, 'I')
+        oedema_field.add_choice('fr', NutritionReport.OEDEMA_UNKNOWN, 'I')
         keyword = self.params[0]
 
         try:
@@ -118,7 +118,7 @@ class NutritionForm(CCForm):
             self.response += _(u"Oedema present.")
         elif oedema_db == NutritionReport.OEDEMA_NO:
             self.response += _(u"No signs of oedema.")
-        elif oedema_db == NutritionReport.OEDEMA_UNKOWN:
+        elif oedema_db == NutritionReport.OEDEMA_UNKNOWN:
             self.response += _(u"Oedema unkown.")
 
         if weight is not None:

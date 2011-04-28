@@ -43,10 +43,10 @@ class FeverForm(CCForm):
         rdt_field = MultipleChoiceField()
         rdt_field.add_choice('en', FeverReport.RDT_POSITIVE, 'Y')
         rdt_field.add_choice('en', FeverReport.RDT_NEGATIVE, 'N')
-        rdt_field.add_choice('en', FeverReport.RDT_UNKOWN, 'U')
+        rdt_field.add_choice('en', FeverReport.RDT_UNKNOWN, 'U')
         rdt_field.add_choice('fr', FeverReport.RDT_POSITIVE, 'O')
         rdt_field.add_choice('fr', FeverReport.RDT_NEGATIVE, 'N')
-        rdt_field.add_choice('fr', FeverReport.RDT_UNKOWN, 'I')
+        rdt_field.add_choice('fr', FeverReport.RDT_UNKNOWN, 'I')
 
         try:
             fr = FeverReport.objects.get(encounter=self.encounter)
@@ -112,8 +112,8 @@ class FeverForm(CCForm):
         elif rdt == FeverReport.RDT_NEGATIVE:
             self.response = _(u"Negative RDT result.")
             self._short_msg = self.response
-        elif rdt == FeverReport.RDT_UNKOWN:
-            self.response = _(u"Unkown RDT result.")
+        elif rdt == FeverReport.RDT_UNKNOWN:
+            self.response = _(u"Unknown RDT result.")
             self._short_msg = self.response
 
         fr.rdt_result = rdt

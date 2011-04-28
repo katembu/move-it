@@ -30,21 +30,21 @@ class FollowUpForm(CCForm):
         imp_field = MultipleChoiceField()
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_YES, 'Y')
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_NO, 'N')
-        imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_UNKOWN, 'U')
+        imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_UNKNOWN, 'U')
         imp_field.add_choice('en', FollowUpReport.IMPROVEMENT_UNAVAILABLE, 'L')
         imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_YES, 'O')
         imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_NO, 'N')
-        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_UNKOWN, 'I')
+        imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_UNKNOWN, 'I')
         imp_field.add_choice('fr', FollowUpReport.IMPROVEMENT_UNAVAILABLE, 'L')
 
         v_field = MultipleChoiceField()
         v_field.add_choice('en', FollowUpReport.VISITED_YES, 'Y')
         v_field.add_choice('en', FollowUpReport.VISITED_NO, 'N')
-        v_field.add_choice('en', FollowUpReport.VISITED_UNKOWN, 'U')
+        v_field.add_choice('en', FollowUpReport.VISITED_UNKNOWN, 'U')
         v_field.add_choice('en', FollowUpReport.VISITED_INPATIENT, 'P')
         v_field.add_choice('fr', FollowUpReport.VISITED_YES, 'O')
         v_field.add_choice('fr', FollowUpReport.VISITED_NO, 'N')
-        v_field.add_choice('fr', FollowUpReport.VISITED_UNKOWN, 'I')
+        v_field.add_choice('fr', FollowUpReport.VISITED_UNKNOWN, 'I')
         v_field.add_choice('fr', FollowUpReport.VISITED_INPATIENT, 'P')
 
         try:
@@ -78,7 +78,7 @@ class FollowUpForm(CCForm):
             imp_string = _(u"Condition improved.")
         elif imp_db == FollowUpReport.IMPROVEMENT_NO:
             imp_string = _(u"Condition did not improve.")
-        elif imp_db == FollowUpReport.IMPROVEMENT_UNKOWN:
+        elif imp_db == FollowUpReport.IMPROVEMENT_UNKNOWN:
             imp_string = _(u"Condition improvement unkown.")
         elif imp_db == FollowUpReport.IMPROVEMENT_UNAVAILABLE:
             imp_string = _(u"Patient unavailable.")
@@ -87,7 +87,7 @@ class FollowUpForm(CCForm):
             v_string = _(u"Patient visited health facility.")
         elif v_db == FollowUpReport.VISITED_NO:
             v_string = _(u"Patient did not visit health facility.")
-        elif v_db == FollowUpReport.VISITED_UNKOWN:
+        elif v_db == FollowUpReport.VISITED_UNKNOWN:
             v_string = _(u"Unknown if patient visited health facility.")
         elif v_db == FollowUpReport.VISITED_INPATIENT:
             v_string = _(u"Patient currently inpatient at health facility.")

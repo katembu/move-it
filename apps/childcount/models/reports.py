@@ -104,8 +104,11 @@ class AgeQuerySet(PolymorphicQuerySet):
         return self.encounter_age(0, 365.25*5)
     
     def encounter_age(self, min_days, max_days):
-        cursor = connection.cursor()
+        pks_encounter = [str(x[0]) \
+                    for x in self.values_list('encounter__pk').distinct()]
+        pks_str = ','.join(pks_encounter)
 
+        cursor = connection.cursor()
         n = cursor.execute(\
         '''
         SELECT  `cc_encounter`.`id`
@@ -116,11 +119,14 @@ class AgeQuerySet(PolymorphicQuerySet):
 
         WHERE
             DATEDIFF(`cc_encounter`.`encounter_date`, `cc_patient`.`dob`)
-            BETWEEN "%(min_days)d" AND "%(max_days)d";
-        ''' % {'min_days': min_days, 'max_days': max_days})
+                BETWEEN "%(min_days)d" AND "%(max_days)d" AND
+            `cc_encounter`.`id` IN (%(pks)s);
+        ''' % {'min_days': min_days, 
+                'max_days': max_days,
+                'pks': pks_str})
 
         # Result is a list of [(pk0,), (pk1,), ...]
-        pks = map(lambda x:x[0], cursor.fetchall())
+        pks = [x[0] for x in cursor.fetchall()]
 
         # Filter on encounter PK
         return self.filter(encounter__pk__in=pks)
@@ -226,11 +232,11 @@ class BirthReport(CCReport):
 
     CLINIC_DELIVERY_YES = 'Y'
     CLINIC_DELIVERY_NO = 'N'
-    CLINIC_DELIVERY_UNKOWN = 'U'
+    CLINIC_DELIVERY_UNKNOWN = 'U'
     CLINIC_DELIVERY_CHOICES = (
         (CLINIC_DELIVERY_YES, _(u"Yes")),
         (CLINIC_DELIVERY_NO, _(u"No")),
-        (CLINIC_DELIVERY_UNKOWN, _(u"Unknown")))
+        (CLINIC_DELIVERY_UNKNOWN, _(u"Unknown")))
 
     clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
                                        choices=CLINIC_DELIVERY_CHOICES, \
@@ -403,22 +409,22 @@ class FollowUpReport(CCReport):
 
     IMPROVEMENT_YES = 'Y'
     IMPROVEMENT_NO = 'N'
-    IMPROVEMENT_UNKOWN = 'U'
+    IMPROVEMENT_UNKNOWN = 'U'
     IMPROVEMENT_UNAVAILABLE = 'L'
     IMPROVEMENT_CHOICES = (
                        (IMPROVEMENT_YES, _('Yes')),
                        (IMPROVEMENT_NO, _('No')),
-                       (IMPROVEMENT_UNKOWN, _('Unkown')),
+                       (IMPROVEMENT_UNKNOWN, _('Unkown')),
                        (IMPROVEMENT_UNAVAILABLE, _('Patient unavailable')))
 
     VISITED_YES = 'Y'
     VISITED_NO = 'N'
-    VISITED_UNKOWN = 'U'
+    VISITED_UNKNOWN = 'U'
     VISITED_INPATIENT = 'P'
     VISITED_CHOICES = (
                        (VISITED_YES, _('Yes')),
                        (VISITED_NO, _('No')),
-                       (VISITED_UNKOWN, _('Unkown')),
+                       (VISITED_UNKNOWN, _('Unkown')),
                        (VISITED_INPATIENT, _('Patient currently inpatient')))
 
     improvement = models.CharField(_(u"Improvement"), max_length=1, \
@@ -445,14 +451,14 @@ class FollowUpReport(CCReport):
         improv_map = {
             self.IMPROVEMENT_YES: OpenMRSConsultationForm.YES,
             self.IMPROVEMENT_NO: OpenMRSConsultationForm.NO,
-            self.IMPROVEMENT_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+            self.IMPROVEMENT_UNKNOWN: OpenMRSConsultationForm.UNKNOWN,
             self.IMPROVEMENT_UNAVAILABLE: OpenMRSConsultationForm.UNAVAILABLE,
         }
 
         visit_map = {
             self.VISITED_YES: OpenMRSConsultationForm.YES,
             self.VISITED_NO: OpenMRSConsultationForm.NO,
-            self.VISITED_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+            self.VISITED_UNKNOWN: OpenMRSConsultationForm.UNKNOWN,
             self.VISITED_INPATIENT: OpenMRSConsultationForm.INPATIENT,
         }
 
@@ -729,19 +735,19 @@ class UnderOneReport(CCReport):
 
     BREAST_YES = 'Y'
     BREAST_NO = 'N'
-    BREAST_UNKOWN = 'U'
+    BREAST_UNKNOWN = 'U'
     BREAST_CHOICES = (
         (BREAST_YES, _(u"Yes")),
         (BREAST_NO, _(u"No")),
-        (BREAST_UNKOWN, _(u"Unknown")))
+        (BREAST_UNKNOWN, _(u"Unknown")))
 
     IMMUNIZED_YES = 'Y'
     IMMUNIZED_NO = 'N'
-    IMMUNIZED_UNKOWN = 'U'
+    IMMUNIZED_UNKNOWN = 'U'
     IMMUNIZED_CHOICES = (
         (IMMUNIZED_YES, _(u"Yes")),
         (IMMUNIZED_NO, _(u"No")),
-        (IMMUNIZED_UNKOWN, _(u"Unkown")))
+        (IMMUNIZED_UNKNOWN, _(u"Unkown")))
 
     breast_only = models.CharField(_(u"Breast feeding exclusively"), \
                                    max_length=1, choices=BREAST_CHOICES, \
@@ -765,12 +771,12 @@ class UnderOneReport(CCReport):
         breast_map = {
             self.BREAST_YES: OpenMRSConsultationForm.YES,
             self.BREAST_NO: OpenMRSConsultationForm.NO,
-            self.BREAST_UNKOWN: OpenMRSConsultationForm.UNKNOWN}
+            self.BREAST_UNKNOWN: OpenMRSConsultationForm.UNKNOWN}
 
         immun_map = {
             self.IMMUNIZED_YES: OpenMRSConsultationForm.YES,
             self.IMMUNIZED_NO: OpenMRSConsultationForm.NO,
-            self.IMMUNIZED_UNKOWN: OpenMRSConsultationForm.UNKNOWN}
+            self.IMMUNIZED_UNKNOWN: OpenMRSConsultationForm.UNKNOWN}
 
         return {
             'breastfed_exclusively': breast_map[self.breast_only],
@@ -816,11 +822,11 @@ class NutritionReport(CCReport):
 
     OEDEMA_YES = 'Y'
     OEDEMA_NO = 'N'
-    OEDEMA_UNKOWN = 'U'
+    OEDEMA_UNKNOWN = 'U'
     OEDEMA_CHOICES = (
         (OEDEMA_YES, _(u"Yes")),
         (OEDEMA_NO, _(u"No")),
-        (OEDEMA_UNKOWN, _(u"Unknown")))
+        (OEDEMA_UNKNOWN, _(u"Unknown")))
 
     muac = models.SmallIntegerField(_(u"MUAC (mm)"), blank=True, null=True)
     oedema = models.CharField(_(u"Oedema"), max_length=1, \
@@ -875,7 +881,7 @@ class NutritionReport(CCReport):
         oedema_map = {
             self.OEDEMA_YES: OpenMRSConsultationForm.YES,
             self.OEDEMA_NO: OpenMRSConsultationForm.NO,
-            self.OEDEMA_UNKOWN: OpenMRSConsultationForm.UNKNOWN,
+            self.OEDEMA_UNKNOWN: OpenMRSConsultationForm.UNKNOWN,
         }
 
         igive = {
@@ -899,12 +905,12 @@ class FeverReport(CCReport):
 
     RDT_POSITIVE = 'P'
     RDT_NEGATIVE = 'N'
-    RDT_UNKOWN = 'U'
+    RDT_UNKNOWN = 'U'
 
     RDT_CHOICES = (
         (RDT_POSITIVE, _(u"Positive")),
         (RDT_NEGATIVE, _(u"Negative")),
-        (RDT_UNKOWN, _(u"Unknown")))
+        (RDT_UNKNOWN, _(u"Unknown")))
 
     rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
                                   choices=RDT_CHOICES)
@@ -919,8 +925,8 @@ class FeverReport(CCReport):
         rdt_map = {
             self.RDT_POSITIVE: OpenMRSConsultationForm.POSITIVE,
             self.RDT_NEGATIVE: OpenMRSConsultationForm.NEGATIVE,
-            # HERE. mapped UNKOWN as INDETERMINATE
-            self.RDT_UNKOWN: OpenMRSConsultationForm.INDETERMINATE,
+            # HERE. mapped UNKNOWN as INDETERMINATE
+            self.RDT_UNKNOWN: OpenMRSConsultationForm.INDETERMINATE,
         }
 
         return {

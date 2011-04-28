@@ -51,9 +51,9 @@ def _under_five_diarrhea_uncomplicated(period, data_in):
             .objects\
             .filter(encounter__patient__in=data_in,\
                 encounter__encounter_date__range=(period.start, period.end))\
-            .encounter_under_five()\
             .annotate(n_signs=Count('danger_signs'))\
-            .filter(danger_signs__code='DR', n_signs=1)
+            .filter(danger_signs__code='DR', n_signs=1)\
+            .encounter_under_five()
 
 class UnderFiveDiarrheaUncomplicated(Indicator):
     type_in     = QuerySetType(Patient)
@@ -99,4 +99,47 @@ class UnderFiveDiarrheaUncomplicatedGettingZinc(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return _under_five_diarrhea_uncomplicated_getting(period, data_in, 'Z').count()
+
+def _under_five_fever_uncomplicated(period, data_in):
+    fever = DangerSignsReport\
+        .objects\
+        .filter(encounter__encounter_date__range=(period.start, period.end))\
+        .annotate(n_signs=Count('danger_signs'))\
+        .filter(danger_signs__code='FV')\
+        .encounter_under_five()
+
+    fever_only = fever.filter(n_signs=1)
+    fever_diarrhea = fever.filter(n_signs=2, danger_signs__code='DR')
+
+    return (fever_only|fever_diarrhea)
+
+class UnderFiveFeverUncomplicated(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_uncomplicated"
+    short_name  = _("U5 Fv Uncompl")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with uncomplicated fever")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _under_five_fever_uncomplicated(period, data_in).count()
+
+class UnderFiveFeverUncomplicatedRdt(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_uncomplicated_rdt"
+    short_name  = _("U5 Fv Uncompl RDT")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with uncomplicated fever with "\
+                    "an RDT result")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        rpts = _under_five_fever_uncomplicated(period, data_in)
+
+        rpts.filter(
+
 

@@ -2666,7 +2666,7 @@ class MonthlyCHWReport(TheCHWReport):
             .indicators\
             .for_chw(self)\
             .for_period(per_cls, per_num)\
-            .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
+            .exclude(rdt_result=FeverReport.RDT_UNKNOWN)\
             .count()
 
     def num_positive_rdts(self, per_cls, per_num):
@@ -3091,7 +3091,7 @@ class HealthCoordinatorReport():
 
     def num_underone_visited_exclude_bfunknown(self, per_cls, per_num):
         return self._underone_visited(per_cls, per_num)\
-            .exclude(breast_only=UnderOneReport.BREAST_UNKOWN)\
+            .exclude(breast_only=UnderOneReport.BREAST_UNKNOWN)\
             .values('encounter__patient')\
             .distinct().count()
 
@@ -3112,7 +3112,7 @@ class HealthCoordinatorReport():
 
     def num_underone_exclude_imm_unknown(self, per_cls, per_num):
         return self._underone_visited(per_cls, per_num)\
-                .exclude(immunized=UnderOneReport.IMMUNIZED_UNKOWN)\
+                .exclude(immunized=UnderOneReport.IMMUNIZED_UNKNOWN)\
                 .count()
 
     def _6mto59m_patients(self, per_cls, per_num):
@@ -3187,7 +3187,7 @@ class HealthCoordinatorReport():
         return FeverReport\
             .indicators\
             .for_period(per_cls, per_num)\
-            .exclude(rdt_result=FeverReport.RDT_UNKOWN)\
+            .exclude(rdt_result=FeverReport.RDT_UNKNOWN)\
             .count()
 
     def num_positive_rdts(self, per_cls, per_num):

@@ -31,18 +31,18 @@ class UnderOneForm(CCForm):
         breast_field = MultipleChoiceField()
         breast_field.add_choice('en', UnderOneReport.BREAST_YES, 'Y')
         breast_field.add_choice('en', UnderOneReport.BREAST_NO, 'N')
-        breast_field.add_choice('en', UnderOneReport.BREAST_UNKOWN, 'U')
+        breast_field.add_choice('en', UnderOneReport.BREAST_UNKNOWN, 'U')
         breast_field.add_choice('fr', UnderOneReport.BREAST_YES, 'O')
         breast_field.add_choice('fr', UnderOneReport.BREAST_NO, 'N')
-        breast_field.add_choice('fr', UnderOneReport.BREAST_UNKOWN, 'I')
+        breast_field.add_choice('fr', UnderOneReport.BREAST_UNKNOWN, 'I')
 
         imm_field = MultipleChoiceField()
         imm_field.add_choice('en', UnderOneReport.IMMUNIZED_YES, 'Y')
         imm_field.add_choice('en', UnderOneReport.IMMUNIZED_NO, 'N')
-        imm_field.add_choice('en', UnderOneReport.IMMUNIZED_UNKOWN, 'U')
+        imm_field.add_choice('en', UnderOneReport.IMMUNIZED_UNKNOWN, 'U')
         imm_field.add_choice('fr', UnderOneReport.IMMUNIZED_YES, 'O')
         imm_field.add_choice('fr', UnderOneReport.IMMUNIZED_NO, 'N')
-        imm_field.add_choice('fr', UnderOneReport.IMMUNIZED_UNKOWN, 'I')
+        imm_field.add_choice('fr', UnderOneReport.IMMUNIZED_UNKNOWN, 'I')
 
         try:
             uor = UnderOneReport.objects.get(encounter=self.encounter)
@@ -102,14 +102,14 @@ class UnderOneForm(CCForm):
             breast_str = _(u"Exclusive breast feeding.")
         elif breast_db == UnderOneReport.BREAST_NO:
             breast_str = _(u"Not exclusive breast feeding.")
-        elif breast_db == UnderOneReport.BREAST_UNKOWN:
+        elif breast_db == UnderOneReport.BREAST_UNKNOWN:
             breast_str = _(u"Unkown if exclusively breast feeding.")
 
         if imm_db == UnderOneReport.IMMUNIZED_YES:
             imm_str = _(u"Up-to-date on immunisations.")
         elif imm_db == UnderOneReport.IMMUNIZED_NO:
             imm_str = _(u"Not up-to-date on immunisations.")
-        elif imm_db == UnderOneReport.IMMUNIZED_UNKOWN:
+        elif imm_db == UnderOneReport.IMMUNIZED_UNKNOWN:
             imm_str = _(u"Unkown if up-to-date on immunisations.")
 
         self.response = breast_str + ', ' + imm_str

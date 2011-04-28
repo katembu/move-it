@@ -38,10 +38,10 @@ class BirthForm(CCForm):
         cd_field = MultipleChoiceField()
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_YES, 'Y')
         cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_NO, 'N')
-        cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_UNKOWN, 'U')
+        cd_field.add_choice('en', BirthReport.CLINIC_DELIVERY_UNKNOWN, 'U')
         cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_YES, 'O')
         cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_NO, 'N')
-        cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_UNKOWN, 'I')
+        cd_field.add_choice('fr', BirthReport.CLINIC_DELIVERY_UNKNOWN, 'I')
 
         try:
             br = BirthReport.objects.get(encounter=self.encounter)
@@ -126,7 +126,7 @@ class BirthForm(CCForm):
             cd_string = _(u"Delivered in health facility")
         elif cd_db == BirthReport.CLINIC_DELIVERY_NO:
             cd_string = _(u"Home delivery")
-        elif cd_db == BirthReport.CLINIC_DELIVERY_UNKOWN:
+        elif cd_db == BirthReport.CLINIC_DELIVERY_UNKNOWN:
             cd_string = _(u"Unkown delivery location")
 
         self.response = cd_string
