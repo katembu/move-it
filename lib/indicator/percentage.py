@@ -16,6 +16,9 @@ class Percentage(fractions.Fraction):
     den = 1
     empty = False
 
+    def __repr__(self):
+        return u"Percentage(%d, %d)" % (self.num, self.den)
+
     def __str__(self):
         return unicode(self)
 

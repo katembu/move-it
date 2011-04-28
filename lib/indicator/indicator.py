@@ -70,7 +70,7 @@ class Indicator(object):
         cls._check_type(cls.type_out, data_out, _("output"))
         return data_out 
 
-class PercentageIndicator(Indicator):
+class IndicatorPercentage(Indicator):
     cls_num = None
     cls_den = None
 
@@ -78,9 +78,9 @@ class PercentageIndicator(Indicator):
 
     @classmethod
     def _value(cls, period, data_in):
-        return Percentage(cls_num(period, data_in), cls_den(period, data_in))
+        return Percentage(cls.cls_num(period, data_in), cls.cls_den(period, data_in))
 
-class DifferenceIndicator(Indicator):
+class IndicatorDifference(Indicator):
     cls_first   = None
     cls_second  = None
 
