@@ -1,18 +1,22 @@
 '''
 Household Visit Report
 '''
+from datetime import timedelta
 
 from django.db import connection
 
 from django.utils.translation import ugettext as _
 
 from indicator import Indicator
-from indicator import DifferenceIndicator 
+from indicator import IndicatorDifference
+from indicator import IndicatorPercentage
 from indicator import Percentage
 from indicator import QuerySetType
 
 from childcount.models import Patient
 from childcount.models.reports import HouseholdVisitReport
+
+from childcount.indicators import registration
 
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
@@ -50,6 +54,39 @@ class Unique(Indicator):
             .distinct()\
             .count()
 
+class Unique90Days(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "unique_90_days"
+    short_name  = _("Uniq. HHV 90d")
+    long_name   = _("Total number of visits to unique households "\
+                    "in the 90 days ending at the end of this time period")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return HouseholdVisitReport\
+            .objects\
+            .filter(encounter__patient__in=data_in,\
+                encounter__encounter_date__lte=period.end,
+                encounter__encounter_date__gt=period.end - timedelta(90))\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
+class CoveragePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+    type_out    = Percentage
+
+    slug        = "coverage_perc"
+    short_name  = _("% HH Coverage")
+    long_name   = _("Percentage of households getting "\
+                    "a visit in the last 90 days as of "\
+                    "the end of this time period")
+
+    cls_num     = Unique90Days
+    cls_den     = registration.Household
+ 
 class OnTime(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -63,7 +100,6 @@ class OnTime(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         pks = ','.join([str(patient.pk) for patient in data_in])
-        date_start = period.start.strftime('%Y-%m-%d %H:%M:%S')
         date_end   = period.end.strftime('%Y-%m-%d %H:%M:%S')
        
         cursor = connection.cursor()
@@ -92,7 +128,7 @@ class OnTime(Indicator):
 
                 LEFT JOIN `cc_encounter`
                     ON (`cc_patient`.`id`=`cc_encounter`.`patient_id`   
-                        AND `cc_encounter`.`encounter_date` BETWEEN "%(date_start)s" AND "%(date_end)s")
+                        AND `cc_encounter`.`encounter_date` <= "%(date_end)s")
                 LEFT JOIN `cc_ccrpt`
                     ON (`cc_encounter`.`id`=`cc_ccrpt`.`encounter_id`)
                 INNER JOIN `cc_hhvisitrpt`
@@ -118,17 +154,19 @@ class OnTime(Indicator):
                 DATEDIFF(`latest_visits`.`cur_date`, 
                     GREATEST(`latest_visits`.`created_on`, `cc_encounter2`.`encounter_date`)) > 0 AND
                 `latest_visits`.`patient_id` IN (%(patient_pks)s) AND
-                `latest_visits`.`cur_date` BETWEEN "%(date_start)s" AND "%(date_end)s"
+                /* We only care about visits before END */
+                `latest_visits`.`cur_date` <= "%(date_end)s" AND
+                /* We require the most recent visit to be within the 90 days of END */
+                `latest_visits`.`cur_date` > DATE_SUB("%(date_end)s", INTERVAL 90 DAY)
 
             GROUP BY `patient_id`) as `unique_otv`
         ''' % {'patient_pks' : pks, 
-                'date_start': date_start, 
                 'date_end': date_end}
 
         cursor.execute(q)
         return int(cursor.fetchone()[0])
 
-class Late(DifferenceIndicator):
+class Late(IndicatorDifference):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
@@ -138,3 +176,14 @@ class Late(DifferenceIndicator):
 
     cls_first   = Total
     cls_second  = OnTime
+
+class OnTimePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+    type_out    = Percentage
+
+    slug        = "on_time_perc"
+    short_name  = _("Late HH Visits")
+    long_name   = _("Total number of late visits to unique households")
+
+    cls_num     = OnTime
+    cls_den     = registration.Household

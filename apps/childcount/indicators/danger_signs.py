@@ -8,6 +8,7 @@ from indicator import QuerySetType
 
 from childcount.models import Patient
 from childcount.models.reports import DangerSignsReport
+from childcount.models.reports import FeverReport
 
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
@@ -140,6 +141,30 @@ class UnderFiveFeverUncomplicatedRdt(Indicator):
     def _value(cls, period, data_in):
         rpts = _under_five_fever_uncomplicated(period, data_in)
 
-        rpts.filter(
+        N = FeverReport.RDT_NEGATIVE
+        P = FeverReport.RDT_POSITIVE
+        U = FeverReport.RDT_UNKNOWN
 
+        return rpts\
+            .filter(encounter__ccreport__feverreport__rdt_result__in=(N, P, U))\
+            .count()
+
+class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_uncomplicated_rdt_positive"
+    short_name  = _("U5 Fv Uncompl RDT+")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with uncomplicated fever with "\
+                    "a positive RDT result")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        rpts = _under_five_fever_uncomplicated(period, data_in)
+
+        return rpts\
+            .filter(encounter__ccreport__feverreport__rdt_result=\
+                FeverReport.RDT_POSITIVE)\
+            .count()
 
