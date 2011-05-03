@@ -99,11 +99,13 @@ class OnTime(Indicator):
 
     @classmethod
     def _value(cls, period, data_in):
+        if data_in.count() == 0:
+            return 0
+
         pks = ','.join([str(patient.pk) for patient in data_in])
         date_end   = period.end.strftime('%Y-%m-%d %H:%M:%S')
        
         cursor = connection.cursor()
-        #cursor.execute(\
         q='''
         /* Get the total number of rows */
         SELECT 

@@ -102,14 +102,44 @@ class AgeQuerySet(PolymorphicQuerySet):
 
     def encounter_under_five(self):
         return self.encounter_age(0, 365.25*5)
-    
-    def encounter_age(self, min_days, max_days):
-        pks_encounter = [str(x[0]) \
-                    for x in self.values_list('encounter__pk').distinct()]
+   
+    '''
+    Helper function for filtering the CCReport QuerySet
+    by a custom SQL call on Encounters.
+
+    query - An SQL query string containing a single %s 
+            into which the list of the input QuerySet's
+            encounter primary keys will be inserted.
+    '''
+    def _encounter_filter_sql(self, query):
+        if self.count() == 0:
+            return self
+
+        # Get distinct encounters
+        encs = self.values_list('encounter__pk').distinct()
+
+        # Turn them into a list of pk strings
+        pks_encounter = [str(x[0]) for x in encs]
+
+        # Join into a comma-separated string
         pks_str = ','.join(pks_encounter)
 
+        # Run query
         cursor = connection.cursor()
-        n = cursor.execute(\
+        cursor.execute(query % pks_str)
+
+        # Convert back into a list of pks
+        pks = [x[0] for x in cursor.fetchall()]
+
+        # Return the input QuerySet filtered by relevant encounter
+        return self.filter(encounter__pk__in=pks)
+
+    def encounter_age(self, min_days, max_days):
+        # Make sure we have an integer
+        min_days = int(min_days)
+        max_days = int(max_days)
+
+        q = \
         '''
         SELECT  `cc_encounter`.`id`
         FROM    `cc_encounter`
@@ -120,16 +150,41 @@ class AgeQuerySet(PolymorphicQuerySet):
         WHERE
             DATEDIFF(`cc_encounter`.`encounter_date`, `cc_patient`.`dob`)
                 BETWEEN "%(min_days)d" AND "%(max_days)d" AND
-            `cc_encounter`.`id` IN (%(pks)s);
+             `cc_encounter`.`id` IN (%(pks_str)s);
         ''' % {'min_days': min_days, 
                 'max_days': max_days,
-                'pks': pks_str})
+                'pks_str': "%s"}
 
-        # Result is a list of [(pk0,), (pk1,), ...]
-        pks = [x[0] for x in cursor.fetchall()]
+        return self._encounter_filter_sql(q)
 
-        # Filter on encounter PK
-        return self.filter(encounter__pk__in=pks)
+    '''
+    latest_for_patient filters the CCReport QuerySet
+    and returns only CCReports that are the latest such
+    report for each patient.
+
+    For example, if you had a QuerySet of HouseholdVisitReport
+    objects, latest_for_patient() would give you the most
+    recent HouseholdVisitReport for each household.
+    '''
+    def latest_for_patient(self):
+        raise NotImplementedError
+        q = """
+        SELECT `cc_encounter`.`id`
+
+        FROM `cc_patient`
+
+        LEFT JOIN `cc_encounter`
+            ON (`cc_patient`.`id` = `cc_encounter`.`patient_id`)
+        LEFT JOIN `cc_encounter` AS `cc_encounter2`
+            ON (`cc_encounter`.`patient_id` = `cc_encounter2`.`patient_id` AND
+                `cc_encounter`.`encounter_date` < `cc_encounter2`.`encounter_date`)
+
+        WHERE 
+            `cc_encounter2`.`encounter_date` IS NULL AND
+            `cc_encounter`.`id` IN (%s);
+        """
+
+        return self._encounter_filter_sql(q)
 
 class CCReport(PolymorphicModel):
 
