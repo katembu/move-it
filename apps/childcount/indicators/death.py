@@ -15,14 +15,14 @@ def _deaths_in(period, data_in, days_min, days_max):
         return 0
 
     # This is a bit of a hack... we use the
-    # encounter__patient__first_name__isnull line
+    # encounter__patient__dob__isnull line
     # to force Django to join in the cc_patient table
     # so that we can do our fancy WHERE statement
     d1 = DeathReport\
         .objects\
         .filter(encounter__patient__in=data_in,\
             death_date__range=(period.start, period.end),
-            encounter__patient__first_name__isnull=False)\
+            encounter__patient__dob__isnull=False)\
         .extra(where=["DATEDIFF(`death_date`,`cc_patient`.`dob`) BETWEEN %f AND %f" \
                             % (days_min, days_max)])\
         .count()

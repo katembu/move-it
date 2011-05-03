@@ -107,7 +107,7 @@ class AgeQuerySet(PolymorphicQuerySet):
     Helper function for filtering the CCReport QuerySet
     by a custom SQL call on Encounters.
 
-    query - An SQL query string containing a single %s 
+    query - An SQL query string containing %(pks_str)s 
             into which the list of the input QuerySet's
             encounter primary keys will be inserted.
     '''
@@ -126,7 +126,7 @@ class AgeQuerySet(PolymorphicQuerySet):
 
         # Run query
         cursor = connection.cursor()
-        cursor.execute(query % pks_str)
+        cursor.execute(query % {'pks_str': pks_str})
 
         # Convert back into a list of pks
         pks = [x[0] for x in cursor.fetchall()]
@@ -134,10 +134,23 @@ class AgeQuerySet(PolymorphicQuerySet):
         # Return the input QuerySet filtered by relevant encounter
         return self.filter(encounter__pk__in=pks)
 
+    """
+    This version of encounter_age is cleaner code-wise but
+    runs 10-20 times slower than the pure SQL version below.
+
     def encounter_age(self, min_days, max_days):
-        # Make sure we have an integer
-        min_days = int(min_days)
-        max_days = int(max_days)
+        # Make sure we have a float
+        min_days = float(min_days)
+        max_days = float(max_days)
+
+        return self\
+            .filter(encounter__encounter_date__isnull=False,\
+                encounter__patient__dob__isnull=False)\
+            .extra(where=["DATEDIFF(`cc_encounter`.`encounter_date`, `cc_patient`.`dob`) BETWEEN %s AND %s"],\
+                    params=[min_days, max_days])
+    """
+
+    def encounter_age(self, min_days, max_days):
 
         q = \
         '''
@@ -153,10 +166,9 @@ class AgeQuerySet(PolymorphicQuerySet):
              `cc_encounter`.`id` IN (%(pks_str)s);
         ''' % {'min_days': min_days, 
                 'max_days': max_days,
-                'pks_str': "%s"}
+                'pks_str': "%(pks_str)s"}
 
         return self._encounter_filter_sql(q)
-
     '''
     latest_for_patient filters the CCReport QuerySet
     and returns only CCReports that are the latest such
@@ -167,21 +179,22 @@ class AgeQuerySet(PolymorphicQuerySet):
     recent HouseholdVisitReport for each household.
     '''
     def latest_for_patient(self):
-        raise NotImplementedError
         q = """
         SELECT `cc_encounter`.`id`
 
-        FROM `cc_patient`
+        FROM `cc_encounter`
 
-        LEFT JOIN `cc_encounter`
-            ON (`cc_patient`.`id` = `cc_encounter`.`patient_id`)
         LEFT JOIN `cc_encounter` AS `cc_encounter2`
             ON (`cc_encounter`.`patient_id` = `cc_encounter2`.`patient_id` AND
-                `cc_encounter`.`encounter_date` < `cc_encounter2`.`encounter_date`)
+                `cc_encounter`.`encounter_date` < `cc_encounter2`.`encounter_date` AND
+                `cc_encounter2`.`id` IN (%(pks_str)s))
 
         WHERE 
-            `cc_encounter2`.`encounter_date` IS NULL AND
-            `cc_encounter`.`id` IN (%s);
+            `cc_encounter`.`id` IN (%(pks_str)s) AND
+            `cc_encounter2`.`id` IS NULL
+
+        GROUP BY
+            `cc_encounter`.`patient_id`
         """
 
         return self._encounter_filter_sql(q)

@@ -104,7 +104,8 @@ class UnderFiveDiarrheaUncomplicatedGettingZinc(Indicator):
 def _under_five_fever_uncomplicated(period, data_in):
     fever = DangerSignsReport\
         .objects\
-        .filter(encounter__encounter_date__range=(period.start, period.end))\
+        .filter(encounter__encounter_date__range=(period.start, period.end),\
+            encounter__patient__in=data_in)\
         .annotate(n_signs=Count('danger_signs'))\
         .filter(danger_signs__code='FV')\
         .encounter_under_five()
@@ -166,5 +167,58 @@ class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
         return rpts\
             .filter(encounter__ccreport__feverreport__rdt_result=\
                 FeverReport.RDT_POSITIVE)\
+            .count()
+
+def _under_five_fever_complicated(period, data_in):
+    ds = DangerSignsReport\
+        .objects\
+        .filter(encounter__encounter_date__range=(period.start, period.end),\
+            encounter__patient__in=data_in)\
+        .annotate(n_signs=Count('danger_signs'))\
+        .filter(danger_signs__code='FV')\
+        .encounter_under_five()
+
+    # Anyone with a fever and 3 or more danger signs has a
+    # complicated fever
+    d1 = ds\
+        .filter(n_signs__gte=3)
+
+    # Anyone with a fever and one other danger sign that is
+    # NOT diarrhea has a complicated fever
+    d2 = ds\
+        .filter(n_signs=2)\
+        .exclude(danger_signs__code='DR')
+
+    return (d1|d2)
+
+
+class UnderFiveFeverComplicated(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_complicated"
+    short_name  = _("U5 Fv Compl")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with complicated fever")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _under_five_fever_complicated(period, data_in).count()
+
+
+class UnderFiveFeverComplicatedReferred(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_complicated_referred"
+    short_name  = _("U5 Fv Compl Ref")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with complicated fever where the "\
+                    "patient was referred")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _under_five_fever_complicated(period, data_in)\
+            .filter(encounter__ccreport__referralreport__urgency__isnull=False)\
             .count()
 
