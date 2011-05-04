@@ -54,11 +54,11 @@ class Unique(Indicator):
             .distinct()\
             .count()
 
-class Unique90Days(Indicator):
+class UniqueNinetyDays(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "unique_90_days"
+    slug        = "unique_ninety_days"
     short_name  = _("Uniq. HHV 90d")
     long_name   = _("Total number of visits to unique households "\
                     "in the 90 days ending at the end of this time period")

@@ -57,6 +57,22 @@ class UnderSixMonths(Indicator):
             .under_six_months(period.start, period.end)\
             .count()
 
+class MuacEligible(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "muac_eligible"
+    short_name  = _("MUACable")
+    long_name   = _("Total number registered kids between 6 months and "\
+                    "60 months of age")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .filter(created_on__lte=period.end)\
+            .muac_eligible(period.start, period.end)\
+            .count()
+
 class Household(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

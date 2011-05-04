@@ -57,18 +57,12 @@ class ErrorPerc(IndicatorPercentage):
     cls_num     = Error
     cls_den     = Total
 
-'''
 def _timedelta_to_days(diff):
     seconds = diff.seconds / float(24 * 60 * 60)
     mseconds = diff.microseconds / 1000000.0
 
     # Convert timedelta into a float of days 
-    days = float(diff.days) + seconds + mseconds
-    
-    if days == 0: 
-        return float('inf')
-    
-'''
+    return float(diff.days) + seconds + mseconds
 
 class PerDay(Indicator):
     type_in     = QuerySetType(Reporter)
@@ -81,22 +75,17 @@ class PerDay(Indicator):
 
     @classmethod
     def _value(cls, period, data_in):
-        # Get length of this timespan
-        diff = period.end - period.start
-        seconds = diff.seconds / float(24 * 60 * 60)
-        mseconds = diff.microseconds / 1000000.0
-
-        # Convert timedelta into a float of days 
-        days = float(diff.days) + seconds + mseconds
+        # Get length of period
+        days = _timedelta_to_days(period.end - period.start)
         
-        if days == 0: 
+        if days <= 0: 
             return float('inf')
 
         # Get number of msgs received
         total = Total(period, data_in)
 
         return (total/days)
-'''
+
 class DaysSinceSent(Indicator):
     type_in     = QuerySetType(Reporter)
     type_out    = float
@@ -118,6 +107,5 @@ class DaysSinceSent(Indicator):
         except LoggedMessage.DoesNotExist:
             return float('inf')
 
-        return (period.end - latest.date)
-'''
+        return _timedelta_to_days(period.end - latest.date)
 
