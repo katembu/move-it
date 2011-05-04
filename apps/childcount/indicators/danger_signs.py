@@ -150,6 +150,19 @@ class UnderFiveFeverUncomplicatedRdt(Indicator):
             .filter(encounter__ccreport__feverreport__rdt_result__in=(N, P, U))\
             .count()
 
+def _under_five_fever_uncomplicated_rdt_value(period, data_in, value):
+    Y = FeverReport.RDT_POSITIVE
+    N = FeverReport.RDT_NEGATIVE
+    U = FeverReport.RDT_UNKNOWN
+
+    if value not in (Y,N,U):
+        raise ValueError(_("Invalid RDT value"))
+
+    return _under_five_fever_uncomplicated(period, data_in)\
+        .filter(encounter__ccreport__feverreport__rdt_result=value)\
+        .count()
+
+    
 class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -162,12 +175,23 @@ class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
 
     @classmethod
     def _value(cls, period, data_in):
-        rpts = _under_five_fever_uncomplicated(period, data_in)
+        return _under_five_fever_uncomplicated_rdt_value(period,\
+            data_in, FeverReport.RDT_POSITIVE)
 
-        return rpts\
-            .filter(encounter__ccreport__feverreport__rdt_result=\
-                FeverReport.RDT_POSITIVE)\
-            .count()
+class UnderFiveFeverUncomplicatedRdtNegative(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_uncomplicated_rdt_negative"
+    short_name  = _("U5 Fv Uncompl RDT-")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with uncomplicated fever with "\
+                    "a negative RDT result")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _under_five_fever_uncomplicated_rdt_value(period,\
+            data_in, FeverReport.RDT_NEGATIVE)
 
 def _under_five_fever_complicated(period, data_in):
     ds = DangerSignsReport\

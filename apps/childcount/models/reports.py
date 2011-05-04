@@ -103,6 +103,15 @@ class AgeQuerySet(PolymorphicQuerySet):
     def encounter_under_five(self):
         return self.encounter_age(0, 365.25*5)
    
+    # We take anyone between five and 200 years old to be
+    # "over five"
+    def encounter_over_five(self):
+        return self.encounter_age((365.25*5)+0.25, 365.25*200)
+    
+    # MUAC eligible kids are 6 months - 5 years old
+    def encounter_muac_eligible(self):
+        return self.encounter_age(180, 365.25*5)
+   
     '''
     Helper function for filtering the CCReport QuerySet
     by a custom SQL call on Encounters.
