@@ -3,8 +3,6 @@
 # maintainer: dgelvin, ukanga
 
 '''ChildCount Models
-
-
 '''
 import calendar
 from datetime import datetime
