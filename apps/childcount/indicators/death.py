@@ -1,5 +1,7 @@
 import types
 
+from datetime import timedelta, datetime
+
 from django.utils.translation import ugettext as _
 from django.db import connection
 
@@ -119,4 +121,39 @@ class OverFive(Indicator):
     def _value(cls, period, data_in):
         return _deaths_in(period, data_in, (5*365.25)+0.01, 200*365.25)
 
+class PregnancyRelated(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
 
+    slug        = "pregnancy_related"
+    short_name  = _("Preg")
+    long_name   = _("Total number pregnancy-related deaths "\
+                    "during this period")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        # Get all women who were pregnant at *any time* during
+        # the time interval we're dealing with
+        pregs = data_in.pregnant_during_interval(period.start, period.end)
+
+        deaths = DeathReport\
+            .objects\
+            .filter(encounter__patient__in=pregs,\
+                death_date__range=(period.start, period.end))
+
+        count = 0
+
+        # For each death of a woman in the interval, check if she was
+        # pregnant at any time during the pregnancy
+        for d in deaths:
+            ddate = d.death_date
+            ddatetime = datetime(ddate.year, ddate.month, ddate.day)
+
+            if Patient\
+                .objects\
+                .filter(pk=d.encounter.patient.pk)\
+                .pregnant_recently(ddatetime - timedelta(10*30), ddatetime)\
+                .count():
+                count += 1
+
+        return count
