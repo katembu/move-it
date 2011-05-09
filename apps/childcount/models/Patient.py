@@ -283,9 +283,10 @@ class Patient(models.Model):
         Pregnancy filters
         '''
         def pregnant(self, start, end):
-            return self.pregnant_months(start, end, 0.0, 9.0, False)
+            return self.pregnant_months(start, end, 0.0, 9.0, False, False)
 
-        def pregnant_months(self, start, end, start_month, end_month, include_delivered):
+        def pregnant_months(self, start, end, start_month, end_month, 
+                include_delivered, include_stillbirth):
             assert start_month >= 0, _("Start month must be >= 0")
             assert start_month < end_month, \
                         _("Start month must be < end_month")
@@ -295,9 +296,7 @@ class Patient(models.Model):
             pregs = self\
                 .filter(gender=Patient.GENDER_FEMALE,
                     encounter__ccreport__pregnancyreport__pregnancy_month__isnull=False,\
-                    encounter__encounter_date__gte=end-timedelta(9*30),
                     encounter__encounter_date__lte=end)\
-                .age(start, end, 10*365, 50*365)\
                 .values('pk')\
                 .distinct()
 
@@ -310,7 +309,7 @@ class Patient(models.Model):
                 pr = p\
                     .encounter_set\
                     .filter(ccreport__pregnancyreport__pregnancy_month__isnull=False,\
-                        encounter_date__lte=end)\
+                        encounter_date__lte=end+timedelta(30.4375*end_month))\
                     .latest('ccreport__pregnancyreport__encounter__encounter_date')\
                     .ccreport_set\
                     .filter(polymorphic_ctype__model='pregnancyreport')[0]
@@ -319,9 +318,9 @@ class Patient(models.Model):
                 months_since = days_since/30.4375
                 current_month = months_since + pr.pregnancy_month
 
-                #print "Considering patient [%s]" % p.health_id.upper()
+                print "Considering patient [%s]" % p.health_id.upper()
                 if not (current_month >= start_month and current_month <= end_month):
-                #    print 'not in right month... %f' % current_month
+                    print 'not in right month... %f' % current_month
                     continue
 
                 # If we are not including women who have already delivered,
@@ -341,22 +340,23 @@ class Patient(models.Model):
                     # If the birthreport has been found, then she's no longer
                     # pregnant
                     if b.count() > 0:
-                    #   print 'birth at on %s' % b[0].dob
+                        print 'birth at on %s' % b[0].dob
                         continue
 
-                # Look for a stillbirth/miscarriage
-                sbm = p\
-                    .encounter_set\
-                    .filter(encounter_date__lte=end,
-                        ccreport__stillbirthmiscarriagereport__incident_date__gte=\
-                            pr.encounter.encounter_date-timedelta(pr.pregnancy_month*30.4375),\
-                        ccreport__stillbirthmiscarriagereport__incident_date__lte=end)
-               
-                # If there was a stillbirth/misscariage, then she's
-                # no longer pregnant
-                if sbm.count() > 0:
-                #    print 'stillbirth'
-                    continue
+                if not include_stillbirth:
+                    # Look for a stillbirth/miscarriage
+                    sbm = p\
+                        .encounter_set\
+                        .filter(encounter_date__lte=end,
+                            ccreport__stillbirthmiscarriagereport__incident_date__gte=\
+                                pr.encounter.encounter_date-timedelta(pr.pregnancy_month*30.4375),\
+                            ccreport__stillbirthmiscarriagereport__incident_date__lte=end)
+                   
+                    # If there was a stillbirth/misscariage, then she's
+                    # no longer pregnant
+                    if sbm.count() > 0:
+                        print 'stillbirth'
+                        continue
                 
                 print '*PR submitted now %f (was %f on %s #%d)' % \
                         (current_month, pr.pregnancy_month, \
@@ -365,11 +365,9 @@ class Patient(models.Model):
             #print pks
             return self.filter(pk__in=pks)
         
-        '''
-        Pregnant or within 42 days of delivery
-        '''
         def pregnant_recently(self, start, end):
-            return self.pregnant_months(start, end, 0.0, 10.4, True)
+            # Pregnant or within 42 days of delivery
+            return self.pregnant_months(start, end, 0.0, 10.4, True, False)
 
         def over_five_not_pregnant_recently(self, start, end):
             pr = self.pregnant_recently(start, end)
@@ -377,5 +375,14 @@ class Patient(models.Model):
             return self\
                 .over_five(start, end)\
                 .exclude(pk__in=[p.pk for p in pr])
+
+        def pregnant_during_interval(self, start, end):
+            ilen = (end - start).days
+            imon = ilen/30.4375
+
+            return self.pregnant_months(start, end, 0.0, 9.0 + imon, True, True)
+
+        def delivered(self, start, end):
+            return self.pregnant_months(start, end, 9.0, 10.0, True, False)
 
 reversion.register(Patient)
