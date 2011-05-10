@@ -205,6 +205,11 @@ class AgeQuerySet(PolymorphicQuerySet):
         """
 
         return self._encounter_filter_sql(q)
+    
+    # Define a hash function that depends only on the pks of the
+    # rows in the QuerySet
+    def __hash__(self):
+        return hash((self.model,) + tuple(self.order_by('pk').values_list('pk')))
 
 class CCReport(PolymorphicModel):
 

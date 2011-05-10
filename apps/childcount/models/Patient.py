@@ -385,4 +385,9 @@ class Patient(models.Model):
         def delivered(self, start, end):
             return self.pregnant_months(start, end, 9.0, 10.0, True, False)
 
+        # Define a hash function that depends only on the pks of the
+        # rows in the QuerySet
+        def __hash__(self):
+            return hash((self.model,) + tuple(self.order_by('pk').values_list('pk')))
+
 reversion.register(Patient)
