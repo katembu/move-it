@@ -1,4 +1,6 @@
 
+from datetime import timedelta
+
 from django.db.models.aggregates import Count
 
 from django.utils.translation import ugettext as _
@@ -9,6 +11,7 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import DangerSignsReport
 from childcount.models.reports import FeverReport
+from childcount.models.reports import FollowUpReport
 
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
@@ -245,4 +248,36 @@ class UnderFiveFeverComplicatedReferred(Indicator):
         return _under_five_fever_complicated(period, data_in)\
             .filter(encounter__ccreport__referralreport__urgency__isnull=False)\
             .count()
+
+class UnderFiveFeverComplicatedReferredFollowUp(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_five_fever_complicated_referred_follow_up"
+    short_name  = _("U5 Fv Compl Ref FU")
+    long_name   = _("Total number of danger signs reports "\
+                    "for U5s with complicated fever where the "\
+                    "patient was referred and then had a follow-up "\
+                    "visit between 18 and 72 hours after the referral")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        refs = _under_five_fever_complicated(period, data_in)\
+            .filter(encounter__ccreport__referralreport__urgency__isnull=False)
+
+        count = 0
+        for r in refs:
+            tstart = r.encounter.encounter_date + timedelta(seconds=60*60*18)
+            tend = r.encounter.encounter_date + timedelta(seconds=60*60*72)
+
+            f = FollowUpReport\
+                .objects\
+                .filter(encounter__patient=r.encounter.patient,\
+                    encounter__encounter_date__gt=tstart,
+                    encounter__encounter_date__lte=tend)
+           
+            if f.count():
+                count += 1
+
+        return count
 
