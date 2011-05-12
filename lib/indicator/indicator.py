@@ -4,14 +4,11 @@
 import numbers
 
 from percentage import Percentage
+from cache import cache_indicator
+from query_set_type import QuerySetType
 
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
-
-class QuerySetType(object):
-    mtype = None
-    def __init__(self, mtype):
-        self.mtype = mtype
 
 class Indicator(object):
     type_in     = None
@@ -21,7 +18,9 @@ class Indicator(object):
     short_name  = None
     long_name   = None
 
-    valid_for   = None
+    cache       = True
+    # Default to two hours
+    valid_for   = 2*60*60
 
     @classmethod
     def _value(cls, period, data_in):
@@ -66,7 +65,7 @@ class Indicator(object):
 
     def __new__(cls, period, data_in):
         cls._check_type(cls.type_in, data_in, _("input"))
-        data_out = cls._value(period, data_in)
+        data_out = cache_indicator(cls, cls._value, period, data_in)
         cls._check_type(cls.type_out, data_out, _("output"))
         return data_out 
 
