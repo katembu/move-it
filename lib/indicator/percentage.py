@@ -14,7 +14,18 @@ class Percentage(fractions.Fraction):
 
     num = 0
     den = 1
-    empty = False
+
+    @property
+    def empty(self):
+        return (self.den == 0)
+
+    def __new__(cls, n, d):
+        obj = super(Percentage,cls).__new__(cls, n, 1 if (d == 0) else d)
+        obj.num = n
+        obj.den = d
+
+        return obj
+
 
     def __repr__(self):
         return u"Percentage(%d, %d)" % (self.num, self.den)
@@ -25,16 +36,9 @@ class Percentage(fractions.Fraction):
     def __unicode__(self):
         return "%s (%d/%d)" % (self.short_str(), self.num, self.den)
 
+    def __reduce__(self):
+        return (self.__class__, (self.num, self.den))
+
     def short_str(self):
-        return u'--' if empty else (u"%d%%" % int(self))
-
-    def __new__(cls, n, d):
-        empty = (d == 0)
-        obj = super(Percentage,cls).__new__(cls, n, 1 if empty else d)
-        obj.num = n
-        obj.den = d
-        obj.empty = empty
-
-        return obj
-
+        return u'--' if self.empty else (u"%d%%" % int(self))
 
