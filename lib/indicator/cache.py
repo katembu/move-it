@@ -6,21 +6,6 @@ from django.core.cache import cache
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 
-def _cached_value(key, timeout, func, args, kwargs):
-    g = cache.get(key)
-
-    if g is not None:
-        return g
-
-    value = func(*args, **kwargs)
-
-    if value is None:
-        raise ValueError(_("Cached function value "\
-                            "cannot be None."))
-    
-    cache.set(key, value, timeout)
-    return v
-
 STR_FUNCTIONS = {
     int:            str,
     float:          str,
@@ -30,7 +15,7 @@ STR_FUNCTIONS = {
 }
 
 def _filter_cache_key(func, self, args, kwargs):
-    hvals = [str(func.__module__), str(func.__name__)]
+    hvals = []
 
     try:
         for i, a in enumerate(args):
@@ -46,7 +31,7 @@ def _filter_cache_key(func, self, args, kwargs):
             "of type %s" % e))
 
     print hvals
-    hvals += self.to_lst()
+    hvals += self.to_list()
     s = sha1()
     for h in hvals:
         s.update(h)
@@ -66,7 +51,6 @@ def cache_filter(func, timeout=(5)):
             print "Got cached value!"
             # Cached value is a list of pks
             out = self.filter(pk__in=cached)
-            print out
             return out
             
         # QuerySet value is not in the cache
@@ -77,7 +61,7 @@ def cache_filter(func, timeout=(5)):
                                 "of None"))
 
         # Convert the QuerySet into something pickleable
-        cache_val = qset.pk_lst()
+        cache_val = qset.pk_list()
         print cache_val
         cache.set(cache_key, cache_val, timeout)
 

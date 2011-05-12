@@ -21,6 +21,8 @@ import reversion
 from reporters.models import Reporter
 from locations.models import Location
 
+from indicator.cache import cache_filter
+
 import childcount.models.Clinic
 import childcount.models.CHW
 
@@ -285,6 +287,7 @@ class Patient(models.Model):
         def pregnant(self, start, end):
             return self.pregnant_months(start, end, 0.0, 9.0, False, False)
 
+        @cache_filter
         def pregnant_months(self, start, end, start_month, end_month, 
                 include_delivered, include_stillbirth):
             assert start_month >= 0, _("Start month must be >= 0")
@@ -385,9 +388,15 @@ class Patient(models.Model):
         def delivered(self, start, end):
             return self.pregnant_months(start, end, 9.0, 10.0, True, False)
 
-        # Define a hash function that depends only on the pks of the
-        # rows in the QuerySet
-        def __hash__(self):
-            return hash((self.model,) + tuple(self.order_by('pk').values_list('pk')))
+        def pk_list(self):
+            return [p[0] for p in self.order_by('pk').values_list('pk')]
+
+        def to_list(self):
+            out = []
+            out.append(str(type(self)))
+            out.append(str(self.model))
+
+            out += [str(p) for p in self.pk_list()]
+            return out
 
 reversion.register(Patient)
