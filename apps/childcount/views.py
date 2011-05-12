@@ -4,6 +4,7 @@
 
 import os
 import re
+import json
 from datetime import date, timedelta, datetime
 from urllib import urlencode
 
@@ -522,6 +523,18 @@ def edit_patient(request, healthid):
             'patient': patient,
             'health_id': patient.health_id.upper()
         })
+
+
+def chw_json(request):
+    chws = CHW.objects.all()
+    chwlist = []
+    for chw in chws:
+        chwlist.append({'pk': chw.pk,'name': chw.__unicode__()})
+
+    json_data = json.dumps(chwlist)
+    return HttpResponse(json_data, mimetype="application/json")
+
+
 '''
 @login_required
 def autocomplete(request):

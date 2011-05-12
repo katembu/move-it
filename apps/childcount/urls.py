@@ -48,6 +48,7 @@ urlpatterns = patterns('',
     url(r'^childcount/patients_per_chw/pdf/?$', \
                                     reports.all_patient_list_per_chw_pdf),
     url(r'^childcount/chw/?$', views.chw),
+    url(r'^childcount/chws.json/?$', views.chw_json),
     url(r'^childcount/chws/(?P<rformat>[a-z]*)$', reports.chw),
     url(r'^childcount/under_five', reports.under_five),
     url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
