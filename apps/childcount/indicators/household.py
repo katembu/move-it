@@ -84,7 +84,7 @@ class CoveragePerc(IndicatorPercentage):
                     "a visit in the last 90 days as of "\
                     "the end of this time period")
 
-    cls_num     = Unique90Days
+    cls_num     = UniqueNinetyDays
     cls_den     = registration.Household
  
 class OnTime(Indicator):

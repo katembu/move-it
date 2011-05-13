@@ -34,11 +34,11 @@ class Women(Indicator):
     def _value(cls, period, data_in):
         return _sum_over_fps(period, data_in, 'women')
 
-class WomenUsingFp(Indicator):
+class Using(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "women_using_fp"
+    slug        = "using"
     short_name  = _("# FP")
     long_name   = _("Total number of women seen "\
                     "during this period who are using "\
@@ -48,16 +48,16 @@ class WomenUsingFp(Indicator):
     def _value(cls, period, data_in):
         return _sum_over_fps(period, data_in, 'women_using')
 
-class WomenUsingFpPerc(IndicatorPercentage):
+class UsingPerc(IndicatorPercentage):
     type_in     = QuerySetType(Patient)
 
-    slug        = "women_using_fp_perc"
+    slug        = "using_perc"
     short_name  = _("% FP")
     long_name   = _("Percentage of women seen "\
                     "during this period who are using "\
                     "modern family planning")
 
-    cls_num     = WomenUsingFp
+    cls_num     = Using
     cls_den     = Women
 
 def _using_fp_factory(code_in, slug_in, short_name_in, plural_in):
@@ -101,36 +101,43 @@ UsingPill = _using_fp_factory('p', 'pill', \
 UsingSterilization = _using_fp_factory('st', 'sterilization', \
     _("Ster."), _("sterilization"))
 
-def _fp_usage_change(period, data_in):
-    starting = 0
-    staying_on = 0
-    ending = 0
+class FpUsageChange(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = dict
 
-    fps = _fp_reports(period, data_in)\
-        .filter(women__isnull=False, women_using__isnull=False)\
-        .iterator()
+    slug        = "fp_usage_change"
 
-    for f in fps:
-        try:
-            latest = FamilyPlanningReport\
-                .objects\
-                .filter(encounter__patient=f.encounter.patient,
-                    encounter__encounter_date__lt=f.encounter.encounter_date,
-                    women__isnull=False,
-                    women_using__isnull=False)\
-                .latest('encounter__encounter_date')
-        except FamilyPlanningReport.DoesNotExist:
-            starting += f.women_using
-        else:
-            starting += max(0, f.women_using - latest.women_using)
-            staying_on += min(f.women_using, latest.women_using)
-            ending += max(0, latest.women_using - f.women_using)
+    @classmethod
+    def _value(cls, period, data_in):
+        starting = 0
+        staying_on = 0
+        ending = 0
 
-    return {
-        'starting': starting,
-        'staying_on': staying_on,
-        'ending': ending,
-    }
+        fps = _fp_reports(period, data_in)\
+            .filter(women__isnull=False, women_using__isnull=False)\
+            .iterator()
+
+        for f in fps:
+            try:
+                latest = FamilyPlanningReport\
+                    .objects\
+                    .filter(encounter__patient=f.encounter.patient,
+                        encounter__encounter_date__lt=f.encounter.encounter_date,
+                        women__isnull=False,
+                        women_using__isnull=False)\
+                    .latest('encounter__encounter_date')
+            except FamilyPlanningReport.DoesNotExist:
+                starting += f.women_using
+            else:
+                starting += max(0, f.women_using - latest.women_using)
+                staying_on += min(f.women_using, latest.women_using)
+                ending += max(0, latest.women_using - f.women_using)
+
+        return {
+            'starting': starting,
+            'staying_on': staying_on,
+            'ending': ending,
+        }
 
 def _fp_change_factory(slug_in, short_name_in, long_name_in):
      
@@ -145,7 +152,7 @@ def _fp_change_factory(slug_in, short_name_in, long_name_in):
 
         @classmethod
         def _value(cls, period, data_in):
-            return _fp_usage_change(period, data_in)[cls.slug]
+            return FpUsageChange(period, data_in)[cls.slug]
 
     return ChangeClass
 

@@ -27,6 +27,38 @@ class Total(Indicator):
             .pregnant(period.start, period.end)\
             .count()
 
+class MonthFour(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "month_four"
+    short_name  = _("# Preg 4m")
+    long_name   = _("Total women who are more than 4 months pregnant "\
+                    "at the end of this period")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .pregnant_months(period.start, period.end,\
+                4.0, 9.5, False, False)\
+            .count()
+
+class MonthEight(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "month_eight"
+    short_name  = _("# Preg 8m")
+    long_name   = _("Total women who are more than 8 months pregnant "\
+                    "at the end of this period")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .pregnant_months(period.start, period.end,\
+                8.0, 9.5, False, False)\
+            .count()
+
 class Coverage(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

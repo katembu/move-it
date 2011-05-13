@@ -22,11 +22,12 @@ STR_FUNCTIONS = {
     datetime:       str,
     date:           str,
     bool:           str,
+    dict:           str,
 }
 
 """Indicator output types that can be cached."""
 CACHEABLE_TYPES = (int, float, datetime, \
-    date, bool, Percentage)
+    date, bool, Percentage, dict)
 
 def _filter_cache_key(func, self, args, kwargs):
     hvals = []
@@ -90,7 +91,7 @@ def cache_indicator(cls, ind_func, period, data_in):
 
     if not cls.type_out in CACHEABLE_TYPES:
         raise TypeError(_("Indicator with output type %s cannot be cached") % \
-                        str(type(cache_val)))
+                        str(cls.type_out))
 
 
     # Get the cache key from the function and arguments

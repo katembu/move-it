@@ -31,11 +31,11 @@ class Total(Indicator):
             .filter(dob__range=(period.start, period.end))\
             .count()
 
-class LowWeight(Indicator):
+class WeightLow(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "low_weight"
+    slug        = "weight_low"
     short_name  = _("# Low-Weight Births")
     long_name   = _("Total number of patients born this period "\
                     "with weight weight < 2.5 kg")
@@ -51,11 +51,11 @@ class LowWeight(Indicator):
                 encounter__patient__in=babies)\
             .count()
 
-class WithWeight(Indicator):
+class WeightRecorded(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "with_weight"
+    slug        = "weight_recorded"
     short_name  = _("# Births with Weight")
     long_name   = _("Total number of patients born this period "\
                     "with recorded weight")
@@ -70,16 +70,16 @@ class WithWeight(Indicator):
                 encounter__patient__in=babies)\
             .count()
 
-class LowWeightPerc(IndicatorPercentage):
+class WeightLowPerc(IndicatorPercentage):
     type_in     = QuerySetType(Patient)
 
-    slug        = "low_weight_perc"
+    slug        = "weight_low_perc"
     short_name  = _("% Births with Low Weight")
     long_name   = _("Percentage of patients born this period "\
                     "with recorded low weight")
 
-    cls_num     = LowWeight
-    cls_den     = WithWeight
+    cls_num     = WeightLow
+    cls_den     = WeightRecorded
 
 class DeliveredInClinic(Indicator):
     type_in     = QuerySetType(Patient)

@@ -38,6 +38,9 @@ class Indicator(object):
 
     @classmethod
     def _check_type(cls, expected, value, s):
+        if cls.slug is None:
+            raise ValueError(_("Indicator slug cannot be None"))
+
         if expected is QuerySet:
             raise TypeError(_("Expected %(str)s type cannot be a QuerySet. "\
                             "Use an indicator.QuerySetType object instead.") % \

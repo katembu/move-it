@@ -16,7 +16,7 @@ from reportgen.PrintedReport import PrintedReport
 
 class ReportDefinition(PrintedReport):
     """ list all CHW """
-    title = 'CHW List'
+    title = _('CHW List')
     filename = 'CHWList'
     formats = ['html', 'pdf', 'xls']
 

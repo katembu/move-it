@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: tief
+
+from django.utils.translation import gettext as _
+
+from ccdoc import Document, Table, Text, Section
+
+from reportgen.utils import render_doc_to_file
+from reportgen.PrintedReport import PrintedReport
+
+from childcount.indicators import birth
+from childcount.indicators import death
+from childcount.indicators import family_planning
+from childcount.indicators import pregnancy
+from childcount.indicators import under_one
+from childcount.indicators import nutrition
+from childcount.indicators import fever
+from childcount.indicators import registration
+from childcount.indicators import danger_signs
+from childcount.indicators import neonatal
+from childcount.indicators import referral
+from childcount.indicators import follow_up
+from childcount.indicators import household
+from childcount.indicators import bed_net_coverage
+from childcount.indicators import bed_net_utilization
+
+class ReportDefinition(PrintedReport):
+    title = _('MVIS Indicators')
+    filename = 'MvisIndicators'
+    formats = ['html', 'pdf', 'xls']
+
+    indicators = (
+        (_("Vital Events"), (
+            birth.Total,
+            death.Neonatal,
+            death.UnderOne,
+            death.UnderFive,
+            death.PregnancyRelated,
+            death.OverFiveNotPregnancyRelated,
+        )),
+        (_("Reproductive and maternal health"), (
+            family_planning.Using,
+            family_planning.Women,
+            pregnancy.AncZeroByMonthFour,
+            pregnancy.MonthFour,
+            pregnancy.AncFourByMonthEight,
+            pregnancy.MonthEight,
+            birth.DeliveredInClinic,
+            birth.WithLocation,
+        )),
+        (_("Child nutrition"), (
+            birth.WeightLow,
+            birth.WeightRecorded,
+            under_one.UnderSixMonthsBreastFeedingOnly,
+            under_one.UnderSixMonthsBreastFeedingOnlyKnown,
+            nutrition.Sam,
+            nutrition.Known,
+            registration.MuacEligible,
+        )), 
+        (_("Child health - immunization/diarrhea/malaria (infants and under-5's)"), (
+            under_one.UnderOneImmunizationUpToDate,
+            under_one.UnderOneImmunizationUpToDateKnown,
+            danger_signs.UnderFiveDiarrheaUncomplicated,
+            danger_signs.UnderFiveDiarrheaUncomplicatedGivenOrs,
+            danger_signs.UnderFiveDiarrheaUncomplicatedGivenZinc,
+            danger_signs.UnderFiveFeverComplicated,
+            danger_signs.UnderFiveFeverUncomplicated,
+            danger_signs.UnderFiveFeverUncomplicatedRdt,
+            danger_signs.UnderFiveFeverUncomplicatedRdtPositive,
+            fever.UnderFiveRdtPositiveGivenAntimalarial,
+            fever.UnderFiveRdtNegativeGivenAntimalarial,
+            danger_signs.UnderFiveFeverUncomplicatedRdtNegative,
+            danger_signs.UnderFiveFeverComplicatedReferred,
+            danger_signs.UnderFiveFeverComplicatedReferredFollowUp,
+        )),
+        (_("Malaria (Over 5's)"), (
+            fever.OverFiveRdtPositive,
+            fever.OverFiveRdtNegative,
+            fever.OverFiveRdt,
+            fever.OverFiveRdtPositiveGivenAntimalarial,
+        )),
+        (_("CHW performance"), (
+            registration.UnderOne,
+            pregnancy.Coverage,
+            pregnancy.Total,
+            follow_up.OnTime,
+            referral.Urgent,
+            household.UniqueNinetyDays,
+            registration.Household,
+            neonatal.WithinSevenDaysOfBirth,
+        )),
+        (_("Bednet coverage and utilization"), (
+            bed_net_coverage.Total,
+            bed_net_coverage.Covered,
+            bed_net_coverage.Uncovered,
+            bed_net_coverage.SleepingSites,
+            bed_net_utilization.Total,
+            bed_net_utilization.ChildrenUsing,
+            bed_net_utilization.Children,
+        )),
+    )
+
+    def generate(self, time_period, rformat, title, filepath, data):
+        doc = Document(title)
+
+        self.set_progress(0)
+        total = len(self._indicators)
+
+        # Category, Descrip, Sub_Periods
+        sub_periods = time_period.sub_periods()
+        table = Table(2+len(sub_periods), _("MVIS Indicators: %(start)s - %(end)") \
+            % {'start': time_period.start.strftime("%Y"), 'end': time_period.end.strftime("%Y")})
+
+        for i,category in enumerate(self._indicators):
+            table.add_row([category[0]] + ['Blank'] * (len(sub_periods) + 1))
+            self.set_progress(100.0*i/total)
+
+        doc.add_element(table)
+
+        rval = render_doc_to_file(filepath, rformat, doc)
+        self.set_progress(100)
+
+        return rval

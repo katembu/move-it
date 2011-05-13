@@ -47,11 +47,11 @@ class Unique(Indicator):
             .distinct()\
             .count()
 
-class BreastFeedingKnown(Indicator):
+class BreastFeedingOnlyKnown(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "breast_feeding_known"
+    slug        = "breast_feeding_only_known"
     short_name  = _("#BF Known")
     long_name   = _("Total number of under-one reports for distinct patients "\
                     "where the breast-feeding status is known")
@@ -70,17 +70,17 @@ class BreastFeedingKnown(Indicator):
             .distinct()\
             .count()
 
-class BreastFeedingUnknown(IndicatorDifference):
+class BreastFeedingOnlyUnknown(IndicatorDifference):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "breast_feeding_unknown"
+    slug        = "breast_feeding_only_unknown"
     short_name  = _("#BF Unknown")
     long_name   = _("Total number of under-one reports for distinct patients "\
                     "where the breast-feeding status is unknown")
 
     cls_first   = Unique
-    cls_second  = BreastFeedingKnown
+    cls_second  = BreastFeedingOnlyKnown
 
 class UnderSixMonthsBreastFeedingOnly(Indicator):
     type_in     = QuerySetType(Patient)
@@ -106,11 +106,11 @@ class UnderSixMonthsBreastFeedingOnly(Indicator):
             .distinct()\
             .count()
 
-class UnderSixMonthsBreastFeedingKnown(Indicator):
+class UnderSixMonthsBreastFeedingOnlyKnown(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "under_six_months_breast_feeding_known"
+    slug        = "under_six_months_breast_feeding_only_known"
     short_name  = _("<6m BF Known")
     long_name   = _("Total number of distinct patients who were under 6 months "\
                     "at the time of encounter and who have a known breast-feeding "\
@@ -170,11 +170,11 @@ class UnderFiveImmunizationUpToDatePerc(IndicatorPercentage):
     cls_den     = registration.UnderFive
 
 
-class UnderOneImmunization(Indicator):
+class UnderOneImmunizationUpToDateKnown(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "under_one_immunization"
+    slug        = "under_one_immunization_up_to_date_known"
     short_name  = _("<1y Imm")
     long_name   = _("Total number of patients under 1 year old at the end "\
                     "of the period with an immunization report during the "\
@@ -193,11 +193,11 @@ class UnderOneImmunization(Indicator):
             .distinct()\
             .count()
 
-class UnderOneImmunizationYes(Indicator):
+class UnderOneImmunizationUpToDate(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "under_one_immunization_yes"
+    slug        = "under_one_immunization_up_to_date"
     short_name  = _("<1y Imm Yes")
     long_name   = _("Total number of patients under 1 year old at the end "\
                     "of the period with an immunization report marked 'up to date' "\

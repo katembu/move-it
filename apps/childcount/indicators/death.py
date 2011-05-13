@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.db import connection
 
 from indicator import Indicator
+from indicator import IndicatorDifference
 from indicator import QuerySetType
 
 from childcount.models.reports import DeathReport
@@ -157,3 +158,18 @@ class PregnancyRelated(Indicator):
                 count += 1
 
         return count
+
+class OverFiveNotPregnancyRelated(IndicatorDifference):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "over_five_not_pregnancy_related"
+    short_name  = _("Deaths >= 5y not Preg")
+    long_name   = _("Total number of over-five patients "\
+                    "who died during this period whose deaths "\
+                    "were not pregnancy-related")
+
+    cls_first   = OverFive
+    cls_second  = PregnancyRelated
+
+

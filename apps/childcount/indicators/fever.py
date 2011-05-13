@@ -150,6 +150,21 @@ class OverFiveRdtPositive(Indicator):
             .filter(rdt_result=FeverReport.RDT_POSITIVE)\
             .count()
 
+class OverFiveRdtNegative(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "over_five_rdt_negative"
+    short_name  = _(">5y RDT-")
+    long_name   = _("Negative RDT results for patients over 5y")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _over_five_rdt(period, data_in)\
+            .filter(rdt_result=FeverReport.RDT_Negative)\
+            .count()
+
+
 class OverFiveRdtPositiveGivenAntimalarial(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

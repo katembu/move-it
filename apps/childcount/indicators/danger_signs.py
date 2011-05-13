@@ -76,11 +76,11 @@ def _under_five_diarrhea_uncomplicated_getting(period, data_in, drug_code):
     return _under_five_diarrhea_uncomplicated(period, data_in)\
         .filter(encounter__ccreport__medicinegivenreport__medicines__code=drug_code)
 
-class UnderFiveDiarrheaUncomplicatedGettingOrs(Indicator):
+class UnderFiveDiarrheaUncomplicatedGivenOrs(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "under_five_diarrhea_uncomplicated_getting_ors"
+    slug        = "under_five_diarrhea_uncomplicated_given_ors"
     short_name  = _("U5 Dr Uncompl w/ ORS")
     long_name   = _("Total number of danger signs reports "\
                     "for U5s with uncomplicated diarrhea "\
@@ -90,11 +90,11 @@ class UnderFiveDiarrheaUncomplicatedGettingOrs(Indicator):
     def _value(cls, period, data_in):
         return _under_five_diarrhea_uncomplicated_getting(period, data_in, 'R').count()
 
-class UnderFiveDiarrheaUncomplicatedGettingZinc(Indicator):
+class UnderFiveDiarrheaUncomplicatedGivenZinc(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
 
-    slug        = "under_five_diarrhea_uncomplicated_getting_zinc"
+    slug        = "under_five_diarrhea_uncomplicated_given_zinc"
     short_name  = _("U5 Dr Uncompl w/ Zinc")
     long_name   = _("Total number of danger signs reports "\
                     "for U5s with uncomplicated diarrhea "\

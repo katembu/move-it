@@ -27,6 +27,22 @@ class Total(Indicator):
             .filter(created_on__lte=period.end)\
             .count()
 
+class UnderOne(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_one"
+    short_name  = _("U1")
+    long_name   = _("Total number registered under-ones")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .filter(created_on__lte=period.end)\
+            .under_one(period.start, period.end)\
+            .count()
+
+
 class UnderFive(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
