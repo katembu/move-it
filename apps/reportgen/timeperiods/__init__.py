@@ -9,12 +9,13 @@ from reportgen.timeperiods.definitions.Month import Month
 from reportgen.timeperiods.definitions.TwelveMonths import TwelveMonths
 from reportgen.timeperiods.definitions.TwoMonths import TwoMonths
 from reportgen.timeperiods.definitions.FiveYears import FiveYears
-from reportgen.timeperiods.definitions.FiveYearsByQuarter import FiveYearsByQuarter
+from reportgen.timeperiods.definitions.SevenYearsByQuarter import SevenYearsByQuarter
 from reportgen.timeperiods.definitions.TwelveMonthsByQuarter \
     import TwelveMonthsByQuarter
 
 PERIOD_TYPES = [FourWeeks, Month, TwelveMonths,\
-                TwelveMonthsByQuarter, TwoMonths, FiveYears, FiveYearsByQuarter]
+                TwelveMonthsByQuarter, TwoMonths, FiveYears, \
+                SevenYearsByQuarter]
 PERIOD_CHOICES = [(pt.code, "%s (0-%d)" % (pt.title, pt.n_periods-1)) \
                             for pt in PERIOD_TYPES]
 

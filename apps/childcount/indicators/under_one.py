@@ -125,7 +125,7 @@ class UnderSixMonthsBreastFeedingOnlyKnown(Indicator):
             .objects\
             .filter(encounter__patient__in=data_in,\
                 encounter__encounter_date__range=(period.start, period.end),\
-                breast_only=(YN))\
+                breast_only__in=(Y,N))\
             .encounter_age(0, 180)\
             .values('encounter__patient')\
             .distinct()\

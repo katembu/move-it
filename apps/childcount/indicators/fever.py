@@ -161,7 +161,7 @@ class OverFiveRdtNegative(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return _over_five_rdt(period, data_in)\
-            .filter(rdt_result=FeverReport.RDT_Negative)\
+            .filter(rdt_result=FeverReport.RDT_NEGATIVE)\
             .count()
 
 

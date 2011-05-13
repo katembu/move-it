@@ -25,12 +25,14 @@ from childcount.indicators import household
 from childcount.indicators import bed_net_coverage
 from childcount.indicators import bed_net_utilization
 
+from childcount.models import Patient
+
 class ReportDefinition(PrintedReport):
     title = _('MVIS Indicators')
     filename = 'MvisIndicators'
     formats = ['html', 'pdf', 'xls']
 
-    indicators = (
+    _indicators = (
         (_("Vital Events"), (
             birth.Total,
             death.Neonatal,
@@ -109,11 +111,24 @@ class ReportDefinition(PrintedReport):
 
         # Category, Descrip, Sub_Periods
         sub_periods = time_period.sub_periods()
-        table = Table(2+len(sub_periods), _("MVIS Indicators: %(start)s - %(end)") \
-            % {'start': time_period.start.strftime("%Y"), 'end': time_period.end.strftime("%Y")})
+        table = Table(2+len(sub_periods), Text(_("MVIS Indicators: %s") % time_period.title))
 
+        table.add_header_row([Text(_("Category")), Text("Indicator")] + \
+            [Text(p.title) for p in time_period.sub_periods()])
+
+        patients = Patient.objects.all()
         for i,category in enumerate(self._indicators):
-            table.add_row([category[0]] + ['Blank'] * (len(sub_periods) + 1))
+            for ind in category[1]:
+                row = []
+                row.append(unicode(category[0]))
+                row.append(unicode(ind.short_name))
+
+                for t in sub_periods:
+                    print "Indicator %s in %s - %s" % (ind.slug, t.start, t.end)
+                    row.append(ind(t, patients))
+          
+                table.add_row([Text(c) for c in row])
+
             self.set_progress(100.0*i/total)
 
         doc.add_element(table)

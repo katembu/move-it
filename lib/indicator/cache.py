@@ -95,7 +95,8 @@ def cache_indicator(cls, ind_func, period, data_in):
 
 
     # Get the cache key from the function and arguments
-    cache_key_elms = [str(cls), cls.slug]
+    cache_key_elms = [str(cls), cls.slug, \
+        str(period.start), str(period.end)]
 
     if isinstance(cls.type_in, QuerySetType):
         cache_key_elms.append("QuerySet")
