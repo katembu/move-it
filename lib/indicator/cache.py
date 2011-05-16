@@ -129,6 +129,7 @@ def cache_filter(func, timeout=60*60*2):
 def cache_indicator(cls, ind_func, period, data_in):
     # First, make sure we want to execute the caching logic
     if not cls.cache:
+        print "skipping cache"
         return ind_func(period, data_in)
 
     if not cls.type_out in CACHEABLE_TYPES:
@@ -172,6 +173,7 @@ def cache_indicator(cls, ind_func, period, data_in):
         raise ValueError(_("Cannot cache function that returns a value "\
                             "of None"))
 
+    print "Saving in %s=%s" % (cache_key, str(cache_val))
     cache.set(cache_key, cache_val, cls.valid_for)
 
     return cache_val

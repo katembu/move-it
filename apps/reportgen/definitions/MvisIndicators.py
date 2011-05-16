@@ -59,7 +59,7 @@ class ReportDefinition(PrintedReport):
             nutrition.Sam,
             nutrition.Known,
             registration.MuacEligible,
-        )), 
+        )),
         (_("Child health - immunization/diarrhea/malaria (infants and under-5's)"), (
             under_one.UnderOneImmunizationUpToDate,
             under_one.UnderOneImmunizationUpToDateKnown,
@@ -111,10 +111,14 @@ class ReportDefinition(PrintedReport):
 
         # Category, Descrip, Sub_Periods
         sub_periods = time_period.sub_periods()
-        table = Table(2+len(sub_periods), Text(_("MVIS Indicators: %s") % time_period.title))
+        table = Table(2+len(sub_periods), \
+            Text(_("MVIS Indicators: %s") % time_period.title))
 
         table.add_header_row([Text(_("Category")), Text("Indicator")] + \
             [Text(p.title) for p in time_period.sub_periods()])
+
+        n_inds = sum([len(i[1]) for i in self._indicators])+1
+        count = 0
 
         patients = Patient.objects.all()
         for i,category in enumerate(self._indicators):
@@ -130,7 +134,8 @@ class ReportDefinition(PrintedReport):
           
                 table.add_row([Text(c) for c in row])
 
-            self.set_progress(100.0*i/total)
+                self.set_progress(100.0*count/n_inds)
+                count += 1
 
         doc.add_element(table)
 
