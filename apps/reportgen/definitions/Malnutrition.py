@@ -11,39 +11,42 @@ from ccdoc import Document, Table, Paragraph, \
     Text, Section, PageBreak
 
 from childcount.models import CHW, Clinic
-from childcount.models.ccreports import ThePatient
+from childcount.models import Patient
 from childcount.models.reports import NutritionReport
+from childcount.helpers.patient import latest_muac_date
 
-from childcount.reports.utils import render_doc_to_file
-from childcount.reports.report_framework import PrintedReport
+from reportgen.utils import render_doc_to_file
+from reportgen.PrintedReport import PrintedReport
 
-class Report(PrintedReport):
+class ReportDefinition(PrintedReport):
     title = _(u"Malnutrition Report")
     filename = 'malnutrition'
     formats = ['pdf','html']
 
-    def generate(self, rformat, title, filepath, data):
+    def generate(self, period, rformat, title, filepath, data):
         doc = Document(title)
         doc.add_element(PageBreak())
 
         clinics = Clinic.objects.all()
 
-        for clinic in clinics:
+        total = clinics.count()
+        for i,clinic in enumerate(clinics):
+            self.set_progress(100.0*i/total)
+            
             doc.add_element(Section(clinic.name)) 
            
-            t, t2 = self._malnutrition_table(clinic)
+            t, t2 = self._malnutrition_table(period, clinic)
             doc.add_element(t)
             doc.add_element(t2)
             doc.add_element(PageBreak())
 
         return render_doc_to_file(filepath, rformat, doc)
 
-    def _malnourished_by_clinic(self, clinic):
-        under_fives = ThePatient\
+    def _malnourished_by_clinic(self, period, clinic):
+        under_fives = Patient\
             .objects\
-            .filter(status=ThePatient.STATUS_ACTIVE,\
-                chw__clinic=clinic,\
-                dob__gte=date.today()-timedelta(5*265.25))\
+            .filter(chw__clinic=clinic)\
+            .muac_eligible(period.start, period.end)\
             .order_by('location__code')
 
         output = []
@@ -56,7 +59,8 @@ class Report(PrintedReport):
                 r = NutritionReport\
                     .objects\
                     .filter(encounter__chw__clinic=clinic,\
-                        encounter__patient=u)\
+                        encounter__patient=u,
+                        encounter__encounter_date__lte=period.end)\
                     .filter((Q(muac__isnull=False)&Q(muac__gt=0)) | \
                             Q(oedema__in=NutritionReport.OEDEMA_YES))\
                     .latest()
@@ -76,16 +80,17 @@ class Report(PrintedReport):
 
                 # If the muac figure is old, add this report to the To-do
                 # list.
-                if (r.encounter.encounter_date + timedelta(90)).date() <= date.today():
+                if (r.encounter.encounter_date + timedelta(90)) <= period.end:
                     no_report.append(u)
         
         return (output, no_report)
 
-    def _malnutrition_table(self, clinic):
-        (malnourished, unknown) = self._malnourished_by_clinic(clinic)
+    def _malnutrition_table(self, period, clinic):
+        (malnourished, unknown) = self._malnourished_by_clinic(period, clinic)
 
         table = Table(8, \
-            Text(_(u"Children U5 Flagged as Malnourished")))
+            Text(_(u"Children U5 Flagged as Malnourished as of %s") %
+                period.end.strftime("%d %b %Y")))
 
         table.add_header_row([
             Text(_(u"Loc Code")),
@@ -129,7 +134,8 @@ class Report(PrintedReport):
             ])
         
         table2 = Table(6, \
-            Text(_(u"Children U5 without MUAC in Past 90 Days")))
+            Text(_(u"Children U5 without MUAC in 90 Days Ending %s") % \
+                period.end.strftime("%d %b %Y")))
 
         table2.add_header_row([
             Text(_(u"Loc Code")),
@@ -146,7 +152,7 @@ class Report(PrintedReport):
                 Text(kid.location.code),
                 Text(kid.health_id.upper()),
                 Text(kid.full_name() + u" / " + kid.humanised_age()),
-                Text(kid.latest_muac_date()),
+                Text(latest_muac_date(period, kid)),
                 Text(kid.household.full_name()),
                 Text(kid.chw.full_name())
             ])
