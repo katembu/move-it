@@ -9,9 +9,10 @@ Patient - Patient model
 
 from datetime import date, timedelta
 
+from django import db
 from django.db import models
-from django.db.models import F
 from django.db import connection
+from django.db.models import F
 from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
@@ -21,10 +22,11 @@ import reversion
 from reporters.models import Reporter
 from locations.models import Location
 
-from indicator.cache import cache_filter
+from indicator.cache import cache_simple
 
 import childcount.models.Clinic
 import childcount.models.CHW
+
 
 def queries():
     print len(connection.queries)
@@ -287,9 +289,132 @@ class Patient(models.Model):
         def pregnant(self, start, end):
             return self.pregnant_months(start, end, 0.0, 9.0, False, False)
 
-        @cache_filter
+        @cache_simple
+        def pregnant_data(self):
+            """
+            This function collects all of the pregnancy reports
+            into a single data structure. We can cache this
+            data structure and use it for running various queries
+            about pregnant women.
+            """
+
+            data = {}
+
+            # Get all of the potentially pregant women
+            women_pks = Patient\
+                .objects\
+                .filter(gender=Patient.GENDER_FEMALE,
+                    encounter__ccreport__pregnancyreport__pregnancy_month__isnull=False)
+
+            # Remove duplicate women
+            women = Patient\
+                .objects\
+                .filter(pk__in=women_pks)\
+                .order_by('pk')
+
+            for p in women:
+                edate = date(2050,01,01)
+                data[p.pk] = []
+
+                # Look for all pregnancies b/c a woman can
+                # be pregnant many times (duh)
+                while True:
+                    # Check if there is a PregnancyReport before edate
+                    reps = p\
+                        .encounter_set\
+                        .filter(ccreport__pregnancyreport__pregnancy_month__isnull=False,\
+                            encounter_date__lte=edate)
+
+                    if not reps.count(): 
+                        break
+
+                    # If so, record the estimated conception date
+                    pr = reps\
+                        .latest('ccreport__pregnancyreport__encounter__encounter_date')\
+                        .ccreport_set\
+                        .filter(polymorphic_ctype__model='pregnancyreport')[0]
+               
+                    days_preg = timedelta(30.4375 * pr.pregnancy_month)
+                    row = {}
+
+                    row["start_date"] = pr.encounter.encounter_date - days_preg
+
+                    # Look for a pregnancy starting at least 6 months before
+                    # the estimated conception date
+                    edate = pr.encounter.encounter_date - days_preg - timedelta(30*6)
+
+                    # Set date range for births and miscarriages
+                    drange = (row['start_date'], row['start_date'] + timedelta(10*30.4375))
+
+                    # Look for births
+                    birth = Patient\
+                        .objects\
+                        .filter(dob__range=drange, mother__pk=p.pk)
+                    if birth.count() > 0:
+                        row['birth_date'] = birth[0].dob
+                        data[p.pk].append(row)
+                        continue
+
+                    # Look for stillbirths/miscarriages
+                    sbm = Patient\
+                        .objects\
+                        .get(pk=p.pk)\
+                        .encounter_set\
+                        .filter(ccreport__stillbirthmiscarriagereport__incident_date__range=drange)
+                    if sbm.count() > 0:
+                        row['sbm_date'] = sbm[0].encounter_date
+                        data[p.pk].append(row)
+                        continue
+
+                    # If there's no birth or stillbirth/miscarriage report, then
+                    # just guess the end date
+                    row['end_date'] = row['start_date'] + timedelta(9*30.4375)
+                    data[p.pk].append(row)
+
+            print data
+            return data
+                  
         def pregnant_months(self, start, end, start_month, end_month, 
                 include_delivered, include_stillbirth):
+            """
+            pregnant_months uses the cached pregnant_data()
+            call to return info about pregnancies
+            in the desired date ranges
+            """
+            data = self.pregnant_data()
+
+            pks = set()
+
+            for pk in data:
+                pregs = data[pk]
+                for preg in pregs:
+                    days_preg = (end - preg['start_date']).days
+                    current_month = days_preg/30.4375
+
+                    print "Considering patient [%d]" % pk
+                    if not (current_month >= start_month and current_month <= end_month):
+                        print 'not in right month... %f' % current_month
+                        continue
+                    
+                    if not include_delivered:
+                        if current_month > 9.5:
+                            continue
+                        if ('birth_date' in preg) and (preg['birth_date'] <= end.date()):
+                            continue
+
+                    if not include_stillbirth and \
+                        ('sbm_date' in preg) and (preg['sbm_date'] <= end):
+                        continue
+
+                    print "In month %f patient %d" % (current_month, pk)
+                    pks.add(pk)
+            print pks
+            return self.filter(pk__in=pks) 
+
+        """
+        def pregnant_months2(self, start, end, start_month, end_month, 
+                include_delivered, include_stillbirth):
+
             assert start_month >= 0, _("Start month must be >= 0")
             assert start_month < end_month, \
                         _("Start month must be < end_month")
@@ -366,8 +491,11 @@ class Patient(models.Model):
                             pr.encounter.encounter_date, pr.pk)
                 pks.add(p.pk)
             #print pks
+
+            db.reset_queries()
             return self.filter(pk__in=pks)
-        
+        """
+
         def pregnant_recently(self, start, end):
             # Pregnant or within 42 days of delivery
             return self.pregnant_months(start, end, 0.0, 10.4, True, False)

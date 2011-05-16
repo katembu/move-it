@@ -10,6 +10,7 @@ from datetime import datetime
 from celery.task import Task
 from celery.schedules import crontab
 
+from django import db
 from django.utils.translation import gettext as _
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
@@ -94,6 +95,27 @@ class PrintedReport(Task):
             kwargs['dir'] = NightlyReport.NIGHTLY_DIR
             self._run_nightly(*args, **kwargs)
 
+    def test(self, time_period, rformat):
+        """
+        Use this method to test your reports from
+        the shell.
+        """
+
+        self._kwargs = {'nightly': 'Fake'}
+
+        fname = "/tmp/test_%s.%s" % (self.filename, rformat)
+        print "Saving as \"%s\"" % fname
+
+        if self.variants:
+            title = self.title + self.variants[0][0]
+            data = self.variants[0][2]
+        else:
+            title = self.title
+            data = {}
+
+
+        return self.generate(time_period, rformat, title, fname, data)
+
     def _run_nightly(self, *args, **kwargs):
         print "[Nightly args] %s" % str(args)
         print "[Nightly kwargs] %s" % str(kwargs)
@@ -136,6 +158,10 @@ class PrintedReport(Task):
                 _(u'Report title or filename is unset.'))
 
     def set_progress(self, progress):
+        # Clear query cache to keep Django from
+        # eating all of the memory
+        db.reset_queries()
+
         kwargs = self._kwargs
 
         print "> Progress %d%% (at %s)" % (progress, datetime.now())

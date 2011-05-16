@@ -104,7 +104,7 @@ class ReportDefinition(PrintedReport):
     )
 
     def generate(self, time_period, rformat, title, filepath, data):
-        doc = Document(title)
+        doc = Document(title, landscape=True)
 
         self.set_progress(0)
         total = len(self._indicators)
@@ -124,7 +124,8 @@ class ReportDefinition(PrintedReport):
                 row.append(unicode(ind.short_name))
 
                 for t in sub_periods:
-                    print "Indicator %s in %s - %s" % (ind.slug, t.start, t.end)
+                    print "Indicator %s.%s in %s - %s" % \
+                        (str(ind.__module__), ind.slug, t.start, t.end)
                     row.append(ind(t, patients))
           
                 table.add_row([Text(c) for c in row])

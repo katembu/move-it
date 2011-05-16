@@ -31,6 +31,8 @@ CACHEABLE_TYPES = (int, float, datetime, \
 
 def _filter_cache_key(func, self, args, kwargs):
     hvals = []
+    hvals.append("Patient")
+    hvals.append(str(func.__name__))
 
     # Convert the input arguments into cacheable
     # values
@@ -55,7 +57,47 @@ def _filter_cache_key(func, self, args, kwargs):
 
     return s.hexdigest()
 
-def cache_filter(func, timeout=(5)):
+def cache_simple(func, timeout=60*60*2):
+    """
+    cache_simple is a decorator 
+    for caching a function of a single
+    argument that returns a pickle-able
+    object
+    """
+
+    def x(self):
+        cache_key = "Simple"+str(func.__name__)
+
+        # Look for the value in the cache
+        cached = cache.get(cache_key)
+
+        # Simple value is in the cache
+        if cached is not None:
+            print "Got cached value!"
+            # Cached value is a list of pks
+            return cached
+            
+        # Value is not in the cache
+        # so generate the value
+        cache_val = func(self)
+        if cache_val is None:
+            raise ValueError(_("Cannot cache function that returns a value "\
+                                "of None"))
+
+        # Get the pks in this queryset and pickle them
+        cache.set(cache_key, cache_val, timeout)
+
+        return cache_val
+    return x
+
+def cache_filter(func, timeout=60*60*2):
+    """
+    cache_filter is a decorator
+    that caches a filter definition.
+    Right now this is only used
+    for Patient QuerySet objects
+    """
+    
     def x(self, *args, **kwargs):
         # Calculate the cache key for this QuerySet
         cache_key = _filter_cache_key(func, self, args, kwargs)
