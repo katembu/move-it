@@ -127,7 +127,7 @@ class PregnancyRelated(Indicator):
     type_out    = int
 
     slug        = "pregnancy_related"
-    short_name  = _("Preg")
+    short_name  = _("Preg Deaths")
     long_name   = _("Total number pregnancy-related deaths "\
                     "during this period")
 
