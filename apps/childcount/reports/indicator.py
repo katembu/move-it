@@ -89,10 +89,12 @@ class Indicator(object):
         return (sum(nums), sum(dens))
  
     @classmethod
-    def AVG(cls, lst):
+    def AVG(cls, lst, roundoff=False):
         lst = filter(lambda a: a is not None, lst)
         if len(lst) == 0:
             return None
+        if roundoff:
+            return int(sum(lst, 0.0) / len(lst))
         return sum(lst, 0.0) / len(lst)
 
     @classmethod

@@ -94,7 +94,7 @@ class ThePatient(Patient):
         hvr = HouseholdVisitReport.objects\
                 .filter(encounter__encounter_date__gt=self.dob, \
                     encounter__encounter_date__lte=seven_days_after_birth, \
-                    encounter__patient=self.household.health_id)\
+                    encounter__patient=self.household)\
                 .count()
 
         nn = NeonatalReport\
@@ -2477,6 +2477,7 @@ class MonthlyCHWReport(TheCHWReport):
         return (len(have_anc), len(women))
 
     def _women_in_month_of_preg(self, per_cls, per_num, trimester):
+    
         if trimester not in xrange(1,5):
             raise ValueError('Trimester is out of range [1,4]')
 
@@ -2956,6 +2957,81 @@ class HealthCoordinatorReport():
     #
     # Pregnancy section
     #
+    def pregnant_women(self, today=datetime.today().date()):
+        c = []
+        # Need to use Sauri specific
+        # Noticed that PregnancyReport.objects.filter(encounter__chw=self)
+        # does returns [], with values('encounter__patient').distinct()
+        # returns some values but they are different if SPregnancy is used
+        if not PregnancyReport.objects.filter():
+            prgclass = SPregnancy
+        else:
+            prgclass = PregnancyReport
+        pregs = prgclass\
+            .objects\
+            .filter(encounter__encounter_date__gt=today-timedelta(365.25),\
+                encounter__encounter_date__lte=today)\
+            .values('encounter__patient')\
+            .distinct()
+        print "got %d pregs" % pregs.count()
+
+        for preg in pregs:
+            patient = Patient.objects.get(pk=preg['encounter__patient'])
+            pr = prgclass\
+                .objects\
+                .filter(encounter__patient=patient,\
+                    encounter__encounter_date__lte=today,\
+                    encounter__encounter_date__gt=today-timedelta(365.25))\
+                .latest('encounter__encounter_date')
+
+            # Number of days since encounter
+            days = (today - pr.encounter.encounter_date.date()).days
+            # Number of months since encounter
+            months = round(days / 30.4375)
+
+            print 'PR submitted %s at month %d (ago: %d)' % \
+                (pr.encounter.encounter_date, pr.pregnancy_month, months)
+
+            # If the pregnancy month plus months since encounter
+            # is greater than 9 and there's no birth report,
+            # then let's assume the lady is not pregnant
+            months_pregnant = pr.pregnancy_month + months
+            if months_pregnant > 9:
+                print 'too old %d in %s' % \
+                    (pr.pregnancy_month, pr.encounter.encounter_date)
+                continue
+
+            # Look for a baby since the pregnancy
+            b = Patient\
+                .objects\
+                .filter(mother__pk=pr.encounter.patient.pk,\
+                    dob__gte=today-timedelta(months_pregnant*30.4375),\
+                    dob__lte=today)
+
+            # If the birthreport has been found, then she's no longer
+            # pregnant
+            if b.count() > 0:
+                print 'birth at %d' % months_pregnant
+                continue
+
+            # Look for a stillbirth/miscarriage
+            s = StillbirthMiscarriageReport\
+                .objects\
+                .filter(encounter__patient__pk=pr.encounter.patient.pk,\
+                    incident_date__gte=\
+                        today-timedelta(months_pregnant*30.4375),\
+                    incident_date__lte=today)
+
+            # If there was a stillbirth/misscariage, then she's
+            # no longer pregnant
+            if s.count() > 0:
+                print 'stillbirth'
+                continue
+            
+            print '*PR submitted %s at month %d (ago: %d)' % \
+                (pr.encounter.encounter_date, pr.pregnancy_month, months)
+            c.append(patient)
+        return c
 
     def pregnant_by_period(self, per_cls, per_num):
         return self.pregnant_women(per_cls.period_end_date(per_num))
@@ -2976,9 +3052,9 @@ class HealthCoordinatorReport():
         return a, b
 
     def _women_getting_n_anc_by_tot(self, per_cls, n_anc, trimester):
-
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        print "_women_getting_n_anc_by_tot: Trimester ", trimester
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = []
         for period in xrange(0, per_cls.num_periods):
@@ -2990,8 +3066,9 @@ class HealthCoordinatorReport():
         return (len(have_anc), len(women))
 
     def _women_getting_n_anc_by(self, per_cls, per_num, n_anc, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        print "_women_getting_n_anc_by Trimester: ", trimester
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         women = self._women_in_month_of_preg(per_cls, per_num, trimester)
         have_anc = filter(lambda w: w.anc_visits >= n_anc, women)
@@ -3007,8 +3084,9 @@ class HealthCoordinatorReport():
         return len(women)
 
     def _women_in_month_of_preg(self, per_cls, per_num, trimester):
-        if trimester not in xrange(1,4):
-            raise ValueError('Trimester is out of range [1,3]')
+        print "_women_in_month_of_preg Trimester: ", trimester
+        if trimester not in xrange(1,5):
+            raise ValueError('Trimester is out of range [1,4]')
 
         # e.g., 2nd trimester is range(4, 7)
         end_mo = (trimester*3)+1
@@ -3055,17 +3133,21 @@ class HealthCoordinatorReport():
 
     def num_births_delivered_in_facility(self, per_cls, per_num):
         return self._births(per_cls, per_num)\
-            .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES)
+            .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES).count()
 
     def perc_births_delivered_in_facility(self, per_cls, per_num):
         print 'births hf'
         return self.num_births_delivered_in_facility(\
-                per_cls, per_num).count(), \
+                per_cls, per_num), \
             self.num_births(per_cls, per_num)
 
     def _births_with_low_weight(self, per_cls, per_num):
         return self._births_delivered_in_facility(per_cls, per_num)\
             .filter(weight__lt=2.5)
+
+    def _births_delivered_in_facility(self, per_cls, per_num):
+        return  self._births(per_cls, per_num)\
+            .filter(clinic_delivery=BirthReport.CLINIC_DELIVERY_YES)
 
     def num_births_with_low_weight(self, per_cls, per_num):
         return self._births_with_low_weight(per_cls, per_num).count()
