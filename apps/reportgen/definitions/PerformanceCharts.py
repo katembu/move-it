@@ -49,22 +49,22 @@ class ReportDefinition(PrintedReport):
     )
 
     def generate(self, period, rformat, title, filepath, data):
-        
         if rformat != 'pdf':
             raise NotImplementedError(\
                 _(u'Can only generate PDF for performance charts'))
 
-        f = open(filepath, 'w')
         story = [Paragraph(unicode(title), styleH),\
             Paragraph(_("Generated on: ") + 
                 datetime.now().strftime("%d-%m-%Y at %H:%M."), styleN),\
-            Paragraph(_(u"For period %s") % period.title, styleN)]
+            Paragraph(_("For period %s.") % period.title, styleN)]
 
         clinics = Clinic\
             .objects\
             .order_by('name')\
             .exclude(code='ZZZZ')
 
+        self._sub_periods = period.sub_periods()
+        self._sub_periods.reverse()
 
         table_data = [[]]
 
@@ -76,10 +76,10 @@ class ReportDefinition(PrintedReport):
 
             # Initialize data structure
             data = []
-            for t in xrange(0, len(period.sub_periods())):
+            for t,sp in enumerate(self._sub_periods):
                 data.append([])
 
-            for t_index, sub_period in enumerate(period.sub_periods()):
+            for t_index, sub_period in enumerate(self._sub_periods):
                 for c_index, c in enumerate(clinics):
                     val = ind(sub_period, Patient.objects.filter(chw__clinic=c))
                     print "%s: %s = %s" % (title, c, val or '--')
@@ -104,6 +104,8 @@ class ReportDefinition(PrintedReport):
                 ('TOPPADDING', (0,0), (-1, -1), 15),\
                 ('BOTTOMPADDING', (0,0), (-1, -1), 15),\
             ]))
+
+        f = open(filepath, 'w')
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0.1 * inch), \
                                 bottomMargin=(0.1 * inch),\
@@ -112,7 +114,6 @@ class ReportDefinition(PrintedReport):
                                 
         doc.build(story)
         f.close()
-
 
     def _graph(self, data, labels, period_set):
         dh = 2.2 * inch
@@ -157,7 +158,7 @@ class ReportDefinition(PrintedReport):
         legend.boxAnchor = 'nw'
         for i in xrange(0, len(data)):
             legend.colorNamePairs.append(\
-                (bc.bars[i].fillColor, period_set.sub_periods()[i].title))
+                (bc.bars[i].fillColor, self._sub_periods[i].title))
         pprint(legend.getProperties())
 
         # For some reason these get drawn in the opposite

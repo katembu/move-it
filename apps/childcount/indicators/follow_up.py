@@ -122,7 +122,8 @@ class OnTimePerc(IndicatorPercentage):
     slug        = "on_time_perc"
     short_name  = _("% On-Time")
     long_name   = _("Percentage of referrals with an "\
-                    "on-time follow-up visit")
+                    "on-time follow-up visit (between "\
+                    "18 and 72 hours))
 
     cls_num     = OnTime
     cls_den     = Eligible
