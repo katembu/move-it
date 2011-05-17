@@ -40,5 +40,5 @@ class Percentage(fractions.Fraction):
         return (self.__class__, (self.num, self.den))
 
     def short_str(self):
-        return u'--' if self.empty else (u"%d%%" % int(self))
+        return u'--' if self.empty else (u"%d%%" % int(100.0*self))
 

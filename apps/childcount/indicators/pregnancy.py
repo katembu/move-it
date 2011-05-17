@@ -143,7 +143,6 @@ class AncZeroByMonthFour(Indicator):
             .distinct()\
             .count()
 
-
 class AncFourByMonthEight(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -168,6 +167,19 @@ class AncFourByMonthEight(Indicator):
             .values('encounter__patient')\
             .distinct()\
             .count()
+
+class AncFourByMonthEightPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "anc_four_by_month_eight_perc"
+    short_name  = _("% >8m >=4 ANC")
+    long_name   = _("Percentage of women more than eight months "\
+                    "pregnant at the end of this period who "\
+                    "have had at least eight ANC visits")
+
+    cls_num     = AncFourByMonthEight
+    cls_den     = MonthEight
+
 
 class Referred(Indicator):
     type_in     = QuerySetType(Patient)
