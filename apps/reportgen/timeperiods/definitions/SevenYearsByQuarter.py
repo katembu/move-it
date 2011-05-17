@@ -12,16 +12,16 @@ class SevenYearsByQuarter(PeriodType):
 
     title       = _("7 Years (by Quarter)")
     description = _("Seven Years starting X years ago")
-    code        = '5Q'
+    code        = '7Q'
     n_periods   = 12
 
     @classmethod
     def periods(cls): 
-        return [cls._fiveyear_period(index) \
+        return [cls._sevenyear_period(index) \
             for index in xrange(0, cls.n_periods)]
 
     @classmethod
-    def _fiveyear_period(cls, index):
+    def _sevenyear_period(cls, index):
         # Index == 0 means starting this quarter
         # Index == 1 means starting last quarter
 
@@ -43,7 +43,7 @@ class SevenYearsByQuarter(PeriodType):
             {'start': start_date.strftime("%Y"),
             'end': end_date.strftime("%Y")}
 
-        relative_title = _("5 years starting %(start)d quaters ago") % \
+        relative_title = _("7 years starting %(start)d years ago") % \
                 {'start': index}
             
         return Period(title, relative_title, \

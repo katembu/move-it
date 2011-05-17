@@ -13,8 +13,8 @@ from reportgen.PrintedReport import PrintedReport
 from reportgen.utils import render_doc_to_file
 
 FILTER_A = Q(text__contains=_("You successfuly registered "))
-FILTER_B = Q(text__contains=_("+V Successfully processed: ["))
-FILTER_C = Q(text__contains=_("You successfuly registered ")) & \
+FILTER_B = Q(text__regex=_(".*\+V.*Successfully processed\: \[.*"))
+FILTER_C = Q(text__contains=_("Successfully processed: [")) & \
     (Q(text__contains="+U ") | \
     Q(text__contains="+S ") | \
     Q(text__contains="+P ") | \
@@ -31,9 +31,9 @@ class ReportDefinition(PrintedReport):
     formats = ['pdf','xls','html']
 
     variants = [
+        (_("Form C (Consultation)"),   "c", {'look_for': FILTER_C}),
         (_("Form A (Registration)"),   "a", {'look_for': FILTER_A}),
         (_("Form B (HH Visit)"),       "b", {'look_for': FILTER_B}),
-        (_("Form C (Consultation)"),   "c", {'look_for': FILTER_C}),
     ]
 
     def generate(self, period, rformat, title, filepath, data):
@@ -52,6 +52,8 @@ class ReportDefinition(PrintedReport):
             .filter(c__gt=0)\
             .order_by('first_name')
 
+        print reporters
+
         # We first get all of the message counts into a dictionary
         count_data = {}
         total = len(period.sub_periods())
@@ -62,6 +64,8 @@ class ReportDefinition(PrintedReport):
 
         # Filter out the users who haven't sent anything
         have_data = filter(lambda x: sum(count_data[x]), count_data)
+
+        print have_data
         reporters = reporters\
             .filter(pk__in=have_data)\
             .order_by('first_name')
@@ -83,11 +87,19 @@ class ReportDefinition(PrintedReport):
         return render_doc_to_file(filepath, rformat, doc)
 
     def _count(self, sub_period, reporter, look_for):
+        try:
+            identity = reporter\
+                .connections\
+                .get(backend__slug='debackend')\
+                .identity
+        except:
+            return 0
+
         return LoggedMessage\
             .objects\
             .filter(direction=LoggedMessage.DIRECTION_OUTGOING,\
                 date__range=(sub_period.start, sub_period.end),
-                identity=reporter.username,
+                identity=identity,
                 backend='debackend')\
             .filter(look_for)\
             .count()
