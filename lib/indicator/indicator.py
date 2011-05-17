@@ -34,7 +34,11 @@ class Indicator(object):
 
     @classmethod
     def output_is_number(cls):
-        return issubclass(type_out, numbers.Number)
+        return issubclass(cls.type_out, numbers.Number)
+
+    @classmethod
+    def output_is_percentage(cls):
+        return issubclass(cls.type_out, Percentage)
 
     @classmethod
     def _check_type(cls, expected, value, s):

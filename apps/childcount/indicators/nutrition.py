@@ -134,6 +134,24 @@ class Mam(Indicator):
             .distinct()\
             .count()
 
+class SamOrMam(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "sam_or_mam"
+    short_name  = _("SAM/MAM")
+    long_name   = _("Total number of patients with a nutrition report "\
+                    "in the 90 days up to the end of the time period "\
+                    "with a 0<MUAC<125 or Oedema=Yes")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return _muac_ninety_days(period, data_in)\
+            .filter(Q(muac__lt=125)|Q(oedema=NutritionReport.OEDEMA_YES))\
+            .values('encounter__patient')\
+            .distinct()\
+            .count()
+
 class Known(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

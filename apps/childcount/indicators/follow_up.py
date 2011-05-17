@@ -123,7 +123,7 @@ class OnTimePerc(IndicatorPercentage):
     short_name  = _("% On-Time")
     long_name   = _("Percentage of referrals with an "\
                     "on-time follow-up visit (between "\
-                    "18 and 72 hours))
+                    "18 and 72 hours)")
 
     cls_num     = OnTime
     cls_den     = Eligible
@@ -131,6 +131,8 @@ class OnTimePerc(IndicatorPercentage):
 class _NotOnTime(IndicatorDifference):
     type_in     = QuerySetType(Patient)
     type_out    = int
+
+    slug        = "_not_on_time"
 
     cls_first   = Eligible
     cls_second  = OnTime
