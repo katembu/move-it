@@ -13,7 +13,8 @@ def latest_muac_raw(period, p):
             .filter(encounter__patient=p, \
                 encounter__encounter_date__lte=period.end,
                 muac__isnull=False,
-                muac__gt=0).latest()
+                muac__gt=0)\
+            .latest()
     except NutritionReport.DoesNotExist:
         return None
     return n

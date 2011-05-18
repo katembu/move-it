@@ -243,8 +243,7 @@ def kids_needing_muac(period, chw):
 def kids_needing_immunizations(period, chw):
     patients = Patient\
         .objects\
-        .filter(chw=chw)\
-        .under_five(period.start, period.end)
+        .filter(chw=chw)
 
     u1imms = UnderOneReport\
         .objects\
@@ -263,7 +262,11 @@ def kids_needing_immunizations(period, chw):
         .latest_for_patient()\
         .filter(immunized=UnderOneReport.IMMUNIZED_YES)
 
+    imms = (u1imms|u5imms)
+    pks = [i[0] for i in imms.values_list('encounter__patient__pk')]
+    print pks
     return patients\
-        .exclude(pk__in=(u1imms|u5imms))\
+        .under_five(period.start, period.end)\
+        .exclude(pk__in=pks)\
         .order_by('location__code')
 
