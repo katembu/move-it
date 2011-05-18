@@ -64,7 +64,7 @@ class ReportDefinition(PrintedReport):
             doc.add_element(self._pregnancy_table(chw))
             doc.add_element(self._follow_up_table(chw))
             doc.add_element(self._muac_table(chw))
-            #doc.add_element(self._immunization_table(chw))
+            doc.add_element(self._immunization_table(chw))
 
             doc.add_element(PageBreak())
 
@@ -165,8 +165,8 @@ class ReportDefinition(PrintedReport):
         ])
         table.set_column_width(10, 0)
         table.set_column_width(10, 1)
-        for kid in chw.needing_immunizations():
-            im = kid.latest_imm_report()
+        for kid in helpers.chw.kids_needing_immunizations(RecentPeriod, chw):
+            im = helpers.patient.latest_imm_report(RecentPeriod, kid)
             if im is None:
                 im_str = _(u"[No Report]")
             else:

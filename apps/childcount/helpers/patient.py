@@ -4,6 +4,7 @@
 from django.utils.translation import gettext as _
 
 from childcount.models.reports import NutritionReport
+from childcount.models.reports import UnderOneReport
 
 def latest_muac_raw(period, p):
     try:
@@ -33,5 +34,17 @@ def latest_muac(period, p):
     if muac is not None:
         return u"%smm %s" % (muac.muac, muac.verbose_state)
     return u""
+
+def latest_imm_report(period, kid):
+    try:
+        ir = UnderOneReport\
+                .objects\
+                .filter(encounter__patient=kid, \
+                    encounter__encounter_date__lte=period.end)\
+                .latest()
+    except UnderOneReport.DoesNotExist:
+        return None
+
+    return ir
 
 

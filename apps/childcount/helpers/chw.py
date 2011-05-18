@@ -24,6 +24,7 @@ from childcount.models.reports import PregnancyReport
 from childcount.models.reports import FollowUpReport
 from childcount.models.reports import ReferralReport
 from childcount.models.reports import NutritionReport
+from childcount.models.reports import UnderOneReport
 
 report_indicators = (
     {
@@ -239,4 +240,30 @@ def kids_needing_muac(period, chw):
             y[1].encounter.encounter_date))
     return no_muac + need_muac
 
+def kids_needing_immunizations(period, chw):
+    patients = Patient\
+        .objects\
+        .filter(chw=chw)\
+        .under_five(period.start, period.end)
+
+    u1imms = UnderOneReport\
+        .objects\
+        .encounter_age(0, 365)\
+        .filter(encounter__patient__in=patients,
+            encounter__encounter_date__gte=period.end-timedelta(days=90),
+            encounter__encounter_date__lte=period.end)\
+        .latest_for_patient()\
+        .filter(immunized=UnderOneReport.IMMUNIZED_YES)
+
+    u5imms = UnderOneReport\
+        .objects\
+        .encounter_age(366, 5*365.25)\
+        .filter(encounter__patient__in=patients,
+            encounter__encounter_date__lte=period.end)\
+        .latest_for_patient()\
+        .filter(immunized=UnderOneReport.IMMUNIZED_YES)
+
+    return patients\
+        .exclude(pk__in=(u1imms|u5imms))\
+        .order_by('location__code')
 
