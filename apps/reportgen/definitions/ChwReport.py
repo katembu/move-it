@@ -52,7 +52,7 @@ class ReportDefinition(PrintedReport):
             .filter(clinic__pk=clinic_pk, is_active=True)
         
         total = chws.count()
-        for i,chw in enumerate(chws[0:1]):
+        for i,chw in enumerate(chws):
             self.set_progress(100.0*i/total)
 
             doc.add_element(Section(chw.full_name())) 
