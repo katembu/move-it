@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: henrycg
 
+from datetime import datetime, timedelta
+
 from django.utils.translation import gettext as _
 
 from ccdoc import Document, Table, Paragraph, \
@@ -9,19 +11,25 @@ from ccdoc import Document, Table, Paragraph, \
 
 from childcount.models import CHW, Clinic
 from childcount.models.reports import ReferralReport
+from childcount.models.reports import DangerSignsReport
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import UnderOneReport
+from childcount.models.reports import FollowUpReport
 
 from childcount import helpers
 
 from reportgen.utils import render_doc_to_file
 from reportgen.PrintedReport import PrintedReport
 
+class RecentPeriod(object):
+    end = datetime.now()
+    start = end - timedelta(45)
+
 class ReportDefinition(PrintedReport):
     title = _(u"CHW Report")
     filename = 'chw_report_'
     formats = ['pdf','html']
-    variants = [(unicode(c), c.code, {'clinic_pk': c.pk}) \
+    variants = [(c.name, c.code, {'clinic_pk': c.pk}) \
                                 for c in Clinic.objects.all()]
 
     def generate(self, period, rformat, title, filepath, data):
@@ -55,7 +63,7 @@ class ReportDefinition(PrintedReport):
             doc.add_element(self._indicator_table(chw))
             doc.add_element(self._pregnancy_table(chw))
             doc.add_element(self._follow_up_table(chw))
-            #doc.add_element(self._muac_table(chw))
+            doc.add_element(self._muac_table(chw))
             #doc.add_element(self._immunization_table(chw))
 
             doc.add_element(PageBreak())
@@ -113,14 +121,13 @@ class ReportDefinition(PrintedReport):
             Text(_(u"Follow-Up Date")),
         ])
 
-        for entry in chw.lacking_follow_up():
+        for entry in self._lacking_follow_up(RecentPeriod, chw):
             ref = entry['referral']
             ds = entry['danger_signs']
             fu = entry['follow_up']
             patient = ref.encounter.patient
            
-            urgency_str = filter(lambda x: x[0] == ref.urgency,\
-                ReferralReport.URGENCY_CHOICES)[0][1]
+            urgency_str = ref.verbose_urgency
 
             table.add_row([
                 Text(patient.location.code),
@@ -146,7 +153,9 @@ class ReportDefinition(PrintedReport):
 
     def _immunization_table(self, chw):
         table = Table(5, \
-            Text(_(u"Children Under 5 Without Known Up-to-date Immunizations")))
+            Text(_(u"Children Under 5 Without Known "\
+                    "Up-to-date Immunizations")))
+
         table.add_header_row([
             Text(_(u"Loc Code")),
             Text(_(u"Health ID")),
@@ -179,8 +188,7 @@ class ReportDefinition(PrintedReport):
     def _pregnancy_table(self, chw):
         table = Table(6, \
             Text(_(u"Women in 2nd and 3rd Trimester "\
-                    "who haven't had ANC in 5 Weeks "\
-                    "since %s") % self._period.end.strftime("%d %b %Y")))
+                    "who haven't had ANC in 5 Weeks")))
         table.add_header_row([
             Text(_(u"Loc Code")),
             Text(_(u"Health ID")),
@@ -194,7 +202,7 @@ class ReportDefinition(PrintedReport):
         table.set_column_width(12, 3)
         table.set_column_width(12, 4)
 
-        for pair in helpers.chw.pregnant_needing_anc(self._period, chw):
+        for pair in helpers.chw.pregnant_needing_anc(RecentPeriod, chw):
             (woman, last_anc, due_date) = pair
             table.add_row([
                 Text(woman.location.code),
@@ -226,7 +234,8 @@ class ReportDefinition(PrintedReport):
         table.set_column_width(15, 3)
         table.set_column_width(15, 4)
         table.set_column_width(5, 5)
-        for row in chw.kids_needing_muac():
+
+        for row in helpers.chw.kids_needing_muac(RecentPeriod, chw):
             (kid, nut) = row
 
             muac_str = status_str = _(u'[No MUAC]')
@@ -234,8 +243,7 @@ class ReportDefinition(PrintedReport):
             if nut is not None:
                 muac_str = nut.encounter.encounter_date.strftime("%d-%b-%Y")
                 status_str = _(u'%(status)s [%(muac)d]') % \
-                    {'status': filter(lambda c: c[0] == nut.status, \
-                                NutritionReport.STATUS_CHOICES)[0][1],
+                    {'status': nut.verbose_state, 
                     'muac': nut.muac}
                 oedema_str = nut.oedema 
                             
@@ -252,3 +260,40 @@ class ReportDefinition(PrintedReport):
 
         return table
 
+    def _lacking_follow_up(self, period, chw):
+        """People lacking follow-up in last 45 days
+        """
+        out = helpers.chw.people_without_followup(period, chw)
+        if out is None:
+            return []
+        (fup, nofup) = out
+
+        entries = []
+        for ref in nofup:
+            entries.append(self._dict_for_follow_up(ref))
+
+        return entries
+
+
+    def _dict_for_follow_up(self, ref):
+        all_ds = DangerSignsReport\
+            .objects\
+            .filter(encounter=ref.encounter)
+
+        ds = all_ds[0] if (all_ds.count() > 0) else None
+
+        all_fu = FollowUpReport\
+            .objects\
+            .filter(encounter__patient=ref.encounter.patient, \
+                encounter__encounter_date__gt=\
+                    ref.encounter.encounter_date)\
+            .order_by('encounter__encounter_date')
+
+        fu = all_fu[0] if (all_fu.count() > 0) else None
+
+        return {
+            'referral': ref,
+            'danger_signs': ds,
+            'follow_up': fu,
+            }
+        

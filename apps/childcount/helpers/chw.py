@@ -21,6 +21,9 @@ from childcount.indicators import medicine_given
 
 from childcount.models import Patient
 from childcount.models.reports import PregnancyReport
+from childcount.models.reports import FollowUpReport
+from childcount.models.reports import ReferralReport
+from childcount.models.reports import NutritionReport
 
 report_indicators = (
     {
@@ -148,4 +151,92 @@ def pregnant_needing_anc(period, chw):
 
     women.sort(lambda x,y: cmp(x[1],y[1]))
     return (no_anc + women)
+
+def people_without_followup(period, chw):
+    referrals = ReferralReport\
+        .objects\
+        .filter(encounter__chw=chw, \
+            encounter__encounter_date__lte=period.end,\
+            encounter__encounter_date__gte=period.start)\
+        .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
+
+    num_referrals = referrals.count()
+    if num_referrals == 0:
+        print "No referrals"
+        return None
+
+    ontime = []
+    nofup = []
+    for referral in referrals:
+        rdate = referral.encounter.encounter_date
+        try:
+            fur = FollowUpReport.objects.filter(encounter__chw=chw, \
+                        encounter__patient=referral.encounter.patient, \
+                        encounter__encounter_date__gte=\
+                            rdate+follow_up.DELTA_START_ON_TIME, \
+                        encounter__encounter_date__lt=\
+                            rdate+follow_up.DELTA_START_LATE)
+        except FollowUpReport.DoesNotExist:
+            pass
+            print "Ref: %s, FU: None" % rdate.date()
+
+        if fur.count() > 0:
+            print "Ref: %s, FU: %s" % (rdate.date(), \
+                fur[0].encounter.encounter_date.date())
+            ontime.append(referral)
+        else:
+            nofup.append(referral)
+            print "Ref: %s, FU: None" % rdate.date()
+
+    return (ontime, nofup)
+
+
+def kids_needing_muac(period, chw):
+    # people eligible for MUAC
+    muac_list = Patient\
+        .objects\
+        .filter(chw=chw)\
+        .muac_eligible(period.start, period.end)\
+        .order_by('encounter__patient__location__code')
+
+    seen = []
+    need_muac = []
+    no_muac = []
+
+    one_month_ago = period.end - timedelta(30.4375)
+    three_months_ago = period.end - timedelta(3*30.4375)
+
+    danger = (NutritionReport.STATUS_SEVERE, \
+                    NutritionReport.STATUS_SEVERE_COMP)
+
+    for p in muac_list:
+        if p.pk in seen:
+            continue
+        else:
+            seen.append(p.pk)
+
+        try:
+            nut = NutritionReport\
+                .objects\
+                .filter(encounter__patient__pk=p.pk,
+                    muac__isnull=False,
+                    status__isnull=False)\
+                .latest('encounter__encounter_date')
+        except NutritionReport.DoesNotExist:
+            no_muac.append((p, None))
+            continue
+
+        if nut.status in danger and \
+                nut.encounter.encounter_date < one_month_ago:
+            need_muac.append((p, nut))
+        elif nut.encounter.encounter_date < three_months_ago:
+            need_muac.append((p, nut))
+        else:
+            pass
+
+    need_muac.sort(lambda x,y:\
+        cmp(x[1].encounter.encounter_date, \
+            y[1].encounter.encounter_date))
+    return no_muac + need_muac
+
 

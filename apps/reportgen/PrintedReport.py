@@ -107,7 +107,7 @@ class PrintedReport(Task):
         print "Saving as \"%s\"" % fname
 
         if self.variants:
-            title = self.title + self.variants[0][0]
+            title = self.title + ": " + self.variants[0][0]
             data = self.variants[0][2]
         else:
             title = self.title

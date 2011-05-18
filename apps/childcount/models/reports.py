@@ -1067,6 +1067,12 @@ class ReferralReport(CCReport):
     urgency = models.CharField(_(u"Urgency"), max_length=1, \
                                choices=URGENCY_CHOICES)
 
+    @property
+    def verbose_urgency(self):
+        for k, v in self.URGENCY_CHOICES:
+            if self.urgency == k:
+                return v
+
     def summary(self):
         return u"%s: %s" % \
             (self._meta.get_field_by_name('urgency')[0].verbose_name, \
