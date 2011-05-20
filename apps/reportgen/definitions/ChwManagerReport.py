@@ -111,7 +111,7 @@ class ReportDefinition(PrintedReport):
             .objects\
             .filter(is_active=True)\
             .exclude(clinic__isnull=True)\
-            .order_by('clinic__name','first_name')[0:1]
+            .order_by('clinic__name','first_name')
 
         # Write report titles
         self._write_merge(0, 0, 0, 1, self.title, self._title_style)
@@ -124,39 +124,42 @@ class ReportDefinition(PrintedReport):
 
         row = self._DATE_ROW+1
         for (i,chw) in enumerate(chws):
-            self._print_data(row, chw.patient_set.all())
+            self._print_data(row, chw.patient_set.all(), False)
             row += 1
 
-        for (i,clinic) in enumerate(clinics):
-            self._print_data(row, Patient.objects.filter(chw__clinic=clinic))
-            row += 1
+        self._add_lines(row)
 
+        # Write clinic totals
         row += 1
-#        self._print_totals(row, header_rows)
+        for (i,clinic) in enumerate(clinics):
+            self._print_data(row, Patient.objects.filter(chw__clinic=clinic), True)
+            row += 1
+
+        self._add_lines(row)
+
+        # Write MV totals
+        row += 1
+        self._print_data(row, Patient.objects.all(), True)
 
         wb.save(filepath)
 
-    def _print_totals(self, row, header_rows):
-        for (num, (title, _)) in enumerate(self._aggregate_on):
-            i = 0
-            col = 3
+    def _print_data(self, row, patient_set, is_totals):
+        """Print one row of data, but do not
+        print row labels
+        """
+
+        if is_totals:
+            perc_style = self._total_perc_style 
+            norm_style = self._total_style
+            end_perc_style = self._total_perc_style 
+            end_norm_style = self._total_style
+        else:
+            perc_style = self._perc_style
+            norm_style = Style.default_style
+            end_perc_style = self._end_section_perc
+            end_norm_style = self._end_section
 
 
-            for ind in header_rows:
-                if ind == INDICATOR_EMPTY:
-                    self._add_spacer(col)
-                    col += 1
-                    continue
-
-                for j in xrange(0, self.per_cls.num_periods+1):
-                    self._write(row+num, col, \
-                        ind.aggregate_col(self._indicator_data[num][i]), \
-                        self._total_perc_style if \
-                            ind.is_percentage else self._total_style)
-                    i += 1
-                    col += 1
-            
-    def _print_data(self, row, patient_set):
         col = 3
         for group in self._indicators:
             for ind in group['columns']:
@@ -166,23 +169,40 @@ class ReportDefinition(PrintedReport):
                     value = ind['ind'](sub_period, patient_set)
                     if is_perc: value = float(value)
 
-                    self._write(row, col, value, self._perc_style if is_perc\
-                                        else Style.default_style)
+                    self._write(row, col, value, perc_style if is_perc\
+                                        else norm_style)
                     col += 1
 
                 value = ind['ind'](sub_period, patient_set)
                 if is_perc: value = float(value)
 
-                self._write(row, col, value, self._end_section_perc if is_perc \
-                                        else self._end_section)
+                self._write(row, col, value, end_perc_style if is_perc \
+                                        else end_norm_style)
+                col += 1
+            col += 1
+
+    def _add_lines(self, row):
+        """Print border lines between
+        sections
+        """
+        col = 3
+        for group in self._indicators:
+            for ind in group['columns']:
+                col += self._numsp
+                self._write(row, col, "", self._end_section)
                 col += 1
             col += 1
 
     def _add_spacer(self, col):
+        """Add a spacer column
+        """
         self._ws.col(col).width = 0x0100
         self._ws.col(col).set_style(self._spacer)
 
     def _print_header(self, indicators):
+        """Print the header rows (indicator name,
+        time period, etc)
+        """
         col = 3
         for group in self._indicators:
             self._write_merge(self._LABEL_ROW, \
@@ -211,6 +231,9 @@ class ReportDefinition(PrintedReport):
             col += 1
 
     def _print_names(self, chws, clinics):
+        """Print the CHW and Clinic names
+        down the left-hand side of the spreadsheet.
+        """
         self._write(self._NAME_ROW, 0, _(u"CHW Name"), self._top_row)
         self._write(self._NAME_ROW, 1, _(u"Clinic"), self._top_row)
 
