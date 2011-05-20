@@ -349,7 +349,7 @@ def appointment_defaulter_reminders():
 def gen_framework_nightly_reports():
     for thereport in report_objects('nightly'):
         print "[%s]" % thereport.title
-        rep = thereport.apply()
+        rep = thereport.apply_async()
     print "Done"
 
 
