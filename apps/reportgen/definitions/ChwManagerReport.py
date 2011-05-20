@@ -122,8 +122,15 @@ class ReportDefinition(PrintedReport):
 
         self._print_header(self._indicators)
 
+
+        total = chws.count() + clinics.count() + 1
+        prog = 0
+
         row = self._DATE_ROW+1
         for (i,chw) in enumerate(chws):
+            self.set_progress(100.0*prog/total)
+            prog += 1
+            
             self._print_data(row, chw.patient_set.all(), False)
             row += 1
 
@@ -132,6 +139,8 @@ class ReportDefinition(PrintedReport):
         # Write clinic totals
         row += 1
         for (i,clinic) in enumerate(clinics):
+            self.set_progress(100.0*prog/total)
+            prog += 1
             self._print_data(row, Patient.objects.filter(chw__clinic=clinic), True)
             row += 1
 
@@ -140,6 +149,7 @@ class ReportDefinition(PrintedReport):
         # Write MV totals
         row += 1
         self._print_data(row, Patient.objects.all(), True)
+        self._print_data(100.0*prog/total)
 
         wb.save(filepath)
 
