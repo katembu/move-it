@@ -226,6 +226,7 @@ function loadUI() {
 
 
     switch_forms(0);
+    $('.tester').scrollTo('#sms_1', 1);
 
 }
 

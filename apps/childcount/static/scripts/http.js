@@ -82,7 +82,7 @@ function on_proxy_send(data)
         gen_table(current);
 
         // scroll to new row
-        $('#ccform_body').scrollTo('#sms_' + current, 1);
+        $('.tester').scrollTo('#sms_' + current, 1);
 
         // empty entry input
 		$('#message').val("");
