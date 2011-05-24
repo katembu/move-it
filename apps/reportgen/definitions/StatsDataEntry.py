@@ -31,9 +31,9 @@ class ReportDefinition(PrintedReport):
     formats = ['pdf','xls','html']
 
     variants = [
-        (_("Form C (Consultation)"),   "c", {'look_for': FILTER_C}),
         (_("Form A (Registration)"),   "a", {'look_for': FILTER_A}),
         (_("Form B (HH Visit)"),       "b", {'look_for': FILTER_B}),
+        (_("Form C (Consultation)"),   "c", {'look_for': FILTER_C}),
     ]
 
     def generate(self, period, rformat, title, filepath, data):
@@ -60,7 +60,7 @@ class ReportDefinition(PrintedReport):
         for i,r in enumerate(reporters):
             count_data[r] = [self._count(p, r, data['look_for']) \
                         for p in period.sub_periods()]
-            self.set_progress(100.0*i/(total+1))
+            self.set_progress((100.0*i)/(total+1))
 
         # Filter out the users who haven't sent anything
         have_data = filter(lambda x: sum(count_data[x]), count_data)

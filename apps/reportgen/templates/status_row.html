@@ -1,0 +1,33 @@
+        <td>
+            <a class="delete" id="delete_{{ rep.pk }}" 
+                href="/reportgen/ondemand/delete/{{ rep.pk }}">&times;</a>
+        </td>
+        <td>{% if rep.is_finished %}
+            <a class="finished" href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            {% else %}
+            <span class="in_progress">{{ rep.fileformat.upper }}</span>
+            {% endif %}</td>
+        <td>{{ rep.title }}</td>
+        <td>{{ rep.variant_title|default:"--" }}</td>
+        <td>{{ rep.period_title }}</td>
+        <td width="25%">
+            {% if rep.is_failed %}
+            <a href="#" class="err_link" id="link_{{ rep.pk }}" onclick="return false">{{ rep.task_state_str }}</a>
+            {% else %}
+            {% if rep.is_running %}
+                <div class="progress ui-corner-all">
+                    <div style="width: {{ rep.task_progress }}%;" class="progress-value ui-corner-left">
+                        ({{ rep.task_progress }}%)
+                    </div>
+                    <div class="progress-under-text">
+                    ({{ rep.task_progress }}%)
+                    </div>
+                </div>
+            {% else %}
+            {{ rep.task_state_str }}
+            {% endif %}
+            {% endif %}
+        </td>
+        <td>{% if rep.is_finished %}{{ rep.finished_at|date:"d-M-Y" }} at 
+            {{ rep.finished_at|date:"H:i" }}{% endif %}</td>
+

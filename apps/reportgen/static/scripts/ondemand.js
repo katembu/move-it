@@ -95,9 +95,11 @@ function set_dates() {
 }
 
 function progress_process_data(data, textStatus, jqXHR) {
-    for(d in data) {
-        continue;        
+    for(pk in data) {
+        $("#row_"+pk).html(data[pk]);
+        //alert(pk);
     }
+    //alert(s);
 }
 
 function progress_update() {

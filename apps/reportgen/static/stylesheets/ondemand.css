@@ -1,3 +1,7 @@
+table {
+    border-collapse: none;
+}
+
 div.progress {
     width: 200px;
     border: 1px solid black;

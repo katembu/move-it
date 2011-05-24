@@ -14,6 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseNotFound
 from django.http import HttpResponse
+from django.template import Context
+from django.template import loader
 
 from rapidsms.webui.utils import render_to_response
 
@@ -99,7 +101,7 @@ def _process_gen(request):
     gr.filename = ''
     gr.title = d.title
     if 'variant' in args:
-        gr.variant_title = args['variant']
+        gr.variant_title = args['variant'][0]
     gr.report = report
     gr.fileformat = args['rformat']
     gr.period_title = args['time_period'].title
@@ -131,14 +133,15 @@ def delete(request, pk):
     return HttpResponseRedirect('/reportgen/ondemand/')
 
 def ajax_progress(request):
-    stats = GeneratedReport\
+    reps = GeneratedReport\
         .objects\
-        .exclude(task_state=GeneratedReport.TASK_STATE_FAILED)\
-        .exclude(task_state=GeneratedReport.TASK_STATE_SUCCEEDED)\
-        .order_by('-started_at')\
-        .values('pk','task_state','task_progress')[0:DISPLAY_REPORTS_MAX]
+        .order_by('-started_at')[0:DISPLAY_REPORTS_MAX]
+ 
+    rows = {}
+    row_template = loader.get_template("status_row.html")
+    for r in reps:
+        c = Context({'rep': r})
+        rows[r.pk] = row_template.render(c)
 
-    ret = simplejson.dumps(list(stats))
-
-    return HttpResponse(ret, mimetype="application/json")
+    return HttpResponse(simplejson.dumps(rows), mimetype="application/json")
 
