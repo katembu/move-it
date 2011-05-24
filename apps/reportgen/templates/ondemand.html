@@ -51,6 +51,9 @@ var updates = [];
     <tr id="row_{{ rep.pk }}">
         {% include "status_row.html" %}
     </tr>
+    {% if rep.is_failed %}
+        {% include "error_row.html" %}
+    {% endif %}
     {% endfor %}
 </table>
 

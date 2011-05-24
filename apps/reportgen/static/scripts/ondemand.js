@@ -95,11 +95,20 @@ function set_dates() {
 }
 
 function progress_process_data(data, textStatus, jqXHR) {
-    for(pk in data) {
-        $("#row_"+pk).html(data[pk]);
+    rows = data[0];
+    errors = data[1];
+
+    for(pk in rows) {
+        $("#row_"+pk).html(rows[pk]);
         //alert(pk);
     }
-    //alert(s);
+
+    for(pk in errors) {
+        if(!$("#error_"+pk)) {
+            $("#row_"+pk).after(errors[pk]);
+        }
+    }
+    refresh_listeners();
 }
 
 function progress_update() {
@@ -108,6 +117,11 @@ function progress_update() {
         data: {},
         success: progress_process_data
     });
+}
+
+function refresh_listeners() {
+    $("a.err_link").click(toggle_text);
+    $("a.delete").click(process_delete);
 }
 
 function init() {
@@ -129,10 +143,7 @@ function init() {
     }
     $("#report").change(set_report);
     $("#period_type").change(set_dates);
-
-    $("a.err_link").click(toggle_text);
-
-    $("a.delete").click(process_delete);
+    refresh_listeners();
 
     setInterval(progress_update, 5000);
 }

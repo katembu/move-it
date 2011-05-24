@@ -138,10 +138,15 @@ def ajax_progress(request):
         .order_by('-started_at')[0:DISPLAY_REPORTS_MAX]
  
     rows = {}
+    errors = {}
     row_template = loader.get_template("status_row.html")
+    error_template = loader.get_template("error_row.html")
     for r in reps:
         c = Context({'rep': r})
         rows[r.pk] = row_template.render(c)
+        if r.is_failed:
+            errors[r.pk] = error_template.render(c)
 
-    return HttpResponse(simplejson.dumps(rows), mimetype="application/json")
+    return HttpResponse(simplejson.dumps([rows,errors]), \
+                                mimetype="application/json")
 

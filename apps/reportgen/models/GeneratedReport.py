@@ -25,6 +25,8 @@ where to find the finished report file.
 '''
 
 class GeneratedReport(models.Model):
+    GENERATED_DIR = GENERATED_DIR
+
     TASK_STATE_PENDING  = 1
     TASK_STATE_STARTED  = 2
     TASK_STATE_RETRYING = 3

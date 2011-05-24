@@ -197,6 +197,7 @@ class PrintedReport(Task):
         this_data = variant[2]
         # Once the PK is set, we can get the filename for the report
         kwargs['generated_report'].filename = self.get_filename(kwargs, variant[1], rformat)
+        kwargs['generated_report'].task_id = kwargs['task_id']
         kwargs['generated_report'].save()
 
         self._kwargs = kwargs
