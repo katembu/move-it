@@ -58,14 +58,14 @@ function send_message()
         alert("Please enter an encounter date in DD/MM[/YYYY] format."); return false;
     }
 
-    data = {'identity': identity, 'message': text, 'chw': chw, 'encounter_date': encounter_date};
+    var data = {'identity': identity, 'message': text, 'chw': chw, 'encounter_date': encounter_date};
 
     confstr = "Please confirm:\n\t";
     confstr += "Encounter Date: " + encounter_date + "\n\t";
     confstr += "CHW: " + $('#chw option:selected').text() + "\n";
 
     if (confirm(confstr)) {
-        res = proxy_send(data, on_proxy_send);
+        var res = proxy_send(data, on_proxy_send);
     }
     else return false;
 }
@@ -82,7 +82,7 @@ function on_proxy_send(data)
         gen_table(current);
 
         // scroll to new row
-        $('#ccform_body').scrollTo('#sms_' + current, 1);
+        $('.tester').scrollTo('#sms_' + current, 1);
 
         // empty entry input
 		$('#message').val("");
@@ -97,7 +97,7 @@ function get_message()
         return false;
     }
 
-    data = proxy_get(identity, on_proxy_get);
+    var data = proxy_get(identity, on_proxy_get);
 }
 
 function on_proxy_get(data)

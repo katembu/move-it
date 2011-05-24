@@ -42,8 +42,7 @@
                 ccform_txt = '<thead id="ccform_head" class="' + dataentry_form.id + '">' + 
                                 '</thead><tbody id="ccform_body" class="' + 
                                 dataentry_form.id + '"><tr></tr>' + 
-                                '<tr></tr><tr></tr><tr></tr><tr></tr><tr>' +
-                                '</tr><tr></tr><tr></tr>    <tr></tr><tr></tr></tbody>';
+                                '</tbody>';
                                 
             if (feedback_txt == null)
                 feedback_txt = '<thead class="' + dataentry_form.id + '">' +
@@ -56,6 +55,7 @@
 
             var doc = document.getElementById('feedback')
             doc.innerHTML = feedback_txt;
+            
         }
     </script>
 

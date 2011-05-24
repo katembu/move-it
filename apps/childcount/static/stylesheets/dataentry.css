@@ -59,7 +59,7 @@ table.rsmsList tbody tr:last-child td:last-child {
 label,input { display:block;}
 
 table.rsmsList tbody {
-    height: 15em;
+    height: auto;
     overflow-y: scroll;
     overflow-x: hidden;
     position: relative;
@@ -225,4 +225,8 @@ table.rsmsList thead.free tr td, table.rsmsList tbody.free tr td, table.rsmsList
 
 #date {
     width: 6em;
+}
+.tester{
+    height: 200px;
+    overflow: auto;
 }

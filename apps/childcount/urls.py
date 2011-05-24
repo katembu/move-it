@@ -11,7 +11,8 @@ import webapp
 from childcount import views
 from childcount.reports import pmtct
 from childcount.reports import custom_reports as reports
-from childcount.reports import report_framework  
+from childcount.reports import report_framework
+from childcount import uploadhealthids
 
 admin.autodiscover()
 
@@ -84,4 +85,5 @@ urlpatterns = patterns('',
     # On-Demand Reports for Reporting Framework
     url(r'^childcount/reports/ondemand/(?P<rname>[a-zA-Z0-9\-\_]*).(?P<rformat>[a-z]*)$', 
         report_framework.serve_ondemand_report),
+    url(r'^childcount/upload-healthid-file', uploadhealthids.upload_file, name='cc-upload-hids'),
 )
