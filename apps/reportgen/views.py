@@ -19,14 +19,13 @@ from reportgen.models import Report
 from reportgen.models import NightlyReport
 from reportgen.models import GeneratedReport
 
+from reportgen.utils import DISPLAY_REPORTS_MAX
 from reportgen.utils import nightly_report_data
 from reportgen.utils import ondemand_json_obj
 
 from reportgen.timeperiods import period_type_for
 
 PAGES = (
-    {'name': _('Report Generation'), \
-        'url': '/reportgen/', 'slug': 'index'},
     {'name': _('Nightly Reports'), \
         'url': '/reportgen/nightly/', 'slug': 'nightly'},
     {'name': _('On-Demand Reports'), \
@@ -37,8 +36,7 @@ data = {'pages': PAGES}
 
 @login_required
 def index(request):
-    data['title'] = _('Report Generation')
-    return render_to_response(request, "index.html", data)
+    return HttpResponseRedirect('/reportgen/nightly/')
 
 @login_required
 def nightly(request):
@@ -51,7 +49,7 @@ def ondemand(request):
     if request.method == "POST":
         return _process_gen(request)
     data['title'] = _('On-Demand Reports')
-    data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:30]
+    data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:DISPLAY_REPORTS_MAX]
     data['data'] = ondemand_json_obj()
 
     # Get status of celery workers
@@ -96,6 +94,8 @@ def _process_gen(request):
     gr = GeneratedReport()
     gr.filename = ''
     gr.title = d.title
+    if 'variant' in args:
+        gr.variant_title = args['variant']
     gr.report = report
     gr.fileformat = args['rformat']
     gr.period_title = args['time_period'].title
@@ -115,6 +115,9 @@ def _process_gen(request):
         gr.task_progress = 0
         gr.error_message = ''.join(traceback.format_exception(*sys.exc_info()))
         gr.save()
+
+    gr.task_id = r.task_id
+    gr.save()
     
     return HttpResponseRedirect('/reportgen/ondemand/')
 
@@ -122,4 +125,12 @@ def delete(request, pk):
     r = GeneratedReport.objects.get(pk=pk)
     r.delete()
     return HttpResponseRedirect('/reportgen/ondemand/')
+
+def ajax_status(request):
+    stats = GeneratedReport\
+        .objects\
+        .exclude(task_state=GeneratedReport.TASK_STATE_FAILED)\
+        .exclude(task_state=GeneratedReport.TASK_STATE_SUCCEEDED)\
+        .values('pk','task_state','task_progress')
+    d = DISPLAY_REPORTS_MAX
 

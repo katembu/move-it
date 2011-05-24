@@ -4,6 +4,8 @@
 import os
 import os.path
 
+from celery.task.control import revoke
+
 from django.db import models
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext as _
@@ -39,7 +41,7 @@ class GeneratedReport(models.Model):
         (TASK_STATE_STARTED,    _("Started")),
         (TASK_STATE_RETRYING,   _("Retrying")),
         (TASK_STATE_FAILED,     _("Failed")),
-        (TASK_STATE_SUCCEEDED,  _("Succeed")),
+        (TASK_STATE_SUCCEEDED,  _("Succeeded")),
     )
 
     class Meta:
@@ -50,6 +52,7 @@ class GeneratedReport(models.Model):
         verbose_name_plural = _(u"Generated Reports")
         ordering = ('title', )
         get_latest_by = ('started_at',)
+        
 
     report = models.ForeignKey('Report', max_length=60, blank=False, \
                                 verbose_name=_(u"Report"),
@@ -77,6 +80,11 @@ class GeneratedReport(models.Model):
                                 null=False, unique=False)
     task_state = models.PositiveSmallIntegerField(_("Task state"), blank=False,
                                 null=False, unique=False, choices=TASK_STATE_CHOICES)
+    task_id = models.CharField(_("Task ID"), max_length=100, blank=False, 
+                                null=True, unique=False, \
+                                help_text=_("The task identifier used internally "\
+                                            "by RabbitMQ and celeryd to identify the "\
+                                            "task used to generate this report."))
     started_at = models.DateTimeField(_("Started at"))
     finished_at = models.DateTimeField(_("Finished at"), null=True)
     error_message = models.TextField(_("Error message"), null=True)
@@ -116,6 +124,12 @@ class GeneratedReport(models.Model):
 
 def delete_report(sender, **kwargs):
     gr = kwargs['instance']
+
+    # Try to cancel the execution of the task
+    if gr.task_id:
+        revoke(gr.task_id, terminate=True)
+
+    # Try to delete the files
     if gr.filename == '':
         return True
     fn = os.path.join(\

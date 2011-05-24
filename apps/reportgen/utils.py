@@ -12,6 +12,12 @@ from reportgen.timeperiods import PERIOD_TYPES
 
 from ccdoc import PDFGenerator, HTMLGenerator, ExcelGenerator
 
+"""
+The maximum number of generated reports to display
+on the on-demand reports page.
+"""
+DISPLAY_REPORTS_MAX = 30
+
 def render_doc_to_file(filename, rformat, doc):
     h = None 
 

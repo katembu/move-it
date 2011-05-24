@@ -5,6 +5,8 @@ from reportgen.models import NightlyReport
 from reportgen.models import GeneratedReport
 from reportgen.models import Report
 
+from reportgen.utils import DISPLAY_REPORTS_MAX
+
 @periodic_task(run_every=crontab(hour=0, minute=0))
 def nightly_reports():
     n = NightlyReport.objects.all()
@@ -28,7 +30,7 @@ def nightly_reports():
 @periodic_task(run_every=crontab(hour=11,minute=0))
 def delete_old_reports():
     # Get oldest reports
-    greps = GeneratedReport.objects.order_by('-started_at')[30:]
+    greps = GeneratedReport.objects.order_by('-started_at')[DISPLAY_REPORTS_MAX:]
 
     for g in greps:
         g.delete()
