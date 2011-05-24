@@ -11,8 +11,8 @@ import reportgen.views
 
 urlpatterns = patterns('',
     (r'^reportgen/$', reportgen.views.index),
-    (r'^reportgen/ajax_status/$', reportgen.views.ajax_status),
-    (r'^reportgen/nightly/$', 'reportgen-nightly', reportgen.views.nightly),
+    (r'^reportgen/ajax_progress/$', reportgen.views.ajax_progress),
+    url(r'^reportgen/nightly/$', reportgen.views.nightly, name='reportgen-nightly'),
     (r'^reportgen/ondemand/$', reportgen.views.ondemand),
     (r'^reportgen/ondemand/delete/(?P<pk>\d+)$', reportgen.views.delete),
     url(r'^static/reportgen/(?P<path>.*)$', 'django.views.static.serve',

@@ -3,6 +3,7 @@
 import sys
 import traceback
 import socket
+import simplejson
 
 from datetime import datetime
 
@@ -12,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseNotFound
+from django.http import HttpResponse
 
 from rapidsms.webui.utils import render_to_response
 
@@ -51,6 +53,8 @@ def ondemand(request):
     data['title'] = _('On-Demand Reports')
     data['gen'] = GeneratedReport.objects.order_by('-started_at')[0:DISPLAY_REPORTS_MAX]
     data['data'] = ondemand_json_obj()
+    
+    data['choices'] = simplejson.dumps(GeneratedReport.TASK_STATE_DICT)
 
     # Get status of celery workers
     # Data workers is a tuple of (is_rabbitmq_up, n_workers)
@@ -126,11 +130,15 @@ def delete(request, pk):
     r.delete()
     return HttpResponseRedirect('/reportgen/ondemand/')
 
-def ajax_status(request):
+def ajax_progress(request):
     stats = GeneratedReport\
         .objects\
         .exclude(task_state=GeneratedReport.TASK_STATE_FAILED)\
         .exclude(task_state=GeneratedReport.TASK_STATE_SUCCEEDED)\
-        .values('pk','task_state','task_progress')
-    d = DISPLAY_REPORTS_MAX
+        .order_by('-started_at')\
+        .values('pk','task_state','task_progress')[0:DISPLAY_REPORTS_MAX]
+
+    ret = simplejson.dumps(list(stats))
+
+    return HttpResponse(ret, mimetype="application/json")
 
