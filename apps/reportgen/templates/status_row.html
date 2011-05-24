@@ -16,12 +16,14 @@
             <a href="#" class="err_link" id="link_{{ rep.pk }}" onclick="return false">{{ rep.task_state_str }}</a>
             {% else %}
             {% if rep.is_running %}
-                <div class="progress ui-corner-all">
-                    <div style="width: {{ rep.task_progress }}%;" class="progress-value ui-corner-left">
-                        ({{ rep.task_progress }}%)
+                <div class="progress ui-corner-all" id="progress_{{rep.pk}}">
+                    <div style="width: {{ rep.task_progress }}%;" class="progress-value ui-corner-all">
+                        <span>{{ rep.task_progress }}%</span>
                     </div>
                     <div class="progress-under-text">
-                    ({{ rep.task_progress }}%)
+                    <span>
+                        {{ rep.task_progress }}%
+                    </span>
                     </div>
                 </div>
             {% else %}

@@ -97,11 +97,26 @@ function set_dates() {
 function progress_process_data(data, textStatus, jqXHR) {
     rows = data[0];
     errors = data[1];
+    progresses = data[2];
 
+    values = {}
     for(pk in rows) {
-        $("#row_"+pk).html(rows[pk]);
+        /* If the progress bar is active */
+        if(progresses[pk] != undefined && $("#progress_"+pk+" .progress-value")) {
+            $("#progress_"+pk+" .progress-value").animate(
+                { width: progresses[pk]+"%" }, 
+                { duration: 1000, 
+                }
+                );
+        }
         //alert(pk);
     }
+
+    setTimeout(function() {
+        for(pk in rows) {
+            $("#row_"+pk).html(rows[pk]);
+        }
+    }, 1000);
 
     for(pk in errors) {
         if(!$("#error_"+pk)) {

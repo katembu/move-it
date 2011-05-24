@@ -139,6 +139,7 @@ def ajax_progress(request):
  
     rows = {}
     errors = {}
+    progresses = {}
     row_template = loader.get_template("status_row.html")
     error_template = loader.get_template("error_row.html")
     for r in reps:
@@ -146,7 +147,9 @@ def ajax_progress(request):
         rows[r.pk] = row_template.render(c)
         if r.is_failed:
             errors[r.pk] = error_template.render(c)
+        if r.task_progress:
+            progresses[r.pk] = r.task_progress
 
-    return HttpResponse(simplejson.dumps([rows,errors]), \
+    return HttpResponse(simplejson.dumps([rows,errors,progresses]), \
                                 mimetype="application/json")
 
