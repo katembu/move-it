@@ -10,6 +10,11 @@ from django.db import models
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext as _
 
+from reportgen import utils
+
+GENERATED_DIR = 'ondemand'
+PATH_TO_REPORTS = os.path.join(os.path.dirname(__file__),\
+    '..', 'static', GENERATED_DIR)
 '''
 GeneratedReport holds information about
 a one-off report that was generated on demand.
@@ -20,8 +25,6 @@ where to find the finished report file.
 '''
 
 class GeneratedReport(models.Model):
-    GENERATED_DIR = 'ondemand'
-
     TASK_STATE_PENDING  = 1
     TASK_STATE_STARTED  = 2
     TASK_STATE_RETRYING = 3
@@ -113,14 +116,16 @@ class GeneratedReport(models.Model):
 
     def get_filename(self, variant, rformat):
         return self.report.get_filename(variant, rformat, self.pk)
-    
+  
     def get_filepath(self, variant, rformat):
-        return os.path.join(\
-            os.path.dirname(__file__),\
-            '..',\
-            'static',\
-            self.GENERATED_DIR,\
-            self.get_filename(variant, rformat))
+        return os.path.join(PATH_TO_REPORTS, self.get_filename(variant, rformat))
+
+    @property
+    def file_size(self):
+        try:
+            return utils.file_size(os.path.join(PATH_TO_REPORTS, self.filename))
+        except OSError:
+            return None
 
 def delete_report(sender, **kwargs):
     gr = kwargs['instance']
@@ -132,12 +137,7 @@ def delete_report(sender, **kwargs):
     # Try to delete the files
     if gr.filename == '':
         return True
-    fn = os.path.join(\
-            os.path.dirname(__file__),\
-            '..',\
-            'static',\
-            gr.GENERATED_DIR,\
-            gr.filename)
+    fn = os.path.join(PATH_TO_REPORTS, gr.filename)
     print "Looking for <%s>" % fn
     if os.path.exists(fn):
         print "Deleting <%s>" % fn

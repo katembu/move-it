@@ -3,7 +3,8 @@
                 href="/reportgen/ondemand/delete/{{ rep.pk }}">&times;</a>
         </td>
         <td>{% if rep.is_finished %}
-            <a class="finished" href="/static/reportgen/ondemand/{{ rep.filename }}">{{ rep.fileformat.upper }}</a>
+            <a class="report-link finished {% ifequal rep.fileformat "xls" %}{{ rep.fileformat.lower}}{% endifequal %}{% ifequal rep.fileformat "html" %}{{rep.fileformat.lower}}{% endifequal %}{% ifequal rep.fileformat "pdf" %}{{rep.fileformat.lower}}{% endifequal %}" href="/static/reportgen/ondemand/{{ rep.filename }}" title="{{rep.title}} [{{ rep.fileformat.upper}}]"></a> 
+            {% ifequal 1 2 %}{% if rep.file_size %}({{ rep.file_size|filesizeformat }}){% endif %}{% endifequal %}
             {% else %}
             <span class="in_progress">{{ rep.fileformat.upper }}</span>
             {% endif %}</td>

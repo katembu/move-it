@@ -89,6 +89,5 @@ def ondemand_json_obj():
         'time_periods': time_periods,
     })
 
-
-
-
+def file_size(filepath):
+    return os.path.getsize(filepath) 

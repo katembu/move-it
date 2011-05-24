@@ -1,3 +1,28 @@
+a.report-link:hover {
+	opacity: 1;
+}
+
+a.report-link {
+	opacity: 0.7;
+	margin: 0 auto;
+	display: block;
+	width: auto;
+	height: 17px;
+	border: 0 none;
+	text-decoration: none;
+	background-repeat: no-repeat;
+	background-position: center;
+	text-align: center;
+	line-height: 18px;
+    position: relative;
+}
+a.report-link.html { background-image: url('/static/reportgen/icons/html.png') }
+a.report-link.pdf { background-image: url('/static/reportgen/icons/pdf.png') }
+a.report-link.xls { background-image: url('/static/reportgen/icons/xls.png') }
+a.report-link.other {  }
+
+
+
 .dashboard p.data{
     font-size: 24px;
     font-weight: 600;

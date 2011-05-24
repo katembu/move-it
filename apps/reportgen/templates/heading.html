@@ -1,8 +1,7 @@
-
+<h2>
 {% for p in pages %}
     {% ifnotequal p.name title %}<a href="{{ p.url }}">{% endifnotequal %}
     {{ p.name }}{% ifnotequal p.name title %}</a>{% endifnotequal %} {% if not forloop.last %} | {% endif %}
 {% endfor %}
-
-<h1>{{ title }}</h1>
+</h2>
 
