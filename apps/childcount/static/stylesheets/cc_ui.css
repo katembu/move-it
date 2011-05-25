@@ -1,4 +1,8 @@
 
+tr.checked {
+    border: 2px solid #D4A017;
+}
+
 .error_title, .errorlist {
     color: red;
     font-weight: bold;
