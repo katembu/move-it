@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: tief
 
+import time
 from datetime import date
 
 from django.utils.translation import gettext as _
@@ -30,6 +31,7 @@ class ReportDefinition(PrintedReport):
         total = chews.count() + 1
         self.set_progress(0)
         for chw in chews:
+            time.sleep(5) 
             self._add_chw_to_table(table, chw)
             current += 1
             self.set_progress(100.0*current/total)

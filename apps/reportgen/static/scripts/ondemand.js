@@ -99,27 +99,48 @@ function progress_process_data(data, textStatus, jqXHR) {
     errors = data[1];
     progresses = data[2];
 
+    // Make the numbers in the progress bar increase 
+    var intId = setInterval(function() {
+        for(var pk_prog in progresses) {
+            // Check that the progress bar is active 
+            if($("#progress_"+pk_prog+" .progress-value").length < 1) {
+                continue;
+            }
+
+            // Get the width of the progress bar and translate
+            // it into a text value 
+            var v = parseInt($("#progress_"+pk_prog+" .progress-value").css('width'));
+            $("#progress_"+pk_prog+" span").text(v+"%");
+        }
+    }, 80);
+
+    // Animate the width of the progress bar for 1 second
     values = {}
-    for(pk in rows) {
-        /* If the progress bar is active */
-        if(progresses[pk] != undefined && $("#progress_"+pk+" .progress-value")) {
+    for(var pk in rows) {
+        // If the progress bar is active 
+        if(progresses[pk] != undefined && 
+            $("#progress_"+pk+" .progress-value").length > 0) {
             $("#progress_"+pk+" .progress-value").animate(
                 { width: progresses[pk]+"%" }, 
-                { duration: 1000, 
-                }
+                { duration: 1000 }
                 );
         }
-        //alert(pk);
     }
-
+     
+    // Update row HTML once the progress
+    // bar animation is finished (1 second later) 
     setTimeout(function() {
-        for(pk in rows) {
+        // Stop updating the progress bar width
+        clearInterval(intId);
+        for(var pk in rows) {
             $("#row_"+pk).html(rows[pk]);
         }
+        refresh_listeners();
     }, 1000);
 
-    for(pk in errors) {
-        if(!$("#error_"+pk)) {
+    /* Add an error message if necessary */
+    for(var pk in errors) {
+        if($("#error_"+pk).length == 0) {
             $("#row_"+pk).after(errors[pk]);
         }
     }
