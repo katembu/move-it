@@ -31,7 +31,6 @@ class ReportDefinition(PrintedReport):
         total = chews.count() + 1
         self.set_progress(0)
         for chw in chews:
-            time.sleep(5) 
             self._add_chw_to_table(table, chw)
             current += 1
             self.set_progress(100.0*current/total)
