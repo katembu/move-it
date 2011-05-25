@@ -42,7 +42,7 @@ class ReportDefinition(PrintedReport):
             return Text(_(unicode(string)))
 
         self.set_progress(0.0)
-        doc = Document(self.title, Text(_("For: ")+period.title), landscape=True)
+        doc = Document(self.title, _("For: ")+period.title, landscape=True)
 
         # Get all of the reporters who have messages
         reporters = Reporter\
