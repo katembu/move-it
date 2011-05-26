@@ -14,11 +14,11 @@ from celery.decorators import periodic_task
 from celery.schedules import crontab
 
 from childcount.models import ImmunizationSchedule, ImmunizationNotification
-from childcount.models import Patient, CHW
+from childcount.models import Patient
+from childcount.models import CHW
 from childcount.models import FeverReport
 from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
-from childcount.models.ccreports import TheCHWReport
 from childcount.models import FollowUpReport
 from childcount.models import AppointmentReport
 
@@ -113,9 +113,16 @@ def weekly_muac_reminder():
     Weekly reminder of due Muac cases, 75 days or over since last chw visit
     '''
     data = {}
-    for chw in TheCHWReport.objects.all():
+    for chw in CHW.objects.all():
         reminder_list = []
-        for patient in chw.muac_list():
+
+        now = datetime.now()
+        muac_eligible = Patient\
+            .objects\
+            .filter(chw=chw)\
+            .muac_eligible(now, now)
+
+        for patient in muac_eligible:
             try:
                 nr = NutritionReport.objects.filter(encounter__chw=chw, \
                             encounter__patient=patient, \

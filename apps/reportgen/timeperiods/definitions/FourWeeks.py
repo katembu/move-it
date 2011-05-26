@@ -41,7 +41,7 @@ class FourWeeks(PeriodType):
         # Index 0 == last Monday
         # Index 1 == two Mondays ago
         start_date = datetime.today() + \
-                    relativedelta(weekday=MO(-index), hour=0, minute=0,\
+                    relativedelta(weekday=MO(-(index+1)), hour=0, minute=0,\
                         second=0, microsecond=0)
         sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
             for sub_index in xrange(0,4)]

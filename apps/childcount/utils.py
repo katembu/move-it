@@ -674,6 +674,3 @@ def get_ccforms_by_name():
             forms[f.ENCOUNTER_TYPE].append(form)
     return forms
 
-class TodayPeriod(object):
-    end = datetime.today()
-    start = datetime.today() - timedelta(90)
