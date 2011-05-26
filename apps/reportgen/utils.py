@@ -3,6 +3,8 @@ import os.path
 import shutil
 import json 
 
+from datetime import datetime
+
 from django.http import HttpResponseRedirect
 from django.utils.translation import gettext as _
 from django.http import HttpResponse
@@ -48,9 +50,15 @@ def nightly_report_data(nrpt):
             'formats': {},
         }
         for r in rep.formats:
+            finished_at = nrpt.finished_at(v[1], r)
+            
             rowdata['formats'][r] = \
                 {'filename': nrpt.get_filename(v[1], r),
-                 'finished_at': nrpt.finished_at(v[1], r)}
+                 'finished_at': finished_at}
+
+            if finished_at:
+                late = (datetime.now() - finished_at).days
+                rowdata['formats'][r]['late'] = late
         data['variants'].append(rowdata)
     return data
         

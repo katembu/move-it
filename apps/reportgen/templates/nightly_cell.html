@@ -1,0 +1,20 @@
+<td>
+{% if v.formats.xls %}
+    {% if v.formats.xls.finished_at %}
+        <a href="/static/reportgen/nightly/{{v.formats.xls.filename}}">
+            <img src="/static/reportgen/icons/xls.png" alt="XLS" />
+        </a>
+            ({{ v.formats.xls.finished_at|date:"d-M-Y" }} at
+        {{ v.formats.xls.finished_at|date:"H:i" }})<br />
+        {% if v.formats.xls.late %}
+            <span class="late"><img src="/static/reportgen/icons/warning.png" /> {% trans "Report is" %} {{ v.formats.xls.late }} {% trans "days(s) old" %}</span>
+        {% endif %}
+    {% else %}
+        <img src="/static/reportgen/icons/error.png" alt="{% trans "Not generated" %}" />
+        {% trans "(Not generated)" %}
+    {% endif %}
+{% else %}
+    &nbsp;
+{% endif %}
+</td>
+
