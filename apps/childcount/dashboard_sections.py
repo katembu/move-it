@@ -2,19 +2,17 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: mvpdev
 
-import datetime
+from datetime import datetime, timedelta
 
 from django.utils.translation import gettext as _
 
 from childcount.models import Patient
-from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
+
+from childcount.indicators import nutrition
 
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
-
-from childcount.reports import report_framework
-from childcount.reports.utils import report_modified_on
 
 from django.utils import simplejson
 
@@ -45,20 +43,17 @@ def highlight_stats_bar():
                         'data': [532, 1521, 534, 0] }
 
 def nutrition_chart():
-    """
-    TheCHWReport.muac_summary()
-    
-    these 2 lines were working before:    
-    nut_data = TheCHWReport.muac_summary_data()
-    nutrition_data_for_dashboard = [["Unknown", nut_data['unknown']], \
-                                    ["Healthy", nut_data['healthy']], \
-                                    ["Moderate", nut_data['moderate']]]
-    
-    I'm pushing to a new branch with dummy data as an example.
-    """
-    nutrition_data_for_dashboard = [[_(u"Unknown"), 80], \
-                                    [_(u"Healthy"), 17], \
-                                    [_(u"Moderate"), 3]]
+    class TodayPeriod(object):
+        end = datetime.today()
+        start = datetime.today() - timedelta(90)
+
+    unknown = nutrition.Unknown(TodayPeriod, Patient.objects.all())
+    healthy = nutrition.Healthy(TodayPeriod, Patient.objects.all())
+    moderate = nutrition.Mam(TodayPeriod, Patient.objects.all())
+
+    nutrition_data_for_dashboard = [[_(u"Unknown"), unknown], \
+                                    [_(u"Healthy"), healthy], \
+                                    [_(u"Moderate"), moderate]]
     
     return simplejson.dumps(nutrition_data_for_dashboard)
 
@@ -85,43 +80,3 @@ def recent_numbers():
     
     
 
-def reports_list():
-    """
-    
-    report_sets was not exactly what I needed to I made a tiny change to how
-    it is passed to the template.
-    
-    specifically, instead of
-        report.types = ['html','xls']
-    I used
-        report.types = {'html':True, 'xls': False, 'pdf': True, 'csv': False}
-    
-    """
-    report_sets_original = report_framework.report_sets()
-    report_sets = []
-    
-    for reports in report_sets_original:
-        rset_title = reports['name']
-        rset_reports = []
-        for rrr in reports['data']:
-            
-            temp_r = {
-                'title': rrr['title'],
-                'url': rrr['url'],
-                'html': (False, None),
-                'xls': (False, None),
-                'pdf': (False, None),
-                'csv': (False, None),
-            }
-            for rtype in rrr['types']:
-                temp_r[rtype] = (True, \
-                        report_modified_on(rrr['filename'], rtype))
-            
-            rset_reports.append(temp_r)
-        
-        report_sets.append({
-            'title': rset_title,
-            'show_datestamp': reports['show_datestamp'],
-            'reports': rset_reports
-        })
-    return report_sets

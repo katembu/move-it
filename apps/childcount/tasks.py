@@ -22,8 +22,6 @@ from childcount.models.ccreports import TheCHWReport
 from childcount.models import FollowUpReport
 from childcount.models import AppointmentReport
 
-from childcount.reports.report_framework import report_objects
-
 from alerts.utils import SmsAlert
 
 
@@ -341,15 +339,5 @@ def appointment_defaulter_reminders():
             sms_alert.save()
             apt.sms_alert = sms_alert
             apt.save()
-
-
-# This is one big task now... we need
-# to somehow split it up
-@periodic_task(run_every=crontab(hour=0, minute=0))
-def gen_framework_nightly_reports():
-    for thereport in report_objects('nightly'):
-        print "[%s]" % thereport.title
-        rep = thereport.apply()
-    print "Done"
 
 

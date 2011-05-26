@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
+import datetime
+
 from django.utils.translation import gettext as _
 
 from childcount.models.reports import NutritionReport
@@ -47,5 +49,4 @@ def latest_imm_report(period, kid):
         return None
 
     return ir
-
 

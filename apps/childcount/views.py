@@ -27,11 +27,9 @@ from locations.models import Location
 
 from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.fields import PatientForm
-from childcount.models.ccreports import TheCHWReport, ClinicReport, ThePatient
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
-from childcount.reports import report_framework
 from childcount.utils import clean_names
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
@@ -233,55 +231,6 @@ def list_chw(request):
     return render_to_response(request, 'childcount/list_chw.html', info)
 
 
-def chw(request):
-    '''Community Health Worker page '''
-    report_title = CHW._meta.verbose_name
-    rows = []
-    columns, sub_columns = TheCHWReport.chw_bednet_summary()
-
-    reports = TheCHWReport.objects.all()
-    i = 0
-    for report in reports:
-        i += 1
-        row = {}
-        row["cells"] = []
-        row["cells"] = [{'value': \
-                        Template(col['bit']).render(Context({'object': \
-                            report}))} for col in columns]
-
-        rows.append(row)
-
-    aocolumns_js = "{ \"sType\": \"html\" },"
-    for col in columns[1:] + (sub_columns if sub_columns != None else []):
-        if not 'colspan' in col:
-            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": true },"
-    print columns[1:]
-    aocolumns_js = aocolumns_js[:-1]
-
-    aggregate = False
-    print columns
-    print sub_columns
-    print len(rows)
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title,
-                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
-
-    if request.method == 'GET' and 'excel' in request.GET:
-        '''response = HttpResponse(mimetype="application/vnd.ms-excel")
-        filename = "%s %s.xls" % \
-                   (report_title, datetime.now().strftime("%d%m%Y"))
-        response['Content-Disposition'] = "attachment; " \
-                                          "filename=\"%s\"" % filename
-        from findug.utils import create_excel
-        response.write(create_excel(context_dict))
-        return response'''
-        return render_to_response(request, 'childcount/chw.html', context_dict)
-    else:
-        return render_to_response(request, 'childcount/chw.html', context_dict)
-
-
 def patient(request):
     '''Patients page '''
     MAX_PAGE_PER_PAGE = 30
@@ -341,89 +290,6 @@ def patient(request):
 
     return render_to_response(\
                 request, 'childcount/patient.html', info)
-
-
-def nutrition_png(request):
-    nutdata = TheCHWReport.muac_summary()
-    return nutdata
-
-
-def sms_png(request):
-    data = TheCHWReport.sms_per_day()
-    return data
-
-
-def bednet_summary(request):
-    '''House Patients page '''
-    report_title = Patient._meta.verbose_name
-    rows = []
-    columns, sub_columns = ThePatient.bednet_summary()
-
-    reports = ThePatient.objects.filter(health_id=F('household__health_id'))
-    i = 0
-    for report in reports:
-        i += 1
-        row = {}
-        row["cells"] = []
-        row["cells"] = [{'value': \
-                        Template(col['bit']).render(Context({'object': \
-                            report}))} for col in columns]
-
-        if i == 100:
-            row['complete'] = True
-            rows.append(row)
-            break
-        rows.append(row)
-
-    aggregate = False
-    print columns
-    print sub_columns
-    print len(rows)
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title,
-                    'aggregate': aggregate}
-
-    return render_to_response(\
-                request, 'childcount/bednet.html', context_dict)
-
-
-def clinic_report(request):
-    '''House Patients page '''
-    report_title = ClinicReport._meta.verbose_name
-    rows = []
-    columns, sub_columns = ClinicReport.summary()
-
-    reports = ClinicReport.objects.all()
-    i = 0
-    for report in reports:
-        i += 1
-        row = {}
-        row["cells"] = []
-        row["cells"] = [{'value': \
-                        Template(col['bit']).render(Context({'object': \
-                            report}))} for col in columns]
-
-        rows.append(row)
-
-    aocolumns_js = "{ \"sType\": \"html\" },"
-    for col in columns[1:] + (sub_columns if sub_columns != None else []):
-        if not 'colspan' in col:
-            aocolumns_js += "{ \"asSorting\": [ \"desc\", \"asc\" ], " \
-                            "\"bSearchable\": true },"
-    print columns[1:]
-    aocolumns_js = aocolumns_js[:-1]
-
-    aggregate = False
-    print columns
-    print sub_columns
-    print len(rows)
-    context_dict = {'get_vars': request.META['QUERY_STRING'],
-                    'columns': columns, 'sub_columns': sub_columns,
-                    'rows': rows, 'report_title': report_title,
-                    'aggregate': aggregate, 'aocolumns_js': aocolumns_js}
-
-    return context_dict
 
 
 def pagenator(getpages, reports):

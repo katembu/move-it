@@ -7,16 +7,21 @@ from datetime import date, datetime
 
 from django.db import models
 from django.utils.translation import ugettext as _
+
 from ethiopian_date import EthiopianDateConverter
 
-from childcount.forms import CCForm
+from locations.models import Location
+
 from childcount.utils import clean_names, DOBProcessor
+
 from childcount.models import Configuration
 from childcount.models import Patient, Encounter, HealthId, CHWHealthId
-from locations.models import Location
+from childcount.models import ImmunizationSchedule
+
 from childcount.exceptions import BadValue, ParseError
+
+from childcount.forms import CCForm
 from childcount.forms.utils import MultipleChoiceField
-from childcount.models.ccreports import ThePatient
 
 
 class PatientRegistrationForm(CCForm):
@@ -261,8 +266,7 @@ class PatientRegistrationForm(CCForm):
         #generate immunization schedule
         if patient.years() < self.MAX_IMM_AGE:
             try:
-                x = ThePatient.objects.get(health_id=patient.health_id)
-                x.generate_schedule()
+                ImmunizationSchedule.generate_schedule(patient)
             except:
                 pass
 
