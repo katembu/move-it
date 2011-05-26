@@ -80,8 +80,9 @@ def dashboard_gather_data(dashboard_template_names):
     for tname in dashboard_template_names:
         try:
             data[tname] = getattr(dashboard_sections, tname)()
-        except:
+        except AttributeError:
             data[tname] = False
+            print tname
     return data
 
 

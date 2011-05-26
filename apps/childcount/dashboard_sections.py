@@ -8,11 +8,12 @@ from django.utils.translation import gettext as _
 from childcount.models import Patient
 
 from childcount.indicators import nutrition
-from childcount.indicators import fever
 
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
+
+from childcount.helpers import site
 
 from reportgen.timeperiods import Month, FourWeeks
 
@@ -56,12 +57,6 @@ def nutrition_chart():
     return simplejson.dumps(nutrition_data_for_dashboard)
 
 def recent_numbers():
-    patients = Patient.objects.all()
-    def summary_dict(period):
-        return {
-            'num_mam_sam': nutrition.SamOrMam(period, patients),
-            'num_rdt': fever.RdtPositive(period, patients),
-        }
     """
     pumps a python dict with "columns" and "rows"(&data) which is
     then turned into a pretty html table
@@ -69,10 +64,10 @@ def recent_numbers():
 
     month = Month.periods()[0]
     last_month = Month.periods()[1]
-
-    generated_report_data = {'month': summary_dict(month), \
-                            'last_month': summary_dict(last_month) }
-    
+    generated_report_data = {'month': site.summary_stats(month), \
+                            'last_month': site.summary_stats(last_month) }
+   
+    print generated_report_data
     recent_numbers_columns = [[_(u"This Month (to date)"), 'month'], [_(u"Last Month"), 'last_month']]
     named_rows = [[_(u"+SAM / MAM"),"num_mam_sam"], [_(u"RDT+"), 'num_rdt']]
    
