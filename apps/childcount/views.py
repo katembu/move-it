@@ -17,20 +17,21 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.utils.translation import gettext_lazy as _, activate
 from django.utils import simplejson
-from django.template import Template, Context, loader
+from django.template import Context, loader
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, UserManager, Group
+from django.contrib.auth.models import User, Group
 from django import forms
 from django.db.models import F, Q
+
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
-from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.fields import PatientForm
-from childcount.models.ccreports import MonthSummaryReport
-from childcount.models.ccreports import GeneralSummaryReport
-from childcount.models.ccreports import SummaryReport, WeekSummaryReport
+from childcount.models import Patient, CHW, Configuration, Clinic
 from childcount.utils import clean_names
+from childcount.helpers import site
+
+from reportgen.timeperiods import FourWeeks, Month, TwelveMonths
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
 cc_forms = re.split(r'\s*,*\s*', form_config)
@@ -104,25 +105,23 @@ def index(request):
 
 def site_summary(request, report='site', format='json'):
     if request.is_ajax() and format == 'json':
-        rpt = None
+
+        period = None
         if report == 'site':
-            #Summary Report
-            rpt = SummaryReport.summary()
+            period = TwelveMonths.periods()[0]
         elif report == 'general_summary':
-            #General Summary report -  all
-            rpt = GeneralSummaryReport.summary()
+            period = TwelveMonths.periods()[0]
         elif report == 'month':
-            #This month summary report
-            rpt = MonthSummaryReport.summary()
+            period = Month.periods()[0]
         elif report == 'week':
-            #This Week Summary Report
-            rpt = WeekSummaryReport.summary()
+            period = FourWeeks.periods()[0].sub_periods()[0]
         else:
             print report
             return HttpResponse(status=400)
+
         if format == 'json':
             mimetype = 'application/javascript'
-        data = simplejson.dumps(rpt)
+        data = simplejson.dumps(site.summary_stats(period))
         return HttpResponse(data, mimetype)
     # If you want to prevent non XHR calls
     else:

@@ -18,10 +18,10 @@
 	$(function(){
 		$('#tblsite_summary td').addClass('loading')
         $.getJSON('/childcount/site_summary/site/json', function(data){
-            $('#tblsite_summary td.num_patients div').html(data.summary.num_patients);
-            $('#tblsite_summary td.num_households div').html(data.summary.num_households);
-            $('#tblsite_summary td.num_underfive div').html(data.summary.num_underfive);
-            $('#tblsite_summary td.num_pregnant div').html(data.summary.num_pregnant);
+            $('#tblsite_summary td.num_patients div').html(data.num_patients);
+            $('#tblsite_summary td.num_households div').html(data.num_households);
+            $('#tblsite_summary td.num_underfive div').html(data.num_underfive);
+            $('#tblsite_summary td.num_pregnant div').html(data.num_pregnant);
             $('#tblsite_summary td').removeClass('loading')
         });
 	})
