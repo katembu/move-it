@@ -6,13 +6,7 @@ from django.utils import simplejson
 from django.utils.translation import gettext as _
 
 from childcount.models import Patient
-
 from childcount.indicators import nutrition
-
-from childcount.models.ccreports import SummaryReport, WeekSummaryReport
-from childcount.models.ccreports import MonthSummaryReport
-from childcount.models.ccreports import GeneralSummaryReport
-
 from childcount.helpers import site
 
 from reportgen.timeperiods import Month, FourWeeks
