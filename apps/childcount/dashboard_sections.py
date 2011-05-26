@@ -2,8 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: mvpdev
 
-from datetime import datetime, timedelta
-
 from django.utils.translation import gettext as _
 
 from childcount.models import Patient
@@ -13,6 +11,8 @@ from childcount.indicators import nutrition
 from childcount.models.ccreports import SummaryReport, WeekSummaryReport
 from childcount.models.ccreports import MonthSummaryReport
 from childcount.models.ccreports import GeneralSummaryReport
+
+from childcount.utils import TodayPeriod
 
 from django.utils import simplejson
 
@@ -43,10 +43,6 @@ def highlight_stats_bar():
                         'data': [532, 1521, 534, 0] }
 
 def nutrition_chart():
-    class TodayPeriod(object):
-        end = datetime.today()
-        start = datetime.today() - timedelta(90)
-
     unknown = nutrition.Unknown(TodayPeriod, Patient.objects.all())
     healthy = nutrition.Healthy(TodayPeriod, Patient.objects.all())
     moderate = nutrition.Mam(TodayPeriod, Patient.objects.all())
@@ -78,5 +74,3 @@ def recent_numbers():
     
     return {'columns': [c[0] for c in recent_numbers_columns], 'rows': recent_numbers_data}
     
-    
-

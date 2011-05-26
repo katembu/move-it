@@ -657,10 +657,9 @@ def send_msg(reporter, text):
     stream = urllib2.urlopen(req)
     stream.close()
 
-
 def get_ccforms_by_name():
-    ''' returns a list of childcount forms grouped Encounter type '''
     from childcount.forms import *
+    ''' returns a list of childcount forms grouped Encounter type '''
     conf = settings.RAPIDSMS_APPS['childcount']
     formlist = conf['forms'].replace(' ', '').split(',')
     forms = {}
@@ -674,3 +673,7 @@ def get_ccforms_by_name():
         else:
             forms[f.ENCOUNTER_TYPE].append(form)
     return forms
+
+class TodayPeriod(object):
+    end = datetime.today()
+    start = datetime.today() - timedelta(90)
