@@ -245,6 +245,9 @@ class Patient(models.Model):
         def under_six_months(self, start, end):
             return self.age(start, end, 0, 30*6)
 
+        def under_nine_months(self, start, end):
+            return self.age(start, end, 0, 30*9)
+
         def muac_eligible(self, start, end):
             return self.age(start, end, 6*30, 5*365)
 

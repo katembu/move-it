@@ -32,7 +32,7 @@ class UnderOne(Indicator):
     type_out    = int
 
     slug        = "under_one"
-    short_name  = _("U1")
+    short_name  = _("U1y")
     long_name   = _("Total number registered under-ones")
 
     @classmethod
@@ -48,7 +48,7 @@ class UnderFive(Indicator):
     type_out    = int
 
     slug        = "under_five"
-    short_name  = _("U5")
+    short_name  = _("U5y")
     long_name   = _("Total number registered under-fives")
 
     @classmethod
@@ -57,6 +57,37 @@ class UnderFive(Indicator):
             .filter(created_on__lte=period.end)\
             .under_five(period.start, period.end)\
             .count()
+
+class UnderNine(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_nine"
+    short_name  = _("U9y")
+    long_name   = _("Total number registered under-nines")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .filter(created_on__lte=period.end)\
+            .under_nine(period.start, period.end)\
+            .count()
+
+class UnderNineMonths(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "under_nine_months"
+    short_name  = _("U9m")
+    long_name   = _("Total number registered under nine months")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return data_in\
+            .filter(created_on__lte=period.end)\
+            .under_nine_months(period.start, period.end)\
+            .count()
+
 
 class UnderSixMonths(Indicator):
     type_in     = QuerySetType(Patient)

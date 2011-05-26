@@ -3,18 +3,19 @@
 # maintainer: katembu
 
 from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
 from django.utils.translation import ugettext as _
 
-from reversion import revision
-from reversion.models import Revision, Version
-from childcount.models.ccreports import TheCHWReport
-
+from childcount.models import CHW
 from childcount.commands import CCCommand
 from childcount.utils import authenticated
-from childcount.exceptions import Inapplicable
 
+from childcount.indicators import nutrition
+from childcount.indicators import household
+from childcount.indicators import fever
+from childcount.indicators import registration
+
+from reportgen.timeperiods import Month
 
 class ActivityCommand(CCCommand):
 
@@ -25,31 +26,48 @@ class ActivityCommand(CCCommand):
 
     @authenticated
     def process(self):
-        chw = self.message.reporter.chw
-        thechw = TheCHWReport.objects.get(id=chw.id)
-        period = "week"
-        summary = None
-        if self.params.__len__() > 1:
-            period = self.params[1]
+        class LastSevenDays(object):
+            end = datetime.today()
+            start = end - timedelta(7)
+    
+        # Default to last seven days
+        period = LastSevenDays
 
-            if period == "month":
-                today = datetime.today()
-                # include last months summary if we are less than 10 days into
-                # this month
-                if today.day < 10:
-                    start_date = today + relativedelta(months=-1, day=1, \
-                                    hour=0, minute=0, second=0, microsecond=0)
+        if self.params.__len__() > 1:
+            period_str = self.params[1]
+            if period_str.lower() not in [_("week"), _("month")]:
+                raise ValueError(_("Unknown period name: %s") % period_str)
+    
+            if period_str.lower() == _("month"):
+                # Period is month
+                if datetime.today().day < 10:
+                    # Use last month if it's the start of this month
+                    period = Month.periods()[1]
                 else:
-                    start_date = today + relativedelta(day=1, \
-                                    hour=0, minute=0, second=0, microsecond=0)
-                summary = thechw.chw_activities_summary(start_date, today)
-        if not summary:
-            summary = thechw.activity_summary()
+                    # Use this month otherwise
+                    period = Month.periods()[0]
+
+        chw = self.message.reporter.chw
+        patients = chw.patient_set.all()
+
+        p = {}
+        p['sdate'] = period.start.strftime('%d %b')
+        p['edate'] = period.end.strftime('%d %b')
+        p['severemuac'] = nutrition.Sam(period, patients)
+        p['numhvisit'] = household.Total(period, patients)
+        p['muac'] = nutrition.Mam(period, patients)
+        p['rdt'] = fever.Total(period, patients)
+        p['household'] = registration.Household(period, patients)
+        p['tclient'] = registration.Total(period, patients)
+        p['ufive'] = registration.UnderFive(period, patients)
+        p['unine'] = registration.UnderNineMonths(period, patients)
+        p['underone'] = registration.UnderOne(period, patients)
+
         self.message.respond(_(u"(%(sdate)s->%(edate)s): " \
                                 "%(numhvisit)d household visit, %(muac)d " \
-                                "MUAC(%(severemuac)d SAM/MAM) %(rdt)d RDT." \
+                                "MUAC (%(severemuac)d SAM/MAM) %(rdt)d RDT." \
                                 " You have %(household)d households" \
-                                ", %(ufive)d under five, %(underone)d under "\
-                                "1y, %(unine)d under 9m,"\
+                                ", %(ufive)d under 5y, %(underone)d under "\
+                                "1y, %(unine)d under 9m, "\
                                 "%(tclient)d total" \
-                                " registerd clients") % summary)
+                                " registered clients") % p)
