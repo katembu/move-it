@@ -20,7 +20,7 @@ def nightly_reports():
         time_period = record.period()
 
         # Run the report
-        results.append(report_cls.apply(kwargs=\
+        results.append(report_cls.apply_async(kwargs=\
             {'time_period':time_period, 
             'nightly': record}))
 
