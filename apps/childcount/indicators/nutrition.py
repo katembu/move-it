@@ -16,6 +16,8 @@ from childcount.models.reports import NutritionReport
 
 from childcount.indicators import registration
 
+NAME = _("Nutrition")
+
 def _nutrition_reports(period, data_in):
     return NutritionReport\
             .objects\

@@ -13,6 +13,8 @@ from indicator import QuerySetType
 
 from childcount.models import Patient
 
+NAME = _("Registration")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

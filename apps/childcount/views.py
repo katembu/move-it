@@ -3,24 +3,30 @@
 # maintainer: ukanga
 
 import os
+import sys
 import re
 import json
+import glob
+import inspect
 from datetime import date, timedelta, datetime
 from urllib import urlencode
 
 from rapidsms.webui.utils import render_to_response
+
+from indicator import Indicator
+
+from django import forms
+from django.core.urlresolvers import reverse
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
-from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.utils.translation import gettext_lazy as _, activate
 from django.utils import simplejson
 from django.template import Context, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Group
-from django import forms
 from django.db.models import F, Q
 
 from reporters.models import PersistantConnection, PersistantBackend
@@ -399,6 +405,59 @@ def chw_json(request):
 
     json_data = json.dumps(chwlist)
     return HttpResponse(json_data, mimetype="application/json")
+
+@login_required
+def indicators(request):
+    modules = glob.glob(os.path.dirname(__file__)+'/indicators/*.py')
+    base = 'childcount.indicators.'
+
+    print modules
+    modules.sort()
+    indicators = []
+    for m in modules:
+        name = os.path.basename(m)
+        if name == '__init__.py':
+            continue
+        modname = os.path.splitext(name)[0]
+
+        __import__(base+modname)
+        imp = sys.modules[base+modname]
+
+        mems = inspect.getmembers(imp, \
+            lambda m: inspect.isclass(m) \
+                    and issubclass(m, Indicator) \
+                    and m.__module__ != 'indicator.indicator' \
+                    and m.__name__[0] != '_')
+        data = []
+        for m in mems:
+            if hasattr(m[1].type_in, '__name__'):
+                tin = str(m[1].type_in.__name__)
+            else:
+                tin = str(m[1].type_in.__class__.__name__) + \
+                    "(" + str(m[1].type_in.mtype.__name__) + ")"
+
+            if hasattr(m[1].type_out, '__name__'):
+                tout = str(m[1].type_out.__name__)
+            else:
+                tout = str(m[1].type_out.__class__.__name__)
+
+            data.append({
+                'slug': m[0],
+                'cls': m[1],
+                'type_in': tin,
+                'type_out': tout,
+            })
+
+        indicators.append({'name': imp.NAME,
+                        'slug': imp.__name__,
+                        'members': data})
+
+    return render_to_response(request, 
+            'childcount/indicators.html', { \
+            'indicators': indicators,
+        })
+
+    
 
 
 '''

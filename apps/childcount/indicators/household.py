@@ -18,6 +18,8 @@ from childcount.models.reports import HouseholdVisitReport
 
 from childcount.indicators import registration
 
+NAME = _("Household")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

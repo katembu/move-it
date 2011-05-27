@@ -13,6 +13,8 @@ from childcount.models.reports import DeathReport
 from childcount.models import DeadPerson
 from childcount.models import Patient
 
+NAME = _("Death")
+
 def _deaths_in(period, data_in, days_min, days_max):
     if data_in.count() == 0:
         return 0

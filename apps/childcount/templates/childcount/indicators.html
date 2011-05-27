@@ -1,0 +1,69 @@
+{% extends base_template %}
+{% load i18n %}
+{% block javascripts %}
+    
+{% endblock javascripts %}
+
+{% block page_stylesheets %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="/static/childcount/datatables/media/css/datatable.css" />
+<link type="text/css" rel="stylesheet" href="/static/childcount/datatables/extras/TableTools/media/css/TableTools.css" />
+
+<style type="text/css">
+.section {
+    font-size: 1.3em;
+    padding-top: 1.5em;
+    display: block;
+}
+
+table  tr  th {
+    font-weight: bold;
+}
+
+table td {
+    border-top: 2px solid #eee;
+}
+
+.top-link {
+    text-align: right;
+}
+</style>
+{% endblock page_stylesheets %}
+
+{% block title %}{% trans "Indicators" %}{% endblock %}
+{% block content %}
+
+<h2 id="top">{% trans "Indicators" %}</h2>
+
+{% for ind in indicators %}
+<a href="#ind_{{ind.slug}}">{{ind.name}}</a> {% if not forloop.last %}|{% endif %}
+{% endfor %}
+<table style="width:100%">
+{% for ind in indicators %}
+    <tr id="ind_{{ind.slug}}">
+        <td colspan="4"><strong class="section">{{ ind.name }}</strong></td>
+        <td class="top-link">
+        {% if not forloop.first %}
+            <a href="#top">{% trans "Back to top" %}</a>
+        {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Slug" %}</th>
+        <th>{% trans "Input" %}</th>
+        <th>{% trans "Output" %}</th>
+        <th>{% trans "Short Name" %}</th>
+        <th>{% trans "Long Name" %}</th>
+    </tr>
+    {% for m in ind.members %}
+    <tr>
+        <td>{{ m.slug }}</td>
+        <td>{{ m.type_in }}</td>
+        <td>{{ m.type_out }}</td>
+        <td>{{ m.cls.short_name }}</td>
+        <td>{{ m.cls.long_name }}</td>
+    </tr>
+    {% endfor %}
+{% endfor %}
+</table>
+{% endblock %}

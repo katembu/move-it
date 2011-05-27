@@ -7,6 +7,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import MedicineGivenReport
 
+NAME = _("Medicine Given")
+
 def _medicine_given(period, data_in, drug_code):
     return MedicineGivenReport\
         .objects\

@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     url(r'^childcount/chws.json/?$', views.chw_json),
     url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
     url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
+    url(r'^childcount/indicators/?$', views.indicators, name='cc-indicators'),
 
     url(r'^childcount/dataentry/?$', views.dataentry, name='cc-dataentry'),
     url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \

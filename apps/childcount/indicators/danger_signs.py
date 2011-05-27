@@ -13,6 +13,8 @@ from childcount.models.reports import DangerSignsReport
 from childcount.models.reports import FeverReport
 from childcount.models.reports import FollowUpReport
 
+NAME = _("Danger Sign")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

@@ -14,6 +14,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import BednetUtilization
 
+NAME = _("Bed Net Utilization")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

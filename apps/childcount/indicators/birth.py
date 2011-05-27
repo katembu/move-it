@@ -17,6 +17,8 @@ from childcount.models import Patient
 from childcount.models.reports import BirthReport
 from childcount.models.reports import PregnancyReport
 
+NAME = _("Birth")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

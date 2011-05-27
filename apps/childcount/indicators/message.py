@@ -11,6 +11,8 @@ from indicator import QuerySetType
 from reporters.models import Reporter
 from logger_ng.models import LoggedMessage
 
+NAME = _("Message")
+
 class Total(Indicator):
     type_in     = QuerySetType(Reporter)
     type_out    = int

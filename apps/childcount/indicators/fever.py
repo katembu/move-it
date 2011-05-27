@@ -10,6 +10,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import FeverReport
 
+NAME = _("Fever")
+
 def _fever_reports(period, data_in):
     return FeverReport\
             .objects\

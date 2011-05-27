@@ -11,6 +11,8 @@ from childcount.models import Patient
 from childcount.models.reports import FamilyPlanningReport
 from childcount.models.FamilyPlanningUsage import FamilyPlanningUsage
 
+NAME = _("Family Planning")
+
 def _fp_reports(period, data_in):
     return FamilyPlanningReport\
         .objects\

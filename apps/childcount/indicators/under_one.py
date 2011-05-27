@@ -13,6 +13,8 @@ from childcount.models.reports import UnderOneReport
 
 from childcount.indicators import registration
 
+NAME = _("Under One / Under Five")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

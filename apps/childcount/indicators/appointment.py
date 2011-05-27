@@ -11,6 +11,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import AppointmentReport
 
+NAME = _("Appointment")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int

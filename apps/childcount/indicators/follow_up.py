@@ -14,6 +14,8 @@ from childcount.models.reports import FollowUpReport
 from childcount.models.reports import ReferralReport
 from childcount.models import Patient
 
+NAME = _("Follow Up")
+
 DELTA_START_ON_TIME     = timedelta(seconds=60*60*18)   # 18 hrs
 DELTA_START_LATE        = timedelta(seconds=60*60*72)   # 72 hrs
 DELTA_START_NEVER       = timedelta(seconds=60*60*24*7) # 7 days

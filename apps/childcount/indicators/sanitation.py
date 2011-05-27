@@ -12,6 +12,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import SanitationReport
 
+NAME = _("Sanitation")
+
 class Total(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
