@@ -394,9 +394,9 @@ class Patient(models.Model):
                     days_preg = (end - preg['start_date']).days
                     current_month = days_preg/30.4375
 
-                    print "Considering patient [%d]" % pk
+                    #print "Considering patient [%d]" % pk
                     if not (current_month >= start_month and current_month <= end_month):
-                        print 'not in right month... %f' % current_month
+                    #    print 'not in right month... %f' % current_month
                         continue
                     
                     if not include_delivered:
@@ -409,9 +409,9 @@ class Patient(models.Model):
                         ('sbm_date' in preg) and (preg['sbm_date'] <= end):
                         continue
 
-                    print "In month %f patient %d" % (current_month, pk)
+                    #print "In month %f patient %d" % (current_month, pk)
                     pks.add(pk)
-            print pks
+            #print pks
             return self.filter(pk__in=pks) 
 
         """

@@ -44,7 +44,7 @@ class ReportDefinition(PrintedReport):
 
         self._indicators = helpers.chw.report_indicators
         
-        doc = Document(title)
+        doc = Document(title, period.title)
         doc.add_element(PageBreak())
 
         chws = CHW\
