@@ -478,18 +478,20 @@ class RotatedText(Flowable):
 
     '''Rotates text in a table cell.'''
 
-    def __init__(self, text):
+    def __init__(self, text, *args, **kwargs):
         Flowable.__init__(self)
         self.text = text
+        self.args = args
+        self.kwargs = kwargs
 
     def draw(self):
         canv = self.canv
         canv.rotate(90)
-        canv.drawString(0, -1, self.text)
+        canv.drawString(0, -1, self.text, *self.args, **self.kwargs)
 
     def wrap(self, aW, aH):
         canv = self.canv
-        return canv._leading, canv.stringWidth(self.text)
+        return canv._leading, canv.stringWidth(self.text, *self.args, **self.kwargs)
 
 
 class RotatedParagraph(Flowable):
