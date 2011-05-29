@@ -70,7 +70,10 @@ class ReportDefinition(PrintedReport):
 
         # data[t][c] should be the value at time period t of
         # an indicator at clinic c
-        for ind in self._indicators:
+        self.set_progress(0.0)
+        total = len(self._indicators) * len(self._sub_periods) * clinics.count()
+        i=0
+        for i,ind in enumerate(self._indicators):
             title = ind.long_name
             print title
 
@@ -85,6 +88,9 @@ class ReportDefinition(PrintedReport):
                     print "%s: %s = %s" % (title, c, val or '--')
 
                     data[t_index].append(val)
+
+                    i+=1
+                    self.set_progress((100.0*i)/total)
           
             graph = self._graph(data, [c.name for c in clinics], period)
             flowable = [Paragraph(title, styleH3), graph]
