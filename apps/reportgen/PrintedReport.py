@@ -205,7 +205,7 @@ class PrintedReport(Task):
         # Generate the report
         self.generate(kwargs['time_period'],
                     rformat,
-                    self.title + variant[0],
+                    self.title + ": " + variant[0],
                     self.get_filepath(kwargs, variant[1], rformat),
                     this_data)
 

@@ -428,6 +428,7 @@ def indicators(request):
                 'type_in': tin,
                 'type_out': tout,
                 'variant_index': "_"+mems['slug']+"_"+m[1].slug,
+                'output_is_number': m[1].output_is_number()
             })
 
             i += 1

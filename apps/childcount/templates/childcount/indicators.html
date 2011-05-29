@@ -71,7 +71,11 @@ table td {
         <td>{{ m.type_out }}</td>
         <td>{{ m.cls.short_name }}</td>
         <td>{{ m.cls.long_name }}</td>
-        <td><a href="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">{% trans "Graph" %}</a></td>
+        <td>
+            {% if m.output_is_number %}
+            <a href="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">{% trans "Graph" %}</a>
+            {% endif %}
+        </td>
     </tr>
     {% endfor %}
 {% endfor %}

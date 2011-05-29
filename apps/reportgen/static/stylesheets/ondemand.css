@@ -1,3 +1,7 @@
+td.filename {
+    text-align: center;
+}
+
 table {
     border-collapse: none;
 }

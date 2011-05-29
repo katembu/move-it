@@ -103,7 +103,7 @@ UsingPill = _using_fp_factory('p', 'pill', \
 UsingSterilization = _using_fp_factory('st', 'sterilization', \
     _("Ster."), _("sterilization"))
 
-class FpUsageChange(Indicator):
+class _FpUsageChange(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = dict
 
@@ -154,7 +154,7 @@ def _fp_change_factory(slug_in, short_name_in, long_name_in):
 
         @classmethod
         def _value(cls, period, data_in):
-            return FpUsageChange(period, data_in)[cls.slug]
+            return _FpUsageChange(period, data_in)[cls.slug]
 
     return ChangeClass
 

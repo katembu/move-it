@@ -39,8 +39,24 @@ class ReportDefinition(PrintedReport):
     filename = 'indicator_chart'
     formats = ('pdf',)
 
-    variants = sum([[("%s > %s" % (module['name'], ind[1].short_name), "_"+module['slug']+"_"+ind[1].slug, {'ind':ind[1]})
-                    for ind in module['inds']] for module in get_indicators()], [])
+    variants = sum([
+                    # Make a report variant tuple for each indicator...
+                    # in each indicator module
+                        [("%s > %s" % (module['name'], ind[1].short_name), \
+                            "_"+module['slug']+"_"+ind[1].slug, \
+                            { 'ind_module': module['slug'], 
+                                'ind_cls': ind[0]}
+                        ) for ind in module['inds']]
+                    for module in get_indicators()], \
+                    [])
+
+    def _data_to_ind(self, ind_module, ind_cls):
+        for m in get_indicators():
+            if m['slug'] == ind_module:
+                for idata in m['inds']:
+                    if idata[0] == ind_cls:
+                        return idata[1]
+        raise ValueError(_("Indicator not found!"))
 
     def generate(self, period, rformat, title, filepath, data):
         if rformat != 'pdf':
@@ -55,7 +71,7 @@ class ReportDefinition(PrintedReport):
         cat_names = []       
         graph_data = []
 
-        ind = data['ind']
+        ind = self._data_to_ind(data['ind_module'], data['ind_cls'])
         self._ind = ind
         patients = Patient.objects.all()
         self.set_progress(0.0)
