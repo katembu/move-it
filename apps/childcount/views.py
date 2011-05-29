@@ -2,12 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-import os
-import sys
 import re
 import json
-import glob
-import inspect
 from datetime import date, timedelta, datetime
 from urllib import urlencode
 
@@ -34,10 +30,12 @@ from locations.models import Location
 
 from childcount.fields import PatientForm
 from childcount.models import Patient, CHW, Configuration, Clinic
-from childcount.utils import clean_names
+from childcount.utils import clean_names, get_indicators
 from childcount.helpers import site
 
 from reportgen.timeperiods import FourWeeks, Month, TwelveMonths
+from reportgen.models import Report
+
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
 cc_forms = re.split(r'\s*,*\s*', form_config)
@@ -408,28 +406,11 @@ def chw_json(request):
 
 @login_required
 def indicators(request):
-    modules = glob.glob(os.path.dirname(__file__)+'/indicators/*.py')
-    base = 'childcount.indicators.'
-
-    print modules
-    modules.sort()
+    i=0
     indicators = []
-    for m in modules:
-        name = os.path.basename(m)
-        if name == '__init__.py':
-            continue
-        modname = os.path.splitext(name)[0]
-
-        __import__(base+modname)
-        imp = sys.modules[base+modname]
-
-        mems = inspect.getmembers(imp, \
-            lambda m: inspect.isclass(m) \
-                    and issubclass(m, Indicator) \
-                    and m.__module__ != 'indicator.indicator' \
-                    and m.__name__[0] != '_')
+    for mems in get_indicators():
         data = []
-        for m in mems:
+        for m in mems['inds']:
             if hasattr(m[1].type_in, '__name__'):
                 tin = str(m[1].type_in.__name__)
             else:
@@ -446,15 +427,19 @@ def indicators(request):
                 'cls': m[1],
                 'type_in': tin,
                 'type_out': tout,
+                'variant_index': "_"+mems['slug']+"_"+m[1].slug,
             })
 
-        indicators.append({'name': imp.NAME,
-                        'slug': imp.__name__,
+            i += 1
+
+        indicators.append({'name': mems['name'],
+                        'slug': mems['slug'],
                         'members': data})
 
     return render_to_response(request, 
             'childcount/indicators.html', { \
             'indicators': indicators,
+            'report_pk': Report.objects.get(classname='IndicatorChart').pk
         })
 
     

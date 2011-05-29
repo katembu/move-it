@@ -2,9 +2,14 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
+import os
+import inspect
+import sys
+import os.path
 import re
-from datetime import date, timedelta, datetime
+import glob
 import itertools
+from datetime import date, timedelta, datetime
 from functools import wraps
 
 import rapidsms
@@ -14,9 +19,11 @@ from urllib import urlencode
 
 from django.conf import settings
 from django.utils.translation import gettext as _
+
 from childcount.exceptions import *
 from childcount.models import Encounter
 
+from indicator import Indicator
 
 class DOBProcessor:
     DAYS = 'd'
@@ -673,4 +680,29 @@ def get_ccforms_by_name():
         else:
             forms[f.ENCOUNTER_TYPE].append(form)
     return forms
+
+def get_indicators():
+    modules = glob.glob(os.path.dirname(__file__)+'/indicators/*.py')
+    base = 'childcount.indicators.'
+
+    print modules
+    modules.sort()
+    indicators = []
+    for m in modules:
+        name = os.path.basename(m)
+        if name == '__init__.py':
+            continue
+        modname = os.path.splitext(name)[0]
+
+        __import__(base+modname)
+        imp = sys.modules[base+modname]
+
+        mems = inspect.getmembers(imp, \
+            lambda m: inspect.isclass(m) \
+                    and issubclass(m, Indicator) \
+                    and m.__module__ != 'indicator.indicator' \
+                    and m.__name__[0] != '_')
+
+        indicators.append({'name': imp.NAME, 'inds': mems, 'slug': modname})
+    return indicators
 

@@ -20,8 +20,7 @@ from reportlab.graphics.charts.linecharts import HorizontalLineChart
 
 from childcount.models import Patient
 from childcount.models import Clinic
-
-from childcount.indicators import household
+from childcount.utils import get_indicators
 
 from reportgen.PrintedReport import PrintedReport
 
@@ -40,6 +39,9 @@ class ReportDefinition(PrintedReport):
     filename = 'indicator_chart'
     formats = ('pdf',)
 
+    variants = sum([[("%s > %s" % (module['name'], ind[1].short_name), "_"+module['slug']+"_"+ind[1].slug, {'ind':ind[1]})
+                    for ind in module['inds']] for module in get_indicators()], [])
+
     def generate(self, period, rformat, title, filepath, data):
         if rformat != 'pdf':
             raise NotImplementedError(\
@@ -53,7 +55,7 @@ class ReportDefinition(PrintedReport):
         cat_names = []       
         graph_data = []
 
-        ind = household.Unique
+        ind = data['ind']
         self._ind = ind
         patients = Patient.objects.all()
         self.set_progress(0.0)

@@ -1,7 +1,9 @@
 {% extends base_template %}
 {% load i18n %}
 {% block javascripts %}
+{{ block.super }}
     
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/indicators.js"></script>
 {% endblock javascripts %}
 
 {% block page_stylesheets %}
@@ -38,14 +40,20 @@ table td {
 {% for ind in indicators %}
 <a href="#ind_{{ind.slug}}">{{ind.name}}</a> {% if not forloop.last %}|{% endif %}
 {% endfor %}
+<form id="gen_form" method="POST" action="/reportgen/ondemand/">
+    <input type="hidden" id="report" class="sorted" name="report_pk" value="{{ report_pk }}">
+    <input type="hidden" id="variant" class="sorted" name="variant_index">
+    <input type="hidden" id="rformat" class="sorted" name="rformat" value="pdf">
+    <input type="hidden" id="period_type" class="sorted" name="period_type_code" value="TM">
+    <input type="hidden" id="period" class="sorted" name="period_index" value="1">
+</form>
+
 <table style="width:100%">
 {% for ind in indicators %}
     <tr id="ind_{{ind.slug}}">
-        <td colspan="4"><strong class="section">{{ ind.name }}</strong></td>
-        <td class="top-link">
-        {% if not forloop.first %}
-            <a href="#top">{% trans "Back to top" %}</a>
-        {% endif %}
+        <td colspan="6">
+            {% if not forloop.first %}<a href="#top">{% trans "Back to top" %}</a>{% endif %}
+            <strong class="section">{{ ind.name }}</strong>
         </td>
     </tr>
     <tr>
@@ -54,6 +62,7 @@ table td {
         <th>{% trans "Output" %}</th>
         <th>{% trans "Short Name" %}</th>
         <th>{% trans "Long Name" %}</th>
+        <th>{% trans "Graph" %}</th>
     </tr>
     {% for m in ind.members %}
     <tr>
@@ -62,6 +71,7 @@ table td {
         <td>{{ m.type_out }}</td>
         <td>{{ m.cls.short_name }}</td>
         <td>{{ m.cls.long_name }}</td>
+        <td><a href="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">{% trans "Graph" %}</a></td>
     </tr>
     {% endfor %}
 {% endfor %}

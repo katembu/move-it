@@ -85,8 +85,9 @@ def _process_gen(request):
             break
 
     if 'variant' not in args and request.POST['variant_index'] != 'X':
+        print "&&&%s" % args
         raise ValueError(_("Variant not found"))
-
+        
     args['nightly'] = None
     args['rformat'] = request.POST['rformat']
 
