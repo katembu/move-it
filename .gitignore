@@ -44,7 +44,6 @@ apps/export
 apps/ezsms
 apps/fail
 apps/form
-apps/fortune
 apps/iavi
 apps/injector
 apps/math
