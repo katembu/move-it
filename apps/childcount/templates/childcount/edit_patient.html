@@ -4,7 +4,6 @@
 {% block stylesheets %}
 {{ block.super }}
 
-<link type="text/css" rel="stylesheet" href="/static/childcount/stylesheets/jquery.autocomplete.css"/>
 {% endblock %}
 
 {% block javascripts %}
@@ -20,6 +19,8 @@
 
 {% block content %}
 
+<h2><a href="/childcount/patients/">{% trans "Patient List" %}</a> | 
+{% trans "Edit Patient" %}</h2>
 <h1>{% trans "Edit Patient" %}{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]
     {% endif %}
 </h1>
