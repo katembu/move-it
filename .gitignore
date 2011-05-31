@@ -15,9 +15,6 @@ logs/*
 \#*
 *.log*
 
-# documentation
-docs
-
 #mac stuff
 .DS_Store
 ._*
