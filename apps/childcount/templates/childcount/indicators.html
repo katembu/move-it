@@ -29,6 +29,10 @@ table td {
 .top-link {
     text-align: right;
 }
+
+.graph-link {
+    text-align:center;
+}
 </style>
 {% endblock page_stylesheets %}
 
@@ -71,9 +75,11 @@ table td {
         <td>{{ m.type_out }}</td>
         <td>{{ m.cls.short_name }}</td>
         <td>{{ m.cls.long_name }}</td>
-        <td>
+        <td class="graph-link">
             {% if m.output_is_number %}
-            <a href="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">{% trans "Graph" %}</a>
+            <a title="{% trans "Graph" %}" ref="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">
+                <img src="/static/reportgen/icons/pdf.png" alt="{% trans "Indicator graph" %}"/>
+            </a>
             {% endif %}
         </td>
     </tr>
