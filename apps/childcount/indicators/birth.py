@@ -40,7 +40,7 @@ class WeightLow(Indicator):
     slug        = "weight_low"
     short_name  = _("# Low-Weight Births")
     long_name   = _("Total number of patients born this period "\
-                    "with weight weight < 2.5 kg")
+                    "with weight < 2.5 kg")
 
     @classmethod
     def _value(cls, period, data_in):

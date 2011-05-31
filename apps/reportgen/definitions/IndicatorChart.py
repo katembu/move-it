@@ -42,7 +42,7 @@ class ReportDefinition(PrintedReport):
     variants = sum([
                     # Make a report variant tuple for each indicator...
                     # in each indicator module
-                        [("%s > %s" % (module['name'], ind[1].short_name), \
+                        [(u"%s \u00BB %s" % (module['name'], ind[1].short_name), \
                             "_"+module['slug']+"_"+ind[1].slug, \
                             { 'ind_module': module['slug'], 
                                 'ind_cls': ind[0]}
