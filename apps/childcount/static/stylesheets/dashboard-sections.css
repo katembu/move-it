@@ -192,4 +192,14 @@ a.report-link:hover span {
     background-color: white;
 }
 
-div#nav_links table { width: 100%; font-size: 1.5em; border: 2px solid #EEEEEE; }
+/* Splash image */
+div.splash {
+    width: 100%;
+    padding: 0;
+	margin: 0 -20px;
+}
+
+div.splash img {
+    width: 1083px;
+}
+
