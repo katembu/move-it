@@ -33,6 +33,14 @@ table td {
 .graph-link {
     text-align:center;
 }
+
+.graph-link a{
+    cursor:pointer;
+}
+
+.graph-link a img {
+    border:0;
+}
 </style>
 {% endblock page_stylesheets %}
 
@@ -77,8 +85,8 @@ table td {
         <td>{{ m.cls.long_name }}</td>
         <td class="graph-link">
             {% if m.output_is_number %}
-            <a title="{% trans "Graph" %}" ref="#" onclick="return false;" class="indicator_chart" id="graph_{{ m.variant_index }}">
-                <img src="/static/reportgen/icons/pdf.png" alt="{% trans "Indicator graph" %}"/>
+            <a title="{% trans "Graph" %}" href="#" onclick="return false;" class="indicator_chart">
+                <img id="graph_{{ m.variant_index }}" src="/static/reportgen/icons/pdf.png" alt="{% trans "Indicator graph" %}"/>
             </a>
             {% endif %}
         </td>

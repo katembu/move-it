@@ -5,7 +5,7 @@ function post_report(eventObj) {
 }
 
 function post_init() {
-    $("a.indicator_chart").click(post_report);
+    $("a.indicator_chart img").click(post_report);
 }
 
 $(document).ready(post_init);
