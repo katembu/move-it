@@ -29,33 +29,6 @@ STR_FUNCTIONS = {
 CACHEABLE_TYPES = (int, float, datetime, \
     date, bool, Percentage, dict)
 
-def _filter_cache_key(func, self, args, kwargs):
-    hvals = []
-    hvals.append("Patient")
-    hvals.append(str(func.__name__))
-
-    # Convert the input arguments into cacheable
-    # values
-    try:
-        for i, a in enumerate(args):
-            to_str = STR_FUNCTIONS[type(a)]
-            hvals.append("%d-%s" % (i, to_str(a)))
-
-        for k in kwargs:
-            to_str_k = STR_FUNCTIONS[type(k)]
-            to_str_v = STR_FUNCTIONS[type(kwargs[k])]
-            hvals.append("%s:%s" % (to_str_k(k), to_str_v(kwargs[v])))
-    except KeyError as e:
-        raise ValueError(_("Cannot cache function with an argument "\
-            "of type %s" % e))
-
-    print hvals
-    hvals += self.to_list()
-    s = sha1()
-    for h in hvals:
-        s.update(h)
-
-    return s.hexdigest()
 
 def cache_simple(func, timeout=60*60*2):
     """
@@ -90,42 +63,6 @@ def cache_simple(func, timeout=60*60*2):
         return cache_val
     return x
 
-def cache_filter(func, timeout=60*60*2):
-    """
-    cache_filter is a decorator
-    that caches a filter definition.
-    Right now this is only used
-    for Patient QuerySet objects
-    """
-    
-    def x(self, *args, **kwargs):
-        # Calculate the cache key for this QuerySet
-        cache_key = _filter_cache_key(func, self, args, kwargs)
-
-        # Look for the value in the cache
-        cached = cache.get(cache_key)
-
-        # QuerySet value is in the cache
-        if cached is not None:
-            print "Got cached value!"
-            # Cached value is a list of pks
-            return self.filter(pk__in=cached)
-            
-        # QuerySet value is not in the cache
-        # so generate the value
-        qset = func(self, *args, **kwargs)
-        if qset is None:
-            raise ValueError(_("Cannot cache function that returns a value "\
-                                "of None"))
-
-        # Get the pks in this queryset and pickle them
-        cache_val = qset.pk_list()
-        print cache_val
-        cache.set(cache_key, cache_val, timeout)
-
-        return qset
-    return x
-
 def cache_indicator(cls, ind_func, period, data_in):
     # First, make sure we want to execute the caching logic
     if not cls.cache:
@@ -146,8 +83,9 @@ def cache_indicator(cls, ind_func, period, data_in):
         cache_key_elms.append(str(type(data_in)))
         cache_key_elms.append(str(data_in.model))
    
-        cache_key_elms += [str(p[0]) for p in \
-            data_in.order_by('pk').values_list('pk')]
+        #cache_key_elms += [str(p[0]) for p in \
+        #    data_in.order_by('pk').values_list('pk')]
+        cache_key_elms.append(repr(data_in.query.as_sql()))
 
     else:
         cache_key_elms.append("Other")
