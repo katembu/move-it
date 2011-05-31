@@ -194,12 +194,13 @@ a.report-link:hover span {
 
 /* Splash image */
 div.splash {
-    width: 100%;
-    padding: 0;
+    width: 1085px;
+	padding: 0;
 	margin: 0 -20px;
+	border: 0;
 }
 
 div.splash img {
-    width: 1083px;
+    width: 100%;
 }
 
