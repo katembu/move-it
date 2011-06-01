@@ -122,9 +122,9 @@ def _process_gen(request):
         gr.task_progress = 0
         gr.error_message = ''.join(traceback.format_exception(*sys.exc_info()))
         gr.save()
-
-    gr.task_id = r.task_id
-    gr.save()
+    else:
+        gr.task_id = r.task_id
+        gr.save()
     
     return HttpResponseRedirect('/reportgen/ondemand/')
 
