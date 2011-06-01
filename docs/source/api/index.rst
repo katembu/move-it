@@ -4,14 +4,8 @@ ChildCount+ API / Developer Docs
 .. toctree::
     :maxdepth: 2
 
-    apps/childcount
-    apps/libreport
-    apps/mgvmrs
-    apps/reportgen
-
-    lib/ccdoc
-    lib/checksum
-    lib/indicator
+    apps/index
+    lib/index
 
 #. ChildCount+ "API"
 
@@ -38,9 +32,6 @@ ChildCount+ API / Developer Docs
     #. lib/indicator
 
 
-.. automodule:: indicator.indicator
-    :members:
-    :undoc-members:
 
 
 

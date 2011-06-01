@@ -1,6 +1,12 @@
 ChildCount+ API / Developer Docs 
 ================================
 
+.. toctree::
+    :maxdepth: 2
+
+    apps/index
+    lib/index
+
 #. ChildCount+ "API"
 
     #. apps/childcount
@@ -24,6 +30,8 @@ ChildCount+ API / Developer Docs
     #. lib/checksum
 
     #. lib/indicator
+
+
 
 
 
