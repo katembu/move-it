@@ -7,6 +7,7 @@ Technology
 
     dashboard
     forms_and_commands
+    forms_to_database
     indicators
 
 .. _tech__prereqs:

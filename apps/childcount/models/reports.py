@@ -2,8 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin, ukanga
 
-'''ChildCount Models
-'''
+"""ChildCount Reports"""
+
 import calendar
 from datetime import datetime
 from datetime import time
@@ -35,90 +35,41 @@ from childcount.models import Vaccine
 
 from childcount.utils import send_msg
 
-"""
-We use IndicatorQuerySet to hold some nifty
-filtering methods for use with Indicators
-and reports generation.
-"""
-class IndicatorQuerySet(PolymorphicQuerySet):
-    # Only consider active patients
-    def patient_encounters(self):
-        return self.filter(\
-            encounter__type=Encounter.TYPE_PATIENT,
-            encounter__patient__status=Patient.STATUS_ACTIVE)
-
-    def household_encounters(self):
-        return self.filter(encounter__type=Encounter.TYPE_HOUSEHOLD)
-
-    def between_dates(self, startDate, endDate):
-        return self.filter(encounter__encounter_date__gte=startDate,\
-            encounter__encounter_date__lt=endDate)
-
-    def for_period(self, per_cls, per_num):
-        return self.between_dates(\
-            per_cls.period_start_date(per_num), \
-            per_cls.period_start_date(per_num+1))
-
-    def before_period(self, per_cls, per_num):
-        return self.filter(\
-            encounter__encounter_date__lte=\
-                per_cls.period_end_date(per_num))
-
-    def for_period_total(self, per_cls):
-        first_date = per_cls.period_start_date(0)
-        last_date = per_cls.period_start_date(per_cls.num_periods)
-        return self.between_dates(first_date, last_date)
-
-    def for_clinic(self, clinic):
-        return self.filter(encounter__chw__clinic=clinic)
-
-    def for_chw(self, chw):
-        return self.filter(encounter__chw=chw)
-
-"""
-For indicators, only consider active patients.
-"""
-class IndicatorManager(PolymorphicManager):
-    def get_query_set(self):
-        return super(IndicatorManager,self)\
-            .get_query_set()\
-            .filter(encounter__patient__status=Patient.STATUS_ACTIVE)
-
-'''
-For filtering on age at time of encounter
-'''
 class AgeQuerySet(PolymorphicQuerySet):
-    '''
+    """For filtering on age at time of encounter
+    
     This custom SQL allows us easily to filter to find
     CCReports that were recorded when the patient was between
     START and END days old (inclusive).
 
-    The Django way to do this would be to use and F()+timedelta()
-    in a filter() call, but that operation isn't supported in
+    The Django way to do this would be to use and :class:`django.db.models.F()` + 
+    :class:`datetime.timedelta()`
+    in a :meth:`.filter()` call, but that operation isn't supported in
     Django 1.1.
-    '''
+    """
 
     def encounter_under_five(self):
+        """Anyone under 365*5 days old at time of encounter"""
         return self.encounter_age(0, 365.25*5)
    
-    # We take anyone between five and 200 years old to be
-    # "over five"
     def encounter_over_five(self):
+        """We take anyone between five and 200 years old to be
+        "over five"
+        """
         return self.encounter_age((365.25*5)+0.25, 365.25*200)
     
-    # MUAC eligible kids are 6 months - 5 years old
     def encounter_muac_eligible(self):
+        """MUAC eligible kids are 6 months - 5 years old"""
         return self.encounter_age(180, 365.25*5)
    
-    '''
-    Helper function for filtering the CCReport QuerySet
-    by a custom SQL call on Encounters.
-
-    query - An SQL query string containing %(pks_str)s 
-            into which the list of the input QuerySet's
-            encounter primary keys will be inserted.
-    '''
     def _encounter_filter_sql(self, query):
+        """Helper function for filtering the CCReport QuerySet
+        by a custom SQL call on Encounters.
+
+        query - An SQL query string containing %(pks_str)s 
+                into which the list of the input QuerySet's
+                encounter primary keys will be inserted.
+        """
         if self.count() == 0:
             return self
 
@@ -158,6 +109,9 @@ class AgeQuerySet(PolymorphicQuerySet):
     """
 
     def encounter_age(self, min_days, max_days):
+        """Anyone who is between `min_days` and `max_days`
+        old (inclusive)
+        """
 
         q = \
         '''
@@ -176,16 +130,17 @@ class AgeQuerySet(PolymorphicQuerySet):
                 'pks_str': "%(pks_str)s"}
 
         return self._encounter_filter_sql(q)
-    '''
-    latest_for_patient filters the CCReport QuerySet
-    and returns only CCReports that are the latest such
-    report for each patient.
 
-    For example, if you had a QuerySet of HouseholdVisitReport
-    objects, latest_for_patient() would give you the most
-    recent HouseholdVisitReport for each household.
-    '''
     def latest_for_patient(self):
+        """:meth:`latest_for_patient` filters the :class:`CCReport` QuerySet
+        and returns only :class:`CCReport` objects that are the latest such
+        report for each patient.
+
+        For example, if you had a QuerySet of :class:`HouseholdVisitReport`
+        objects, :meth:`latest_for_patient` would give you the most
+        recent :class:`HouseholdVisitReport` for each household.
+        """
+
         q = """
         SELECT `cc_encounter`.`id`
 
@@ -206,20 +161,18 @@ class AgeQuerySet(PolymorphicQuerySet):
 
         return self._encounter_filter_sql(q)
     
-    # Define a hash function that depends only on the pks of the
-    # rows in the QuerySet
     def __hash__(self):
+        """Define a hash function that depends only on the pks of the
+        rows in the QuerySet
+        """
         return hash((self.model,) + tuple(self.order_by('pk').values_list('pk')))
 
 class CCReport(PolymorphicModel):
-
-    '''
-    The highest level superclass to be 
+    """The highest level superclass to be 
     inhereted by all other report classes
-    '''
+    """
 
     objects = PolymorphicManager(AgeQuerySet)
-    indicators = IndicatorManager(IndicatorQuerySet)
 
     class Meta:
         app_label = 'childcount'
@@ -231,6 +184,11 @@ class CCReport(PolymorphicModel):
     encounter = models.ForeignKey(Encounter, verbose_name=_(u"Encounter"))
 
     def substantively_equal(self, other):
+        """Two :class:`childcount.models.reports.CCReport` objects are of the same
+        type and have all fields equal (except for their
+        `id`)
+        """
+
         if type(self) != type(other):
             return False
 
@@ -246,6 +204,7 @@ class CCReport(PolymorphicModel):
         return True
 
     def reset(self):
+        """Zero out the report"""
         self.__init__(pk=self.pk, encounter=self.encounter)
 
     def patient(self):
@@ -289,11 +248,11 @@ class CCReport(PolymorphicModel):
         return string
 
     def get_omrs_dict(self):
-        '''OpenMRS Key/Value dict.
+        """OpenMRS Key/Value dict.
 
         Return key/value dictionary of openmrs values that this report can
         populate
-        '''
+        """
         return {}
 
     def identity(self):
@@ -303,6 +262,7 @@ reversion.register(CCReport)
 
 
 class BirthReport(CCReport):
+    """Birth Report"""
 
     class Meta:
         app_label = 'childcount'
@@ -317,6 +277,7 @@ class BirthReport(CCReport):
         (CLINIC_DELIVERY_YES, _(u"Yes")),
         (CLINIC_DELIVERY_NO, _(u"No")),
         (CLINIC_DELIVERY_UNKNOWN, _(u"Unknown")))
+    """Whether or not the baby was delivered in a clinic"""
 
     clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
                                        choices=CLINIC_DELIVERY_CHOICES, \
@@ -343,10 +304,9 @@ class BirthReport(CCReport):
 
     @task()
     def initial_neonatal_visit_reminder(self):
-        '''
-        Six days after a birth report remind the CHW to do an initial neonatal
+        """Six days after a birth report remind the CHW to do an initial neonatal
         visit if it has not been done yet.
-        '''
+        """
         try:
             self = BirthReport.objects.get(pk=self.pk)
         except BirthReport.DoesNotExist:
@@ -398,6 +358,7 @@ reversion.register(BirthReport, follow=['ccreport_ptr'])
 
 
 class DeathReport(CCReport):
+    """Death Report"""
 
     class Meta:
         app_label = 'childcount'
@@ -415,6 +376,7 @@ reversion.register(DeathReport)
 
 
 class StillbirthMiscarriageReport(CCReport):
+    """Stillbirth/Miscarriage Report"""
 
     class Meta:
         app_label = 'childcount'
@@ -480,6 +442,7 @@ reversion.register(StillbirthMiscarriageReport, follow=['ccreport_ptr'])
 
 
 class FollowUpReport(CCReport):
+    """Follow-Up Report"""
 
     class Meta:
         app_label = 'childcount'

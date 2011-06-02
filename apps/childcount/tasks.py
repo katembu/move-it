@@ -294,12 +294,20 @@ def appointment_reminders():
 
 def appointment_defaulter_calendar(weekday):
     '''------- 2 weekdays after date of apt
-    doa         reminder
-    friday 4      wednesday 2
-    thursday 3    tuesday 1
-    wednesday 2   monday 0
-    tuesday 1     friday 4
-    monday 0      thursday 3
+
+    +-------------------+--------------------+
+    | **Date of Appt.** | **Reminder**       |
+    +-------------------+--------------------+
+    | Friday 4          | Wednesday 2        |
+    +-------------------+--------------------+
+    | Thursday 3        | Tuesday 1          |
+    +-------------------+--------------------+
+    | Wednesday 2       | Monday 0           | 
+    +-------------------+--------------------+
+    | Tuesday 1         | Friday 4           |
+    +-------------------+--------------------+
+    | Monday 0          | Thursday 3         |
+    +-------------------+--------------------+
     '''
     if weekday < 3:
         return weekday + 2

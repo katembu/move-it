@@ -25,13 +25,14 @@ from childcount.exceptions import *
 from indicator import Indicator
 
 class DOBProcessor:
+    """Date-of-Birth parser
+    """
+
     DAYS = 'd'
     WEEKS = 'w'
     MONTHS = 'm'
     YEARS = 'y'
 
-    # Language specific age units.
-    # IMPORTANT NOTE: List from shortest to longest
     UNITS = {}
     UNITS['en'] = {
         DAYS: ['d', 'day', 'days'],
@@ -39,6 +40,9 @@ class DOBProcessor:
         MONTHS: ['m', 'mon', 'mths', 'month', 'months'],
         YEARS: ['y', 'yr', 'yrs', 'year', 'years'],
     }
+    """Language specific age units.
+    IMPORTANT NOTE: List from shortest to longest
+    """
 
     UNITS['fr'] = {
         DAYS: ['j', 'jour', 'jours', 'd', 'day', 'days'],
@@ -48,6 +52,9 @@ class DOBProcessor:
         YEARS: ['a', 'an', 'ans', 'ann', 'annee', 'année', 'années', \
                 'annees', 'y', 'yr', 'yrs', 'year', 'years'],
     }
+    """Language specific age units.
+    IMPORTANT NOTE: List from shortest to longest
+    """
 
     ABRV_MONTHS = {}
     ABRV_MONTHS['en'] = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', \
@@ -62,11 +69,13 @@ class DOBProcessor:
     DATEORDER = [DAYS, MONTHS, YEARS]
     ROUND_DOWN = True
 
-    # Age (in years) beyond which we don't recognize
     MAX_AGE = 105
+    """Age (in years) beyond which we don't recognize"""
 
     @classmethod
     def from_age_or_dob(cls, lang, age_or_dob, date_ref=None):
+
+
         age_or_dob = age_or_dob.strip().lower()
 
         if len(age_or_dob) == 0:
@@ -404,14 +413,14 @@ class DOBProcessor:
 
 
 def clean_names(flat_name, surname_first=True):
+    '''Takes a persons name as a single string and returns surname,
+    first names, and alias::
 
-    '''
-    Takes a persons name as a single string and returns surname,
-    first names, and alias
         >>> clean_names("smith john")
         (u'Smith', u'John', u'jsmith')
 
-    Also can be passed an optional argument surname_first=False:
+    Also can be passed an optional argument surname_first=False::
+
         >>> clean_names("john ADAM smith", surname_first=False)
         (u'Smith', u'John Adam', u'jasmith')
     '''
@@ -451,7 +460,8 @@ def authenticated(func):
 
     checks if sender property is set on message
 
-    return function or boolean '''
+    :returns: function or bool
+    '''
 
     @wraps(func)
     def wrapper(self, *args):
@@ -466,10 +476,9 @@ def authenticated(func):
 
 def respond_exceptions(func):
 
-    '''
-    A decorator that catches exceptions and sends the text of the exception
+    '''A decorator that catches exceptions and sends the text of the exception
     to the sender by responding to the message object.  It can be used
-    on the rapidsms.app.App methods that are passed (self, message)
+    on the :class:`rapidsms.app.App` methods that are passed (self, message)
     '''
 
     @wraps(func)
@@ -491,6 +500,8 @@ def respond_exceptions(func):
 
 
 class KeywordMapper(object):
+    """Parser for SMS keywords"""
+
     MATCH_ALL_LANG_CHAR = '*'
     KEYWORDS_VAR = 'KEYWORDS'
 
@@ -575,8 +586,8 @@ def get_dates_of_the_week(givendate=None):
         week.append({'date': day, 'day': day.strftime("%a")})
     return week
 
-# Return date of first Monday before givendate
 def first_date_of_week(givendate):
+    """Return date of first Monday before givendate"""
     return givendate - timedelta(givendate.weekday())
 
 def seven_days_to_date(givendate=None):
@@ -596,7 +607,8 @@ def seven_days_to_date(givendate=None):
 def day_start(date):
     ''' begining of day from date.
 
-    return datetime '''
+    :returns :class:`datetime.datetime`
+    '''
     t = date.time().replace(hour=0, minute=1)
     return datetime.combine(date.date(), t)
 
@@ -604,8 +616,9 @@ def day_start(date):
 def day_end(date):
     ''' end of day from date.
 
-    return datetime '''
-    t = date.time().replace(hour=23, minute=59)
+    :returns :class:`datetime.datetime`
+    '''
+    t = date.time().replace(hour=23, minute=59, second=59, microsecond=999999)
     return datetime.combine(date.date(), t)
 
 
@@ -649,9 +662,8 @@ class RotatedParagraph(Flowable):
 
 
 def send_msg(reporter, text):
-    '''
-    Sends a message to a reporter using the ajax app.  This goes to
-    ajax_POST_send_message in findtb app.py
+    '''Sends a message to a reporter using the ajax app.  This goes to
+    ajax_POST_send_message in :file:`apps/findtb/app.py`
     '''
 
     conf = settings.RAPIDSMS_APPS['ajax']

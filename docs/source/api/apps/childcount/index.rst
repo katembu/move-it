@@ -11,8 +11,9 @@ childcount
     forms
     helpers
     indicators
-    models
+    models/index
     tasks
+    utils
 
 
 
