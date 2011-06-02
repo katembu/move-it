@@ -2,11 +2,11 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-'''A model representing a single resident of the
+"""A model representing a single resident of the
 catchment area. 
 We do not document the model fields, because you
 can find those yourself in the code!
-'''
+"""
 
 from datetime import date, timedelta
 
@@ -39,9 +39,9 @@ class PatientManager(models.Manager):
         return self.model.QuerySet(self.model)
 
 class Patient(models.Model):
-    '''Holds the patient details, 
+    """Holds the patient details, 
     properties and methods related to it
-    '''
+    """
 
     class Meta:
         app_label = 'childcount'
@@ -134,11 +134,11 @@ class Patient(models.Model):
                 'guardian': self.guardian}
 
     def age_in_days_weeks_months(self, relative_to=date.today()):
-        '''return the age of the patient in days and in months
+        """return the age of the patient in days and in months
         
         :param relative_to: Date from which to compute the patient's age
         :type relative_to: :class:`datetime.date`
-        '''
+        """
         days = (relative_to - self.dob).days
         weeks = days / 7
         months = int(days / 30.4375)
@@ -150,7 +150,7 @@ class Patient(models.Model):
         return months / 12
 
     def humanised_age(self):
-        '''return a string containing a human readable age'''
+        """return a string containing a human readable age"""
         days, weeks, months = self.age_in_days_weeks_months()
         if days < 21:
             return _(u"%(days)sd") % {'days': days}
@@ -255,7 +255,7 @@ class Patient(models.Model):
 
     objects = PatientManager()
     class QuerySet(QuerySet):
-        '''This QuerySet extends the default django QuerySet with
+        """This QuerySet extends the default django QuerySet with
         useful filters.
 
         .. hint::
@@ -265,7 +265,7 @@ class Patient(models.Model):
             - `start`: start date of time period (inclusive) -- :class:`datetime.datetime`
 
             - `end`: end date of time period (inclusive) -- :class:`datetime.datetime`
-        '''
+        """
         def alive(self, start, end):
             """Patients who were alive at `end`.
 

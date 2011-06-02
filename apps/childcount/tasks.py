@@ -2,6 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: katembu
 
+"""Tasks
+"""
+
 from operator import attrgetter
 from itertools import groupby
 
@@ -27,11 +30,11 @@ from alerts.utils import SmsAlert
 
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
 def weekly_immunization_reminder():
-    '''
+    """
     Send SMS to CHW to remind them their immunization appointments, using
     the format:
     [Immunization type] date: patient_id, patient_id | date: patient_id...
-    '''
+    """
 
     # get this week appointements, grouped by CHW
     today = datetime.today()
@@ -72,9 +75,9 @@ def weekly_immunization_reminder():
 
 @periodic_task(run_every=crontab(hour=7, minute=0))
 def daily_fever_reminder():
-    '''
+    """
     Daily reminder of Fever followup cases after 48 hours.
-    '''
+    """
     sdate = datetime.now() + relativedelta.relativedelta(days=-3)
     #sdate = datetime.combine(sdate.date(), time(7, 0))
     edate = datetime.now() + relativedelta.relativedelta(days=-2)
@@ -109,9 +112,9 @@ def daily_fever_reminder():
 
 @periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=0))
 def weekly_muac_reminder():
-    '''
+    """
     Weekly reminder of due Muac cases, 75 days or over since last chw visit
-    '''
+    """
     data = {}
     for chw in CHW.objects.all():
         reminder_list = []
@@ -161,9 +164,9 @@ def weekly_muac_reminder():
 
 @periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
 def weekly_initial_anc_visit_reminder():
-    '''
+    """
     Initial ANC Visit weekly reminder
-    '''
+    """
     pregs = PregnancyReport.objects.filter(anc_visits=0, \
                             encounter__patient__status=Patient.STATUS_ACTIVE)
     p_list = []
@@ -198,9 +201,9 @@ def weekly_initial_anc_visit_reminder():
 
 @periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
 def weekly_anc_visit_reminder():
-    '''
+    """
     ANC Visit weekly reminder - 6 weeks have passed since last ANC visit
-    '''
+    """
     pregs = PregnancyReport.objects.filter(weeks_since_anc__gt=6, \
                             encounter__patient__status=Patient.STATUS_ACTIVE)
     p_list = []
@@ -312,9 +315,9 @@ def get_appointment_defaulter_date(dt=datetime.today()):
 
 @periodic_task(run_every=crontab(hour=8, minute=0))
 def appointment_defaulter_reminders():
-    '''Remind the chw to remind their defaulting clients of an appointment
+    """Remind the chw to remind their defaulting clients of an appointment
     2 week days after the date of appointment
-    '''
+    """
     today = datetime.today().date()
     # no appointment reminder over the weekend
     if today.weekday() > 4:

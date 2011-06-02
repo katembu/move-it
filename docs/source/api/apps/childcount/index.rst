@@ -12,6 +12,7 @@ childcount
     helpers
     indicators
     models
+    tasks
 
 
 
