@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 
+"""Helper functions that operate on or
+relate to :class:`childcount.models.CHW`
+objects.
+
+"""
+
 from datetime import timedelta
 
 from django.utils.translation import gettext as _
@@ -96,11 +102,24 @@ report_indicators = (
         ]
     },
 )
-
+"""The common set of :class:`indicator.Indicator` objects
+used in the CHW reports.
+"""
 
 def pregnant_needing_anc(period, chw):
-    """Pregnant women in 2nd or 3rd trimester who haven't had
-    ANC visits in last 5 five weeks
+    """Get a list of women assigned to this CHW
+    who are in their 2nd or 3rd trimester of pregnancy
+    who haven't had ANC visits in last 5 five weeks
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param chw: CHW
+    :type chw: :class:`childcount.models.CHW`
+
+    :returns: list of (:class:`childcount.models.Patient`, 
+              last_anc_date, approx_due_date) tuples 
+
     """
 
     patients = Patient\
@@ -154,6 +173,22 @@ def pregnant_needing_anc(period, chw):
     return (no_anc + women)
 
 def people_without_followup(period, chw):
+    """Get a list of people assigned to this CHW
+    who were referred urgently to a clinic
+    who got a late follow-up visit (3-7 days after referral) or no follow-up 
+    visit (more than 7 days after referral or never)
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param chw: CHW
+    :type chw: :class:`childcount.models.CHW`
+
+    :returns: list of :class:`childcount.models.reports.ReferralReport`
+
+    """
+
+
     referrals = ReferralReport\
         .objects\
         .filter(encounter__chw=chw, \
@@ -193,6 +228,23 @@ def people_without_followup(period, chw):
 
 
 def kids_needing_muac(period, chw):
+    """Get a list of MUAC-eligible patients assigned to this CHW
+    who have not had a recorded MUAC in the past 90 days
+    (for known healthy children) or the past 30 days
+    (for known malnourished children and children with
+    unknown nutrition status).
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param chw: CHW
+    :type chw: :class:`childcount.models.CHW`
+
+    :returns: list of (:class:`childcount.models.Patient`,
+              :class:`childcount.models.reports.NutritionReport`) tuples
+
+    """
+
     # people eligible for MUAC
     muac_list = Patient\
         .objects\
@@ -241,6 +293,28 @@ def kids_needing_muac(period, chw):
     return no_muac + need_muac
 
 def kids_needing_immunizations(period, chw):
+    """Get a list of children under five years old assigned to this CHW
+    who are:
+
+    #. More than 12 months old who have no known immunization
+       record or who were last known to be not fully immunized, or
+
+    #. Less than 12 months old who have not had an immunization
+       report in the past 90 days.
+
+
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param chw: CHW
+    :type chw: :class:`childcount.models.CHW`
+
+    :returns: :class:`django.db.models.query.QuerySet` of :class:`childcount.models.Patient`
+
+    """
+
+
     patients = Patient\
         .objects\
         .filter(chw=chw)

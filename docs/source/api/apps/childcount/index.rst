@@ -9,6 +9,7 @@ childcount
     exceptions
     fields
     forms
+    helpers
 
 
 

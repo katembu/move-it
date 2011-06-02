@@ -9,6 +9,17 @@ from childcount.models.reports import NutritionReport
 from childcount.models.reports import UnderOneReport
 
 def latest_muac_raw(period, p):
+    """Look up the latest NutritionReport for this
+    patient with a non-zero MUAC value.
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: :class:`childcount.models.reports.NutritionReport` or None
+    """
+
     try:
         n = NutritionReport\
             .objects\
@@ -22,6 +33,17 @@ def latest_muac_raw(period, p):
     return n
 
 def latest_muac_date(period, p):
+    """Format a string containing a human-readable date
+    and MUAC value for this Patient's last MUAC .
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: unicode
+    """
+
     n = latest_muac_raw(period, p)
     if n is None:
         return _(u"[No MUAC]")
@@ -32,13 +54,33 @@ def latest_muac_date(period, p):
         'muac': n.muac or '--',
         'oedema': n.oedema}
 
+
 def latest_muac(period, p):
+    """Format a string containing 
+    this Patient's last MUAC measurment.
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: unicode
+    """
     muac = latest_muac_raw(period, p)
     if muac is not None:
         return u"%smm %s" % (muac.muac, muac.verbose_state)
     return u""
 
 def latest_imm_report(period, kid):
+    """Look up this patient's latest immunization report.
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: :class:`childcount.models.reports.UnderOneReport` or None
+    """
     try:
         ir = UnderOneReport\
                 .objects\

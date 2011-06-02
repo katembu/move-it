@@ -13,6 +13,15 @@ from childcount.indicators import registration
 from childcount.indicators import pregnancy
 
 def summary_stats(period):
+    """Calculates a few key indicators for display
+    on the dashboard.
+    
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :returns: dict
+    """
+
     patients = Patient.objects.all()
     return {
         'num_mam_sam': nutrition.SamOrMam(period, patients),

@@ -16,5 +16,10 @@ childcount.forms.CCForm
 Pre-Defined Forms
 --------------------
 
+All ChildCount+ forms are defined in
+:file:'apps/childcount/forms/'.
+Before writing a new form, check to see
+if someone has already written a form
+that suits your application.
 
 

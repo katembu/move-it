@@ -21,7 +21,6 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from childcount.exceptions import *
-from childcount.models import Encounter
 
 from indicator import Indicator
 
@@ -670,15 +669,15 @@ def get_ccforms_by_name():
     conf = settings.RAPIDSMS_APPS['childcount']
     formlist = conf['forms'].replace(' ', '').split(',')
     forms = {}
-    forms[Encounter.TYPE_HOUSEHOLD] = []
-    forms[Encounter.TYPE_PATIENT] = []
     for form in formlist:
         try:
             f = eval(form)
         except NameError:
-            pass
-        else:
-            forms[f.ENCOUNTER_TYPE].append(form)
+            continue
+
+        if f.ENCOUNTER_TYPE not in forms:
+            forms[f.ENCOUNTER_TYPE] = []
+        forms[f.ENCOUNTER_TYPE].append(form)
     return forms
 
 def get_indicators():
