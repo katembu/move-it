@@ -15,6 +15,9 @@ logs/*
 \#*
 *.log*
 
+# Documentation build
+docs/build/*
+
 #mac stuff
 .DS_Store
 ._*

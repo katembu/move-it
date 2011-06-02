@@ -216,3 +216,5 @@ man_pages = [
     ('index', 'childcount', u'ChildCount+ Documentation',
      [u'Earth Institue and Millennium Villages Project'], 1)
 ]
+
+autoclass_content = "both"

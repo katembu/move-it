@@ -5,6 +5,8 @@ Technology
 .. toctree::
     :maxdepth: 2
 
+    forms_and_commands
+
 .. _tech__prereqs:
 
 Technology Prerequisites
