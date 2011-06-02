@@ -11,6 +11,7 @@ childcount
     forms
     helpers
     indicators
+    models
 
 
 

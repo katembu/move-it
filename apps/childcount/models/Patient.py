@@ -2,9 +2,10 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-'''ChildCount Models
-
-Patient - Patient model
+'''A model representing a single resident of the
+catchment area. 
+We do not document the model fields, because you
+can find those yourself in the code!
 '''
 
 from datetime import date, timedelta
@@ -28,17 +29,20 @@ import childcount.models.Clinic
 import childcount.models.CHW
 
 
-def queries():
-    print len(connection.queries)
-    connection.queries = []
-
 class PatientManager(models.Manager):
+    """Custom manager for :class:`Patient`
+    that return our custom :class:`Patient.QuerySet`
+    model.
+    """
+
     def get_query_set(self):
         return self.model.QuerySet(self.model)
 
 class Patient(models.Model):
+    '''Holds the patient details, 
+    properties and methods related to it
+    '''
 
-    '''Holds the patient details, properties and methods related to it'''
     class Meta:
         app_label = 'childcount'
         db_table = 'cc_patient'
@@ -52,6 +56,7 @@ class Patient(models.Model):
     GENDER_CHOICES = (
         (GENDER_MALE, _(u"Male")),
         (GENDER_FEMALE, _(u"Female")))
+    """Patient genders"""
 
     STATUS_ACTIVE = 1
     STATUS_INACTIVE = 0
@@ -61,6 +66,7 @@ class Patient(models.Model):
         (STATUS_ACTIVE, _(u"Alive")),
         (STATUS_INACTIVE, _(u"Relocated")),
         (STATUS_DEAD, _(u"Dead")))
+    """Status options for Patients"""
 
     objects = PatientManager()
     health_id = models.CharField(_(u"Health ID"), max_length=6, blank=True, \
@@ -112,6 +118,7 @@ class Patient(models.Model):
                                             blank=True, null=True)
 
     def is_head_of_household(self):
+        """Check if patient is the head his/her own household"""
         return self.household == self
 
     def get_dictionary(self):
@@ -127,13 +134,18 @@ class Patient(models.Model):
                 'guardian': self.guardian}
 
     def age_in_days_weeks_months(self, relative_to=date.today()):
-        '''return the age of the patient in days and in months'''
+        '''return the age of the patient in days and in months
+        
+        :param relative_to: Date from which to compute the patient's age
+        :type relative_to: :class:`datetime.date`
+        '''
         days = (relative_to - self.dob).days
         weeks = days / 7
         months = int(days / 30.4375)
         return days, weeks, months
 
     def years(self):
+        """Calculate patient's age in years"""
         days, weeks, months = self.age_in_days_weeks_months()
         return months / 12
 
@@ -151,6 +163,7 @@ class Patient(models.Model):
             return _(u"%(years)sy") % {'years': years}
 
     def full_name(self):
+        """Return the patients first and last names"""
         return ' '.join([self.first_name, self.last_name])
 
     def __unicode__(self):
@@ -159,6 +172,14 @@ class Patient(models.Model):
 
     @classmethod
     def is_valid_health_id(cls, health_id):
+        """Naive check if a health ID is valid
+
+        :param health_id: Health ID to check
+        :type health_id: str
+
+        :returns: bool
+        """
+
         MIN_LENGTH = 4
         MAX_LENGTH = 4
         BASE_CHARACTERS = '0123456789acdefghjklmnprtuvwxy'
@@ -182,6 +203,11 @@ class Patient(models.Model):
 
     @classmethod
     def registrations_by_date(cls):
+        """Number of patients registered per day
+
+        :returns: Iterable of (`datetime.date`, n_registrations) tuples
+        """
+
         conn = connection.cursor()
         by_date = conn.execute(
             'SELECT DATE(`created_on`), COUNT(*) FROM `cc_patient` \
@@ -227,43 +253,68 @@ class Patient(models.Model):
     # BEGIN Indicator Code
     #
 
-    ''' This enables us to extend patient QuerySets with
-        useful filters
-    '''
     objects = PatientManager()
     class QuerySet(QuerySet):
+        '''This QuerySet extends the default django QuerySet with
+        useful filters.
+
+        .. hint::
+            All of these filters take standard `start` and `end` arguments
+            for consistency's sake. These parameters are defined as:
+
+            - `start`: start date of time period (inclusive) -- :class:`datetime.datetime`
+
+            - `end`: end date of time period (inclusive) -- :class:`datetime.datetime`
+        '''
         def alive(self, start, end):
+            """Patients who were alive at `end`.
+
+            """
+
             return self\
                 .exclude(status=Patient.STATUS_INACTIVE)\
                 .exclude(encounter__ccreport__deathreport__death_date__lte=end)
-        '''
-        Age-related filters
-        '''
+        #
+        # Age-related filters
+        # 
         def neonatal(self, start, end):
+            """0 days <= age < 28 days"""
             return self.age(start, end, 0, 28)
         
         def under_six_months(self, start, end):
+            """0 days <= age < 180 days"""
             return self.age(start, end, 0, 30*6)
 
         def under_nine_months(self, start, end):
+            """0 days <= age < 9 months (270 days)"""
             return self.age(start, end, 0, 30*9)
 
         def muac_eligible(self, start, end):
+            """180 days <= age < 5 years (5*365 days)"""
             return self.age(start, end, 6*30, 5*365)
 
         def under_one(self, start, end):
+            """0 days <= age < 365 days"""
             return self.age(start, end, 0, 365)
 
         def under_five(self, start, end):
+            """0 days <= age < 5 years (5*365 days)"""
             return self.age(start, end, 0, 5*365)
 
         def under_nine(self, start, end):
+            """0 days <= age < 9 years (9*365 days)"""
             return self.age(start, end, 0, 9*365)
 
         def over_five(self, start, end):
+            """5 years (5*365 days) < age"""
             return self.age(start, end, 5*365, None)
 
         def age(self, start, end, min_days, max_days):
+            """Living patients whose age (in days)
+            was `min_days` <= `patient__age` < `max_days` 
+            at the datetime `end`
+            """
+            
             filter_on = {}
             if min_days:
                 filter_on['dob__lte'] = end-timedelta(days=min_days)
@@ -277,25 +328,24 @@ class Patient(models.Model):
                 .filter(**filter_on)\
                 .filter(dob__lte=end)
 
-        '''
-        Household filter
-        '''
         def household(self, start, end):
+            """Living people who are/were household heads at `end`"""
             return self\
                 .alive(start, end)\
                 .filter(pk=F('household__pk'))
 
-
-        '''
-        Pregnancy filters
-        '''
+        #
+        # Pregnancy filters
+        #
         def pregnant(self, start, end):
+            """Patients who were between 0 and 9 months pregnant
+            at date `end`
+            """
             return self.pregnant_months(start, end, 0.0, 9.0, False, False)
 
         @cache_simple
         def pregnant_data(self):
-            """
-            This function collects all of the pregnancy reports
+            """Collect all of the pregnancy reports
             into a single data structure. We can cache this
             data structure and use it for running various queries
             about pregnant women.
@@ -379,10 +429,23 @@ class Patient(models.Model):
                   
         def pregnant_months(self, start, end, start_month, end_month, 
                 include_delivered, include_stillbirth):
-            """
-            pregnant_months uses the cached pregnant_data()
-            call to return info about pregnancies
-            in the desired date ranges
+            """Uses the cached pregnant_data()
+            call to return women who are between `start_month`
+            and `end_month` months pregnant (inclusive).
+
+            :param start_month: Include women who are at least `start_month`
+                                months pregant
+            :param end_month: Include women who are at most `end_month`
+                              months pregant
+            :type start_month: float
+            :type end_month: float
+            :param include_delivered: Include women who have delivered their
+                                      babies by time `end`?
+            :type include_delivered: bool
+            :param include_stillbirth: Include women who have had a stillbirth
+                                       or miscarriage before the time `end`?
+            :type include_stillbirth: bool
+
             """
             data = self.pregnant_data()
 
@@ -500,10 +563,12 @@ class Patient(models.Model):
         """
 
         def pregnant_recently(self, start, end):
-            # Pregnant or within 42 days of delivery
+            """Pregnant or within 42 days of delivery"""
             return self.pregnant_months(start, end, 0.0, 10.4, True, False)
 
         def over_five_not_pregnant_recently(self, start, end):
+            """More than five years of age and not in
+            :meth:`.pregnant_recently`"""
             pr = self.pregnant_recently(start, end)
 
             return self\
@@ -511,12 +576,14 @@ class Patient(models.Model):
                 .exclude(pk__in=[p.pk for p in pr])
 
         def pregnant_during_interval(self, start, end):
+            """Women who were pregnant at some point between `start` and `end`"""
             ilen = (end - start).days
             imon = ilen/30.4375
 
             return self.pregnant_months(start, end, 0.0, 9.0 + imon, True, True)
 
         def delivered(self, start, end):
+            """Women who delivered between `start` and `end`"""
             return self.pregnant_months(start, end, 9.0, 10.0, True, False)
 
         def pk_list(self):
