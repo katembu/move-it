@@ -2,6 +2,9 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: mvpdev
 
+"""Holds view logic for the dashboard.
+"""
+
 from django.utils import simplejson
 from django.utils.translation import gettext as _
 
@@ -13,9 +16,11 @@ from reportgen.timeperiods import Month, FourWeeks
 
 def registration_chart():
     """
-    this method corresponds to the template: 'dashboard_sections/registration_chart.html'
-    it returns only the data needed to build the chart, which is passed to a javascript
-    object in a JSON string using simplejson.dumps().
+    This method corresponds to the template 
+    :file:`dashboard_sections/registration_chart.html`
+
+    It returns only the data needed to build the chart, which is passed to a javascript
+    object in a JSON string using :func:`simplejson.dumps()`.
     """
     
     days_past, num_registrations = Patient.registrations_by_date()
@@ -29,15 +34,18 @@ def registration_chart():
 
 def highlight_stats_bar():
     """
-    corresponds to template: 'dashboard_sections/highlight_stats_bar.html'
+    Corresponds to template: :file:`dashboard_sections/highlight_stats_bar.html`
     
-    This Dict is structured to easily pump into an html table.
+    This :func:`dict` is structured to easily pump into an HTML table.
     """
     return {'titles': [_(u"# of Households"), _(u"# of Patients"), \
                        _(u"# of Underfives"), _(u"# of Pregnant Women")], \
                         'data': [532, 1521, 534, 0] }
 
 def nutrition_chart():
+    """Data for a pie chart
+    of nutrition statistics.
+    """
     period = FourWeeks.periods()[3]
 
     unknown = nutrition.Unknown(period, Patient.objects.all())
@@ -52,8 +60,8 @@ def nutrition_chart():
 
 def recent_numbers():
     """
-    pumps a python dict with "columns" and "rows"(&data) which is
-    then turned into a pretty html table
+    Pumps a python :func:`dict` with "columns" and "rows"(&data) which is
+    then turned into a pretty HTML table
     """
 
     month = Month.periods()[0]

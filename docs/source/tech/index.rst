@@ -5,6 +5,7 @@ Technology
 .. toctree::
     :maxdepth: 2
 
+    dashboard
     forms_and_commands
 
 .. _tech__prereqs:
