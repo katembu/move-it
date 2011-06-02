@@ -2,11 +2,25 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: dgelvin
 
+
+"""Standard exceptions used in many
+CCForm and CCComand definitions.
+It is best to use these exceptions in your
+own code so that users get consistent
+error messages.
+"""
+
 from django.utils.translation import ugettext as _
 
-
 class CCException(Exception):
+    """General exception extended by 
+    all other custom exceptions.
+    """
+
     message = _(u"An error has occured.")
+    """The error message to raise with the
+    exception.
+    """
 
     def __unicode__(self):
         return self.message

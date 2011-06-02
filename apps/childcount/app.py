@@ -39,6 +39,8 @@ class App (rapidsms.app.App):
 
     def configure(self, title='ChildCount', tab_link='/childcount', \
                   forms=None, commands=None):
+        """Load CC+ forms and commands"""
+
         if forms is not None:
             forms = forms.replace(' ', '').split(',')
             for form in forms:
