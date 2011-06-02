@@ -85,7 +85,7 @@ def cache_indicator(cls, ind_func, period, data_in):
    
         #cache_key_elms += [str(p[0]) for p in \
         #    data_in.order_by('pk').values_list('pk')]
-        cache_key_elms.append(repr(data_in.query.as_sql()))
+        cache_key_elms.append(repr(str(data_in.query)))
 
     else:
         cache_key_elms.append("Other")
