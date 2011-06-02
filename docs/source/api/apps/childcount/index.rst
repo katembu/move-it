@@ -10,6 +10,7 @@ childcount
     fields
     forms
     helpers
+    indicators
 
 
 
