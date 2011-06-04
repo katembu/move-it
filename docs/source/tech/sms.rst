@@ -1,16 +1,24 @@
-[U] Forms and Commands
-=======================
+SMS and the Router
+==================
+
+Understanding the Router
+-------------------------
+
+.. _tech__sms__forms_and_commands:
+
+SMS Forms and Commands
+-----------------------
 
 Form versus Commands
---------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 
 Adding a New Form
---------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 
 Defining a Command
--------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 Say you want to define a new command called `ReverseTextCommand`
 that users invoke by SMS like this::
@@ -59,5 +67,8 @@ To define this command, you must:
     commands = WhoCommand, LookupCommands, ReverseTextCommand, ...
     ...
 
+.. _tech__sms__forms_to_database:
 
+From Forms to the Database
+---------------------------
 
