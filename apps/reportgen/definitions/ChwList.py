@@ -10,21 +10,39 @@ from django.db.models import Count
 
 from ccdoc import Document, Table, Text, Section
 
+from locations.models import Location
 from childcount.models import CHW
 
 from reportgen.utils import render_doc_to_file
 from reportgen.PrintedReport import PrintedReport
+
+_variants = [('All Locations', 'all', {'loc_pk': 0})]
+_chew_locations = CHW.objects.values('location').distinct()
+_locations = [(loc.name, loc.code, {'loc_pk': loc.pk}) \
+                            for loc in Location.objects\
+                                                .filter(pk__in=_chew_locations)]
+_variants.extend(_locations)
+
 
 class ReportDefinition(PrintedReport):
     """ list all CHW """
     title = _('CHW List')
     filename = 'CHWList'
     formats = ['html', 'pdf', 'xls']
+    variants = _variants
 
     def generate(self, time_period, rformat, title, filepath, data):
         doc = Document(title)
 
-        chews = CHW.objects.all().order_by('id', 'first_name', 'last_name')
+        if 'loc_pk' not in data:
+            chews = CHW.objects.all().order_by('id', 'first_name', 'last_name')
+        elif data['loc_pk'] == 0:
+            chews = CHW.objects.all().order_by('id', 'first_name', 'last_name')
+        else:
+            loc_pk = data['loc_pk']
+            chews = CHW.objects\
+                        .filter(location__pk=loc_pk)\
+                        .order_by('id', 'first_name', 'last_name')
         table = self._create_chw_table()
 
         current = 0
