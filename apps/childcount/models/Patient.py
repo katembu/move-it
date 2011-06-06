@@ -382,11 +382,16 @@ class Patient(models.Model):
                         break
 
                     # If so, record the estimated conception date
-                    pr = reps\
-                        .latest('ccreport__pregnancyreport__encounter__encounter_date')\
-                        .ccreport_set\
-                        .filter(polymorphic_ctype__model='pregnancyreport')[0]
-               
+                    try:
+                        pr = reps\
+                            .latest('ccreport__pregnancyreport__encounter__encounter_date')\
+                            .ccreport_set\
+                            .filter(polymorphic_ctype__model='pregnancyreport')[0]
+                    except IndexError:
+                        pr = reps\
+                            .latest('ccreport__pregnancyreport__encounter__encounter_date')\
+                            .ccreport_set\
+                            .filter(polymorphic_ctype__model='spregnancy')[0]
                     days_preg = timedelta(30.4375 * pr.pregnancy_month)
                     row = {}
 
