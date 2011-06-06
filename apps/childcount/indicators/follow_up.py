@@ -37,9 +37,6 @@ class Total(Indicator):
             .count()
 
 def _eligible(period, data_in):
-    s2d = period.start - DELTA_START_ON_TIME
-    e2d = period.end - DELTA_START_ON_TIME
-
     A = ReferralReport.URGENCY_AMBULANCE
     B = ReferralReport.URGENCY_BASIC
     E = ReferralReport.URGENCY_EMERGENCY
@@ -47,7 +44,7 @@ def _eligible(period, data_in):
     return ReferralReport\
         .objects\
         .filter(encounter__patient__in=data_in,\
-            encounter__encounter_date__range=(s2d, e2d),\
+            encounter__encounter_date__range=(period.start, period.end),\
             urgency__in=(A,E,B))
 
 class Eligible(Indicator):
@@ -63,6 +60,43 @@ class Eligible(Indicator):
     def _value(cls, period, data_in):
         return _eligible(period, data_in).count()
 
+def _follow_up_between(period, data_in, delta_start, delta_end):
+    elig = _eligible(period, data_in)
+    elig_pks = [row[0] for row in elig\
+        .values_list('encounter__patient__pk')\
+        .distinct()]
+
+    count = 0
+    # For each patient who is eligible for follow up...
+    for pk in elig_pks:
+        patient_elig = elig\
+            .filter(encounter__patient__pk=pk)\
+            .order_by('encounter__encounter_date')
+
+        print "Considering patient %s" % Patient.objects.get(pk=pk)
+
+        # Go through referral reports from earliest
+        # to latest
+        start_date = patient_elig[0].encounter.encounter_date
+        for ref in patient_elig:
+            start_date = max(start_date, ref.encounter.encounter_date)
+
+            print "\tReferred on: %s" % ref.encounter.encounter_date
+            f = FollowUpReport\
+                .objects\
+                .filter(encounter__patient__pk=ref.encounter.patient.pk,
+                    encounter__encounter_date__gt=start_date+delta_start,
+                    encounter__encounter_date__lte=start_date+delta_end)
+
+            if f.count() > 0:
+                print "\t\tFollowed on %s" % f[0].encounter.encounter_date
+                count += 1
+
+            start_date += delta_end
+
+    return count
+
+'''
 def _follow_up_between(period, data_in, delta_start, delta_end):
     elig_rpts = _eligible(period, data_in)
     elig = [e[0] for e in elig_rpts.values_list('encounter__patient__pk')]
@@ -87,6 +121,8 @@ def _follow_up_between(period, data_in, delta_start, delta_end):
         #    print "@ %s" % r[0].encounter.encounter_date
 
     return count
+'''
+
 
 class Late(Indicator):
     type_in     = QuerySetType(Patient)
