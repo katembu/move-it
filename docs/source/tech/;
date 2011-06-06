@@ -1,0 +1,103 @@
+Getting Started with ChildCount+
+================================
+
+Before you "get started," make sure to take a look at
+the :ref:`intro__should_you_use` section of the
+introduction.
+If you are duly convinced that you need some CC+ action in
+your life, then read on.
+
+.. _tech__prereqs:
+
+Technology Prerequisites
+------------------------
+
+.. warning:: ChildCount+ should NOT be deployed on 
+             a publicly accessible network.
+             Data between the server and clients is
+             not encrypted the software is not hardened
+             against attacks.
+
+.. tip:: Wait! Before you read on, check out the 
+         :ref:`human__prereqs` section.
+         Make sure that you're not missing anything on the human
+         side of things before you jump into the land of
+         config files and list comprehensions.
+
+All Installs
+^^^^^^^^^^^^^
+
+Linux Server
+    You will need a server to host your ChildCount+
+    installation. 
+    We recommend using Ubuntu versions 10 and up, 
+    since that is what we use for development and deployments.
+
+Printer
+    If you need to print paper reports.
+
+SMS-Based Installs
+^^^^^^^^^^^^^^^^^^^
+
+GSM Modem
+    If you want to interact with ChildCount+ via SMS.
+    Any modem that works with `PyGSM <http://pypi.python.org/pypi/pygsm/0.1>`_
+    will work.
+    We use Multitech MTCBA-G-F4 modems.
+
+SMS-Enabled Mobile Phones
+    One per community health worker.
+
+Mobile Phone Chargers
+    If you are deploying in an area without reliable
+    power, make sure you have solar chargers or some
+    other means of charging cell phones.
+
+Airtime Credit Distribution System
+    You will need some way to distribute airtime
+    credit to the community health workers.
+    Millennium Villages Project has tried to 
+    negotiate with mobile operators to get 
+    toll-free SMS lines, but distributing
+    airtime scratch cards by hand is also
+    an option.
+
+Understanding the Components
+-----------------------------
+
+The ChildCount+ stack is large -- it includes many 
+components patched together in non-obvious ways.
+The following diagrams will hopefully give you a
+sense of what the components of ChildCount+ are
+and how they relate to each other.
+
++-----------------------------+----------------------------------------+
+| **Web**                        |  .. image:: /images/tech/web.jpg       |
+ * *Cherokee Web Server* handles incoming
+    HTTP requests and passes them to...
+
+ * *django_wsgi.py* -- a Python script that
+   sets some environment variables (like 
+   the local time zone) and invokes Django's
+   uwsgi handler.
+
+ * *Django*'s Web framework handles the
+   request from there.
+   
++-----------------------------+----------------------------------------+
+| **SMS**                         | .. image:: /images/tech/sms.jpg        |
++-----------------------------+----------------------------------------+
+| **Reports**                     | .. image:: /images/tech/reports.jpg    |
++-----------------------------+----------------------------------------+
+
+
+#. What the tech pieces are and how they relate
+
+#. RabbitMQ, Celeryd, uwsgi, Django, Rapidsms, etc, etc
+
+
+Dependencies
+-------------
+
+#. What versions we support
+
