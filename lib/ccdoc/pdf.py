@@ -245,7 +245,7 @@ class PDFGenerator(Generator):
         tabstyle.append(('BOTTOMPADDING', (0,0), (-1,-1), 2))
 
         table = Table(tabdata, style=tabstyle, \
-                      colWidths=self.gen_column_widths(table))
+                      colWidths=self.gen_column_widths(table),  repeatRows=1)
         self.elements.append(table)
 
     def get_row_style(self, table, column):
