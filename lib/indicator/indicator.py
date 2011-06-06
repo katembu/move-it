@@ -33,6 +33,10 @@ class Indicator(object):
     '''
 
     @classmethod
+    def input_is_query_set(cls):
+        return isinstance(cls.type_in, QuerySetType)
+
+    @classmethod
     def output_is_number(cls):
         return issubclass(cls.type_out, numbers.Number)
 
