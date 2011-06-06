@@ -18,6 +18,10 @@ from reportlab.graphics.shapes import Drawing, String, Group
 from reportlab.graphics.shapes import colors
 from reportlab.graphics.charts.linecharts import HorizontalLineChart
 
+from indicator.query_set_type import QuerySetType
+
+from reporters.models import Reporter
+
 from childcount.models import Patient
 from childcount.models import Clinic
 from childcount.utils import get_indicators
@@ -73,7 +77,15 @@ class ReportDefinition(PrintedReport):
 
         ind = self._data_to_ind(data['ind_module'], data['ind_cls'])
         self._ind = ind
-        patients = Patient.objects.all()
+
+        things = None
+        if ind.input_is_query_set:
+            things = ind.type_in.mtype.objects.all()
+        else:
+            raise ValueError(_("Cannot produce indicator chart for "\
+                            "indicators that do not accept a QuerySet "\
+                            "as an argument."))
+
         self.set_progress(0.0)
 
         sub_periods = period.sub_periods()
@@ -81,7 +93,7 @@ class ReportDefinition(PrintedReport):
         table_data = [[Paragraph("Time Period", styleH3),
                         Paragraph(ind.short_name, styleH3)]]
         for i,sp in enumerate(sub_periods):
-            value = ind(sp, patients)
+            value = ind(sp, things)
 
             cat_names.append(sp.title)
             graph_data.append(value)

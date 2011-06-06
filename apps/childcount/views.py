@@ -428,7 +428,8 @@ def indicators(request):
                 'type_in': tin,
                 'type_out': tout,
                 'variant_index': "_"+mems['slug']+"_"+m[1].slug,
-                'output_is_number': m[1].output_is_number()
+                'output_is_number': m[1].output_is_number(),
+                'input_is_query_set': m[1].input_is_query_set(),
             })
 
             i += 1

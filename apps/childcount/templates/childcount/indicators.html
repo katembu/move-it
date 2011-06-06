@@ -85,9 +85,11 @@ table td {
         <td>{{ m.cls.long_name }}</td>
         <td class="graph-link">
             {% if m.output_is_number %}
+            {% if m.input_is_query_set %}
             <a title="{% trans "Graph" %}" href="#" onclick="return false;" class="indicator_chart">
                 <img id="graph_{{ m.variant_index }}" src="/static/reportgen/icons/pdf.png" alt="{% trans "Indicator graph" %}"/>
             </a>
+            {% endif %}
             {% endif %}
         </td>
     </tr>
