@@ -4,6 +4,14 @@ SMS and the Router
 Understanding the Router
 -------------------------
 
+The router is the part of ChildCount+ that handles incoming
+and outgoing messages. 
+(Other parts of ChildCount+ serve Web pages and generate
+analytical reports.)
+If you are deploying ChildCount+ yourself, you will probably
+want to learn how to use the router to respond to special
+SMS keywords or to collect deployment-specific data.
+
 .. _tech__sms__forms_and_commands:
 
 SMS Forms and Commands
@@ -71,4 +79,5 @@ To define this command, you must:
 
 From Forms to the Database
 ---------------------------
+
 
