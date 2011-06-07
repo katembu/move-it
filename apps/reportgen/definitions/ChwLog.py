@@ -57,6 +57,9 @@ class ReportDefinition(PrintedReport):
                                     chw=chw).order_by('encounter_date')
             if encounters:
                 doc.add_element(Section(u"%s : %s" % (chw, chw.location.name)))
+                doc.add_element(Paragraph(u"Period: %s to %s" % \
+                                        (period.start.strftime("%d %B, %Y"), \
+                                        period.end.strftime("%d %B, %Y"))))
                 # children
                 children = encounters\
                         .filter(patient__dob__gt=date(period.end.year - 5, \
