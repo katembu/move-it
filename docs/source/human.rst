@@ -95,7 +95,3 @@ Here are examples of the ChildCount+ forms we use:
 
 
 
-Other Information
------------------
-
-
