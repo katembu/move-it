@@ -32,6 +32,6 @@ class App(rapidsms.app.App):
                 response = whitespace.sub(" ",response)
                 self.debug("responding with %s", response)
                 message.respond(response)
-		return True
-            else:
-                self.warning("'fortune' program returned nothing")
+            return True
+        else:
+            return False
