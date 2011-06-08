@@ -5,8 +5,8 @@ Technology
 .. toctree::
     :maxdepth: 2
 
-    getting_started
-    server
+    intro
+    install
     sms
     indicators
     reports

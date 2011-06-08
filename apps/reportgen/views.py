@@ -9,7 +9,7 @@ from datetime import datetime
 
 from celery.task.control import inspect
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.http import HttpResponseNotFound
@@ -128,11 +128,13 @@ def _process_gen(request):
     
     return HttpResponseRedirect('/reportgen/ondemand/')
 
+@login_required
 def delete(request, pk):
     r = GeneratedReport.objects.get(pk=pk)
     r.delete()
     return HttpResponseRedirect('/reportgen/ondemand/')
 
+@login_required
 def ajax_progress(request):
     reps = GeneratedReport\
         .objects\

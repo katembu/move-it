@@ -21,7 +21,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _, activate
 from django.utils import simplejson
 from django.template import Context, loader
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User, Group
 from django.db.models import F, Q
 
@@ -46,6 +46,7 @@ except:
     languages = ['en',]
 
 @login_required
+@permission_required('childcount.add_encounter')
 def dataentry(request):
     ''' displays Data Entry U.I. '''
 
@@ -145,6 +146,7 @@ class CHWForm(forms.Form):
     mobile = forms.CharField(required=False)
 
 @login_required
+@permission_required('childcount.add_chw')
 def add_chw(request):
 
     if not (request.user.is_staff + request.user.is_superuser):
@@ -222,6 +224,8 @@ def add_chw(request):
 
     return render_to_response(request, 'childcount/add_chw.html', info)
 
+@login_required
+@permission_required('childcount.add_chw')
 def list_chw(request):
 
     CHWS_PER_PAGE = 50
@@ -234,7 +238,7 @@ def list_chw(request):
 
     return render_to_response(request, 'childcount/list_chw.html', info)
 
-
+@login_required
 def patient(request):
     '''Patients page '''
     MAX_PAGE_PER_PAGE = 30
@@ -351,6 +355,7 @@ def pagenator(getpages, reports):
             "pages_outside_trailing_range": pages_outside_trailing_range}
 
 @login_required
+@permission_required('childcount.change_patient')
 def edit_patient(request, healthid):
     if healthid is None:
         # Patient to edit was submitted 
