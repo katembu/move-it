@@ -9,7 +9,7 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
 from django.template import Template, Context, loader
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django import forms
 from django.db import IntegrityError
 from childcount.models import HealthId
@@ -21,6 +21,7 @@ class UploadHealthIDFileForm(forms.Form):
 
 
 @login_required
+@permission_required('childcount.add_healthid')
 def upload_file(request):
     ctx = {}
     if request.method == 'POST':
