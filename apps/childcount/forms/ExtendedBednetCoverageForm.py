@@ -62,20 +62,21 @@ class ExtendedBednetCoverageForm(CCForm):
             raise ValueError(_("| Number of sleeping sites cannot be negative."))
 
         if not self.params[3].isdigit():
-            raise ParseError(_(u"| Number of functioning (recent received)" \
-                                " bednet must be a number."))
-
-        bnr.function_nets = int(self.params[3])
-        if bnr.function_nets < 0:
-            raise ValueError(_("| Number of functioning nets cannot be negative."))
-
-        if not self.params[4].isdigit():
             raise ParseError(_(u"| Number of bednets received earlier " \
                                 "must be a number."))
 
-        bnr.earlier_nets = int(self.params[4])
+        bnr.earlier_nets = int(self.params[3])
         if bnr.earlier_nets < 0:
             raise ValueError(_("| Number of nets given earlier cannot be negative."))
+
+        if not self.params[4].isdigit():
+            raise ParseError(_(u"| Number of available " \
+                                "bednets must be a number."))
+
+        bnr.function_nets = int(self.params[4])
+        if bnr.function_nets < 0:
+            raise ValueError(_("| Number of functioning nets cannot be negative."))
+
 
         if not self.params[5].isdigit():
             raise ParseError(_(u"| Number of damaged bednets received " \
