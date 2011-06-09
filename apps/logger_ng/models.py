@@ -187,7 +187,7 @@ class LoggedMessage(models.Model):
         return {'id': self.id, 'message': self.text, \
                      'status': self.status, \
                      'dateStr': self.date.strftime("%d-%b-%Y @ %H:%M:%S"), \
-                     'name': self.identity, \
+                     'name': self.ident_string(), \
                      'responses': [r.text for r in self.response.all()]}
 
     def to_json(self):

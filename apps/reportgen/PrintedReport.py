@@ -126,26 +126,25 @@ class PrintedReport(Task):
         # ...and all variants
 
         # Save in static/nightly/basename_variant_rptpk.format
-        for rformat in self.formats:
-            print "Running format %s" % rformat
-            if len(self.variants) == 0:
-                print "Finished only variant"
+        if not self.variants:
+            print "Running only variant..."
+            for rformat in self.formats:
                 print "FP: %s" % self.get_filepath(kwargs, None, rformat)
                 self.generate(kwargs['time_period'],
                     rformat,
                     self.title,
                     self.get_filepath(kwargs, None, rformat),
                     {})
-                continue
-            print "midloop"
-
+        else:
             for variant in self.variants:
                 print variant
-                self.generate(kwargs['time_period'],
-                    rformat,
-                    self.title + variant[0],
-                    self.get_filepath(kwargs, variant[1], rformat),
-                    variant[2])
+                for rformat in self.formats:
+                    print rformat
+                    self.generate(kwargs['time_period'],
+                        rformat,
+                        self.title + variant[0],
+                        self.get_filepath(kwargs, variant[1], rformat),
+                        variant[2])
 
     def check_sanity(self):
         if len(self.formats) == 0:
