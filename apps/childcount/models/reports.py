@@ -1242,6 +1242,19 @@ class BedNetReport(CCReport):
 
 reversion.register(BedNetReport, follow=['ccreport_ptr'])
 
+class ExtendedBedNetReport(BedNetReport):
+
+    class Meta:
+        app_label = 'childcount'
+        db_table = 'cc_ebnrpt'
+        verbose_name = _(u"Extended Bednet Report")
+        verbose_name_plural = _(u"Extended Bednet Reports")
+
+    people = models.PositiveSmallIntegerField(_(u"Number of people"), \
+                            help_text=_(u"Number of people who are " \
+                                        "sleeping in the household"))
+
+reversion.register(ExtendedBedNetReport, follow=['ccreport_ptr'])
 
 class BednetUtilization(CCReport):
 

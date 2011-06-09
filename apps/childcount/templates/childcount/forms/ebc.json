@@ -1,0 +1,12 @@
+{% load i18n %}{
+'id': 'EBC', 
+'fields': [
+        {'id': 'healthid', 'type': 'f', 'name': "{% trans "ID" %}", 'title': "{% trans "Head of Household HEALTH ID" %}"},
+        {'id': 'extended_bed_net', 'type': 's', 'name': "{% trans "EBC" %}", 'title': "{% trans "Extended Bednet Form" %}"},
+        {'id': 'people', 'type': 'f', 'name': "{% trans "Ppl" %}", 'title': "{% trans "Number of people in the household" %}"},
+        {'id': 'sleeping_sites', 'type': 'f', 'name': "{% trans "Sites" %}", 'title': "{% trans "Number of sleeping sites" %}"},
+        {'id': 'earlier', 'type': 'f', 'name': "{% trans "Given" %}", 'title': "{% trans "Number of bednets given earlier to this household" %}"},
+        {'id': 'available_nets', 'type': 'f', 'name': "{% trans "Avail" %}", 'title': "{% trans "Number of available bednets" %}"},
+        {'id': 'damaged_nets', 'type': 'f', 'name': "{% trans "Dmgd" %}", 'title': "{% trans "Number of bednets damaged" %}"},
+    ]
+}
