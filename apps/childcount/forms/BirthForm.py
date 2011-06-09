@@ -31,7 +31,7 @@ class BirthForm(CCForm):
     MIN_BIRTH_WEIGHT = 1
     MAX_BIRTH_WEIGHT = 6
     MIN_GUARDIAN_AGE = 10
-    UNKNOWN_MOTHER = {'en': 'U'}
+    UNKNOWN_MOTHER = {'en': 'U', 'fr': 'I', 'default': 'U'}
 
     def process(self, patient):
 
@@ -79,8 +79,15 @@ class BirthForm(CCForm):
 
         # Mother field
         mother = self.params[1]
-
-        if mother == self.UNKNOWN_MOTHER[lang].lower():
+        is_unknown_mother = False
+        if lang not in self.UNKNOWN_MOTHER:
+            print "Using default value, Need to define value for lang", lang
+            is_unknown_mother = (mother.lower() == \
+                                    self.UNKNOWN_MOTHER['default'].lower())
+        else:
+            is_unknown_mother = (mother.lower() == \
+                                        self.UNKNOWN_MOTHER[lang].lower())
+        if is_unknown_mother:
             patient.mother = None
         else:
             try:
