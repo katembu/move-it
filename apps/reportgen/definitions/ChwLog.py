@@ -40,7 +40,8 @@ class ReportDefinition(PrintedReport):
         if 'loc_pk' not in data:
             raise ValueError('You must pass a Location PK as data')
         elif data['loc_pk'] == 0:
-            chws = CHW.objects.all().order_by('id', 'first_name', 'last_name')
+            chws = CHW.objects.all().order_by('location', 'id', \
+                                                'first_name', 'last_name')
         else:
             loc_pk = data['loc_pk']
             chws = CHW.objects.filter(location__pk=loc_pk)\
@@ -52,9 +53,9 @@ class ReportDefinition(PrintedReport):
         self.set_progress(0)
         for chw in chws:
             encounters = Encounter.objects\
-                                    .filter(encounter_date__gte=period.start, \
-                                    encounter_date__lte=period.end, \
-                                    chw=chw).order_by('encounter_date')
+                                .filter(encounter_date__gte=period.start, \
+                                encounter_date__lte=period.end, \
+                                patient__chw=chw).order_by('encounter_date')
             if encounters:
                 doc.add_element(Section(u"%s : %s" % (chw, chw.location.name)))
                 doc.add_element(Paragraph(u"Period: %s to %s" % \
