@@ -1,0 +1,1006 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-06-14 17:31+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: PrintedReport.py:66
+msgid "Generate function not implemented."
+msgstr ""
+
+#: PrintedReport.py:90
+msgid "No nightly value passed in"
+msgstr ""
+
+#: PrintedReport.py:96
+#, python-format
+msgid "Could not find DB record for a report with classname %s"
+msgstr ""
+
+#: PrintedReport.py:100
+msgid "No time period value passed in"
+msgstr ""
+
+#: PrintedReport.py:172
+msgid "This report has no formats specified."
+msgstr ""
+
+#: PrintedReport.py:177
+msgid "Report title or filename is unset."
+msgstr ""
+
+#: utils.py:33
+#, python-format
+msgid "Invalid report format (%s)"
+msgstr ""
+
+#: views.py:33 views.py:47 models/NightlyReport.py:30
+msgid "Nightly Reports"
+msgstr ""
+
+#: views.py:35 views.py:55
+msgid "On-Demand Reports"
+msgstr ""
+
+#: views.py:89
+msgid "Variant not found"
+msgstr ""
+
+#: definitions/ChwList.py:29
+msgid "CHW List"
+msgstr ""
+
+#: definitions/ChwList.py:66
+msgid "ID"
+msgstr ""
+
+#: definitions/ChwList.py:67 definitions/ChwLog.py:104
+#: definitions/ChwLog.py:151 definitions/ChwLog.py:292
+#: definitions/PatientList.py:49
+msgid "Name"
+msgstr ""
+
+#: definitions/ChwList.py:68
+msgid "Location"
+msgstr ""
+
+#: definitions/ChwList.py:69
+msgid "Username"
+msgstr ""
+
+#: definitions/ChwList.py:70
+msgid "Lang"
+msgstr ""
+
+#: definitions/ChwLog.py:33
+msgid "CHW Log "
+msgstr ""
+
+#: definitions/ChwLog.py:69
+msgid "CHILDREN"
+msgstr ""
+
+#: definitions/ChwLog.py:79
+msgid "PREGNANT WOMEN"
+msgstr ""
+
+#: definitions/ChwLog.py:87
+msgid "HOUSEHOLD"
+msgstr ""
+
+#: definitions/ChwLog.py:103 definitions/ChwLog.py:150
+#: definitions/ChwLog.py:291 definitions/ChwLog.py:355
+msgid "Date"
+msgstr ""
+
+#: definitions/ChwLog.py:105 definitions/PatientList.py:44
+msgid "HID"
+msgstr ""
+
+#: definitions/ChwLog.py:106 models/Report.py:25
+msgid "Reports"
+msgstr ""
+
+#: definitions/ChwLog.py:107
+msgid "Comments"
+msgstr ""
+
+#: definitions/ChwLog.py:152 definitions/ChwLog.py:293
+msgid "Gender"
+msgstr ""
+
+#: definitions/ChwLog.py:153 definitions/ChwLog.py:294
+#: definitions/PatientList.py:54
+msgid "Age"
+msgstr ""
+
+#: definitions/ChwLog.py:154
+msgid "Mother"
+msgstr ""
+
+#: definitions/ChwLog.py:155 definitions/ChwLog.py:295
+msgid "Next Apt"
+msgstr ""
+
+#: definitions/ChwLog.py:156
+msgid "RDT+"
+msgstr ""
+
+#: definitions/ChwLog.py:157
+msgid "MUAC (+/-)"
+msgstr ""
+
+#: definitions/ChwLog.py:158
+msgid "Immunized"
+msgstr ""
+
+#: definitions/ChwLog.py:159 definitions/ChwLog.py:298
+msgid "Danger Signs"
+msgstr ""
+
+#: definitions/ChwLog.py:160 definitions/ChwLog.py:299
+#: definitions/ChwLog.py:360
+msgid "PID"
+msgstr ""
+
+#: definitions/ChwLog.py:161 definitions/ChwLog.py:300
+#: definitions/ChwLog.py:361
+msgid "Forms"
+msgstr ""
+
+#: definitions/ChwLog.py:296 timeperiods/definitions/Month.py:13
+msgid "Month"
+msgstr ""
+
+#: definitions/ChwLog.py:297
+msgid "# ANC Visits"
+msgstr ""
+
+#: definitions/ChwLog.py:356
+msgid "Household"
+msgstr ""
+
+#: definitions/ChwLog.py:357
+msgid "Available"
+msgstr ""
+
+#: definitions/ChwLog.py:358
+msgid "# Children"
+msgstr ""
+
+#: definitions/ChwLog.py:359
+msgid "Counseling"
+msgstr ""
+
+#: definitions/ChwManagerReport.py:23
+msgid "CHW Manager Report"
+msgstr ""
+
+#: definitions/ChwManagerReport.py:102 models/GeneratedReport.py:63
+#: models/NightlyReport.py:34 models/Report.py:24 templates/nightly.html:23
+msgid "Report"
+msgstr ""
+
+#: definitions/ChwManagerReport.py:247
+msgid "CHW Name"
+msgstr ""
+
+#: definitions/ChwManagerReport.py:248
+msgid "Clinic"
+msgstr ""
+
+#: definitions/ChwManagerReport.py:261
+msgid "Millennium Village"
+msgstr ""
+
+#: definitions/ChwReport.py:29
+msgid "CHW Report"
+msgstr ""
+
+#: definitions/ChwReport.py:61
+#, python-format
+msgid "For: %s"
+msgstr ""
+
+#: definitions/ChwReport.py:74
+msgid "Indicators"
+msgstr ""
+
+#: definitions/ChwReport.py:76
+msgid "Indicator"
+msgstr ""
+
+#: definitions/ChwReport.py:78
+msgid "Tot/Avg"
+msgstr ""
+
+#: definitions/ChwReport.py:110
+msgid ""
+"Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
+msgstr ""
+
+#: definitions/ChwReport.py:115 definitions/ChwReport.py:160
+#: definitions/ChwReport.py:193 definitions/ChwReport.py:224
+#: definitions/Malnutrition.py:96 definitions/Malnutrition.py:141
+msgid "Loc Code"
+msgstr ""
+
+#: definitions/ChwReport.py:116 definitions/ChwReport.py:161
+#: definitions/ChwReport.py:194 definitions/ChwReport.py:225
+#: definitions/Malnutrition.py:97 definitions/Malnutrition.py:142
+msgid "Health ID"
+msgstr ""
+
+#: definitions/ChwReport.py:117 definitions/ChwReport.py:162
+#: definitions/ChwReport.py:195 definitions/ChwReport.py:226
+#: definitions/Malnutrition.py:98 definitions/Malnutrition.py:143
+msgid "Name / Age"
+msgstr ""
+
+#: definitions/ChwReport.py:118 definitions/ChwReport.py:164
+#: definitions/ChwReport.py:198 definitions/ChwReport.py:230
+#: definitions/Malnutrition.py:102 definitions/Malnutrition.py:145
+msgid "Household Head"
+msgstr ""
+
+#: definitions/ChwReport.py:119
+msgid "Referral Type / Date"
+msgstr ""
+
+#: definitions/ChwReport.py:120
+msgid "Referred For"
+msgstr ""
+
+#: definitions/ChwReport.py:121
+msgid "Follow-Up Date"
+msgstr ""
+
+#: definitions/ChwReport.py:138
+msgid " on "
+msgstr ""
+
+#: definitions/ChwReport.py:144
+msgid "[No DSs Reported]"
+msgstr ""
+
+#: definitions/ChwReport.py:145
+msgid "Late: "
+msgstr ""
+
+#: definitions/ChwReport.py:149
+msgid "[No Follow-Up]"
+msgstr ""
+
+#: definitions/ChwReport.py:156
+msgid "Children Under 5 Without Known Up-to-date Immunizations"
+msgstr ""
+
+#: definitions/ChwReport.py:163
+msgid "Latest Imm. Report"
+msgstr ""
+
+#: definitions/ChwReport.py:171
+msgid "[No Report]"
+msgstr ""
+
+#: definitions/ChwReport.py:175
+#, python-format
+msgid "Reported \"%(status)s\" on %(date)s"
+msgstr ""
+
+#: definitions/ChwReport.py:190
+msgid "Women in 2nd and 3rd Trimester who haven't had ANC in 5 Weeks"
+msgstr ""
+
+#: definitions/ChwReport.py:196
+msgid "Last ANC"
+msgstr ""
+
+#: definitions/ChwReport.py:197
+msgid "Approx Due Date"
+msgstr ""
+
+#: definitions/ChwReport.py:220
+msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
+msgstr ""
+
+#: definitions/ChwReport.py:227 definitions/Malnutrition.py:99
+msgid "Last MUAC"
+msgstr ""
+
+#: definitions/ChwReport.py:228 definitions/Malnutrition.py:100
+msgid "MUAC Status"
+msgstr ""
+
+#: definitions/ChwReport.py:229 definitions/Malnutrition.py:101
+msgid "Od."
+msgstr ""
+
+#: definitions/ChwReport.py:241
+msgid "[No MUAC]"
+msgstr ""
+
+#: definitions/ChwReport.py:242
+msgid "U"
+msgstr ""
+
+#: definitions/ChwReport.py:245
+#, python-format
+msgid "%(status)s [%(muac)d]"
+msgstr ""
+
+#: definitions/IndicatorChart.py:42
+msgid "Indicator Chart"
+msgstr ""
+
+#: definitions/IndicatorChart.py:63
+msgid "Indicator not found!"
+msgstr ""
+
+#: definitions/IndicatorChart.py:68
+msgid "Can only generate PDF for indicator chart"
+msgstr ""
+
+#: definitions/IndicatorChart.py:71 definitions/PerformanceCharts.py:57
+msgid "Generated on: "
+msgstr ""
+
+#: definitions/IndicatorChart.py:73 definitions/PerformanceCharts.py:59
+#, python-format
+msgid "For period %s."
+msgstr ""
+
+#: definitions/IndicatorChart.py:85
+msgid ""
+"Cannot produce indicator chart for indicators that do not accept a QuerySet "
+"as an argument."
+msgstr ""
+
+#: definitions/IndicatorChart.py:106
+msgid " over time"
+msgstr ""
+
+#: definitions/Malnutrition.py:22
+msgid "Malnutrition Report"
+msgstr ""
+
+#: definitions/Malnutrition.py:92
+#, python-format
+msgid "Children U5 Flagged as Malnourished as of %s"
+msgstr ""
+
+#: definitions/Malnutrition.py:103 definitions/Malnutrition.py:146
+msgid "CHW"
+msgstr ""
+
+#: definitions/Malnutrition.py:117
+msgid "Unknown"
+msgstr ""
+
+#: definitions/Malnutrition.py:122
+msgid " -- No MUAC"
+msgstr ""
+
+#: definitions/Malnutrition.py:137
+#, python-format
+msgid "Children U5 without MUAC in 90 Days Ending %s"
+msgstr ""
+
+#: definitions/Malnutrition.py:144
+msgid "Latest MUAC"
+msgstr ""
+
+#: definitions/MvisIndicators.py:31
+msgid "MVIS Indicators"
+msgstr ""
+
+#: definitions/MvisIndicators.py:36
+msgid "Vital Events"
+msgstr ""
+
+#: definitions/MvisIndicators.py:44
+msgid "Reproductive and maternal health"
+msgstr ""
+
+#: definitions/MvisIndicators.py:54
+msgid "Child nutrition"
+msgstr ""
+
+#: definitions/MvisIndicators.py:63
+msgid "Child health - immunization/diarrhea/malaria (infants and under-5's)"
+msgstr ""
+
+#: definitions/MvisIndicators.py:79
+msgid "Malaria (Over 5's)"
+msgstr ""
+
+#: definitions/MvisIndicators.py:85
+msgid "CHW performance"
+msgstr ""
+
+#: definitions/MvisIndicators.py:95
+msgid "Bednet coverage and utilization"
+msgstr ""
+
+#: definitions/MvisIndicators.py:115
+#, python-format
+msgid "MVIS Indicators: %s"
+msgstr ""
+
+#: definitions/MvisIndicators.py:117
+msgid "Category"
+msgstr ""
+
+#: definitions/Operational.py:99
+#, python-format
+msgid "%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)"
+msgstr ""
+
+#: definitions/PatientList.py:39
+msgid "LOC"
+msgstr ""
+
+#: definitions/PatientList.py:52
+msgid "Gen."
+msgstr ""
+
+#: definitions/PatientList.py:93
+#, python-format
+msgid "No report for %s."
+msgstr ""
+
+#: definitions/PatientList.py:130
+#, python-format
+msgid "CHW: %(loc)s: %(chw)s"
+msgstr ""
+
+#: definitions/PerformanceCharts.py:40
+msgid "Performance Charts"
+msgstr ""
+
+#: definitions/PerformanceCharts.py:54
+msgid "Can only generate PDF for performance charts"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:15
+msgid "You successfuly registered "
+msgstr ""
+
+#: definitions/StatsDataEntry.py:16
+msgid ".*\\+V.*Successfully processed\\: \\[.*"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:17
+msgid "Successfully processed: ["
+msgstr ""
+
+#: definitions/StatsDataEntry.py:29
+msgid "Data Entry Statistics"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:34
+msgid "Form A (Registration)"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:35
+msgid "Form B (HH Visit)"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:36
+msgid "Form C (Consultation)"
+msgstr ""
+
+#: definitions/StatsDataEntry.py:45
+msgid "For: "
+msgstr ""
+
+#: definitions/StatsOmrs.py:13
+msgid "OpenMRS Sync Data"
+msgstr ""
+
+#: definitions/Utilization.py:106
+msgid "Indicator:"
+msgstr ""
+
+#: definitions/Utilization.py:112
+msgid "Total"
+msgstr ""
+
+#: definitions/Utilization.py:113
+msgid "Average"
+msgstr ""
+
+#: definitions/Utilization.py:114
+msgid "Median"
+msgstr ""
+
+#: definitions/Utilization.py:136
+msgid "Total Clients Reg."
+msgstr ""
+
+#: definitions/Utilization.py:160
+msgid "+NEW (Patient)"
+msgstr ""
+
+#: definitions/Utilization.py:163
+msgid "+BIR (Birth)"
+msgstr ""
+
+#: definitions/Utilization.py:166
+msgid "+DDA (Death)"
+msgstr ""
+
+#: definitions/Utilization.py:169
+msgid "+DDB (Dead Person)"
+msgstr ""
+
+#: definitions/Utilization.py:172
+msgid "+SBM (Still Birth misc)"
+msgstr ""
+
+#: definitions/Utilization.py:175
+msgid "+V (Household Visit)"
+msgstr ""
+
+#: definitions/Utilization.py:178
+msgid "+E (Sick Members)"
+msgstr ""
+
+#: definitions/Utilization.py:182
+msgid "+L (BC Pill)"
+msgstr ""
+
+#: definitions/Utilization.py:185
+msgid "+K (Family Planning)"
+msgstr ""
+
+#: definitions/Utilization.py:188
+msgid "+U (Follow Up)"
+msgstr ""
+
+#: definitions/Utilization.py:191
+msgid "+S (Danger Signs)"
+msgstr ""
+
+#: definitions/Utilization.py:194
+msgid "+P (Pregnancy)"
+msgstr ""
+
+#: definitions/Utilization.py:197
+msgid "+N (Neonatal)"
+msgstr ""
+
+#: definitions/Utilization.py:200
+msgid "+T (Under One)"
+msgstr ""
+
+#: definitions/Utilization.py:204
+msgid "+M (Nutrition)"
+msgstr ""
+
+#: definitions/Utilization.py:207
+msgid "+F (Fever)"
+msgstr ""
+
+#: definitions/Utilization.py:210
+msgid "+G (Medicine Given)"
+msgstr ""
+
+#: definitions/Utilization.py:213
+msgid "+R (Referral)"
+msgstr ""
+
+#: definitions/Utilization.py:216
+msgid "+PD (Pregnancy Reg)"
+msgstr ""
+
+#: definitions/Utilization.py:219
+msgid "+PF (Antenatal Visit)"
+msgstr ""
+
+#: definitions/Utilization.py:222
+msgid "+HT (HIV Test)"
+msgstr ""
+
+#: definitions/Utilization.py:226
+msgid "+AP (Appointment)"
+msgstr ""
+
+#: definitions/Utilization.py:229
+msgid "+CD (CD4 Result)"
+msgstr ""
+
+#: definitions/Utilization.py:232
+msgid "+DB (DBS Result)"
+msgstr ""
+
+#: definitions/Utilization.py:387
+msgid "Adult Men Reg."
+msgstr ""
+
+#: definitions/Utilization.py:389
+msgid "Adult Women Reg."
+msgstr ""
+
+#: definitions/Utilization.py:419
+msgid "Under 5 Registered."
+msgstr ""
+
+#: definitions/Utilization.py:449
+msgid "SMS error rate."
+msgstr ""
+
+#: definitions/Utilization.py:486
+#, python-format
+msgid "% of days with SMS / month."
+msgstr ""
+
+#: models/GeneratedReport.py:37 models/GeneratedReport.py:45
+msgid "Pending"
+msgstr ""
+
+#: models/GeneratedReport.py:38 models/GeneratedReport.py:46
+msgid "Started"
+msgstr ""
+
+#: models/GeneratedReport.py:39 models/GeneratedReport.py:47
+msgid "Retrying"
+msgstr ""
+
+#: models/GeneratedReport.py:40 models/GeneratedReport.py:48
+msgid "Failed"
+msgstr ""
+
+#: models/GeneratedReport.py:41 models/GeneratedReport.py:49
+msgid "Succeeded"
+msgstr ""
+
+#: models/GeneratedReport.py:56
+msgid "Generated Report"
+msgstr ""
+
+#: models/GeneratedReport.py:57
+msgid "Generated Reports"
+msgstr ""
+
+#: models/GeneratedReport.py:65
+msgid "Reference to the report to be generated"
+msgstr ""
+
+#: models/GeneratedReport.py:67
+msgid "Filename"
+msgstr ""
+
+#: models/GeneratedReport.py:69
+msgid "Location of generated report file"
+msgstr ""
+
+#: models/GeneratedReport.py:70 models/Report.py:28
+msgid "Title"
+msgstr ""
+
+#: models/GeneratedReport.py:72
+msgid "Full title of report"
+msgstr ""
+
+#: models/GeneratedReport.py:73
+msgid "File format"
+msgstr ""
+
+#: models/GeneratedReport.py:75
+msgid "File format of report (e.g., PDF)"
+msgstr ""
+
+#: models/GeneratedReport.py:76
+msgid "Period title"
+msgstr ""
+
+#: models/GeneratedReport.py:78
+msgid "Description of the time period for the report (e.g., \"January 2011\")"
+msgstr ""
+
+#: models/GeneratedReport.py:80
+msgid "Variant title"
+msgstr ""
+
+#: models/GeneratedReport.py:82
+msgid "Description of the variant for the report (e.g., \"Ntungu Clinic\")"
+msgstr ""
+
+#: models/GeneratedReport.py:84
+msgid "Progress"
+msgstr ""
+
+#: models/GeneratedReport.py:86
+msgid "Task state"
+msgstr ""
+
+#: models/GeneratedReport.py:88
+msgid "Task ID"
+msgstr ""
+
+#: models/GeneratedReport.py:90
+msgid ""
+"The task identifier used internally by RabbitMQ and celeryd to identify the "
+"task used to generate this report."
+msgstr ""
+
+#: models/GeneratedReport.py:93
+msgid "Started at"
+msgstr ""
+
+#: models/GeneratedReport.py:94
+msgid "Finished at"
+msgstr ""
+
+#: models/GeneratedReport.py:95
+msgid "Error message"
+msgstr ""
+
+#: models/GeneratedReport.py:99
+#, python-format
+msgid "<Generated: %(title)s, (%(fname)s), ID: %(pk)d>"
+msgstr ""
+
+#: models/NightlyReport.py:29
+msgid "Nightly Report"
+msgstr ""
+
+#: models/NightlyReport.py:36
+msgid "Reference to the report to be generated overnight"
+msgstr ""
+
+#: models/NightlyReport.py:38
+msgid "Time period"
+msgstr ""
+
+#: models/NightlyReport.py:41
+msgid "The time period type to use"
+msgstr ""
+
+#: models/NightlyReport.py:42 models/Report.py:32
+msgid "Class name"
+msgstr ""
+
+#: models/NightlyReport.py:45
+msgid "Index of period with which to generate this report"
+msgstr ""
+
+#: models/NightlyReport.py:57
+msgid "Time period code does not match any PeriodType object."
+msgstr ""
+
+#: models/NightlyReport.py:111
+#, python-format
+msgid ""
+"PeriodType \"%(pt)s\" only has %(n)d periods. You told me to generate a "
+"report for period %(m)d."
+msgstr ""
+
+#: models/Report.py:30
+msgid "Human-readable title for report"
+msgstr ""
+
+#: models/Report.py:34
+msgid "Name of module in which the report is defined."
+msgstr ""
+
+#: models/Report.py:76
+#, python-format
+msgid "Could not import report definition named \"%s\"."
+msgstr ""
+
+#: templates/nightly.html:15
+msgid "Variant"
+msgstr ""
+
+#: templates/nightly.html:16
+msgid "HTML"
+msgstr ""
+
+#: templates/nightly.html:17
+msgid "PDF"
+msgstr ""
+
+#: templates/nightly.html:18
+msgid "Excel"
+msgstr ""
+
+#: templates/nightly.html:19
+msgid "Other"
+msgstr ""
+
+#: templates/nightly.html:33 templates/nightly.html.py:52
+#: templates/nightly.html:72
+msgid "Report is"
+msgstr ""
+
+#: templates/nightly.html:33 templates/nightly.html.py:52
+#: templates/nightly.html:72
+msgid "days(s) old"
+msgstr ""
+
+#: templates/nightly.html:36 templates/nightly.html.py:55
+#: templates/nightly.html:75
+msgid "Not generated"
+msgstr ""
+
+#: templates/nightly.html:37 templates/nightly.html.py:56
+#: templates/nightly.html:76
+msgid "(Not generated)"
+msgstr ""
+
+#: timeperiods/__init__.py:28
+#, python-format
+msgid "No period type with code %s"
+msgstr ""
+
+#: timeperiods/definitions/FiveYears.py:13
+msgid "5 Years"
+msgstr ""
+
+#: timeperiods/definitions/FiveYears.py:14
+msgid "Five calendar years"
+msgstr ""
+
+#: timeperiods/definitions/FiveYears.py:40
+#, python-format
+msgid "Years %(start)s - %(end)s"
+msgstr ""
+
+#: timeperiods/definitions/FiveYears.py:44
+#, python-format
+msgid "Five years starting %(start)d years ago"
+msgstr ""
+
+#: timeperiods/definitions/FourWeeks.py:13
+msgid "Four weeks"
+msgstr ""
+
+#: timeperiods/definitions/FourWeeks.py:14
+msgid "Set of four seven-day weeks starting on a Monday X weeks ago"
+msgstr ""
+
+#: timeperiods/definitions/FourWeeks.py:32
+#, python-format
+msgid "Week of %(start)s"
+msgstr ""
+
+#: timeperiods/definitions/FourWeeks.py:50
+#, python-format
+msgid "Weeks %(start)s to %(end)s"
+msgstr ""
+
+#: timeperiods/definitions/FourWeeks.py:53
+#, python-format
+msgid "Monday %(n)d week(s) ago"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:14
+msgid "One calendar month X months ago"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:49
+#: timeperiods/definitions/MonthByDays.py:42
+#, python-format
+msgid "%(start)s"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:52
+#: timeperiods/definitions/MonthByDays.py:45
+msgid "This month"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:54
+#: timeperiods/definitions/MonthByDays.py:47
+msgid "Last month"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:56
+#: timeperiods/definitions/MonthByDays.py:49
+#, python-format
+msgid "%(start)s months ago"
+msgstr ""
+
+#: timeperiods/definitions/Month.py:69
+#: timeperiods/definitions/SevenYearsByQuarter.py:42
+#: timeperiods/definitions/ThreeYearsByQuarter.py:42
+#, python-format
+msgid "%(start)s to %(end)s"
+msgstr ""
+
+#: timeperiods/definitions/MonthByDays.py:13
+msgid "Month (Daily)"
+msgstr ""
+
+#: timeperiods/definitions/MonthByDays.py:14
+msgid "One calendar month X months ago (by day)"
+msgstr ""
+
+#: timeperiods/definitions/SevenYearsByQuarter.py:13
+msgid "7 Years (by Quarter)"
+msgstr ""
+
+#: timeperiods/definitions/SevenYearsByQuarter.py:14
+msgid "Seven Years starting X years ago"
+msgstr ""
+
+#: timeperiods/definitions/SevenYearsByQuarter.py:46
+#, python-format
+msgid "7 years starting %(start)d years ago"
+msgstr ""
+
+#: timeperiods/definitions/ThreeYearsByQuarter.py:13
+msgid "3 Years (by Quarter)"
+msgstr ""
+
+#: timeperiods/definitions/ThreeYearsByQuarter.py:14
+msgid "Three years starting X years ago"
+msgstr ""
+
+#: timeperiods/definitions/ThreeYearsByQuarter.py:46
+#, python-format
+msgid "3 years starting %(start)d years ago"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonths.py:13
+msgid "12 Months (by Month)"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonths.py:14
+msgid "Twelve calendar months starting X months ago"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonths.py:43
+#, python-format
+msgid "%(start)s to %(end)s (Monthly)"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonths.py:47
+#: timeperiods/definitions/TwelveMonthsByQuarter.py:47
+#, python-format
+msgid "12 months starting %(start)d months ago"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonthsByQuarter.py:13
+msgid "12 Months (by Quarter)"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonthsByQuarter.py:14
+msgid "Four quarters starting X months ago"
+msgstr ""
+
+#: timeperiods/definitions/TwelveMonthsByQuarter.py:43
+#, python-format
+msgid "%(start)s to %(end)s (Quarterly)"
+msgstr ""
+
+#: timeperiods/definitions/TwoMonths.py:13
+msgid "2 Months"
+msgstr ""
+
+#: timeperiods/definitions/TwoMonths.py:14
+msgid "Two consecutive calendar months"
+msgstr ""
+
+#: timeperiods/definitions/TwoMonths.py:40
+#, python-format
+msgid "%(start)s and %(end)s"
+msgstr ""
+
+#: timeperiods/definitions/TwoMonths.py:44
+#, python-format
+msgid "2 months starting %(start)d months ago"
+msgstr ""
