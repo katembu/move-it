@@ -34,10 +34,10 @@ HeaderStyle = styles["Heading1"]
 def pheader(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
     '''Creates a reportlab PDF element and adds it to the global Elements list
 
-    style - can be a HeaderStyle, a ParaStyle or a custom style,
-     default HeaderStyle
-    klass - the reportlab Class to be called, default Paragraph
-    sep    - space separator height
+    :param style: can be a HeaderStyle, a ParaStyle or a custom style
+                  (default HeaderStyle)
+    :param klass: the reportlab Class to be called, default Paragraph
+    :param sep: space separator height
     '''
     elements = []
     s = Spacer(0.2 * inch, sep * inch)
@@ -46,20 +46,20 @@ def pheader(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
     elements.append(para)
     return elements
 
-#Paragraph Style
 ParaStyle = styles["Normal"]
+"""Paragraph Style"""
 
 
 def p(txt):
     '''Create a text Paragraph using  ParaStyle'''
     return pheader(txt, style=ParaStyle, sep=0.0)
 
-#Preformatted Style
 PreStyle = styles["Code"]
+"""Preformatted Style"""
 
 
 def pre(txt):
-    '''Create a text Preformatted Paragraph using  PreStyle'''
+    '''Create a text Preformatted Paragraph using PreStyle'''
     elements = []
     s = Spacer(0.1 * inch, 0.1 * inch)
     elements.append(s)
@@ -74,14 +74,16 @@ class PDFReport():
 
     PDFReport Is a class that create table format reports
     The Title is placed on its own page for the first page
-    usage:
-            pdfrpt = PDFRrepot()
-            pdfrpt.setLandscape(False)
-            pdfrpt.setTitle("Title")
-            pdfrpt.setTableData(queryset, fields, "Table Title")
-            pdfrpt.setFilename("filename")
-            pdfrpt.setNumOfColumns(2) # for two column setup
-            pdfrpt.render()
+    usage::
+
+        pdfrpt = PDFRrepot()
+        pdfrpt.setLandscape(False)
+        pdfrpt.setTitle("Title")
+        pdfrpt.setTableData(queryset, fields, "Table Title")
+        pdfrpt.setFilename("filename")
+        pdfrpt.setNumOfColumns(2) # for two column setup
+        pdfrpt.render()
+
     '''
     title = u"Report"
     pageinfo = ""
@@ -104,23 +106,22 @@ class PDFReport():
         self.headers.append("")
 
     def setPrintOnBothSides(self, state):
-        ''' enable or disable landscape display
-
-            @var state: True or False
-        '''
+        """
+        :param state: True or False
+        """
         self.print_on_both_sides = state
 
     def setLandscape(self, state):
         ''' enable or disable landscape display
 
-            @var state: True or False
+        :param state: True or False
         '''
         self.landscape = state
 
     def setRowsPerPage(self, num):
         ''' Sets the number of rows per page for Table data
 
-            @var num: int
+        :type num: int
         '''
         self.rowsperpage = int(num)
 
@@ -128,12 +129,14 @@ class PDFReport():
         '''     enable formatter for the last row of the table
         e.g for summaries have bold border lines
 
-        @var state: True or False
+        :type state: True or False
         '''
         self.hasfooter = state
 
     def setTitle(self, title):
-        ''' @var title: The Report Title '''
+        ''' 
+        :param title: The Report Title 
+        '''
         if title:
             self.title = title
 
@@ -142,17 +145,23 @@ class PDFReport():
             self.pageinfo = pageinfo
 
     def setFilename(self, filename):
-        ''' @var filename: filename for the generated pdf document '''
+        ''' 
+        :param filename: filename for the generated pdf document 
+        '''
         if filename:
             self.filename = filename
 
     def setFontSize(self, size):
-        ''' @var size: font-size '''
+        ''' 
+        :param size: font-size 
+        '''
         if size:
             self.fontSize = size
 
     def setNumOfColumns(self, cols):
-        ''' @var cols: number of columns '''
+        ''' 
+        :param cols: number of columns 
+        '''
         if cols:
             self.cols = cols
 
@@ -215,9 +224,9 @@ class PDFReport():
                                                             hasCounter=False):
         '''set table data
 
-        @var queryset: data
-        @var fields: table column headings
-        @var title: Table Heading
+        :param queryset: data
+        :param fields: table column headings
+        :param title: Table Heading
         '''
         data = []
         header = False

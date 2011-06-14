@@ -153,7 +153,7 @@ class AncFourByMonthEight(Indicator):
     short_name  = _(">8m >=4 ANC")
     long_name   = _("Number of women more than eight months "\
                     "pregnant at the end of this period who "\
-                    "have had at least eight ANC visits")
+                    "have had at least four ANC visits")
 
     @classmethod
     def _value(cls, period, data_in):

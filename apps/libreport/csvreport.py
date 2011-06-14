@@ -6,18 +6,20 @@ from datetime import datetime
 from django.template import Template, Context
 from django.http import HttpResponse
 
-''' CSVReport Is a class that create raw CSV reports
-
-            csvrpt = PDFRreport()
-            csvrpt.setLandscape(False)
-            csvrpt.setTitle("Title")
-            csvrpt.setTableData(queryset, fields, "Table Title")
-            csvrpt.setFilename("filename")
-            csvrpt.render()
-'''
 
 
 class CSVReport():
+    '''
+    CSVReport Is a class that creates raw CSV reports::
+
+        csvrpt = PDFRreport()
+        csvrpt.setLandscape(False)
+        csvrpt.setTitle("Title")
+        csvrpt.setTableData(queryset, fields, "Table Title")
+        csvrpt.setFilename("filename")
+        csvrpt.render()
+
+    '''
     title = "Report"
     filename = "report"
 
@@ -54,21 +56,26 @@ class CSVReport():
     def setNumOfColumns(self, cols):
         pass
 
-    # @var filename: filename for the generated pdf document
     def setFilename(self, filename):
+        """
+        :param filename: filename for the generated pdf document
+        """
         if filename:
             self.filename = filename
 
-    # force a page break
     def setPageBreak(self):
+        """force a page break
+        """
         self.data.append("")
 
-    # set table data
-    # @var queryset: data
-    # @var fields: table column headings
-    # @var title: Table Heading
 
     def setTableData(self, queryset, fields, title):
+        """set table data
+
+        :param queryset: data
+        :param fields: table column headings
+        :param title: Table Heading
+        """
         header = False
 
         for row in queryset:

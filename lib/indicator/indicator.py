@@ -7,6 +7,7 @@ from percentage import Percentage
 from cache import cache_indicator
 from query_set_type import QuerySetType
 
+from django.db import connection
 from django.db.models.query import QuerySet
 from django.utils.translation import ugettext as _
 
@@ -76,7 +77,9 @@ class Indicator(object):
 
     def __new__(cls, period, data_in):
         cls._check_type(cls.type_in, data_in, _("input"))
+        print connection.queries
         data_out = cache_indicator(cls, cls._value, period, data_in)
+        connection.queries = []
         cls._check_type(cls.type_out, data_out, _("output"))
         return data_out 
 

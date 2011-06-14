@@ -16,40 +16,52 @@ from django.http import HttpResponseRedirect, HttpResponseNotFound
 
 from reportgen.models import Report, GeneratedReport, NightlyReport
 
-# CREATING A NEW REPORT:
-# 1) Subclass PrintedReport to create a new nightly
-#    or on-demand report
-# 2) Put your report file in reports/nightly or
-#    reports/ondemand as desired
-# 3) Add the name of your report as a Configuration
-#    in the DB
-
 class PrintedReport(Task):
-    # Human-readable title of report
+    """
+    The class defining a PrintedReport.
+
+    Whenever you make a new printed report you will
+    have to define a new class that inherits from 
+    this report.
+    """
+
+
     title = None
-    # Filename alphanumeric, underscore, and hyphen are ok
+    """ Human-readable title of report"""
+
     filename = None
-    # A list of file formats to use, e.g., ['pdf','html','xls']
+    """Filename alphanumeric, underscore, and hyphen are ok """
+
     formats = []
+    """A list of file formats to use, e.g., ['pdf','html','xls']"""
 
-    # A list of report variants
-    # For example, you might have a patient register
-    # for Bugongi and Ruhiira health centers: 
     variants = [
-        #(title_suffix, fn_suffix, variant_data)
-
-        #(' Bugongi HC', '_BG', {'clinic_id': 13}),
-        #(' Ruhiira HC', '_RH', {'clinic_id': 15}).
-
-        # Neither the title nor filename suffixes can be 
-        # the empty string ""
     ]
+    """
+    A list of report variants in the form::
 
-    # You should implement the generate method in a report
-    # subclass.  This method creates the report and saves it
-    # to the right place (probably static/reports/filename.format).
-    # The return value is ignored.
+        (title_suffix, fn_suffix, variant_data) 
+
+    For example, you might have a patient register
+    for Bugongi and Ruhiira health centers::
+
+        variants = [
+            (' Bugongi HC', '_BG', {'clinic_id': 13}),
+            (' Ruhiira HC', '_RH', {'clinic_id': 15}),
+        ]
+
+    Neither the title nor filename suffixes can be 
+    the empty string ""
+    """
+
     def generate(self, time_period, rformat, title, filepath, data):
+        """
+        You should implement the generate method in a report
+        subclass.  This method creates the report and saves it
+        to the right place (probably 
+        :file:`static/reports/filename.format`).
+        The return value is ignored.
+        """
         raise NotImplementedError(\
             _(u'Generate function not implemented.'))
 
@@ -60,10 +72,12 @@ class PrintedReport(Task):
     track_started = True
     abstract = True
 
-    # Name of the file where this report is defined (e.g., Operational
-    # if the file is Operational.py)
     @property
     def classname(self):
+        """Name of the file where this report is defined (e.g., 
+        :class:`Operational`
+        if the file is :file:`Operational.py`)
+        """
         return os.path.basename(inspect.getfile(self.generate))[0:-3]
 
     def run(self, *args, **kwargs):
@@ -99,6 +113,12 @@ class PrintedReport(Task):
         """
         Use this method to test your reports from
         the shell.
+
+        :param time_period: An object with ``start`` and
+                             ``end`` methods that 
+                             return :class:`datetime` objects.
+        :param rformat: A string giving the report format to
+                        generate (e.g., "pdf")
         """
 
         self._kwargs = {'nightly': 'Fake'}
@@ -157,6 +177,14 @@ class PrintedReport(Task):
                 _(u'Report title or filename is unset.'))
 
     def set_progress(self, progress):
+        """
+        Call this to update the progress of the report
+        in the database.
+
+        :param progress: A number from 0 to 100 giving the percentage
+                         completion.
+        :type progress: float
+        """
         # Clear query cache to keep Django from
         # eating all of the memory
         db.reset_queries()
