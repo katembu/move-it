@@ -29,7 +29,7 @@ class ReportDefinition(PrintedReport):
     title = _(u"CHW Report")
     filename = 'chw_report_'
     formats = ['pdf','html']
-    variants = [(c.name, c.code, {'clinic_pk': c.pk}) \
+    variants = [(": "+c.name, c.code, {'clinic_pk': c.pk}) \
                                 for c in Clinic.objects.all()]
 
     def generate(self, period, rformat, title, filepath, data):
