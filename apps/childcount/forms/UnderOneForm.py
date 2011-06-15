@@ -103,13 +103,13 @@ class UnderOneForm(CCForm):
         elif breast_db == UnderOneReport.BREAST_NO:
             breast_str = _(u"Not exclusive breast feeding.")
         elif breast_db == UnderOneReport.BREAST_UNKNOWN:
-            breast_str = _(u"Unkown if exclusively breast feeding.")
+            breast_str = _(u"Unknown if exclusively breast feeding.")
 
         if imm_db == UnderOneReport.IMMUNIZED_YES:
             imm_str = _(u"Up-to-date on immunisations.")
         elif imm_db == UnderOneReport.IMMUNIZED_NO:
             imm_str = _(u"Not up-to-date on immunisations.")
         elif imm_db == UnderOneReport.IMMUNIZED_UNKNOWN:
-            imm_str = _(u"Unkown if up-to-date on immunisations.")
+            imm_str = _(u"Unknown if up-to-date on immunisations.")
 
         self.response = breast_str + ', ' + imm_str
