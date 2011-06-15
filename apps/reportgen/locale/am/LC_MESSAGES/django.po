@@ -454,7 +454,7 @@ msgstr ""
 
 #: definitions/PatientList.py:52
 msgid "Gen."
-msgstr ""
+msgstr "test"
 
 #: definitions/PatientList.py:93
 #, python-format

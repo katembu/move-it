@@ -18,7 +18,8 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
-from django.utils.translation import gettext_lazy as _, activate
+from django.utils.translation import gettext_lazy as _, activate, get_language
+from django.utils.translation import check_for_language
 from django.utils import simplejson
 from django.template import Context, loader
 from django.contrib.auth.decorators import login_required, permission_required
@@ -91,11 +92,14 @@ def dashboard_gather_data(dashboard_template_names):
             print tname
     return data
 
-
+print ">>>>>>>>>>%s" % get_language()
 @login_required
 def index(request):
     '''Dashboard page '''
     info = {'title': _(u"ChildCount+ Dashboard")}
+    print ">>>>>>>>>>>>>>>%s" % get_language()
+    print ">>>>>>>>>>>>>>>%s" % check_for_language('ti')
+    info['lang'] = get_language()
 
     try:
         dashboard_template_names = Configuration.objects.get(key='dashboard_sections').value.split()
