@@ -27,7 +27,7 @@ _variants.extend(_locations)
 class ReportDefinition(PrintedReport):
     """ list all CHW """
     title = _('CHW List')
-    filename = 'CHWList'
+    filename = 'ChwList'
     formats = ['html', 'pdf', 'xls']
     variants = _variants
 

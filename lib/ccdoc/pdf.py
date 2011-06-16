@@ -30,21 +30,24 @@ TA_MAP = {
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
 
-filedir = os.path.dirname(__file__)
+
+def font_path(font_name):
+    filedir = os.path.dirname(__file__)
+    return os.path.join(filedir, 'fonts', font_name)
 
 # Liberation Sans font
 pdfmetrics.registerFont(TTFont('LiberationSans', \
-                                      filedir + '/LiberationSans-Regular.ttf'))
-pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-Bold', \
-                               filedir + '/LiberationSans-Bold.ttf'))
-pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-Italic', \
-                               filedir + '/LiberationSans-Italic.ttf'))
-pdfmetrics.registerFont(TTFont(filedir + '/LiberationSans-BoldItalic', \
-                               filedir + '/LiberationSans-BoldItalic.ttf'))
+                               font_path('LiberationSans-Regular.ttf')))
+pdfmetrics.registerFont(TTFont('LiberationSans-Bold', \
+                               font_path('LiberationSans-Bold.ttf')))
+pdfmetrics.registerFont(TTFont('LiberationSans-Italic', \
+                               font_path('LiberationSans-Italic.ttf')))
+pdfmetrics.registerFont(TTFont('LiberationSans-BoldItalic', \
+                               font_path('LiberationSans-BoldItalic.ttf')))
 registerFontFamily('LiberationSans', normal='LiberationSans', \
-                   bold=filedir + '/LiberationSans-Bold', \
-                   italic=filedir + '/LiberationSans-Italic', \
-                   boldItalic=filedir + '/LiberationSans-BoldItalic')
+                   bold='LiberationSans-Bold', \
+                   italic='LiberationSans-Italic', \
+                   boldItalic='LiberationSans-BoldItalic')
 
 class SectionBreak(PageBreak):
     pass
@@ -94,9 +97,13 @@ class PDFGenerator(Generator):
         self.elements = []
 
         ''' Overall document object describing PDF '''
+
+        # Conver to unicode
+        if not isinstance(self.title, unicode):
+            self.title = unicode(self.title)
         self.doc = CustomDocTemplate(self._filename,
             showBoundary=0, pagesize=pagesize, 
-            title = unicode(self.title))
+            title = self.title)
         self.doc.stick_sections = self.stick_sections
 
         ''' Frame template defining page size, margins, etc '''
@@ -126,7 +133,9 @@ class PDFGenerator(Generator):
         date_style = copy.copy(self.styles['Normal'])
         date_style.fontSize = 10
         date_style.leading = 13
-        self.elements.append(Paragraph(unicode(self.datestring), date_style))
+        if not isinstance(self.datestring, unicode):
+            self.datestring = unicode(self.datestring)
+        self.elements.append(Paragraph(self.datestring, date_style))
 
 
         ''' Subtitle '''
@@ -135,11 +144,16 @@ class PDFGenerator(Generator):
             subtitle_style.fontSize = 16
             subtitle_style.leading = 18
             subtitle_style.spaceAfter = 0.5 * cm
-            self.elements.append(Paragraph(unicode(self.subtitle), subtitle_style))
+            if not isinstance(self.subtitle, unicode):
+                self.subtitle = unicode(self.subtitle)
+            self.elements.append(Paragraph(self.subtitle, subtitle_style))
        
     def _render_section(self, section):
+        if not isinstance(section.text, unicode):
+            section.text = unicode(section.text)
+
         element = Paragraph(
-                u'<strong>' + unicode(section.text) + u'</strong>',
+                u'<strong>' + section.text + u'</strong>',
                 self.section_style)
         if self.stick_sections:
             # on printer stick mode

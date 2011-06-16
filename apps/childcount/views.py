@@ -18,7 +18,7 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseRedirect, HttpResponse
 from django.http import HttpResponseNotFound
 from django.shortcuts import redirect
-from django.utils.translation import gettext_lazy as _, activate, get_language
+from django.utils.translation import ugettext_lazy as _, activate, get_language
 from django.utils.translation import check_for_language
 from django.utils import simplejson
 from django.template import Context, loader

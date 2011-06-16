@@ -46,12 +46,12 @@ REGISTER_COLUMNS = (
             '{% if object.is_head_of_household %}<strong>{% endif %}' \
             '{{object.health_id.upper}}' \
             '{% if object.is_head_of_household %}</strong>{% endif %}'},
-        {'name': _(u"Name".upper()), \
+        {'name': _(u"Name"), \
         'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
                 "{{object.first_name}}"},
         {'name': _(u"Gen."), \
         'bit': '{{object.gender}}'},
-        {'name': _(u"Age".upper()), \
+        {'name': _(u"Age"), \
         'bit': '{{object.humanised_age}}'},
         #{'name': _(u"Status".upper()), \
         #'bit': '{{object.status_text}}'},
@@ -149,10 +149,11 @@ class ReportDefinition(PrintedReport):
 
     
     def thepatientregister(self, title, indata=None, boxes=None):
-        styleH3.fontName = 'Times-Bold'
+        styleH3.fontName = 'Helvetica-Bold'
         styleH3.alignment = TA_CENTER
         styleH5 = copy.copy(styleH3)
         styleH5.fontSize = 8
+        styleH5.fontName = 'Helvetica'
         styleN.fontSize = 8
         styleN.spaceAfter = 0
         styleN.spaceBefore = 0
@@ -166,7 +167,7 @@ class ReportDefinition(PrintedReport):
 
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
-        datedata = [Paragraph(date.today().strftime("Active Patients | Current as of %d %B %Y."), styleH5)]
+        datedata = [Paragraph(date.today().strftime(_("Active Patients | Current as of %d %B %Y.")), styleH5)]
         datedata.extend((len(cols) - 1) * [''])
         data = [hdata, datedata]
 

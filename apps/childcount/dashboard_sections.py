@@ -8,7 +8,7 @@
 
 
 from django.utils import simplejson
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from childcount.models import Patient
 from childcount.indicators import nutrition
