@@ -11,7 +11,9 @@ from celery.task import Task
 from celery.schedules import crontab
 
 from django import db
+from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.utils.translation import activate
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
 from reportgen.models import Report, GeneratedReport, NightlyReport
@@ -84,6 +86,9 @@ class PrintedReport(Task):
         print "Args: %s" % str(args)
         print "Kwargs: %s" % str(kwargs)
 
+        activate(settings.LANGUAGE_CODE)
+        print "Language: %s" % lang
+
         self.check_sanity()
 
         if 'nightly' not in kwargs:
@@ -121,6 +126,7 @@ class PrintedReport(Task):
                         generate (e.g., "pdf")
         """
 
+        activate(settings.LANGUAGE_CODE)
         self._kwargs = {'nightly': 'Fake'}
 
         fname = "/tmp/test_%s.%s" % (self.filename, rformat)

@@ -40,7 +40,6 @@ styleH.fontName = 'FreeSerif'
 styleH3 = styles['Heading3']
 styleH3.fontName = 'FreeSerif'
 
-register_fonts()
 
 REGISTER_COLUMNS = (
         {'name': _(u"LOC"), \
@@ -87,6 +86,7 @@ class ReportDefinition(PrintedReport):
         # Produce the report
         f = open(filepath, 'w')
 
+        register_fonts()
         self.gen_patient_register_pdf(f, period, clinic_pk)
 
         f.close()

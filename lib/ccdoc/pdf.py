@@ -21,8 +21,6 @@ from ccdoc.utils import register_fonts
 from ccdoc.generator import Generator
 from ccdoc.table import Table as cctable
 
-# Load fonts
-register_fonts()
 
 TA_MAP = {
     cctable.ALIGN_LEFT: TA_LEFT,
@@ -289,4 +287,7 @@ class PDFGenerator(Generator):
     def _end_document(self):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
+
+        # Load fonts
+        register_fonts()
         self.doc.build(self.elements)

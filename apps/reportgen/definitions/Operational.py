@@ -31,7 +31,6 @@ from ccdoc.utils import register_fonts
 from reportgen.PrintedReport import PrintedReport
 from reportgen.utils import render_doc_to_file
 
-register_fonts()
 styles = getSampleStyleSheet()
 styleN = styles['Normal']
 styleN.fontName = 'FreeSerif'
@@ -76,6 +75,7 @@ class ReportDefinition(PrintedReport):
             story.append(tb)
             story.append(PageBreak())
 
+        register_fonts()
         f = open(filepath, 'w')
         doc = SimpleDocTemplate(f, pagesize=landscape(A4), \
                                 topMargin=(0 * inch), \
