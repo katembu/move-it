@@ -6,7 +6,7 @@ import xlwt
 from xlwt import XFStyle, Borders, Font, Style
 
 from django.db.models.aggregates import Count
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.template import Template, Context
 
 from childcount.models import CHW

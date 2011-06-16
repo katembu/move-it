@@ -5,7 +5,7 @@
 import copy
 from datetime import date
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.template import Template, Context
 from django.db.models import F
 
@@ -20,6 +20,8 @@ try:
 except ImportError:
     pass
 
+
+from ccdoc.utils import register_fonts
 from libreport.pdfreport import p
 from libreport.pdfreport import MultiColDocTemplate
 
@@ -32,8 +34,13 @@ from reportgen.PrintedReport import PrintedReport
 styles = getSampleStyleSheet()
 
 styleN = styles['Normal']
+styleN.fontName = 'FreeSerif'
 styleH = styles['Heading1']
+styleH.fontName = 'FreeSerif'
 styleH3 = styles['Heading3']
+styleH3.fontName = 'FreeSerif'
+
+register_fonts()
 
 REGISTER_COLUMNS = (
         {'name': _(u"LOC"), \
@@ -149,12 +156,10 @@ class ReportDefinition(PrintedReport):
 
     
     def thepatientregister(self, title, indata=None, boxes=None):
-        styleH3.fontName = 'Helvetica-Bold'
         styleH3.alignment = TA_CENTER
         styleH5 = copy.copy(styleH3)
-        styleH5.fontSize = 8
-        styleH5.fontName = 'Helvetica'
-        styleN.fontSize = 8
+        styleH5.fontSize = 9
+        styleN.fontSize = 9
         styleN.spaceAfter = 0
         styleN.spaceBefore = 0
         styleN2 = copy.copy(styleN)
@@ -167,7 +172,8 @@ class ReportDefinition(PrintedReport):
 
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
-        datedata = [Paragraph(date.today().strftime(_("Active Patients | Current as of %d %B %Y.")), styleH5)]
+        datedata = [Paragraph(_("Active Patients | Current as of ") + unicode(date.today().strftime("%d %B %Y.")), \
+                    styleH5)]
         datedata.extend((len(cols) - 1) * [''])
         data = [hdata, datedata]
 

@@ -18,7 +18,7 @@ import urllib2
 from urllib import urlencode
 
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from childcount.exceptions import *
 

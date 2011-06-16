@@ -4,7 +4,7 @@
 import copy
 from datetime import datetime
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet

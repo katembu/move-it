@@ -1,7 +1,7 @@
 
 from django.db.models import Q
 from django.db.models.aggregates import Count
-from django.utils.translation import gettext as _ 
+from django.utils.translation import ugettext as _ 
 
 from ccdoc import Document, Table, Paragraph, Text
 

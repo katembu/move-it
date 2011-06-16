@@ -9,7 +9,11 @@ class Text(object):
 
     def __init__(self, text, italic=False, bold=False,
             size=DEFAULT_SIZE):
-        self.text = text
+        if isinstance(text, unicode):
+            self.text = text
+        if not isinstance(text, unicode):
+            self.text = unicode(text)
+           
         self.italic = italic
         self.bold = bold
         self.size = size

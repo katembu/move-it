@@ -11,7 +11,7 @@ from celery.task import Task
 from celery.schedules import crontab
 
 from django import db
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
 from reportgen.models import Report, GeneratedReport, NightlyReport

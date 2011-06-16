@@ -2,7 +2,7 @@ import os
 import time
 import tempfile
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from paragraph import Paragraph
 from hline import HLine

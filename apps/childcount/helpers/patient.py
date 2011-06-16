@@ -3,7 +3,7 @@
 
 import datetime
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import UnderOneReport

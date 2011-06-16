@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: tief
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from ccdoc import Document, Table, Text, Section
 

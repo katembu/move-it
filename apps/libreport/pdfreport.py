@@ -22,13 +22,17 @@ try:
     from reportlab.lib.pagesizes import A4, landscape
     from reportlab.rl_config import defaultPageSize
     from reportlab.lib.units import inch
+    from ccdoc.utils import register_fonts
+
     PAGE_HEIGHT = defaultPageSize[1]
     PAGE_WIDTH = defaultPageSize[0]
 except ImportError:
     pass
 
+register_fonts()
 styles = getSampleStyleSheet()
 HeaderStyle = styles["Heading1"]
+HeaderStyle.fontName = 'FreeSerif'
 
 
 def pheader(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
@@ -47,6 +51,7 @@ def pheader(txt, style=HeaderStyle, klass=Paragraph, sep=0.3):
     return elements
 
 ParaStyle = styles["Normal"]
+ParaStyle.fontName = 'FreeSerif'
 """Paragraph Style"""
 
 
@@ -191,7 +196,7 @@ class PDFReport():
               ('TOPPADDING', (0, 0), (-1, -1), 2), ('ROWBACKGROUNDS', \
                                                 (0, 1), (-1, -1), \
              [colors.whitesmoke, colors.white]),
-            ('FONT', (0, 0), (-1, -1), "Times-Roman", self.fontSize)]
+            ('FONT', (0, 0), (-1, -1), "FreeSerif", self.fontSize)]
 
         #last row formatting when required
         if self.hasfooter is True:
@@ -200,7 +205,7 @@ class PDFReport():
             ts.append(('LINEBELOW', (0, 3), (-0, -0), 2, colors.green))
             ts.append(('LINEBELOW', (0, -1), (-1, -1), 0.8, \
                        colors.lightgrey))
-            ts.append(('FONT', (0, -1), (-1, -1), "Times-Roman", 7))
+            ts.append(('FONT', (0, -1), (-1, -1), "FreeSerif", 7))
         return ts
 
     def setFirstRowHeight(self, height):
@@ -232,12 +237,13 @@ class PDFReport():
         header = False
         c = 0
         pStyle = copy.copy(self.styles["Normal"])
-        pStyle.fontName = "Times-Roman"
+        pStyle.fontName = "FreeSerif"
         pStyle.fontSize = 7
         pStyle.spaceBefore = 0
         pStyle.spaceAfter = 0
         pStyle.leading = pStyle.fontSize + 2.8
         hStyle = copy.copy(self.styles["Normal"])
+        hStyle.fontName = 'FreeSerif'
         #hStyle.fontName = "Arial Narrow-Bold"
         hStyle.fontSize = 8
         hStyle.alignment = TA_CENTER
@@ -322,8 +328,8 @@ class PDFReport():
 
         self.styles['Title'].alignment = TA_LEFT
         self.styles['Title'].fontName = self.styles['Heading2'].fontName = \
-            "Times-Roman"
-        self.styles["Normal"].fontName = "Times-Roman"
+            "FreeSerif"
+        self.styles["Normal"].fontName = "FreeSerif"
         self.styles["Normal"].fontSize = 7
         #self.styles["Normal"].fontWeight = "BOLD"
 
@@ -366,7 +372,7 @@ class PDFReport():
         '''
         textobject = canvas.beginText()
         textobject.setTextOrigin(inch, 0.75 * inch)
-        textobject.setFont("Times-Roman", 9)
+        textobject.setFont("FreeSerif", 9)
         textobject.textLine("Page %d" % (doc.page))
         textobject.setFillGray(0.4)
         textobject.textLines(pageinfo)
@@ -384,7 +390,7 @@ class PDFReport():
         '''
         textobject = canvas.beginText()
         textobject.setTextOrigin(inch, 0.75 * inch)
-        textobject.setFont("Times-Roman", 9)
+        textobject.setFont("FreeSerif", 9)
         textobject.textLine("Page %d" % (doc.page))
         textobject.setFillGray(0.4)
         textobject.textLines(pageinfo)
@@ -431,7 +437,7 @@ class MultiColDocTemplate(BaseDocTemplate):
         # apply to any incarnation of "Normal"
         subTitleStyle = copy.copy(style["Normal"])
         subTitleStyle.alignment = TA_CENTER
-        subTitleStyle.fontName = "Times-Roman"
+        subTitleStyle.fontName = "FreeSerif"
 
         frameHeight = self.height - .5 * inch
         frameWidth = self.width
@@ -453,7 +459,7 @@ class MultiColDocTemplate(BaseDocTemplate):
         canvas.saveState()
         title = self.getSubTitle(document.page - 1)
         fontsize = 12
-        fontname = 'Times-Roman'
+        fontname = 'FreeSerif'
         headerBottom = document.bottomMargin + document.height + \
                 document.topMargin / 2
         bottomLine = headerBottom - fontsize / 4

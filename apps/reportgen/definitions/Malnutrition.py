@@ -4,7 +4,7 @@
 
 from datetime import date, timedelta
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.db.models import Q
 
 from ccdoc import Document, Table, Paragraph, \

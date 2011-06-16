@@ -8,7 +8,7 @@
 from operator import attrgetter
 from itertools import groupby
 
-from django.utils.translation import gettext_lazy as _, activate
+from django.utils.translation import ugettext_lazy as _, activate
 
 from dateutil import relativedelta
 from datetime import date, timedelta, datetime, time

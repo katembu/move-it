@@ -5,7 +5,7 @@
 import copy
 from datetime import datetime
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 try:
     from reportlab.lib.styles import getSampleStyleSheet
@@ -27,13 +27,16 @@ from childcount.utils import RotatedParagraph
 
 from libreport.pdfreport import p
 
+from ccdoc.utils import register_fonts
 from reportgen.PrintedReport import PrintedReport
 from reportgen.utils import render_doc_to_file
 
+register_fonts()
 styles = getSampleStyleSheet()
 styleN = styles['Normal']
-styleH = styles['Heading1']
+styleN.fontName = 'FreeSerif'
 styleH3 = styles['Heading3']
+styleH3.fontName = 'FreeSerif'
 
 class ReportDefinition(PrintedReport):
     title = 'Operational Report'
@@ -55,7 +58,7 @@ class ReportDefinition(PrintedReport):
         story = []
         locations = Clinic\
             .objects\
-            .filter(pk__in=CHW.objects.values('clinic').distinct())
+            .filter(pk__in=CHW.objects.values('clinic').distinct())[0:1]
 
         total = locations.count()
         for i,location in enumerate(locations):
@@ -84,21 +87,15 @@ class ReportDefinition(PrintedReport):
         tStyle = [('INNERGRID', (0, 0), (-1, -1), 0.1, colors.lightgrey),\
                 ('BOX', (0, 0), (-1, -1), 0.1, colors.lightgrey)]
         rowHeights = []
-        styleH3.fontName = 'Times-Bold'
+        styleH3.fontName = 'FreeSerif'
         styleH3.alignment = TA_CENTER
         styleH3.fontSize = 10
-        styleN2 = copy.copy(styleN)
-        styleN2.alignment = TA_CENTER
-        styleN3 = copy.copy(styleN)
-        styleN3.alignment = TA_RIGHT
-        styleBold = copy.copy(styleN)
-        styleBold.fontName = 'Times-Bold'
 
         ''' Header data '''
         now = datetime.now()
-        hdata = [Paragraph(_(u'%(name)s - %(title)s '\
+        hdata = [Paragraph(_(u'<b>%(name)s - %(title)s '\
                                 '(Generated on '\
-                                '%(gen_date)s at %(gen_time)s)') % \
+                                '%(gen_date)s at %(gen_time)s)</b>')% \
                                 {'name': title,\
                                 'title': period.title,\
                                 'gen_date': now.strftime('%d %b %Y'),\
@@ -112,7 +109,7 @@ class ReportDefinition(PrintedReport):
         data = [hdata]
 
         group_row = ['']
-        thirdrow = [Paragraph('CHW Name', styleH3)]
+        thirdrow = [Paragraph(_('<b>CHW Name</b>'), styleH3)]
 
         # Row index
         index = 1
@@ -125,7 +122,7 @@ class ReportDefinition(PrintedReport):
             group_len = len(g['columns'])
             
             # Title string
-            group_row.append(Paragraph(g['title'], styleH3))
+            group_row.append(Paragraph(u'<b>'+g['title']+u'</b>', styleH3))
             group_row.extend([''] * (group_len - 1))
 
             # Add a box around odd-indexed column groups
@@ -171,7 +168,7 @@ class ReportDefinition(PrintedReport):
          
             # Get totals for the clinic
             patients = Patient.objects.filter(chw__clinic__pk=chws[0].clinic.pk)
-            row = [Paragraph(chw.clinic.name, styleBold)]
+            row = [Paragraph(u"<b>" + chw.clinic.name + u"</b>", styleN)]
             for group in self._indicators:
                 for pair in group['columns']:
                     print pair['name']

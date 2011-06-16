@@ -9,7 +9,7 @@ objects.
 
 from datetime import timedelta
 
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 
 from childcount.indicators import registration
 from childcount.indicators import household

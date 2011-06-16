@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Stage G\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 09:17+0300\n"
-"PO-Revision-Date: 2011-06-16 11:54+0300\n"
+"POT-Creation-Date: 2011-06-16 15:37+0300\n"
+"PO-Revision-Date: 2011-06-16 15:38+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: am <am@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -62,7 +62,7 @@ msgstr ""
 
 #: definitions/ChwList.py:29
 msgid "CHW List"
-msgstr "ስድክል ጅጅJሕጽዽልዽ "
+msgstr "ስድክል ጅጅሕጽዽልዽ "
 
 #: definitions/ChwList.py:66
 msgid "ID"
@@ -72,7 +72,7 @@ msgstr ""
 #: definitions/ChwLog.py:104
 #: definitions/ChwLog.py:151
 #: definitions/ChwLog.py:292
-#: definitions/PatientList.py:49
+#: definitions/PatientList.py:56
 msgid "Name"
 msgstr ""
 
@@ -112,7 +112,7 @@ msgid "Date"
 msgstr ""
 
 #: definitions/ChwLog.py:105
-#: definitions/PatientList.py:44
+#: definitions/PatientList.py:51
 msgid "HID"
 msgstr ""
 
@@ -132,7 +132,7 @@ msgstr ""
 
 #: definitions/ChwLog.py:153
 #: definitions/ChwLog.py:294
-#: definitions/PatientList.py:54
+#: definitions/PatientList.py:61
 msgid "Age"
 msgstr ""
 
@@ -213,7 +213,7 @@ msgstr ""
 
 #: definitions/ChwManagerReport.py:247
 msgid "CHW Name"
-msgstr ""
+msgstr "ስድፍልክ ውልክ"
 
 #: definitions/ChwManagerReport.py:248
 msgid "Clinic"
@@ -388,7 +388,7 @@ msgstr ""
 #: definitions/IndicatorChart.py:71
 #: definitions/PerformanceCharts.py:57
 msgid "Generated on: "
-msgstr ""
+msgstr "ክጅርክኽንድክቭስድውክቅኢዶ ስኢዱ"
 
 #: definitions/IndicatorChart.py:73
 #: definitions/PerformanceCharts.py:59
@@ -476,32 +476,36 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: definitions/Operational.py:99
+#: definitions/Operational.py:96
 #, python-format
-msgid "%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)"
-msgstr ""
+msgid "<b>%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)</b>"
+msgstr "<b>%(name)s - %(title)s (ድክጅውልድክ እር %(gen_date)s ድስ %(gen_time)s)</b>"
 
-#: definitions/PatientList.py:39
+#: definitions/Operational.py:112
+msgid "<b>CHW Name</b>"
+msgstr "<b>ስድፍልክ ውልክ</b>"
+
+#: definitions/PatientList.py:46
 msgid "LOC"
 msgstr ""
 
-#: definitions/PatientList.py:52
+#: definitions/PatientList.py:59
 msgid "Gen."
 msgstr "test"
 
-#: definitions/PatientList.py:93
+#: definitions/PatientList.py:100
 #, python-format
 msgid "No report for %s."
 msgstr ""
 
-#: definitions/PatientList.py:130
+#: definitions/PatientList.py:137
 #, python-format
 msgid "CHW: %(loc)s: %(chw)s"
 msgstr ""
 
-#: definitions/PatientList.py:169
-msgid "Active Patients | Current as of %d %B %Y."
-msgstr "ድፊእድጅፍ | ስልድክጅ ኣኽJዽኽ %d %B %Y."
+#: definitions/PatientList.py:175
+msgid "Active Patients | Current as of "
+msgstr "ድፊእድጅፍ | ስልድክጅ ኣኽJዽኽ "
 
 #: definitions/PerformanceCharts.py:40
 msgid "Performance Charts"
