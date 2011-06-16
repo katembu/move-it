@@ -76,7 +76,7 @@ def textify_list(cells):
 
 class ReportDefinition(PrintedReport):
     title = 'Utilization Report'
-    filename = 'UtilizationReport'
+    filename = 'utilization_report'
     formats = ['html', 'pdf', 'xls']
     #variants = [('First','_first', {}),
     #    ('Second', '_second', {})]

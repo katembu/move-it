@@ -22,13 +22,14 @@ from ccdoc.generator import Generator
 from ccdoc.table import Table as cctable
 
 
+# Load fonts
+register_fonts()
+
 TA_MAP = {
     cctable.ALIGN_LEFT: TA_LEFT,
     cctable.ALIGN_RIGHT: TA_RIGHT,
     cctable.ALIGN_CENTER: TA_CENTER,
     cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
-
-
 
 class SectionBreak(PageBreak):
     pass
@@ -95,6 +96,7 @@ class PDFGenerator(Generator):
 
         self.section_style = copy.copy(self.styles['Normal'])
         self.section_style.fontSize = 18
+        print self.section_style.fontName
         self.section_style.leading = 20
         self.section_style.spaceBefore = 1 * cm
 
@@ -117,7 +119,6 @@ class PDFGenerator(Generator):
         if not isinstance(self.datestring, unicode):
             self.datestring = unicode(self.datestring)
         self.elements.append(Paragraph(self.datestring, date_style))
-
 
         ''' Subtitle '''
         if self.subtitle != None and self.subtitle != '':
@@ -288,6 +289,4 @@ class PDFGenerator(Generator):
         template = PageTemplate('normal', [self.tframe])
         self.doc.addPageTemplates(template)
 
-        # Load fonts
-        register_fonts()
         self.doc.build(self.elements)

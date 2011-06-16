@@ -1,10 +1,15 @@
+import string
 try:
     from xlwt import Workbook, XFStyle, Font
 except ImportError:
     pass
 
-
 from generator import Generator
+
+VALID_CHARS = string.digits + string.letters + ' _()|'
+
+def clean_string(s):
+    return str(filter(lambda x: x in VALID_CHARS, s)[0:31])
 
 class ExcelGenerator(Generator):
     def _start_document(self):
@@ -18,7 +23,7 @@ class ExcelGenerator(Generator):
         self.workbook = Workbook(encoding='utf-8')
 
         ''' All worksheets '''
-        self.sheets = [self.workbook.add_sheet(self.title)]
+        self.sheets = [self.workbook.add_sheet(clean_string(self.title))]
 
         ''' Pointer to current worksheet '''
         self.cur_sheet = self.sheets[0]

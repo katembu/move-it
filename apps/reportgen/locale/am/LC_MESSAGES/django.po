@@ -1,149 +1,149 @@
-# Reportgen Tigrinya Translation
-# Copyright (C) 2011
-# This file is distributed under the same license as ChildCount+
-# Temesgen G, 2011
+# Temesgen G.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Stage G\n"
+"Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 15:37+0300\n"
-"PO-Revision-Date: 2011-06-16 15:38+0300\n"
+"POT-Creation-Date: 2011-06-16 17:14+0300\n"
+"PO-Revision-Date: 2011-06-16 17:15+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
-"Language-Team: am <am@li.org>\n"
+"Language-Team: KORARO CC+ TEAM\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: PrintedReport.py:66
+#: PrintedReport.py:68
 msgid "Generate function not implemented."
-msgstr ""
+msgstr "ዘይተሰርሐ ስራሕ ኣርኢ"
 
-#: PrintedReport.py:90
+#: PrintedReport.py:95
 msgid "No nightly value passed in"
-msgstr ""
+msgstr "ለይቲ ዘይሓለፉ ዳታታት"
 
-#: PrintedReport.py:96
+#: PrintedReport.py:101
 #, python-format
 msgid "Could not find DB record for a report with classname %s"
 msgstr ""
 
-#: PrintedReport.py:100
+#: PrintedReport.py:105
 msgid "No time period value passed in"
 msgstr ""
 
-#: PrintedReport.py:172
+#: PrintedReport.py:178
 msgid "This report has no formats specified."
-msgstr ""
+msgstr "እዚ ፀብፃብ እዚ እቲ ዓይነቱ ኣይተገለፀን"
 
-#: PrintedReport.py:177
+#: PrintedReport.py:183
 msgid "Report title or filename is unset."
-msgstr ""
+msgstr "ናይቲ ፀብፃብ ኣርእሰቲ ወይ ስም ኣየተፀርሐን"
 
 #: utils.py:33
 #, python-format
 msgid "Invalid report format (%s)"
-msgstr ""
+msgstr "ዘይስሩዕ ፀብፃብ ኣቀማምጣ (%s)"
 
 #: views.py:33
 #: views.py:47
 #: models/NightlyReport.py:30
 msgid "Nightly Reports"
-msgstr ""
+msgstr "ማታ ማታ የሚፈተሩ ሪፖርቶች"
 
 #: views.py:35
 #: views.py:55
 msgid "On-Demand Reports"
-msgstr ""
+msgstr "ኣብ ከየዲ ዘለዉ ፀብፃባት"
 
 #: views.py:89
 msgid "Variant not found"
-msgstr ""
+msgstr "መማረፂ ኣየተረኸበን"
 
 #: definitions/ChwList.py:29
 msgid "CHW List"
-msgstr "ስድክል ጅጅሕጽዽልዽ "
+msgstr "መሓዉር ጥዕና ሰራሕተኛታተ ስም ዝርዝር"
 
 #: definitions/ChwList.py:66
 msgid "ID"
-msgstr ""
+msgstr "መለለዪ ቁፅሪ"
 
 #: definitions/ChwList.py:67
 #: definitions/ChwLog.py:104
 #: definitions/ChwLog.py:151
 #: definitions/ChwLog.py:292
-#: definitions/PatientList.py:56
+#: definitions/PatientList.py:55
 msgid "Name"
-msgstr ""
+msgstr "ስም"
 
 #: definitions/ChwList.py:68
 msgid "Location"
-msgstr ""
+msgstr "ከባቢ(ዝነብረሉ ቦታ)"
 
 #: definitions/ChwList.py:69
 msgid "Username"
-msgstr ""
+msgstr "ናይ ተጠቃሚ ስም"
 
 #: definitions/ChwList.py:70
 msgid "Lang"
-msgstr ""
+msgstr "ቋንቋ"
 
 #: definitions/ChwLog.py:33
 msgid "CHW Log "
-msgstr ""
+msgstr "ናይ ጥዒና መሓዉር ዝርዝር"
 
 #: definitions/ChwLog.py:69
 msgid "CHILDREN"
-msgstr ""
+msgstr "ውሉድ"
 
 #: definitions/ChwLog.py:79
 msgid "PREGNANT WOMEN"
-msgstr ""
+msgstr "ነፍሰ ፆር ኣዴታት"
 
 #: definitions/ChwLog.py:87
 msgid "HOUSEHOLD"
-msgstr ""
+msgstr "ስድራ"
 
 #: definitions/ChwLog.py:103
 #: definitions/ChwLog.py:150
 #: definitions/ChwLog.py:291
 #: definitions/ChwLog.py:355
 msgid "Date"
-msgstr ""
+msgstr "ዕለት"
 
 #: definitions/ChwLog.py:105
-#: definitions/PatientList.py:51
+#: definitions/PatientList.py:50
 msgid "HID"
-msgstr ""
+msgstr "የቤተሰብ  ሃላፊ ኮድ"
 
 #: definitions/ChwLog.py:106
 #: models/Report.py:25
 msgid "Reports"
-msgstr ""
+msgstr "ፀብፃብ"
 
 #: definitions/ChwLog.py:107
 msgid "Comments"
-msgstr ""
+msgstr "ኣስተያየት"
 
 #: definitions/ChwLog.py:152
 #: definitions/ChwLog.py:293
 msgid "Gender"
-msgstr ""
+msgstr "ጾታ"
 
 #: definitions/ChwLog.py:153
 #: definitions/ChwLog.py:294
-#: definitions/PatientList.py:61
+#: definitions/PatientList.py:60
 msgid "Age"
-msgstr ""
+msgstr "እድሜ"
 
 #: definitions/ChwLog.py:154
 msgid "Mother"
-msgstr ""
+msgstr "ኣዶ"
 
 #: definitions/ChwLog.py:155
 #: definitions/ChwLog.py:295
 msgid "Next Apt"
-msgstr ""
+msgstr "ንቐፃሊ ዝተቖፀረ"
 
 #: definitions/ChwLog.py:156
 msgid "RDT+"
@@ -155,29 +155,29 @@ msgstr ""
 
 #: definitions/ChwLog.py:158
 msgid "Immunized"
-msgstr ""
+msgstr "ዝተኸተበ"
 
 #: definitions/ChwLog.py:159
 #: definitions/ChwLog.py:298
 msgid "Danger Signs"
-msgstr ""
+msgstr "ሓደገኛ ምልክታት ሕማም"
 
 #: definitions/ChwLog.py:160
 #: definitions/ChwLog.py:299
 #: definitions/ChwLog.py:360
 msgid "PID"
-msgstr ""
+msgstr "ታራ ቁፅሪ"
 
 #: definitions/ChwLog.py:161
 #: definitions/ChwLog.py:300
 #: definitions/ChwLog.py:361
 msgid "Forms"
-msgstr ""
+msgstr "ቅጥዒ"
 
 #: definitions/ChwLog.py:296
 #: timeperiods/definitions/Month.py:13
 msgid "Month"
-msgstr ""
+msgstr "ወርሒ"
 
 #: definitions/ChwLog.py:297
 msgid "# ANC Visits"
@@ -185,23 +185,23 @@ msgstr ""
 
 #: definitions/ChwLog.py:356
 msgid "Household"
-msgstr ""
+msgstr "ስድራ"
 
 #: definitions/ChwLog.py:357
 msgid "Available"
-msgstr ""
+msgstr "ኣሎ"
 
 #: definitions/ChwLog.py:358
 msgid "# Children"
-msgstr ""
+msgstr "# ውሉድ"
 
 #: definitions/ChwLog.py:359
 msgid "Counseling"
-msgstr ""
+msgstr "ናይ ምክሪ ግልጋሎት"
 
 #: definitions/ChwManagerReport.py:23
 msgid "CHW Manager Report"
-msgstr ""
+msgstr "ናይ መሓዉር ጥዒና ሓላፊ ፀብፃብ"
 
 #: definitions/ChwManagerReport.py:102
 #: models/GeneratedReport.py:63
@@ -209,40 +209,40 @@ msgstr ""
 #: models/Report.py:24
 #: templates/nightly.html:23
 msgid "Report"
-msgstr ""
+msgstr "ፀብፃብ"
 
 #: definitions/ChwManagerReport.py:247
 msgid "CHW Name"
-msgstr "ስድፍልክ ውልክ"
+msgstr "ስም ጥዒና መሓዉር"
 
 #: definitions/ChwManagerReport.py:248
 msgid "Clinic"
-msgstr ""
+msgstr "ጥዒና ኬላ"
 
 #: definitions/ChwManagerReport.py:261
 msgid "Millennium Village"
-msgstr ""
+msgstr "ሚለንየም ቪለጅ"
 
 #: definitions/ChwReport.py:29
 msgid "CHW Report"
-msgstr ""
+msgstr "ናይ መሓዉር ጥዒና ፀብፃብ"
 
 #: definitions/ChwReport.py:61
 #, python-format
 msgid "For: %s"
-msgstr ""
+msgstr "ን፡ %s"
 
 #: definitions/ChwReport.py:74
 msgid "Indicators"
-msgstr ""
+msgstr "ሓበርቲ"
 
 #: definitions/ChwReport.py:76
 msgid "Indicator"
-msgstr ""
+msgstr "ሓባሪ"
 
 #: definitions/ChwReport.py:78
 msgid "Tot/Avg"
-msgstr ""
+msgstr "ጠቕላላ/ማእኸላይ"
 
 #: definitions/ChwReport.py:110
 msgid "Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
@@ -255,7 +255,7 @@ msgstr ""
 #: definitions/Malnutrition.py:96
 #: definitions/Malnutrition.py:141
 msgid "Loc Code"
-msgstr ""
+msgstr "መለለዪ ቁፅሪ ከባቢ"
 
 #: definitions/ChwReport.py:116
 #: definitions/ChwReport.py:161
@@ -264,7 +264,7 @@ msgstr ""
 #: definitions/Malnutrition.py:97
 #: definitions/Malnutrition.py:142
 msgid "Health ID"
-msgstr ""
+msgstr "መለለዪ ቁፅሪ ጥዒና"
 
 #: definitions/ChwReport.py:117
 #: definitions/ChwReport.py:162
@@ -273,7 +273,7 @@ msgstr ""
 #: definitions/Malnutrition.py:98
 #: definitions/Malnutrition.py:143
 msgid "Name / Age"
-msgstr ""
+msgstr "ስም/ዕድመ"
 
 #: definitions/ChwReport.py:118
 #: definitions/ChwReport.py:164
@@ -282,7 +282,7 @@ msgstr ""
 #: definitions/Malnutrition.py:102
 #: definitions/Malnutrition.py:145
 msgid "Household Head"
-msgstr ""
+msgstr "መራሒ ስድራ"
 
 #: definitions/ChwReport.py:119
 msgid "Referral Type / Date"
@@ -294,11 +294,11 @@ msgstr ""
 
 #: definitions/ChwReport.py:121
 msgid "Follow-Up Date"
-msgstr ""
+msgstr "ናይ ክትትል መዓልቲ"
 
 #: definitions/ChwReport.py:138
 msgid " on "
-msgstr ""
+msgstr "ክፍቲ"
 
 #: definitions/ChwReport.py:144
 msgid "[No DSs Reported]"
@@ -306,11 +306,11 @@ msgstr ""
 
 #: definitions/ChwReport.py:145
 msgid "Late: "
-msgstr ""
+msgstr "ዝዘንግዐ፡"
 
 #: definitions/ChwReport.py:149
 msgid "[No Follow-Up]"
-msgstr ""
+msgstr "[ክትትል የለን]"
 
 #: definitions/ChwReport.py:156
 msgid "Children Under 5 Without Known Up-to-date Immunizations"
@@ -388,7 +388,7 @@ msgstr ""
 #: definitions/IndicatorChart.py:71
 #: definitions/PerformanceCharts.py:57
 msgid "Generated on: "
-msgstr "ክጅርክኽንድክቭስድውክቅኢዶ ስኢዱ"
+msgstr ""
 
 #: definitions/IndicatorChart.py:73
 #: definitions/PerformanceCharts.py:59
@@ -479,19 +479,19 @@ msgstr ""
 #: definitions/Operational.py:96
 #, python-format
 msgid "<b>%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)</b>"
-msgstr "<b>%(name)s - %(title)s (ድክጅውልድክ እር %(gen_date)s ድስ %(gen_time)s)</b>"
+msgstr ""
 
 #: definitions/Operational.py:112
 msgid "<b>CHW Name</b>"
-msgstr "<b>ስድፍልክ ውልክ</b>"
+msgstr "<b>ስም ጥዒና መሓዉር</b>"
 
-#: definitions/PatientList.py:46
+#: definitions/PatientList.py:45
 msgid "LOC"
 msgstr ""
 
-#: definitions/PatientList.py:59
+#: definitions/PatientList.py:58
 msgid "Gen."
-msgstr "test"
+msgstr ""
 
 #: definitions/PatientList.py:100
 #, python-format
@@ -505,7 +505,7 @@ msgstr ""
 
 #: definitions/PatientList.py:175
 msgid "Active Patients | Current as of "
-msgstr "ድፊእድጅፍ | ስልድክጅ ኣኽJዽኽ "
+msgstr ""
 
 #: definitions/PerformanceCharts.py:40
 msgid "Performance Charts"
@@ -549,6 +549,10 @@ msgstr ""
 
 #: definitions/StatsOmrs.py:13
 msgid "OpenMRS Sync Data"
+msgstr ""
+
+#: definitions/Utilization.py:78
+msgid "Utilization Report"
 msgstr ""
 
 #: definitions/Utilization.py:106

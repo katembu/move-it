@@ -13,7 +13,7 @@ from celery.schedules import crontab
 from django import db
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from django.utils.translation import activate
+from django.utils.translation import activate, get_language
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
 from reportgen.models import Report, GeneratedReport, NightlyReport
@@ -26,7 +26,6 @@ class PrintedReport(Task):
     have to define a new class that inherits from 
     this report.
     """
-
 
     title = None
     """ Human-readable title of report"""
@@ -85,9 +84,9 @@ class PrintedReport(Task):
     def run(self, *args, **kwargs):
         print "Args: %s" % str(args)
         print "Kwargs: %s" % str(kwargs)
-
+        print "Cur: %s" % get_language()
         activate(settings.LANGUAGE_CODE)
-        print "Language: %s" % lang
+        print "Language: %s" % settings.LANGUAGE_CODE
 
         self.check_sanity()
 
@@ -139,7 +138,7 @@ class PrintedReport(Task):
             title = self.title
             data = {}
 
-
+        
         return self.generate(time_period, rformat, title, fname, data)
 
     def _run_nightly(self, *args, **kwargs):
@@ -168,7 +167,7 @@ class PrintedReport(Task):
                     print rformat
                     self.generate(kwargs['time_period'],
                         rformat,
-                        self.title + variant[0],
+                        self.title + ": " + variant[0],
                         self.get_filepath(kwargs, variant[1], rformat),
                         variant[2])
 

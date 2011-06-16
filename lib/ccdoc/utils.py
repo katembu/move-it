@@ -1,6 +1,6 @@
 import os
 
-from django.utils.translation import get_language
+from django.conf import settings
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -53,7 +53,7 @@ def register_fonts():
     
     # Check if we're using an Ethiopic language (like Amharic)
     # If so, we can't use bold or italics, so map those away
-    is_eth = (get_language() == 'am')
+    is_eth = (settings.LANGUAGE_CODE.startswith('am'))
     
     registerFontFamily('FreeSerif', normal='FreeSerif', \
                        bold='FreeSerif' + ('' if is_eth else 'Bold'), \
