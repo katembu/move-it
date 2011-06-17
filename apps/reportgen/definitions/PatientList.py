@@ -158,8 +158,13 @@ class ReportDefinition(PrintedReport):
     
     def thepatientregister(self, title, indata=None, boxes=None):
         styleH3.alignment = TA_CENTER
+
         styleH5 = copy.copy(styleH3)
         styleH5.fontSize = 9
+        styleH5.spaceAfter = 0
+        styleH5.leading = 9
+        styleH5.spaceBefore = 0
+
         styleN.fontSize = 9
         styleN.spaceAfter = 0
         styleN.leading = 9
