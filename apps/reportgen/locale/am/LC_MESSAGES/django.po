@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-16 17:14+0300\n"
-"PO-Revision-Date: 2011-06-16 18:21+0300\n"
+"PO-Revision-Date: 2011-06-17 14:56+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: KORARO CC+ TEAM\n"
 "MIME-Version: 1.0\n"
@@ -114,7 +114,7 @@ msgstr "ዕለት"
 #: definitions/ChwLog.py:105
 #: definitions/PatientList.py:50
 msgid "HID"
-msgstr "የቤተሰብ  ሃላፊ ኮድ"
+msgstr "መ.ቁ. ኮድ"
 
 #: definitions/ChwLog.py:106
 #: models/Report.py:25
