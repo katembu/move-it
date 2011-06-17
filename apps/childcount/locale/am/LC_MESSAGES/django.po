@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-14 17:12+0300\n"
-"PO-Revision-Date: 2011-06-15 17:24+0300\n"
+"PO-Revision-Date: 2011-06-16 18:34+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -4104,25 +4104,25 @@ msgstr ""
 #: models/Patient.py:156
 #, python-format
 msgid "%(days)sd"
-msgstr ""
+msgstr "%(days)s ዕለት"
 
 #: models/DeadPerson.py:107
 #: models/Patient.py:158
 #, python-format
 msgid "%(weeks)sw"
-msgstr ""
+msgstr "%(weeks)s ሰሙን"
 
 #: models/DeadPerson.py:109
 #: models/Patient.py:160
 #, python-format
 msgid "%(months)sm"
-msgstr ""
+msgstr "%(months)s ወርሒ "
 
 #: models/DeadPerson.py:112
 #: models/Patient.py:163
 #, python-format
 msgid "%(years)sy"
-msgstr ""
+msgstr "%(years)s ዓመት"
 
 #: models/DeadPerson.py:128
 #: models/Patient.py:237

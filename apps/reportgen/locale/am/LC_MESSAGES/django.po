@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-16 17:14+0300\n"
-"PO-Revision-Date: 2011-06-16 17:15+0300\n"
+"PO-Revision-Date: 2011-06-16 18:21+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: KORARO CC+ TEAM\n"
 "MIME-Version: 1.0\n"
@@ -487,11 +487,11 @@ msgstr "<b>ስም ጥዒና መሓዉር</b>"
 
 #: definitions/PatientList.py:45
 msgid "LOC"
-msgstr ""
+msgstr "ናቑጣ"
 
 #: definitions/PatientList.py:58
 msgid "Gen."
-msgstr ""
+msgstr "ጾታ"
 
 #: definitions/PatientList.py:100
 #, python-format
@@ -501,11 +501,11 @@ msgstr ""
 #: definitions/PatientList.py:137
 #, python-format
 msgid "CHW: %(loc)s: %(chw)s"
-msgstr ""
+msgstr "መሓውር ጤእና: %(loc)s: %(chw)s"
 
 #: definitions/PatientList.py:175
 msgid "Active Patients | Current as of "
-msgstr ""
+msgstr "ብሂወት ዘሎ | ክሳብ ሀዚ ዘሎ "
 
 #: definitions/PerformanceCharts.py:40
 msgid "Performance Charts"
