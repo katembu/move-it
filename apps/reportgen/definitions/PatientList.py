@@ -41,37 +41,38 @@ styleH3 = styles['Heading3']
 styleH3.fontName = 'FreeSerif'
 
 
-REGISTER_COLUMNS = (
-        {'name': _(u"LOC"), \
-        'bit':
-            '{% if object.is_head_of_household %}<strong>' \
-            '{{ object.household.location.code }}' \
-            '</strong>{% endif %}'},
-        {'name': _(u"HID"), \
-        'bit':
-            '{% if object.is_head_of_household %}<strong>{% endif %}' \
-            '{{object.health_id.upper}}' \
-            '{% if object.is_head_of_household %}</strong>{% endif %}'},
-        {'name': _(u"Name"), \
-        'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
-                "{{object.first_name}}"},
-        {'name': _(u"Gen."), \
-        'bit': '{{object.gender}}'},
-        {'name': _(u"Age"), \
-        'bit': '{{object.humanised_age}}'},
-        #{'name': _(u"Status".upper()), \
-        #'bit': '{{object.status_text}}'},
-    #    {'name': _(u"HHID".upper()), \
-    #    'bit': '{{object.household.health_id.upper}}'}
-        )
-
 class ReportDefinition(PrintedReport):
     title = u'Patient List'
     filename = 'patient_list_'
     formats = ['pdf']
     variants = [(unicode(c), c.code+'_active', {'clinic_pk': c.pk}) \
         for c in Clinic.objects.all()]
-    
+   
+    def register_columns(self):
+        return (
+            {'name': _(u"LOC"), \
+            'bit':
+                '{% if object.is_head_of_household %}<strong>' \
+                '{{ object.household.location.code }}' \
+                '</strong>{% endif %}',
+            'width': 0.5 * inch},
+            {'name': _(u"HID"), \
+            'bit':
+                '{% if object.is_head_of_household %}<strong>{% endif %}' \
+                '{{object.health_id.upper}}' \
+                '{% if object.is_head_of_household %}</strong>{% endif %}',
+            'width': 0.5*inch},
+            {'name': _(u"Name"), \
+            'bit': "{{object.last_name}}{% if object.pk %},{% endif %} "
+                    "{{object.first_name}}",
+            'width': 1.7*inch},
+            {'name': _(u"Gen."), \
+            'bit': '{{object.gender}}',
+            'width': 0.2*inch},
+            {'name': _(u"Age"), \
+            'bit': '{{object.humanised_age}}',
+            'width': 0.9*inch})
+
     def generate(self, period, rformat, title, filepath, data):
         if rformat != 'pdf':
             raise NotImplementedError('Can only generate PDF for patient list')
@@ -161,6 +162,7 @@ class ReportDefinition(PrintedReport):
         styleH5.fontSize = 9
         styleN.fontSize = 9
         styleN.spaceAfter = 0
+        styleN.leading = 9
         styleN.spaceBefore = 0
         styleN2 = copy.copy(styleN)
         styleN2.alignment = TA_CENTER
@@ -168,13 +170,14 @@ class ReportDefinition(PrintedReport):
         styleN3.alignment = TA_RIGHT
 
         rpt = Patient()
-        cols = REGISTER_COLUMNS
+        cols = self.register_columns()
 
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
         datedata = [Paragraph(_("Active Patients | Current as of ") + unicode(date.today().strftime("%d %B %Y.")), \
                     styleH5)]
         datedata.extend((len(cols) - 1) * [''])
+        
         data = [hdata, datedata]
 
         firstrow = [Paragraph(cols[0]['name'], styleH5)]
@@ -183,17 +186,17 @@ class ReportDefinition(PrintedReport):
 
         rowHeights = [None, None, 0.2 * inch]
         # Loc, HID, Name
-        colWidths = [0.5 * inch, 0.5 * inch, 1.7 * inch]
-        colWidths.extend((len(cols) - 3) * [0.4 * inch])
+        colWidths = [col['width'] for col in cols]
 
         ts = [('SPAN', (0, 0), (len(cols) - 1, 0)),
                                 ('SPAN', (0, 1), (len(cols)-1, 1)),
                                 ('LINEABOVE', (0, 1), (len(cols) - 1, 1), 1, \
                                 colors.black),
-                                ('LINEBELOW', (0, 1), (len(cols) - 1, 1), 1, \
+                                ('LINEBELOW', (0, 2), (len(cols) - 1, 2), 1, \
                                 colors.black),
                                 ('INNERGRID', (0, 0), (-1, -1), 0.1, \
                                 colors.lightgrey),\
+                                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
                                 ('BOX', (0, 0), (-1, -1), 0.1, \
                                 colors.lightgrey)]
         if indata:
@@ -221,7 +224,9 @@ class ReportDefinition(PrintedReport):
                 ts.append((('BACKGROUND', (0, box['top'] + 3), \
                             (2, box['top'] + 3), colors.lightgrey)))
                 tscount += 1
-        tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=2)
+
+        rowHeights = None
+        tb = Table(data, colWidths=colWidths, rowHeights=rowHeights, repeatRows=3)
         tb.setStyle(TableStyle(ts))
         return tb
 
