@@ -52,7 +52,7 @@ class BednetIssuedForm(CCForm):
                                 " bednets issued."))
         if not self.params[1].isdigit():
             raise ParseError(_(u"Bednet issued should be number"))
-        bdnt = self.params[1]
+        bdnt = int(self.params[1])
 
         self.response = _(u"%(patient)s has received %(bdnt)d bednet(s).") % \
                                     {'patient': patient, 'bdnt': bdnt}
