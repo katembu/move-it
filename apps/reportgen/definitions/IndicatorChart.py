@@ -39,7 +39,7 @@ styleNR = copy.copy(styles['Normal'])
 styleNR.alignment = 2
 
 class ReportDefinition(PrintedReport):
-    title = _(u'Indicator Chart')
+    title = u'Indicator Chart'
     filename = 'indicator_chart'
     formats = ('pdf',)
 
