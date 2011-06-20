@@ -28,7 +28,11 @@ from childcount.indicators import follow_up
 from childcount.models import Clinic
 from childcount.models import Patient
 
+from ccdoc.utils import register_fonts
+
 from reportgen.PrintedReport import PrintedReport
+
+register_fonts()
 
 styles = getSampleStyleSheet()
 styleN = styles['Normal']

@@ -61,38 +61,34 @@ class Eligible(Indicator):
         return _eligible(period, data_in).count()
 
 def _follow_up_between(period, data_in, delta_start, delta_end):
-    elig = _eligible(period, data_in)
-    elig_pks = [row[0] for row in elig\
-        .values_list('encounter__patient__pk')\
-        .distinct()]
+    eligs = _eligible(period, data_in)
 
     count = 0
-    # For each patient who is eligible for follow up...
-    for pk in elig_pks:
-        patient_elig = elig\
-            .filter(encounter__patient__pk=pk)\
-            .order_by('encounter__encounter_date')
+    # For each referral report that is eligible for
+    # follow-up
+    for elig in eligs:
+        print "Considering elig rpt %s" % elig
 
-        print "Considering patient %s" % Patient.objects.get(pk=pk)
+        # All FollowUpReports for this patient after the referral
+        f = FollowUpReport\
+            .objects\
+            .filter(encounter__patient__pk=elig.encounter.patient.pk,
+                    encounter__encounter_date__gt=\
+                        elig.encounter.encounter_date+DELTA_START_ON_TIME)
+       
+        # There has already been a follow-up counted for this patient,
+        # so don't double-count
+        if f.filter(encounter__encounter_date__lt=elig.encounter.encounter_date+delta_start):
+            print "\t\tFollowed previously on %s" % f[0].encounter.encounter_date
+            continue
 
-        # Go through referral reports from earliest
-        # to latest
-        start_date = patient_elig[0].encounter.encounter_date
-        for ref in patient_elig:
-            start_date = max(start_date, ref.encounter.encounter_date)
-
-            print "\tReferred on: %s" % ref.encounter.encounter_date
-            f = FollowUpReport\
-                .objects\
-                .filter(encounter__patient__pk=ref.encounter.patient.pk,
-                    encounter__encounter_date__gt=start_date+delta_start,
-                    encounter__encounter_date__lte=start_date+delta_end)
-
-            if f.count() > 0:
-                print "\t\tFollowed on %s" % f[0].encounter.encounter_date
-                count += 1
-
-            start_date += delta_end
+        if f.filter(encounter__encounter_date__gte=elig.encounter.encounter_date+delta_start,
+                    encounter__encounter_date__lt=elig.encounter.encounter_date+delta_end):
+            print "\t\tFollowed on %s*" % f[0].encounter.encounter_date
+            count += 1
+            continue
+            
+        print "\t\tNot followed" 
 
     return count
 
