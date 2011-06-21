@@ -6,6 +6,8 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 
+import bonjour.dates
+
 from ccdoc import Document, Table, Paragraph, \
     Text, Section, PageBreak
 
@@ -136,16 +138,15 @@ class ReportDefinition(PrintedReport):
                                     patient.humanised_age()),
                 Text(patient.household.full_name()),
                 Text(urgency_str + _(u" on ") + \
-                                     ref.encounter\
-                                        .encounter_date\
-                                        .strftime('%d %b %Y')),
+                                     bonjour.dates.format_date(\
+                                        ref.encounter\
+                                        .encounter_date, format='medium')),
                 Text(u", ".join([sign.description \
                                     for sign in ds.danger_signs.all()]))
                     if ds else Text(_(u"[No DSs Reported]")),
-                Text(_(u"Late: ") + fu\
+                Text(_(u"Late: ") + bonjour.dates.format_date(fu\
                             .encounter\
-                            .encounter_date\
-                            .strftime('%d %b %Y'))\
+                            .encounter_date, format='medium'))\
                     if fu else Text(_(u"[No Follow-Up]"))])
 
         return table
@@ -174,7 +175,7 @@ class ReportDefinition(PrintedReport):
                     UnderOneReport.IMMUNIZED_CHOICES)[0][1]
                 im_str = _(u"Reported \"%(status)s\" on %(date)s") % \
                     {'status': im_stat,\
-                    'date': im.encounter.encounter_date.strftime('%d %b %Y')}
+                    'date': bonjour.dates.format_date(im.encounter.encounter_date, format='medium')}
 
             table.add_row([
                 Text(kid.location.code),
@@ -209,8 +210,8 @@ class ReportDefinition(PrintedReport):
                 Text(woman.health_id.upper()),
                 Text(woman.full_name() + u" / " + woman.humanised_age()),
                 Text('No ANC' if last_anc is None else \
-                    last_anc.strftime('%d-%b-%Y')),
-                Text(due_date.strftime('%d-%b-%Y')),
+                    bonjour.dates.format_date(last_anc, format='medium')),
+                Text(bonjour.dates.format_date(due_date, format='medium')),
                 Text(woman.household.full_name())])
         return table                
 
@@ -241,7 +242,7 @@ class ReportDefinition(PrintedReport):
             muac_str = status_str = _(u'[No MUAC]')
             oedema_str = _(u'U')
             if nut is not None:
-                muac_str = nut.encounter.encounter_date.strftime("%d-%b-%Y")
+                muac_str = bonjour.dates.format_date(nut.encounter.encounter_date, format='medium')
                 status_str = _(u'%(status)s [%(muac)d]') % \
                     {'status': nut.verbose_state, 
                     'muac': nut.muac}

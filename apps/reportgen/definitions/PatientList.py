@@ -3,7 +3,6 @@
 # maintainer: ukanga
 
 import copy
-from datetime import date
 
 from django.utils.translation import ugettext as _
 from django.template import Template, Context
@@ -20,7 +19,7 @@ try:
 except ImportError:
     pass
 
-
+import bonjour.dates
 from ccdoc.utils import register_fonts
 from libreport.pdfreport import p
 from libreport.pdfreport import MultiColDocTemplate
@@ -179,8 +178,8 @@ class ReportDefinition(PrintedReport):
 
         hdata = [Paragraph('%s' % title, styleH3)]
         hdata.extend((len(cols) - 1) * [''])
-        datedata = [Paragraph(_("Active Patients | Current as of ") + unicode(date.today().strftime("%d %B %Y.")), \
-                    styleH5)]
+        datedata = [Paragraph(_("Active Patients | Current as of ") + \
+            bonjour.dates.format_date(format='long'), styleH5)]
         datedata.extend((len(cols) - 1) * [''])
         
         data = [hdata, datedata]

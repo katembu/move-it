@@ -8,6 +8,8 @@ from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PeriodType, Period, SubPeriod
 
+import bonjour.dates
+
 class FourWeeks(PeriodType):
 
     title       = _("Four weeks")
@@ -30,7 +32,7 @@ class FourWeeks(PeriodType):
             hour=23, minute=59, second=59, microsecond=999999)
 
         title = _("Week of %(start)s") % \
-            {'start': start_date.strftime("%d %b.")}
+            {'start': bonjour.dates.format_date(start_date, format="dd MMM")}
         return SubPeriod(\
             title,
             start_date,
@@ -48,14 +50,13 @@ class FourWeeks(PeriodType):
 
         end_date = sub_periods[len(sub_periods)-1].end
         title = _("Weeks %(start)s to %(end)s") % \
-            {'start': start_date.strftime("%d %b %Y"),
-            'end': end_date.strftime("%d %b %Y")}
+            {'start': bonjour.dates.format_date(start_date, format='medium'),
+            'end': bonjour.dates.format_date(end_date, format='medium')}
         relative_title = _("Monday %(n)d week(s) ago") % \
             {'n': index}
             
         return Period(title, relative_title, \
             start_date, end_date, sub_periods)
         
-
 
 

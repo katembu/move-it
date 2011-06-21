@@ -2,7 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 import copy
-from datetime import datetime
 
 from django.utils.translation import ugettext as _
 
@@ -21,6 +20,8 @@ from reportlab.graphics.charts.linecharts import HorizontalLineChart
 from indicator.query_set_type import QuerySetType
 
 from reporters.models import Reporter
+
+import bonjour.dates
 
 from childcount.models import Patient
 from childcount.models import Clinic
@@ -79,8 +80,8 @@ class ReportDefinition(PrintedReport):
 
         story = [Paragraph(u"<b>"+unicode(title)+u"</b>", styleH),\
             Paragraph(_("Generated on: ") + 
-                datetime.now().strftime("%d-%m-%Y at %H:%M."), styleN),\
-            Paragraph(_("For period %s.") % period.title, styleN)]
+                bonjour.dates.format_datetime(format='full'), styleN),\
+            Paragraph(_("For period: %s.") % period.title, styleN)]
 
         cat_names = []       
         graph_data = []

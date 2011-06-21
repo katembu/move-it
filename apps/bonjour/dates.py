@@ -71,8 +71,12 @@ def _format_date_ethiopian(date, format):
         'yy': "%02d" % (jyear % 100),
         'G': locale.eras['abbreviated'][1],
     }
+
     try:
-        return locale.date_formats[format].format % sub_dict
+        if format in locale.date_formats:
+            return locale.date_formats[format].format % sub_dict
+        else:
+            return babel.dates.parse_pattern(format).format % sub_dict
     except KeyError, err:
         raise ValueError("Date format %s not defined" % err)
 
@@ -93,9 +97,6 @@ def format_date(date=None, format='medium', locale=None):
     :type locale: :cls:`str`
     """
 
-    assert format in ('short','medium','long','full'),\
-        "Format must be 'short', 'medium', 'long', or 'full'"
-        
     if locale is None:
         locale = settings.LANGUAGE_CODE
         
@@ -122,12 +123,12 @@ def format_time(time=None, format='medium', tzinfo=None, locale=None):
 
     return babel.dates.format_time(time, format, tzinfo, locale)
 
-def format_datetime(datetime_in=None, format='medium', locale=None):
+def format_datetime(datetime=None, format='medium', locale=None):
     if locale is None:
         locale = Locale.parse(settings.LANGUAGE_CODE)
 
     # Borrowed from babel
     return babel.dates.get_datetime_format(format, locale=locale)\
-        .replace('{0}', format_time(datetime_in, format, locale=locale))\
-        .replace('{1}', format_date(datetime_in, format, locale=locale))
+        .replace('{0}', format_time(datetime, format, locale=locale))\
+        .replace('{1}', format_date(datetime, format, locale=locale))
     

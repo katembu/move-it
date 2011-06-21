@@ -8,6 +8,8 @@ from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PeriodType, Period, SubPeriod
 
+import bonjour.dates
+
 class Month(PeriodType):
 
     title       = _("Month")
@@ -67,8 +69,8 @@ class Month(PeriodType):
                 second=59, microsecond=999999)
 
         title = _("%(start)s to %(end)s") % \
-            {'start': start_date.strftime("%d %b"),
-            'end': end_date.strftime("%d %b")}
+            {'start': bonjour.dates.format_date(start_date, format="dd MMM"), 
+            'end': bonjour.dates.format_date(end_date, format="dd MMM")}
         return SubPeriod(\
             title,
             start_date,

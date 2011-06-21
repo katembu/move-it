@@ -8,6 +8,8 @@ from django.utils.translation import ugettext as _
 
 from reportgen.timeperiods import PeriodType, Period, SubPeriod
 
+import bonjour.dates
+
 class MonthByDays(PeriodType):
 
     title       = _("Month (Daily)")
@@ -29,7 +31,6 @@ class MonthByDays(PeriodType):
         start_date = datetime.today() + \
             relativedelta(day=1, months=-index, hour=0, \
                 minute=0, second=0, microsecond=0)
-
 
         # Last day of calendar month
         end_date = start_date + \
@@ -58,7 +59,7 @@ class MonthByDays(PeriodType):
         end_date = start_date + \
             relativedelta(hour=23, minute=59, second=59, microsecond=999999)
 
-        title = start_date.strftime("%d %b")
+        title = bonjour.dates.format_date(start_date, format="dd MMM")
         return SubPeriod(\
             title,
             start_date,

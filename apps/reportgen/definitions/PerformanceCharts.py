@@ -2,8 +2,6 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
-from datetime import datetime
-
 from fractions import Fraction
 
 from django.utils.translation import ugettext as _
@@ -30,14 +28,19 @@ from childcount.models import Patient
 
 from ccdoc.utils import register_fonts
 
+import bonjour.dates
+
 from reportgen.PrintedReport import PrintedReport
 
 register_fonts()
 
 styles = getSampleStyleSheet()
 styleN = styles['Normal']
+styleN.fontName = 'FreeSerif'
 styleH = styles['Heading1']
+styleN.fontName = 'FreeSerif'
 styleH3 = styles['Heading2']
+styleN.fontName = 'FreeSerif'
 styleH3.alignment = 1
 
 class ReportDefinition(PrintedReport):
@@ -59,7 +62,7 @@ class ReportDefinition(PrintedReport):
 
         story = [Paragraph(unicode(title), styleH),\
             Paragraph(_("Generated on: ") + 
-                datetime.now().strftime("%d-%m-%Y at %H:%M."), styleN),\
+                bonjour.dates.format_datetime(format='full'), styleN),\
             Paragraph(_("For period %s.") % period.title, styleN)]
 
         clinics = Clinic\

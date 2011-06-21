@@ -27,6 +27,8 @@ from childcount.utils import RotatedParagraph
 
 from libreport.pdfreport import p
 
+import bonjour.dates
+
 from ccdoc.utils import register_fonts
 from reportgen.PrintedReport import PrintedReport
 from reportgen.utils import render_doc_to_file
@@ -66,7 +68,7 @@ class ReportDefinition(PrintedReport):
             rowCHWs = CHW\
                         .objects\
                         .filter(is_active=True)\
-                        .filter(clinic=location)
+                        .filter(clinic=location)[0:1]
             if rowCHWs.count() == 0:
                 continue
 
@@ -95,11 +97,10 @@ class ReportDefinition(PrintedReport):
         now = datetime.now()
         hdata = [Paragraph(_(u'<b>%(name)s - %(title)s '\
                                 '(Generated on '\
-                                '%(gen_date)s at %(gen_time)s)</b>')% \
+                                '%(gen_datetime)s)</b>')% \
                                 {'name': title,\
                                 'title': period.title,\
-                                'gen_date': now.strftime('%d %b %Y'),\
-                                'gen_time': now.strftime('%H:%M')}, \
+                                'gen_datetime': bonjour.dates.format_datetime(format='medium')},
                 styleH3)]
         tStyle.append(('SPAN', (0, 0), (-1, 0)))
 

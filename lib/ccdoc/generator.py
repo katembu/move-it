@@ -4,6 +4,8 @@ import tempfile
 
 from django.utils.translation import ugettext as _
 
+import bonjour.dates
+
 from paragraph import Paragraph
 from hline import HLine
 from section import Section, PageBreak
@@ -31,7 +33,10 @@ class Generator(object):
         self.subtitle = document.subtitle
         self.landscape = document.landscape
         self.stick_sections = document.stick_sections
-        self.datestring = time.strftime(document.datestring)
+        if document.datestring:
+            self.datestring = bonjour.dates.format_datetime(format='full')
+        else:
+            self.datestring = u""
         self.contents = document.contents
         self._rendered = False
 
