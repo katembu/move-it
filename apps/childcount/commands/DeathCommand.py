@@ -9,7 +9,6 @@ from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
-from ethiopian_date import EthiopianDateConverter
 
 from childcount.commands import CCCommand
 from childcount.utils import authenticated
@@ -65,14 +64,6 @@ class DeathCommand(CCCommand):
                                 "with a %(choices)s.") % \
                               {'choices': self.gender_field.choices_string()})
 
-        # import ethiopian date variable
-        try:
-            is_ethiopiandate = (Configuration.objects \
-                                .get(key='inputs_ethiopian_date')\
-                                .value.lower() == "true")
-        except (Configuration.DoesNotExist, TypeError):
-            is_ethiopiandate = False
-
         dob = None
         for i in gender_indexes:
             # the gender field is at the end of the tokens.  We don't know
@@ -90,9 +81,6 @@ class DeathCommand(CCCommand):
                                     "date_of_birth of %(string)s.") % \
                                     {'string': tokens[i + 1]})
 
-        # convert dob to gregorian before saving to DB
-        if is_ethiopiandate and not variance:
-            dob = EthiopianDateConverter.date_to_gregorian(dob)
 
         death.dob = dob
         # if the gender field is the first or second

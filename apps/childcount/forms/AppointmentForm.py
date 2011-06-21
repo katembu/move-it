@@ -11,7 +11,6 @@ Close previous appointment dates
 
 from datetime import datetime, timedelta
 from django.utils.translation import ugettext as _
-from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.models import Patient
@@ -59,14 +58,6 @@ class AppointmentForm(CCForm):
         expected_on_str = ''.join(self.params[1:])
         close_appointment = False
 
-        # import ethiopian date variable
-        try:
-            is_ethiopiandate = (Configuration.objects \
-                                .get(key='inputs_ethiopian_date')\
-                                .value.lower() == "true")
-        except (Configuration.DoesNotExist, TypeError):
-            is_ethiopiandate = False
-
         try:
             #need to trick DOBProcessor: use a future date for date_ref
             date_ref = datetime.today() + timedelta(375)
@@ -85,11 +76,6 @@ class AppointmentForm(CCForm):
                 raise BadValue(_(u"%(expected_on)s is already in the past, " \
                                 "please use a future date of appointment." % \
                                     {'expected_on': expected_on}))
-
-            # convert dob to gregorian before saving to DB
-            if is_ethiopiandate and not variance:
-                expected_on = EthiopianDateConverter \
-                                                .date_to_gregorian(expected_on)
 
             aptr.appointment_date = expected_on
             aptr.status = AppointmentReport.STATUS_OPEN

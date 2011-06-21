@@ -5,7 +5,6 @@
 
 from datetime import datetime, timedelta, time
 from django.utils.translation import ugettext as _
-from ethiopian_date import EthiopianDateConverter
 
 from childcount.forms import CCForm
 from childcount.models import Configuration
@@ -40,14 +39,6 @@ class AntenatalVisitForm(CCForm):
             avr = AntenatalVisitReport(encounter=self.encounter)
         avr.form_group = self.form_group
 
-        # import ethiopian date variable
-        try:
-            is_ethiopiandate = (Configuration.objects \
-                                .get(key='inputs_ethiopian_date')\
-                                .value.lower() == "true")
-        except (Configuration.DoesNotExist, TypeError):
-            is_ethiopiandate = False
-
         expected_on_str = self.params[1]
         try:
             #need to trick DOBProcessor: use a future date for date_ref
@@ -63,10 +54,6 @@ class AntenatalVisitForm(CCForm):
                             "the expected delivery date should be a "\
                             "future date." % \
                                 {'expected_on': expected_on}))
-
-        # convert dob to gregorian before saving to DB
-        if is_ethiopiandate and not variance:
-            expected_on = EthiopianDateConverter.date_to_gregorian(expected_on)
 
         avr.expected_on = expected_on
         avr.save()

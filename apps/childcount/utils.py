@@ -11,6 +11,7 @@ import glob
 import itertools
 from datetime import date, timedelta, datetime
 from functools import wraps
+from ethiopian_date import EthiopianDateConverter
 
 import rapidsms
 import urllib2
@@ -21,6 +22,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 
 from childcount.exceptions import *
+from childcount.models import Configuration as Cfg
 
 from indicator import Indicator
 
@@ -56,12 +58,22 @@ class DOBProcessor:
     IMPORTANT NOTE: List from shortest to longest
     """
 
+    UNITS['am'] = {
+        DAYS: ['d', 'day', 'days'],
+        WEEKS: ['w', 'wk', 'wks', 'week', 'weeks'],
+        MONTHS: ['m', 'mon', 'mths', 'month', 'months'],
+        YEARS: ['y', 'yr', 'yrs', 'year', 'years'],
+    }
+
     ABRV_MONTHS = {}
     ABRV_MONTHS['en'] = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', \
                          'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
     ABRV_MONTHS['fr'] = ['jan', 'fev', 'mar', 'avr', 'mai', 'juin', \
                          'juil', 'aou', 'sep', 'oct', 'nov', 'dec']
+
+    ABRV_MONTHS['am'] = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', \
+                         'jul', 'aug', 'sep', 'oct', 'nov', 'dec', 'xxx']
 
     #TODO Site specific stuff:
     #           Date order
@@ -130,7 +142,23 @@ class DOBProcessor:
 
     @classmethod
     def from_dob(cls, lang, string, date_ref=None):
+        try:
+            is_ethiopian = (Cfg\
+                .objects\
+                .get(key='inputs_ethiopian_date')\
+                .value\
+                .lower() == 'true')
+        except Cfg.DoesNotExist:
+            is_ethiopian = False
 
+        def edate(year, month, day):
+            if is_ethiopian:
+                return EthiopianDateConverter.to_gregorian(year, month, day)
+            else:
+                return date(year, month, day)
+
+
+        n_months = 13 if is_ethiopian else 12
         # if no reference date specified, default to today
         if not date_ref:
             date_ref = date.today()
@@ -179,16 +207,17 @@ class DOBProcessor:
                                                                   delim_regex
             match = re.match(regex, string)
 
-        if match and int(match.groupdict()['m']) <= 12:
+        if match and int(match.groupdict()['m']) <= n_months:
             month = int(match.groupdict()['m'])
             year = int(match.groupdict()['y'])
-            if date(int('2%03d' % year), month, 1) > date_ref:
+
+            if edate(int('2%03d' % year), month, 1) > date_ref:
                 year_prefix = 19
             else:
                 year_prefix = 20
             year = int('%d%02d' % (year_prefix, year))
             variance = 15
-            dob = date(year=year, month=month, day=15)
+            dob = edate(year=year, month=month, day=15)
 
             if (date_ref.year - dob.year) > cls.MAX_AGE:
                 raise InvalidDOB
@@ -209,7 +238,7 @@ class DOBProcessor:
             match = re.match(regex, string)
             if match:
                 grps = match.groupdict()
-                if int(match.groups()[cls.DATEORDER.index(cls.MONTHS)]) <= 12:
+                if int(match.groups()[cls.DATEORDER.index(cls.MONTHS)]) <= n_months:
                     hit = True
                     string = '%s/%02d/%s' % (grps['a'], int(grps['b']), \
                                              grps['c'])
@@ -254,11 +283,11 @@ class DOBProcessor:
             month = int(values[cls.DATEORDER.index(cls.MONTHS)])
             day = int(values[cls.DATEORDER.index(cls.DAYS)])
 
-            if month > 12:
+            if month > n_months:
                 raise InvalidDOB
             if len('%02d' % year) == 2:
                 try:
-                    dob = date(int('2%03d' % year), month, day)
+                    dob = edate(int('2%03d' % year), month, day)
                 except ValueError:
                     raise InvalidDOB
                 if dob > date_ref:
@@ -267,7 +296,7 @@ class DOBProcessor:
                     year = int('2%03d' % year)
 
             try:
-                dob = date(year, month, day)
+                dob = edate(year, month, day)
             except ValueError:
                 raise InvalidDOB
 
