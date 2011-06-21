@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-16 17:14+0300\n"
-"PO-Revision-Date: 2011-06-17 14:56+0300\n"
+"PO-Revision-Date: 2011-06-20 14:35+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: KORARO CC+ TEAM\n"
 "MIME-Version: 1.0\n"
@@ -273,7 +273,7 @@ msgstr "መለለዪ ቁፅሪ ጥዒና"
 #: definitions/Malnutrition.py:98
 #: definitions/Malnutrition.py:143
 msgid "Name / Age"
-msgstr "ስም/ዕድመ"
+msgstr "ስም / ዕድመ"
 
 #: definitions/ChwReport.py:118
 #: definitions/ChwReport.py:164
@@ -298,7 +298,7 @@ msgstr "ናይ ክትትል መዓልቲ"
 
 #: definitions/ChwReport.py:138
 msgid " on "
-msgstr "ክፍቲ"
+msgstr " ክፍቲ "
 
 #: definitions/ChwReport.py:144
 msgid "[No DSs Reported]"
@@ -306,7 +306,7 @@ msgstr ""
 
 #: definitions/ChwReport.py:145
 msgid "Late: "
-msgstr "ዝዘንግዐ፡"
+msgstr "ዝዘንግዐ፡ "
 
 #: definitions/ChwReport.py:149
 msgid "[No Follow-Up]"

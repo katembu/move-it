@@ -11,7 +11,20 @@ def font_path(font_name):
     return os.path.join(filedir, 'fonts', font_name)
 
 def register_fonts():
-    # Liberation Sans font
+    """
+    register_fonts() loads the non-standard fonts
+    used for Ethiopic script.
+
+    Note: The only font we have that supports both
+    Ethiopic script and Latin script is FreeSerif.
+    
+    When you are designing a report that should work
+    across sites, make sure that you *only* use the
+    FreeSerif font. If you need to make something
+    bold or italic, use the <b> and <i> tags.
+    That way your report will work with all scripts.
+    """
+
     pdfmetrics.registerFont(TTFont('LiberationSans', \
                                    font_path('LiberationSans-Regular.ttf')))
     pdfmetrics.registerFont(TTFont('LiberationSans-Bold', \

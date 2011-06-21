@@ -28,15 +28,25 @@ from childcount.utils import get_indicators
 
 from reportgen.PrintedReport import PrintedReport
 
+from ccdoc.utils import register_fonts
+
+# Load fonts compatible with Ethiopian scripts
+register_fonts()
+
 styles = getSampleStyleSheet()
 styleN = styles['Normal']
+styleN.fontName = 'FreeSerif'
 styleH = styles['Heading1']
+styleH.fontName = 'FreeSerif'
 styleH2 = styles['Heading2']
 styleH2.alignment = 1
+styleH2.fontName = 'FreeSerif'
 styleH3 = styles['Heading3']
 styleH3.alignment = 1
+styleH3.fontName = 'FreeSerif'
 styleNR = copy.copy(styles['Normal'])
 styleNR.alignment = 2
+styleNR.fontName = 'FreeSerif'
 
 class ReportDefinition(PrintedReport):
     title = u'Indicator Chart'
@@ -67,7 +77,7 @@ class ReportDefinition(PrintedReport):
             raise NotImplementedError(\
                 _(u'Can only generate PDF for indicator chart'))
 
-        story = [Paragraph(unicode(title), styleH),\
+        story = [Paragraph(u"<b>"+unicode(title)+u"</b>", styleH),\
             Paragraph(_("Generated on: ") + 
                 datetime.now().strftime("%d-%m-%Y at %H:%M."), styleN),\
             Paragraph(_("For period %s.") % period.title, styleN)]
@@ -103,7 +113,7 @@ class ReportDefinition(PrintedReport):
             self.set_progress((i*100.0)/total)
 
         graph = self._graph(cat_names, [graph_data], period)
-        story.append(Paragraph(ind.long_name + _(" over time"), styleH2))
+        story.append(Paragraph(u"<b>" + ind.long_name + _(" over time")+u"</b>", styleH2))
 
         t2 = Table(table_data)
         t2.setStyle([
