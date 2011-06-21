@@ -59,7 +59,7 @@ class ReportDefinition(PrintedReport):
         story = []
         locations = Clinic\
             .objects\
-            .filter(pk__in=CHW.objects.values('clinic').distinct())[0:1]
+            .filter(pk__in=CHW.objects.values('clinic').distinct())
 
         total = locations.count()
         for i,location in enumerate(locations):
@@ -68,7 +68,7 @@ class ReportDefinition(PrintedReport):
             rowCHWs = CHW\
                         .objects\
                         .filter(is_active=True)\
-                        .filter(clinic=location)[0:1]
+                        .filter(clinic=location)
             if rowCHWs.count() == 0:
                 continue
 
