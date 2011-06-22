@@ -7,15 +7,15 @@ from paragraph import Paragraph
 from hline import HLine
 
 class Document(object):
-    '''
-        Document holds the entire report to be
-        generated and is what you pass to a
-        Generator object.
+    ''':class:`Document` holds the entire report to be
+    generated and is what you pass to a
+    Generator object.
 
-        Besides setting the title and subtitle
-        the only thing you need to do is add
-        elements (Paragraph, Section, Table) to
-        it.
+    Besides setting the title and subtitle
+    the only thing you need to do is add
+    elements (:class:`ccdoc.paragraph.Paragraph`, 
+    :class:`ccdoc.section.Section`, :class:`ccdoc.table.Table`) to
+    it.
     '''
 
     def __init__(self,
@@ -24,6 +24,9 @@ class Document(object):
             landscape=False,
             stick_sections=False,
             datestring=True):
+        """
+        
+        """
 
         self.title = title
         self.subtitle = subtitle
@@ -33,5 +36,6 @@ class Document(object):
         self.contents = []
 
     def add_element(self, element):
+        """Add an element to the document object"""
         self.contents.append(element)
 

@@ -7,21 +7,3 @@ API/ChildCount+ Module Reference
     apps/index
     lib/index
 
-#. ChildCount+ "API"
-
-    #. apps/libreport
-
-    #. apps/mgvmrs
-
-    #. apps/reportgen
-
-    #. lib/ccdoc
-
-    #. lib/checksum
-
-    #. lib/indicator
-
-
-
-
-
