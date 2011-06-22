@@ -16,7 +16,7 @@ class App (rapidsms.app.App):
 
     ''' Bonjour App
 
-    Uses lang parameter from rapidsms.ini
+    Uses lang parameter from :file:`local.ini`
     Sets django locale accordingly (used by rapidsms) '''
 
     # default language

@@ -93,6 +93,7 @@ class App (rapidsms.app.App):
 
         if reporter and reporter.language:
             lang = reporter.language
+            print "))))))))))%s" % lang
         else:
             lang = self.DEFAULT_LANGUAGE
 

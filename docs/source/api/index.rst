@@ -1,4 +1,4 @@
-ChildCount+ Module Reference
+API/ChildCount+ Module Reference
 ================================
 
 .. toctree::

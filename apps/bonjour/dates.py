@@ -28,6 +28,7 @@ TIGRINYA_MONTHS_ABBREVIATED = {
    12 : u"\u1290\u1213\u1230",
    13 : u"\u1333\u1309",
 }
+"""Abbreviated month names in Tigrinyna"""
 
 TIGRINYA_MONTHS_WIDE = {
    1 : u"\u1218\u1235\u12a8\u1228\u121d",
@@ -44,8 +45,14 @@ TIGRINYA_MONTHS_WIDE = {
    12 : u"\u1290\u1213\u1230",
    13 : u"\u1333\u1309\u121c",
 }
+"""Full month names in Tigrinyna"""
 
 def _format_date_ethiopian(date, format):
+    """Converts the input date to the Julian/Ethiopian
+    calendar and formats a date in the ti_ET locale for
+    Tigrinya.
+    """
+
     locale = Locale.parse('ti_ET')
     
     if date is None:
@@ -89,12 +96,12 @@ def format_date(date=None, format='medium', locale=None):
     calendar for other dates.
 
     :param date: Date to format
-    :type date: :cls:`datetime.date`
+    :type date: :class:`datetime.date`
     :param format: "short", "medium", "long", "full"
-    :type format: :cls:`str`
+    :type format: :class:`str`
     :param locale: The locale to use (defaults to server locale
-                   as specified in :cls:`settings.LANGUAGE_CODE`
-    :type locale: :cls:`str`
+                   as specified in `settings.LANGUAGE_CODE`
+    :type locale: :class:`str`
     """
 
     if locale is None:
@@ -114,7 +121,7 @@ def format_date(date=None, format='medium', locale=None):
 
 def format_time(time=None, format='medium', tzinfo=None, locale=None):
     """Alias to :func:`babel.dates.format_time` which
-    defaults to the Django locale
+    defaults to the Django locale and time zone
     """
     if locale is None:
         locale = Locale.parse(settings.LANGUAGE_CODE)
@@ -124,6 +131,9 @@ def format_time(time=None, format='medium', tzinfo=None, locale=None):
     return babel.dates.format_time(time, format, tzinfo, locale)
 
 def format_datetime(datetime=None, format='medium', locale=None):
+    """Alias to :func:`babel.dates.format_datetime` which
+    defaults to the Django locale and time zone
+    """
     if locale is None:
         locale = Locale.parse(settings.LANGUAGE_CODE)
 

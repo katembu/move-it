@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-06-14 17:12+0300\n"
-"PO-Revision-Date: 2011-06-16 18:34+0300\n"
+"PO-Revision-Date: 2011-06-22 10:01+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -36,7 +36,7 @@ msgstr ""
 #: app.py:134
 #, python-format
 msgid "%(fname)s, you must select a CHW other than yourself at the bottom of the data entry screen."
-msgstr ""
+msgstr "%(fname)s, ድክጅ ጅውሃል ቂዙች ቅንስ፣ድፕ ቅስችዛቅ."
 
 #: app.py:147
 #: app.py:187
@@ -307,7 +307,7 @@ msgstr ""
 #: commands/CheckHealthIdCommand.py:50
 #, python-format
 msgid "Health ID %(id)s does NOT exist in the database "
-msgstr ""
+msgstr "ድፍድኣ ኡያ %(id)s ስሃች ቅይባ "
 
 #: commands/CheckHealthIdCommand.py:53
 msgid " but IS a valid identifier.  Check to make sure the database is current."

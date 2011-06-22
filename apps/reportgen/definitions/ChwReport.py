@@ -51,7 +51,7 @@ class ReportDefinition(PrintedReport):
 
         chws = CHW\
             .objects\
-            .filter(clinic__pk=clinic_pk, is_active=True)
+            .filter(clinic__pk=clinic_pk, is_active=True)[0:1]
         
         total = chws.count()
         for i,chw in enumerate(chws):

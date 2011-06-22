@@ -12,6 +12,7 @@ from rapidsms.webui.utils import render_to_response
 from indicator import Indicator
 
 from django import forms
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.http import HttpResponseBadRequest
@@ -40,11 +41,6 @@ from reportgen.models import Report
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
 cc_forms = re.split(r'\s*,*\s*', form_config)
-
-try:
-    languages = Configuration.objects.get(key='languages').value.split()
-except:
-    languages = ['en',]
 
 @login_required
 @permission_required('childcount.add_encounter')
@@ -143,8 +139,7 @@ class CHWForm(forms.Form):
     last_name = forms.CharField(max_length=30)
     password = forms.CharField()
     language = forms.CharField(min_length=2, max_length=5)
-    language = forms.ChoiceField(choices=[(language, language) \
-                                       for language in languages])
+    language = forms.ChoiceField(choices=settings.LANGUAGES)
     location = forms.ChoiceField(choices=[(location.id, location.name) \
                                        for location in Location.objects.all()])
     mobile = forms.CharField(required=False)

@@ -2,7 +2,19 @@
 # encoding=utf-8
 # maintainer: rgaudin
 
-"""  Ethiopian Calendar tool for Python 2.6
+"""  
+.. note:: This version of the Ethiopian Calendar tool is a fork
+          from Renaud's version. The only difference is that when
+          converting a date to the Julian calendar, this version
+          returns a (year, month, day) tuple instead of a 
+          :class:`datetime.datetime` object.
+          
+          We cannot use the native Python :class:`datetime`
+          class because the Julian calendar has 13 months,
+          and the Python libraries can only deal with 12 months.
+
+
+Ethiopian Calendar tool for Python 2.6
 
 Copyright (c) 2010 Renaud Gaudin <rgaudin@gmail.com>
 
@@ -46,35 +58,28 @@ class EthiopianDateConverter(object):
         return new_year_day
 
     @classmethod
-    def date_to_gregorian(cls, adate):
-        """ Gregorian date object representation of provided Ethiopian date
-
-        Shortcut to to_gregorian() classmethod using a date parameter
-
-        Params:
-        * adate: date object """
-
-        return cls.to_gregorian(adate.year, adate.month, adate.day)
-
-    @classmethod
     def date_to_ethiopian(cls, adate):
         """ Ethiopian date object representation of provided Gregorian date
 
         Shortcut to to_ethiopian() classmethod using a date parameter
 
-        Params:
-        * adate: date object """
+        :param adate: Gregorian date to conver to Julian calendar
+        :type adate: :class:`datetime.date`
+        """
 
         return cls.to_ethiopian(adate.year, adate.month, adate.day)
 
     @classmethod
     def to_gregorian(cls, year, month, date):
         """ Gregorian date object representation of provided Ethiopian date
-
-        Params:
-        * year: an int
-        * month: an int
-        * date: an int """
+    
+        :param year: Julian year
+        :type year: :class:`int`
+        :param month: Julian month
+        :type month: :class:`int`
+        :param date: Julian day
+        :type date: :class:`int`
+        """
 
         # prevent incorect input
         inputs = (year, month, date)
@@ -136,10 +141,13 @@ class EthiopianDateConverter(object):
     def to_ethiopian(cls, year, month, date):
         """ Ethiopian date object representation of provided Gregorian date
 
-        Params:
-        * year: an int
-        * month: an int
-        * date: an int """
+        :param year: Gregorian year
+        :type year: :class:`int`
+        :param month: Gregorian month
+        :type month: :class:`int`
+        :param date: Gregorian day
+        :type date: :class:`int`
+        """
 
         # prevent incorect input
         inputs = (year, month, date)
