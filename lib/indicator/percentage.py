@@ -7,8 +7,8 @@ from django.utils.translation import ugettext as _
 
 class Percentage(fractions.Fraction):
     """
-    This is exactly like fractions.Fraction except
-    that Percentage never simplifies the numerator
+    This is exactly like :class:`fractions.Fraction` except
+    that :class:`Percentage` never simplifies the numerator
     or denominator.
     """
 

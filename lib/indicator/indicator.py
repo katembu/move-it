@@ -13,36 +13,77 @@ from django.utils.translation import ugettext as _
 
 class Indicator(object):
     type_in     = None
+    """Type of the data argument to this indicator.
+    Often this will be an instantiated 
+    :class:`indicator.query_set_type.QuerySetType`
+    like `QuerySetType(Patient)`.
+    """
+
     type_out    = None
+    """The type of the return value of this indicator.
+    Used to figure out whether or not it can be cached. 
+    """
 
     slug        = None
+    """A machine-friendly identifier string for this indicator, 
+    using a-z, A-Z, 0-9, and underscore.
+    """
+
     short_name  = None
+    """A short human-readable name for this indicator, like
+    "% FP".
+    """
+
     long_name   = None
+    """A long human-readable name for this indicator, like
+    "Percentage of women 15-49 using modern family planning
+    methods.
+    """
 
     cache       = True
-    # Default to two hours
+    """A boolean indicating whether or not this indicator
+    should be cached. Should be False for indicators with
+    non-pickle-able output values.
+    """
+
     valid_for   = 2*60*60
+    """How long to keep cached values for before expiring
+    them.
+    """
 
     @classmethod
     def _value(cls, period, data_in):
+        """The main indicator function.
+
+        :param period: A time period object, with a :meth:`.start`
+                       and an :meth:`.end` method, each of which 
+                       returns a :class:`datetime.datetime` object.
+        :param data_in: The data parameter for this indicator.
+                        Often a QuerySet of patients or CHWs or clinics.
+        """
         raise NotImplementedError(_("No value method implemented!"))
 
     
-    '''
-    You shouldn't have implement anything below this line
-    in your Indicator subclasses...
-    '''
+    # You shouldn't have implement anything below this line
+    # in your Indicator subclasses...
 
     @classmethod
     def input_is_query_set(cls):
+        """True if the input type is a :class:`QuerySet` """
         return isinstance(cls.type_in, QuerySetType)
 
     @classmethod
     def output_is_number(cls):
+        """True if the output type is a subclass of 
+        :class:`numbers.Number`.
+        """
         return issubclass(cls.type_out, numbers.Number)
 
     @classmethod
     def output_is_percentage(cls):
+        """True if the output type is 
+        :class:`indicator.percentage.Percentage`.
+        """
         return issubclass(cls.type_out, Percentage)
 
     @classmethod
@@ -84,8 +125,17 @@ class Indicator(object):
         return data_out 
 
 class IndicatorPercentage(Indicator):
+    """
+    Subclass of :class:`indicator.indicator.Indicator` for
+    percentage values. You give it the two indicators that
+    make up the numerator and denominator values and it 
+    gives you back a :class:`indicator.percentage.Percentage`.
+    """
+
     cls_num = None
+    """The numerator :class:`indicator.indicator.Indicator`"""
     cls_den = None
+    """The denominator :class:`indicator.indicator.Indicator`"""
 
     type_out = Percentage
 
@@ -94,8 +144,18 @@ class IndicatorPercentage(Indicator):
         return Percentage(cls.cls_num(period, data_in), cls.cls_den(period, data_in))
 
 class IndicatorDifference(Indicator):
+    """
+    Subclass of :class:`indicator.indicator.Indicator` for
+    difference values. You give it the two indicators that
+    make up the numerator and denominator values and it 
+    gives you back their difference.
+    """
     cls_first   = None
+    """The inital :class:`indicator.indicator.Indicator` value"""
     cls_second  = None
+    """The number to subtract from the initial
+    :class:`indicator.indicator.Indicator` value
+    """
 
     @classmethod
     def _value(cls, period, data_in):

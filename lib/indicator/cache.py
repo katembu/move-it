@@ -12,10 +12,6 @@ from django.utils.translation import ugettext as _
 from percentage import Percentage
 from query_set_type import QuerySetType
 
-"""A mapping of a type => function to
-use to turn an object of this type
-into a cache key
-"""
 STR_FUNCTIONS = {
     int:            str,
     float:          str,
@@ -24,15 +20,19 @@ STR_FUNCTIONS = {
     bool:           str,
     dict:           str,
 }
+"""A mapping of a type => function to
+use to turn an object of this type
+into a cache key
+"""
 
-"""Indicator output types that can be cached."""
 CACHEABLE_TYPES = (int, float, datetime, \
     date, bool, Percentage, dict)
+"""Indicator output types that can be cached."""
 
 
 def cache_simple(func, timeout=60*60*2):
     """
-    cache_simple is a decorator 
+    :func:`cache_simple` is a decorator 
     for caching a function of a single
     argument that returns a pickle-able
     object
@@ -64,6 +64,21 @@ def cache_simple(func, timeout=60*60*2):
     return x
 
 def cache_indicator(cls, ind_func, period, data_in):
+    """
+    :func:`cache_indicator` is the function used
+    to cache return values of :class:`indicator.indicator.Indicator`.
+
+    :param cls: Indicator to cache
+    :type cls: subclass of :class:`indicator.indicator.Indicator`
+    :param ind_func: Function which generates the indicator value
+    :type ind_func: `function`
+    :param period: The time period with which to compute the
+                   indicator value
+    :param data_in: The input data to the indicator
+
+    """
+
+
     # First, make sure we want to execute the caching logic
     if not cls.cache:
         print "skipping cache"
