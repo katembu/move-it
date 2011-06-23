@@ -1,16 +1,16 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Translating childcount plus from Engilish to Tigrigna
+# Copyright (C) 2011
+# This file is distributed under the same license as ChildCount+
+# Meseret/Temesgen/Haftay, 2011.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: STAGE G\n"
+"Report-Msgid-Bugs-To: Temesgen G.\n"
 "POT-Creation-Date: 2011-06-14 17:12+0300\n"
-"PO-Revision-Date: 2011-06-22 10:01+0300\n"
+"PO-Revision-Date: 2011-06-23 16:48+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: CHILD COUNT TEAM\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -36,7 +36,7 @@ msgstr ""
 #: app.py:134
 #, python-format
 msgid "%(fname)s, you must select a CHW other than yourself at the bottom of the data entry screen."
-msgstr "%(fname)s, ድክጅ ጅውሃል ቂዙች ቅንስ፣ድፕ ቅስችዛቅ."
+msgstr ""
 
 #: app.py:147
 #: app.py:187
@@ -49,7 +49,7 @@ msgstr ""
 
 #: app.py:174
 msgid "You must register before you can send reports."
-msgstr ""
+msgstr "ቅድሚ ምልኣክካ መዝግብ"
 
 #: app.py:218
 #, python-format
@@ -86,19 +86,19 @@ msgstr ""
 
 #: app.py:393
 msgid " Successfully processed:"
-msgstr ""
+msgstr "ብዓወት ተፈፂሙ፡"
 
 #: app.py:408
 msgid " You must resend the form."
-msgstr ""
+msgstr "እቲ ቅጥዒ ደጊምካ ለኣኽ።"
 
 #: app.py:410
 msgid " You must resend the forms."
-msgstr ""
+msgstr "ቅጥዕታት ደጊምካ ለኣኽ።"
 
 #: app.py:430
 msgid "One form failed."
-msgstr ""
+msgstr "ሓደ ቅጥዒ ኣይተሰርሐን።"
 
 #: app.py:432
 #, python-format
@@ -107,7 +107,7 @@ msgstr ""
 
 #: app.py:435
 msgid "One successful."
-msgstr ""
+msgstr "ሓደ ዕዉት።"
 
 #: app.py:437
 #, python-format
@@ -120,27 +120,27 @@ msgstr ""
 
 #: dashboard_sections.py:28
 msgid "Total Number of Patients"
-msgstr ""
+msgstr "ጠቕላላ በዝሒ ሕሙማት"
 
 #: dashboard_sections.py:29
 msgid "Number of days ago"
-msgstr ""
+msgstr "ቅድሚ ዕለታት"
 
 #: dashboard_sections.py:41
 msgid "# of Households"
-msgstr ""
+msgstr "# ናይ ስድራ"
 
 #: dashboard_sections.py:41
 msgid "# of Patients"
-msgstr ""
+msgstr "# ናይ ሕሙማት"
 
 #: dashboard_sections.py:42
 msgid "# of Underfives"
-msgstr ""
+msgstr "# ናይ ትሕቲ ሓሙሽተ ዓመት"
 
 #: dashboard_sections.py:42
 msgid "# of Pregnant Women"
-msgstr ""
+msgstr "# ናይ ነፍሰ ፆር ኣዴታት"
 
 #: dashboard_sections.py:55
 #: models/reports.py:279
@@ -153,24 +153,24 @@ msgstr ""
 #: models/reports.py:1555
 #: models/reports.py:1563
 msgid "Unknown"
-msgstr ""
+msgstr "ኣይፍለጥን"
 
 #: dashboard_sections.py:56
 #: models/reports.py:864
 msgid "Healthy"
-msgstr ""
+msgstr "ሙለእ ጥዒና"
 
 #: dashboard_sections.py:57
 msgid "Moderate"
-msgstr ""
+msgstr "ማእኸላይ"
 
 #: dashboard_sections.py:73
 msgid "This Month (to date)"
-msgstr ""
+msgstr "ሐዚ ወርሒ (to date)"
 
 #: dashboard_sections.py:73
 msgid "Last Month"
-msgstr ""
+msgstr "ዝሓለፈ ወርሒ"
 
 #: dashboard_sections.py:74
 msgid "+SAM / MAM"
@@ -179,7 +179,7 @@ msgstr ""
 #: dashboard_sections.py:74
 #: indicators/fever.py:38
 msgid "RDT+"
-msgstr ""
+msgstr "ኣር ዲ ቲ+"
 
 #: exceptions.py:20
 msgid "An error has occured."
@@ -204,7 +204,7 @@ msgstr ""
 #: fields.py:59
 #, python-format
 msgid "There is no patient with                 health ID %(hid)s"
-msgstr ""
+msgstr "መለለዪ ካርዲ ዘይብሉ ሕሙም የለን %(hid)s"
 
 #: tasks.py:155
 #, python-format
@@ -257,16 +257,16 @@ msgstr ""
 
 #: charts/utils.py:14
 msgid "chart"
-msgstr ""
+msgstr "ቻርት"
 
 #: commands/ActivityCommand.py:38
 msgid "week"
-msgstr ""
+msgstr "ሰሙን"
 
 #: commands/ActivityCommand.py:38
 #: commands/ActivityCommand.py:41
 msgid "month"
-msgstr ""
+msgstr "ወርሒ"
 
 #: commands/ActivityCommand.py:39
 #, python-format
@@ -307,7 +307,7 @@ msgstr ""
 #: commands/CheckHealthIdCommand.py:50
 #, python-format
 msgid "Health ID %(id)s does NOT exist in the database "
-msgstr "ድፍድኣ ኡያ %(id)s ስሃች ቅይባ "
+msgstr ""
 
 #: commands/CheckHealthIdCommand.py:53
 msgid " but IS a valid identifier.  Check to make sure the database is current."
@@ -418,11 +418,11 @@ msgstr ""
 #: commands/DeathCommand.py:100
 #: forms/PatientRegistrationForm.py:176
 msgid "You must provide a patient name before their sex."
-msgstr ""
+msgstr "ቅድሚ ፆታ ናይ ሕሙም ስም ኣቐድም።"
 
 #: commands/DeathCommand.py:117
 msgid "You must provide the date of death"
-msgstr ""
+msgstr "ዝሞትሉ ዕለት ኣእቲ"
 
 #: commands/DeathCommand.py:119
 #: commands/DeathCommand.py:127
@@ -2354,32 +2354,31 @@ msgstr ""
 
 #: indicators/birth.py:91
 msgid "# Births Delivered in Clinic"
-msgstr ""
+msgstr "በዝሒ ዝተወለዱ ኣብጥዕና ትካል"
 
 #: indicators/birth.py:109
 msgid "# Births with Location"
-msgstr ""
+msgstr "በዝሒ ዝተወለዱ ምስ ናቁ "
 
 #: indicators/birth.py:110
 msgid "Total number of patients born this period with recorded birth location"
-msgstr ""
+msgstr "በዝሒ ዝተወለዱ ምስ ናቁጣ "
 
 #: indicators/birth.py:127
 msgid "% Births Delivered in Clinic"
-msgstr ""
+msgstr "በዝሒ ዝተወለዱ ኣብ ክሊኒክ"
 
 #: indicators/birth.py:128
-#, python-format
 msgid "% of patients born this period known delivered in a clinic"
-msgstr ""
+msgstr "በዝሒ ኣብ ጥዕና ትካልዝተወለዱ"
 
 #: indicators/birth.py:140
 msgid "# Births with ANC 4"
-msgstr ""
+msgstr "4 ግዜ ቅድመ ወሊድ ኣካይደን ዝወለዳ"
 
 #: indicators/birth.py:141
 msgid "Total number of patients born this period whose mother has recorded four ANC visits by birth"
-msgstr ""
+msgstr "በዝሒ 4 ግዜ ቅድመ ወሊድ ገይረን ዝወለዳ"
 
 #: indicators/birth.py:168
 msgid "% Births with ANC 4"
@@ -2498,7 +2497,7 @@ msgstr ""
 
 #: indicators/danger_signs.py:260
 msgid "Total number of danger signs reports for U5s with complicated fever where the patient was referred and then had a follow-up visit between 18 and 72 hours after the referral"
-msgstr ""
+msgstr "በዝሒ  ሓደገና ምልክት ዘርአዩ  ትሕቲ 5ዓመት ምስ ረስኒ ዘለዎም ሪፈር ዝተብሃሉ "
 
 #: indicators/death.py:16
 msgid "Death"
@@ -2506,11 +2505,11 @@ msgstr ""
 
 #: indicators/death.py:49
 msgid "# Deaths"
-msgstr ""
+msgstr "በዝሒ ዝምቱ "
 
 #: indicators/death.py:50
 msgid "Total number of patients who died during this period"
-msgstr ""
+msgstr "ዝመቱ በዝሒ በዚ ወቅቲ "
 
 #: indicators/death.py:63
 msgid "# No loc. Deaths"
@@ -3174,15 +3173,15 @@ msgstr ""
 
 #: indicators/registration.py:68
 msgid "U9y"
-msgstr ""
+msgstr "ትሕቲ 9 ዓመት "
 
 #: indicators/registration.py:69
 msgid "Total number registered under-nines"
-msgstr ""
+msgstr "በዝሒ ትሕቲ 9ዓመት "
 
 #: indicators/registration.py:83
 msgid "U9m"
-msgstr ""
+msgstr "ትሕቲ 9 ወርሒ"
 
 #: indicators/registration.py:84
 msgid "Total number registered under nine months"
@@ -3338,7 +3337,7 @@ msgstr ""
 #: models/CHW.py:34
 #: models/Clinic.py:22
 msgid "Clinic"
-msgstr "ZZZZZ"
+msgstr ""
 
 #: models/CHW.py:37
 msgid "The clinic this CHW reports to"
@@ -4104,25 +4103,25 @@ msgstr ""
 #: models/Patient.py:156
 #, python-format
 msgid "%(days)sd"
-msgstr "%(days)s ዕለት"
+msgstr ""
 
 #: models/DeadPerson.py:107
 #: models/Patient.py:158
 #, python-format
 msgid "%(weeks)sw"
-msgstr "%(weeks)s ሰሙን"
+msgstr ""
 
 #: models/DeadPerson.py:109
 #: models/Patient.py:160
 #, python-format
 msgid "%(months)sm"
-msgstr "%(months)s ወርሒ "
+msgstr ""
 
 #: models/DeadPerson.py:112
 #: models/Patient.py:163
 #, python-format
 msgid "%(years)sy"
-msgstr "%(years)s ዓመት"
+msgstr ""
 
 #: models/DeadPerson.py:128
 #: models/Patient.py:237
@@ -4532,11 +4531,11 @@ msgstr ""
 
 #: models/reports.py:450
 msgid "Follow-up Report"
-msgstr ""
+msgstr "ናይ ክትትል ፀብፃብ"
 
 #: models/reports.py:451
 msgid "Follow-up Reports"
-msgstr ""
+msgstr "ናይ ክትትል ፀብፃባት"
 
 #: models/reports.py:460
 #: models/reports.py:470
@@ -4559,7 +4558,7 @@ msgstr ""
 
 #: models/reports.py:473
 msgid "Improvement"
-msgstr ""
+msgstr "ምምሕያሽ"
 
 #: models/reports.py:475
 msgid "Has the patient's condition improved since the last CHW visit?"
@@ -4567,7 +4566,7 @@ msgstr ""
 
 #: models/reports.py:479
 msgid "Visited clinic"
-msgstr ""
+msgstr "ዑደት ዝተገበረሉ ጥዒና ኬላ"
 
 #: models/reports.py:481
 msgid "Did the patient visit a health facility since the last CHW visit?"
@@ -4664,7 +4663,7 @@ msgstr ""
 
 #: models/reports.py:698
 msgid "Tested for HIV"
-msgstr ""
+msgstr "ኤች ኣይቪ ኤድስ ተመርሚሩ/ራ"
 
 #: models/reports.py:700
 msgid "Did the mother get tested for HIV?"
@@ -4672,11 +4671,11 @@ msgstr ""
 
 #: models/reports.py:703
 msgid "Completed CD4 Count"
-msgstr ""
+msgstr "ዝተማለአ ቁፅሪ ሲዲ4"
 
 #: models/reports.py:705
 msgid "Was CD4 count taken?"
-msgstr ""
+msgstr "ቁፅሪ ሲዲ4 ተወሲዱ ዶ?"
 
 #: models/reports.py:708
 msgid "PMTC ARV"
@@ -4692,7 +4691,7 @@ msgstr ""
 
 #: models/reports.py:721
 msgid "Pills given"
-msgstr ""
+msgstr "ዝተውሃቡ "
 
 #: models/reports.py:723
 msgid "Women given BC pills"
@@ -4700,15 +4699,15 @@ msgstr ""
 
 #: models/reports.py:753
 msgid "Neonatal Report"
-msgstr ""
+msgstr "ፀብፃብ ሓዱሽ ውላድ ህፃን"
 
 #: models/reports.py:754
 msgid "Neonatal Reports"
-msgstr ""
+msgstr "ፀብፃባት ሓዱሽ ውላድ ህፃን"
 
 #: models/reports.py:756
 msgid "Clinic Visits"
-msgstr ""
+msgstr "ዐዱት ጥዒና ኬላ"
 
 #: models/reports.py:757
 msgid "Number of clinic visits since birth"
@@ -4724,7 +4723,7 @@ msgstr ""
 
 #: models/reports.py:795
 msgid "Breast feeding exclusively"
-msgstr ""
+msgstr "ፀባ ኣዶ ብቻ ምምጋብ"
 
 #: models/reports.py:797
 msgid "Does the mother exclusively breast feed?"
@@ -4732,7 +4731,7 @@ msgstr ""
 
 #: models/reports.py:800
 msgid "Immunized"
-msgstr ""
+msgstr "ዝተኸተበ"
 
 #: models/reports.py:802
 msgid "Is the child up-to-date onimmunizations?"
@@ -4760,27 +4759,27 @@ msgstr ""
 
 #: models/reports.py:877
 msgid "Weight (kg)"
-msgstr ""
+msgstr "ክብደት (kg)"
 
 #: models/reports.py:946
 msgid "Fever Report"
-msgstr ""
+msgstr "ፀብፃብ ትኩሳት"
 
 #: models/reports.py:947
 msgid "Fever Reports"
-msgstr ""
+msgstr "ፀብፃባት ትኩሳት"
 
 #: models/reports.py:954
 msgid "Positive"
-msgstr ""
+msgstr "ኣዎንታ"
 
 #: models/reports.py:955
 msgid "Negative"
-msgstr ""
+msgstr "ኣሉታ"
 
 #: models/reports.py:958
 msgid "RDT Result"
-msgstr ""
+msgstr "ኣርዲቲ "
 
 #: models/reports.py:985
 msgid "Medicine Given Report"
@@ -4912,7 +4911,7 @@ msgstr ""
 
 #: models/reports.py:1221
 msgid "Bednet Report"
-msgstr ""
+msgstr "ፀብፃብ ዛንዜራ"
 
 #: models/reports.py:1222
 msgid "Bednet Reports"
@@ -4925,7 +4924,7 @@ msgstr ""
 #: models/reports.py:1225
 #: templates/childcount/forms/ebc.json:7
 msgid "Number of sleeping sites"
-msgstr ""
+msgstr "በዝሒ መደቀሲ"
 
 #: models/reports.py:1227
 msgid "Recent Bednets"
@@ -4937,7 +4936,7 @@ msgstr ""
 
 #: models/reports.py:1229
 msgid "Earlier Bednets"
-msgstr ""
+msgstr "ዝፀንሑ ዛንዜራታት"
 
 #: models/reports.py:1230
 msgid "Number of bednets received earlier "
@@ -4945,7 +4944,7 @@ msgstr ""
 
 #: models/reports.py:1232
 msgid "Damaged Bednets"
-msgstr ""
+msgstr "ዝተበላሸዉ ዛንዜራታት"
 
 #: models/reports.py:1233
 msgid "Number of recent bednets that are damaged"
@@ -4969,15 +4968,15 @@ msgstr ""
 
 #: models/reports.py:1264
 msgid "Bednet utilization Report"
-msgstr ""
+msgstr "ፀብፃብ ኣጠቓቕማ ዛንዜራ"
 
 #: models/reports.py:1265
 msgid "Bednet utilization reports"
-msgstr ""
+msgstr "ፀብፃባት ኣጠቓቕማ ዛንዜራ"
 
 #: models/reports.py:1278
 msgid "Difficulty to breathe"
-msgstr ""
+msgstr "ሕፅረት ምስትንፋስ"
 
 #: models/reports.py:1279
 msgid "Doubt about effectiveness"
@@ -4985,7 +4984,7 @@ msgstr ""
 
 #: models/reports.py:1280
 msgid "Room too small"
-msgstr ""
+msgstr "ብጣዕሚ ንእሽተይ ክፍሊ ገዛ"
 
 #: models/reports.py:1281
 msgid "Difficulty to hang"
@@ -4993,15 +4992,15 @@ msgstr ""
 
 #: models/reports.py:1282
 msgid "Bednet damaged"
-msgstr ""
+msgstr "ዝተበላሸወ ዛንዜራ"
 
 #: models/reports.py:1283
 msgid "No bednet"
-msgstr ""
+msgstr "ዛንዜራ የለን"
 
 #: models/reports.py:1287
 msgid "children under five "
-msgstr ""
+msgstr "ትሕቲ 5 ዓመት ህፃናት"
 
 #: models/reports.py:1288
 msgid "Number of children under five who slept here last night."
@@ -5009,7 +5008,7 @@ msgstr ""
 
 #: models/reports.py:1290
 msgid "Children slept under bednet"
-msgstr ""
+msgstr "ኣብ ድቃስ ዛነዜራ ዝተጠቐሙ ህፃናት"
 
 #: models/reports.py:1292
 msgid "Number of children under five who slept under bednet last night."
@@ -5022,7 +5021,7 @@ msgstr ""
 
 #: models/reports.py:1296
 msgid "Reason "
-msgstr ""
+msgstr "ምኽንያት"
 
 #: models/reports.py:1297
 msgid "reason why some children didn't sleep under bednet"
@@ -5030,7 +5029,7 @@ msgstr ""
 
 #: models/reports.py:1316
 msgid "Sanitation Report"
-msgstr ""
+msgstr "ፀብፃብ"
 
 #: models/reports.py:1317
 msgid "Sanitation Reports"
@@ -5345,11 +5344,11 @@ msgstr ""
 
 #: templates/childcount/base.html:33
 msgid "Dashboard"
-msgstr ""
+msgstr "ዳሽ ቦር"
 
 #: templates/childcount/base.html:34
 msgid "CHWs"
-msgstr "ህድክስድፍል"
+msgstr ""
 
 #: templates/childcount/base.html:35
 msgid "Data Entry"
@@ -5673,11 +5672,11 @@ msgstr ""
 
 #: templates/childcount/patient.html:75
 msgid "First"
-msgstr ""
+msgstr "ቀዳማይ"
 
 #: templates/childcount/patient.html:78
 msgid "Previous Page"
-msgstr ""
+msgstr "ዝሓለፈ ገፅ"
 
 #: templates/childcount/patient.html:91
 #, python-format
@@ -5686,15 +5685,15 @@ msgstr ""
 
 #: templates/childcount/patient.html:103
 msgid "Next Page"
-msgstr ""
+msgstr "ቀፂሉ ዘሎ ገፅ"
 
 #: templates/childcount/patient.html:106
 msgid "Last Page"
-msgstr ""
+msgstr "መወዳእታ ገፅ"
 
 #: templates/childcount/patient.html:106
 msgid "Last"
-msgstr ""
+msgstr "መወዳእታ"
 
 #: templates/childcount/uploadhealthids.html:5
 msgid "Upload the Health ID File"
@@ -5710,24 +5709,24 @@ msgstr ""
 
 #: templates/childcount/dashboard_sections/recent_numbers.html:3
 msgid "Recent Numbers"
-msgstr ""
+msgstr "ሐዚ ዘሎ በዝሒ"
 
 #: templates/childcount/dashboard_sections/registration_chart.html:3
 msgid "Registration Chart"
-msgstr ""
+msgstr "መመዝገቢ ቻርት"
 
 #: templates/childcount/dashboard_sections/registration_chart.html:22
 msgid "Number of Days Ago"
-msgstr ""
+msgstr "ቅድሚ ዕለታት"
 
 #: templates/childcount/dashboard_sections/registration_chart.html:23
 msgid "Total number of patients"
-msgstr ""
+msgstr "በዝሒ ጠቕላላ ሕሙማት"
 
 #: templates/childcount/forms/a.json:4
 #: templates/childcount/forms/c.json:4
 msgid "HEALTH ID"
-msgstr ""
+msgstr "ጥዒና ካርዲ"
 
 #: templates/childcount/forms/a.json:5
 msgid "NEW"
@@ -5735,15 +5734,15 @@ msgstr ""
 
 #: templates/childcount/forms/a.json:5
 msgid "General Registration"
-msgstr ""
+msgstr "ጠቕላላ ምዝገባ"
 
 #: templates/childcount/forms/a.json:6
 msgid "Loc"
-msgstr ""
+msgstr "ናቐጣ"
 
 #: templates/childcount/forms/a.json:6
 msgid "Location #"
-msgstr ""
+msgstr "ናቑጣ #"
 
 #: templates/childcount/forms/a.json:7
 #: templates/childcount/forms/d.json:5
@@ -5758,17 +5757,17 @@ msgstr ""
 #: templates/childcount/forms/a.json:8
 #: templates/childcount/forms/d.json:6
 msgid "Family Name (surname)"
-msgstr ""
+msgstr "ናይ ቤተ ሰብ ስም (surname)"
 
 #: templates/childcount/forms/a.json:9
 #: templates/childcount/forms/d.json:7
 msgid "Sex"
-msgstr ""
+msgstr "ፆታ"
 
 #: templates/childcount/forms/a.json:9
 #: templates/childcount/forms/d.json:7
 msgid "Sex (M-F)"
-msgstr ""
+msgstr "ፆታ (M-F)"
 
 #: templates/childcount/forms/a.json:10
 #: templates/childcount/forms/d.json:8
@@ -5812,7 +5811,7 @@ msgstr ""
 
 #: templates/childcount/forms/a.json:15
 msgid "Weight at Birth (KG)"
-msgstr ""
+msgstr "ክብደት ኣብ ወሊድ ጊዜ (KG)"
 
 #: templates/childcount/forms/a.json:16
 msgid "MOB"
@@ -5820,22 +5819,22 @@ msgstr ""
 
 #: templates/childcount/forms/a.json:16
 msgid "Mobile Phone"
-msgstr ""
+msgstr "ሞባይል"
 
 #: templates/childcount/forms/a.json:17
 msgid "Num"
-msgstr ""
+msgstr "ቁፅሪ"
 
 #: templates/childcount/forms/a.json:17
 msgid "Mobile Phone Number"
-msgstr ""
+msgstr "ቁፅሪ ሞባይል"
 
 #: templates/childcount/forms/b.json:4
 #: templates/childcount/forms/b21.json:4
 #: templates/childcount/forms/ebc.json:4
 #: templates/childcount/forms/ruhiira-b.json:5
 msgid "Head of Household HEALTH ID"
-msgstr ""
+msgstr "ናይ መራሒ ስድራ መለለዪ ካርዲ"
 
 #: templates/childcount/forms/b.json:5
 #: templates/childcount/forms/b21.json:5
@@ -5865,13 +5864,13 @@ msgstr ""
 #: templates/childcount/forms/b21.json:7
 #: templates/childcount/forms/ruhiira-b.json:11
 msgid "Child"
-msgstr ""
+msgstr "ህፃን"
 
 #: templates/childcount/forms/b.json:7
 #: templates/childcount/forms/b21.json:7
 #: templates/childcount/forms/ruhiira-b.json:12
 msgid "Number of Children Under-5 seen"
-msgstr ""
+msgstr "በዝሒ ትሕቲ 5 ዓመት ህፃናት ዝተርኣዩ"
 
 #: templates/childcount/forms/b.json:8
 #: templates/childcount/forms/b21.json:8
@@ -5886,13 +5885,13 @@ msgstr ""
 #: templates/childcount/forms/b.json:9
 #: templates/childcount/forms/ruhiira-b.json:27
 msgid "FP"
-msgstr ""
+msgstr "ምጣነ ስድራ"
 
 #: templates/childcount/forms/b.json:9
 #: templates/childcount/forms/b21.json:16
 #: templates/childcount/forms/ruhiira-b.json:28
 msgid "Family Planning Section"
-msgstr ""
+msgstr "ክፍሊ ምጣነ ስድራ"
 
 #: templates/childcount/forms/b.json:10
 #: templates/childcount/forms/b21.json:17
@@ -5938,7 +5937,7 @@ msgstr ""
 #: templates/childcount/forms/b.json:13
 #: templates/childcount/forms/ruhiira-b.json:37
 msgid "Bednet Section"
-msgstr ""
+msgstr "ዛነዜራ ክፍሊ"
 
 #: templates/childcount/forms/b.json:14
 #: templates/childcount/forms/ruhiira-b.json:38
@@ -5953,12 +5952,12 @@ msgstr ""
 #: templates/childcount/forms/b.json:15
 #: templates/childcount/forms/ruhiira-b.json:40
 msgid "#bed"
-msgstr ""
+msgstr "#ዓራት"
 
 #: templates/childcount/forms/b.json:15
 #: templates/childcount/forms/ruhiira-b.json:41
 msgid "Number of Sleeping Sites"
-msgstr ""
+msgstr "በዝሒ መደቀሲ ቦታታት"
 
 #: templates/childcount/forms/b21.json:8
 msgid "Counseling and Advice (BF, BN, FP, IM, NUT, SH)"
@@ -5972,7 +5971,7 @@ msgstr ""
 #: templates/childcount/forms/b21.json:9
 #: templates/childcount/forms/ruhiira-b.json:17
 msgid "Other Sick Members Section"
-msgstr ""
+msgstr "ክፍሊ ካልኦት ዝሓመሙ ኣባላት"
 
 #: templates/childcount/forms/b21.json:10
 msgid "#mem"
@@ -5989,7 +5988,7 @@ msgstr ""
 
 #: templates/childcount/forms/b21.json:11
 msgid "Number of RDT used on other sick members"
-msgstr ""
+msgstr "በዝሒ ኣርዲቲ ኣብ ካልኦት ሕሙማት ኣባላት"
 
 #: templates/childcount/forms/b21.json:12
 msgid "#rdt+"
@@ -6013,7 +6012,7 @@ msgstr ""
 
 #: templates/childcount/forms/b21.json:14
 msgid "Birth Control Pill Given Section"
-msgstr ""
+msgstr "ወሊድ መቆፃፀሪ መድሓኒት መውሃቢ ክፍሊ"
 
 #: templates/childcount/forms/b21.json:15
 msgid "#bcp"
@@ -6021,7 +6020,7 @@ msgstr ""
 
 #: templates/childcount/forms/b21.json:15
 msgid "Number of Women given birth control Pills by CHW during visit"
-msgstr ""
+msgstr "በዝሒ ደቂ ኣነስትዮ ወሊድ መቆፃፀሪ ብጥዒና መሓውር ዝተውሃባ"
 
 #: templates/childcount/forms/b21.json:16
 msgid "K"
@@ -6033,7 +6032,7 @@ msgstr ""
 
 #: templates/childcount/forms/c.json:5
 msgid "Follow-up Visit Section"
-msgstr ""
+msgstr "ዑደት መከታተሊ ክፈሊ"
 
 #: templates/childcount/forms/c.json:6
 msgid "Imp"
@@ -6058,7 +6057,7 @@ msgstr ""
 #: templates/childcount/forms/c.json:8
 #: templates/childcount/forms/c.json:9
 msgid "Current Danger Signs"
-msgstr ""
+msgstr "ሐዚ ዘሎ ዘስግእ ምልክት"
 
 #: templates/childcount/forms/c.json:9
 msgid "D.S"
@@ -6070,7 +6069,7 @@ msgstr ""
 
 #: templates/childcount/forms/c.json:10
 msgid "Pregnancy Check-up"
-msgstr ""
+msgstr "ናይ ጥንሲ ምርመራ"
 
 #: templates/childcount/forms/c.json:11
 msgid "MP"
@@ -6163,11 +6162,11 @@ msgstr ""
 
 #: templates/childcount/forms/c.json:23
 msgid "Fever Section"
-msgstr ""
+msgstr "ረስኒ ክፍሊ"
 
 #: templates/childcount/forms/c.json:24
 msgid "RDT"
-msgstr ""
+msgstr "ኣርዲቲ"
 
 #: templates/childcount/forms/c.json:24
 msgid "RDT Result Positive (Y-N-U-X)"
@@ -6231,27 +6230,27 @@ msgstr ""
 
 #: templates/childcount/forms/ebc.json:6
 msgid "Number of people in the household"
-msgstr ""
+msgstr "ኣፍቲ ስድራ ዘለዉ በዝሒ ኣባላት "
 
 #: templates/childcount/forms/ebc.json:7
 msgid "Sites"
-msgstr ""
+msgstr "ናቑጣታት"
 
 #: templates/childcount/forms/ebc.json:8
 msgid "Given"
-msgstr ""
+msgstr "ዝተውሃበ"
 
 #: templates/childcount/forms/ebc.json:8
 msgid "Number of bednets given earlier to this household"
-msgstr ""
+msgstr "ቅድሚ ዝ ስድራ እዚ ዝተውሃበ በዝሒ ዛንዜራ"
 
 #: templates/childcount/forms/ebc.json:9
 msgid "Avail"
-msgstr ""
+msgstr "ዝሎ"
 
 #: templates/childcount/forms/ebc.json:9
 msgid "Number of available bednets"
-msgstr ""
+msgstr "በዝሒ ዘሎ ዛንዜራ"
 
 #: templates/childcount/forms/ebc.json:10
 msgid "Dmgd"
@@ -6259,23 +6258,23 @@ msgstr ""
 
 #: templates/childcount/forms/ebc.json:10
 msgid "Number of bednets damaged"
-msgstr ""
+msgstr "በዝሒ ዝተበላሸወ ዛንዜራ"
 
 #: templates/childcount/forms/ruhiira-b.json:14
 msgid "Counseling and Advice (BP, ED, EC, FP, IM, NUT, PH, SH)"
-msgstr ""
+msgstr "ምከርን ሓበሬታን (BP, ED, EC, FP, IM, NUT, PH, SH)"
 
 #: templates/childcount/forms/ruhiira-b.json:18
 msgid "#sick"
-msgstr ""
+msgstr "#ሕሙም"
 
 #: templates/childcount/forms/ruhiira-b.json:19
 msgid "Number of Other Sick Members Seen During Visit"
-msgstr ""
+msgstr "ኣብ እዋን ዑደት ዝተርኣዩ በዝሒ ካልኦት ሕሙማት"
 
 #: templates/childcount/forms/ruhiira-b.json:21
 msgid "Number of RDTs Used on Other Sick Members"
-msgstr ""
+msgstr "ንኻልኦት ሐሙማት ኣባላት ዝተውሃበ በዝሒ ኣርዲቲ "
 
 #: templates/childcount/forms/ruhiira-b.json:22
 msgid "#pos"
@@ -6283,7 +6282,7 @@ msgstr ""
 
 #: templates/childcount/forms/ruhiira-b.json:23
 msgid "Number of of RDT Positive Cases for Other Sick Members"
-msgstr ""
+msgstr "በዝሒ ኣርዲቲ ዝተሰርሐሎም ካልኦት ሕሙማት ኣባላት "
 
 #: templates/childcount/forms/ruhiira-b.json:24
 msgid "#antm"
@@ -6291,5 +6290,5 @@ msgstr ""
 
 #: templates/childcount/forms/ruhiira-b.json:25
 msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
-msgstr ""
+msgstr "በዝሒ ካልኦት ዝሓመሙ ኣባላት ፀረ ዓሶ መድሓኒት ዝወስዱ"
 

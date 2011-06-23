@@ -47,6 +47,9 @@ TIGRINYA_MONTHS_WIDE = {
 }
 """Full month names in Tigrinyna"""
 
+def _django_locale():
+    return Locale.parse(settings.LANGUAGE_CODE.replace('-','_'))
+
 def _format_date_ethiopian(date, format):
     """Converts the input date to the Julian/Ethiopian
     calendar and formats a date in the ti_ET locale for
@@ -104,10 +107,12 @@ def format_date(date=None, format='medium', locale=None):
     :type locale: :class:`str`
     """
 
+    l = None
     if locale is None:
-        locale = settings.LANGUAGE_CODE
-        
-    l = Locale.parse(locale)
+        l = _django_locale() 
+    else:
+        l = Locale.parse(locale)
+
     if l.language in ('am','ti'):
         # For our purposes, we assume that Amaharic means 
         # Tigrinya. This is because CC+ is only used in 
@@ -117,14 +122,14 @@ def format_date(date=None, format='medium', locale=None):
         return _format_date_ethiopian(date, format)
 
     else: 
-        return babel.dates.format_date(date, format, settings.LANGUAGE_CODE)
+        return babel.dates.format_date(date, format, _django_locale())
 
 def format_time(time=None, format='medium', tzinfo=None, locale=None):
     """Alias to :func:`babel.dates.format_time` which
     defaults to the Django locale and time zone
     """
     if locale is None:
-        locale = Locale.parse(settings.LANGUAGE_CODE)
+        locale = _django_locale()
     if tzinfo is None:
         tzinfo = pytz.timezone(settings.TIME_ZONE)
 
@@ -135,7 +140,7 @@ def format_datetime(datetime=None, format='medium', locale=None):
     defaults to the Django locale and time zone
     """
     if locale is None:
-        locale = Locale.parse(settings.LANGUAGE_CODE)
+        locale = _django_locale()
 
     # Borrowed from babel
     return babel.dates.get_datetime_format(format, locale=locale)\

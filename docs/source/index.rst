@@ -6,17 +6,34 @@
 Welcome to ChildCount+'s documentation!
 =======================================
 
+**Introduction**
+
+.. toctree::
+   :maxdepth: 3
+
+   intro
+
+**Human Aspects**
+
 .. toctree::
    :maxdepth: 2
 
-   intro
    human
+
+**Technology**
+
+.. toctree::
+   :maxdepth: 2
+
    tech/index
+
+**Misc.**
 
 .. toctree::
    :maxdepth: 1
 
    api/index
+   faq
    history
     
 Indices and tables
