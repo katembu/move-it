@@ -190,6 +190,8 @@ go along.
 
      - .. image:: /images/tech/reports.jpg
 
+Configurations
+-----------------
 
 Dependencies
 -------------
