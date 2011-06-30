@@ -20,6 +20,9 @@ sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('../../lib'))
 sys.path.insert(0, os.path.abspath('../../apps'))
 
+# For some reason RapidSMS needs this to generate the docs
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
