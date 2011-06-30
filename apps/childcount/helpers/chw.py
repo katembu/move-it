@@ -32,7 +32,8 @@ from childcount.models.reports import ReferralReport
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import UnderOneReport
 
-report_indicators = (
+def report_indicators(): 
+    return (
     {
         'title': _("Household"),
         'columns': [

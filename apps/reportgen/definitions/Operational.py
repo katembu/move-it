@@ -54,12 +54,12 @@ class ReportDefinition(PrintedReport):
 
         self.set_progress(0.0)
 
-        self._indicators = chw_report_indicators
+        self._indicators = chw_report_indicators()
 
         story = []
         locations = Clinic\
             .objects\
-            .filter(pk__in=CHW.objects.values('clinic').distinct())
+            .filter(pk__in=CHW.objects.values('clinic').distinct())[0:1]
 
         total = locations.count()
         for i,location in enumerate(locations):
@@ -68,7 +68,7 @@ class ReportDefinition(PrintedReport):
             rowCHWs = CHW\
                         .objects\
                         .filter(is_active=True)\
-                        .filter(clinic=location)
+                        .filter(clinic=location)[0:1]
             if rowCHWs.count() == 0:
                 continue
 

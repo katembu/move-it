@@ -1,14 +1,14 @@
 # Translating childcount plus from Engilish to Tigrigna
-# Copyright (C) 2011
-# This file is distributed under the same license as ChildCount+
-# Meseret/Temesgen/Haftay, 2011.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: Temesgen G.\n"
 "POT-Creation-Date: 2011-06-14 17:12+0300\n"
-"PO-Revision-Date: 2011-06-23 16:48+0300\n"
+"PO-Revision-Date: 2011-06-30 15:23+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: CHILD COUNT TEAM\n"
 "MIME-Version: 1.0\n"
@@ -2058,7 +2058,7 @@ msgstr ""
 #: helpers/chw.py:41
 #: indicators/household.py:84
 msgid "% HH Coverage"
-msgstr ""
+msgstr "% ድፍክጅሲ ስ"
 
 #: helpers/chw.py:45
 #: indicators/family_planning.py:14
@@ -2110,11 +2110,11 @@ msgstr ""
 
 #: helpers/chw.py:70
 msgid "Pregnant Women"
-msgstr ""
+msgstr "ነፍሰጾር  "
 
 #: helpers/chw.py:71
 msgid "Births"
-msgstr ""
+msgstr "ዝተወለደሉ ዕለት"
 
 #: helpers/chw.py:72
 msgid "Births with 4 ANC"
@@ -2366,11 +2366,12 @@ msgstr "በዝሒ ዝተወለዱ ምስ ናቁጣ "
 
 #: indicators/birth.py:127
 msgid "% Births Delivered in Clinic"
-msgstr "በዝሒ ዝተወለዱ ኣብ ክሊኒክ"
+msgstr ""
 
 #: indicators/birth.py:128
+#, python-format
 msgid "% of patients born this period known delivered in a clinic"
-msgstr "በዝሒ ኣብ ጥዕና ትካልዝተወለዱ"
+msgstr ""
 
 #: indicators/birth.py:140
 msgid "# Births with ANC 4"

@@ -96,7 +96,7 @@ class ReportDefinition(PrintedReport):
         self._period = period
         self._sub_periods = period.sub_periods()
         self._numsp = len(self._sub_periods)
-        self._indicators = helpers.chw.report_indicators
+        self._indicators = helpers.chw.report_indicators()
 
         wb = xlwt.Workbook()
         self._ws = wb.add_sheet(_(u"Report"))

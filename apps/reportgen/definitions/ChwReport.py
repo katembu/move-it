@@ -44,7 +44,7 @@ class ReportDefinition(PrintedReport):
         self._sub_periods = period.sub_periods()
         self._ncols = len(self._sub_periods) + 2
 
-        self._indicators = helpers.chw.report_indicators
+        self._indicators = helpers.chw.report_indicators()
         
         doc = Document(title, period.title)
         doc.add_element(PageBreak())
