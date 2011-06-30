@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 09:17+0300\n"
+"POT-Creation-Date: 2011-06-30 16:43+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,28 +16,28 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: PrintedReport.py:66
+#: PrintedReport.py:67
 msgid "Generate function not implemented."
 msgstr ""
 
-#: PrintedReport.py:90
+#: PrintedReport.py:94
 msgid "No nightly value passed in"
 msgstr ""
 
-#: PrintedReport.py:96
+#: PrintedReport.py:100
 #, python-format
 msgid "Could not find DB record for a report with classname %s"
 msgstr ""
 
-#: PrintedReport.py:100
+#: PrintedReport.py:104
 msgid "No time period value passed in"
 msgstr ""
 
-#: PrintedReport.py:172
+#: PrintedReport.py:177
 msgid "This report has no formats specified."
 msgstr ""
 
-#: PrintedReport.py:177
+#: PrintedReport.py:182
 msgid "Report title or filename is unset."
 msgstr ""
 
@@ -58,21 +58,17 @@ msgstr ""
 msgid "Variant not found"
 msgstr ""
 
-#: definitions/ChwList.py:29
-msgid "CHW List"
-msgstr ""
-
 #: definitions/ChwList.py:66
 msgid "ID"
 msgstr ""
 
 #: definitions/ChwList.py:67 definitions/ChwLog.py:104
 #: definitions/ChwLog.py:151 definitions/ChwLog.py:292
-#: definitions/PatientList.py:49
+#: definitions/PatientList.py:64
 msgid "Name"
 msgstr ""
 
-#: definitions/ChwList.py:68
+#: definitions/ChwList.py:68 definitions/PMTCTDefaulters.py:73
 msgid "Location"
 msgstr ""
 
@@ -102,10 +98,11 @@ msgstr ""
 
 #: definitions/ChwLog.py:103 definitions/ChwLog.py:150
 #: definitions/ChwLog.py:291 definitions/ChwLog.py:355
+#: definitions/PMTCTDefaulters.py:69
 msgid "Date"
 msgstr ""
 
-#: definitions/ChwLog.py:105 definitions/PatientList.py:44
+#: definitions/ChwLog.py:105 definitions/PatientList.py:58
 msgid "HID"
 msgstr ""
 
@@ -122,7 +119,7 @@ msgid "Gender"
 msgstr ""
 
 #: definitions/ChwLog.py:153 definitions/ChwLog.py:294
-#: definitions/PatientList.py:54
+#: definitions/PatientList.py:71
 msgid "Age"
 msgstr ""
 
@@ -160,7 +157,7 @@ msgstr ""
 msgid "Forms"
 msgstr ""
 
-#: definitions/ChwLog.py:296 timeperiods/definitions/Month.py:13
+#: definitions/ChwLog.py:296 timeperiods/definitions/Month.py:15
 msgid "Month"
 msgstr ""
 
@@ -205,170 +202,162 @@ msgstr ""
 msgid "Millennium Village"
 msgstr ""
 
-#: definitions/ChwReport.py:29
-msgid "CHW Report"
-msgstr ""
-
-#: definitions/ChwReport.py:61
+#: definitions/ChwReport.py:63
 #, python-format
 msgid "For: %s"
 msgstr ""
 
-#: definitions/ChwReport.py:74
+#: definitions/ChwReport.py:76
 msgid "Indicators"
 msgstr ""
 
-#: definitions/ChwReport.py:76
+#: definitions/ChwReport.py:78
 msgid "Indicator"
 msgstr ""
 
-#: definitions/ChwReport.py:78
+#: definitions/ChwReport.py:80
 msgid "Tot/Avg"
 msgstr ""
 
-#: definitions/ChwReport.py:110
+#: definitions/ChwReport.py:112
 msgid ""
 "Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
 msgstr ""
 
-#: definitions/ChwReport.py:115 definitions/ChwReport.py:160
-#: definitions/ChwReport.py:193 definitions/ChwReport.py:224
+#: definitions/ChwReport.py:117 definitions/ChwReport.py:161
+#: definitions/ChwReport.py:194 definitions/ChwReport.py:225
 #: definitions/Malnutrition.py:96 definitions/Malnutrition.py:141
 msgid "Loc Code"
 msgstr ""
 
-#: definitions/ChwReport.py:116 definitions/ChwReport.py:161
-#: definitions/ChwReport.py:194 definitions/ChwReport.py:225
+#: definitions/ChwReport.py:118 definitions/ChwReport.py:162
+#: definitions/ChwReport.py:195 definitions/ChwReport.py:226
 #: definitions/Malnutrition.py:97 definitions/Malnutrition.py:142
 msgid "Health ID"
 msgstr ""
 
-#: definitions/ChwReport.py:117 definitions/ChwReport.py:162
-#: definitions/ChwReport.py:195 definitions/ChwReport.py:226
+#: definitions/ChwReport.py:119 definitions/ChwReport.py:163
+#: definitions/ChwReport.py:196 definitions/ChwReport.py:227
 #: definitions/Malnutrition.py:98 definitions/Malnutrition.py:143
 msgid "Name / Age"
 msgstr ""
 
-#: definitions/ChwReport.py:118 definitions/ChwReport.py:164
-#: definitions/ChwReport.py:198 definitions/ChwReport.py:230
+#: definitions/ChwReport.py:120 definitions/ChwReport.py:165
+#: definitions/ChwReport.py:199 definitions/ChwReport.py:231
 #: definitions/Malnutrition.py:102 definitions/Malnutrition.py:145
 msgid "Household Head"
 msgstr ""
 
-#: definitions/ChwReport.py:119
+#: definitions/ChwReport.py:121
 msgid "Referral Type / Date"
 msgstr ""
 
-#: definitions/ChwReport.py:120
+#: definitions/ChwReport.py:122
 msgid "Referred For"
 msgstr ""
 
-#: definitions/ChwReport.py:121
+#: definitions/ChwReport.py:123
 msgid "Follow-Up Date"
 msgstr ""
 
-#: definitions/ChwReport.py:138
+#: definitions/ChwReport.py:140
 msgid " on "
 msgstr ""
 
-#: definitions/ChwReport.py:144
+#: definitions/ChwReport.py:146
 msgid "[No DSs Reported]"
 msgstr ""
 
-#: definitions/ChwReport.py:145
+#: definitions/ChwReport.py:147
 msgid "Late: "
 msgstr ""
 
-#: definitions/ChwReport.py:149
+#: definitions/ChwReport.py:150
 msgid "[No Follow-Up]"
 msgstr ""
 
-#: definitions/ChwReport.py:156
+#: definitions/ChwReport.py:157
 msgid "Children Under 5 Without Known Up-to-date Immunizations"
 msgstr ""
 
-#: definitions/ChwReport.py:163
+#: definitions/ChwReport.py:164
 msgid "Latest Imm. Report"
 msgstr ""
 
-#: definitions/ChwReport.py:171
+#: definitions/ChwReport.py:172
 msgid "[No Report]"
 msgstr ""
 
-#: definitions/ChwReport.py:175
+#: definitions/ChwReport.py:176
 #, python-format
 msgid "Reported \"%(status)s\" on %(date)s"
 msgstr ""
 
-#: definitions/ChwReport.py:190
+#: definitions/ChwReport.py:191
 msgid "Women in 2nd and 3rd Trimester who haven't had ANC in 5 Weeks"
 msgstr ""
 
-#: definitions/ChwReport.py:196
+#: definitions/ChwReport.py:197
 msgid "Last ANC"
 msgstr ""
 
-#: definitions/ChwReport.py:197
+#: definitions/ChwReport.py:198
 msgid "Approx Due Date"
 msgstr ""
 
-#: definitions/ChwReport.py:220
+#: definitions/ChwReport.py:221
 msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
 msgstr ""
 
-#: definitions/ChwReport.py:227 definitions/Malnutrition.py:99
+#: definitions/ChwReport.py:228 definitions/Malnutrition.py:99
 msgid "Last MUAC"
 msgstr ""
 
-#: definitions/ChwReport.py:228 definitions/Malnutrition.py:100
+#: definitions/ChwReport.py:229 definitions/Malnutrition.py:100
 msgid "MUAC Status"
 msgstr ""
 
-#: definitions/ChwReport.py:229 definitions/Malnutrition.py:101
+#: definitions/ChwReport.py:230 definitions/Malnutrition.py:101
 msgid "Od."
 msgstr ""
 
-#: definitions/ChwReport.py:241
+#: definitions/ChwReport.py:242
 msgid "[No MUAC]"
 msgstr ""
 
-#: definitions/ChwReport.py:242
+#: definitions/ChwReport.py:243
 msgid "U"
 msgstr ""
 
-#: definitions/ChwReport.py:245
+#: definitions/ChwReport.py:246
 #, python-format
 msgid "%(status)s [%(muac)d]"
 msgstr ""
 
-#: definitions/IndicatorChart.py:42
-msgid "Indicator Chart"
-msgstr ""
-
-#: definitions/IndicatorChart.py:63
+#: definitions/IndicatorChart.py:74
 msgid "Indicator not found!"
 msgstr ""
 
-#: definitions/IndicatorChart.py:68
+#: definitions/IndicatorChart.py:79
 msgid "Can only generate PDF for indicator chart"
 msgstr ""
 
-#: definitions/IndicatorChart.py:71 definitions/PerformanceCharts.py:57
+#: definitions/IndicatorChart.py:82 definitions/PerformanceCharts.py:64
 msgid "Generated on: "
 msgstr ""
 
-#: definitions/IndicatorChart.py:73 definitions/PerformanceCharts.py:59
+#: definitions/IndicatorChart.py:84
 #, python-format
-msgid "For period %s."
+msgid "For period: %s."
 msgstr ""
 
-#: definitions/IndicatorChart.py:85
+#: definitions/IndicatorChart.py:96
 msgid ""
 "Cannot produce indicator chart for indicators that do not accept a QuerySet "
 "as an argument."
 msgstr ""
 
-#: definitions/IndicatorChart.py:106
+#: definitions/IndicatorChart.py:117
 msgid " over time"
 msgstr ""
 
@@ -382,6 +371,7 @@ msgid "Children U5 Flagged as Malnourished as of %s"
 msgstr ""
 
 #: definitions/Malnutrition.py:103 definitions/Malnutrition.py:146
+#: definitions/PMTCTDefaulters.py:72
 msgid "CHW"
 msgstr ""
 
@@ -443,39 +433,68 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: definitions/Operational.py:99
+#: definitions/Operational.py:98
 #, python-format
-msgid "%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)"
+msgid "<b>%(name)s - %(title)s (Generated on %(gen_datetime)s)</b>"
 msgstr ""
 
-#: definitions/PatientList.py:39
-msgid "LOC"
+#: definitions/Operational.py:113
+msgid "<b>CHW Name</b>"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:29
+msgid "PMTCT Defaulters"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:70
+msgid "Patient"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:71
+msgid "Status"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:76
+msgid "Reminded"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:78
+msgid "Not Reminded"
 msgstr ""
 
 #: definitions/PatientList.py:52
+msgid "LOC"
+msgstr ""
+
+#: definitions/PatientList.py:68
 msgid "Gen."
 msgstr ""
 
-#: definitions/PatientList.py:93
+#: definitions/PatientList.py:100
 #, python-format
 msgid "No report for %s."
 msgstr ""
 
-#: definitions/PatientList.py:130
+#: definitions/PatientList.py:137
 #, python-format
 msgid "CHW: %(loc)s: %(chw)s"
 msgstr ""
 
-#: definitions/PatientList.py:169
-msgid "Active Patients | Current as of %d %B %Y."
+#: definitions/PatientList.py:181
+msgid "Active Patients | Current as of "
 msgstr ""
 
-#: definitions/PerformanceCharts.py:40
+#: definitions/PerformanceCharts.py:47
 msgid "Performance Charts"
 msgstr ""
 
-#: definitions/PerformanceCharts.py:54
+#: definitions/PerformanceCharts.py:61
 msgid "Can only generate PDF for performance charts"
+msgstr ""
+
+#: definitions/PerformanceCharts.py:66
+#, python-format
+msgid "For period %s."
 msgstr ""
 
 #: definitions/StatsDataEntry.py:15
@@ -869,67 +888,67 @@ msgstr ""
 msgid "Five years starting %(start)d years ago"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:13
+#: timeperiods/definitions/FourWeeks.py:15
 msgid "Four weeks"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:14
+#: timeperiods/definitions/FourWeeks.py:16
 msgid "Set of four seven-day weeks starting on a Monday X weeks ago"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:32
+#: timeperiods/definitions/FourWeeks.py:34
 #, python-format
 msgid "Week of %(start)s"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:50
+#: timeperiods/definitions/FourWeeks.py:52
 #, python-format
 msgid "Weeks %(start)s to %(end)s"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:53
+#: timeperiods/definitions/FourWeeks.py:55
 #, python-format
 msgid "Monday %(n)d week(s) ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:14
+#: timeperiods/definitions/Month.py:16
 msgid "One calendar month X months ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:49
-#: timeperiods/definitions/MonthByDays.py:42
+#: timeperiods/definitions/Month.py:51
+#: timeperiods/definitions/MonthByDays.py:43
 #, python-format
 msgid "%(start)s"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:52
-#: timeperiods/definitions/MonthByDays.py:45
+#: timeperiods/definitions/Month.py:54
+#: timeperiods/definitions/MonthByDays.py:46
 msgid "This month"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:54
-#: timeperiods/definitions/MonthByDays.py:47
+#: timeperiods/definitions/Month.py:56
+#: timeperiods/definitions/MonthByDays.py:48
 msgid "Last month"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:56
-#: timeperiods/definitions/MonthByDays.py:49
+#: timeperiods/definitions/Month.py:58
+#: timeperiods/definitions/MonthByDays.py:50
 #, python-format
 msgid "%(start)s months ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:69
+#: timeperiods/definitions/Month.py:71
 #: timeperiods/definitions/SevenYearsByQuarter.py:42
 #: timeperiods/definitions/ThreeYearsByQuarter.py:42
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr ""
 
-#: timeperiods/definitions/MonthByDays.py:13
+#: timeperiods/definitions/MonthByDays.py:15
 msgid "Month (Daily)"
 msgstr ""
 
-#: timeperiods/definitions/MonthByDays.py:14
+#: timeperiods/definitions/MonthByDays.py:16
 msgid "One calendar month X months ago (by day)"
 msgstr ""
 
