@@ -20,8 +20,6 @@ Welcome to ChildCount+'s documentation!
 
    human
 
-**Technology**
-
 .. toctree::
    :maxdepth: 2
 

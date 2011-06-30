@@ -406,8 +406,8 @@ class MultiColDocTemplate(BaseDocTemplate):
 
     def __init__(self, filename, frameCount=1, **kw):
         '''@FIXME: need to remove frameCount to maintain consistency
-         with BaseDocTemplate constructor
-                   and hence find a way to pass frameCount
+        with BaseDocTemplate constructor
+        and hence find a way to pass frameCount
         '''
         apply(BaseDocTemplate.__init__, (self, filename), kw)
         self.addPageTemplates(self.firstPage())
