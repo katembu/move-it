@@ -149,7 +149,7 @@ class ReportDefinition(PrintedReport):
         # Write MV totals
         row += 1
         self._print_data(row, Patient.objects.all(), True)
-        self._print_data(100.0*prog/total)
+        self.set_progress(100.0*prog/total)
 
         wb.save(filepath)
 
