@@ -52,7 +52,7 @@ table td {
 {% for ind in indicators %}
 <a href="#ind_{{ind.slug}}">{{ind.name}}</a> {% if not forloop.last %}|{% endif %}
 {% endfor %}
-<form id="gen_form" method="POST" action="/reportgen/ondemand/">
+<form id="gen_form" method="POST" action="/reportgen/">
     <input type="hidden" id="report" class="sorted" name="report_pk" value="{{ report_pk }}">
     <input type="hidden" id="variant" class="sorted" name="variant_index">
     <input type="hidden" id="rformat" class="sorted" name="rformat" value="pdf">
