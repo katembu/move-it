@@ -10,12 +10,10 @@ import webapp
 import reportgen.views
 
 urlpatterns = patterns('',
-    (r'^reportgen/$', reportgen.views.index),
+    url(r'^reportgen/$', reportgen.views.ondemand, name='reportgen'),
     (r'^reportgen/ajax_progress/$', reportgen.views.ajax_progress),
-    url(r'^reportgen/nightly/$', reportgen.views.nightly, name='reportgen-nightly'),
-    (r'^reportgen/ondemand/$', reportgen.views.ondemand),
-    (r'^reportgen/ondemand/delete/(?P<pk>\d+)$', reportgen.views.delete),
+    (r'^reportgen/delete/(?P<pk>\d+)$', reportgen.views.delete),
     url(r'^static/reportgen/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': '%s/static' % os.path.dirname(__file__),
+            {'document_root': '%s/static/ondemand' % os.path.dirname(__file__),
                 'show_indexes': False}),
 )

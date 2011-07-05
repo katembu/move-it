@@ -16,7 +16,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import activate, get_language
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 
-from reportgen.models import Report, GeneratedReport, NightlyReport
+from reportgen.models import Report, GeneratedReport
 
 class PrintedReport(Task):
     """
@@ -90,9 +90,6 @@ class PrintedReport(Task):
 
         self.check_sanity()
 
-        if 'nightly' not in kwargs:
-            raise ValueError(_('No nightly value passed in'))
-
         # get Report object for this report
         try:
             kwargs['report'] = Report.objects.get(classname=self.classname)
@@ -103,15 +100,10 @@ class PrintedReport(Task):
         if 'time_period' not in kwargs:
             raise ValueError(_('No time period value passed in'))
 
-        if kwargs['nightly'] is None:
-            print "Running ondemand"
-            kwargs['run'] = self._run_ondemand
-            kwargs['dir'] = GeneratedReport.GENERATED_DIR
-            self._run_ondemand(*args, **kwargs)
-        else:
-            print "Running nightly (%s)" % self.formats
-            kwargs['dir'] = NightlyReport.NIGHTLY_DIR
-            self._run_nightly(*args, **kwargs)
+        print "Running ondemand"
+        kwargs['run'] = self._run_ondemand
+        kwargs['dir'] = GeneratedReport.GENERATED_DIR
+        self._run_ondemand(*args, **kwargs)
 
     def test(self, time_period, rformat):
         """
@@ -126,7 +118,6 @@ class PrintedReport(Task):
         """
 
         activate(settings.LANGUAGE_CODE)
-        self._kwargs = {'nightly': 'Fake'}
 
         fname = "/tmp/test_%s.%s" % (self.filename, rformat)
         print "Saving as \"%s\"" % fname
@@ -140,36 +131,6 @@ class PrintedReport(Task):
 
         
         return self.generate(time_period, rformat, title, fname, data)
-
-    def _run_nightly(self, *args, **kwargs):
-        print "[Nightly args] %s" % str(args)
-        print "[Nightly kwargs] %s" % str(kwargs)
-
-        self._kwargs = kwargs
-
-        # Run report for all formats
-        # ...and all variants
-
-        # Save in static/nightly/basename_variant_rptpk.format
-        if not self.variants:
-            print "Running only variant..."
-            for rformat in self.formats:
-                print "FP: %s" % self.get_filepath(kwargs, None, rformat)
-                self.generate(kwargs['time_period'],
-                    rformat,
-                    self.title,
-                    self.get_filepath(kwargs, None, rformat),
-                    {})
-        else:
-            for variant in self.variants:
-                print variant
-                for rformat in self.formats:
-                    print rformat
-                    self.generate(kwargs['time_period'],
-                        rformat,
-                        self.title + ": " + variant[0],
-                        self.get_filepath(kwargs, variant[1], rformat),
-                        variant[2])
 
     def check_sanity(self):
         if len(self.formats) == 0:
@@ -197,10 +158,6 @@ class PrintedReport(Task):
         kwargs = self._kwargs
 
         print "> Progress %d%% (at %s)" % (progress, datetime.now())
-
-        # Don't need status updates for nightly report
-        if kwargs['nightly']: return
-        print "++> %s" % repr(kwargs['nightly'])
 
         print "Working on saving"
         kwargs['generated_report'].task_state = GeneratedReport.TASK_STATE_STARTED
@@ -269,16 +226,10 @@ class PrintedReport(Task):
         kwargs['generated_report'].save()
         
     def get_filename(self, kwargs, suffix, rformat):
-        if kwargs['nightly']: 
-            return kwargs['nightly'].get_filename(suffix, rformat)
-        else:
-            return kwargs['generated_report'].get_filename(suffix, rformat)
+        return kwargs['generated_report'].get_filename(suffix, rformat)
 
     def get_filepath(self, kwargs, suffix, rformat):
-        if kwargs['nightly']: 
-            return kwargs['nightly'].get_filepath(suffix, rformat)
-        else:
-            return kwargs['generated_report'].get_filepath(suffix, rformat)
+        return kwargs['generated_report'].get_filepath(suffix, rformat)
 
 class DBConfigurationError(Exception):
     pass

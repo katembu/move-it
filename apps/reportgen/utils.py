@@ -37,31 +37,6 @@ def render_doc_to_file(filename, rformat, doc):
     print 'Done rendering'
     print filename
 
-def nightly_report_data(nrpt):
-    rep = nrpt.report.get_definition()
-    variants = rep.variants
-    if len(variants) == 0:
-        variants.append(('','',{}))
-       
-    data = {'obj':nrpt, 'variants':[]}
-    for v in variants:
-        rowdata = {
-            'title': v[0],
-            'formats': {},
-        }
-        for r in rep.formats:
-            finished_at = nrpt.finished_at(v[1], r)
-            
-            rowdata['formats'][r] = \
-                {'filename': nrpt.get_filename(v[1], r),
-                 'finished_at': finished_at}
-
-            if finished_at:
-                late = (datetime.now() - finished_at).days
-                rowdata['formats'][r]['late'] = late
-        data['variants'].append(rowdata)
-    return data
-        
 def ondemand_json_obj():
     rall = Report.objects.order_by('title')
     rpts = {}

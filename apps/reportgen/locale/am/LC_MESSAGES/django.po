@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: STAGE G\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-16 17:14+0300\n"
+"POT-Creation-Date: 2011-07-05 11:56+0300\n"
 "PO-Revision-Date: 2011-06-20 14:35+0300\n"
 "Last-Translator: Henry Corrigan-Gibbs <cc-tr@henrycg.com>\n"
 "Language-Team: KORARO CC+ TEAM\n"
@@ -15,28 +15,24 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: PrintedReport.py:68
+#: PrintedReport.py:67
 msgid "Generate function not implemented."
 msgstr "ዘይተሰርሐ ስራሕ ኣርኢ"
 
-#: PrintedReport.py:95
-msgid "No nightly value passed in"
-msgstr "ለይቲ ዘይሓለፉ ዳታታት"
-
-#: PrintedReport.py:101
+#: PrintedReport.py:97
 #, python-format
 msgid "Could not find DB record for a report with classname %s"
 msgstr ""
 
-#: PrintedReport.py:105
+#: PrintedReport.py:101
 msgid "No time period value passed in"
 msgstr ""
 
-#: PrintedReport.py:178
+#: PrintedReport.py:138
 msgid "This report has no formats specified."
 msgstr "እዚ ፀብፃብ እዚ እቲ ዓይነቱ ኣይተገለፀን"
 
-#: PrintedReport.py:183
+#: PrintedReport.py:143
 msgid "Report title or filename is unset."
 msgstr "ናይቲ ፀብፃብ ኣርእሰቲ ወይ ስም ኣየተፀርሐን"
 
@@ -45,38 +41,25 @@ msgstr "ናይቲ ፀብፃብ ኣርእሰቲ ወይ ስም ኣየተፀርሐ�
 msgid "Invalid report format (%s)"
 msgstr "ዘይስሩዕ ፀብፃብ ኣቀማምጣ (%s)"
 
-#: views.py:33
-#: views.py:47
-#: models/NightlyReport.py:30
-msgid "Nightly Reports"
-msgstr "ማታ ማታ የሚፈተሩ ሪፖርቶች"
-
-#: views.py:35
-#: views.py:55
+#: views.py:34
 msgid "On-Demand Reports"
 msgstr "ኣብ ከየዲ ዘለዉ ፀብፃባት"
 
-#: views.py:89
+#: views.py:68
 msgid "Variant not found"
 msgstr "መማረፂ ኣየተረኸበን"
-
-#: definitions/ChwList.py:29
-msgid "CHW List"
-msgstr "መሓዉር ጥዕና ሰራሕተኛታተ ስም ዝርዝር"
 
 #: definitions/ChwList.py:66
 msgid "ID"
 msgstr "መለለዪ ቁፅሪ"
 
-#: definitions/ChwList.py:67
-#: definitions/ChwLog.py:104
-#: definitions/ChwLog.py:151
-#: definitions/ChwLog.py:292
-#: definitions/PatientList.py:55
+#: definitions/ChwList.py:67 definitions/ChwLog.py:104
+#: definitions/ChwLog.py:151 definitions/ChwLog.py:292
+#: definitions/PatientList.py:64
 msgid "Name"
 msgstr "ስም"
 
-#: definitions/ChwList.py:68
+#: definitions/ChwList.py:68 definitions/PMTCTDefaulters.py:73
 msgid "Location"
 msgstr "ከባቢ(ዝነብረሉ ቦታ)"
 
@@ -104,20 +87,17 @@ msgstr "ነፍሰ ፆር ኣዴታት"
 msgid "HOUSEHOLD"
 msgstr "ስድራ"
 
-#: definitions/ChwLog.py:103
-#: definitions/ChwLog.py:150
-#: definitions/ChwLog.py:291
-#: definitions/ChwLog.py:355
+#: definitions/ChwLog.py:103 definitions/ChwLog.py:150
+#: definitions/ChwLog.py:291 definitions/ChwLog.py:355
+#: definitions/PMTCTDefaulters.py:69
 msgid "Date"
 msgstr "ዕለት"
 
-#: definitions/ChwLog.py:105
-#: definitions/PatientList.py:50
+#: definitions/ChwLog.py:105 definitions/PatientList.py:58
 msgid "HID"
 msgstr "መ.ቁ. ኮድ"
 
-#: definitions/ChwLog.py:106
-#: models/Report.py:25
+#: definitions/ChwLog.py:106 models/Report.py:25
 msgid "Reports"
 msgstr "ፀብፃብ"
 
@@ -125,14 +105,12 @@ msgstr "ፀብፃብ"
 msgid "Comments"
 msgstr "ኣስተያየት"
 
-#: definitions/ChwLog.py:152
-#: definitions/ChwLog.py:293
+#: definitions/ChwLog.py:152 definitions/ChwLog.py:293
 msgid "Gender"
 msgstr "ጾታ"
 
-#: definitions/ChwLog.py:153
-#: definitions/ChwLog.py:294
-#: definitions/PatientList.py:60
+#: definitions/ChwLog.py:153 definitions/ChwLog.py:294
+#: definitions/PatientList.py:71
 msgid "Age"
 msgstr "እድሜ"
 
@@ -140,8 +118,7 @@ msgstr "እድሜ"
 msgid "Mother"
 msgstr "ኣዶ"
 
-#: definitions/ChwLog.py:155
-#: definitions/ChwLog.py:295
+#: definitions/ChwLog.py:155 definitions/ChwLog.py:295
 msgid "Next Apt"
 msgstr "ንቐፃሊ ዝተቖፀረ"
 
@@ -157,25 +134,21 @@ msgstr ""
 msgid "Immunized"
 msgstr "ዝተኸተበ"
 
-#: definitions/ChwLog.py:159
-#: definitions/ChwLog.py:298
+#: definitions/ChwLog.py:159 definitions/ChwLog.py:298
 msgid "Danger Signs"
 msgstr "ሓደገኛ ምልክታት ሕማም"
 
-#: definitions/ChwLog.py:160
-#: definitions/ChwLog.py:299
+#: definitions/ChwLog.py:160 definitions/ChwLog.py:299
 #: definitions/ChwLog.py:360
 msgid "PID"
 msgstr "ታራ ቁፅሪ"
 
-#: definitions/ChwLog.py:161
-#: definitions/ChwLog.py:300
+#: definitions/ChwLog.py:161 definitions/ChwLog.py:300
 #: definitions/ChwLog.py:361
 msgid "Forms"
 msgstr "ቅጥዒ"
 
-#: definitions/ChwLog.py:296
-#: timeperiods/definitions/Month.py:13
+#: definitions/ChwLog.py:296 timeperiods/definitions/Month.py:15
 msgid "Month"
 msgstr "ወርሒ"
 
@@ -203,11 +176,8 @@ msgstr "ናይ ምክሪ ግልጋሎት"
 msgid "CHW Manager Report"
 msgstr "ናይ መሓዉር ጥዒና ሓላፊ ፀብፃብ"
 
-#: definitions/ChwManagerReport.py:102
-#: models/GeneratedReport.py:63
-#: models/NightlyReport.py:34
+#: definitions/ChwManagerReport.py:102 models/GeneratedReport.py:63
 #: models/Report.py:24
-#: templates/nightly.html:23
 msgid "Report"
 msgstr "ፀብፃብ"
 
@@ -223,184 +193,162 @@ msgstr "ጥዒና ኬላ"
 msgid "Millennium Village"
 msgstr "ሚለንየም ቪለጅ"
 
-#: definitions/ChwReport.py:29
-msgid "CHW Report"
-msgstr "ናይ መሓዉር ጥዒና ፀብፃብ"
-
-#: definitions/ChwReport.py:61
+#: definitions/ChwReport.py:63
 #, python-format
 msgid "For: %s"
 msgstr "ን፡ %s"
 
-#: definitions/ChwReport.py:74
+#: definitions/ChwReport.py:76
 msgid "Indicators"
 msgstr "ሓበርቲ"
 
-#: definitions/ChwReport.py:76
+#: definitions/ChwReport.py:78
 msgid "Indicator"
 msgstr "ሓባሪ"
 
-#: definitions/ChwReport.py:78
+#: definitions/ChwReport.py:80
 msgid "Tot/Avg"
 msgstr "ጠቕላላ/ማእኸላይ"
 
-#: definitions/ChwReport.py:110
-msgid "Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
+#: definitions/ChwReport.py:112
+msgid ""
+"Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
 msgstr ""
 
-#: definitions/ChwReport.py:115
-#: definitions/ChwReport.py:160
-#: definitions/ChwReport.py:193
-#: definitions/ChwReport.py:224
-#: definitions/Malnutrition.py:96
-#: definitions/Malnutrition.py:141
+#: definitions/ChwReport.py:117 definitions/ChwReport.py:161
+#: definitions/ChwReport.py:194 definitions/ChwReport.py:225
+#: definitions/Malnutrition.py:96 definitions/Malnutrition.py:141
 msgid "Loc Code"
 msgstr "መለለዪ ቁፅሪ ከባቢ"
 
-#: definitions/ChwReport.py:116
-#: definitions/ChwReport.py:161
-#: definitions/ChwReport.py:194
-#: definitions/ChwReport.py:225
-#: definitions/Malnutrition.py:97
-#: definitions/Malnutrition.py:142
+#: definitions/ChwReport.py:118 definitions/ChwReport.py:162
+#: definitions/ChwReport.py:195 definitions/ChwReport.py:226
+#: definitions/Malnutrition.py:97 definitions/Malnutrition.py:142
 msgid "Health ID"
 msgstr "መለለዪ ቁፅሪ ጥዒና"
 
-#: definitions/ChwReport.py:117
-#: definitions/ChwReport.py:162
-#: definitions/ChwReport.py:195
-#: definitions/ChwReport.py:226
-#: definitions/Malnutrition.py:98
-#: definitions/Malnutrition.py:143
+#: definitions/ChwReport.py:119 definitions/ChwReport.py:163
+#: definitions/ChwReport.py:196 definitions/ChwReport.py:227
+#: definitions/Malnutrition.py:98 definitions/Malnutrition.py:143
 msgid "Name / Age"
 msgstr "ስም / ዕድመ"
 
-#: definitions/ChwReport.py:118
-#: definitions/ChwReport.py:164
-#: definitions/ChwReport.py:198
-#: definitions/ChwReport.py:230
-#: definitions/Malnutrition.py:102
-#: definitions/Malnutrition.py:145
+#: definitions/ChwReport.py:120 definitions/ChwReport.py:165
+#: definitions/ChwReport.py:199 definitions/ChwReport.py:231
+#: definitions/Malnutrition.py:102 definitions/Malnutrition.py:145
 msgid "Household Head"
 msgstr "መራሒ ስድራ"
 
-#: definitions/ChwReport.py:119
+#: definitions/ChwReport.py:121
 msgid "Referral Type / Date"
 msgstr ""
 
-#: definitions/ChwReport.py:120
+#: definitions/ChwReport.py:122
 msgid "Referred For"
 msgstr ""
 
-#: definitions/ChwReport.py:121
+#: definitions/ChwReport.py:123
 msgid "Follow-Up Date"
 msgstr "ናይ ክትትል መዓልቲ"
 
-#: definitions/ChwReport.py:138
+#: definitions/ChwReport.py:140
 msgid " on "
 msgstr " ክፍቲ "
 
-#: definitions/ChwReport.py:144
+#: definitions/ChwReport.py:146
 msgid "[No DSs Reported]"
 msgstr ""
 
-#: definitions/ChwReport.py:145
+#: definitions/ChwReport.py:147
 msgid "Late: "
 msgstr "ዝዘንግዐ፡ "
 
-#: definitions/ChwReport.py:149
+#: definitions/ChwReport.py:150
 msgid "[No Follow-Up]"
 msgstr "[ክትትል የለን]"
 
-#: definitions/ChwReport.py:156
+#: definitions/ChwReport.py:157
 msgid "Children Under 5 Without Known Up-to-date Immunizations"
 msgstr ""
 
-#: definitions/ChwReport.py:163
+#: definitions/ChwReport.py:164
 msgid "Latest Imm. Report"
 msgstr ""
 
-#: definitions/ChwReport.py:171
+#: definitions/ChwReport.py:172
 msgid "[No Report]"
 msgstr ""
 
-#: definitions/ChwReport.py:175
+#: definitions/ChwReport.py:176
 #, python-format
 msgid "Reported \"%(status)s\" on %(date)s"
 msgstr ""
 
-#: definitions/ChwReport.py:190
+#: definitions/ChwReport.py:191
 msgid "Women in 2nd and 3rd Trimester who haven't had ANC in 5 Weeks"
 msgstr ""
 
-#: definitions/ChwReport.py:196
+#: definitions/ChwReport.py:197
 msgid "Last ANC"
 msgstr ""
 
-#: definitions/ChwReport.py:197
+#: definitions/ChwReport.py:198
 msgid "Approx Due Date"
 msgstr ""
 
-#: definitions/ChwReport.py:220
+#: definitions/ChwReport.py:221
 msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
 msgstr ""
 
-#: definitions/ChwReport.py:227
-#: definitions/Malnutrition.py:99
+#: definitions/ChwReport.py:228 definitions/Malnutrition.py:99
 msgid "Last MUAC"
 msgstr ""
 
-#: definitions/ChwReport.py:228
-#: definitions/Malnutrition.py:100
+#: definitions/ChwReport.py:229 definitions/Malnutrition.py:100
 msgid "MUAC Status"
 msgstr ""
 
-#: definitions/ChwReport.py:229
-#: definitions/Malnutrition.py:101
+#: definitions/ChwReport.py:230 definitions/Malnutrition.py:101
 msgid "Od."
 msgstr ""
 
-#: definitions/ChwReport.py:241
+#: definitions/ChwReport.py:242
 msgid "[No MUAC]"
 msgstr ""
 
-#: definitions/ChwReport.py:242
+#: definitions/ChwReport.py:243
 msgid "U"
 msgstr ""
 
-#: definitions/ChwReport.py:245
+#: definitions/ChwReport.py:246
 #, python-format
 msgid "%(status)s [%(muac)d]"
 msgstr ""
 
-#: definitions/IndicatorChart.py:42
-msgid "Indicator Chart"
-msgstr ""
-
-#: definitions/IndicatorChart.py:63
+#: definitions/IndicatorChart.py:74
 msgid "Indicator not found!"
 msgstr ""
 
-#: definitions/IndicatorChart.py:68
+#: definitions/IndicatorChart.py:79
 msgid "Can only generate PDF for indicator chart"
 msgstr ""
 
-#: definitions/IndicatorChart.py:71
-#: definitions/PerformanceCharts.py:57
+#: definitions/IndicatorChart.py:82 definitions/PerformanceCharts.py:64
 msgid "Generated on: "
 msgstr ""
 
-#: definitions/IndicatorChart.py:73
-#: definitions/PerformanceCharts.py:59
-#, python-format
-msgid "For period %s."
+#: definitions/IndicatorChart.py:84
+#, fuzzy, python-format
+msgid "For period: %s."
+msgstr "ን፡ %s"
+
+#: definitions/IndicatorChart.py:96
+msgid ""
+"Cannot produce indicator chart for indicators that do not accept a QuerySet "
+"as an argument."
 msgstr ""
 
-#: definitions/IndicatorChart.py:85
-msgid "Cannot produce indicator chart for indicators that do not accept a QuerySet as an argument."
-msgstr ""
-
-#: definitions/IndicatorChart.py:106
+#: definitions/IndicatorChart.py:117
 msgid " over time"
 msgstr ""
 
@@ -413,8 +361,8 @@ msgstr ""
 msgid "Children U5 Flagged as Malnourished as of %s"
 msgstr ""
 
-#: definitions/Malnutrition.py:103
-#: definitions/Malnutrition.py:146
+#: definitions/Malnutrition.py:103 definitions/Malnutrition.py:146
+#: definitions/PMTCTDefaulters.py:72
 msgid "CHW"
 msgstr ""
 
@@ -476,20 +424,40 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: definitions/Operational.py:96
+#: definitions/Operational.py:98
 #, python-format
-msgid "<b>%(name)s - %(title)s (Generated on %(gen_date)s at %(gen_time)s)</b>"
+msgid "<b>%(name)s - %(title)s (Generated on %(gen_datetime)s)</b>"
 msgstr ""
 
-#: definitions/Operational.py:112
+#: definitions/Operational.py:113
 msgid "<b>CHW Name</b>"
 msgstr "<b>ስም ጥዒና መሓዉር</b>"
 
-#: definitions/PatientList.py:45
+#: definitions/PMTCTDefaulters.py:29
+msgid "PMTCT Defaulters"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:70
+msgid "Patient"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:71
+msgid "Status"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:76
+msgid "Reminded"
+msgstr ""
+
+#: definitions/PMTCTDefaulters.py:78
+msgid "Not Reminded"
+msgstr ""
+
+#: definitions/PatientList.py:52
 msgid "LOC"
 msgstr "ናቑጣ"
 
-#: definitions/PatientList.py:58
+#: definitions/PatientList.py:68
 msgid "Gen."
 msgstr "ጾታ"
 
@@ -503,16 +471,21 @@ msgstr ""
 msgid "CHW: %(loc)s: %(chw)s"
 msgstr "መሓውር ጤእና: %(loc)s: %(chw)s"
 
-#: definitions/PatientList.py:175
+#: definitions/PatientList.py:181
 msgid "Active Patients | Current as of "
 msgstr "ብሂወት ዘሎ | ክሳብ ሀዚ ዘሎ "
 
-#: definitions/PerformanceCharts.py:40
+#: definitions/PerformanceCharts.py:47
 msgid "Performance Charts"
 msgstr ""
 
-#: definitions/PerformanceCharts.py:54
+#: definitions/PerformanceCharts.py:61
 msgid "Can only generate PDF for performance charts"
+msgstr ""
+
+#: definitions/PerformanceCharts.py:66
+#, python-format
+msgid "For period %s."
 msgstr ""
 
 #: definitions/StatsDataEntry.py:15
@@ -549,10 +522,6 @@ msgstr ""
 
 #: definitions/StatsOmrs.py:13
 msgid "OpenMRS Sync Data"
-msgstr ""
-
-#: definitions/Utilization.py:78
-msgid "Utilization Report"
 msgstr ""
 
 #: definitions/Utilization.py:106
@@ -692,28 +661,23 @@ msgstr ""
 msgid "% of days with SMS / month."
 msgstr ""
 
-#: models/GeneratedReport.py:37
-#: models/GeneratedReport.py:45
+#: models/GeneratedReport.py:37 models/GeneratedReport.py:45
 msgid "Pending"
 msgstr ""
 
-#: models/GeneratedReport.py:38
-#: models/GeneratedReport.py:46
+#: models/GeneratedReport.py:38 models/GeneratedReport.py:46
 msgid "Started"
 msgstr ""
 
-#: models/GeneratedReport.py:39
-#: models/GeneratedReport.py:47
+#: models/GeneratedReport.py:39 models/GeneratedReport.py:47
 msgid "Retrying"
 msgstr ""
 
-#: models/GeneratedReport.py:40
-#: models/GeneratedReport.py:48
+#: models/GeneratedReport.py:40 models/GeneratedReport.py:48
 msgid "Failed"
 msgstr ""
 
-#: models/GeneratedReport.py:41
-#: models/GeneratedReport.py:49
+#: models/GeneratedReport.py:41 models/GeneratedReport.py:49
 msgid "Succeeded"
 msgstr ""
 
@@ -737,8 +701,7 @@ msgstr ""
 msgid "Location of generated report file"
 msgstr ""
 
-#: models/GeneratedReport.py:70
-#: models/Report.py:28
+#: models/GeneratedReport.py:70 models/Report.py:28
 msgid "Title"
 msgstr ""
 
@@ -783,7 +746,9 @@ msgid "Task ID"
 msgstr ""
 
 #: models/GeneratedReport.py:90
-msgid "The task identifier used internally by RabbitMQ and celeryd to identify the task used to generate this report."
+msgid ""
+"The task identifier used internally by RabbitMQ and celeryd to identify the "
+"task used to generate this report."
 msgstr ""
 
 #: models/GeneratedReport.py:93
@@ -803,42 +768,12 @@ msgstr ""
 msgid "<Generated: %(title)s, (%(fname)s), ID: %(pk)d>"
 msgstr ""
 
-#: models/NightlyReport.py:29
-msgid "Nightly Report"
-msgstr ""
-
-#: models/NightlyReport.py:36
-msgid "Reference to the report to be generated overnight"
-msgstr ""
-
-#: models/NightlyReport.py:38
-msgid "Time period"
-msgstr ""
-
-#: models/NightlyReport.py:41
-msgid "The time period type to use"
-msgstr ""
-
-#: models/NightlyReport.py:42
-#: models/Report.py:32
-msgid "Class name"
-msgstr ""
-
-#: models/NightlyReport.py:45
-msgid "Index of period with which to generate this report"
-msgstr ""
-
-#: models/NightlyReport.py:57
-msgid "Time period code does not match any PeriodType object."
-msgstr ""
-
-#: models/NightlyReport.py:111
-#, python-format
-msgid "PeriodType \"%(pt)s\" only has %(n)d periods. You told me to generate a report for period %(m)d."
-msgstr ""
-
 #: models/Report.py:30
 msgid "Human-readable title for report"
+msgstr ""
+
+#: models/Report.py:32
+msgid "Class name"
 msgstr ""
 
 #: models/Report.py:34
@@ -848,50 +783,6 @@ msgstr ""
 #: models/Report.py:76
 #, python-format
 msgid "Could not import report definition named \"%s\"."
-msgstr ""
-
-#: templates/nightly.html:15
-msgid "Variant"
-msgstr ""
-
-#: templates/nightly.html:16
-msgid "HTML"
-msgstr ""
-
-#: templates/nightly.html:17
-msgid "PDF"
-msgstr ""
-
-#: templates/nightly.html:18
-msgid "Excel"
-msgstr ""
-
-#: templates/nightly.html:19
-msgid "Other"
-msgstr ""
-
-#: templates/nightly.html:33
-#: templates/nightly.html.py:52
-#: templates/nightly.html:72
-msgid "Report is"
-msgstr ""
-
-#: templates/nightly.html:33
-#: templates/nightly.html.py:52
-#: templates/nightly.html:72
-msgid "days(s) old"
-msgstr ""
-
-#: templates/nightly.html:36
-#: templates/nightly.html.py:55
-#: templates/nightly.html:75
-msgid "Not generated"
-msgstr ""
-
-#: templates/nightly.html:37
-#: templates/nightly.html.py:56
-#: templates/nightly.html:76
-msgid "(Not generated)"
 msgstr ""
 
 #: timeperiods/__init__.py:28
@@ -917,67 +808,67 @@ msgstr ""
 msgid "Five years starting %(start)d years ago"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:13
+#: timeperiods/definitions/FourWeeks.py:15
 msgid "Four weeks"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:14
+#: timeperiods/definitions/FourWeeks.py:16
 msgid "Set of four seven-day weeks starting on a Monday X weeks ago"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:32
+#: timeperiods/definitions/FourWeeks.py:34
 #, python-format
 msgid "Week of %(start)s"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:50
+#: timeperiods/definitions/FourWeeks.py:52
 #, python-format
 msgid "Weeks %(start)s to %(end)s"
 msgstr ""
 
-#: timeperiods/definitions/FourWeeks.py:53
+#: timeperiods/definitions/FourWeeks.py:55
 #, python-format
 msgid "Monday %(n)d week(s) ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:14
+#: timeperiods/definitions/Month.py:16
 msgid "One calendar month X months ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:49
-#: timeperiods/definitions/MonthByDays.py:42
+#: timeperiods/definitions/Month.py:51
+#: timeperiods/definitions/MonthByDays.py:43
 #, python-format
 msgid "%(start)s"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:52
-#: timeperiods/definitions/MonthByDays.py:45
+#: timeperiods/definitions/Month.py:54
+#: timeperiods/definitions/MonthByDays.py:46
 msgid "This month"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:54
-#: timeperiods/definitions/MonthByDays.py:47
+#: timeperiods/definitions/Month.py:56
+#: timeperiods/definitions/MonthByDays.py:48
 msgid "Last month"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:56
-#: timeperiods/definitions/MonthByDays.py:49
+#: timeperiods/definitions/Month.py:58
+#: timeperiods/definitions/MonthByDays.py:50
 #, python-format
 msgid "%(start)s months ago"
 msgstr ""
 
-#: timeperiods/definitions/Month.py:69
+#: timeperiods/definitions/Month.py:71
 #: timeperiods/definitions/SevenYearsByQuarter.py:42
 #: timeperiods/definitions/ThreeYearsByQuarter.py:42
 #, python-format
 msgid "%(start)s to %(end)s"
 msgstr ""
 
-#: timeperiods/definitions/MonthByDays.py:13
+#: timeperiods/definitions/MonthByDays.py:15
 msgid "Month (Daily)"
 msgstr ""
 
-#: timeperiods/definitions/MonthByDays.py:14
+#: timeperiods/definitions/MonthByDays.py:16
 msgid "One calendar month X months ago (by day)"
 msgstr ""
 
@@ -1057,3 +948,14 @@ msgstr ""
 msgid "2 months starting %(start)d months ago"
 msgstr ""
 
+#~ msgid "No nightly value passed in"
+#~ msgstr "ለይቲ ዘይሓለፉ ዳታታት"
+
+#~ msgid "Nightly Reports"
+#~ msgstr "ማታ ማታ የሚፈተሩ ሪፖርቶች"
+
+#~ msgid "CHW List"
+#~ msgstr "መሓዉር ጥዕና ሰራሕተኛታተ ስም ዝርዝር"
+
+#~ msgid "CHW Report"
+#~ msgstr "ናይ መሓዉር ጥዒና ፀብፃብ"

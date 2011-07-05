@@ -20,36 +20,16 @@ from django.template import loader
 from rapidsms.webui.utils import render_to_response
 
 from reportgen.models import Report
-from reportgen.models import NightlyReport
 from reportgen.models import GeneratedReport
 
 from reportgen.utils import DISPLAY_REPORTS_MAX
-from reportgen.utils import nightly_report_data
 from reportgen.utils import ondemand_json_obj
 
 from reportgen.timeperiods import period_type_for
 
-PAGES = (
-    {'name': _('Nightly Reports'), \
-        'url': '/reportgen/nightly/', 'slug': 'nightly'},
-    {'name': _('On-Demand Reports'), \
-        'url': '/reportgen/ondemand/', 'slug': 'ondemand'},
-)
-
-data = {'pages': PAGES}
-
-@login_required
-def index(request):
-    return HttpResponseRedirect('/reportgen/nightly/')
-
-@login_required
-def nightly(request):
-    data['title'] = _('Nightly Reports')
-    data['nightly'] = [nightly_report_data(n) for n in NightlyReport.objects.all()]
-    return render_to_response(request, "nightly.html", data)
-
 @login_required
 def ondemand(request):
+    data = {}
     if request.method == "POST":
         return _process_gen(request)
     data['title'] = _('On-Demand Reports')
@@ -88,7 +68,6 @@ def _process_gen(request):
         print "&&&%s" % args
         raise ValueError(_("Variant not found"))
         
-    args['nightly'] = None
     args['rformat'] = request.POST['rformat']
 
     period_type = period_type_for(request.POST['period_type_code'])
@@ -126,13 +105,13 @@ def _process_gen(request):
         gr.task_id = r.task_id
         gr.save()
     
-    return HttpResponseRedirect('/reportgen/ondemand/')
+    return HttpResponseRedirect('/reportgen/')
 
 @login_required
 def delete(request, pk):
     r = GeneratedReport.objects.get(pk=pk)
     r.delete()
-    return HttpResponseRedirect('/reportgen/ondemand/')
+    return HttpResponseRedirect('/reportgen/')
 
 @login_required
 def ajax_progress(request):

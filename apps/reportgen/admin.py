@@ -6,6 +6,5 @@ from django.contrib import admin
 from reportgen.models import *
 
 admin.site.register(Report)
-admin.site.register(NightlyReport)
 admin.site.register(GeneratedReport)
 

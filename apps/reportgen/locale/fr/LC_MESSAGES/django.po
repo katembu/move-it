@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-30 16:51+0300\n"
+"POT-Creation-Date: 2011-07-05 11:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,24 +20,20 @@ msgstr ""
 msgid "Generate function not implemented."
 msgstr ""
 
-#: PrintedReport.py:94
-msgid "No nightly value passed in"
-msgstr ""
-
-#: PrintedReport.py:100
+#: PrintedReport.py:97
 #, python-format
 msgid "Could not find DB record for a report with classname %s"
 msgstr ""
 
-#: PrintedReport.py:104
+#: PrintedReport.py:101
 msgid "No time period value passed in"
 msgstr ""
 
-#: PrintedReport.py:177
+#: PrintedReport.py:138
 msgid "This report has no formats specified."
 msgstr ""
 
-#: PrintedReport.py:182
+#: PrintedReport.py:143
 msgid "Report title or filename is unset."
 msgstr ""
 
@@ -46,15 +42,11 @@ msgstr ""
 msgid "Invalid report format (%s)"
 msgstr ""
 
-#: views.py:33 views.py:47 models/NightlyReport.py:30
-msgid "Nightly Reports"
-msgstr ""
-
-#: views.py:35 views.py:55
+#: views.py:34
 msgid "On-Demand Reports"
 msgstr ""
 
-#: views.py:89
+#: views.py:68
 msgid "Variant not found"
 msgstr ""
 
@@ -186,7 +178,7 @@ msgid "CHW Manager Report"
 msgstr ""
 
 #: definitions/ChwManagerReport.py:102 models/GeneratedReport.py:63
-#: models/NightlyReport.py:34 models/Report.py:24 templates/nightly.html:23
+#: models/Report.py:24
 msgid "Report"
 msgstr ""
 
@@ -777,43 +769,12 @@ msgstr ""
 msgid "<Generated: %(title)s, (%(fname)s), ID: %(pk)d>"
 msgstr ""
 
-#: models/NightlyReport.py:29
-msgid "Nightly Report"
-msgstr ""
-
-#: models/NightlyReport.py:36
-msgid "Reference to the report to be generated overnight"
-msgstr ""
-
-#: models/NightlyReport.py:38
-msgid "Time period"
-msgstr ""
-
-#: models/NightlyReport.py:41
-msgid "The time period type to use"
-msgstr ""
-
-#: models/NightlyReport.py:42 models/Report.py:32
-msgid "Class name"
-msgstr ""
-
-#: models/NightlyReport.py:45
-msgid "Index of period with which to generate this report"
-msgstr ""
-
-#: models/NightlyReport.py:57
-msgid "Time period code does not match any PeriodType object."
-msgstr ""
-
-#: models/NightlyReport.py:111
-#, python-format
-msgid ""
-"PeriodType \"%(pt)s\" only has %(n)d periods. You told me to generate a "
-"report for period %(m)d."
-msgstr ""
-
 #: models/Report.py:30
 msgid "Human-readable title for report"
+msgstr ""
+
+#: models/Report.py:32
+msgid "Class name"
 msgstr ""
 
 #: models/Report.py:34
@@ -823,46 +784,6 @@ msgstr ""
 #: models/Report.py:76
 #, python-format
 msgid "Could not import report definition named \"%s\"."
-msgstr ""
-
-#: templates/nightly.html:15
-msgid "Variant"
-msgstr ""
-
-#: templates/nightly.html:16
-msgid "HTML"
-msgstr ""
-
-#: templates/nightly.html:17
-msgid "PDF"
-msgstr ""
-
-#: templates/nightly.html:18
-msgid "Excel"
-msgstr ""
-
-#: templates/nightly.html:19
-msgid "Other"
-msgstr ""
-
-#: templates/nightly.html:33 templates/nightly.html.py:52
-#: templates/nightly.html:72
-msgid "Report is"
-msgstr ""
-
-#: templates/nightly.html:33 templates/nightly.html.py:52
-#: templates/nightly.html:72
-msgid "days(s) old"
-msgstr ""
-
-#: templates/nightly.html:36 templates/nightly.html.py:55
-#: templates/nightly.html:75
-msgid "Not generated"
-msgstr ""
-
-#: templates/nightly.html:37 templates/nightly.html.py:56
-#: templates/nightly.html:76
-msgid "(Not generated)"
 msgstr ""
 
 #: timeperiods/__init__.py:28

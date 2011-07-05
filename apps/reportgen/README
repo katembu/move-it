@@ -47,26 +47,11 @@ ChildCount code.
 
 == Pages ==
 
-Nightly Reports
-- List of all reports (with links) that are
-  generated overnight. 
-- Should list the time at which each report
-  was generated.
-
 On-Demand Reports
 - List of reports in reverse chronological order
   that have already been generated (with links)
 
-Settings (to-do)
-- Add/remove/modify NightlyReports
-
 == Tasks ==
-nightly_reports
-- Same as childcount.tasks.gen_framework_nightly_reports
-- Loop through all NightlyReports and generates
-  the reports for all variants and formats for
-  the selected period
-
 delete_old_reports
 - Wipe out generated reports that are not one of the
   30 most recent reports
