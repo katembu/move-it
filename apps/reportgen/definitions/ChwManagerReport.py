@@ -175,6 +175,7 @@ class ReportDefinition(PrintedReport):
             for ind in group['columns']:
                 is_perc = ind['ind'].output_is_percentage()
 
+                # Write value for each sub-period
                 for sub_period in self._sub_periods:
                     value = ind['ind'](sub_period, patient_set)
                     if is_perc: value = float(value)
@@ -183,7 +184,8 @@ class ReportDefinition(PrintedReport):
                                         else norm_style)
                     col += 1
 
-                value = ind['ind'](sub_period, patient_set)
+                # Write value for period as a whole
+                value = ind['ind'](self._period, patient_set)
                 if is_perc: value = float(value)
 
                 self._write(row, col, value, end_perc_style if is_perc \
