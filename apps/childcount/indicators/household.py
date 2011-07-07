@@ -186,8 +186,8 @@ class OnTimePerc(IndicatorPercentage):
     type_out    = Percentage
 
     slug        = "on_time_perc"
-    short_name  = _("Late HH Visits")
-    long_name   = _("Total number of late visits to unique households")
+    short_name  = _("% On-Time")
+    long_name   = _("Percentage of households getting an on-time visit")
 
     cls_num     = OnTime
     cls_den     = registration.Household
