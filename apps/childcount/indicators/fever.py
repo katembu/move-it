@@ -186,6 +186,17 @@ class OverFiveRdtPositiveGivenAntimalarial(Indicator):
                 encounter__ccreport__medicinegivenreport__medicines__code='ACT')\
             .count()
 
+class OverFiveRdtPositiveGivenAntimalarialPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+    
+    slug        = "over_five_rdt_positive_given_antimalarial_perc"
+    short_name  = _("%Over5 RDT+ w/AM")
+    long_name   = _("Percentage of patients over five with a positive "\
+                    "RDT result who were given antimalarials")
+
+    cls_num     = OverFiveRdtPositiveGivenAntimalarial
+    cls_den     = OverFiveRdtPositive
+
 class OverFiveRdtNegativeGivenAntimalarial(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -202,4 +213,13 @@ class OverFiveRdtNegativeGivenAntimalarial(Indicator):
                 encounter__ccreport__medicinegivenreport__medicines__code='ACT')\
             .count()
 
+class OverFiveRdtNegativeGivenAntimalarialPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+    
+    slug        = "over_five_rdt_negative_given_antimalarial_perc"
+    short_name  = _("%Over5 RDT- w/AM")
+    long_name   = _("Percentage of patients over five with a negative "\
+                    "RDT result who were given antimalarials")
 
+    cls_num     = OverFiveRdtNegativeGivenAntimalarial
+    cls_den     = OverFiveRdtNegative

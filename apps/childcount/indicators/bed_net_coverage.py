@@ -14,6 +14,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import BedNetReport
 
+from childcount.indicators import registration
+
 NAME = _("Bed Net Coverage")
 
 class Total(Indicator):
@@ -40,7 +42,7 @@ class SleepingSites(Indicator):
     type_out    = int
 
     slug        = "sleeping_sites"
-    short_name  = _("# Sleeping Sites")
+    short_name  = _("# Sites Seen")
     long_name   = _("Total number of sleeping sites monitored this period")
 
     @classmethod
@@ -50,6 +52,61 @@ class SleepingSites(Indicator):
             .filter(encounter__patient__in=data_in,\
                 encounter__encounter_date__range=(period.start, period.end))\
             .aggregate(total=Sum('sleeping_sites'))['total'] or 0
+
+class SleepingSitesUniq(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "sleeping_sites_uniq"
+    short_name  = _("# Sites")
+    long_name   = _("Total number of sleeping sites for unique "\
+                    "household monitored this period")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return BedNetReport\
+            .objects\
+            .filter(encounter__patient__in=data_in,\
+                encounter__encounter_date__range=(period.start, period.end))\
+            .latest_for_patient()\
+            .aggregate(total=Sum('sleeping_sites'))['total'] or 0
+
+class SleepingSitesUniqMissing(Indicator):
+    type_in     = QuerySetType(Patient)
+    type_out    = int
+
+    slug        = "sleeping_sites_uniq_missing"
+    short_name  = _("# Sites Unc")
+    long_name   = _("Total number of sleeping sites for unique "\
+                    "household monitored this period with fewer bed nets "\
+                    "than sleeping sites")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        rpts = BedNetReport\
+            .objects\
+            .filter(encounter__patient__in=data_in,\
+                encounter__encounter_date__range=(period.start, period.end))\
+            .latest_for_patient()\
+            .filter(function_nets__lt=F('sleeping_sites'),\
+                function_nets__isnull=False,\
+                sleeping_sites__isnull=False)
+
+        count = 0
+        for r in rpts:
+            count += max(0, r.sleeping_sites - r.function_nets)
+
+        return count
+            
+class SleepingSitesUniqMissingPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "sleeping_sites_uniq_missing_perc"
+    short_name  = _("% Sites w/o net")
+    long_name   = _("Percentage of unique sleeping sites monitored "\
+                    "and known to have no bed net")
+    cls_num     = SleepingSitesUniqMissing
+    cls_den     = SleepingSitesUniq
 
 class Covered(Indicator):
     type_in     = QuerySetType(Patient)
@@ -125,3 +182,15 @@ class CoveredPerc(IndicatorPercentage):
                     "and known to be covered with bed nets")
     cls_num     = Covered
     cls_den     = Total
+
+
+class CoveragePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "coverage_perc"
+    short_name  = _("% Known")
+    long_name   = _("Percentage of unique households monitored "\
+                    "for bed net coverage")
+
+    cls_num     = Total
+    cls_den     = registration.Household

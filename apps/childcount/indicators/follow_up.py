@@ -4,15 +4,18 @@ import numpy
 
 from django.utils.translation import ugettext as _
 from django.db import connection
+from django.db.models import Q
 
 from indicator import Indicator
 from indicator import IndicatorPercentage
 from indicator import IndicatorDifference
 from indicator import QuerySetType
 
+from childcount.models.reports import CCReport
 from childcount.models.reports import FollowUpReport
 from childcount.models.reports import ReferralReport
-from childcount.models import Patient
+from childcount.models.reports import MedicineGivenReport
+from childcount.models import Patient, CodedItem
 
 NAME = _("Follow Up")
 
@@ -41,11 +44,39 @@ def _eligible(period, data_in):
     B = ReferralReport.URGENCY_BASIC
     E = ReferralReport.URGENCY_EMERGENCY
 
-    return ReferralReport\
+    ref = CCReport\
         .objects\
-        .filter(encounter__patient__in=data_in,\
-            encounter__encounter_date__range=(period.start, period.end),\
-            urgency__in=(A,E,B))
+        .filter(polymorphic_ctype__name='Referral Report',
+            encounter__patient__in=data_in,\
+            encounter__encounter_date__range=(period.start, period.end))
+    ref_a = ref.filter(referralreport__urgency=A)
+    ref_b = ref.filter(referralreport__urgency=B)
+    ref_e = ref.filter(referralreport__urgency=E)
+
+    med = CCReport\
+        .objects\
+        .filter(polymorphic_ctype__name='Medicine Given Report',
+            encounter__patient__in=data_in,\
+            encounter__encounter_date__range=(period.start, period.end))
+
+    # We need to add the excludes because django-polymorphic does not
+    # allow you to union querysets with identical records
+    give_am = med.filter(medicinegivenreport__medicines__code='ACT')
+    give_r = med\
+        .exclude(pk__in=give_am)\
+        .filter(medicinegivenreport__medicines__code='R')
+    give_z = med\
+        .exclude(pk__in=give_am)\
+        .exclude(pk__in=give_r)\
+        .filter(medicinegivenreport__medicines__code='Z')
+
+    return CCReport.objects.filter(\
+        Q(pk__in=ref_a)|\
+        Q(pk__in=ref_b)|\
+        Q(pk__in=ref_e)|\
+        Q(pk__in=give_am)|\
+        Q(pk__in=give_r)|\
+        Q(pk__in=give_z))
 
 class Eligible(Indicator):
     type_in     = QuerySetType(Patient)
@@ -118,7 +149,6 @@ def _follow_up_between(period, data_in, delta_start, delta_end):
 
     return count
 '''
-
 
 class Late(Indicator):
     type_in     = QuerySetType(Patient)

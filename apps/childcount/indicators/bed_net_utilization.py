@@ -14,6 +14,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import BednetUtilization
 
+from childcount.indicators import registration
+
 NAME = _("Bed Net Utilization")
 
 class Total(Indicator):
@@ -34,6 +36,16 @@ class Total(Indicator):
             .values('encounter__patient')\
             .distinct()\
             .count()
+
+class CoveragePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "coverage_perc"
+    short_name  = _("% Cov")
+    long_name   = _("Percentage of households monitored for "\
+                    "bed net utilization during this period")
+    cls_num     = Total
+    cls_den     = registration.Household
 
 class Children(Indicator):
     type_in     = QuerySetType(Patient)
