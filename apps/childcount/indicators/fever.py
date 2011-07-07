@@ -10,6 +10,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import FeverReport
 
+from childcount.indicators import danger_signs
+
 NAME = _("Fever")
 
 def _fever_reports(period, data_in):
@@ -79,17 +81,6 @@ class RdtPositiveGivenAntimalarial(Indicator):
         return _rdt_value_given_antimalarial(period, \
                             data_in, FeverReport.RDT_POSITIVE).count()
 
-class RdtPositiveGivenAntimalarialPerc(IndicatorPercentage):
-    type_in     = QuerySetType(Patient)
-
-    slug        = "rdt_postive_given_antimalarial_perc"
-    short_name  = _("% RDT+ w/ ACT")
-    long_name   = _("Percentage of patients given antimalarials "\
-                    "after testing positive with an RDT")
-
-    cls_num     = RdtPositiveGivenAntimalarial
-    cls_den     = RdtPositive
-
 class UnderFiveRdtPositiveGivenAntimalarial(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -106,6 +97,18 @@ class UnderFiveRdtPositiveGivenAntimalarial(Indicator):
             .encounter_under_five()\
             .count()
 
+"""
+class UnderFiveRdtPositiveGivenAntimalarialPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_rdt_postive_given_antimalarial_perc"
+    short_name  = _("% U5 RDT+ w/ ACT")
+    long_name   = _("Percentage of under five patients given antimalarials "\
+                    "after testing positive with an RDT")
+
+    cls_num     = UnderFiveRdtPositiveGivenAntimalarial
+    cls_den     = danger_signs.UnderFiveFeverUncomplicatedRdtPositive
+"""
 
 class UnderFiveRdtNegativeGivenAntimalarial(Indicator):
     type_in     = QuerySetType(Patient)

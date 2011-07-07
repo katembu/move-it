@@ -9,6 +9,8 @@ from indicator import QuerySetType
 from childcount.models import Patient
 from childcount.models.reports import NeonatalReport
 
+from childcount.indicators import birth
+
 NAME = _("Neonatal")
 
 class Total(Indicator):
@@ -35,14 +37,15 @@ class WithinSevenDaysOfBirth(Indicator):
     slug        = "within_seven_days_of_birth"
     short_name  = _("w/in 7d")
     long_name   = _("Number of neonatal reports submitted within "\
-                    "seven days of birth")
+                    "seven days of birth for patients born "
+                    "during this period")
 
     @classmethod
     def _value(cls, period, data_in):
         return NeonatalReport\
             .objects\
             .filter(encounter__patient__in=data_in,\
-                encounter__encounter_date__range=(period.start, period.end))\
+                encounter__patient__dob__range=(period.start, period.end))\
             .encounter_age(1,7)\
             .count()
 
@@ -53,9 +56,10 @@ class WithinSevenDaysOfBirthPerc(IndicatorPercentage):
     slug        = "within_seven_days_of_birth_perc"
     short_name  = _("% w/in 7d")
     long_name   = _("Percentage of neonatal reports submitted within "\
-                    "seven days of birth")
+                    "seven days of birth for patients born during this "
+                    "period")
 
     cls_num     = WithinSevenDaysOfBirth
-    cls_den     = Total
+    cls_den     = birth.Total
 
 

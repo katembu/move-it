@@ -6,6 +6,7 @@ from django.db.models.aggregates import Count
 from django.utils.translation import ugettext as _
 
 from indicator import Indicator
+from indicator import IndicatorPercentage
 from indicator import QuerySetType
 
 from childcount.models import Patient
@@ -167,7 +168,17 @@ def _under_five_fever_uncomplicated_rdt_value(period, data_in, value):
         .filter(encounter__ccreport__feverreport__rdt_result=value)\
         .count()
 
-    
+class UnderFiveFeverUncomplicatedRdtPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_fever_uncomplicated_rdt_perc"
+    short_name  = _("%U5 Fv Uncompl RDT")
+    long_name   = _("Percentage of under fives with uncomplicated "\
+                    "fever getting an RDT")
+
+    cls_num     = UnderFiveFeverUncomplicatedRdt
+    cls_den     = UnderFiveFeverUncomplicated
+
 class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -182,6 +193,17 @@ class UnderFiveFeverUncomplicatedRdtPositive(Indicator):
     def _value(cls, period, data_in):
         return _under_five_fever_uncomplicated_rdt_value(period,\
             data_in, FeverReport.RDT_POSITIVE)
+
+class UnderFiveFeverUncomplicatedRdtPositivePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_fever_uncomplicated_rdt_positive_perc"
+    short_name  = _("%U5 Fv Uncompl RDT+")
+    long_name   = _("Percentage of under fives with uncomplicated "\
+                    "fever whose RDT result was positive")
+
+    cls_num     = UnderFiveFeverUncomplicatedRdtPositive
+    cls_den     = UnderFiveFeverUncomplicatedRdt
 
 class UnderFiveFeverUncomplicatedRdtNegative(Indicator):
     type_in     = QuerySetType(Patient)
@@ -250,6 +272,17 @@ class UnderFiveFeverComplicatedReferred(Indicator):
         return _under_five_fever_complicated(period, data_in)\
             .filter(encounter__ccreport__referralreport__urgency__isnull=False)\
             .count()
+
+class UnderFiveFeverComplicatedReferredPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_fever_complicated_referred_perc"
+    short_name  = _("%U5 Fv Compl Ref")
+    long_name   = _("Percentage of under fives with complicated "\
+                    "fever who were referred to a health facility")
+
+    cls_num     = UnderFiveFeverComplicatedReferred
+    cls_den     = UnderFiveFeverComplicated
 
 class UnderFiveFeverComplicatedReferredFollowUp(Indicator):
     type_in     = QuerySetType(Patient)

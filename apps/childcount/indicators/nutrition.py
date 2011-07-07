@@ -167,6 +167,28 @@ class Known(Indicator):
     def _value(cls, period, data_in):
         return _muac_ninety_days(period, data_in).count()
 
+class SamOrMamPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "sam_or_mam_per"
+    short_name  = _("%SAM/MAM")
+    long_name   = _("Percentage of patients with known MUAC "\
+                    "for this time period whose MUAC is "\
+                    "<125")
+
+    cls_num     = SamOrMam
+    cls_den     = Known
+
+class KnownPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "known_per"
+    short_name  = _("% w/MUAC")
+    long_name   = _("Percentage of MUAC-eligible patients "\
+                    "with known MUAC reading")
+
+    cls_num     = Known
+    cls_den     = registration.MuacEligible
 class Unknown(IndicatorDifference):
     type_in     = QuerySetType(Patient)
     type_out    = int

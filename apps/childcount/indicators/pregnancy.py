@@ -126,7 +126,7 @@ class AncZeroByMonthFour(Indicator):
 
     slug        = "anc_zero_by_month_four"
     short_name  = _(">4m =0 ANC")
-    long_name   = _("Number of women more than four months "\
+    long_name   = _("Number of women who are at least four months "\
                     "pregnant at the end of this period who "\
                     "have never had an ANC visit")
 
@@ -151,7 +151,7 @@ class AncFourByMonthEight(Indicator):
 
     slug        = "anc_four_by_month_eight"
     short_name  = _(">8m >=4 ANC")
-    long_name   = _("Number of women more than eight months "\
+    long_name   = _("Number of women who are at least eight months "\
                     "pregnant at the end of this period who "\
                     "have had at least four ANC visits")
 
@@ -170,14 +170,26 @@ class AncFourByMonthEight(Indicator):
             .distinct()\
             .count()
 
+class AncZeroByMonthFourPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "anc_zero_by_month_four_perc"
+    short_name  = _("% >4m 0 ANC")
+    long_name   = _("Percentage of women who are at least four months "\
+                    "pregnant at the end of this period who "\
+                    "have had no ANC visits")
+
+    cls_num     = AncZeroByMonthFour
+    cls_den     = MonthFour
+
 class AncFourByMonthEightPerc(IndicatorPercentage):
     type_in     = QuerySetType(Patient)
 
     slug        = "anc_four_by_month_eight_perc"
     short_name  = _("% >8m >=4 ANC")
-    long_name   = _("Percentage of women more than eight months "\
+    long_name   = _("Percentage of women at least eight months "\
                     "pregnant at the end of this period who "\
-                    "have had at least eight ANC visits")
+                    "have had at least four ANC visits")
 
     cls_num     = AncFourByMonthEight
     cls_den     = MonthEight

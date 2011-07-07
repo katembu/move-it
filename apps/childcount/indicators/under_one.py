@@ -133,6 +133,17 @@ class UnderSixMonthsBreastFeedingOnlyKnown(Indicator):
             .distinct()\
             .count()
 
+class UnderSixMonthsBreastFeedingOnlyPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_six_months_breast_feeding_only_perc"
+    short_name  = _("%BF Only")
+    long_name   = _("Percentage of patients with known breast-feeding "
+                    "status who are exclusively breast-feeding")
+
+    cls_num     = UnderSixMonthsBreastFeedingOnly
+    cls_den     = UnderSixMonthsBreastFeedingOnlyKnown
+
 class UnderFiveImmunizationUpToDate(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -217,3 +228,15 @@ class UnderOneImmunizationUpToDate(Indicator):
             .values('encounter__patient')\
             .distinct()\
             .count()
+
+class UnderOneImmunizationUpToDatePerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_one_immunization_up_to_date_per"
+    short_name  = _("%Imm Curr")
+    long_name   = _("Percentage of patients with a known immunization "
+                    "status whose immunizations are up to date")
+
+    cls_num     = UnderOneImmunizationUpToDate
+    cls_den     = UnderOneImmunizationUpToDateKnown
+
