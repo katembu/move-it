@@ -140,6 +140,7 @@
       <vomiting openmrs_concept="122983^VOMITING^99DCT">{% if reasons_for_referral__vomiting %}true{% else %}false{% endif %}</vomiting>
       <vaginal_discharge openmrs_concept="123396^vaginal discharge^99DCT">{% if reasons_for_referral__vaginal_discharge %}true{% else %}false{% endif %}</vaginal_discharge>
       <no_fetal_movements openmrs_concept="1452^NO FETAL MOVEMENTS^99DCT">{% if reasons_for_referral__no_fetal_movements %}true{% else %}false{% endif %}</no_fetal_movements>
+      <diarrhea openmrs_concept="142412^DIARRHEA^99DCT">{% if reasons_for_referral__diarrhea %}true{% else %}false{% endif %}</diarrhea>
       <slowness_and_poor_responsiveness openmrs_concept="152371^Slowness and Poor Responsiveness^99DCT">{% if reasons_for_referral__slowness_and_poor_responsiveness %}true{% else %}false{% endif %}</slowness_and_poor_responsiveness>
       <acute_vaginitis openmrs_concept="121809^Acute Vaginitis^99DCT">{% if reasons_for_referral__acute_vaginitis %}true{% else %}false{% endif %}</acute_vaginitis>
       <feeding_problem openmrs_concept="140476^Feeding Problem^99DCT">{% if reasons_for_referral__feeding_problem %}true{% else %}false{% endif %}</feeding_problem>

@@ -553,6 +553,8 @@ class DangerSignsReport(CCReport):
             if ds.code.upper() == 'CW':
                 igive.update({'reasons_for_referral__cough_lasting_more'\
                                 '_than_3_weeks': True})
+            if ds.code.upper() == 'DR':
+                igive.update({'reasons_for_referral__diarrhea': True})
             if ds.code.upper() == 'FP':
                 igive.update({'reasons_for_referral__fever_in_first_'\
                                 'trimester_of_pregnancy': True})

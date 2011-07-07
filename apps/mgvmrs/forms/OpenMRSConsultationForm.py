@@ -40,6 +40,7 @@ class OpenMRSConsultationForm(OpenMRSFormInterface):
     REASON_NT = 'regimen_failure'
     REASON_AS = 'physical_trauma'
     REASON_BM = 'no_fetal_movements'
+    REASON_DR = 'diarrhea'
     REASON_BV = 'blurred_vision'
     REASON_CC = 'cough'
     REASON_CV = 'convulsions'
@@ -101,6 +102,8 @@ class OpenMRSConsultationForm(OpenMRSFormInterface):
         'reasons_for_referral__physical_trauma': \
                                            (OpenMRSFormInterface.T_BOOL, None),
         'reasons_for_referral__no_fetal_movements': \
+                                           (OpenMRSFormInterface.T_BOOL, None),
+        'reasons_for_referral__diarrhea': \
                                            (OpenMRSFormInterface.T_BOOL, None),
         'reasons_for_referral__blurred_vision': \
                                            (OpenMRSFormInterface.T_BOOL, None),
