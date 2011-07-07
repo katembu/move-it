@@ -93,6 +93,17 @@ class UnderFiveDiarrheaUncomplicatedGivenOrs(Indicator):
     def _value(cls, period, data_in):
         return _under_five_diarrhea_uncomplicated_getting(period, data_in, 'R').count()
 
+class UnderFiveDiarrheaUncomplicatedGivenOrsPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_diarrhea_uncomplicated_given_ors_perc"
+    short_name  = _("%U5 Dr Uncompl w/ORS")
+    long_name   = _("Percentage of under fives with uncomplicated "\
+                    "diarrhea getting ORS")
+
+    cls_num     = UnderFiveDiarrheaUncomplicatedGivenOrs
+    cls_den     = UnderFiveDiarrheaUncomplicated
+
 class UnderFiveDiarrheaUncomplicatedGivenZinc(Indicator):
     type_in     = QuerySetType(Patient)
     type_out    = int
@@ -106,6 +117,17 @@ class UnderFiveDiarrheaUncomplicatedGivenZinc(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return _under_five_diarrhea_uncomplicated_getting(period, data_in, 'Z').count()
+
+class UnderFiveDiarrheaUncomplicatedGivenZincPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Patient)
+
+    slug        = "under_five_diarrhea_uncomplicated_given_zinc_perc"
+    short_name  = _("%U5 Dr Uncompl w/Zinc")
+    long_name   = _("Percentage of under fives with uncomplicated "\
+                    "diarrhea getting Zinc")
+
+    cls_num     = UnderFiveDiarrheaUncomplicatedGivenZinc
+    cls_den     = UnderFiveDiarrheaUncomplicated
 
 def _under_five_fever_uncomplicated(period, data_in):
     fever = DangerSignsReport\
