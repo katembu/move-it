@@ -4,7 +4,7 @@
 
 import re
 import time
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from django.utils.translation import ugettext as _
 
@@ -12,9 +12,11 @@ from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
 from childcount.exceptions import Inapplicable
 from childcount.models import Configuration
-from childcount.models.reports import DeathReport
+from childcount.models.reports import DeathReport, PregnancyReport
 from childcount.models import Patient, Encounter
 from childcount.utils import DOBProcessor
+
+from reporters.models import Reporter
 
 from alerts.utils import SmsAlert
 
@@ -85,3 +87,49 @@ class DeathForm(CCForm):
 
         self.response = msg
 
+        # If patient is in priority group, send alert about death
+        # to HC Staff and Health Team
+        print "$$$$$$%s" % self._is_alert_eligible(dr)
+        if self._is_alert_eligible(dr):
+            self._send_alert(dr)
+
+
+    def _is_alert_eligible(self, drep): 
+        """Check if patient is in priority group (under age 5 or 
+        pregnant within the past 42 days) 
+        """ 
+
+        patient = drep.encounter.patient
+
+        # Patient is an Under-Five
+        if patient.years() < 5: 
+            return True
+
+        # Patient was pregnant in last 42 days
+        if Patient\
+                .objects\
+                .filter(pk=patient.pk)\
+                .pregnant_recently(datetime.now() - timedelta(30), datetime.now())\
+                .count() > 0:
+            return True
+
+        return False
+
+    def _send_alert(self, drep):
+        groups = ("Health Coordinator", "Health Facilitator", "Health Center In-Charge")
+        reporters = Reporter.objects.filter(user_ptr__groups__name__in=groups)
+        print "$$$$$$$%d reporters found" % reporters.count()
+
+        msg = _("ChildCount Alert! Patient %(patient)s from %(loc)s has died. " \
+                "Contact CHW %(chw)s for more information.") % \
+                    {'patient': drep.encounter.patient,
+                     'loc': drep.encounter.patient.location,
+                     'chw': drep.encounter.patient.chw}
+
+        for r in reporters:
+            alert = SmsAlert(reporter=r, msg=msg)
+            sms_alert = alert.send()
+
+            sms_alert.name = "death_alert"
+            sms_alert.save()
+            
