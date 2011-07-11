@@ -24,9 +24,16 @@ from childcount.models import NutritionReport
 from childcount.models import PregnancyReport
 from childcount.models import FollowUpReport
 from childcount.models import AppointmentReport
+from childcount.models import DangerSignsReport
+
+import childcount.helpers.chw
 
 from alerts.utils import SmsAlert
 
+class NowPeriod(object):
+    end = datetime.now()
+    start = datetime.now() + timedelta(days=-30)
+    title = "Past 30 Days"
 
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
 def weekly_immunization_reminder():
@@ -69,7 +76,7 @@ def weekly_immunization_reminder():
         msg_to = ' '.join('[%s] %s' % (imm, dates) for imm, dates in msg)
         alert = SmsAlert(reporter=chw, msg=msg_to)
         sms_alert = alert.send()
-        sms_alert.name = u"Immunization_reminder"
+        sms_alert.name = u"weekly_immunization_reminder"
         sms_alert.save()
 
 
@@ -106,9 +113,83 @@ def daily_fever_reminder():
         msg = ', ' . join(data.get(key))
         alert = SmsAlert(reporter=key, msg=msg)
         sms_alert = alert.send()
-        sms_alert.name = u"fever_daily_reminder"
+        sms_alert.name = u"daily_fever_reminder"
         sms_alert.save()
 
+
+@periodic_task(run_every=crontab(hour=7, minute=0))
+def daily_late_fever_reminder():
+    """
+    Daily reminder of Fever followup cases after 48 hours.
+    """
+    sdate = datetime.now() + relativedelta.relativedelta(days=-6)
+    #sdate = datetime.combine(sdate.date(), time(7, 0))
+    edate = datetime.now() + relativedelta.relativedelta(days=-3)
+    #edate = datetime.combine(edate.date(), time(7, 0))
+    frs = FeverReport.objects.filter(encounter__encounter_date__gte=sdate, \
+                                encounter__encounter_date__lte=edate, \
+                                rdt_result=FeverReport.RDT_POSITIVE, \
+                            encounter__patient__status=Patient.STATUS_ACTIVE)\
+                                .order_by('encounter__chw')
+    current_reporter = None
+    data = {}
+    for report in frs:
+        fup = FollowUpReport.objects\
+            .filter(encounter__patient=report.encounter.patient, \
+                encounter__encounter_date__gt=report.encounter.encounter_date)
+        if fup:
+            continue
+        if not current_reporter or current_reporter != report.encounter.chw:
+            current_reporter = report.encounter.chw
+            data[current_reporter] = []
+        _msg = "Please follow up on %s for fever." % report.encounter.patient
+        data[current_reporter].append(_msg)
+        print current_reporter, _msg
+
+    for key in data:
+        msg = ', ' . join(data.get(key))
+        alert = SmsAlert(reporter=key, msg=msg)
+        sms_alert = alert.send()
+        sms_alert.name = u"daily_late_fever_reminder"
+        sms_alert.save()
+
+@periodic_task(run_every=crontab(hour=8, minute=0))
+def daily_danger_sign_reminder():
+    """
+    Daily reminder of Danger Sign followup cases after 48 hours.
+    Run every 6 hours during the day time.
+    """
+    sdate = datetime.now() + relativedelta.relativedelta(days=-6)
+    #sdate = datetime.combine(sdate.date(), time(7, 0))
+    edate = datetime.now() + relativedelta.relativedelta(days=-2)
+    #edate = datetime.combine(edate.date(), time(7, 0))
+    frs = DangerSignsReport.objects.filter(encounter__encounter_date__gte=sdate, \
+                                encounter__encounter_date__lte=edate, \
+                                encounter__patient__status=Patient.STATUS_ACTIVE)\
+                                .order_by('encounter__chw')
+    current_reporter = None
+    data = {}
+    for report in frs:
+        fup = FollowUpReport.objects\
+            .filter(encounter__patient=report.encounter.patient, \
+                encounter__encounter_date__gt=report.encounter.encounter_date)
+        if fup:
+            continue
+        if not current_reporter or current_reporter != report.encounter.chw:
+            current_reporter = report.encounter.chw
+            data[current_reporter] = []
+        _msg = "Please follow up with %(person)s for %(signs)s" % \
+            {'person': report.encounter.patient,
+            'signs': report.short_summary()}
+        data[current_reporter].append(_msg)
+        print current_reporter, _msg
+
+    for key in data:
+        msg = ', ' . join(data.get(key))
+        alert = SmsAlert(reporter=key, msg=msg)
+        sms_alert = alert.send()
+        sms_alert.name = u"daily_danger_sign_reminder"
+        sms_alert.save()
 
 @periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=0))
 def weekly_muac_reminder():
@@ -117,29 +198,11 @@ def weekly_muac_reminder():
     """
     data = {}
     for chw in CHW.objects.all():
-        reminder_list = []
+        # muac_needing is a list of tuples of (Patient, NutritionReport)
+        muac_needing = childcount.helpers.chw.kids_needing_muac(NowPeriod, chw)
 
-        now = datetime.now()
-        muac_eligible = Patient\
-            .objects\
-            .filter(chw=chw)\
-            .muac_eligible(now, now)
-
-        for patient in muac_eligible:
-            try:
-                nr = NutritionReport.objects.filter(encounter__chw=chw, \
-                            encounter__patient=patient, \
-                            encounter__patient__status=Patient.STATUS_ACTIVE)\
-                            .latest()
-            except NutritionReport.DoesNotExist:
-                reminder_list.append(patient)
-            else:
-                today = datetime.today()
-                delta_diff = today - nr.encounter.encounter_date
-                days_since_last_muac = delta_diff.days
-                if days_since_last_muac >= 75:
-                    reminder_list.append(patient)
-        data[chw] = reminder_list
+        if len(muac_needing) > 0:
+            data[chw] = [m[0] for m in muac_needing]
 
     for chw in data:
         p_list = data.get(chw)
@@ -151,89 +214,40 @@ def weekly_muac_reminder():
             if not current_list:
                 done = True
                 break
-            healthids = u' ' . join([i.health_id for i in current_list])
-            msg = _(u"The following clients are due for +M: %(ids)s") % {
+            healthids = u' ' . join([i.health_id.upper() for i in current_list])
+            msg = _(u"The following clients are due for MUAC: %(ids)s") % {
                     'ids': healthids}
             x += 20
             y += 20
             alert = SmsAlert(reporter=chw, msg=msg)
             sms_alert = alert.send()
-            sms_alert.name = u"muac_weekly_reminder"
+            sms_alert.name = u"weekly_muac_reminder"
             sms_alert.save()
-
-
-@periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
-def weekly_initial_anc_visit_reminder():
-    """
-    Initial ANC Visit weekly reminder
-    """
-    pregs = PregnancyReport.objects.filter(anc_visits=0, \
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
-    p_list = []
-    alert_list = {}
-
-    for prpt in pregs:
-        if prpt.encounter.patient in p_list:
-            continue
-        patient = prpt.encounter.patient
-        p_list.append(patient)
-        try:
-            rpt = PregnancyReport.objects.filter(anc_visits=0, \
-                                        encounter__patient=patient).latest()
-        except PregnancyReport.DoesNotExist:
-            pass
-        else:
-            if not patient.chw in alert_list:
-                alert_list[patient.chw] = []
-            alert_list[patient.chw].append(patient)
-
-    for chw in  alert_list:
-        chw_list = alert_list.get(chw)
-        w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
-                                for p in chw_list])
-        msg = _(u"Remind the following to go for their first clinic visit" \
-                " %(list)s.") % {'list': w}
-        alert = SmsAlert(reporter=chw, msg=msg)
-        sms_alert = alert.send()
-        sms_alert.name = u"weekly_initial_anc_visit_reminder"
-        sms_alert.save()
-
 
 @periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
 def weekly_anc_visit_reminder():
     """
-    ANC Visit weekly reminder - 6 weeks have passed since last ANC visit
+    Initial ANC Visit weekly reminder
     """
-    pregs = PregnancyReport.objects.filter(weeks_since_anc__gt=6, \
-                            encounter__patient__status=Patient.STATUS_ACTIVE)
     p_list = []
     alert_list = {}
 
-    for prpt in pregs:
-        if prpt.encounter.patient in p_list:
-            continue
-        patient = prpt.encounter.patient
-        p_list.append(patient)
-        try:
-            rpt = PregnancyReport.objects.filter(weeks_since_anc__gt=6, \
-                                        encounter__patient=patient).latest()
-        except PregnancyReport.DoesNotExist:
-            pass
-        else:
-            if not patient.chw in alert_list:
-                alert_list[patient.chw] = []
-            alert_list[patient.chw].append(patient)
+    for c in CHW.objects.all():
+        need_anc = childcount.helpers.chw.pregnant_needing_anc(NowPeriod, c)
+        if len(need_anc) > 0:
+            alert_list[c] = [t[0] for t in need_anc]
 
-    for chw in  alert_list:
+    for chw in alert_list:
         chw_list = alert_list.get(chw)
         w = ', ' . join(["%s %s" % (p.health_id.upper(), p.first_name) \
                                 for p in chw_list])
-        msg = _(u"Remind the following to go for a clinic visit" \
+        msg = _(u"Remind the following to go for ANC at health center:" \
                 " %(list)s.") % {'list': w}
         alert = SmsAlert(reporter=chw, msg=msg)
         sms_alert = alert.send()
         sms_alert.name = u"weekly_anc_visit_reminder"
         sms_alert.save()
+
 
 def appointment_calendar(weekday):
     '''----------- 3 days b4 apt

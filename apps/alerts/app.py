@@ -32,6 +32,9 @@ class App (rapidsms.app.App):
        # attempt to send the message
        # TODO: what could go wrong here?
        be = self.router.get_backend(pconn.backend.slug)
+       if be is None:
+           raise Exception("No backend for %s" % pconn.backend.slug)
+
        outgoing_message = be.message(pconn.identity, post["text"])
        sent = outgoing_message.send()
        message = LoggedMessage.objects.get(pk=outgoing_message.logger_id)

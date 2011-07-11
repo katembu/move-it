@@ -16,6 +16,7 @@ from childcount.models.reports import DeathReport
 from childcount.models import Patient, Encounter
 from childcount.utils import DOBProcessor
 
+from alerts.utils import SmsAlert
 
 class DeathForm(CCForm):
     """ Register a death
@@ -83,3 +84,4 @@ class DeathForm(CCForm):
         patient.save()
 
         self.response = msg
+

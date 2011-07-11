@@ -530,6 +530,9 @@ class DangerSignsReport(CCReport):
             (self._meta.get_field_by_name('danger_signs')[0].verbose_name, \
              u", ".join([ds.description for ds in self.danger_signs.all()]))
 
+    def short_summary(self):
+        return u", ".join([ds.description for ds in self.danger_signs.all()])
+
     def get_omrs_dict(self):
         igive = {}
         i = 0

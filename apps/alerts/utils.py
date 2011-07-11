@@ -9,6 +9,8 @@ import datetime
 import urllib2
 from urllib import urlencode
 
+from django.conf import settings
+
 from celery.task import Task
 from celery.decorators import task
 from celery.registry import tasks
@@ -30,11 +32,18 @@ def send_msg(reporter, text, alert):
    data = {'reporter': reporter.pk, 
            'text': text,
            'alert_id': alert.pk}
+
    req = urllib2.Request(url, urlencode(data))
-   stream = urllib2.urlopen(req)
-   stream.close()
 
-
+   
+   try: 
+        stream = urllib2.urlopen(req)
+   except urllib2.HTTPError as e:
+        # This can be triggered when there is no connection
+        # (phone number) associated with a reporter
+        print "[HTTPError] %s {%s}:{%s}" % (e, url, data)
+   else:
+       stream.close()
 
 @task()
 def delayed_sms_alert(alert_id, msg):
@@ -104,5 +113,8 @@ class SmsAlert(object):
         
         self.data.save()
 
+        if settings.DEBUG:
+            print "[DEBUG] %s \n\t> %s" % (self.data.reporter, self.msg)
+            
         return self.data
         
