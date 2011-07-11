@@ -49,11 +49,12 @@ def rank_message(ind, all_rankings, rank):
     msg += _("You have ranked #%(rank)d out of %(total)d "\
             "active CHWs for the indicator \"%(ind_name)s\" "\
             "in the past 30 days. You achieved a value of "\
-            "%(value)s.") % {
+            "%(value)s (Maximum was %(max)s).") % {
                 'rank': rank+1,
                 'total': len(all_rankings),
                 'ind_name': ind.short_name,
                 'value': all_rankings[rank]['value'],
+                'max': all_rankings[0]['value'],
             }
 
     return msg
