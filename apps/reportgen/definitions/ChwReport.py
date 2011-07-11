@@ -126,7 +126,7 @@ class ReportDefinition(PrintedReport):
 
         for entry in self._lacking_follow_up(RecentPeriod, chw):
             patient = entry['patient']
-            ref = entry['referral'] or entry['medicine']
+            ref = entry['referral']
             ds = entry['danger_signs']
             fu = entry['follow_up']
           
