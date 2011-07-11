@@ -27,6 +27,8 @@ from childcount.models import AppointmentReport
 from childcount.models import DangerSignsReport
 
 import childcount.helpers.chw
+import childcount.helpers.site
+from childcount.helpers import ranking
 
 from alerts.utils import SmsAlert
 
@@ -222,6 +224,28 @@ def weekly_muac_reminder():
             alert = SmsAlert(reporter=chw, msg=msg)
             sms_alert = alert.send()
             sms_alert.name = u"weekly_muac_reminder"
+            sms_alert.save()
+
+@periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=5))
+def performance_messages():
+    """
+    Run every Friday at 17:30 sending rankings to CHWs
+    on their performance on key indicators.
+    """
+
+    indicators = childcount.helpers.site.key_indicators()
+    for ind in indicators:
+        print "Calculating ranks for %s" % ind
+        all_ranks = ranking.compute_rankings(ind)
+
+        for i, rank_info in enumerate(all_ranks):
+            print "Sending message to %s" % rank_info['chw']
+
+            msg = ranking.rank_message(ind, all_ranks, i)
+
+            alert = SmsAlert(reporter=rank_info['chw'], msg=msg)
+            sms_alert = alert.send()
+            sms_alert.name = 'performance_messages'
             sms_alert.save()
 
 @periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))

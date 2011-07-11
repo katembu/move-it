@@ -186,7 +186,7 @@ class AncFourByMonthEightPerc(IndicatorPercentage):
     type_in     = QuerySetType(Patient)
 
     slug        = "anc_four_by_month_eight_perc"
-    short_name  = _("% >8m >=4 ANC")
+    short_name  = _("% Women with ANC by month 8")
     long_name   = _("Percentage of women at least eight months "\
                     "pregnant at the end of this period who "\
                     "have had at least four ANC visits")

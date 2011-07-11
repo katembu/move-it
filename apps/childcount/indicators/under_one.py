@@ -174,7 +174,7 @@ class UnderFiveImmunizationUpToDatePerc(IndicatorPercentage):
     type_out    = Percentage
 
     slug        = "under_five_immunizaton_up_to_date_perc"
-    short_name  = _("% <5y Imm Yes")
+    short_name  = _("% Under-5s Known Immunized")
     long_name   = _("Percentage of patients under 5 years at the end of the "\
                     "period whose last known immunization report was marked "\
                     "as 'up to date'")

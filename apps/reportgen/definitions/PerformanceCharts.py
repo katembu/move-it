@@ -26,6 +26,8 @@ from childcount.indicators import follow_up
 from childcount.models import Clinic
 from childcount.models import Patient
 
+from childcount.helpers import site
+
 from ccdoc.utils import register_fonts
 
 import bonjour.dates
@@ -48,12 +50,7 @@ class ReportDefinition(PrintedReport):
     filename = 'performance_charts'
     formats = ('pdf',)
 
-    _indicators = (
-        nutrition.CoveragePerc,
-        under_one.UnderFiveImmunizationUpToDatePerc,
-        pregnancy.AncFourByMonthEightPerc,
-        follow_up.OnTimePerc,
-    )
+    _indicators = site.key_indicators()
 
     def generate(self, period, rformat, title, filepath, data):
         if rformat != 'pdf':

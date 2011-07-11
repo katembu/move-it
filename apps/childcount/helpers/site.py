@@ -7,10 +7,20 @@ from django.utils.translation import ugettext as _
 
 from childcount.models import Patient
 
-from childcount.indicators import nutrition
 from childcount.indicators import fever
-from childcount.indicators import registration
+from childcount.indicators import follow_up
+from childcount.indicators import nutrition
 from childcount.indicators import pregnancy
+from childcount.indicators import registration
+from childcount.indicators import under_one
+
+def key_indicators():
+    return (
+        nutrition.CoveragePerc,
+        under_one.UnderFiveImmunizationUpToDatePerc,
+        pregnancy.AncFourByMonthEightPerc,
+        follow_up.OnTimePerc,
+    )
 
 def summary_stats(period):
     """Calculates a few key indicators for display

@@ -81,7 +81,7 @@ class CoveragePerc(IndicatorPercentage):
     type_in     = QuerySetType(Patient)
 
     slug        = "coverage_perc"
-    short_name  = _("%Cov")
+    short_name  = _("% MUAC Coverage")
     long_name   = _("Percentage of patients eligible for MUAC who "\
                     "had a MUAC taken in the 90 days before the end of "\
                     "the period")
