@@ -129,7 +129,6 @@ class PrintedReport(Task):
             title = self.title
             data = {}
 
-        
         return self.generate(time_period, rformat, title, fname, data)
 
     def check_sanity(self):
@@ -154,6 +153,9 @@ class PrintedReport(Task):
         # Clear query cache to keep Django from
         # eating all of the memory
         db.reset_queries()
+
+        if not hasattr(self, '_kwargs'):
+            return
 
         kwargs = self._kwargs
 

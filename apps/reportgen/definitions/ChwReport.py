@@ -110,6 +110,7 @@ class ReportDefinition(PrintedReport):
     def _follow_up_table(self, chw):
         table = Table(7, \
             Text(_(u"Patients Referred in the Previous 45 days "\
+                "(or Given Medicine) and "\
                 "Lacking an On-Time Follow-Up Visit")))
         table.set_column_width(10, 0)
         table.set_column_width(10, 1)
@@ -118,18 +119,23 @@ class ReportDefinition(PrintedReport):
             Text(_(u"Health ID")),
             Text(_(u"Name / Age")),
             Text(_(u"Household Head")),
-            Text(_(u"Referral Type / Date")),
-            Text(_(u"Referred For")),
+            Text(_(u"Event / Date")),
+            Text(_(u"Danger Signs")),
             Text(_(u"Follow-Up Date")),
         ])
 
         for entry in self._lacking_follow_up(RecentPeriod, chw):
-            ref = entry['referral']
+            patient = entry['patient']
+            ref = entry['referral'] or entry['medicine']
             ds = entry['danger_signs']
             fu = entry['follow_up']
-            patient = ref.encounter.patient
-           
-            urgency_str = ref.verbose_urgency
+          
+            if ref is None:
+                urgency_str = "[No Referral]" 
+            else:
+                urgency_str = ref.verbose_urgency + _(' on ') + \
+                    bonjour.dates.format_date(ref.encounter.encounter_date, \
+                        format='medium')
 
             table.add_row([
                 Text(patient.location.code),
@@ -137,10 +143,7 @@ class ReportDefinition(PrintedReport):
                 Text(patient.full_name() + u" / " + \
                                     patient.humanised_age()),
                 Text(patient.household.full_name()),
-                Text(urgency_str + _(u" on ") + \
-                                     bonjour.dates.format_date(\
-                                        ref.encounter\
-                                        .encounter_date, format='medium')),
+                Text(urgency_str),
                 Text(u", ".join([sign.description \
                                     for sign in ds.danger_signs.all()]))
                     if ds else Text(_(u"[No DSs Reported]")),
@@ -264,35 +267,39 @@ class ReportDefinition(PrintedReport):
     def _lacking_follow_up(self, period, chw):
         """People lacking follow-up in last 45 days
         """
-        out = helpers.chw.people_without_followup(period, chw)
-        if out is None:
-            return []
-        (fup, nofup) = out
-
+        (late, never) = helpers.chw.people_without_follow_up(period, chw)
+       
         entries = []
-        for ref in nofup:
+        for ref in (late+never):
             entries.append(self._dict_for_follow_up(ref))
 
         return entries
 
 
-    def _dict_for_follow_up(self, ref):
+    def _dict_for_follow_up(self, elig):
         all_ds = DangerSignsReport\
             .objects\
-            .filter(encounter=ref.encounter)
+            .filter(encounter=elig.encounter)
 
         ds = all_ds[0] if (all_ds.count() > 0) else None
 
         all_fu = FollowUpReport\
             .objects\
-            .filter(encounter__patient=ref.encounter.patient, \
+            .filter(encounter__patient=elig.encounter.patient, \
                 encounter__encounter_date__gt=\
-                    ref.encounter.encounter_date)\
+                    elig.encounter.encounter_date)\
             .order_by('encounter__encounter_date')
 
         fu = all_fu[0] if (all_fu.count() > 0) else None
 
+        all_ref = ReferralReport\
+            .objects\
+            .filter(encounter=elig.encounter)
+
+        ref = all_ref[0] if (all_ref.count() > 0) else None
+
         return {
+            'patient': elig.encounter.patient,
             'referral': ref,
             'danger_signs': ds,
             'follow_up': fu,

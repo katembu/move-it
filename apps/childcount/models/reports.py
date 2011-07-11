@@ -998,6 +998,8 @@ class MedicineGivenReport(CCReport):
             (self._meta.get_field_by_name('medicines')[0].verbose_name, \
              u", ".join([ds.description for ds in self.medicines.all()]))
 
+    def short_summary(self):
+        return u", ".join([ds.description for ds in self.medicines.all()])
     def get_omrs_dict(self):
         igive = {}
         value = []

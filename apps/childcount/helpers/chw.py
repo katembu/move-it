@@ -55,7 +55,7 @@ def report_indicators():
         'title': _("Follow Up"),
         'columns': [
             {'name': _("People with DSs"), 'ind': danger_signs.Total},
-            {'name': _("Urgent (Non-Convenient) Referrals"),
+            {'name': _("Cases Urgently Referred OR Treated by CHW"),
                 'ind': referral.Urgent},
             {'name': _("On-Time Follow-Up Visits (between 18 and 72 hours)"), \
                 'ind': follow_up.OnTime},
@@ -173,7 +173,7 @@ def pregnant_needing_anc(period, chw):
     women.sort(lambda x,y: cmp(x[1],y[1]))
     return (no_anc + women)
 
-def people_without_followup(period, chw):
+def people_without_follow_up(period, chw):
     """Get a list of people assigned to this CHW
     who were referred urgently to a clinic
     who got a late follow-up visit (3-7 days after referral) or no follow-up 
@@ -188,45 +188,31 @@ def people_without_followup(period, chw):
     :returns: list of :class:`childcount.models.reports.ReferralReport`
 
     """
+    elig = follow_up._eligible(period, chw.patient_set.all())
+    late = []
+    never = []
+    for e in elig:
+        f = FollowUpReport\
+                .objects\
+                .filter(encounter__patient__pk=e.encounter.patient.pk,
+                    encounter__encounter_date__gt=\
+                        e.encounter.encounter_date+follow_up.DELTA_START_ON_TIME)\
+                .filter(encounter__encounter_date__lte=\
+                        e.encounter.encounter_date+follow_up.DELTA_START_NEVER)
 
+        if f.count() == 0:
+            # No follow-up visit at all
+            never.append(e)
 
-    referrals = ReferralReport\
-        .objects\
-        .filter(encounter__chw=chw, \
-            encounter__encounter_date__lte=period.end,\
-            encounter__encounter_date__gte=period.start)\
-        .exclude(urgency=ReferralReport.URGENCY_CONVENIENT)
-
-    num_referrals = referrals.count()
-    if num_referrals == 0:
-        print "No referrals"
-        return None
-
-    ontime = []
-    nofup = []
-    for referral in referrals:
-        rdate = referral.encounter.encounter_date
-        try:
-            fur = FollowUpReport.objects.filter(encounter__chw=chw, \
-                        encounter__patient=referral.encounter.patient, \
-                        encounter__encounter_date__gte=\
-                            rdate+follow_up.DELTA_START_ON_TIME, \
-                        encounter__encounter_date__lt=\
-                            rdate+follow_up.DELTA_START_LATE)
-        except FollowUpReport.DoesNotExist:
-            pass
-            print "Ref: %s, FU: None" % rdate.date()
-
-        if fur.count() > 0:
-            print "Ref: %s, FU: %s" % (rdate.date(), \
-                fur[0].encounter.encounter_date.date())
-            ontime.append(referral)
+        elif f.filter(encounter__encounter_date__gt=\
+            e.encounter.encounter_date+follow_up.DELTA_START_LATE).count() > 0:
+            # Follow-up visit was late
+            late.append(e)
         else:
-            nofup.append(referral)
-            print "Ref: %s, FU: None" % rdate.date()
+            # Follow-up visit was on-time
+            pass
 
-    return (ontime, nofup)
-
+    return (late, never)
 
 def kids_needing_muac(period, chw):
     """Get a list of MUAC-eligible patients assigned to this CHW
