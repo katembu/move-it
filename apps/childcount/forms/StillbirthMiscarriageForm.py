@@ -14,7 +14,7 @@ from childcount.exceptions import Inapplicable
 from childcount.models import Configuration
 from childcount.models import Encounter
 from childcount.models.reports import StillbirthMiscarriageReport
-from childcount.utils import DOBProcessor
+from childcount.utils import DOBProcessor, alert_health_team
 from childcount.forms.utils import MultipleChoiceField
 
 
@@ -84,3 +84,11 @@ class StillbirthMiscarriageForm(CCForm):
         self.response = _("Stillbirth or miscarriage on %(doi)s.") % \
                          {'doi': doi}
         sbmr.setup_reminders()
+
+        msg = _("%(patient)s from %(location)s had a %(summary)s. " \
+                "You may contact CHW %(chw)s for details.") % \
+                {'patient': sbmr.encounter.patient,
+                 'summary': sbmr.summary(),
+                 'location': sbmr.encounter.patient.location,
+                 'chw': sbmr.encounter.patient.chw}
+        alert_health_team('stillbirth_miscarriage_report', msg)
