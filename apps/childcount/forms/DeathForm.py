@@ -14,7 +14,7 @@ from childcount.exceptions import Inapplicable
 from childcount.models import Configuration
 from childcount.models.reports import DeathReport, PregnancyReport
 from childcount.models import Patient, Encounter
-from childcount.utils import DOBProcessor
+from childcount.utils import DOBProcessor, alert_health_team
 
 from reporters.models import Reporter
 
@@ -116,20 +116,12 @@ class DeathForm(CCForm):
         return False
 
     def _send_alert(self, drep):
-        groups = ("Health Coordinator", "Health Facilitator", "Health Center In-Charge")
-        reporters = Reporter.objects.filter(user_ptr__groups__name__in=groups)
-        print "$$$$$$$%d reporters found" % reporters.count()
-
-        msg = _("ChildCount Alert! Patient %(patient)s from %(loc)s has died. " \
+        msg = _("Patient %(patient)s "\
+                "from %(loc)s has died. " \
                 "Contact CHW %(chw)s for more information.") % \
                     {'patient': drep.encounter.patient,
                      'loc': drep.encounter.patient.location,
                      'chw': drep.encounter.patient.chw}
 
-        for r in reporters:
-            alert = SmsAlert(reporter=r, msg=msg)
-            sms_alert = alert.send()
+        alert_health_team("death_alert", msg)
 
-            sms_alert.name = "death_alert"
-            sms_alert.save()
-            

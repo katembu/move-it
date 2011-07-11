@@ -15,9 +15,8 @@ from childcount.utils import authenticated
 from childcount.utils import clean_names, DOBProcessor
 from childcount.exceptions import BadValue, ParseError
 from childcount.forms.utils import MultipleChoiceField
-from childcount.models import Configuration
 from childcount.models import DeadPerson, Patient
-
+from childcount.utils import alert_health_team
 
 class DeathCommand(CCCommand):
 
@@ -122,10 +121,7 @@ class DeathCommand(CCCommand):
                                     "date_of_death of %(string)s.") % \
                                     {'string': tokens[0]})
 
-        # convert dod to gregorian before saving to DB
-        if is_ethiopiandate and not variance:
-            dod = EthiopianDateConverter.date_to_gregorian(dod)
-
+    
         death.dod = dod
 
         #remove the dod token
@@ -179,4 +175,14 @@ class DeathCommand(CCCommand):
 
         self.message.respond(_("You successfuly reported the death of "\
                                 "%(death)s.") % {'death': death}, 'success')
+
+
+        if death.years() < 5:
+            msg = _("Patient %(name)s (age: %(age)s) has died. "\
+                    "Contact CHW %(chw)s for more information.") % \
+                    {'chw': chw,
+                     'age': death.humanised_age(),
+                     'name': death.full_name()}
+
+            alert_health_team("death_command", msg)
         return True

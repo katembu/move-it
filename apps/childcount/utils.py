@@ -26,6 +26,10 @@ from childcount.models import Configuration as Cfg
 
 from indicator import Indicator
 
+from alerts.utils import SmsAlert
+
+from reporters.models import Reporter
+
 class DOBProcessor:
     """Date-of-Birth parser
     """
@@ -745,4 +749,20 @@ def get_indicators():
 
         indicators.append({'name': imp.NAME, 'inds': mems, 'slug': modname})
     return indicators
+
+def alert_health_team(name, msg):
+    groups = ("Health Coordinator", \
+            "Health Facilitator", \
+            "Health Center In-Charge")
+    reporters = Reporter\
+        .objects\
+        .filter(user_ptr__groups__name__in=groups)
+
+    for r in reporters:
+        alert = SmsAlert(reporter=r, msg=_("ChildCount Alert! ")+msg)
+        sms_alert = alert.send()
+
+        sms_alert.name = name
+        sms_alert.save()
+        
 
