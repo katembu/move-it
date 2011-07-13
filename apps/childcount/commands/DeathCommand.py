@@ -10,6 +10,8 @@ from django.utils.translation import ugettext as _
 from reporters.models import Reporter
 from locations.models import Location
 
+from bonjour import dates
+
 from childcount.commands import CCCommand
 from childcount.utils import authenticated
 from childcount.utils import clean_names, DOBProcessor
@@ -35,7 +37,7 @@ class DeathCommand(CCCommand):
 
     @authenticated
     def process(self):
-        chw = self.message.persistant_connection.reporter.chw
+        chw = self.message.reporter.chw
         lang = self.message.reporter.language
         death = DeadPerson()
         death.chw = chw
@@ -178,11 +180,12 @@ class DeathCommand(CCCommand):
 
 
         if death.years() < 5:
-            msg = _("Patient %(name)s (age: %(age)s) has died. "\
+            msg = _("Patient %(name)s (age: %(age)s) died on %(dod)s. "\
                     "Contact CHW %(chw)s for more information.") % \
                     {'chw': chw,
+                     'dod': dates.format_date(death.dod, 'short'),
                      'age': death.humanised_age(),
                      'name': death.full_name()}
-
+            print "$$$$$$%s" % chw
             alert_health_team("death_command", msg)
         return True

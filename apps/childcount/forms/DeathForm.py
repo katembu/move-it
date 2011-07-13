@@ -8,6 +8,8 @@ from datetime import date, datetime, timedelta
 
 from django.utils.translation import ugettext as _
 
+from bonjour import dates
+
 from childcount.forms import CCForm
 from childcount.exceptions import BadValue, ParseError, InvalidDOB
 from childcount.exceptions import Inapplicable
@@ -117,10 +119,12 @@ class DeathForm(CCForm):
 
     def _send_alert(self, drep):
         msg = _("Patient %(patient)s "\
-                "from %(loc)s has died. " \
+                "from %(loc)s (%(loc_code)s) died on %(dod)s. " \
                 "Contact CHW %(chw)s for more information.") % \
                     {'patient': drep.encounter.patient,
-                     'loc': drep.encounter.patient.location,
+                     'loc': drep.encounter.patient.location.name,
+                     'loc_code': drep.encounter.patient.location.code.upper(),
+                     'dod': dates.format_date(drep.death_date, 'short'),
                      'chw': drep.encounter.patient.chw}
 
         alert_health_team("death_alert", msg)

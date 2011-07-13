@@ -85,10 +85,12 @@ class StillbirthMiscarriageForm(CCForm):
                          {'doi': doi}
         sbmr.setup_reminders()
 
-        msg = _("%(patient)s from %(location)s had a %(summary)s. " \
+        msg = _("%(patient)s from %(location)s (%(loc_code)s) "\
+                "had a %(summary)s. " \
                 "You may contact CHW %(chw)s for details.") % \
                 {'patient': sbmr.encounter.patient,
                  'summary': sbmr.summary(),
-                 'location': sbmr.encounter.patient.location,
+                 'location': sbmr.encounter.patient.location.name,
+                 'loc_code': sbmr.encounter.patient.location.code.upper(),
                  'chw': sbmr.encounter.patient.chw}
         alert_health_team('stillbirth_miscarriage_report', msg)

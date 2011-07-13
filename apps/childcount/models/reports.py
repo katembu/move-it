@@ -387,7 +387,7 @@ class StillbirthMiscarriageReport(CCReport):
     TYPE_STILL_BIRTH = 'S'
     TYPE_MISCARRIAGE = 'M'
     TYPE_CHOICES = (
-                       (TYPE_STILL_BIRTH, _('Still birth')),
+                       (TYPE_STILL_BIRTH, _('Stillbirth')),
                        (TYPE_MISCARRIAGE, _('Miscarriage')))
 
     incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
