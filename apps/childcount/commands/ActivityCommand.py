@@ -15,7 +15,11 @@ from childcount.indicators import household
 from childcount.indicators import fever
 from childcount.indicators import registration
 
-from reportgen.timeperiods import Month
+from reportgen.timeperiods import TwelveMonths
+
+class LastSevenDays(object):
+    end = datetime.today()
+    start = end - timedelta(7)
 
 class ActivityCommand(CCCommand):
 
@@ -24,30 +28,110 @@ class ActivityCommand(CCCommand):
         'fr': ['activity'],
     }
 
+    WEEK = {
+        'en': 'week',
+        'fr': 'semaine',
+    }
+
+    MONTH = {
+        'en': 'month',
+        'fr': 'mois',
+    }
+    
+    MONTHS = {
+        'en': {
+            'jan': 0,
+            'feb': 1,
+            'mar': 2,
+            'apr': 3,
+            'may': 4,
+            'jun': 5,
+            'jul': 6,
+            'aug': 7,
+            'sep': 8,
+            'oct': 9,
+            'nov': 10,
+            'dec': 11,
+        },
+
+        'fr': {
+            'jan': 0,
+            'fev': 1,
+            'mar': 2,
+            'avr': 3,
+            'mai': 4,
+            'jun': 5,
+            'jul': 6,
+            'aou': 7,
+            'sep': 8,
+            'oct': 9,
+            'nov': 10,
+            'dec': 11,
+        }
+    }
+
+    def _locale_keyword(self, lot):
+        # Get month abbreviations in locale,
+        # defaulting to English
+        lang = self.message.reporter.language
+
+        if lang in lot:
+            return lot[lang]
+        else:
+            return lot['en']
+
+    def _parse_period(self, keyword):
+
+        keyword = keyword.lower()
+        month_names = {}
+
+        key_abbrs = self._locale_keyword(self.MONTHS)
+        key_month = self._locale_keyword(self.MONTH)
+        key_week = self._locale_keyword(self.WEEK)
+
+        valid_periods = [key_week, key_month] + key_abbrs.keys()
+        months = TwelveMonths.periods()[0].sub_periods()
+
+        if keyword == key_month:
+            # Use last month if it's the start of this month
+            return months[10] if datetime.today().day < 10 else months[11]
+
+        elif keyword == key_week:
+            return LastSevenDays
+
+        elif keyword in key_abbrs:
+            # is 0 if user submitted "jan", 1 if "feb", ...
+            index = key_abbrs[keyword]
+
+            # is 1 if today is in January, 2, if in Feb, ...
+            this_month = months[11].start.month
+
+            shifted_index = (index - this_month) % 12
+            return months[shifted_index]
+
+        else:
+            raise ValueError(_("Unknown period name: %(name)s. "\
+                                "Valid periods are %(valid)s.") % \
+                                {'name': keyword,
+                                'valid': ', '.join(valid_periods)})
+
+
     @authenticated
     def process(self):
-        class LastSevenDays(object):
-            end = datetime.today()
-            start = end - timedelta(7)
-    
-        # Default to last seven days
-        period = LastSevenDays
-
-        if self.params.__len__() > 1:
-            period_str = self.params[1]
-            if period_str.lower() not in [_("week"), _("month")]:
-                raise ValueError(_("Unknown period name: %s") % period_str)
-    
-            if period_str.lower() == _("month"):
-                # Period is month
-                if datetime.today().day < 10:
-                    # Use last month if it's the start of this month
-                    period = Month.periods()[1]
-                else:
-                    # Use this month otherwise
-                    period = Month.periods()[0]
-
         chw = self.message.reporter.chw
+
+        if len(self.params) == 1:
+            # Default to last seven days
+            period = LastSevenDays
+
+        elif len(self.params) == 2:
+            period = self._parse_period(self.params[1].lower())
+
+        else:
+            self.message.respond(_(u"Use ACTIVITY followed by WEEK, MONTH, or "\
+                                    "the 3-letter month code."))
+            return True
+            
         patients = chw.patient_set.all()
 
         p = {}
