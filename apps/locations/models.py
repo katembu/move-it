@@ -39,7 +39,7 @@ class Location(models.Model):
     
     
     def __unicode__(self):
-        return "%s | %s" % (self.code, self.name)
+        return "%s/%s" % (self.code, self.name)
     
     
     # TODO: how can we port the Location.contacts and Location.one_contact

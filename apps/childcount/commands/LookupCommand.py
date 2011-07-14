@@ -2,6 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: rgaudin
 
+from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from childcount.commands import CCCommand
@@ -30,9 +31,10 @@ class LookupCommand(CCCommand):
 
     @authenticated
     def process(self):
+        chw = self.message.reporter.chw
 
-        # warn if no search criteria
-        if self.params.__len__() < 2:
+        # warn if no search terms
+        if len(self.params) < 2:
             self.message.respond(_(u"Lookup command requires at least a " \
                                    "first or last name."), 'error')
             return True
@@ -40,89 +42,47 @@ class LookupCommand(CCCommand):
         terms = self.params[1:]
 
         results = []
+        if len(terms) == 1:
+            results = chw\
+                .patient_set\
+                .filter(Q(first_name=terms[0])|Q(last_name=terms[0]))
 
-        exact = True
-        if terms.__len__() > 1:
-            # exact matches for both names
-            fterm = terms[0]    # first term
-            lterm = terms[1]    # last term
-            patients = Patient.objects.filter(first_name__iexact=fterm, \
-                                                last_name__iexact=lterm)
-            if patients.__len__() > 0:
-                results.extend(patients)
-            if results.__len__() == 0:
-                ps = Patient.objects.filter(first_name__icontains=fterm,\
-                                                last_name__icontains=lterm)
-                if ps.__len__() > 0:
-                    results.extend(patients)
-            # reverse terms
-            patients = Patient.objects.filter(first_name__iexact=lterm, \
-                                                last_name__iexact=fterm)
-            if patients.__len__() > 0:
-                results.extend(patients)
-            if results.__len__() == 0:
-                ps = Patient.objects.filter(first_name__icontains=lterm,\
-                                                last_name__icontains=fterm)
-                if ps.__len__() > 0:
-                    results.extend(patients)
-        if results.__len__() == 0:
-            for term in terms:
-                # try first names
-                patients = Patient.objects.filter(first_name__iexact=term)
-                if patients.__len__() > 0:
-                    results.extend(patients)
+        elif len(terms) == 2:
+            # Match exctly on first and last names (also reversed)
+            results = chw\
+                .patient_set\
+                .filter(
+                    (Q(first_name=terms[0]) & Q(last_name=terms[1])) | \
+                    (Q(first_name=terms[1]) & Q(last_name=terms[0])))
 
-                # try last names
-                patients = Patient.objects.filter(last_name__iexact=term)
-                if patients.__len__() > 0:
-                    results.extend(patients)
-
-        if results.__len__() == 0:
-
-            exact = False
-
-            # retry with less restriction
-            for term in terms:
-                # try first names
-                patients = Patient.objects.filter(first_name__icontains=term)
-                if patients.__len__() > 0:
-                    results.extend(patients)
-
-                # try last names
-                patients = Patient.objects.filter(last_name__icontains=term)
-                if patients.__len__() > 0:
-                    results.extend(patients)
-
-        results = remdup(results)
+        else:
+            results = chw\
+                .patient_set\
+                .filter(Q(first_name__in=terms)|Q(last_name__in=terms))
 
         # no results
-        if results.__len__() == 0:
+        if not results:
             self.message.respond(_(u"No matching patient found. Please " \
                                    "retry with only first or last name."))
             return True
 
-        # only one result (best case)
-        if results.__len__() == 1:
+        # One results (best case)
+        elif len(results) == 1:
             patient = results[0]
-            self.message.respond(_(u"#%(id)s: %(name)s from " \
+            self.message.respond(_(u"ID# %(name)s from " \
                                    "%(location)s") % { \
-                                   'id': patient.health_id, \
-                                   'name': patient.full_name(), \
+                                   'name': patient, \
                                    'location': patient.location})
             return True
 
         # multiple results
         names = [u"%(name)s/%(id)s/%(loc)s" % {'name': patient.full_name(), \
-                                         'id': patient.health_id, \
+                                         'id': patient.health_id.upper(), \
                                          'loc': patient.location.code} \
                  for patient in results]
 
         # advise on quality of answers
-        if exact:
-            intro = _(u"%(total)s matches") % {'total': results.__len__()}
-        else:
-            intro = _(u"%(total)s approx. matches") % {'total': \
-                                                             results.__len__()}
+        intro = _(u"%(total)s matches") % {'total': len(results)}
 
         # send list (max 10 patient)
         self.message.respond(

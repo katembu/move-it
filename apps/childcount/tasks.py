@@ -69,7 +69,7 @@ def weekly_immunization_reminder():
             # format id and dates
             schedules = []
             for date, ids in dates:
-                ids = ', '.join(str(n.patient.health_id) for n in ids)
+                ids = ', '.join(str(n.patient.health_id.upper()) for n in ids)
                 schedules.append('%s: %s' % (date.strftime('%d-%m-%y'), ids))
 
        #join dates together, then immunizations together ans send the SMS
