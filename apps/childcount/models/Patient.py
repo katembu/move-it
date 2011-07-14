@@ -266,6 +266,27 @@ class Patient(models.Model):
 
             - `end`: end date of time period (inclusive) -- :class:`datetime.datetime`
         """
+        def created_before(self, cutoff):
+            """Patients who have an encounter before 
+            the specified date. The :meth:`Patient.created_on`
+            field does not work, since that just indicates
+            when the DB row was created -- not the encounter
+            date when the patient was created.
+
+            :param cutoff: Method returns all patients
+                           with encounters on or before
+                           this date.
+            :type cutoff: :class:`datetime.datetime`
+            """
+
+            pks = self\
+                .filter(encounter__encounter_date__lte=cutoff)\
+                .values('pk')\
+                .distinct()
+
+            return self\
+                .filter(pk__in=pks)
+
         def alive(self, start, end):
             """Patients who were alive at `end`.
 

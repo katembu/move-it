@@ -26,7 +26,7 @@ class Total(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .count()
 
 class UnderOne(Indicator):
@@ -40,7 +40,7 @@ class UnderOne(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .under_one(period.start, period.end)\
             .count()
 
@@ -56,7 +56,7 @@ class UnderFive(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .under_five(period.start, period.end)\
             .count()
 
@@ -71,7 +71,7 @@ class UnderNine(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .under_nine(period.start, period.end)\
             .count()
 
@@ -86,7 +86,7 @@ class UnderNineMonths(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .under_nine_months(period.start, period.end)\
             .count()
 
@@ -102,7 +102,7 @@ class UnderSixMonths(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .under_six_months(period.start, period.end)\
             .count()
 
@@ -118,7 +118,7 @@ class MuacEligible(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .muac_eligible(period.start, period.end)\
             .count()
 
@@ -133,7 +133,7 @@ class Household(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .household(period.start, period.end)\
             .count()
 
@@ -148,7 +148,7 @@ class Mobile(Indicator):
     @classmethod
     def _value(cls, period, data_in):
         return data_in\
-            .filter(created_on__lte=period.end)\
+            .created_before(period.end)\
             .alive(period.start, period.end)\
             .exclude(mobile='')\
             .exclude(mobile__isnull=True)\

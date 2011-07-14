@@ -20,7 +20,8 @@ class LookupCommand(CCCommand):
     ''' Responds HEALTH ID from names search
 
     Searches through first and last names of Patients
-    Returns Name and Health ID '''
+    Returns Name and Health ID 
+    '''
 
     KEYWORDS = {
         'en': ['lookup'],
