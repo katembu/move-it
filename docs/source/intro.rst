@@ -149,8 +149,7 @@ deployment:
     to allow CHWs to share phones, but you might lose some of the
     benefits of real-time CHW-to-server communication.
 
-* **Do you have a system in place to manage a fleet of phones and
-    chargers for your CHWs?**
+* **Do you have a system in place to manage a fleet of phones and chargers for your CHWs?**
     Cell phones break, get lost, and are stolen. If CHWs are using
     their phones all day every day to send SMS messages to the 
     ChildCount+ server, then you should expect a lot of wear and
