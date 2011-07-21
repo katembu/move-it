@@ -1,36 +1,4 @@
 
-Description: A few RapidSMS apps.
-Licence: Public Domain
-
-##########
-# INSTALL
-##########
-
-* FIXTURES
-    Some apps may require some datas in the DB to work.
-    Import the content of the fixtures subfolder if applicable.
-
-    Example:
-        $ ./manage.py loaddata apps/billboard/fixtures/*.json
-
-#################
-# ChildCount-2.0
-#################
-Installation - develop
-------------
-$ sudo aptitude install gettext git-core python python-pybabel python-reportlab python-serial python-setuptools python-tz pdftk python-matplotlib python-xlwt python-mysqldb python-sqlite3
-
-$ sudo easy_install pep8
-
-$ sudo locale-gen fr_FR.UTF-8
-$ sudo locale-gen en_US.UTF-8
-
-
-#############
-# Deployment
-#############
-$ cd ~
-$ git clone git://github.com/mvpdev/rapidsms-impl.git install
-$ ./install/deploy.py -c ./install/childcount-2.0/install.ini
-$ cp ./install/childcount-2.0/local.ini sms/
+Please consult http://mvpdev.github.com/rapidsms/
+for installation instructions and documentation.
 
