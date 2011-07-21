@@ -282,9 +282,11 @@ class BirthReport(CCReport):
     clinic_delivery = models.CharField(_(u"Clinic delivery"), max_length=1, \
                                        choices=CLINIC_DELIVERY_CHOICES, \
                                        help_text=_(u"Was the baby born in " \
-                                                    "a health facility?"))
+                                                    "a health facility?"),\
+                                        db_index=True)
 
-    weight = models.FloatField(_(u"Birth weight (kg)"), null=True, blank=True)
+    weight = models.FloatField(_(u"Birth weight (kg)"), null=True, blank=True,\
+                                        db_index=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -366,7 +368,7 @@ class DeathReport(CCReport):
         verbose_name = _(u"Death Report")
         verbose_name_plural = _(u"Death Reports")
 
-    death_date = models.DateField(_(u"Date of death"))
+    death_date = models.DateField(_(u"Date of death"), db_index=True)
 
     def summary(self):
         return u"%s: %s" % \
@@ -390,9 +392,10 @@ class StillbirthMiscarriageReport(CCReport):
                        (TYPE_STILL_BIRTH, _('Stillbirth')),
                        (TYPE_MISCARRIAGE, _('Miscarriage')))
 
-    incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"))
-    type = models.CharField(_(u"Type"), max_length=1, choices=TYPE_CHOICES, \
-                            blank=True, null=True)
+    incident_date = models.DateField(_(u"Date of stillbirth or miscarriage"),\
+                            db_index=True)
+    type = models.CharField(_(u"Type"), max_length=1, choices=TYPE_CHOICES,\
+                            blank=True, null=True, db_index=True)
 
     def summary(self):
         if self.type is None:
@@ -474,10 +477,12 @@ class FollowUpReport(CCReport):
                                    choices=IMPROVEMENT_CHOICES, \
                               help_text=_(u"Has the patient's condition " \
                                            "improved since the last " \
-                                           "CHW visit?"))
+                                           "CHW visit?"),\
+                                db_index=True)
 
     visited_clinic = models.CharField(_(u"Visited clinic"), max_length=1, \
                                    choices=VISITED_CHOICES, \
+                                   db_index=True,\
                               help_text=_(u"Did the patient visit a health "\
                                            "facility since the last " \
                                            "CHW visit?"))
@@ -603,13 +608,15 @@ class PregnancyReport(CCReport):
 
     pregnancy_month = models.PositiveSmallIntegerField(_(u"Months Pregnant"), \
                                     help_text=_(u"How many months into the " \
-                                                 "pregnancy?"))
+                                                 "pregnancy?"),\
+                                    db_index=True)
     anc_visits = models.PositiveSmallIntegerField(_(u"ANC Visits"), \
                                     help_text=_(u"Number of antenatal clinic "\
-                                                 "visits during pregnancy"))
+                                                 "visits during pregnancy"),\
+                                    db_index=True)
     weeks_since_anc = models.PositiveSmallIntegerField(\
                                         _(u"Weeks since last ANC visit"), \
-                                        null=True, blank=True,
+                                        null=True, blank=True, db_index=True,\
                             help_text=_(u"How many weeks since the patient's "\
                                          "last ANC visit (0 for less " \
                                          "than 7 days)?"))
@@ -692,24 +699,29 @@ class SPregnancy(PregnancyReport):
 
     iron_supplement = models.CharField(_(u"Taking Iron supplements"), \
                             max_length=1, choices=IRON_CHOICES, \
+                            db_index=True,\
                             help_text=_(u"Is the mother taking iron "\
                                             "supplement?"))
 
     folic_suppliment = models.CharField(_(u"Taking Folic Acid supplements"), \
                             max_length=1, choices=FOLIC_CHOICES,\
+                            db_index=True,\
                             help_text=_(u"Is the mother taking folic acid "\
                                             "supplement?"))
 
     tested_hiv = models.CharField(_(u"Tested for HIV"), max_length=2, \
                                    choices=TESTED_CHOICES, \
+                                   db_index=True,\
                               help_text=_(u"Did the mother get tested for "\
                                             "HIV?"))
 
     cd4_count = models.CharField(_(u"Completed CD4 Count"), max_length=1, \
                                    choices=CD4_CHOICES, null=True, blank=True,\
+                                   db_index=True,\
                                    help_text=_(u"Was CD4 count taken?"))
 
     pmtc_arv = models.ForeignKey('CodedItem', null=True, blank=True, \
+                                    db_index=True,\
                                     verbose_name=_(u"PMTC ARV"))
 
 reversion.register(SPregnancy, follow=['ccreport_ptr'])
@@ -724,9 +736,11 @@ class BCPillReport(CCReport):
         verbose_name_plural = _(u"Birth Control Pill Reports")
 
     pills = models.PositiveSmallIntegerField(_(u"Pills given"), \
-                                             null=True, blank=True)
+                                             null=True, blank=True,\
+                                             db_index=True)
     women = models.PositiveSmallIntegerField(_(u"Women given BC pills"),
-                                             null=True, blank=True)
+                                             null=True, blank=True,\
+                                             db_index=True)
 
     def summary(self):
         if self.pills is None:
@@ -760,7 +774,8 @@ class NeonatalReport(CCReport):
 
     clinic_visits = models.PositiveSmallIntegerField(_(u"Clinic Visits"), \
                                     help_text=_(u"Number of clinic visits " \
-                                                 "since birth"))
+                                                 "since birth"),\
+                                    db_index=True)
 
     def summary(self):
         return u"%s: %d" % \
@@ -800,12 +815,14 @@ class UnderOneReport(CCReport):
     breast_only = models.CharField(_(u"Breast feeding exclusively"), \
                                    max_length=1, choices=BREAST_CHOICES, \
                                    help_text=_(u"Does the mother " \
-                                               "exclusively breast feed?"))
+                                               "exclusively breast feed?"),\
+                                    db_index=True)
 
     immunized = models.CharField(_(u"Immunized"), max_length=1, \
                                    choices=IMMUNIZED_CHOICES, \
                                    help_text=_(u"Is the child up-to-date on" \
-                                                "immunizations?"))
+                                                "immunizations?"),\
+                                    db_index=True)
 
     def summary(self):
         return u"%s: %s, %s: %s" % \
@@ -876,12 +893,16 @@ class NutritionReport(CCReport):
         (OEDEMA_NO, _(u"No")),
         (OEDEMA_UNKNOWN, _(u"Unknown")))
 
-    muac = models.SmallIntegerField(_(u"MUAC (mm)"), blank=True, null=True)
+    muac = models.SmallIntegerField(_(u"MUAC (mm)"), blank=True, null=True,\
+                                db_index=True)
     oedema = models.CharField(_(u"Oedema"), max_length=1, \
-                              choices=OEDEMA_CHOICES)
-    weight = models.FloatField(_(u"Weight (kg)"), blank=True, null=True)
+                              choices=OEDEMA_CHOICES,\
+                              db_index=True)
+    weight = models.FloatField(_(u"Weight (kg)"), blank=True, null=True,\
+                            db_index=True)
     status = models.IntegerField(_("Status"),\
-                                 choices=STATUS_CHOICES, blank=True, null=True)
+                                 choices=STATUS_CHOICES, blank=True, null=True,\
+                                db_index=True)
 
     def diagnose(self):
         '''Diagnosis of the patient'''
@@ -961,7 +982,8 @@ class FeverReport(CCReport):
         (RDT_UNKNOWN, _(u"Unknown")))
 
     rdt_result = models.CharField(_(u"RDT Result"), max_length=1, \
-                                  choices=RDT_CHOICES)
+                                  choices=RDT_CHOICES,\
+                                  db_index=True)
 
     def summary(self):
         return u"%s: %s" % \
@@ -1035,7 +1057,8 @@ class ReferralReport(CCReport):
                        (URGENCY_CONVENIENT, _('Convenient Referral')))
 
     urgency = models.CharField(_(u"Urgency"), max_length=1, \
-                               choices=URGENCY_CHOICES)
+                               choices=URGENCY_CHOICES,\
+                               db_index=True)
 
     @property
     def verbose_urgency(self):
@@ -1072,11 +1095,13 @@ class HouseholdVisitReport(CCReport):
 
     available = models.BooleanField(_(u"HH Member Available"), \
                                 help_text=_(u"Was a houshold member " \
-                                             "available?"))
+                                             "available?"),\
+                                db_index=True)
 
     children = models.SmallIntegerField(_("Children Under Five"), \
                                         blank=True, null=True, \
-                            help_text=_("Number of children under 5 seen"))
+                            help_text=_("Number of children under 5 seen"),\
+                            db_index=True)
 
     counseling = models.ManyToManyField('CodedItem', \
                        verbose_name=_(u"Counseling / advice topics covered"), \
@@ -1132,10 +1157,12 @@ class FamilyPlanningReport(CCReport):
 
     women = models.PositiveSmallIntegerField(_(u"Women"), \
                             help_text=_(u"Number of women aged 15 to 49 " \
-                                         "seen during visit"))
+                                         "seen during visit"),\
+                            db_index=True)
 
     women_using = models.PositiveSmallIntegerField(_(u"Women using FP"), \
                                                 null=True, blank=True, \
+                                                db_index=True,\
                             help_text=_(u"Number of the women using " \
                                          "modern family planning"))
 
@@ -1172,20 +1199,24 @@ class SickMembersReport(CCReport):
 
     sick = models.PositiveSmallIntegerField(_(u"Others sick"), \
                            help_text=_(u"Number of other sick household " \
-                                        "members seen during visit"))
+                                        "members seen during visit"),\
+                            db_index=True)
 
     rdts = models.PositiveSmallIntegerField(_(u"RDTs"), \
                            help_text=_(u"Number of RDTs used on other " \
-                                        "sick household members"))
+                                        "sick household members"),\
+                            db_index=True)
 
     positive_rdts = models.PositiveSmallIntegerField(_(u"Positive RDTs"), \
                            help_text=_(u"Number of positve RDTs cases for " \
-                                        "other sick household members"))
+                                        "other sick household members"),\
+                            db_index=True)
 
     on_treatment = models.PositiveSmallIntegerField(_(u"Others on treatment"),\
                            help_text=_(u"Number of other sick household " \
                                         "members receiving anti-malarial " \
-                                        "treatment"))
+                                        "treatment"),\
+                            db_index=True)
 
     def summary(self):
         return u"%s: %d, %s: %d, %s: %d, %s: %d" % \
@@ -1217,7 +1248,8 @@ class VerbalAutopsyReport(CCReport):
         verbose_name_plural = _(u"Verbal Autopsy Reports")
 
     done = models.BooleanField(_("Completed?"), \
-                                help_text=_('Was a Verbal Autopsy conducted?'))
+                                help_text=_('Was a Verbal Autopsy conducted?'),\
+                                db_index=True)
 
 
 class BedNetReport(CCReport):
@@ -1229,16 +1261,20 @@ class BedNetReport(CCReport):
         verbose_name_plural = _(u"Bednet Reports")
 
     sleeping_sites = models.PositiveSmallIntegerField(_(u"Sleeping sites"),\
-                            help_text=_(u"Number of sleeping sites"))
+                            help_text=_(u"Number of sleeping sites"),\
+                            db_index=True)
 
     function_nets = models.PositiveSmallIntegerField(_(u"Recent Bednets"), \
-                            help_text=_(u"Number of functioning bednets"))
+                            help_text=_(u"Number of functioning bednets"),\
+                            db_index=True)
     earlier_nets = models.PositiveSmallIntegerField(_(u"Earlier Bednets"), \
                             help_text=_(u"Number of bednets received" \
-                            " earlier "))
+                            " earlier "),\
+                            db_index=True)
     damaged_nets = models.PositiveSmallIntegerField(_(u"Damaged Bednets"), \
                             help_text=_(u"Number of recent bednets that are" \
-                                        " damaged"))
+                                        " damaged"),\
+                            db_index=True)
 
     def summary(self):
         return u"%s: %d, %s: %d" % \
@@ -1259,7 +1295,8 @@ class ExtendedBedNetReport(BedNetReport):
 
     people = models.PositiveSmallIntegerField(_(u"Number of people"), \
                             help_text=_(u"Number of people who are " \
-                                        "sleeping in the household"))
+                                        "sleeping in the household"),\
+                            db_index=True)
 
 reversion.register(ExtendedBedNetReport, follow=['ccreport_ptr'])
 
@@ -1293,16 +1330,20 @@ class BednetUtilization(CCReport):
 
     child_underfive = models.PositiveSmallIntegerField(_(u"children under" \
                             " five "), help_text=_(u"Number of children " \
-                            "under five who slept here last night."))
+                            "under five who slept here last night."),\
+                            db_index=True)
     child_lastnite = models.PositiveSmallIntegerField(_(u"Children slept " \
                             "under bednet"), \
+                            db_index=True,\
                             help_text=_(u"Number of children" \
                             " under five who slept under bednet last night."))
     hanging_bednet = models.SmallIntegerField(_(u"Number of hanging bednet"), \
+                            db_index=True,\
                             help_text=_(u"Number of hanging bednet"))
     reason = models.CharField(_(u"Reason "), \
                             help_text=_(u"reason why some children didn't" \
                             " sleep under bednet"), null=True, blank=True, \
+                            db_index=True, \
                             max_length=2, choices=REASON_CHOICES)
 
     def summary(self):
@@ -1348,11 +1389,13 @@ class SanitationReport(CCReport):
     U = -1
 
     toilet_lat = models.CharField(_(u"Toilet Type"), max_length=2, \
-                              choices=TOILET_LAT_CHOICES)
+                              choices=TOILET_LAT_CHOICES,\
+                              db_index=True)
     share_toilet = models.SmallIntegerField(_(u"How many shares?"), \
                                 help_text=_(u"How many people" \
                                 " share the toilet (open to public = -1, " \
-                                "unknown = -2 )"))
+                                "unknown = -2 )"),\
+                                db_index=True)
 reversion.register(SanitationReport, follow=['ccreport_ptr'])
 
 
@@ -1408,11 +1451,12 @@ class DrinkingWaterReport(CCReport):
         (TREATMENT_METHOD_DONTKNOW, _(u"Unknown")),)
 
     water_source = models.CharField(_(u"Water Source"), max_length=2, \
-                              choices=DRNKWATER_CHOICES)
+                              choices=DRNKWATER_CHOICES,\
+                              db_index=True)
     treatment_method = models.CharField(_(u"Treatment method"), max_length=2, \
                               choices=TREATMENT_CHOICES, help_text=_(u"What " \
                                 "do you use to make it safer to drink"), \
-                                blank=True)
+                                blank=True, db_index=True)
 reversion.register(DrinkingWaterReport, follow=['ccreport_ptr'])
 
 
@@ -1424,7 +1468,8 @@ class BednetIssuedReport(CCReport):
         verbose_name = _(u"Bednet Distribution Report")
         verbose_name_plural = _(u"Betnet Distribution Reports")
 
-    bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"))
+    bednet_received = models.PositiveSmallIntegerField(_(u"Bed net received"),\
+                            db_index=True)
 
 reversion.register(BednetIssuedReport, follow=['ccreport_ptr'])
 
@@ -1437,7 +1482,8 @@ class AntenatalVisitReport(CCReport):
         verbose_name = _(u"Initial Antenatal Visit Report")
         verbose_name_plural = _(u"Initial Antenatal Visit Reports")
 
-    expected_on = models.DateTimeField(_(u"Expected Date of Delivery"))
+    expected_on = models.DateTimeField(_(u"Expected Date of Delivery"),\
+                        db_index=True)
     sms_alert = models.ForeignKey(SmsAlertModel, null=True, blank=True)
 
     def summary(self):
@@ -1465,17 +1511,21 @@ class AppointmentReport(CCReport):
         (STATUS_CLOSED, _(u"Closed")),
         (STATUS_PENDING_CV, _(u"Pending Clinic Visit")))
 
-    appointment_date = models.DateTimeField(_(u"Next appointment"))
+    appointment_date = models.DateTimeField(_(u"Next appointment"), \
+                                            db_index=True)
     closed_date = models.DateTimeField(_(u"Date closed"), blank=True, \
-                                        null=True)
+                                        null=True, db_index=True)
     status = models.PositiveSmallIntegerField(_("Status"), \
                                                 choices=STATUS_CHOICES,
+                                db_index=True,\
                                 help_text=_(u"Is the appointment still open" \
                                             " or closed?"), \
                                             default=STATUS_OPEN)
     task_id = models.CharField('Task ID', max_length=255, \
+                                            db_index=True, \
                                             null=True, blank=True)
-    sms_alert = models.ForeignKey(SmsAlertModel, null=True, blank=True)
+    sms_alert = models.ForeignKey(SmsAlertModel, null=True, blank=True,
+                                            db_index=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1510,13 +1560,17 @@ class PregnancyRegistrationReport(CCReport):
         (MARRIED_UNKNOWN, _(u"Unknown")))
 
     married = models.CharField(_(u"Married?"), max_length=1, \
-                                        choices=MARRIED_CHOICES)
-    pregnancies = models.PositiveSmallIntegerField(_("Number of Pregancies"))
+                                        choices=MARRIED_CHOICES,\
+                                        db_index=True)
+    pregnancies = models.PositiveSmallIntegerField(_("Number of Pregancies"),\
+                                        db_index=True)
     number_of_children = models.PositiveSmallIntegerField(_("Number of " \
                                                             "Pregancies"), \
-                                                            default=0,
+                                                            default=0,\
+                                                            db_index=True,\
                                                         blank=True, null=True)
     husband = models.ForeignKey('Patient', blank=True, null=True, \
+                                    db_index=True,\
                                   verbose_name=_(u"Husband"), \
                                   help_text=_(u"The husband to this pregnant"\
                                             " woman"),\
@@ -1570,9 +1624,10 @@ class HIVTestReport(CCReport):
         (BLOOD_DRAWN_UNKNOWN, _(u"Unknown")))
 
     hiv = models.CharField(_(u"HIV+?"), max_length=2, \
-                              choices=HIV_CHOICES)
+                              choices=HIV_CHOICES, db_index=True)
     blood_drawn = models.CharField(_(u"Blood drawn?"), max_length=1, \
-                                        choices=BLOOD_DRAWN_CHOICES)
+                                        choices=BLOOD_DRAWN_CHOICES,\
+                                        db_index=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1612,7 +1667,8 @@ class DBSResultReport(CCReport):
         (RESULT_POSITIVE, _(u"Yes")),
         (RESULT_NEGATIVE, _(u"No")))
     test_result = models.BooleanField(_(u"Test Result"), \
-                                        choices=RESULT_CHOICES)
+                                        choices=RESULT_CHOICES,
+                                        db_index=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1638,7 +1694,7 @@ class CD4ResultReport(CCReport):
         verbose_name = _(u"CD4 Result")
         verbose_name_plural = _(u"CD4 Results")
 
-    cd4_count = models.PositiveIntegerField(_(u"CD4 Count"))
+    cd4_count = models.PositiveIntegerField(_(u"CD4 Count"), db_index=True)
 
     def summary(self):
         string = u"%s: %s" % \
@@ -1663,8 +1719,9 @@ class PatientStatusReport(CCReport):
         (STATUS_ACTIVE, _(u"Alive")),
         (STATUS_INACTIVE, _(u"Relocated")))
 
-    status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES)
+    status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES,\
+                                    db_index=True)
     reason = models.CharField(_(u"Reason"), max_length=100, blank=True,
-                                null=True)
+                                null=True, db_index=True)
 
 reversion.register(PatientStatusReport, follow=['ccreport_ptr'])

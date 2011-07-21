@@ -108,8 +108,9 @@ class CodedItem(models.Model):
         (TYPE_MEDICINE, _(u"Medicine")),
         (TYPE_COUNSELING, _(u"Counseling topic")))
 
-    code = models.CharField(_(u"Code"), max_length=10)
-    type = models.CharField(_(u"Type"), choices=TYPE_CHOICES, max_length=2)
+    code = models.CharField(_(u"Code"), max_length=10, db_index=True)
+    type = models.CharField(_(u"Type"), choices=TYPE_CHOICES, \
+        max_length=2, db_index=True)
 
     @property
     def description(self):

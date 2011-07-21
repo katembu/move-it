@@ -41,7 +41,7 @@ while the ChildCount+ indicator definitions
 live inside the ChildCount+ application
 directory: :file:`apps/childcount/indicators/`.
 
-[P] Creating an Indicator
+Creating an Indicator
 -------------------------
 
 All of the ChildCount+ indicator code resides in the

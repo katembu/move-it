@@ -74,15 +74,18 @@ class Patient(models.Model):
                                 help_text=_(u"Unique Health ID"))
     created_on = models.DateTimeField(_(u"Created on"), auto_now_add=True, \
                                       help_text=_(u"When the patient record " \
-                                                   "was created"))
+                                                   "was created"),\
+                                    db_index=True)
     updated_on = models.DateTimeField(auto_now=True)
 
     first_name = models.CharField(_(u"First name"), max_length=100)
     last_name = models.CharField(_(u"Last name"), max_length=50, \
                                  help_text=_(u"Family name or surname"))
     gender = models.CharField(_(u"Gender"), max_length=1, \
-                              choices=GENDER_CHOICES)
-    dob = models.DateField(_(u"Date of Birth"), null=True, blank=True)
+                              choices=GENDER_CHOICES,\
+                              db_index=True)
+    dob = models.DateField(_(u"Date of Birth"), null=True, blank=True,\
+                            db_index=True)
     estimated_dob = models.BooleanField(_(u"Estimated DOB"), \
                                         help_text=_(u"True or false: the " \
                                                      "date of birth is only " \
@@ -111,11 +114,15 @@ class Patient(models.Model):
     mobile = models.CharField(_(u"Mobile phone number"), max_length=16, \
                               blank=True, null=True)
     status = models.SmallIntegerField(_(u"Status"), choices=STATUS_CHOICES, \
-                                      default=STATUS_ACTIVE)
+                                      default=STATUS_ACTIVE,\
+                                      db_index=True)
     hiv_status = models.NullBooleanField(_(u"HIV Status"),
                                             blank=True, null=True)
     hiv_exposed = models.NullBooleanField(_(u"HIV Exposed?"),
                                             blank=True, null=True)
+
+    latitude  = models.DecimalField(max_digits=8, decimal_places=6, blank=True, null=True, help_text="The physical latitude of this person's household")
+    longitude = models.DecimalField(max_digits=8, decimal_places=6, blank=True, null=True, help_text="The physical longitude of this person's household")
 
     def is_head_of_household(self):
         """Check if patient is the head his/her own household"""

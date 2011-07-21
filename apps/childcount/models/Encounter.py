@@ -35,18 +35,21 @@ class Encounter(models.Model):
     # Encounter validity duration in minutes
     TIMEOUT = 6 * 60
 
-    encounter_date = models.DateTimeField(_(u"Encounter date"))
+    encounter_date = models.DateTimeField(_(u"Encounter date"),\
+        db_index=True)
 
-    chw = models.ForeignKey(CHW, verbose_name=_(u"CHW"))
+    chw = models.ForeignKey(CHW, verbose_name=_(u"CHW"), db_index=True)
 
     patient = models.ForeignKey(Patient, verbose_name=_(u"Patient"), \
                                    help_text=_(u"Patient (or head of " \
                                                 "household for household " \
-                                                "encounters)"))
+                                                "encounters)"),\
+                                    db_index=True)
 
     type = models.CharField(_(u"Type"), max_length=1, \
                                        choices=TYPE_CHOICES, \
-                                       help_text=_(u"The type of encounter"))
+                                       help_text=_(u"The type of encounter"),
+                                       db_index=True)
 
     sync_omrs = models.NullBooleanField(_('OMRS'), null=True, blank=True)
 
