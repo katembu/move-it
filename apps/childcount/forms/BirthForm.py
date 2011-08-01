@@ -31,7 +31,7 @@ class BirthForm(CCForm):
     MIN_BIRTH_WEIGHT = 1
     MAX_BIRTH_WEIGHT = 6
     MIN_GUARDIAN_AGE = 10
-    UNKNOWN_MOTHER = {'en': 'U'}
+    UNKNOWN_MOTHER = {'en': 'U', 'fr': 'I'}
 
     def process(self, patient):
 
