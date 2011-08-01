@@ -121,8 +121,16 @@ class Patient(models.Model):
     hiv_exposed = models.NullBooleanField(_(u"HIV Exposed?"),
                                             blank=True, null=True)
 
-    latitude  = models.DecimalField(max_digits=8, decimal_places=6, blank=True, null=True, help_text="The physical latitude of this person's household")
-    longitude = models.DecimalField(max_digits=8, decimal_places=6, blank=True, null=True, help_text="The physical longitude of this person's household")
+    latitude  = models.DecimalField(max_digits=8, decimal_places=6, \
+        blank=True, null=True, \
+        help_text=_("The physical latitude of this person's household"))
+    longitude = models.DecimalField(max_digits=8, decimal_places=6, \
+        blank=True, null=True, \
+        help_text=_("The physical longitude of this person's household"))
+    elevation = models.DecimalField(max_digits=8, decimal_places=2, \
+        blank=True, null=True, \
+        help_text=_("The physical elevation (meters) of this "\
+                    "person's household"))
 
     def is_head_of_household(self):
         """Check if patient is the head his/her own household"""

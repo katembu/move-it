@@ -44,6 +44,9 @@ class ReportDefinition(PrintedReport):
     filename = 'operational_report'
     formats = ('pdf',)
 
+    variants = [(c.name, c.code, {'clinic_pk': c.pk}) \
+                                    for c in Clinic.objects.all()]
+
     def generate(self, period, rformat, title, filepath, data):
         '''
         Generate OperationalReport and write it to file
@@ -57,25 +60,24 @@ class ReportDefinition(PrintedReport):
         self._indicators = chw_report_indicators()
 
         story = []
-        locations = Clinic\
+
+        if 'clinic_pk' not in data:
+            raise ValueError('You must pass a clinic PK as data')
+
+        clinic_pk = data['clinic_pk']
+        location = Clinic\
             .objects\
-            .filter(pk__in=CHW.objects.values('clinic').distinct())
+            .get(pk=clinic_pk)
 
-        total = locations.count()
-        for i,location in enumerate(locations):
-            self.set_progress(100.0*i/total)
+        chws = CHW\
+                    .objects\
+                    .filter(is_active=True)\
+                    .filter(clinic=location)
 
-            rowCHWs = CHW\
-                        .objects\
-                        .filter(is_active=True)\
-                        .filter(clinic=location)
-            if rowCHWs.count() == 0:
-                continue
+        tb = self._operationalreportable(period, location, chws)
 
-            tb = self._operationalreportable(period, location, rowCHWs)
-
-            story.append(tb)
-            story.append(PageBreak())
+        story.append(tb)
+        story.append(PageBreak())
 
         register_fonts()
         f = open(filepath, 'w')
@@ -155,15 +157,26 @@ class ReportDefinition(PrintedReport):
             else:
                 return unicode(val)
 
-        if len(chws) > 0:
+        count_chws = chws.count()
+        count_inds = len(self._indicators)
+        total = count_chws * count_inds
+        current = 0.0
+
+        if count_chws > 0:
+            self.set_progress((100.0*current)/total)
             rows = []
+
             for chw in chws:
                 row = [Paragraph(chw.full_name(), styleN)]
+
                 for group in self._indicators:
+                    current += 1.0
+
                     for pair in group['columns']:
                         print pair['name']
                         value = pair['ind'](period, chw.patient_set.all())
                         row.append(Paragraph(format_val(pair['ind'], value), styleN))
+                    self.set_progress((100.0*current)/total)
 
                 rows.append(row)
          
