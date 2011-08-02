@@ -184,6 +184,8 @@ class ReportDefinition(PrintedReport):
             patients = Patient.objects.filter(chw__clinic__pk=chws[0].clinic.pk)
             row = [Paragraph(u"<b>" + chw.clinic.name + u"</b>", styleN)]
             for group in self._indicators:
+                self.set_progress((100.0*current)/total)
+                current += 1
                 for pair in group['columns']:
                     print pair['name']
                     value = pair['ind'](period, patients)
