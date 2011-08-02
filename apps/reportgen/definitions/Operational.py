@@ -159,7 +159,7 @@ class ReportDefinition(PrintedReport):
 
         count_chws = chws.count()
         count_inds = len(self._indicators)
-        total = count_chws * count_inds
+        total = (count_chws+1) * count_inds
         current = 0.0
 
         if count_chws > 0:
