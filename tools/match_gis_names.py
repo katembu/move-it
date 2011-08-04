@@ -39,7 +39,7 @@ import pprint
 import string
 import sys
 
-from django.db.models import Q
+from django.db.models import Q,F
 
 from childcount.models import Patient
 
@@ -54,29 +54,33 @@ seen_codes = set()
 seen_people = set()
 
 for row in gisReader:
-    code = row[0]
+    code = row[1]
     name = row[3]
     lat = row[13]
     lng = row[14]
 
     names = name.split()
-    last_name = names[0]
+    last_name = names[0].upper()
+
+    if len(code) != 4:
+        print "Skipping %s %s" % (name, code)
 
     poss = Patient\
         .objects\
         .filter(location__code=code)
 
+    cutoff = 0.4
     matches = difflib.get_close_matches(last_name, \
-        [p.last_name.upper() for p in poss], n=1)
+        [p.last_name.upper() for p in poss], n=1, cutoff=cutoff)
 
     if matches:
         moposs = poss.filter(last_name=matches[0])
 
         first_name = ''
         if len(names) > 1:
-            first_name = names[1]
+            first_name = names[1].upper()
         momatches = difflib.get_close_matches(first_name,
-            [p.first_name.upper() for p in moposs], n=1)
+            [p.first_name.upper() for p in moposs], n=1, cutoff=cutoff)
 
         if momatches:
             people = moposs.filter(first_name=momatches[0])
@@ -84,5 +88,28 @@ for row in gisReader:
             print "%s | % 4d | %s => %s {%s, %s}" % \
                 (code.upper(), poss.count(), name, people, lat, lng)
             people.update(latitude=lat, longitude=lng)
+            continue
+
+    if len(names) > 1:
+        first_name = names[1].upper()
+        matches = difflib.get_close_matches(first_name, \
+            [p.last_name.upper() for p in poss], n=1)
+
+        if matches:
+            moposs = poss.filter(last_name=matches[0])
+
+            momatches = difflib.get_close_matches(last_name,
+                [p.first_name.upper() for p in moposs], n=1)
+
+            if momatches:
+                people = moposs.filter(first_name=momatches[0])
+
+                print "%s | % 4d | %s => %s {%s, %s}" % \
+                    (code.upper(), poss.count(), name, people, lat, lng)
+                people.update(latitude=lat, longitude=lng)
+                continue
+
+    print "%s |X% 4d | %s => %s {%s, %s}" % \
+        (code.upper(), poss.count(), name, [], lat, lng)
 
 
