@@ -30,6 +30,24 @@ class Total(Indicator):
                 date__range=(period.start, period.end))\
             .count()
 
+class Sms(Indicator):
+    type_in     = QuerySetType(Reporter)
+    type_out    = int
+
+    slug        = "sms"
+    short_name  = _("# SMS")
+    long_name   = _("Total number of SMS messages sent to server")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return LoggedMessage\
+            .objects\
+            .filter(reporter__in=data_in,\
+                direction=LoggedMessage.DIRECTION_INCOMING,
+                backend="pygsm",
+                date__range=(period.start, period.end))\
+            .count()
+
 class Error(Indicator):
     type_in     = QuerySetType(Reporter)
     type_out    = int

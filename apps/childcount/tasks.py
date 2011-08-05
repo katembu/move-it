@@ -30,6 +30,8 @@ import childcount.helpers.chw
 import childcount.helpers.site
 from childcount.helpers import ranking
 
+from childcount.indicators import message
+
 from alerts.utils import SmsAlert
 
 class NowPeriod(object):
@@ -233,7 +235,7 @@ def performance_messages():
     on their performance on key indicators.
     """
 
-    indicators = childcount.helpers.site.key_indicators()
+    indicators = [message.Sms] + list(childcount.helpers.site.key_indicators()) 
     for ind in indicators:
         print "Calculating ranks for %s" % ind
         all_ranks = ranking.compute_rankings(ind)
@@ -395,5 +397,6 @@ def appointment_defaulter_reminders():
             sms_alert.save()
             apt.sms_alert = sms_alert
             apt.save()
+
 
 

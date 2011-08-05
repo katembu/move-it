@@ -9,6 +9,8 @@ relation to each other.
 import random
 from datetime import datetime, timedelta
 
+from reporters.models import Reporter
+
 from childcount.models import CHW
 
 from childcount.indicators import household
@@ -80,12 +82,21 @@ def compute_rankings(ind):
     if not ind.output_is_number():
         raise ValueError("Indicator must output a number")
 
+    if not ind.input_is_query_set():
+        raise ValueError("Indicator must output a number")
+      
+
     perc = ind.output_is_percentage()
     output = []
 
     # Iterate over CHWs who have patients
     for chw in CHW.objects.annotate(c=Count('patient')).filter(c__gt=0):
-        value = ind(PastThirtyDays, chw.patient_set.all())
+   
+        qset = chw.patient_set.all()
+        if ind.type_in.mtype.__name__ == "Reporter":
+            qset = Reporter.objects.filter(pk=chw.pk)
+
+        value = ind(PastThirtyDays, qset)
 
         # Don't include percentages of 0/0
         if perc and value.den == 0: 
