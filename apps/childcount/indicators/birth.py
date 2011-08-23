@@ -90,7 +90,7 @@ class DeliveredInClinic(Indicator):
     slug        = "delivered_in_clinic"
     short_name  = _("# Births Delivered in Clinic")
     long_name   = _("Total number of patients born this period "\
-                    "with recorded weight")
+                    "recorded as deliverd in a health facility")
 
     @classmethod
     def _value(cls, period, data_in):
