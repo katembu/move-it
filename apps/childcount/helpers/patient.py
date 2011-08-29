@@ -5,8 +5,33 @@ import datetime
 
 from django.utils.translation import ugettext as _
 
+import bonjour
+
 from childcount.models.reports import NutritionReport
 from childcount.models.reports import UnderOneReport
+from childcount.models.reports import HouseholdVisitReport
+
+def latest_hhv_raw(period, p):
+    """Look up the latest HouseholdVisitReport for this
+    patient's household
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: :class:`childcount.models.reports.HouseholdVisitReport` or None
+    """
+
+    try:
+        h = HouseholdVisitReport\
+            .objects\
+            .filter(encounter__patient=p.household, \
+                encounter__encounter_date__lte=period.end)\
+            .latest()
+    except HouseholdVisitReport.DoesNotExist:
+        return None
+    return h
 
 def latest_muac_raw(period, p):
     """Look up the latest NutritionReport for this
@@ -32,6 +57,47 @@ def latest_muac_raw(period, p):
         return None
     return n
 
+def latest_hhv_counseling(period, p):
+    """Format a string containing a human-readable list
+    of counseling codes 
+    for this Patient's last household visit.
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: unicode
+    """
+
+    h = latest_hhv_raw(period, p)
+    if h is None:
+        return u"--"
+   
+    if h.counseling.count():
+        return ",".join([c.code.upper() for c in h.counseling.all()])    
+    else:
+        return _("None")
+
+def latest_hhv_date(period, p):
+    """Format a string containing a human-readable date
+    for this Patient's last household visit.
+
+    :param period: Time period 
+    :type period: An object with :meth:`.start` and :meth:`.end`
+                  methods that each return a :class:`datetime.datetime`
+    :param p: Patient
+    :type p: :class:`childcount.models.Patient`
+    :returns: unicode
+    """
+
+    h = latest_hhv_raw(period, p)
+    if h is None:
+        return _(u"[No HHV]")
+    
+    return bonjour.dates.format_date(h.encounter.encounter_date, \
+        format='medium')
+
 def latest_muac_date(period, p):
     """Format a string containing a human-readable date
     and MUAC value for this Patient's last MUAC .
@@ -50,7 +116,8 @@ def latest_muac_date(period, p):
     
     ''' Oed = Oedema '''
     return _(u"%(date)s [%(muac)s,Oed:%(oedema)s]") % \
-        {'date': n.encounter.encounter_date.strftime('%d %b %Y'),
+        {'date': bonjour.dates.format_date(n.encounter.encounter_date,\
+                    format='medium'),
         'muac': n.muac or '--',
         'oedema': n.oedema}
 
