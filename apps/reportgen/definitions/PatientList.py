@@ -44,7 +44,7 @@ class ReportDefinition(PrintedReport):
     title = u'Patient List'
     filename = 'patient_list_'
     formats = ['pdf']
-    variants = [(unicode(c), c.code+'_active', {'clinic_pk': c.pk}) \
+    variants = [(c.name, c.code+'_active', {'clinic_pk': c.pk}) \
         for c in Clinic.objects.all()]
    
     def register_columns(self):
