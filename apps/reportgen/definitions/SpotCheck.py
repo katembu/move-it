@@ -104,8 +104,32 @@ class ReportDefinition(PrintedReport):
         doc.build(story)
         f.close()
 
+    def _hh_encounter_summary(self, patient):
+        master = childcount.helpers.patient.latest_hhv_raw(self.period, patient)
+        if master is None:
+            return _("[No HHV]")
+
+        ccrpts = master.encounter.ccreport_set.all()
+        hhvs = ccrpts.filter(polymorphic_ctype__name='Household Visit Report')
+        fps = ccrpts.filter(polymorphic_ctype__name='Family Planning Report')
+
+        out = u""
+        if hhvs.count():
+            hhv = hhvs[0]
+            out += _("+V ")
+            out += "Y" if hhv.available else "N"
+            out += " "
+            out += unicode(hhv.children) if hhv.available else ""
+
+        if fps.count():
+            fp = fps[0]
+            out += _(" +K ")
+            out += "%d " % fp.women
+            out += "%d " % fp.women_using
+
+        return out
+
     def _spot_check_columns(self):
-        
         return [
             {
                 'name': u"\u2714",
@@ -119,7 +143,7 @@ class ReportDefinition(PrintedReport):
                 'value': lambda p: p.location.code.upper(),
             },
             {
-                'name': _("Household HID"),
+                'name': _("HHID"),
                 'value': lambda p: p.household.health_id.upper(),
             },
             {
@@ -133,7 +157,7 @@ class ReportDefinition(PrintedReport):
             },
             {
                 'name': _("Visit Summary"),
-                'value': lambda p: "",
+                'value': self._hh_encounter_summary,
             },
             {
                 'name': _("Notes"),
