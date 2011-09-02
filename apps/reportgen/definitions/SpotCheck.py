@@ -99,7 +99,7 @@ class ReportDefinition(PrintedReport):
         for c in chws:
             tb = self._spot_check_table(period, c)
             story.append(tb)
-            story.append(Paragraph("\n\n", styleN))
+            story.append(Paragraph("<br><br>", styleN))
 
         story.append(PageBreak())
 
@@ -211,8 +211,8 @@ class ReportDefinition(PrintedReport):
         if fps.count():
             fp = fps[0]
             out += _(" +K ")
-            out += "%d " % fp.women
-            out += "%d " % fp.women_using
+            out += "%d " % (fp.women or 0)
+            out += "%d " % (fp.women_using or 0)
 
         return out
 
@@ -327,7 +327,7 @@ class ReportDefinition(PrintedReport):
                     style.append(('LINEAFTER', (i, index+1), (i, index+1), 1.25, colors.black))
 
             style.append(('GRID', (0, index+1), (-1, index+1), 0.3, colors.black))
-            style.append(('LINEBELOW', (0, index-1), (-1, index-1), 1, colors.black))
+            style.append(('LINEBELOW', (0, index), (-1, index), 1, colors.black))
 
             row = [[]]*ncols
             for i,c in enumerate(cols):
