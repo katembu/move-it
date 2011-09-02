@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-05 11:56+0300\n"
+"POT-Creation-Date: 2011-08-30 17:39+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,11 +29,11 @@ msgstr ""
 msgid "No time period value passed in"
 msgstr ""
 
-#: PrintedReport.py:138
+#: PrintedReport.py:137
 msgid "This report has no formats specified."
 msgstr ""
 
-#: PrintedReport.py:143
+#: PrintedReport.py:142
 msgid "Report title or filename is unset."
 msgstr ""
 
@@ -42,11 +42,11 @@ msgstr ""
 msgid "Invalid report format (%s)"
 msgstr ""
 
-#: views.py:34
+#: views.py:35
 msgid "On-Demand Reports"
 msgstr ""
 
-#: views.py:68
+#: views.py:69
 msgid "Variant not found"
 msgstr ""
 
@@ -136,6 +136,7 @@ msgid "Immunized"
 msgstr ""
 
 #: definitions/ChwLog.py:159 definitions/ChwLog.py:298
+#: definitions/ChwReport.py:123
 msgid "Danger Signs"
 msgstr ""
 
@@ -182,15 +183,15 @@ msgstr ""
 msgid "Report"
 msgstr ""
 
-#: definitions/ChwManagerReport.py:247
+#: definitions/ChwManagerReport.py:249
 msgid "CHW Name"
 msgstr ""
 
-#: definitions/ChwManagerReport.py:248
+#: definitions/ChwManagerReport.py:250
 msgid "Clinic"
 msgstr ""
 
-#: definitions/ChwManagerReport.py:261
+#: definitions/ChwManagerReport.py:263
 msgid "Millennium Village"
 msgstr ""
 
@@ -213,115 +214,112 @@ msgstr ""
 
 #: definitions/ChwReport.py:112
 msgid ""
-"Patients Referred in the Previous 45 days Lacking an On-Time Follow-Up Visit"
+"Patients Referred in the Previous 45 days (or Given Medicine) and Lacking an "
+"On-Time Follow-Up Visit"
 msgstr ""
 
-#: definitions/ChwReport.py:117 definitions/ChwReport.py:161
-#: definitions/ChwReport.py:194 definitions/ChwReport.py:225
+#: definitions/ChwReport.py:118 definitions/ChwReport.py:164
+#: definitions/ChwReport.py:197 definitions/ChwReport.py:228
 #: definitions/Malnutrition.py:96 definitions/Malnutrition.py:141
 msgid "Loc Code"
 msgstr ""
 
-#: definitions/ChwReport.py:118 definitions/ChwReport.py:162
-#: definitions/ChwReport.py:195 definitions/ChwReport.py:226
+#: definitions/ChwReport.py:119 definitions/ChwReport.py:165
+#: definitions/ChwReport.py:198 definitions/ChwReport.py:229
 #: definitions/Malnutrition.py:97 definitions/Malnutrition.py:142
 msgid "Health ID"
 msgstr ""
 
-#: definitions/ChwReport.py:119 definitions/ChwReport.py:163
-#: definitions/ChwReport.py:196 definitions/ChwReport.py:227
+#: definitions/ChwReport.py:120 definitions/ChwReport.py:166
+#: definitions/ChwReport.py:199 definitions/ChwReport.py:230
 #: definitions/Malnutrition.py:98 definitions/Malnutrition.py:143
 msgid "Name / Age"
 msgstr ""
 
-#: definitions/ChwReport.py:120 definitions/ChwReport.py:165
-#: definitions/ChwReport.py:199 definitions/ChwReport.py:231
+#: definitions/ChwReport.py:121 definitions/ChwReport.py:168
+#: definitions/ChwReport.py:202 definitions/ChwReport.py:234
 #: definitions/Malnutrition.py:102 definitions/Malnutrition.py:145
 msgid "Household Head"
 msgstr ""
 
-#: definitions/ChwReport.py:121
-msgid "Referral Type / Date"
-msgstr ""
-
 #: definitions/ChwReport.py:122
-msgid "Referred For"
+msgid "Event / Date"
 msgstr ""
 
-#: definitions/ChwReport.py:123
+#: definitions/ChwReport.py:124
 msgid "Follow-Up Date"
 msgstr ""
 
-#: definitions/ChwReport.py:140
+#: definitions/ChwReport.py:136
 msgid " on "
 msgstr ""
 
-#: definitions/ChwReport.py:146
+#: definitions/ChwReport.py:149
 msgid "[No DSs Reported]"
 msgstr ""
 
-#: definitions/ChwReport.py:147
+#: definitions/ChwReport.py:150
 msgid "Late: "
 msgstr ""
 
-#: definitions/ChwReport.py:150
+#: definitions/ChwReport.py:153
 msgid "[No Follow-Up]"
 msgstr ""
 
-#: definitions/ChwReport.py:157
+#: definitions/ChwReport.py:160
 msgid "Children Under 5 Without Known Up-to-date Immunizations"
 msgstr ""
 
-#: definitions/ChwReport.py:164
+#: definitions/ChwReport.py:167
 msgid "Latest Imm. Report"
 msgstr ""
 
-#: definitions/ChwReport.py:172
+#: definitions/ChwReport.py:175
 msgid "[No Report]"
 msgstr ""
 
-#: definitions/ChwReport.py:176
+#: definitions/ChwReport.py:179
 #, python-format
 msgid "Reported \"%(status)s\" on %(date)s"
 msgstr ""
 
-#: definitions/ChwReport.py:191
+#: definitions/ChwReport.py:194
 msgid "Women in 2nd and 3rd Trimester who haven't had ANC in 5 Weeks"
 msgstr ""
 
-#: definitions/ChwReport.py:197
+#: definitions/ChwReport.py:200
 msgid "Last ANC"
 msgstr ""
 
-#: definitions/ChwReport.py:198
+#: definitions/ChwReport.py:201
 msgid "Approx Due Date"
 msgstr ""
 
-#: definitions/ChwReport.py:221
+#: definitions/ChwReport.py:224
 msgid "Children without MUAC in past 1 month (SAM) or 3 months (healthy)"
 msgstr ""
 
-#: definitions/ChwReport.py:228 definitions/Malnutrition.py:99
+#: definitions/ChwReport.py:231 definitions/Malnutrition.py:99
 msgid "Last MUAC"
 msgstr ""
 
-#: definitions/ChwReport.py:229 definitions/Malnutrition.py:100
+#: definitions/ChwReport.py:232 definitions/Malnutrition.py:100
 msgid "MUAC Status"
 msgstr ""
 
-#: definitions/ChwReport.py:230 definitions/Malnutrition.py:101
+#: definitions/ChwReport.py:233 definitions/Malnutrition.py:101
 msgid "Od."
 msgstr ""
 
-#: definitions/ChwReport.py:242
+#: definitions/ChwReport.py:245
 msgid "[No MUAC]"
 msgstr ""
 
-#: definitions/ChwReport.py:243
+#: definitions/ChwReport.py:246
 msgid "U"
 msgstr ""
 
-#: definitions/ChwReport.py:246
+#: definitions/ChwReport.py:249
 #, python-format
 msgid "%(status)s [%(muac)d]"
 msgstr ""
@@ -334,7 +332,7 @@ msgstr ""
 msgid "Can only generate PDF for indicator chart"
 msgstr ""
 
-#: definitions/IndicatorChart.py:82 definitions/PerformanceCharts.py:64
+#: definitions/IndicatorChart.py:82 definitions/PerformanceCharts.py:61
 msgid "Generated on: "
 msgstr ""
 
@@ -425,12 +423,12 @@ msgstr ""
 msgid "Category"
 msgstr ""
 
-#: definitions/Operational.py:98
+#: definitions/Operational.py:100
 #, python-format
 msgid "<b>%(name)s - %(title)s (Generated on %(gen_datetime)s)</b>"
 msgstr ""
 
-#: definitions/Operational.py:113
+#: definitions/Operational.py:115
 msgid "<b>CHW Name</b>"
 msgstr ""
 
@@ -438,7 +436,7 @@ msgstr ""
 msgid "PMTCT Defaulters"
 msgstr ""
 
-#: definitions/PMTCTDefaulters.py:70
+#: definitions/PMTCTDefaulters.py:70 definitions/SpotCheck.py:250
 msgid "Patient"
 msgstr ""
 
@@ -476,17 +474,98 @@ msgstr ""
 msgid "Active Patients | Current as of "
 msgstr ""
 
-#: definitions/PerformanceCharts.py:47
+#: definitions/PerformanceCharts.py:49
 msgid "Performance Charts"
 msgstr ""
 
-#: definitions/PerformanceCharts.py:61
+#: definitions/PerformanceCharts.py:58
 msgid "Can only generate PDF for performance charts"
 msgstr ""
 
-#: definitions/PerformanceCharts.py:66
+#: definitions/PerformanceCharts.py:63
 #, python-format
 msgid "For period %s."
+msgstr ""
+
+#: definitions/SpotCheck.py:77
+#, python-format
+msgid "(Generated on %(gen_datetime)s)"
+msgstr ""
+
+#: definitions/SpotCheck.py:144
+msgid "+U"
+msgstr ""
+
+#: definitions/SpotCheck.py:147
+msgid "+S"
+msgstr ""
+
+#: definitions/SpotCheck.py:152
+msgid "+P"
+msgstr ""
+
+#: definitions/SpotCheck.py:157
+msgid "+N"
+msgstr ""
+
+#: definitions/SpotCheck.py:160
+msgid "+T"
+msgstr ""
+
+#: definitions/SpotCheck.py:164
+msgid "+M"
+msgstr ""
+
+#: definitions/SpotCheck.py:174
+msgid "+F"
+msgstr ""
+
+#: definitions/SpotCheck.py:177
+msgid "+G"
+msgstr ""
+
+#: definitions/SpotCheck.py:182
+msgid "+R"
+msgstr ""
+
+#: definitions/SpotCheck.py:189
+msgid "[No HHV]"
+msgstr ""
+
+#: definitions/SpotCheck.py:198
+msgid "+V "
+msgstr ""
+
+#: definitions/SpotCheck.py:207
+msgid " +K "
+msgstr ""
+
+#: definitions/SpotCheck.py:230
+msgid "Checked On (DDMMYY)"
+msgstr ""
+
+#: definitions/SpotCheck.py:238
+msgid "Loc."
+msgstr ""
+
+#: definitions/SpotCheck.py:242
+msgid "HHID"
+msgstr ""
+
+#: definitions/SpotCheck.py:246
+msgid "Last HH Visit"
+msgstr ""
+
+#: definitions/SpotCheck.py:257
+msgid "Visit Summary"
+msgstr ""
+
+#: definitions/SpotCheck.py:262
+msgid "Notes"
+msgstr ""
+
+#: definitions/SpotCheck.py:272
+msgid "Prepared By: ____________________ Submitted On: ____________________"
 msgstr ""
 
 #: definitions/StatsDataEntry.py:15

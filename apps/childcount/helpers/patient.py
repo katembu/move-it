@@ -75,7 +75,7 @@ def latest_hhv_counseling(period, p):
         return u"--"
    
     if h.counseling.count():
-        return ",".join([c.code.upper() for c in h.counseling.all()])    
+        return " ".join([c.local_code.upper() for c in h.counseling.all()])    
     else:
         return _("None")
 
