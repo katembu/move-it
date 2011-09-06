@@ -81,6 +81,7 @@ class ReportDefinition(PrintedReport):
             fever.OverFiveRdtNegative,
             fever.OverFiveRdt,
             fever.OverFiveRdtPositiveGivenAntimalarial,
+            fever.OverFiveRdtNegativeGivenAntimalarial,
         )),
         (_("CHW performance"), (
             registration.UnderOne,
