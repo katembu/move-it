@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# vim: ai ts=4 sts=4 et sw=4 coding=utf-8
+# maintainer: ukanga
+
 from rapidsms.webui import settings
 
 from reportgen.timeperiods import TwelveMonths
@@ -42,8 +46,6 @@ def update_vital_events_worksheet(ccgdata, key, wksht_id, data):
     # headers
     update_header_vital_events_worksheet(ccgdata, key, wksht_id)
     # indicators
-    indicators = [unicode(ind.short_name) for ind in \
-                                            VEsReportDefinition._indicators]
 
     for i in range(1, data.__len__() + 1):
         row = i + 1
