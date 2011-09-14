@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: tief
 
+import sys
+
 from django.utils.translation import ugettext as _
 
 from ccdoc import Document, Table, Text, Section
@@ -112,10 +114,13 @@ class ReportDefinition(PrintedReport):
 
         # Category, Descrip, Sub_Periods
         sub_periods = time_period.sub_periods()
-        table = Table(2+len(sub_periods), \
+        table = Table(3+len(sub_periods), \
             Text(_("MVIS Indicators: %s") % time_period.title))
 
-        table.add_header_row([Text(_("Category")), Text("Indicator")] + \
+        table.add_header_row([
+                Text(_("Category")), 
+                Text(_("Sub-Category")), 
+                Text(_("Indicator"))] + \
             [Text(p.title) for p in time_period.sub_periods()])
 
         n_inds = sum([len(i[1]) for i in self._indicators])+1
@@ -126,6 +131,7 @@ class ReportDefinition(PrintedReport):
             for ind in category[1]:
                 row = []
                 row.append(unicode(category[0]))
+                row.append(unicode(sys.modules[ind.__module__].NAME))
                 row.append(unicode(ind.short_name))
 
                 for t in sub_periods:
