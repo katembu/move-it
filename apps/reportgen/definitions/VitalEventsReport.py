@@ -68,3 +68,21 @@ class ReportDefinition(PrintedReport):
         self.set_progress(100)
 
         return rval
+
+    @classmethod
+    def data_only(cls, time_period):
+        sub_periods = time_period.sub_periods()
+        patients = Patient.objects.all()
+        data = []
+        for ind in cls._indicators:
+            row = []
+            row.append(unicode(ind.short_name))
+
+            for t in sub_periods:
+                # print "Indicator %s.%s in %s - %s" % \
+                #   (str(ind.__module__), ind.slug, t.start, t.end)
+                x = ind(t, patients)
+                row.append(x)
+                print t, x
+            data.append(row)
+        return data
