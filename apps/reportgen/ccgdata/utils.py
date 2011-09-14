@@ -2,7 +2,10 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+import datetime
 import bonjour
+
+from django.utils.translation import ugettext as _
 
 from rapidsms.webui import settings
 
@@ -21,7 +24,7 @@ def update_header_vital_events_worksheet(ccgdata, key, wksht_id):
     last12months = TwelveMonths._twelvemonth_period(0)
     headers.extend([bonjour.dates.format_date(p.start, "Y MMMM") for p in \
                     last12months.sub_periods()])
-    row = 1
+    row = 2
     for i in range(1, headers.__len__() + 1):
         col = i
         ccgdata.cellsUpdateAction(key, wksht_id, row, col, headers[i - 1])
@@ -38,7 +41,7 @@ def default_vital_events_worksheet(ccgdata, key, wksht_id):
 
     col = 1
     for i in range(1, indicators.__len__()):
-        row = i + 1
+        row = i + 2
         ccgdata.cellsUpdateAction(key, wksht_id, row, col, indicators[i - 1])
 
 
@@ -50,11 +53,17 @@ def update_vital_events_worksheet(ccgdata, key, wksht_id, data):
     # indicators
 
     for i in range(1, data.__len__() + 1):
-        row = i + 1
+        row = i + 2
         rowdata = data[i - 1]
         for col in range(1, rowdata.__len__() + 1):
             ccgdata.cellsUpdateAction(key, wksht_id, row, col, \
                 str(rowdata[col - 1]))
+
+
+def set_progress(ccgdata, key, wksht_id, status):
+    '''Use the first cell to indicate progress and/or last updated time'''
+    row = col = 1
+    ccgdata.cellsUpdateAction(key, wksht_id, row, col, unicode(status))
 
 
 def update_vital_events_report():
@@ -69,7 +78,7 @@ def update_vital_events_report():
     try:
         ccgdata.login(username, password)
     except Exception:
-        raise Exception("Error: Unable to login to google docs")
+        raise Exception(_(u"Error: Unable to login to google docs"))
     else:
         wksht_id = ccgdata.createWorksheet(key, site)
         # default_vital_events_worksheet(ccgdata, key, wksht_id)
@@ -77,4 +86,13 @@ def update_vital_events_report():
         last12months = TwelveMonths._twelvemonth_period(0)
         data = VEsReportDefinition.data_only(last12months)
 
+        # updating progress
+        set_progress(ccgdata, key, wksht_id, _(u"Update in progress"))
+
         update_vital_events_worksheet(ccgdata, key, wksht_id, data)
+
+        # updating progress
+        now = datetime.datetime.now()
+        last_update = bonjour.format_datetime(now, "full")
+        set_progress(ccgdata, key, wksht_id, _(u"Last Update @ %(now)s" % \
+                                            {"now": last_update}))
