@@ -125,6 +125,6 @@ class ReportDefinition(PrintedReport):
         canvas.drawString(width-2*inch, 0.2*inch, \
             "%s / %s" % (patient.location.name, patient.location.code.upper()))
         canvas.drawCentredString(width/2, height-1.2*inch, \
-            "%s / %s" % (patient.household.full_name(), patient.household.health_id.upper()))
+            _("HH") + ": %s / %s" % (patient.household.full_name(), patient.household.health_id.upper()))
         canvas.showPage()
         
