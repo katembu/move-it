@@ -18,7 +18,7 @@ from reportgen.ccgdata import CCGData
 
 def update_header_vital_events_worksheet(ccgdata, key, wksht_id):
     if not isinstance(ccgdata, CCGData):
-        raise Exception("ccgdata is not an instance of CCGData.")
+        raise Exception(_(u'ccgdata is not an instance of CCGData.'))
     headers = ["Indicator"]
     # a time period creates the headers i.e Year Month e.g 2011 September
     last12months = TwelveMonths._twelvemonth_period(0)
@@ -32,7 +32,7 @@ def update_header_vital_events_worksheet(ccgdata, key, wksht_id):
 
 def default_vital_events_worksheet(ccgdata, key, wksht_id):
     if not isinstance(ccgdata, CCGData):
-        raise Exception("ccgdata is not an instance of CCGData.")
+        raise Exception(_(u'ccgdata is not an instance of CCGData.'))
     # headers
     update_header_vital_events_worksheet(ccgdata, key, wksht_id)
     # indicators
@@ -47,7 +47,7 @@ def default_vital_events_worksheet(ccgdata, key, wksht_id):
 
 def update_vital_events_worksheet(ccgdata, key, wksht_id, data):
     if not isinstance(ccgdata, CCGData):
-        raise Exception("ccgdata is not an instance of CCGData.")
+        raise Exception(_(u'ccgdata is not an instance of CCGData.'))
     # headers
     update_header_vital_events_worksheet(ccgdata, key, wksht_id)
     # indicators
@@ -78,7 +78,7 @@ def update_vital_events_report():
     try:
         ccgdata.login(username, password)
     except Exception:
-        raise Exception(_(u"Error: Unable to login to google docs"))
+        raise Exception(_(u'Error: Unable to login to google docs'))
     else:
         wksht_id = ccgdata.createWorksheet(key, site)
         # default_vital_events_worksheet(ccgdata, key, wksht_id)
@@ -87,12 +87,12 @@ def update_vital_events_report():
         data = VEsReportDefinition.data_only(last12months)
 
         # updating progress
-        set_progress(ccgdata, key, wksht_id, _(u"Update in progress"))
+        set_progress(ccgdata, key, wksht_id, _(u'Update in progress'))
 
         update_vital_events_worksheet(ccgdata, key, wksht_id, data)
 
         # updating progress
         now = datetime.datetime.now()
         last_update = bonjour.format_datetime(now, "full")
-        set_progress(ccgdata, key, wksht_id, _(u"Last Update @ %(now)s" % \
-                                            {"now": last_update}))
+        set_progress(ccgdata, key, wksht_id, _(u'Last Update @ %(now)s' % \
+                                            {'now': last_update}))
