@@ -2,6 +2,8 @@
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
 # maintainer: ukanga
 
+import bonjour
+
 from rapidsms.webui import settings
 
 from reportgen.timeperiods import TwelveMonths
@@ -17,7 +19,7 @@ def update_header_vital_events_worksheet(ccgdata, key, wksht_id):
     headers = ["Indicator"]
     # a time period creates the headers i.e Year Month e.g 2011 September
     last12months = TwelveMonths._twelvemonth_period(0)
-    headers.extend([p.start.strftime("%Y %B") for p in \
+    headers.extend([bonjour.dates.format_date(p.start, "Y MMMM") for p in \
                     last12months.sub_periods()])
     row = 1
     for i in range(1, headers.__len__() + 1):
