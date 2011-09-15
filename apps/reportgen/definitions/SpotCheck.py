@@ -60,6 +60,9 @@ class ReportDefinition(PrintedReport):
     variants = [(c.name, c.code, {'clinic_pk': c.pk}) \
                                     for c in Clinic.objects.all()]
 
+    form_codes = ['V', 'K', 'U', 'S', 'P', 'N', 'T', 'M', 'F', 'G', 'R',]
+    totals = {}
+
     def generate(self, period, rformat, title, filepath, data):
         '''
         Generate OperationalReport and write it to file
@@ -96,12 +99,15 @@ class ReportDefinition(PrintedReport):
                     .filter(is_active=True)\
                     .filter(clinic=location)
 
-        for c in chws:
-            tb = self._spot_check_table(period, c)
-            story.append(tb)
-            story.append(Paragraph("<br><br>", styleN))
-
         story.append(PageBreak())
+        for c in chws:
+            for code in self.form_codes:
+                self.totals[code] = 0
+
+            story.append(self._spot_check_table(period, c))
+            story.append(self._totals_table(period, c))
+            story.append(Paragraph("<br><br>", styleN))
+            story.append(PageBreak())
 
         register_fonts()
         f = open(filepath, 'w')
@@ -147,27 +153,37 @@ class ReportDefinition(PrintedReport):
         out = u""
         if furs.count():
             fur = furs[0]
-            out += _("+U") + " " + fur.improvement + " " + fur.visited_clinic + " "
+            out += _("<b>+U</b>") + " " + fur.improvement + " " + fur.visited_clinic + " "
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["U"] += 1
         if dss.count():
             ds = dss[0]
-            out += _("+S") + " "
+            out += _("<b>+S</b>") + " "
             out += " ".join([s.local_code.upper() for s in ds.danger_signs.all()])
             out += " "
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["S"] += 1
         if pregs.count():
             preg = pregs[0]
-            out += _("+P") + " %d %d " % (preg.pregnancy_month, preg.anc_visits)
+            out += _("<b>+P</b>") + " %d %d " % (preg.pregnancy_month, preg.anc_visits)
             if preg.anc_visits:
                 out += "%d " % preg.weeks_since_anc
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["P"] += 1
         if neos.count():
             neo = neos[0]
-            out += _("+N") + " %d " % neo.clinic_visits
+            out += _("<b>+N</b>") + " %d " % neo.clinic_visits
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["N"] += 1
         if u1s.count():
             u1 = u1s[0]
-            out += _("+T")
+            out += _("<b>+T</b>")
             out += " %s %s " % (u1.breast_only, u1.immunized)
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["T"] += 1
         if nuts.count():
             nut = nuts[0]
-            out += _("+M") + " "
+            out += _("<b>+M</b>") + " "
             if nut.muac:
                 out += "%d " % nut.muac
             else:
@@ -175,17 +191,25 @@ class ReportDefinition(PrintedReport):
             out += nut.oedema + " "
             if nut.weight:
                 out += "%f " % nut.weight
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["M"] += 1
         if fevs.count():
             fev = fevs[0]
-            out += _("+F") + " %s " % fev.rdt_result
+            out += _("<b>+F</b>") + " %s " % fev.rdt_result
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["F"] += 1
         if meds.count():
             med = meds[0]
-            out += _("+G") + " "
+            out += _("<b>+G</b>") + " "
             out += " ".join([m.local_code.upper() for m in med.medicines.all()])
             out += " "
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["G"] += 1
         if refs.count():
             ref = refs[0]
-            out += _("+R") + " %s " % ref.urgency
+            out += _("<b>+R</b>") + " %s " % ref.urgency
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals["R"] += 1
 
         return out
 
@@ -201,18 +225,22 @@ class ReportDefinition(PrintedReport):
         out = u""
         if hhvs.count():
             hhv = hhvs[0]
-            out += _("+V ")
+            out += _("<b>+V</b> ")
             out += "Y" if hhv.available else "N"
             out += " "
             out += unicode(hhv.children) if hhv.available else ""
             out += " "
             out += childcount.helpers.patient.latest_hhv_counseling(self.period, patient)
+            out += "&nbsp;&nbsp;&nbsp;"
+            self.totals['V'] += 1
 
         if fps.count():
             fp = fps[0]
-            out += _(" +K ")
+            out += _(" <b>+K</b> ")
             out += "%d " % (fp.women or 0)
             out += "%d " % (fp.women_using or 0)
+            out += "      "
+            self.totals['K'] += 1
 
         return out
 
@@ -297,13 +325,54 @@ class ReportDefinition(PrintedReport):
             },
         ]
 
+    def _totals_table(self, period, chw):
+
+        table = []
+        table.append([""] + ["+%s" % c for c in self.form_codes] + \
+            [Paragraph(_("<b>Total</b>"), styleN)])
+        table.append([_("OK")] + ["" for c in self.form_codes] + [""])
+        table.append([_("Not Available")] + ["" for c in self.form_codes] + [""])
+        table.append([_("Bad")] + ["" for c in self.form_codes] + [""])
+        table.append([_("Total")] + \
+            ["%d" % self.totals[c] for c in self.form_codes] + \
+            [Paragraph("<b>%d</b>" % \
+                sum([self.totals[c] for c in self.form_codes]), styleN)])
+
+        style = [('GRID', (0,0), (-1,-1), 0.3, colors.black),
+                ('ALIGN', (0, 0), (0, -1), 'RIGHT')]
+
+        for i,c in enumerate(self.form_codes):
+            if not self.totals[c]:
+                style.append(('BACKGROUND', (i+1, 0), (i+1, -1), colors.lightgrey))
+
+        colWidths = [1*inch] + ([None]*len(self.form_codes)) + [0.5*inch]
+        tot_table = Table(table, style=style, colWidths=colWidths)
+
+        table2 = []
+        for i in xrange(0, 6):
+            table2.append([Paragraph("_"*60, styleH3)])
+        comment_table = Table(table2)
+
+        big_table = [["",""]]
+        big_table.append([Paragraph(_("General Comments:"), styleH3),\
+                        Paragraph(_("Overall Performance:"), styleH3)])
+        big_table.append([comment_table, tot_table])
+
+        return Table(big_table, style = [('SPAN', (1, 2), (1, -1)),
+                                            ('VALIGN', (0,0), (-1,-1), 'TOP')])
+
     def _spot_check_table(self, period, chw):
         cols = self._spot_check_columns()
         ncols = len(cols)
        
         row_name = [[]]*ncols
-        row_name[0] = Paragraph("<b>%s</b>" % chw.full_name(), styleH3)
-        row_name[-3] = Paragraph(_("Prepared By: ____________________ " \
+        row_name[0] = [\
+            Paragraph("<b>%s - %s</b>" % \
+                (chw.full_name(), chw.clinic.name) , styleH3),
+            Paragraph(_('Generated on %(gen_datetime)s') % \
+                    {'gen_datetime': \
+                        bonjour.dates.format_datetime(format='full')}, styleN)]
+        row_name[-3] = Paragraph(_("Prepared By: ___________________________ " \
                                     "Submitted On: _____/_____/_________") , styleH3r)
 
         row_labels = [Paragraph(c['name'], styleN) for c in cols]
@@ -356,6 +425,11 @@ class ReportDefinition(PrintedReport):
                 index += 1
             index += 1
 
+        if len(table) == 2:
+            table.append([Paragraph(_("<b>CHW made no household visits during "\
+                                    "this time period.</b>"), styleH3)] \
+                + [[]] * (ncols-1))
+            style.append(("SPAN", (0,2), (-1, 2)))
         colWidths = [c['width'] if 'width' in c else None for c in cols] 
         style.extend([#('GRID', (0,1), (-1,-1), 0.3, colors.black),
                     ('SPAN', (0,0), (-4,0)),
