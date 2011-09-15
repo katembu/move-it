@@ -5,6 +5,7 @@ from reportgen.timeperiods.Period import Period
 from reportgen.timeperiods.SubPeriod import SubPeriod
 
 from reportgen.timeperiods.definitions.FourWeeks import FourWeeks
+from reportgen.timeperiods.definitions.ThirteenWeeks import ThirteenWeeks
 from reportgen.timeperiods.definitions.Month import Month
 from reportgen.timeperiods.definitions.TwelveMonths import TwelveMonths
 from reportgen.timeperiods.definitions.TwoMonths import TwoMonths
@@ -15,7 +16,7 @@ from reportgen.timeperiods.definitions.MonthByDays import MonthByDays
 from reportgen.timeperiods.definitions.TwelveMonthsByQuarter \
     import TwelveMonthsByQuarter
 
-PERIOD_TYPES = [FourWeeks, Month, TwelveMonths,\
+PERIOD_TYPES = [FourWeeks, Month, TwelveMonths,ThirteenWeeks, \
                 TwelveMonthsByQuarter, TwoMonths, FiveYears, \
                 SevenYearsByQuarter, ThreeYearsByQuarter, MonthByDays]
 
