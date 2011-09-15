@@ -6,8 +6,10 @@ from reportgen.models import Report
 
 from reportgen.utils import DISPLAY_REPORTS_MAX
 
+from reportgen.ccgdata.utils import update_vital_events_report
 
-@periodic_task(run_every=crontab(hour=11,minute=0))
+
+@periodic_task(run_every=crontab(hour=11, minute=0))
 def delete_old_reports():
     # Get oldest reports
     greps = GeneratedReport.objects.order_by('-started_at')[DISPLAY_REPORTS_MAX:]
@@ -16,4 +18,7 @@ def delete_old_reports():
         g.delete()
 
 
-
+@periodic_task(run_every=crontab(hour=13, minute=0))
+def update_google_vitalevents_reports_spreadsheet():
+    # Update Google Vital events reports
+    update_vital_events_report()
