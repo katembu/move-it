@@ -257,7 +257,7 @@ class ReportDefinition(PrintedReport):
                 'lineafter': True,
             },
             {
-                'name': _(u"Avail.\n(\u2714)"),
+                'name': _(u"Avail.\n(Y-N)"),
                 'width': 0.55 * inch,
                 'lineafter': True,
             },
