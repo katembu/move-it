@@ -66,6 +66,25 @@ class Error(Indicator):
                 text__icontains=_("error"))\
             .count()
 
+class ErrorSms(Indicator):
+    type_in     = QuerySetType(Reporter)
+    type_out    = int
+
+    slug        = "error_sms"
+    short_name  = _("# Err SMS")
+    long_name   = _("Total number of error SMS messages sent from server")
+
+    @classmethod
+    def _value(cls, period, data_in):
+        return LoggedMessage\
+            .objects\
+            .filter(reporter__in=data_in,\
+                direction=LoggedMessage.DIRECTION_OUTGOING,
+                backend="pygsm",
+                date__range=(period.start, period.end),\
+                text__icontains=_("error"))\
+            .count()
+
 class ErrorPerc(IndicatorPercentage):
     type_in     = QuerySetType(Reporter)
 
@@ -76,6 +95,17 @@ class ErrorPerc(IndicatorPercentage):
 
     cls_num     = Error
     cls_den     = Total
+
+class ErrorSmsPerc(IndicatorPercentage):
+    type_in     = QuerySetType(Reporter)
+
+    slug        = "error_sms_perc"
+    short_name  = _("% Err SMS")
+    long_name   = _("Percentage of SMS messages from server that indicate "\
+                    "an error")
+
+    cls_num     = ErrorSms
+    cls_den     = Sms
 
 def _timedelta_to_days(diff):
     seconds = diff.seconds / float(24 * 60 * 60)
