@@ -44,7 +44,7 @@ import random
 
 print "Starting..."
 
-patients = Patient.objects.filter(chw__first_name='Adrine')
+patients = Patient.objects.filter(chw__first_name='Annet')
 for i,p in enumerate(patients):
     nids = HealthId.objects.filter(status='G').count()
     print p.health_id.upper()
