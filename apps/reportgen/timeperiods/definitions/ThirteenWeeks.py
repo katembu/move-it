@@ -20,11 +20,11 @@ class ThirteenWeeks(PeriodType):
 
     @classmethod
     def periods(cls): 
-        return [ThirteenWeeks._monthly_period(index) \
+        return [ThirteenWeeks._thirteenweek_period(index) \
             for index in xrange(0, cls.n_periods)]
 
     @classmethod
-    def _monthly_subperiod(cls, period_start_date, index):
+    def _thirteenweek_subperiod(cls, period_start_date, index):
         # start_date is a Monday, so this subperiod ends
         # on the following Sunday this should be past time
         start_date = period_start_date + relativedelta(weeks=index)
@@ -40,7 +40,7 @@ class ThirteenWeeks(PeriodType):
             end_date)
 
     @classmethod
-    def _monthly_period(cls, index):
+    def _thirteenweek_period(cls, index):
         # Index 0 == last Monday
         # Index 1 == two Mondays ago
 
@@ -49,7 +49,7 @@ class ThirteenWeeks(PeriodType):
                         second=0, microsecond=0)
 
         
-        sub_periods = [cls._monthly_subperiod(start_date, sub_index) \
+        sub_periods = [cls._thirteenweek_subperiod(start_date, sub_index) \
             for sub_index in xrange(0,13)]
 
         end_date = sub_periods[len(sub_periods)-1].end
