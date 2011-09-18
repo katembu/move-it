@@ -93,6 +93,6 @@ def update_vital_events_report():
 
         # updating progress
         now = datetime.datetime.now()
-        last_update = bonjour.format_datetime(now, "full")
+        last_update = bonjour.dates.format_datetime(now, "full")
         set_progress(ccgdata, key, wksht_id, _(u'Last Update @ %(now)s' % \
                                             {'now': last_update}))
