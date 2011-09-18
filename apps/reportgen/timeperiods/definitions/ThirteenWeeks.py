@@ -31,8 +31,9 @@ class ThirteenWeeks(PeriodType):
         end_date = start_date + relativedelta(weekday=SU,\
             hour=23, minute=59, second=59, microsecond=999999)
 
-        title = _("Week of %(start)s") % \
-            {'start': bonjour.dates.format_date(start_date, format="dd MMM")}
+        title = _("%(start)s - %(end)s") % \
+            {'start': bonjour.dates.format_date(start_date, format="dd MMM"), \
+            'end': bonjour.dates.format_date(end_date, format="dd MMM")}
         return SubPeriod(\
             title,
             start_date,
