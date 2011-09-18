@@ -10,23 +10,24 @@ from django.utils.translation import ugettext as _
 from rapidsms.webui import settings
 
 from reportgen.timeperiods import TwelveMonths
+from reportgen.timeperiods import ThirteenWeeks
 from reportgen.definitions.VitalEventsReport import ReportDefinition as \
                                                         VEsReportDefinition
 
 from reportgen.ccgdata import CCGData
 
 
-def update_header_vital_events_worksheet(ccgdata, key, wksht_id):
+def update_header_vital_events_worksheet(ccgdata, key, wksht_id, time_period):
     if not isinstance(ccgdata, CCGData):
         raise Exception(_(u'ccgdata is not an instance of CCGData.'))
     headers = ["Indicator"]
     # a time period creates the headers i.e Year Month e.g 2011 September
-    last12months = TwelveMonths._twelvemonth_period(0)
     headers.extend([bonjour.dates.format_date(p.start, "Y MMMM") for p in \
-                    last12months.sub_periods()])
+                    time_period.sub_periods()])
     row = 2
     for i in range(1, headers.__len__() + 1):
         col = i
+        print headers[i - 1]
         ccgdata.cellsUpdateAction(key, wksht_id, row, col, headers[i - 1])
 
 
@@ -48,9 +49,6 @@ def default_vital_events_worksheet(ccgdata, key, wksht_id):
 def update_vital_events_worksheet(ccgdata, key, wksht_id, data):
     if not isinstance(ccgdata, CCGData):
         raise Exception(_(u'ccgdata is not an instance of CCGData.'))
-    # headers
-    update_header_vital_events_worksheet(ccgdata, key, wksht_id)
-    # indicators
 
     for i in range(1, data.__len__() + 1):
         row = i + 2
@@ -70,7 +68,7 @@ def update_vital_events_report():
     conf = settings.RAPIDSMS_APPS["reportgen"]
     username = conf["gdata.username"]
     password = conf["gdata.password"]
-    key = conf["gdata.key"]
+    key = conf["gdata.12Mkey"]
     site= conf["site"]
 
     ccgdata = CCGData()
@@ -84,6 +82,10 @@ def update_vital_events_report():
         # default_vital_events_worksheet(ccgdata, key, wksht_id)
 
         last12months = TwelveMonths._twelvemonth_period(0)
+        # headers
+        update_header_vital_events_worksheet(ccgdata, key, wksht_id, \
+                                            last12months)
+        # indicators
         data = VEsReportDefinition.data_only(last12months)
 
         # updating progress
@@ -96,3 +98,4 @@ def update_vital_events_report():
         last_update = bonjour.dates.format_datetime(now, "full")
         set_progress(ccgdata, key, wksht_id, _(u'Last Update @ %(now)s' % \
                                             {'now': last_update}))
+
