@@ -31,6 +31,22 @@ def update_header_vital_events_worksheet(ccgdata, key, wksht_id, time_period):
         ccgdata.cellsUpdateAction(key, wksht_id, row, col, headers[i - 1])
 
 
+def update_header_13Wvital_events_worksheet(ccgdata, key, wksht_id, time_period):
+    if not isinstance(ccgdata, CCGData):
+        raise Exception(_(u'ccgdata is not an instance of CCGData.'))
+    headers = ["Indicator"]
+    # a time period creates the headers i.e Year Month e.g 2011 September
+    headers.extend([u"%s to %s" % \
+        (bonjour.dates.format_date(p.start, "d MMMM"), \
+        bonjour.dates.format_date(p.end, "d MMMM")) for p in \
+                    time_period.sub_periods()])
+    row = 2
+    for i in range(1, headers.__len__() + 1):
+        col = i
+        print headers[i - 1]
+        ccgdata.cellsUpdateAction(key, wksht_id, row, col, headers[i - 1])
+
+
 def default_vital_events_worksheet(ccgdata, key, wksht_id):
     if not isinstance(ccgdata, CCGData):
         raise Exception(_(u'ccgdata is not an instance of CCGData.'))
@@ -99,3 +115,37 @@ def update_vital_events_report():
         set_progress(ccgdata, key, wksht_id, _(u'Last Update @ %(now)s' % \
                                             {'now': last_update}))
 
+
+def update_13Wvital_events_report():
+    conf = settings.RAPIDSMS_APPS["reportgen"]
+    username = conf["gdata.username"]
+    password = conf["gdata.password"]
+    key = conf["gdata.13Wkey"]
+    site= conf["site"]
+
+    ccgdata = CCGData()
+
+    try:
+        ccgdata.login(username, password)
+    except Exception:
+        raise Exception(_(u'Error: Unable to login to google docs'))
+    else:
+        wksht_id = ccgdata.createWorksheet(key, site)
+        # default_vital_events_worksheet(ccgdata, key, wksht_id)
+
+        time_p = ThirteenWeeks._monthly_period(0)
+        # headers
+        update_header_13Wvital_events_worksheet(ccgdata, key, wksht_id, time_p)
+        # indicators
+        data = VEsReportDefinition.data_only(time_p)
+
+        # updating progress
+        set_progress(ccgdata, key, wksht_id, _(u'Update in progress'))
+
+        update_vital_events_worksheet(ccgdata, key, wksht_id, data)
+
+        # updating progress
+        now = datetime.datetime.now()
+        last_update = bonjour.dates.format_datetime(now, "full")
+        set_progress(ccgdata, key, wksht_id, _(u'Last Update @ %(now)s' % \
+                                            {'now': last_update}))
