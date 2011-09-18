@@ -252,9 +252,14 @@ def patient(request):
         search = ''
     
     if search:
-        patients = patients.filter(Q(first_name__icontains=search) | \
-                           Q(last_name__icontains=search) | \
-                           Q(health_id__icontains=search))
+        if len(search.split()) > 1:
+            patients = patients.filter(Q(first_name__search=search,\
+                               last_name__search=search) | \
+                               Q(health_id__search=search))
+        else:
+            patients = patients.filter(Q(first_name__search=search)|\
+                               Q(last_name__search=search)|\
+                               Q(health_id__search=search))
 
     paginator = Paginator(patients, MAX_PAGE_PER_PAGE)
 
