@@ -8,10 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-30 17:39+0300\n"
+"POT-Creation-Date: 2011-09-18 15:05+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -48,6 +49,24 @@ msgstr ""
 
 #: views.py:69
 msgid "Variant not found"
+msgstr ""
+
+#: ccgdata/utils.py:22 ccgdata/utils.py:38 ccgdata/utils.py:56
+#: ccgdata/utils.py:71
+msgid "ccgdata is not an instance of CCGData."
+msgstr ""
+
+#: ccgdata/utils.py:99 ccgdata/utils.py:135
+msgid "Error: Unable to login to google docs"
+msgstr ""
+
+#: ccgdata/utils.py:112 ccgdata/utils.py:147
+msgid "Update in progress"
+msgstr ""
+
+#: ccgdata/utils.py:119 ccgdata/utils.py:154
+#, python-format
+msgid "Last Update @ %(now)s"
 msgstr ""
 
 #: definitions/ChwList.py:66
@@ -95,6 +114,7 @@ msgid "Date"
 msgstr ""
 
 #: definitions/ChwLog.py:105 definitions/PatientList.py:58
+#: definitions/SpotCheck.py:304
 msgid "HID"
 msgstr ""
 
@@ -183,11 +203,11 @@ msgstr ""
 msgid "Report"
 msgstr ""
 
-#: definitions/ChwManagerReport.py:249
+#: definitions/ChwManagerReport.py:249 definitions/SmsUsage.py:37
 msgid "CHW Name"
 msgstr ""
 
-#: definitions/ChwManagerReport.py:250
+#: definitions/ChwManagerReport.py:250 definitions/SmsUsage.py:37
 msgid "Clinic"
 msgstr ""
 
@@ -204,7 +224,7 @@ msgstr ""
 msgid "Indicators"
 msgstr ""
 
-#: definitions/ChwReport.py:78
+#: definitions/ChwReport.py:78 definitions/MvisIndicators.py:123
 msgid "Indicator"
 msgstr ""
 
@@ -324,6 +344,28 @@ msgstr ""
 msgid "%(status)s [%(muac)d]"
 msgstr ""
 
+#: definitions/IdentityCards.py:57
+#, python-format
+msgid "No card for %s."
+msgstr ""
+
+#: definitions/IdentityCards.py:98
+msgid "ID Cards for:"
+msgstr ""
+
+#: definitions/IdentityCards.py:109
+msgid "Health ID Card"
+msgstr ""
+
+#: definitions/IdentityCards.py:124
+#, python-format
+msgid "DOB: %s"
+msgstr ""
+
+#: definitions/IdentityCards.py:128
+msgid "HH"
+msgstr ""
+
 #: definitions/IndicatorChart.py:74
 msgid "Indicator not found!"
 msgstr ""
@@ -382,45 +424,49 @@ msgstr ""
 msgid "Latest MUAC"
 msgstr ""
 
-#: definitions/MvisIndicators.py:31
+#: definitions/MvisIndicators.py:33
 msgid "MVIS Indicators"
 msgstr ""
 
-#: definitions/MvisIndicators.py:36
+#: definitions/MvisIndicators.py:38
 msgid "Vital Events"
 msgstr ""
 
-#: definitions/MvisIndicators.py:44
+#: definitions/MvisIndicators.py:46
 msgid "Reproductive and maternal health"
 msgstr ""
 
-#: definitions/MvisIndicators.py:54
+#: definitions/MvisIndicators.py:56
 msgid "Child nutrition"
 msgstr ""
 
-#: definitions/MvisIndicators.py:63
+#: definitions/MvisIndicators.py:65
 msgid "Child health - immunization/diarrhea/malaria (infants and under-5's)"
 msgstr ""
 
-#: definitions/MvisIndicators.py:79
+#: definitions/MvisIndicators.py:81
 msgid "Malaria (Over 5's)"
 msgstr ""
 
-#: definitions/MvisIndicators.py:85
+#: definitions/MvisIndicators.py:88
 msgid "CHW performance"
 msgstr ""
 
-#: definitions/MvisIndicators.py:95
+#: definitions/MvisIndicators.py:98
 msgid "Bednet coverage and utilization"
 msgstr ""
 
-#: definitions/MvisIndicators.py:115
+#: definitions/MvisIndicators.py:118
 #, python-format
 msgid "MVIS Indicators: %s"
 msgstr ""
 
-#: definitions/MvisIndicators.py:117
+#: definitions/MvisIndicators.py:121
 msgid "Category"
+msgstr ""
+
+#: definitions/MvisIndicators.py:122
+msgid "Sub-Category"
 msgstr ""
 
 #: definitions/Operational.py:100
@@ -436,7 +482,7 @@ msgstr ""
 msgid "PMTCT Defaulters"
 msgstr ""
 
-#: definitions/PMTCTDefaulters.py:70 definitions/SpotCheck.py:250
+#: definitions/PMTCTDefaulters.py:70 definitions/SpotCheck.py:310
 msgid "Patient"
 msgstr ""
 
@@ -487,85 +533,136 @@ msgstr ""
 msgid "For period %s."
 msgstr ""
 
-#: definitions/SpotCheck.py:77
+#: definitions/SmsUsage.py:42
+#, python-format
+msgid "% Error"
+msgstr ""
+
+#: definitions/SmsUsage.py:68
+msgid "All CHWs"
+msgstr ""
+
+#: definitions/SpotCheck.py:85
 #, python-format
 msgid "(Generated on %(gen_datetime)s)"
 msgstr ""
 
-#: definitions/SpotCheck.py:144
-msgid "+U"
+#: definitions/SpotCheck.py:156
+msgid "<b>+U</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:147
-msgid "+S"
+#: definitions/SpotCheck.py:161
+msgid "<b>+S</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:152
-msgid "+P"
+#: definitions/SpotCheck.py:168
+msgid "<b>+P</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:157
-msgid "+N"
+#: definitions/SpotCheck.py:175
+msgid "<b>+N</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:160
-msgid "+T"
+#: definitions/SpotCheck.py:180
+msgid "<b>+T</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:164
-msgid "+M"
-msgstr ""
-
-#: definitions/SpotCheck.py:174
-msgid "+F"
-msgstr ""
-
-#: definitions/SpotCheck.py:177
-msgid "+G"
-msgstr ""
-
-#: definitions/SpotCheck.py:182
-msgid "+R"
-msgstr ""
-
-#: definitions/SpotCheck.py:189
-msgid "[No HHV]"
+#: definitions/SpotCheck.py:186
+msgid "<b>+M</b>"
 msgstr ""
 
 #: definitions/SpotCheck.py:198
-msgid "+V "
+msgid "<b>+F</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:207
-msgid " +K "
+#: definitions/SpotCheck.py:203
+msgid "<b>+G</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:230
-msgid "Checked On (DDMMYY)"
+#: definitions/SpotCheck.py:210
+msgid "<b>+R</b>"
 msgstr ""
 
-#: definitions/SpotCheck.py:238
+#: definitions/SpotCheck.py:219
+msgid "[No HHV]"
+msgstr ""
+
+#: definitions/SpotCheck.py:228
+msgid "<b>+V</b> "
+msgstr ""
+
+#: definitions/SpotCheck.py:239
+msgid " <b>+K</b> "
+msgstr ""
+
+#: definitions/SpotCheck.py:261
+msgid ""
+"Date HH Visited\n"
+"<em>(DDMMYY)</em>"
+msgstr ""
+
+#: definitions/SpotCheck.py:288
+msgid ""
+"Avail.\n"
+"(Y-N)"
+msgstr ""
+
+#: definitions/SpotCheck.py:293
 msgid "Loc."
 msgstr ""
 
-#: definitions/SpotCheck.py:242
-msgid "HHID"
-msgstr ""
-
-#: definitions/SpotCheck.py:246
+#: definitions/SpotCheck.py:298
 msgid "Last HH Visit"
 msgstr ""
 
-#: definitions/SpotCheck.py:257
+#: definitions/SpotCheck.py:317
 msgid "Visit Summary"
 msgstr ""
 
-#: definitions/SpotCheck.py:262
+#: definitions/SpotCheck.py:323
 msgid "Notes"
 msgstr ""
 
-#: definitions/SpotCheck.py:272
-msgid "Prepared By: ____________________ Submitted On: ____________________"
+#: definitions/SpotCheck.py:332
+msgid "<b>Total</b>"
+msgstr ""
+
+#: definitions/SpotCheck.py:333
+msgid "OK"
+msgstr ""
+
+#: definitions/SpotCheck.py:334
+msgid "Not Available"
+msgstr ""
+
+#: definitions/SpotCheck.py:335
+msgid "Bad"
+msgstr ""
+
+#: definitions/SpotCheck.py:336 definitions/Utilization.py:112
+msgid "Total"
+msgstr ""
+
+#: definitions/SpotCheck.py:357
+msgid "General Comments:"
+msgstr ""
+
+#: definitions/SpotCheck.py:358
+msgid "Overall Performance:"
+msgstr ""
+
+#: definitions/SpotCheck.py:372
+#, python-format
+msgid "Generated on %(gen_datetime)s"
+msgstr ""
+
+#: definitions/SpotCheck.py:375
+msgid ""
+"Prepared By: ___________________________ Submitted On: _____/_____/_________"
+msgstr ""
+
+#: definitions/SpotCheck.py:429
+msgid "<b>CHW made no household visits during this time period.</b>"
 msgstr ""
 
 #: definitions/StatsDataEntry.py:15
@@ -606,10 +703,6 @@ msgstr ""
 
 #: definitions/Utilization.py:106
 msgid "Indicator:"
-msgstr ""
-
-#: definitions/Utilization.py:112
-msgid "Total"
 msgstr ""
 
 #: definitions/Utilization.py:113
@@ -741,6 +834,15 @@ msgstr ""
 msgid "% of days with SMS / month."
 msgstr ""
 
+#: definitions/VitalEventsReport.py:18
+msgid "Vital Events Report "
+msgstr ""
+
+#: definitions/VitalEventsReport.py:41
+#, python-format
+msgid "VITAL EVENTS: %s"
+msgstr ""
+
 #: models/GeneratedReport.py:37 models/GeneratedReport.py:45
 msgid "Pending"
 msgstr ""
@@ -865,7 +967,7 @@ msgstr ""
 msgid "Could not import report definition named \"%s\"."
 msgstr ""
 
-#: timeperiods/__init__.py:28
+#: timeperiods/__init__.py:29
 #, python-format
 msgid "No period type with code %s"
 msgstr ""
@@ -902,11 +1004,13 @@ msgid "Week of %(start)s"
 msgstr ""
 
 #: timeperiods/definitions/FourWeeks.py:52
+#: timeperiods/definitions/ThirteenWeeks.py:56
 #, python-format
 msgid "Weeks %(start)s to %(end)s"
 msgstr ""
 
 #: timeperiods/definitions/FourWeeks.py:55
+#: timeperiods/definitions/ThirteenWeeks.py:59
 #, python-format
 msgid "Monday %(n)d week(s) ago"
 msgstr ""
@@ -963,6 +1067,19 @@ msgstr ""
 #: timeperiods/definitions/SevenYearsByQuarter.py:46
 #, python-format
 msgid "7 years starting %(start)d years ago"
+msgstr ""
+
+#: timeperiods/definitions/ThirteenWeeks.py:15
+msgid "Thirteen Weeks"
+msgstr ""
+
+#: timeperiods/definitions/ThirteenWeeks.py:16
+msgid "Set of Last Thirteen seven-day weeks starting on a Monday X weeks ago"
+msgstr ""
+
+#: timeperiods/definitions/ThirteenWeeks.py:34
+#, python-format
+msgid "%(start)s - %(end)s"
 msgstr ""
 
 #: timeperiods/definitions/ThreeYearsByQuarter.py:13
