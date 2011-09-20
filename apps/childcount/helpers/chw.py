@@ -57,7 +57,7 @@ def report_indicators():
             {'name': _("People with DSs"), 'ind': danger_signs.Total},
             {'name': _("Cases Urgently Referred OR Treated by CHW"),
                 'ind': referral.Urgent},
-            {'name': _("On-Time Follow-Up Visits (between 18 and 72 hours)"), \
+            {'name': _("On-Time Follow-Up Visits (between 48 and 72 hours)"), \
                 'ind': follow_up.OnTime},
             {'name': _("Late Follow-Up Visits (between 72 hours and 7 days)"), \
                 'ind': follow_up.Late},
