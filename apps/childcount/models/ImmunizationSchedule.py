@@ -58,7 +58,8 @@ class ImmunizationSchedule(models.Model):
                                  help_text=_(u"Name of the immunization"))
 
     def __unicode__(self):
-        return u"After %s %s: %s" % (self.period, self.period_type, \
+        return _(u"After %(period_nb)s %(period_type)s: %(immun)s") \
+                 % (self.period, self.period_type, \
                     self.immunization)
 
     @classmethod

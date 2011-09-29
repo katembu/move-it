@@ -86,6 +86,7 @@ class PDFGenerator(Generator):
         self.doc = CustomDocTemplate(self._filename,
             showBoundary=0, pagesize=pagesize, 
             title = self.title)
+
         self.doc.stick_sections = self.stick_sections
 
         ''' Frame template defining page size, margins, etc '''
@@ -163,6 +164,7 @@ class PDFGenerator(Generator):
             pass
         
         c = template.Context({'text': datext})
+
         ''' 
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc

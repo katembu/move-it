@@ -1,0 +1,224 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Human Aspects &mdash; ChildCount+ v2.0(g) documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.0(g)',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="ChildCount+ v2.0(g) documentation" href="index.html" />
+    <link rel="next" title="Technology" href="tech/index.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tech/index.html" title="Technology"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">ChildCount+ v2.0(g) documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="human-aspects">
+<h1>Human Aspects<a class="headerlink" href="#human-aspects" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="human-prerequisites">
+<span id="human-prereqs"></span><h2>Human Prerequisites<a class="headerlink" href="#human-prerequisites" title="Permalink to this headline">¶</a></h2>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Even the simplest mobile health
+platform will probably require a full-time or near-full-time
+manager to keep it running and to integrate it into
+your existing health program.
+Do not spend time and money deploying a mobile health
+system if you do not have the human resources to
+make it useful!</p>
+</div>
+<dl class="docutils">
+<dt>Community health workers</dt>
+<dd>ChildCount+ is a tool for community health workers to
+keep track of their patients and for health managers
+to keep track of their community health workers.
+ChildCount+ is not a general data collection tool
+(for that, see <a class="reference external" href="http://opendatakit.org/">ODK</a>)
+nor is it a tool that would be very useful for
+clinicians or for general-purpose medical record keeping
+(for that, see <a class="reference external" href="http://openmrs.org/">OpenMRS</a>).</dd>
+<dt>Programmers</dt>
+<dd><p class="first">Running ChildCount+ requires access to a software
+developer or at least a systems administrator.
+The more programming talent you have at your disposal,
+the more flexible and useful ChildCount+ will
+become.
+ChildCount+ is written in the <a class="reference external" href="http://www.python.org/">Python</a>
+programming language and uses the <a class="reference external" href="http://www.djangoproject.com/">Django</a>
+and <a class="reference external" href="http://www.rapidsms.org/">RapidSMS</a> frameworks,
+so people with knowledge of those technologies will be
+particularly useful.</p>
+<p class="last"><a class="reference external" href="http://www.frontlinesms.com/">FrontlineSMS</a> might
+be a good alternative solution for organizations without
+programmers at their disposal.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="community-health-worker-program">
+<h2>Community Health Worker Program<a class="headerlink" href="#community-health-worker-program" title="Permalink to this headline">¶</a></h2>
+<p>Since we designed ChildCount+ for the
+<a class="reference external" href="http://www.millenniumvillages.org/">Millennium Villages Project</a>,
+we have incorporated elements of the MVP CHW protocols into
+the ChildCount+ forms, alerts, and reports.</p>
+</div>
+<div class="section" id="health-ids">
+<span id="human-health-ids"></span><h2>Health IDs<a class="headerlink" href="#health-ids" title="Permalink to this headline">¶</a></h2>
+<p>One important and time-consuming part of the
+ChildCount+ set-up process is patient registration.
+Each person who is to be tracked by the ChildCount+
+system must be assigned a unique ChildCount+ health identifier.
+Our deployments use the Childcount form <cite>+NEW</cite>
+(<tt class="xref py py-class docutils literal"><span class="pre">childcount.forms.PatientRegistrationForm</span></tt>) to
+assign health IDs to patients.</p>
+<p>These health idenfiers are like primary keys into a database
+table &#8211; each person&#8217;s health identifier is unique within
+the system and is the most common way to
+reference to their patient record.</p>
+<p>The Millennium Villages Project deployments use the
+<a class="reference external" href="https://wiki.openmrs.org/display/docs/Idgen+Module">OpenMRS IdGen Module</a>
+to generate the health IDs and we use the
+Luhn-30 checksums to validate the IDs.</p>
+</div>
+<div class="section" id="forms">
+<span id="human-forms"></span><h2>Forms<a class="headerlink" href="#forms" title="Permalink to this headline">¶</a></h2>
+<p>Here are examples of the ChildCount+ forms we use:</p>
+<p><strong>All Sites</strong></p>
+<ul class="simple">
+<li><a class="reference download internal" href="_downloads/DangerSigns_v2.0.pdf"><tt class="xref download docutils literal"><span class="pre">Danger</span> <span class="pre">Signs</span> <span class="pre">List</span></tt></a></li>
+</ul>
+<p><strong>Sauri, Kenya</strong></p>
+<ul class="simple">
+<li><a class="reference download internal" href="_downloads/A_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">A</span> <span class="pre">(Patient</span> <span class="pre">Registration)</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/B_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">B</span> <span class="pre">(Household</span> <span class="pre">Visit</span> <span class="pre">and</span> <span class="pre">Family</span> <span class="pre">Planning)</span></tt></a></li>
+<li>Form C (Consultation)<ul>
+<li><a class="reference download internal" href="_downloads/Ca_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Children</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/Cb_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Pregnant</span> <span class="pre">Women</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference download internal" href="_downloads/HED_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">HED</span> <span class="pre">(Household</span> <span class="pre">Associationg)</span></tt></a></li>
+<li>Form P (Pregnancy Forms)<ul>
+<li><a class="reference download internal" href="_downloads/P_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">P:</span> <span class="pre">Demographics</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/P2_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">P2:</span> <span class="pre">Initial</span> <span class="pre">Antenatal</span> <span class="pre">Visit</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/P3_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">P2:</span> <span class="pre">Follow-up</span> <span class="pre">Visit</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference download internal" href="_downloads/R_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">R</span> <span class="pre">(Appointment</span> <span class="pre">Reminder</span> <span class="pre">Log)</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/V_v2.0_Sauri.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">V</span> <span class="pre">(Clinic</span> <span class="pre">Visit</span> <span class="pre">Log)</span></tt></a></li>
+</ul>
+<p><strong>Ruhiira, Uganda</strong></p>
+<ul class="simple">
+<li><a class="reference download internal" href="_downloads/A_v2-1_Ruhiira_EN.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">A</span> <span class="pre">(Patient</span> <span class="pre">Registration)</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/B_v2-1_Ruhiira_EN.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">B</span> <span class="pre">(Household</span> <span class="pre">Visit)</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/C_v2-1_Ruhiira_EN.pdf"><tt class="xref download docutils literal"><span class="pre">Form</span> <span class="pre">C</span> <span class="pre">(Consultation)</span></tt></a></li>
+<li><a class="reference download internal" href="_downloads/Correction_v2-1_Ruhiira_EN.pdf"><tt class="xref download docutils literal"><span class="pre">Correction</span></tt></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Human Aspects</a><ul>
+<li><a class="reference internal" href="#human-prerequisites">Human Prerequisites</a></li>
+<li><a class="reference internal" href="#community-health-worker-program">Community Health Worker Program</a></li>
+<li><a class="reference internal" href="#health-ids">Health IDs</a></li>
+<li><a class="reference internal" href="#forms">Forms</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tech/index.html"
+                        title="next chapter">Technology</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/human.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tech/index.html" title="Technology"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li><a href="index.html">ChildCount+ v2.0(g) documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Earth Institue and Millennium Villages Project.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
