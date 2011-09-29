@@ -11,17 +11,15 @@ from itertools import groupby
 from django.utils.translation import ugettext_lazy as _, activate
 
 from dateutil import relativedelta
-from datetime import date, timedelta, datetime, time
+from datetime import timedelta, datetime
 
 from celery.decorators import periodic_task
 from celery.schedules import crontab
 
-from childcount.models import ImmunizationSchedule, ImmunizationNotification
+from childcount.models import ImmunizationNotification
 from childcount.models import Patient
 from childcount.models import CHW
 from childcount.models import FeverReport
-from childcount.models import NutritionReport
-from childcount.models import PregnancyReport
 from childcount.models import FollowUpReport
 from childcount.models import AppointmentReport
 from childcount.models import DangerSignsReport
@@ -34,10 +32,12 @@ from childcount.indicators import message
 
 from alerts.utils import SmsAlert
 
+
 class NowPeriod(object):
     end = datetime.now()
     start = datetime.now() + timedelta(days=-30)
     title = "Past 30 Days"
+
 
 @periodic_task(run_every=crontab(hour=16, minute=30, day_of_week=0))
 def weekly_immunization_reminder():
@@ -165,6 +165,7 @@ def daily_late_fever_reminder():
         sms_alert.name = u"daily_late_fever_reminder"
         sms_alert.save()
 
+
 @periodic_task(run_every=crontab(hour=8, minute=0))
 def daily_danger_sign_reminder():
     """
@@ -203,6 +204,7 @@ def daily_danger_sign_reminder():
         sms_alert.name = u"daily_danger_sign_reminder"
         sms_alert.save()
 
+
 @periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=0))
 def weekly_muac_reminder():
     """
@@ -240,6 +242,7 @@ def weekly_muac_reminder():
             sms_alert.name = u"weekly_muac_reminder"
             sms_alert.save()
 
+
 @periodic_task(run_every=crontab(hour=17, minute=30, day_of_week=5))
 def performance_messages():
     """
@@ -262,12 +265,12 @@ def performance_messages():
             sms_alert.name = 'performance_messages'
             sms_alert.save()
 
+
 @periodic_task(run_every=crontab(hour=18, minute=0, day_of_week=0))
 def weekly_anc_visit_reminder():
     """
     Initial ANC Visit weekly reminder
     """
-    p_list = []
     alert_list = {}
 
     for c in CHW.objects.all():
@@ -303,6 +306,7 @@ def appointment_calendar(weekday):
         return weekday + 3
     else:
         return weekday - 2
+
 
 def get_appointment_date(dt=datetime.today()):
     day = appointment_calendar(dt.weekday())
@@ -421,6 +425,3 @@ def appointment_defaulter_reminders():
             sms_alert.save()
             apt.sms_alert = sms_alert
             apt.save()
-
-
-
