@@ -29,10 +29,12 @@ TA_MAP = {
     cctable.ALIGN_LEFT: TA_LEFT,
     cctable.ALIGN_RIGHT: TA_RIGHT,
     cctable.ALIGN_CENTER: TA_CENTER,
-    cctable.ALIGN_JUSTIFY: TA_JUSTIFY }
+    cctable.ALIGN_JUSTIFY: TA_JUSTIFY}
+
 
 class SectionBreak(PageBreak):
     pass
+
 
 class CustomDocTemplate(BaseDocTemplate):
 
@@ -49,13 +51,15 @@ class CustomDocTemplate(BaseDocTemplate):
 
         if isinstance(flowable, SectionBreak):
             page_num = self.canv.getPageNumber()
-            # PB after even page requires new blank            
+            # PB after even page requires new blank
             if (page_num % 2 == 0) and page_num - self.last_pb > 1 \
                and not page_num == 1:
                 self.handle_pageBreak()
             self.last_pb = page_num
 
+
 class PDFGenerator(Generator):
+
     def _start_document(self):
         self.PAGE_HEIGHT = 21.0 * cm
         self.PAGE_WIDTH = 29.7 * cm
@@ -84,14 +88,14 @@ class PDFGenerator(Generator):
         if not isinstance(self.title, unicode):
             self.title = unicode(self.title)
         self.doc = CustomDocTemplate(self._filename,
-            showBoundary=0, pagesize=pagesize, 
+            showBoundary=0, pagesize=pagesize,
             title = self.title)
 
         self.doc.stick_sections = self.stick_sections
 
         ''' Frame template defining page size, margins, etc '''
         self.tframe = Frame(1.5 * cm, 1.5 * cm,
-                        self.PAGE_HEIGHT - 3 * cm,  self.PAGE_WIDTH - 3 * cm,
+                        self.PAGE_HEIGHT - 3 * cm, self.PAGE_WIDTH - 3 * cm,
                        showBoundary=0, topPadding=0, bottomPadding=0,
                        rightPadding=0, leftPadding=0)
 
@@ -130,7 +134,7 @@ class PDFGenerator(Generator):
             if not isinstance(self.subtitle, unicode):
                 self.subtitle = unicode(self.subtitle)
             self.elements.append(Paragraph(self.subtitle, subtitle_style))
-       
+
     def _render_section(self, section):
         if not isinstance(section.text, unicode):
             section.text = unicode(section.text)
@@ -147,7 +151,6 @@ class PDFGenerator(Generator):
     def _render_pagebreak(self, pagebreak):
         self.elements.append(PageBreak())
 
-
     def _render_text(self, text):
         output = u''
         if text.bold:
@@ -162,10 +165,10 @@ class PDFGenerator(Generator):
             datext = unicode(datext)
         except:
             pass
-        
+
         c = template.Context({'text': datext})
 
-        ''' 
+        '''
             Render using Django templates to avoid
             issues with special characters, escapes, etc, etc
         '''
@@ -194,7 +197,8 @@ class PDFGenerator(Generator):
         tabdata = []
         tabstyle = []
 
-        i = 1; j=1
+        i = 1 
+        j = 1
         if table.title != None:
             title_row = [u''] * table.ncols
 
@@ -206,11 +210,10 @@ class PDFGenerator(Generator):
             title_row[0] = Paragraph(self._render_text(table.title), title_style)
 
             tabdata.append(title_row)
-            tabstyle.append(('SPAN', (0,0), (-1, 0)))
-            tabstyle.append(('GRID', (0,1), (-1,-1), 0.25, colors.black))
-            tabstyle.append(('BOTTOMPADDING', (0,0), (0, 0), 6))
+            tabstyle.append(('SPAN', (0, 0), (-1, 0)))
+            tabstyle.append(('GRID', (0, 1), (-1, -1), 0.25, colors.black))
+            tabstyle.append(('BOTTOMPADDING', (0, 0), (0, 0), 6))
             i += 1
-        
 
         ''' Iterate through each table row '''
         for row in table.rows:
@@ -220,8 +223,10 @@ class PDFGenerator(Generator):
             k = 0
             for c in row[1]:
                 if row[0]:
-                    j = 1; c.bold = True
-                    tabstyle.append(('LINEBELOW', (0, i-1), (-1, i-1), 0.5, colors.black))
+                    j = 1
+                    c.bold = True
+                    tabstyle.append(('LINEBELOW', (0, i-1), (-1, i-1), 0.5,
+                                        colors.black))
                 # Paragraph style is dynamic
                 rowdata.append(Paragraph(self._render_text(c), \
                                           self.get_row_style(table, column=k)))
@@ -234,13 +239,14 @@ class PDFGenerator(Generator):
                     (0, i), (-1, i), \
                     colors.HexColor('#eeeeee')))
 
-            i += 1; j += 1
+            i += 1
+            j += 1
 
         ''' Align all in middle '''
-        tabstyle.append(('LEFTPADDING', (0,0), (-1,-1), 1))
-        tabstyle.append(('RIGHTPADDING', (0,0), (-1,-1), 1))
-        tabstyle.append(('TOPPADDING', (0,0), (-1,-1), 1))
-        tabstyle.append(('BOTTOMPADDING', (0,0), (-1,-1), 2))
+        tabstyle.append(('LEFTPADDING', (0, 0), (-1, -1), 1))
+        tabstyle.append(('RIGHTPADDING', (0, 0), (-1, -1), 1))
+        tabstyle.append(('TOPPADDING', (0, 0), (-1, -1), 1))
+        tabstyle.append(('BOTTOMPADDING', (0, 0), (-1, -1), 2))
 
         table = Table(tabdata, style=tabstyle, \
                       colWidths=self.gen_column_widths(table),  repeatRows=1)
@@ -271,7 +277,7 @@ class PDFGenerator(Generator):
         avail = total_width
         # number of columns set
         set_columns = 0
-        
+
         widths = {}
         for col in range(0, table.ncols + 1):
             if col in table.column_widths:
