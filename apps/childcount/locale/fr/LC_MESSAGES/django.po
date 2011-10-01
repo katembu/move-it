@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Childcount+\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-30 17:39+0300\n"
+"POT-Creation-Date: 2011-10-01 19:30+0300\n"
 "PO-Revision-Date: 2011-04-06 16:07-0000\n"
 "Last-Translator: rgaudin <rgaudin@gmail.com>\n"
 "Language-Team: French <FR@li.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Pootle 1.2.1\n"
 "X-Poedit-Language: French\n"
@@ -98,8 +98,9 @@ msgid ""
 "Patient %(health_id)s is assigned to CHW %(real_chw)s.  You [%(fake_chw)s] "
 "can only submit forms for your own patients."
 msgstr ""
-"Le patient %(health_id)s est attaché à l'ASC %(real_chw)s.  Vous [%(fake_chw)"
-"s] ne pouvez soumettre des formulaires que pour vos propre patients."
+"Le patient %(health_id)s est attaché à l'ASC %(real_chw)s.  Vous "
+"[%(fake_chw)s] ne pouvez soumettre des formulaires que pour vos propre "
+"patients."
 
 #: app.py:289
 #, python-format
@@ -110,8 +111,8 @@ msgid ""
 msgstr ""
 "Erreur. Vous avez tenter d'envoyer des termes pour le ménage pour quelqu'un "
 "qui n'est pas chef de ménage. Vous devez envoyer les formulaires avec le "
-"numéro de santé du chef de ménage. Le no. de santé du chef de famille est %"
-"(hoh)s (No. de santé: %(hohid)s)"
+"numéro de santé du chef de ménage. Le no. de santé du chef de famille est "
+"%(hoh)s (No. de santé: %(hohid)s)"
 
 #: app.py:314
 msgid "This form is only for head of households."
@@ -234,26 +235,26 @@ msgstr "ECHEC. Non valide."
 msgid "There is no patient with                 health ID %(hid)s"
 msgstr "Pas de patient avec no. de santé %(hid)s"
 
-#: tasks.py:222
+#: tasks.py:236
 #, fuzzy, python-format
 msgid "The following clients are due for MUAC: %(ids)s"
 msgstr "Les patients suivants requièrent un +M: %(ids)s"
 
-#: tasks.py:270
+#: tasks.py:289
 #, fuzzy, python-format
 msgid "Remind the following to go for ANC at health center: %(list)s."
 msgstr "Rappeler ceux qui suit d'aller faire leur consultation %(list)s."
 
-#: tasks.py:318
+#: tasks.py:342
 #, python-format
 msgid ""
-"Please send %(patient)s to the health center for their appointment on %"
-"(apt_date)s"
+"Please send %(patient)s to the health center for their appointment on "
+"%(apt_date)s"
 msgstr ""
-"Veuillez envoyer %(patient)s vers un centre médical pour son rendez-vous du %"
-"(apt_date)s"
+"Veuillez envoyer %(patient)s vers un centre médical pour son rendez-vous du "
+"%(apt_date)s"
 
-#: tasks.py:385
+#: tasks.py:413
 #, python-format
 msgid ""
 "Please send %(patient)s to the health center on for their failed appointment "
@@ -307,13 +308,13 @@ msgstr ""
 #: commands/ActivityCommand.py:150
 #, fuzzy, python-format
 msgid ""
-"(%(sdate)s->%(edate)s): %(numhvisit)d household visit, %(muac)d MUAC (%"
-"(severemuac)d SAM/MAM) %(rdt)d RDT. You have %(household)d households, %"
-"(ufive)d under 5y, %(underone)d under 1y, %(unine)d under 9m, %(tclient)d "
+"(%(sdate)s->%(edate)s): %(numhvisit)d household visit, %(muac)d MUAC "
+"(%(severemuac)d SAM/MAM) %(rdt)d RDT. You have %(household)d households, "
+"%(ufive)d under 5y, %(underone)d under 1y, %(unine)d under 9m, %(tclient)d "
 "total registered clients"
 msgstr ""
-"Cette semaine(%(sdate)s -%(edate)s): %(numhvisit)d visites à domicile, %"
-"(muac)d PB(%(severemuac)d MAS/MAM) %(rdt)d TDR. Vous avez %(household)d "
+"Cette semaine(%(sdate)s -%(edate)s): %(numhvisit)d visites à domicile, "
+"%(muac)d PB(%(severemuac)d MAS/MAM) %(rdt)d TDR. Vous avez %(household)d "
 "ménages, %(ufive)d de moins de 5 ans, %(unine)d de moins de 9m, %(tclient)d "
 "clients total enregistrés"
 
@@ -325,8 +326,8 @@ msgstr "Echec de l'annulation. Il n'y a rien à annuler."
 #, python-format
 msgid "Cancel failed. You cannot cancel a report after %(num)d minutes."
 msgstr ""
-"Echec de l'annulation. Vous ne pouvez pas annuler un compte-rendu après %"
-"(num)d minutes."
+"Echec de l'annulation. Vous ne pouvez pas annuler un compte-rendu après "
+"%(num)d minutes."
 
 #: commands/CancelCommand.py:70
 msgid ""
@@ -435,8 +436,8 @@ msgstr ""
 msgid ""
 "There were 0 patients created by CHW %(chw)s between %(fdate)s and %(ldate)s."
 msgstr ""
-"Il y a 0 patients enregistres par l'ASC %(chw)s entre le %(fdate)s et le %"
-"(ldate)s."
+"Il y a 0 patients enregistres par l'ASC %(chw)s entre le %(fdate)s et le "
+"%(ldate)s."
 
 #: commands/ChownCommand.py:136
 #, python-format
@@ -446,8 +447,8 @@ msgstr "La date de consultation %(date)s n'est pas valide"
 #: commands/ChownCommand.py:143
 #, python-format
 msgid ""
-"Changed CHW for %(n)d patients to %(chw)s with encounter date %(y)d-%(m)d-%"
-"(d)d."
+"Changed CHW for %(n)d patients to %(chw)s with encounter date %(y)d-%(m)d-"
+"%(d)d."
 msgstr ""
 "Changement de l'ASC pour %(n)d patients à %(chw)s avec comme date de "
 "consultation %(y)d-%(m)d-%(d)d."
@@ -513,8 +514,8 @@ msgstr ""
 #: commands/DeathCommand.py:147 forms/PatientRegistrationForm.py:207
 #, python-format
 msgid ""
-"The head of household you specified is too young to be a head of household (%"
-"(hh)s)."
+"The head of household you specified is too young to be a head of household "
+"(%(hh)s)."
 msgstr ""
 "Le chef de ménage que vous avez spécifié est trop jeune pour être chef de "
 "ménage (%(hh)s)."
@@ -597,8 +598,8 @@ msgstr "ASC avec le numéro %(id)d n'existe pas"
 #: commands/HouseholdHeadCommand.py:62
 #, python-format
 msgid ""
-"Changed head of household for %(n)d patients from [%(old_hh)s] to [%(new_hh)"
-"s]."
+"Changed head of household for %(n)d patients from [%(old_hh)s] to "
+"[%(new_hh)s]."
 msgstr ""
 
 #: commands/IssueHealthIdCommand.py:31
@@ -788,8 +789,8 @@ msgstr ""
 #: commands/StockOutCommand.py:66
 #, python-format
 msgid ""
-"%(loc)s's closing stock is %(q)s nets; Starting Point: %(sp)s; Issued: %"
-"(issued)s"
+"%(loc)s's closing stock is %(q)s nets; Starting Point: %(sp)s; Issued: "
+"%(issued)s"
 msgstr ""
 "Stock de fin de %(loc)s: %(q)s moustiquaires; Stock initial: %(sp)s; "
 "Distribués: %(issued)s"
@@ -823,8 +824,8 @@ msgstr "%(chw)s sera averti à %(time)s"
 msgid ""
 "You are registered as %(full_name)s from %(location)s with alias @%(alias)s."
 msgstr ""
-"Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias @%"
-"(alias)s."
+"Vous êtes enregistré comme %(full_name)s de %(location)s avec l'alias @"
+"%(alias)s."
 
 #: commands/nids/NIDSCommand.py:37
 #, fuzzy
@@ -1013,11 +1014,11 @@ msgstr ""
 #: forms/BednetCoverageForm.py:72
 #, python-format
 msgid ""
-"%(patient)s: %(sites)d sleeping site(s), %(nets)d bednet(s). Earlier: %(er)"
-"d. Damaged bednet: %(dm)d."
+"%(patient)s: %(sites)d sleeping site(s), %(nets)d bednet(s). Earlier: "
+"%(er)d. Damaged bednet: %(dm)d."
 msgstr ""
-"%(patient)s. %(sites)d couchages, %(nets)d moustiquaire(s). Auparavant: %(er)"
-"d. Moustiquaires endommagées: %(dm)d."
+"%(patient)s. %(sites)d couchages, %(nets)d moustiquaire(s). Auparavant: "
+"%(er)d. Moustiquaires endommagées: %(dm)d."
 
 #: forms/BednetDistributionForm.py:35
 #, python-format
@@ -1027,8 +1028,8 @@ msgstr "Compte-rendu de l'enquête n'existe pas pour %(patient)s "
 #: forms/BednetDistributionForm.py:64
 #, python-format
 msgid ""
-"DO NOT ISSUE nets to %(patient)s, already received %(nets)d nets for %(site)"
-"d sleeping sites."
+"DO NOT ISSUE nets to %(patient)s, already received %(nets)d nets for "
+"%(site)d sleeping sites."
 msgstr ""
 "NE PAS DONNER de moustiquaires à %(patient)s. A déjà reçu %(nets)d "
 "moustiquaires pour %(site)d couchages."
@@ -1127,8 +1128,8 @@ msgstr ""
 #, python-format
 msgid "| How many hanging bednet | must be a number or, %(choices)s."
 msgstr ""
-"| ENombre de moustiquaires accrochées | doit être entré en chiffres ou, %"
-"(choices)s."
+"| ENombre de moustiquaires accrochées | doit être entré en chiffres ou, "
+"%(choices)s."
 
 #: forms/BednetUtilizationForm.py:101
 #, python-format
@@ -1191,8 +1192,8 @@ msgstr ""
 msgid ""
 "The mother / guardian you specified is too young to be a mother.(%(hh)s)"
 msgstr ""
-"La mère / tuteur que vous avez spécifié est trop jeune pour être mère.(%(hh)"
-"s)"
+"La mère / tuteur que vous avez spécifié est trop jeune pour être mère."
+"(%(hh)s)"
 
 #: forms/BirthForm.py:108
 #, python-format
@@ -1239,8 +1240,8 @@ msgstr "Pas assez d'infos. Requis: | Valeur CD4 | doit être entre 0-999"
 msgid ""
 "Bad value %(value)s. Expected: | CD4 Value | must be a number in range 0-999"
 msgstr ""
-"mauvaise valeur %(value)s.Requis: | Valeur CD4 | doit être un nombre entre 0-"
-"999"
+"mauvaise valeur %(value)s.Requis: | Valeur CD4 | doit être un nombre entre "
+"0-999"
 
 #: forms/CD4ResultForm.py:41
 #, python-format
@@ -1420,8 +1421,8 @@ msgid ""
 "%(patient)s: %(p)d people, %(sites)d sleeping site(s), %(er)d net(s) given "
 "earlier, %(nets)d net(s) available, %(dm)d damaged net(s)."
 msgstr ""
-"%(patient)s. %(sites)d couchages, %(nets)d moustiquaire(s). Auparavant: %(er)"
-"d. Moustiquaires endommagées: %(dm)d."
+"%(patient)s. %(sites)d couchages, %(nets)d moustiquaire(s). Auparavant: "
+"%(er)d. Moustiquaires endommagées: %(dm)d."
 
 #: forms/FamilyPlanningForm.py:31
 msgid ""
@@ -1541,11 +1542,11 @@ msgstr " Donnés: "
 #: forms/FeverForm.py:150
 #, python-format
 msgid ""
-"%(patient)s has %(msg)s %(danger_signs)s.%(meds)s %(referral)s %(chw)s %"
-"(mobile)s."
+"%(patient)s has %(msg)s %(danger_signs)s.%(meds)s %(referral)s %(chw)s "
+"%(mobile)s."
 msgstr ""
-"%(patient)s a %(msg)s %(danger_signs)s.%(meds)s %(referral)s %(chw)s %"
-"(mobile)s."
+"%(patient)s a %(msg)s %(danger_signs)s.%(meds)s %(referral)s %(chw)s "
+"%(mobile)s."
 
 #: forms/FollowUpForm.py:58
 msgid "Not enough info. Expected: | Improvement? | Visited facility? | "
@@ -1863,8 +1864,8 @@ msgstr "SAIN"
 msgid ""
 "%(status)s>%(child)s, %(location)s has %(status)s. %(msg)s CHW no: %(mobile)s"
 msgstr ""
-"%(status)s>%(child)s, %(location)s a %(status)s. %(msg)s No. du relais: %"
-"(mobile)s"
+"%(status)s>%(child)s, %(location)s a %(status)s. %(msg)s No. du relais: "
+"%(mobile)s"
 
 #: forms/PatientRegistrationForm.py:67
 #, python-format
@@ -2455,7 +2456,7 @@ msgid "Cases Urgently Referred OR Treated by CHW"
 msgstr ""
 
 #: helpers/chw.py:60
-msgid "On-Time Follow-Up Visits (between 18 and 72 hours)"
+msgid "On-Time Follow-Up Visits (between 48 and 72 hours)"
 msgstr ""
 
 #: helpers/chw.py:62
@@ -2606,8 +2607,8 @@ msgstr ""
 #: helpers/ranking.py:51
 #, python-format
 msgid ""
-"You have ranked #%(rank)d out of %(total)d active CHWs for the indicator \"%"
-"(ind_name)s\" in the past 30 days. You achieved a value of %(value)s."
+"You have ranked #%(rank)d out of %(total)d active CHWs for the indicator "
+"\"%(ind_name)s\" in the past 30 days. You achieved a value of %(value)s."
 msgstr ""
 
 #: helpers/ranking.py:62
@@ -3606,33 +3607,52 @@ msgstr "%Err"
 msgid "Total number of error messages sent from server"
 msgstr "Nombre total de rendez-vous effectués"
 
-#: indicators/message.py:66
+#: indicators/message.py:66 indicators/message.py:85
 msgid "error"
 msgstr ""
 
-#: indicators/message.py:73
+#: indicators/message.py:74
+#, fuzzy
+msgid "# Err SMS"
+msgstr "%Err"
+
+#: indicators/message.py:75
+#, fuzzy
+msgid "Total number of error SMS messages sent from server"
+msgstr "Nombre total de rendez-vous effectués"
+
+#: indicators/message.py:92
 #, fuzzy, python-format
 msgid "% Err"
 msgstr "%Err"
 
-#: indicators/message.py:74
+#: indicators/message.py:93
 msgid "Percentage of messages from server that indicate an error"
 msgstr ""
 
-#: indicators/message.py:92
+#: indicators/message.py:103
+#, fuzzy, python-format
+msgid "% Err SMS"
+msgstr "%Err"
+
+#: indicators/message.py:104
+msgid "Percentage of SMS messages from server that indicate an error"
+msgstr ""
+
+#: indicators/message.py:122
 #, fuzzy
 msgid "Per day"
 msgstr "Période"
 
-#: indicators/message.py:93
+#: indicators/message.py:123
 msgid "Average number of messages received from the reporter set per day"
 msgstr ""
 
-#: indicators/message.py:114
+#: indicators/message.py:144
 msgid "Days since"
 msgstr ""
 
-#: indicators/message.py:115
+#: indicators/message.py:145
 msgid ""
 "Number of days since the server received a message from a user in the input "
 "set"
@@ -5082,6 +5102,11 @@ msgstr "Type de période"
 msgid "Name of the immunization"
 msgstr "Nom du vaccin"
 
+#: models/ImmunizationSchedule.py:61
+#, python-format
+msgid "After %(period_nb)s %(period_type)s: %(immun)s"
+msgstr "Après %(period_nb)s %(period_type)s: %(immun)s"
+
 #: models/Patient.py:50 templates/childcount/base.html:38
 msgid "Patients"
 msgstr "Patients"
@@ -5226,8 +5251,8 @@ msgstr "+T"
 msgid ""
 "Please make sure %(child)s gets their Initial Neonatal Visit [%(forms)s]"
 msgstr ""
-"Veuillez vous assurez que %(child)s aient leur première visite néonatale [%"
-"(forms)s]"
+"Veuillez vous assurez que %(child)s aient leur première visite néonatale "
+"[%(forms)s]"
 
 #: models/reports.py:346
 #, python-format
@@ -5843,8 +5868,8 @@ msgstr "Combien partagent?"
 #: models/reports.py:1395
 msgid "How many people share the toilet (open to public = -1, unknown = -2 )"
 msgstr ""
-"Nombre de personnes qui partagent les toilettes (ouvert à tout le monde = -"
-"1, inconnu = -2 )"
+"Nombre de personnes qui partagent les toilettes (ouvert à tout le monde = "
+"-1, inconnu = -2 )"
 
 #: models/reports.py:1407
 msgid "Drinking Water Report"
@@ -6090,6 +6115,10 @@ msgstr "Compte-rendu de distribution des moustiquaires"
 msgid "Distribution Points"
 msgstr "Comptes-rendus de distribution des moustiquaires"
 
+#: reports/definitions/HoHHList_tiby.py:29
+msgid "House holds list"
+msgstr "Liste des ménages"
+
 #: templates/childcount/add_chw.html:4 templates/childcount/list_chw.html:15
 msgid "Add CHW"
 msgstr "Ajouter ASC"
@@ -6107,25 +6136,26 @@ msgid "Log in"
 msgstr "Connexion"
 
 #: templates/childcount/base.html:33
-msgid "Dashboard"
-msgstr "Dashboard"
-
-#: templates/childcount/base.html:34
 msgid "CHWs"
 msgstr "ASCs"
 
-#: templates/childcount/base.html:35
+#: templates/childcount/base.html:34
 msgid "Data Entry"
 msgstr "Saisie des données"
 
-#: templates/childcount/base.html:36 templates/childcount/indicators.html:47
+#: templates/childcount/base.html:35 templates/childcount/indicators.html:47
 #: templates/childcount/indicators.html:50
 msgid "Indicators"
 msgstr "Indicateurs"
 
-#: templates/childcount/base.html:37
+#: templates/childcount/base.html:36
 msgid "Message Log"
 msgstr "Tous les messages"
+
+#: templates/childcount/base.html:37
+#, fuzzy
+msgid "Messaging"
+msgstr "Message"
 
 #: templates/childcount/base.html:40
 #, fuzzy
@@ -7003,6 +7033,9 @@ msgid "Number of Other Sick Members Receiving Anti-Malarial Treatment"
 msgstr ""
 "Nombre d'autres membres du ménage malades sous traitement anti-paludique"
 
+#~ msgid "Dashboard"
+#~ msgstr "Dashboard"
+
 #~ msgid "Remind the following to go for their first clinic visit %(list)s."
 #~ msgstr ""
 #~ "Rappeler ceux qui suit d'aller faire leur première consultation %(list)s."
@@ -7032,18 +7065,15 @@ msgstr ""
 #~ msgid ""
 #~ "# HHs covered: %(encounter__count)s, #SS: %(sleeping_sites__sum)s, "
 #~ "#functioningN: %(function_nets__sum)s, #damagedN: %(damaged_nets__sum)s, "
-#~ "#earlierN: %(earlier_nets__sum)s, #+BU: %(bednet_util__count)s, #+DW: %"
-#~ "(drinking_water__count)s, #+SAN: %(sanitation__count)s. #HHs NOT covered: "
-#~ "%(number_not_surveyed)s"
+#~ "#earlierN: %(earlier_nets__sum)s, #+BU: %(bednet_util__count)s, #+DW: "
+#~ "%(drinking_water__count)s, #+SAN: %(sanitation__count)s. #HHs NOT "
+#~ "covered: %(number_not_surveyed)s"
 #~ msgstr ""
 #~ "# menages couverts: %(encounter__count)s, #lits: %(sleeping_sites__sum)s, "
 #~ "#moustOK: %(function_nets__sum)s, #moustNOK: %(damaged_nets__sum)s, "
-#~ "#ancienMoust: %(earlier_nets__sum)s, #+BU: %(bednet_util__count)s, #+DW: %"
-#~ "(drinking_water__count)s, #+SAN: %(sanitation__count)s. #menages  NON "
+#~ "#ancienMoust: %(earlier_nets__sum)s, #+BU: %(bednet_util__count)s, #+DW: "
+#~ "%(drinking_water__count)s, #+SAN: %(sanitation__count)s. #menages  NON "
 #~ "couverts: %(number_not_surveyed)s"
-
-#~ msgid "After %(period_nb)s %(period_type)s: %(immun)s"
-#~ msgstr "Après %(period_nb)s %(period_type)s: %(immun)s"
 
 #~ msgid "Patient List Report"
 #~ msgstr "Compte-rendu de la liste des patients"
@@ -7513,18 +7543,18 @@ msgstr ""
 #~ msgstr "Consultation nutrition"
 
 #~ msgid ""
-#~ "%(status)s %(sign)s %(muac)s                                        %"
-#~ "(rate_muac)s %(sign)s "
+#~ "%(status)s %(sign)s %(muac)s                                        "
+#~ "%(rate_muac)s %(sign)s "
 #~ msgstr ""
-#~ "%(status)s %(sign)s %(muac)s                                        %"
-#~ "(rate_muac)s %(sign)s "
+#~ "%(status)s %(sign)s %(muac)s                                        "
+#~ "%(rate_muac)s %(sign)s "
 
 #~ msgid ""
-#~ "%(status)s %(sign)s %(muac)s                                         (%"
-#~ "(rate_muac)s) %(sign)s "
+#~ "%(status)s %(sign)s %(muac)s                                         "
+#~ "(%(rate_muac)s) %(sign)s "
 #~ msgstr ""
-#~ "%(status)s %(sign)s %(muac)s                                         (%"
-#~ "(rate_muac)s) %(sign)s "
+#~ "%(status)s %(sign)s %(muac)s                                         "
+#~ "(%(rate_muac)s) %(sign)s "
 
 #~ msgid "%(icon)s %(icon_rate)s %(icon_)s"
 #~ msgstr "%(icon)s %(icon_rate)s %(icon_)s"
@@ -7555,9 +7585,6 @@ msgstr ""
 
 #~ msgid "HH Health ID"
 #~ msgstr "No. de santé du ménage"
-
-#~ msgid "House holds list"
-#~ msgstr "Liste des ménages"
 
 #~ msgid "Monthly CHW Report: "
 #~ msgstr "Rapport mensuel ASC"
