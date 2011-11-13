@@ -299,7 +299,7 @@ msgstr "tableau"
 #: commands/ActivityCommand.py:113
 #, python-format
 msgid "Unknown period name: %(name)s. Valid periods are %(valid)s."
-msgstr "Nom de période inconnue: %(nom)s. Périodes valides sont %(valide)s "
+msgstr "Nom de période inconnue: %(name)s. Périodes valides sont %(valid)s "
 
 #: commands/ActivityCommand.py:131
 msgid "Use ACTIVITY followed by WEEK, MONTH, or the 3-letter month code."
@@ -548,8 +548,8 @@ msgstr "Vous avez réussi à signaler le décès de %(death)s."
 msgid ""
 "Patient %(name)s (age: %(age)s) died on %(dod)s. Contact CHW %(chw)s for "
 "more information."
-msgstr "Patient %(nom)s (âge : %(âge)s) décédé le %(dod)s. Contactez-TCS %(chw)s pour "
-"plus d'informations"
+msgstr "Patient %(name)s (âge : %(age)s) décédé le %(dod)s. "
+"Contactez-TCS %(chw)s pour plus d'informations"
 
 #: commands/FamilyCommand.py:22
 #, python-format
@@ -620,7 +620,7 @@ msgstr "No. de santé: %(health_id)s"
 #: commands/LLNSummaryCommand.py:109
 #, python-format
 msgid "You issued %(n)s bednets on %(date)s"
-msgstr "Vous avez émis %(n)s  des moustiquaires le"
+msgstr "Vous avez émis %(n)s  des moustiquaires le  %(date)s"
 
 #: commands/LangCommand.py:27
 #, python-format
@@ -2814,7 +2814,7 @@ msgstr "Nombre total d'enfants utilisant une moustiquaire de cette période"
 #: indicators/bed_net_utilization.py:88
 msgid "% Kids Using Net"
 msgstr "% Enfants utilisant des moustiquaires"
-quair
+
 #: indicators/bed_net_utilization.py:89
 #, fuzzy
 msgid "Percentage of under fives monitored who used bed nets"
@@ -6319,7 +6319,7 @@ msgstr "Nom de famille"
 #: templates/childcount/indicators.html:77
 #: templates/childcount/indicators.html:89
 msgid "Graph"
-msgstr Graphique"
+msgstr "Graphique"
 
 #: templates/childcount/indicators.html:90
 #, fuzzy

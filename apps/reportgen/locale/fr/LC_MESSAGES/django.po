@@ -981,7 +981,7 @@ msgstr "5 ans"
 #: timeperiods/definitions/FiveYears.py:14
 msgid "Five calendar years"
 msgstr "Cinq années civiles"
-é
+
 #: timeperiods/definitions/FiveYears.py:40
 #, python-format
 msgid "Years %(start)s - %(end)s"
@@ -1003,7 +1003,7 @@ msgstr "Jeu de quatre semaines de sept jours commençant un lundi X il y a semai
 #: timeperiods/definitions/FourWeeks.py:34
 #, python-format
 msgid "Week of %(start)s"
-msgstr "Semaine de % (début)s"
+msgstr "Semaine de %(start)s"
 
 #: timeperiods/definitions/FourWeeks.py:52
 #: timeperiods/definitions/ThirteenWeeks.py:56
