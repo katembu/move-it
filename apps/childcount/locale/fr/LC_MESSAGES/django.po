@@ -2558,7 +2558,7 @@ msgstr "%naissances avec 4 CPN"
 #: indicators/birth.py:169
 #, python-format
 msgid "% of patients born this period whose mother had four ANC visits"
-msgstr "Pourcentage de patients nés cette période dont la mere a été enregistrée pour 4 visites prénatale"
+msgstr "% de patients nés cette période dont la mere a été enregistrée pour 4 visites prénatale"
 
 #: indicators/danger_signs.py:17
 #, fuzzy
