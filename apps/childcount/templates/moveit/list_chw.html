@@ -1,0 +1,66 @@
+{% extends base_template %}
+{% load i18n %}
+
+
+{% block title %}{% trans "CHW List" %}{% endblock %}
+
+{% block content %}
+
+
+
+<!-- Box -->
+<div class="box">
+    <!-- Box Head -->
+		<div class="box-head">
+			<h2 class="left">{% trans "All Community Health Workers" %} - <a href="{% url cc-add_chw %}" color="fffffff">{% trans "Add CHW" %}</a></h2>
+		</div>
+	<!-- End Box Head -->	
+
+<div class="table">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<thead>
+<tr>
+<th>{% trans "Username" %}</th>
+<th>{% trans "First Name" %}</th>
+<th>{% trans "Last Name" %}</th>
+<th>{% trans "Active?" %}</th>
+</thead>
+<tbody>
+{% for chw in paginator.object_list %}
+<tr>
+    <td>{{ chw.username }}</td>
+    <td>{{ chw.first_name }}</td>
+    <td>{{ chw.last_name }}</td>
+    <td class="center">{% if chw.is_active %}{% trans "Y" %}{% else %}{% trans "N" %}{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+
+</table>
+						<!-- Pagging -->
+						<div class="pagging">
+<!--
+							<div class="left">{% trans "Showing " %} {{ last_page}} </div>
+-->
+							<div class="right">
+								{% if paginator.has_previous %}
+							  <a href="?page={{ paginator.previous_page_number }}">{% trans "Previous" %}</a>
+							  {% endif %}
+
+							{% block trans %}Page {{paginator.number }} of {{paginator.paginator.num_pages }}{% endblock %}</td>
+
+							  {% if paginator.has_next %}
+							  <a href="?page={{ paginator.next_page_number }}">{% trans "Next" %}</a>
+							  {% endif %}
+
+							</div>
+						</div>
+						<!-- End Pagging -->
+						
+					</div>
+					<!-- Table -->
+					
+				</div>
+				<!-- End Box -->
+
+{% endblock %}

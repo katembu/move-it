@@ -1,0 +1,83 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n %}
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="/static/childcount/stylesheets/css/style.css" type="text/css" media="all" />
+    <script type="text/javascript" src="/static/childcount/scripts/jquery-1.4.2.min.js"></script>
+
+{% block javascripts %}{% endblock %}
+{% block page_stylesheets %}{% endblock %}
+</head>
+<body>
+
+<!-- Header -->
+<div id="header">
+	<div class="shell">
+		<!-- Logo + Top Nav -->
+		<div id="top">
+			<h1><a href="#">MOVE-IT</a></h1>
+			<div id="top-navigation">
+				
+  				{% if user.is_authenticated %}
+					{% trans "Welcome " %} <a href="#"><strong> {{ user.username }}</strong></a>
+				
+				<span>|</span>
+					<a href="/accounts/logout/">{% trans "Log out" %} </a>
+				{% else %}
+				    <a href="/accounts/login/">{% trans "Log in" %}</a>
+				{% endif %}
+			</div>
+		</div>
+		<!-- End Logo + Top Nav -->
+
+		{% if  user.is_authenticated %}
+		<!-- Main Nav -->
+		<div id="navigation">
+			<ul>
+			    <li><a href="{% url cc-dashboard %}"><span>{% trans "Dashboard" %}</span></a></li>
+			    <li><a href="{% url cc-register %}birth"><span>{% trans "Birth" %}</span></a></li>
+			    <li><a href="{% url cc-register %}death"><span>{% trans "Death" %}</span></a></li>
+
+			    <li><a href="{% url cc-list_chw %}"><span>{% trans "CHWs" %}</span></a></li>
+
+			</ul>
+		</div>
+		<!-- End Main Nav -->
+		{% endif %}
+
+	</div>
+</div>
+<!-- End Header -->
+
+<!-- Container -->
+<div id="container">
+	<div class="shell">
+		
+			{% block content %}{% endblock %}
+	</div>
+</div>
+<!-- End Container -->
+
+
+
+<!-- Footer -->
+<div id="footer">
+	<div class="shell">
+		<span class="left">&copy; 2011- Move-IT</span>
+		<span class="right">
+{% block footer %}
+			<a href="http://www.childcount.org/" style="">&copy; 2009&ndash;2011 <span class="bigger">ChildCount.org</span></a> | Built with <a href="http://www.rapidsms.org/" class="bigger">RapidSMS</a> |
+			
+			{% endblock %}
+
+		</span>
+	</div>
+</div>
+<!-- End Footer -->
+	
+</body>
+</html>

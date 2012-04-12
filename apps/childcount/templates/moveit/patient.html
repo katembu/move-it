@@ -1,0 +1,142 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% block javascripts %}
+<link rel="stylesheet" type="text/css" href="/static/childcount/stylesheets/cc_ui_tables.css" media="all" />
+{% endblock javascripts %}
+
+{% block page_stylesheets %}
+{{ block.super }}
+{% endblock page_stylesheets %}
+
+{% block title %}{% trans "Registered " %}{{eventtype.capitalize}}{% endblock %}
+
+{% block content %}
+
+
+<script type="text/javascript">
+$('div.list-header a.send').click(function(evt){
+	var button = $(evt.target);
+	button.blur();
+	evt.preventDefault();
+	button.parent().find('form').submit();
+})
+</script>
+
+<!-- Box -->
+<div class="box">
+    <!-- Box Head -->
+		<div class="box-head">
+			<h2 class="left">{% trans "Registered " %} {{eventtype.capitalize}}</h2>
+				<div class="right">
+					<form action="/moveit/register/{{eventtype}}" method="get">
+					<label>{% trans "Search Person " %}</label>
+
+					<input type="text" id="patient_search" name="patient_search">
+					<input type="submit" class="button" value="search" />
+					</form>
+				</div>
+		</div>
+	<!-- End Box Head -->	
+
+<div class="table">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<thead>
+<tr>
+<th></th>
+<th>{% trans "EVENT ID" %}</th>
+<th>{% trans "FULL Name" %}</th>
+<th>{% trans "Status" %}</th>
+<th>{% trans "DOB" %}</th>
+<th>{% trans "Location" %}</th>
+<th>{% trans "CHW" %}</th>
+</thead>
+<tbody>
+{% for patient in patients.object_list %}
+<tr>
+<td><input type="checkbox" class="checkbox" /></td>
+<td class="health-id">{{patient.health_id}}</td>
+<td><a href="/moveit/register/edit/{{patient.health_id}}">{{patient.last_name}} {{patient.first_name}} {{patient.gender}}/ {{patient.humanised_age}}</a></td>
+<td>{{patient.cert_status}}</td>
+<td>{{patient.dob}}</td>
+<td>{{patient.location.name}}</td>
+<td>{{patient.chw}}</td>
+</tr>
+{% endfor %}
+<tr colspan='6'><p class='it info'>{% blocktrans %}{{rcount}} results found.{% endblocktrans %} <!-- Displaying results {{rstart}}-{{rend}}. --></p></tr>
+</tbody>
+
+</table>
+						<!-- Pagging -->
+						<div class="pagging">
+<!--
+							<div class="left">{% trans "Showing " %} {{ last_page}} </div>
+-->
+							<div class="right">
+						
+
+
+{% if is_paginated %}
+
+<div class="paginator" id ='paginator'>
+  {% ifnotequal  page 1 %}
+<span class="next"><a href="/moveit/register/{{eventtype}}?page=1" title="{% trans "First Page" %}">{% trans "First" %}</a></span>
+ {%endifnotequal%}
+ 
+{% if has_previous %}<span class="prev"><a href="/moveit/register/{{eventtype}}?page={{previous}}" title="{% trans "Previous Page" %}">&laquo; {% trans "Previous" %}</a></span>{% endif %}
+ 
+{% if not in_leading_range %}
+    {% for num in pages_outside_trailing_range %}
+        <span class="page"><a href="/moveit/register/{{eventtype}}?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
+    ...
+{% endif %}
+ 
+{% for num in page_numbers %}
+  {% ifequal num page %}
+    <span class="curr" title="Current Page">{{ num }}</span>
+  {% else %}
+    <span class="page"><a href="/moveit/register/{{eventtype}}?page={{ num }}" title="{% blocktrans %}Page {{ num }}{% endblocktrans %}">{{ num }}</a></span>
+  {% endifequal %}
+{% endfor %}
+ 
+{% if not in_trailing_range %}
+    ...
+    {% for num in pages_outside_leading_range reversed %}
+        <span class="page"><a href="/moveit/register/{{eventtype}}?page={{ num }}" >{{ num }}</a></span>
+    {% endfor %}
+
+{% endif %}
+ 
+{% if has_next %}<span class="next"><a href="/moveit/register/{{eventtype}}?page={{ next }}" title="{% trans "Next Page" %}">{% trans "Next" %} &raquo;</a></span>{% else %}<span class="next-na">{% trans "Next" %} &raquo;</span>{% endif %}
+
+  {% ifnotequal  page  last_page %}
+<span class="next"><a href="/moveit/register/{{eventtype}}?page={{last_page}}" title="{% trans "Last Page" %}"> {% trans "Last" %}</a></span>
+ {%endifnotequal%}
+
+</div> 
+{% endif %}
+
+
+							</div>
+						</div>
+						<!-- End Pagging -->
+						
+					</div>
+					<!-- Table -->
+					
+				</div>
+				<!-- End Box -->
+
+
+
+
+
+
+
+</div>
+<div id='ch-r'>
+</div>
+</div>
+<div style="clear:both;"></div>
+{% endblock %}

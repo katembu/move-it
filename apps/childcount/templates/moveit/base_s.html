@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n %}
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>{% block title %}{% endblock %}</title>
+	<link type="text/css" rel="stylesheet" href="/static/webapp/stylesheets/modules.css" />
+
+	<link rel="stylesheet" href="/static/childcount/stylesheets/css/style.css" type="text/css" media="all" />
+
+    <script type="text/javascript" src="/static/childcount/scripts/jquery-1.4.2.min.js"></script>
+
+{% block javascripts %}{% endblock %}
+{% block page_stylesheets %}{% endblock %}
+</head>
+<body>
+	<div id="header">
+		<div class='fwidth'>
+			<a href="{% url cc-dashboard %}" id="logo">
+				<span>ChildCount+</span>
+			</a>
+			<div class="account_links">
+                {% if user.is_authenticated %}
+                <p><a href="/accounts/logout/">{% trans "Log out" %} {{ user.username }}</a></p>
+                {% else %}
+                    <p><a href="/accounts/login/">{% trans "Log in" %}</a></p>
+                {% endif %}
+			</div>
+		</div>
+	</div>
+	<ul id="menu">
+		<div class='fwidth'>
+		<li><a href="{% url cc-list_chw %}">{% trans "CHWs" %}</a></li>
+		<li><a href="{% url cc-dataentry %}">{% trans "Data Entry" %}</a></li>
+        <li><a href="{% url loggerng-index %}">{% trans "Message Log" %}</a></li>
+		</div>
+	</ul>
+	<div id="body">
+		<div class='fwidth'>
+		{% block content %}{% endblock %}
+		</div>
+	</div>
+	<div id="footer" style="clear:both;">
+		<div class='fwidth'>
+
+			<div style="text-align: right;color:#953D27;font-size:14px">
+			{% block footer %}
+			<a href="http://www.childcount.org/" style="">&copy; 2009&ndash;2011 <span class="bigger">ChildCount.org</span></a> | Built with <a href="http://www.rapidsms.org/" class="bigger">RapidSMS</a> | <a href="#" class="bigger">MoVEe-IT</a>
+			
+			{% endblock %}
+			</div>
+
+		</div>
+	</div>
+</body>
+</html>

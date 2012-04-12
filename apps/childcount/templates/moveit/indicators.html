@@ -1,0 +1,99 @@
+{% extends base_template %}
+{% load i18n %}
+{% block javascripts %}
+{{ block.super }}
+    
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/indicators.js"></script>
+{% endblock javascripts %}
+
+{% block page_stylesheets %}
+{{ block.super }}
+<link type="text/css" rel="stylesheet" href="/static/childcount/datatables/media/css/datatable.css" />
+<link type="text/css" rel="stylesheet" href="/static/childcount/datatables/extras/TableTools/media/css/TableTools.css" />
+
+<style type="text/css">
+.section {
+    font-size: 1.3em;
+    padding-top: 1.5em;
+    display: block;
+}
+
+table  tr  th {
+    font-weight: bold;
+}
+
+table td {
+    border-top: 2px solid #eee;
+}
+
+.top-link {
+    text-align: right;
+}
+
+.graph-link {
+    text-align:center;
+}
+
+.graph-link a{
+    cursor:pointer;
+}
+
+.graph-link a img {
+    border:0;
+}
+</style>
+{% endblock page_stylesheets %}
+
+{% block title %}{% trans "Indicators" %}{% endblock %}
+{% block content %}
+
+<h2 id="top">{% trans "Indicators" %}</h2>
+
+{% for ind in indicators %}
+<a href="#ind_{{ind.slug}}">{{ind.name}}</a> {% if not forloop.last %}|{% endif %}
+{% endfor %}
+<form id="gen_form" method="POST" action="/reportgen/">
+    <input type="hidden" id="report" class="sorted" name="report_pk" value="{{ report_pk }}">
+    <input type="hidden" id="variant" class="sorted" name="variant_index">
+    <input type="hidden" id="rformat" class="sorted" name="rformat" value="pdf">
+    <input type="hidden" id="period_type" class="sorted" name="period_type_code" value="TM">
+    <input type="hidden" id="period" class="sorted" name="period_index" value="1">
+</form>
+
+<table style="width:100%">
+{% for ind in indicators %}
+    <tr id="ind_{{ind.slug}}">
+        <td colspan="6">
+            {% if not forloop.first %}<a href="#top">{% trans "Back to top" %}</a>{% endif %}
+            <strong class="section">{{ ind.name }}</strong>
+        </td>
+    </tr>
+    <tr>
+        <th>{% trans "Slug" %}</th>
+        <th>{% trans "Input" %}</th>
+        <th>{% trans "Output" %}</th>
+        <th>{% trans "Short Name" %}</th>
+        <th>{% trans "Long Name" %}</th>
+        <th>{% trans "Graph" %}</th>
+    </tr>
+    {% for m in ind.members %}
+    <tr>
+        <td>{{ m.slug }}</td>
+        <td>{{ m.type_in }}</td>
+        <td>{{ m.type_out }}</td>
+        <td>{{ m.cls.short_name }}</td>
+        <td>{{ m.cls.long_name }}</td>
+        <td class="graph-link">
+            {% if m.output_is_number %}
+            {% if m.input_is_query_set %}
+            <a title="{% trans "Graph" %}" href="#" onclick="return false;" class="indicator_chart">
+                <img id="graph_{{ m.variant_index }}" src="/static/reportgen/icons/pdf.png" alt="{% trans "Indicator graph" %}"/>
+            </a>
+            {% endif %}
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endfor %}
+</table>
+{% endblock %}

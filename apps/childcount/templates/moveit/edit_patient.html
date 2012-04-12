@@ -1,0 +1,121 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% block stylesheets %}
+{{ block.super }}
+
+{% endblock %}
+
+{% block javascripts %}
+{{ block.super }}
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/jquery.ui.core.js"></script>
+<script type="text/javascript" language="javascript" src="/static/childcount/scripts/jquery.autocomplete.js"></script>
+{% endblock %}
+
+{% block title %}
+    {% trans "Edit " %}{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+
+{% if failed %}
+		
+<!-- Message Error -->
+	<div class="msg msg-error">
+	 	<p><strong>{% trans "A patient with health ID" %} {{ health_id }}
+ {% trans "was not found." %}</strong></p>
+		<a href="#" class="close">close</a>
+	</div>		
+<!-- End Message Error -->
+
+{% endif %}
+
+{% if success %}
+
+		<!-- Message OK -->		
+		<div class="msg msg-ok">
+			<p><strong>   
+				{% trans "Information for" %} 
+    			{{ patient.full_name }} 
+    			{% trans "saved." %}
+ 				<a href="/moveit/register/edit/{{ patient.health_id.upper }}/">{% trans "Edit" %} {{ patient.full_name}} {% trans "again" %}.</a>
+			</strong></p>
+			<a href="#" class="close">close</a>
+		</div>
+		<!-- End Message OK -->		
+		
+{% endif %}
+
+{% if form %}
+    {% if form.errors %}
+
+	<!-- Message Error -->
+		<div class="msg msg-error">
+		 	<p><strong>
+	 		 {{ form.errors|length }} error{{ form.errors|length|pluralize }} found! Please correct the error{{ form.errors|length|pluralize }} marked below and try saving the form again.
+			</strong></p>
+			<a href="#" class="close">close</a>
+		</div>		
+	<!-- End Message Error -->
+    {% endif %}
+
+
+<!-- Box -->
+<div class="box">
+	<!-- Box Head -->
+	<div class="box-head">
+	<h2>{% trans "Edit " %}{{eventtype.capitalize}}{% if patient %}: {{ patient.full_name }} [{{ patient.health_id.upper }}]
+		{% endif %}
+	</h2>
+	
+	</div>
+	<!-- End Box Head -->
+					
+	<form action="/moveit/register/edit/{{ health_id }}/" method="POST">
+						
+	<!-- Form -->
+	<div class="form">
+		<table>
+
+			{{ form }}
+		</table>
+							
+	</div>
+
+	<!-- End Form -->
+	
+					
+	<!-- Form Buttons -->
+	<div class="buttons">
+		<input type="submit"  class="button" value="{% trans "Save" %}">
+	</div>
+	<!-- End Form Buttons -->
+	</form>
+	
+</div>
+<!-- End Box -->
+
+
+
+{% else %}
+
+<div class="box">
+	<!-- Box Head -->
+	<div class="box-head2">
+	
+
+<form id='editform' action='/moveit/register/edit/' method='GET'>
+    {% trans "Event ID" %}: <input name='hid' type='text'></input>
+    <input type="submit" class="button" value="{% trans "Edit" %}"></input>
+</form></h2>
+	</div>
+
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+
