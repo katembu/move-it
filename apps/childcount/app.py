@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: dgelvin, katembu
 
 import re
 import time
@@ -17,7 +17,7 @@ from reporters.models import Reporter
 from locations.models import Location
 
 from childcount.models import Configuration as Cfg
-from childcount.models import Patient, Encounter, FormGroup, CHW
+from childcount.models import Patient, CHW
 from childcount.forms import *
 from childcount.commands import *
 from childcount.exceptions import *
@@ -164,9 +164,11 @@ class App (rapidsms.app.App):
         input_text = re.sub(r'\s{2,}', ' ', message.text.strip().lower())
 
         ### Forms
+        #Health_ids = event id
         split_regex = re.compile( \
-         r'^\s*((?P<health_ids>.*?)\s*)??(?P<forms>%(form_prefix)s.+$)' % \
-             {'form_prefix': re.escape(self.FORM_PREFIX)})
+         r'^\s*(u{1}\s)\s*((?P<health_ids>.*?)\s*)??'\
+          '(?P<forms>%(form_prefix)s.+$)' % \
+          {'form_prefix': re.escape(self.FORM_PREFIX)})
         forms_match = split_regex.match(input_text)
 
         if forms_match:
@@ -217,10 +219,10 @@ class App (rapidsms.app.App):
             # Right now, we are only going to accept a single health ID.
             if len(health_ids) != 1:
                 message.respond(_(u"Error: Message not understood. " \
-                                   "Your message must start with " \
-                                   "a single health ID, followed by a space " \
-                                   "then a %(pre)s, then the keyword of the " \
-                                   "form you are sending.") % \
+                                   "Your message must start with U followed " \
+                                   "by a single Event ID, followed by a " \
+                                   "space then a %(pre)s, then the keyword  " \
+                                   "of the form you are sending.") % \
                                    {'pre': self.FORM_PREFIX}, 'error')
                 return handled
             health_id = health_ids[0]
@@ -257,99 +259,30 @@ class App (rapidsms.app.App):
                 pre_processed_form_objects.append(form)
 
             # Now that we have run pre-process, health_id should point to a
-            # valid paitent (new patients are created in the
+            # valid paitent (new patients are created in the )
             # PatientRegistrationForm pre_process method
             try:
                 patient = Patient.objects.get(health_id__iexact=health_id)
             except Patient.DoesNotExist:
-                message.respond(_(u"%(id)s is not a valid health ID. " \
+                message.respond(_(u"%(id)s is not a valid Event ID. " \
                                    "Please correct and try again.") % \
                                    {'id': health_id.upper()}, 'error')
                 return handled
 
+            '''
             if (not allow_3rd_party) and patient.chw != chw:
                 message.respond(_(u"Patient %(health_id)s is assigned to " \
                                     "CHW %(real_chw)s.  You [%(fake_chw)s] " \
-                                    "can only submit forms for your own " \
-                                    "patients.") %\
+                                    "can only submit forms for your own ") %\
                                     {'health_id': health_id.upper(),\
                                      'real_chw': patient.chw, \
                                      'fake_chw': chw}, 'error')
                 return handled
-        
-            # If all of the forms are household forms and the patient is not
-            # head of household, don't proceed to process.  If there is one
-            # or more household forms mixed with one or more individual forms
-            # that will get caught later.
-            patient_filter = lambda form: form.ENCOUNTER_TYPE == \
-                                                       Encounter.TYPE_PATIENT
-            patient_forms = filter(patient_filter, \
-                                   pre_processed_form_objects)
-            if len(patient_forms) == 0 and not patient.is_head_of_household():
-                message.respond(_(u"Error: You tried to send househould " \
-                                  "forms for someone who is not head of" \
-                                  "household. You must send the forms with " \
-                                  "the head of household health ID." \
-                                  "Their head of household health ID " \
-                                  "is %(hoh)s (Health ID: %(hohid)s)") % \
-                              {'hoh': patient.household.full_name(), \
-                               'hohid': patient.household.health_id.upper()}, \
-                               'error')
+            '''
 
-                return handled
-
-            encounters = {}
-            encounters[Encounter.TYPE_PATIENT] = None
-            encounters[Encounter.TYPE_HOUSEHOLD] = None
-
-            form_groups = {}
-            form_groups[Encounter.TYPE_PATIENT] = None
-            form_groups[Encounter.TYPE_HOUSEHOLD] = None
             for form in pre_processed_form_objects:
                 keyword = form.params[0]
 
-                if form.ENCOUNTER_TYPE == Encounter.TYPE_HOUSEHOLD and \
-                   not patient.is_head_of_household():
-                    failed_forms.append({'keyword': keyword, \
-                                         'error': _(u"This form is only for " \
-                                                    "head of households.")})
-                    continue
-
-                # If we haven't created the encounter objects, we'll create
-                # them now.
-                if encounters[form.ENCOUNTER_TYPE] is None:
-                    try:
-                        # Look for an encounter of the same type
-                        # for the same person within TIMEOUT
-                        # minutes.
-                        encounters[form.ENCOUNTER_TYPE] = \
-                            Encounter.objects.filter(chw=chw, \
-                                 patient=patient, \
-                                 type=form.ENCOUNTER_TYPE, \
-                                 encounter_date__gte=encounter_date-\
-                                    timedelta(minutes=Encounter.TIMEOUT),
-                                 encounter_date__lte=encounter_date+\
-                                    timedelta(minutes=Encounter.TIMEOUT))\
-                                 .latest('encounter_date')
-                        if not encounters[form.ENCOUNTER_TYPE].is_open == True:
-                            raise Encounter.DoesNotExist
-                    except Encounter.DoesNotExist:
-                        encounters[form.ENCOUNTER_TYPE] = \
-                                    Encounter(chw=chw, patient=patient, \
-                                              type=form.ENCOUNTER_TYPE, \
-                                              encounter_date=encounter_date)
-                        encounters[form.ENCOUNTER_TYPE].save()
-
-                    form_groups[form.ENCOUNTER_TYPE] = FormGroup(
-                           entered_by=reporter, \
-                           backend=message.persistant_connection.backend, \
-                           encounter=encounters[form.ENCOUNTER_TYPE])
-                    form_groups[form.ENCOUNTER_TYPE].save()
-
-                # Set encounter and form_group in the Form object to the ones
-                # created above
-                form.encounter = encounters[form.ENCOUNTER_TYPE]
-                form.form_group = form_groups[form.ENCOUNTER_TYPE]
 
                 try:
                     form.process(patient)
@@ -362,28 +295,7 @@ class App (rapidsms.app.App):
                                              'obj': form})
                     # Append this successful form class name to the comma
                     # delimited list in FormGroup.
-                    class_name = form.__class__.__name__
-                    if not form_groups[form.ENCOUNTER_TYPE].forms:
-                        form_groups[form.ENCOUNTER_TYPE].forms = class_name
-                    else:
-                        form_groups[form.ENCOUNTER_TYPE].forms += \
-                                                               ',' + class_name
-                    form_groups[form.ENCOUNTER_TYPE].save()
 
-            for form_type in [Encounter.TYPE_PATIENT, \
-                              Encounter.TYPE_HOUSEHOLD]:
-                # Delete the form_group objects if there weren't any successful
-                # forms.
-                if form_groups[form_type] and not form_groups[form_type].forms:
-                    form_groups[form_type].delete()
-
-                # At this point, if the encounter object doesn't have a single
-                # FormGroup pointing to it, then no forms were successful this
-                # time and there were no previously successful forms for that
-                # encounter, so we delete it
-                if encounters[form_type] and \
-                   encounters[form_type].formgroup_set.all().count() == 0:
-                    encounters[form_type].delete()
 
             successful_string = ''
             if successful_forms:

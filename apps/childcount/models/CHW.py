@@ -14,7 +14,6 @@ from django.utils.translation import ugettext as _
 
 from reporters.models import Reporter
 from locations.models import Location
-from childcount.models import Clinic
 
 
 class CHW(Reporter):
@@ -30,11 +29,10 @@ class CHW(Reporter):
 
     manager = models.ForeignKey('self', verbose_name=_(u"Manager"), \
                                blank=True, null=True)
-
-    clinic = models.ForeignKey('Clinic', verbose_name=_(u"Clinic"), \
-                               blank=True, null=True,
-                               related_name='stationed_chw', \
-                               help_text=_(u"The clinic this CHW reports to"))
+    assigned_location = models.ManyToManyField(Location, \
+                                related_name='assigned_location' , \
+                                verbose_name=_(u"Assigned Location"), \
+                                blank=True, null=True )
 
     @classmethod
     def table_columns(cls):
@@ -53,9 +51,6 @@ class CHW(Reporter):
             'bit': '{{object.location}}'})
         columns.append(
             {'name': _("Number of Patients"), \
-            'bit': '{{_("text defined in views.py")}}'})
-        columns.append(
-            {'name': _("Number of Patients Under 5"), \
             'bit': '{{_("text defined in views.py")}}'})
 
         sub_columns = None

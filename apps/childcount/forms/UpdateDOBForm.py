@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from childcount.utils import DOBProcessor
 from childcount.forms import CCForm
 from childcount.models import Configuration
-from childcount.models import Patient, Encounter
+from childcount.models import Patient
 from childcount.exceptions import ParseError, BadValue, Inapplicable
 
 
@@ -22,7 +22,7 @@ class UpdateDOBForm(CCForm):
         'en': ['udob'],
         'fr': ['udob'],
     }
-    ENCOUNTER_TYPE = Encounter.TYPE_PATIENT
+
 
     def process(self, patient):
         dob = None

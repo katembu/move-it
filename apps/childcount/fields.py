@@ -7,6 +7,7 @@
 dealing with health IDs.
 """
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.forms.fields import CharField
 from django.forms import ModelForm
@@ -14,7 +15,9 @@ from django import forms
 from django.forms import TextInput
 from django.forms.util import ValidationError
 
-from childcount.models.Patient import Patient
+from django.contrib.auth.models import Group
+from childcount.models import Patient, CHW
+from locations.models import Location
 
 class HealthIdWidget(forms.TextInput):
     """Defines a widget for health IDs
@@ -66,8 +69,6 @@ class PatientForm(ModelForm):
     Uses the custom health ID input fields.
     """
 
-    household = HealthIdField(required=True)
-    mother = HealthIdField(required=False)
 
     class Meta:
         model = Patient
@@ -76,4 +77,42 @@ class PatientForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PatientForm, self).__init__(*args, **kwargs)
         patients = Patient.objects.filter(location=self.instance.location)
+
+'''
+class CHWForm(ModelForm):
+    """A Django form for editing :class:`childcount.models.CHW`
+    objects.
+    """
+
+    class Meta:
+        model = CHW
+        exclude = ['is_active', 'username', 'last_login', 'user_permissions', \
+                    'date_joined']
+
+'''
+class CHWForm(forms.Form):
+    #A Django form for editing :class:`childcount.models.CHW`
+    #objects.
+    
+    #username = forms.CharField(max_length=30)
+    first_name = forms.CharField(max_length=30)
+    last_name = forms.CharField(max_length=30)
+    user_role = forms.ChoiceField(choices=[(group.id, group.name) \
+                                       for group in Group.objects.all()])
+    location = forms.ChoiceField(choices=[(location.id, location.name) \
+                                       for location in Location.objects.all()])
+
+    mchoices = [(chw.id, chw.full_name()) \
+                                       for chw in CHW.objects.all()]
+    mchoices.append(('','Select Manager'))
+    manager = forms.ChoiceField(choices=mchoices, required=False)
+
+    mobile = forms.CharField(required=False)
+
+    #Assigned Location
+    assigned = forms.MultipleChoiceField(choices=[(location.id,  \
+                                         location.name) \
+                                         for location in \
+                                            Location.objects.all()], \
+                                        label = "Assigned Location ")
 

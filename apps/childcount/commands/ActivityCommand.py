@@ -6,15 +6,9 @@ from datetime import datetime, timedelta
 
 from django.utils.translation import ugettext as _
 
-from childcount.models import CHW
+from childcount.models import CHW,  Patient
 from childcount.commands import CCCommand
 from childcount.utils import authenticated
-
-from childcount.indicators import nutrition
-from childcount.indicators import household
-from childcount.indicators import fever
-from childcount.indicators import registration
-
 from reportgen.timeperiods import TwelveMonths
 
 class LastSevenDays(object):
@@ -25,17 +19,14 @@ class ActivityCommand(CCCommand):
 
     KEYWORDS = {
         'en': ['activity'],
-        'fr': ['activity'],
     }
 
     WEEK = {
         'en': 'week',
-        'fr': 'semaine',
     }
 
     MONTH = {
         'en': 'month',
-        'fr': 'mois',
     }
     
     MONTHS = {
@@ -53,21 +44,6 @@ class ActivityCommand(CCCommand):
             'nov': 10,
             'dec': 11,
         },
-
-        'fr': {
-            'jan': 0,
-            'fev': 1,
-            'mar': 2,
-            'avr': 3,
-            'mai': 4,
-            'jun': 5,
-            'jul': 6,
-            'aou': 7,
-            'sep': 8,
-            'oct': 9,
-            'nov': 10,
-            'dec': 11,
-        }
     }
 
     def _locale_keyword(self, lot):
@@ -120,6 +96,12 @@ class ActivityCommand(CCCommand):
     def process(self):
         chw = self.message.reporter.chw
 
+        allowed_groups = ("registrar")
+        reporters = CHW.objects.filter(user_ptr__groups__name__in=allowed_groups)
+        '''
+        if chw not in reporters:
+            raise ParseError(_(u"Youre not allowed to report Events "))
+
         if len(self.params) == 1:
             # Default to last seven days
             period = LastSevenDays
@@ -131,27 +113,15 @@ class ActivityCommand(CCCommand):
             self.message.respond(_(u"Use ACTIVITY followed by WEEK, MONTH, or "\
                                     "the 3-letter month code."))
             return True
-            
-        patients = chw.patient_set.all()
+        '''   
 
-        p = {}
-        p['sdate'] = period.start.strftime('%d %b')
-        p['edate'] = period.end.strftime('%d %b')
-        p['severemuac'] = nutrition.Sam(period, patients)
-        p['numhvisit'] = household.Total(period, patients)
-        p['muac'] = nutrition.Mam(period, patients)
-        p['rdt'] = fever.Total(period, patients)
-        p['household'] = registration.Household(period, patients)
-        p['tclient'] = registration.Total(period, patients)
-        p['ufive'] = registration.UnderFive(period, patients)
-        p['unine'] = registration.UnderNineMonths(period, patients)
-        p['underone'] = registration.UnderOne(period, patients)
+        p = {}     
+        p['totalbirth'] = Patient.objects.filter(event_type = Patient.BIRTH).count()
+        p['tbirth'] = Patient.objects.filter(event_type = Patient.BIRTH, cert_status = Patient.CERT_UNVERIFIED).count()
+        p['death'] = Patient.objects.filter(event_type = Patient.DEATH).count()
+        p['tdeath'] = Patient.objects.filter(event_type = Patient.DEATH,cert_status = Patient.CERT_UNVERIFIED).count()
 
-        self.message.respond(_(u"(%(sdate)s->%(edate)s): " \
-                                "%(numhvisit)d household visit, %(muac)d " \
-                                "MUAC (%(severemuac)d SAM/MAM) %(rdt)d RDT." \
-                                " You have %(household)d households" \
-                                ", %(ufive)d under 5y, %(underone)d under "\
-                                "1y, %(unine)d under 9m, "\
-                                "%(tclient)d total" \
-                                " registered clients") % p)
+        self.message.respond(_(u"(%(totalbirth)d Total Birth, %(tbirth)d " \
+                                "Unverified Birth." \
+                                "%(death)d Total Death" \
+                                ", %(tdeath)d Unverified Death") % p)

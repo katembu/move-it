@@ -5,11 +5,13 @@
 import re
 import json
 from datetime import date, timedelta, datetime
+import urllib2
 from urllib import urlencode
 
 from rapidsms.webui.utils import render_to_response
 
-from indicator import Indicator
+#from indicator import Indicator
+from direct_sms.utils import send_msg
 
 from django import forms
 from django.conf import settings
@@ -30,20 +32,15 @@ from django.db.models import F, Q
 from reporters.models import PersistantConnection, PersistantBackend
 from locations.models import Location
 
-from childcount.fields import PatientForm
-from childcount.models import Patient, CHW, Configuration, Clinic
-from childcount.utils import clean_names, get_indicators
-from childcount.helpers import site
-
-from reportgen.timeperiods import FourWeeks, Month, TwelveMonths
-from reportgen.models import Report
-
+from childcount.fields import PatientForm, CHWForm
+from childcount.models import Patient, CHW, Configuration
+from childcount.utils import clean_names, servelet
 
 form_config = Configuration.objects.get(key='dataentry_forms').value
 cc_forms = re.split(r'\s*,*\s*', form_config)
 
 @login_required
-@permission_required('childcount.add_encounter')
+#@permission_required('childcount.add_encounter')
 def dataentry(request):
     ''' displays Data Entry U.I. '''
 
@@ -71,78 +68,31 @@ def form(request, formid):
     return HttpResponse(form, mimetype="application/json")
 
 
-from childcount import dashboard_sections
-
-DASHBOARD_TEMPLATE_DIRECTORY = "childcount/dashboard_sections"
-
-def dashboard_gather_data(dashboard_template_names):
-    """this method is used with the new dashboard_sections templates
-    and their corresponding methods in the 'dashboard_sections' module
-    """
-    data={}
-    for tname in dashboard_template_names:
-        try:
-            data[tname] = getattr(dashboard_sections, tname)()
-        except AttributeError:
-            data[tname] = False
-            print tname
-    return data
-
 print ">>>>>>>>>>%s" % get_language()
 @login_required
 def index(request):
     '''Dashboard page '''
-    info = {'title': _(u"ChildCount+ Dashboard")}
+    info = {'title': _(u"Move-IT Dashboard")}
     print ">>>>>>>>>>>>>>>%s" % get_language()
     print ">>>>>>>>>>>>>>>%s" % check_for_language('ti')
     info['lang'] = get_language()
 
-    try:
-        dashboard_template_names = Configuration.objects.get(key='dashboard_sections').value.split()
-    except:
-        dashboard_template_names = ['highlight_stats_bar',]
+    dashboard_template_names = ''
     
-    info['dashboard_data'] = dashboard_gather_data(dashboard_template_names)
-    info['section_templates'] = ["%s/%s.html" % (DASHBOARD_TEMPLATE_DIRECTORY, ds) for ds in dashboard_template_names]
+    info['dashboard_data'] = '' #dashboard_gather_data(dashboard_template_names)
+    #info['section_templates'] = ["%s/%s.html" % (DASHBOARD_TEMPLATE_DIRECTORY, ds) for ds in dashboard_template_names]
     
-    return render_to_response(request, "childcount/dashboard.html", info)
+    return render_to_response(request, "moveit/dashboard.html", info)
 
 
-def site_summary(request, report='site', format='json'):
-    if request.is_ajax() and format == 'json':
-
-        period = None
-        if report == 'site':
-            period = TwelveMonths.periods()[0]
-        elif report == 'general_summary':
-            period = TwelveMonths.periods()[0]
-        elif report == 'month':
-            period = Month.periods()[0]
-        elif report == 'week':
-            period = FourWeeks.periods()[0].sub_periods()[0]
-        else:
-            print report
-            return HttpResponse(status=400)
-
-        if format == 'json':
-            mimetype = 'application/javascript'
-        data = simplejson.dumps(site.summary_stats(period))
-        return HttpResponse(data, mimetype)
-    # If you want to prevent non XHR calls
-    else:
-        return HttpResponse(status=400)
-
-
-class CHWForm(forms.Form):
-    #username = forms.CharField(max_length=30)
-    first_name = forms.CharField(max_length=30)
-    last_name = forms.CharField(max_length=30)
-    password = forms.CharField()
-    language = forms.CharField(min_length=2, max_length=5)
-    language = forms.ChoiceField(choices=settings.LANGUAGES)
-    location = forms.ChoiceField(choices=[(location.id, location.name) \
-                                       for location in Location.objects.all()])
-    mobile = forms.CharField(required=False)
+try:
+    oxd_config = {
+        'server_port': Configuration.objects.get(key='oxd_host_port').value
+    }
+except Configuration.DoesNotExist:
+    oxd_config = {
+        'server_port': 'http://192.168.0.84:8080',
+    }
 
 @login_required
 @permission_required('childcount.add_chw')
@@ -160,10 +110,14 @@ def add_chw(request):
             #username = form.cleaned_data['username']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
-            password = form.cleaned_data['password']
-            language = form.cleaned_data['language']
-            location = form.cleaned_data['location']
+            location = form.cleaned_data['assigned'][0]
             mobile = form.cleaned_data['mobile']
+            user_group = form.cleaned_data['user_role']
+            assigned_loc = form.cleaned_data['assigned']
+            manager = form.cleaned_data['manager']
+
+            print " assigned data>>  %s" % assigned_loc
+            print "\n Location >> %s " % location
 
             # CHW creation
             chw = CHW()
@@ -178,28 +132,43 @@ def add_chw(request):
                     alias = "%s%d" % (orig_alias.lower(), n)
                     n += 1
                 chw.alias = alias
+
+            if manager =='':
+                manager = chw
+            else:
+                manager = CHW.objects.get(pk=manager)
+
             chw.first_name = firstnames
             chw.last_name = surname
-            # properties
-            chw.language = language
+            chw.language = 'en'
+            chw.manager = manager
             chw.location = Location.objects.get(id=location)
             chw.mobile = mobile
             chw.save()
 
             # set password through User.s
-            chw.set_password(password)
+            chw.set_password('password')
             chw.save()
 
+            #Assigned location
+            for loc in assigned_loc:
+                chw.assigned_location.add(Location.objects.get(pk=loc))
+
             # Add CHW Group
-            chw.groups.add(Group.objects.get(name__iexact='CHW'))
+            if not user_group:
+                chw.groups.add(Group.objects.get(name__iexact='CHW'))
+            else:
+                chw.groups.add(Group.objects.get(pk=user_group))
 
             # create dataentry connection
+            '''
             c = PersistantConnection(backend=PersistantBackend.objects.get(\
                                                    slug__iexact='debackend'), \
                                      identity=chw.username, \
                                      reporter=chw, \
                                      last_seen=datetime.now())
             c.save()
+            '''
 
             # add mobile connection
             try:
@@ -209,19 +178,37 @@ def add_chw(request):
                 pygsm.save()
 
             if mobile:
-                c = PersistantConnection(backend=pygsm, \
+                m = PersistantConnection(backend=pygsm, \
                                          identity=mobile, \
                                          reporter=chw, \
                                          last_seen=datetime.now())
-                c.save()
+                m.save()
 
-            return HttpResponseRedirect(reverse('childcount.views.index'))
+            zdata = {
+                    'name': chw.get_full_name(),
+                    'tel': m.identity,
+                    'managername': chw.manager.get_full_name(),
+                    'managernumber': \
+                                chw.manager.connections.all()[0].identity
+,
+                    'location': chw.location.name,
+                    'role': 'chw' }
+                    
+            data = urlencode(zdata)
+            url = oxd_config['server_port']+'/moveit/chwcreate?'+data
+
+            request = urllib2.Request(url)
+            urllib2.urlopen(request).read()
+            
+            print 'URL  >>>> %s ' % url
+
+            return HttpResponseRedirect(reverse('childcount.views.list_chw'))
     else:
         form = CHWForm()
 
     info.update({'form': form})
 
-    return render_to_response(request, 'childcount/add_chw.html', info)
+    return render_to_response(request, 'moveit/add_chw.html', info)
 
 @login_required
 @permission_required('childcount.add_chw')
@@ -235,17 +222,30 @@ def list_chw(request):
     page = int(request.GET.get('page', 1))
     info.update({'paginator':paginator.page(page)})
 
-    return render_to_response(request, 'childcount/list_chw.html', info)
+    return render_to_response(request, 'moveit/list_chw.html', info)
+
+
 
 @login_required
-def patient(request):
-    '''Patients page '''
+def register(request, eventtype):
+    '''
+    Registered Person  
+    Default is BIRTHS
+    '''
     MAX_PAGE_PER_PAGE = 30
     DEFAULT_PAGE = 1
 
-
     info = {}
-    patients = Patient.objects.all()
+
+    if eventtype == 'birth':
+        filter_eventtype = Patient.BIRTH
+    elif eventtype == 'death':
+        filter_eventtype = Patient.DEATH
+    else:
+        filter_eventtype = Patient.BIRTH
+
+    patients = Patient.objects.filter(event_type=filter_eventtype)
+
     try:
         search = request.GET.get('patient_search','')
     except:
@@ -271,6 +271,7 @@ def patient(request):
     info['rcount'] = patients.count()
     info['rstart'] = paginator.per_page * page
     info['rend'] = (page + 1 * paginator.per_page) - 1
+    info['eventtype'] = eventtype
     
     
     try:
@@ -301,7 +302,7 @@ def patient(request):
     info['nextlink'] = urlencode(nextlink)
 
     return render_to_response(\
-                request, 'childcount/patient.html', info)
+                request, 'moveit/patient.html', info)
 
 
 def pagenator(getpages, reports):
@@ -360,25 +361,25 @@ def pagenator(getpages, reports):
 
 @login_required
 @permission_required('childcount.change_patient')
-def edit_patient(request, healthid):
-    if healthid is None:
+def register_edit(request, eventid):
+    if eventid is None:
         # Patient to edit was submitted 
         if 'hid' in request.GET:
             return HttpResponseRedirect( \
-                "/childcount/patients/edit/%s/" % \
+                "/moveit/register/edit/%s/" % \
                     (request.GET['hid'].upper()))
         # Need to show patient select form
         else:
             return render_to_response(request,
-                'childcount/edit_patient.html', {})
+                'moveit/edit_patient.html', {})
     else: 
         # Handle invalid health IDs
         try:
-            patient = Patient.objects.get(health_id=healthid)
+            patient = Patient.objects.get(health_id=eventid)
         except Patient.DoesNotExist:
             return render_to_response(request,
-                'childcount/edit_patient.html', { \
-                'health_id': healthid.upper(),
+                'moveit/edit_patient.html', { \
+                'health_id': eventid.upper(),
                 'failed': True})
 
         # Save POSTed data
@@ -387,17 +388,16 @@ def edit_patient(request, healthid):
             if form.is_valid():
                 print 'saving'
                 print form.save(commit=True)
-                print patient.household
                 return render_to_response(request,
-                    'childcount/edit_patient.html', { \
-                    'health_id': healthid.upper(),
+                    'moveit/edit_patient.html', { \
+                    'health_id': eventid.upper(),
                     'patient': patient,
                     'success': True})
         # Show patient edit form (nothing saved yet)
         else:
             form = PatientForm(instance=patient)
         return render_to_response(request, 
-            'childcount/edit_patient.html', { \
+            'moveit/edit_patient.html', { \
             'form': form,
             'patient': patient,
             'health_id': patient.health_id.upper()
@@ -413,69 +413,18 @@ def chw_json(request):
     json_data = json.dumps(chwlist)
     return HttpResponse(json_data, mimetype="application/json")
 
-@login_required
-def indicators(request):
-    i=0
-    indicators = []
-    for mems in get_indicators():
-        data = []
-        for m in mems['inds']:
-            if hasattr(m[1].type_in, '__name__'):
-                tin = str(m[1].type_in.__name__)
-            else:
-                tin = str(m[1].type_in.__class__.__name__) + \
-                    "(" + str(m[1].type_in.mtype.__name__) + ")"
 
-            if hasattr(m[1].type_out, '__name__'):
-                tout = str(m[1].type_out.__name__)
-            else:
-                tout = str(m[1].type_out.__class__.__name__)
+def status_update(request, eventid):
+    backend = PersistantBackend.objects.get(title='pygsm')
+    identity = "254750906055"
+    print ">>>>>>>>>>>>>>>"
+    return HttpResponse("asdfasdf")
+    #msg = backend.message('+254750906055', 'Mose Test')
+    #backend._router.outgoing(msg)
 
-            data.append({
-                'slug': m[0],
-                'cls': m[1],
-                'type_in': tin,
-                'type_out': tout,
-                'variant_index': "_"+mems['slug']+"_"+m[1].slug,
-                'output_is_number': m[1].output_is_number(),
-                'input_is_query_set': m[1].input_is_query_set(),
-            })
-
-            i += 1
-
-        indicators.append({'name': mems['name'],
-                        'slug': mems['slug'],
-                        'members': data})
-
-    return render_to_response(request, 
-            'childcount/indicators.html', { \
-            'indicators': indicators,
-            'report_pk': Report.objects.get(classname='IndicatorChart').pk
-        })
-
-    
-
-
-'''
-@login_required
-def autocomplete(request):
-    def iter_results(results):
-        if results:
-            for r in results:
-                yield '%s|%s\n' % (r.health_id.upper(), r.id)
-    
-    if not request.GET.get('q'):
-        return HttpResponse(mimetype='text/plain')
-    
-    q = request.GET.get('q')
-    limit = request.GET.get('limit', 15)
-    try:
-        limit = int(limit)
-    except ValueError:
-        return HttpResponseBadRequest() 
-
-    patients = Patient.objects.filter(health_id__startswith=q)[:limit]
-    return HttpResponse(iter_results(patients), mimetype='text/plain')
-'''
-
-
+    #send_msg(backend=backend, identity=identity, text="Hzzxczello !")
+    # send the message to all backends
+    #for backend in self._router.backends:
+    #c = Connection(backend, identity)
+    #msg = Message(connection=c, text='Mose Test', date=datetime.now())
+    #msg.send()

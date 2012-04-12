@@ -9,7 +9,6 @@ from django.contrib import admin
 import webapp
 
 from childcount import views
-from childcount import uploadhealthids
 
 admin.autodiscover()
 
@@ -34,22 +33,23 @@ urlpatterns = patterns('',
         {'document_root': '%s/static' % os.path.dirname(webapp.__file__)}),
 
     url(r'^$', views.index, name='dashboard'),
-    url(r'^childcount/?$', views.index, name='cc-dashboard'),
-    url(r'^childcount/patients/?$', views.patient, name='cc-patients'),
-    url(r'^childcount/patients/edit/((?P<healthid>[a-zA-Z0-9]+)/)?$',
-        views.edit_patient, name='cc-edit_patient'),
-    url(r'^childcount/patients/(?P<page>\d+)/?$', views.patient),
+    url(r'^moveit/?$', views.index, name='cc-dashboard'),
 
-    url(r'^childcount/chws.json/?$', views.chw_json),
-    url(r'^childcount/add_chw/?$', views.add_chw, name='cc-add_chw'),
-    url(r'^childcount/list_chw/?$', views.list_chw, name='cc-list_chw'),
-    url(r'^childcount/indicators/?$', views.indicators, name='cc-indicators'),
+    url(r'^moveit/chws.json/?$', views.chw_json),
+    url(r'^moveit/add_chw/?$', views.add_chw, name='cc-add_chw'),
+    url(r'^moveit/list_chw/?$', views.list_chw, name='cc-list_chw'),
 
-    url(r'^childcount/dataentry/?$', views.dataentry, name='cc-dataentry'),
-    url(r'^childcount/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
+    url(r'^moveit/dataentry/?$', views.dataentry, name='cc-dataentry'),
+    url(r'^moveit/dataentry/form/(?P<formid>[a-zA-Z0-9\-\_\.]*)/?$', \
                         views.form, name='form'),
-    url(r'^childcount/site_summary/(?P<report>[a-z_]*)/(?P<format>[a-z]*)$', \
-        views.site_summary),
 
-    url(r'^childcount/upload-healthid-file', uploadhealthids.upload_file, name='cc-upload-hids'),
+    url(r'^moveit/status/((?P<eventid>[a-zA-Z0-9]+)/)?$', \
+                views.status_update, name='cc-status-update'),
+
+    url(r'^moveit/register/((?P<eventtype>[a-zA-Z0-9]+)/)?$', \
+                views.register, name='cc-register'),
+    url(r'^moveit/register/edit/((?P<eventid>[a-zA-Z0-9]+)/)?$',
+        views.register_edit, name='cc-edit_patient'),
+
+
 )

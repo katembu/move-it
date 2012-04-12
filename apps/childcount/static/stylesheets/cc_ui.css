@@ -94,6 +94,7 @@ ul#menu {
   ul#menu li a:hover {
       color: #fff;
 }
+/* 
 div#body, div#footer {
   position: relative; }
 
@@ -103,15 +104,17 @@ div#body {
 div#footer .fwidth div {
   margin:0 -20px;
   padding:10px 20px;
-/*--
+
   border: 1px solid #d7b5ad;
   border-color: #f5e7e4;
-  border-width: 1px 0; --*/
+  border-width: 1px 0; 
 }
 div#footer .fwidth div a {
   color: #953d27;
   text-decoration: none;
 }
+
+*/
 .it.info {
     font-style: italic;
     color: #666;

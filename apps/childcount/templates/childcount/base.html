@@ -6,56 +6,77 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>{% block title %}{% endblock %}</title>
-	<link type="text/css" rel="stylesheet" href="/static/webapp/stylesheets/modules.css" />
-	<link href="/static/childcount/stylesheets/cc_ui.css" rel="stylesheet" media="all" />
+	<link rel="stylesheet" href="/static/childcount/stylesheets/css/style.css" type="text/css" media="all" />
     <script type="text/javascript" src="/static/childcount/scripts/jquery-1.4.2.min.js"></script>
 
 {% block javascripts %}{% endblock %}
 {% block page_stylesheets %}{% endblock %}
 </head>
 <body>
-	<div id="header">
-		<div class='fwidth'>
-			<a href="{% url cc-dashboard %}" id="logo">
-				<span>ChildCount+</span>
-			</a>
-			<div class="account_links">
-                {% if user.is_authenticated %}
-                <p><a href="/accounts/logout/">{% trans "Log out" %} {{ user.username }}</a></p>
-                {% else %}
-                    <p><a href="/accounts/login/">{% trans "Log in" %}</a></p>
-                {% endif %}
+
+<!-- Header -->
+<div id="header">
+	<div class="shell">
+		<!-- Logo + Top Nav -->
+		<div id="top">
+			<h1><a href="#">MOVE-IT</a></h1>
+			<div id="top-navigation">
+				
+  				{% if user.is_authenticated %}
+					{% trans "Welcome " %} <a href="#"><strong> {{ user.username }}</strong></a>
+				
+				<span>|</span>
+					<a href="/accounts/logout/">{% trans "Log out" %} </a>
+				{% else %}
+				    <a href="/accounts/login/">{% trans "Log in" %}</a>
+				{% endif %}
 			</div>
 		</div>
-	</div>
-	<ul id="menu">
-		<div class='fwidth'>
-		<li><a href="{% url cc-list_chw %}">{% trans "CHWs" %}</a></li>
-		<li><a href="{% url cc-dataentry %}">{% trans "Data Entry" %}</a></li>
-		<li><a href="{% url cc-indicators%}">{% trans "Indicators" %}</a></li>
-		<li><a href="{% url loggerng-index %}">{% trans "Message Log" %}</a></li>
-		<li><a href="{% url messaging-index %}">{% trans "Messaging" %}</a></li>
-		<li><a href="{% url cc-patients %}">{% trans "Patients" %}</a></li>
-		<li><a href="{% url reportgen %}">{% trans "Reports" %}</a></li>
-		<li><a href="{% url cc-upload-hids %}">{% trans "Upload Health IDs" %}</a></li>
-		</div>
-	</ul>
-	<div id="body">
-		<div class='fwidth'>
-		{% block content %}{% endblock %}
-		</div>
-	</div>
-	<div id="footer" style="clear:both;">
-		<div class='fwidth'>
+		<!-- End Logo + Top Nav -->
 
-			<div style="text-align: right;color:#953D27;font-size:14px">
-			{% block footer %}
-			<a href="http://www.childcount.org/" style="">&copy; 2009&ndash;2010 <span class="bigger">ChildCount.org</span></a> | Built with <a href="http://www.rapidsms.org/" class="bigger">RapidSMS</a> | Deployed in the <a href="http://www.millenniumvillages.org/" class="bigger">Millennium Villages</a>
+		{% if  user.is_authenticated %}
+		<!-- Main Nav -->
+		<div id="navigation">
+			<ul>
+			    <li><a href="{% url cc-register %}birth"><span>{% trans "Birth" %}</span></a></li>
+			    <li><a href="{% url cc-register %}death"><span>{% trans "Death" %}</span></a></li>
+
+			    <li><a href="{% url cc-list_chw %}"><span>{% trans "CHWs" %}</span></a></li>
+
+			</ul>
+		</div>
+		<!-- End Main Nav -->
+		{% endif %}
+
+	</div>
+</div>
+<!-- End Header -->
+
+<!-- Container -->
+<div id="container">
+	<div class="shell">
+		
+			{% block content %}{% endblock %}
+	</div>
+</div>
+<!-- End Container -->
+
+
+
+<!-- Footer -->
+<div id="footer">
+	<div class="shell">
+		<span class="left">&copy; 2011- Move-IT</span>
+		<span class="right">
+{% block footer %}
+			<a href="http://www.childcount.org/" style="">&copy; 2009&ndash;2011 <span class="bigger">ChildCount.org</span></a> | Built with <a href="http://www.rapidsms.org/" class="bigger">RapidSMS</a> |
 			
 			{% endblock %}
-			</div>
 
-		</div>
+		</span>
 	</div>
+</div>
+<!-- End Footer -->
+	
 </body>
 </html>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4 coding=utf-8
-# maintainer: dgelvin
+# maintainer: dgelvin, katembu
 
 import os
 import inspect
@@ -8,13 +8,18 @@ import sys
 import os.path
 import re
 import glob
+import random
 import itertools
 from datetime import date, timedelta, datetime
+import time
+
+from childcount.models import Patient
+
 from functools import wraps
 from ethiopian_date import EthiopianDateConverter
 
 import rapidsms
-import urllib2
+import urllib2, urllib
 
 from urllib import urlencode
 
@@ -708,61 +713,135 @@ def send_msg(reporter, text):
     stream = urllib2.urlopen(req)
     stream.close()
 
-def get_ccforms_by_name():
-    from childcount.forms import *
-    ''' returns a list of childcount forms grouped Encounter type '''
-    conf = settings.RAPIDSMS_APPS['childcount']
-    formlist = conf['forms'].replace(' ', '').split(',')
-    forms = {}
-    for form in formlist:
-        try:
-            f = eval(form)
-        except NameError:
-            continue
+def send_alert(r, msg, name):
+    '''Send alert to single person '''
+    alert = SmsAlert(reporter=r, msg=msg)
+    sms_alert = alert.send()
 
-        if f.ENCOUNTER_TYPE not in forms:
-            forms[f.ENCOUNTER_TYPE] = []
-        forms[f.ENCOUNTER_TYPE].append(form)
-    return forms
+    sms_alert.name = name
+    sms_alert.save()
 
-def get_indicators():
-    modules = glob.glob(os.path.dirname(__file__)+'/indicators/*.py')
-    base = 'childcount.indicators.'
+def random_id():
+    '''Generate random Id for registration  
+    Remove ones that might be visually confusing from base #l1o0i
+    '''
+    N = 4
+    BASE_CHARACTERS = u'123456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+    RANDOM_ID = ''.join(random.choice(BASE_CHARACTERS ) for x in range(N))
 
-    print modules
-    modules.sort()
-    indicators = []
-    for m in modules:
-        name = os.path.basename(m)
-        if name == '__init__.py':
-            continue
-        modname = os.path.splitext(name)[0]
+    return RANDOM_ID
 
-        __import__(base+modname)
-        imp = sys.modules[base+modname]
 
-        mems = inspect.getmembers(imp, \
-            lambda m: inspect.isclass(m) \
-                    and issubclass(m, Indicator) \
-                    and m.__module__ != 'indicator.indicator' \
-                    and m.__name__[0] != '_')
+def servelet(patient):
+    """
+    Push to serverlets then save
+    """
+    host = 'http://97.107.130.50:8080' 
 
-        indicators.append({'name': imp.NAME, 'inds': mems, 'slug': modname})
-    return indicators
+    print ">>>>  PUSHING TO OPENXDATA %s " % patient
 
-def alert_health_team(name, msg):
-    groups = ("Health Coordinator", \
-            "Health Facilitator", \
-            "Health Center In-Charge")
-    reporters = Reporter\
-        .objects\
-        .filter(user_ptr__groups__name__in=groups)
+    try:
+        p =  Patient.objects.get(pk=patient)
+        reporter_id = p.chw.connections.filter(backend__slug='pygsm')[0].identity
+    except Patient.DoesNotExist:
+        print "error"
+        pass
+
+    if int(p.event_type) == 0:
+        data_death = {
+            'event_id': p.health_id, \
+            'event_name': p.full_name(), \
+            'event_type': p.event_type, \
+            'event_date': p.dod, \
+            'reporter_id': reporter_id, \
+            'event_report_date': p.created_on, \
+            'contact_phone': p.mobile, \
+            'dob': p.dob, \
+            'sex': p.gender, \
+            'loc': p.location.name, \
+            'place': p.place, \
+            'nid': p.notification_no
+        }
+
+        data = urllib.urlencode(data_death)
+        url = host+'/moveit/deathreport?'+data
+    else:
+        data_birth = {
+            'event_id': p.health_id, \
+            'event_name': p.full_name(), \
+            'event_type': p.event_type, \
+            #'event_date': time.mktime(p.dob.timetuple()), \
+            'event_date': p.dob, \
+            'reporter_id': reporter_id, \
+            #'event_report_date': time.mktime(p.created_on.timetuple()), \
+            'event_report_date': p.created_on, \
+            'contact_phone': p.mobile, \
+            'sex': p.gender, \
+            'loc': p.location.name, \
+            'place': p.place, \
+            'nid': p.notification_no
+        }
+
+        data = urllib.urlencode(data_birth)
+        url = host+'/moveit/birthreport?'+data
+
+    request = urllib2.Request(url)
+    response = ''
+    try:
+        response = urllib2.urlopen(request).read()
+    except:
+        pass
+
+    print 'URL  >>>> %s ' % url
+
+    if response and response.strip()=='SUCCESS':
+        print '\nRESPONSE >>> %s ' % response.strip()
+
+        p.sync_oxd = p.STATUS_SUCCESSFULL
+        p.save()
+    else:
+        print "failed"
+        p.sync_oxd = p.STATUS_FAILED
+        p.save()
+
+
+def check_status():
+    
+    host = 'http://192.168.44.8:8080' 
+    event_id =  { 'eventid': "D9EY"} 
+   
+    data = urllib.urlencode(event_id)
+    url = host+'/moveit/statuscheck?'+data
+
+    request = urllib2.Request(url)
+    response = ''
+    try:
+        response = urllib2.urlopen(request).read()
+    except:
+        pass
+
+    print 'URL  >>>> %s ' % url
+
+    if response and response.strip()=='SUCCESS':
+        print '\nRESPONSE >>> %s ' % response.strip()
+
+        
+    else:
+        print "failed"
+        print response.strip()
+
+
+def send_reminder():
+    groups = ("Assistant Chief", "CHW", "Chief")
+
+    reporters = Reporter.objects.filter(user_ptr__groups__name__in=groups)
+
+    msg = _("MOVE-IT system is up now. You can now start sending text alerts")
 
     for r in reporters:
-        alert = SmsAlert(reporter=r, msg=_("ChildCount Alert! ")+msg)
+        msg2 = ', '.join([x.code for x in r.chw.assigned_location.all()])
+        alert = SmsAlert(reporter=r, msg=msg)
         sms_alert = alert.send()
 
-        sms_alert.name = name
+        sms_alert.name = "MOVE-IT Reminder"
         sms_alert.save()
-        
-

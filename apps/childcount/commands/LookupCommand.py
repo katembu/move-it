@@ -18,10 +18,10 @@ def remdup(seq):
 
 
 class LookupCommand(CCCommand):
-    ''' Responds HEALTH ID from names search
+    ''' Responds EVENT ID from names search
 
     Searches through first and last names of Patients
-    Returns Name and Health ID 
+    Returns Name and EVENT ID 
     '''
 
     KEYWORDS = {
@@ -62,7 +62,7 @@ class LookupCommand(CCCommand):
 
         # no results
         if not results:
-            self.message.respond(_(u"No matching patient found. Please " \
+            self.message.respond(_(u"No matching person found. Please " \
                                    "retry with only first or last name."))
             return True
 

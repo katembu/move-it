@@ -45,7 +45,8 @@ i = 0
 for encounter in Encounter.objects.all():
     i +=1
     ''' Set new status to OMRS not Synched '''
-    encounter.sync_omrs = False
+	encounter.sync_omrs__isnull = True
+    encounter.sync_omrs = None
     encounter.save()
 
 if i == 0:
